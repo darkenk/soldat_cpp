@@ -1,0 +1,90 @@
+set(SRC
+    main.cpp
+    Client.cpp
+    InterfaceGraphics.cpp
+    ClientGame.cpp
+    GameRendering.cpp
+    Gfx.cpp
+    ${GLAD_SRC}
+    GameMenus.cpp
+    Input.cpp
+    GameStrings.cpp
+    BinPack.cpp
+    Sound.cpp
+    MapGraphics.cpp
+    UpdateFrame.cpp
+    WeatherEffects.cpp
+    ClientCommands.cpp
+    GostekGraphics.cpp
+    ControlGame.cpp
+)
+
+set(SHARED_SRC
+    ../shared/Anims.cpp
+    ../shared/Command.cpp
+    ../shared/Cvar.cpp
+    ../shared/Game.cpp
+    ../shared/Logging.cpp
+    ../shared/PolyMap.cpp
+    ../shared/Demo.cpp
+    ../shared/Game.cpp
+    ../shared/Console.cpp
+    ../shared/Calc.cpp
+    ../shared/LogFile.cpp
+    ../shared/MapFile.cpp
+    ../shared/Parts.cpp
+    ../shared/PolyMap.cpp
+    ../shared/Util.cpp
+    ../shared/Waypoints.cpp
+    ../shared/Vector.cpp
+    ../shared/Weapons.cpp
+    ../shared/Logging.cpp
+    ../shared/mechanics/Sprites.cpp
+    ../shared/mechanics/Sparks.cpp
+    ../shared/mechanics/Bullets.cpp
+    ../shared/mechanics/Things.cpp
+    ../shared/mechanics/Control.cpp
+    ../shared/misc/PortUtils.cpp
+    ../shared/network/Net.cpp
+    ../shared/network/NetworkClient.cpp
+    ../shared/network/NetworkClientConnection.cpp
+    ../shared/network/NetworkClientSprite.cpp
+    ../shared/network/NetworkClientGame.cpp
+    ../shared/network/NetworkUtils.cpp
+    ../shared/network/NetworkClientFunctions.cpp
+    ../shared/network/NetworkClientMessages.cpp
+    ../shared/network/NetworkClientBullet.cpp
+    ../shared/network/NetworkClientThing.cpp
+    ../shared/network/NetworkClientHeartbeat.cpp
+    ../shared/PhysFSExt.cpp
+    ../shared/misc/TIniFile.cpp
+    ../shared/misc/FontAtlas.cpp
+    ../shared/misc/BitStream.cpp
+    ../shared/misc/SHA1.cpp
+    ../shared/misc/RandomGenerator.cpp
+)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # enable optimization for SHA1.cpp to boost startup of the game in debug mode
+    set_source_files_properties(../shared/misc/SHA1.cpp PROPERTIES COMPILE_FLAGS -O3)
+endif()
+
+add_executable(SoldatClient ${SRC} ${SHARED_SRC})
+target_link_libraries(SoldatClient
+    SDL2::SDL2main
+    SDL2::SDL2-static
+    Freetype::Freetype
+    ${PHYSFS_LIB}
+    GameNetworkingSockets::GameNetworkingSockets_s
+    spdlog::spdlog
+    ${SOLOUD_LIBRARY}
+)
+target_include_directories(SoldatClient PRIVATE
+    ./config
+    ../
+    ${PHYSFS_INC}
+    ${GLAD_INC}
+    ${STB_INCLUDE_DIR}
+    ${FREETYPE_INCLUDE_DIRS}
+    ${SOLOUD_INCLUDE_DIR}
+)

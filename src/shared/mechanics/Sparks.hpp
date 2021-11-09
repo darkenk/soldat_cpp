@@ -1,0 +1,34 @@
+#pragma once
+
+/*#include "Parts.h"*/
+/*#include "MapFile.h"*/
+/*#include "PolyMap.h"*/
+/*#include "Net.h"*/
+/*#include "Constants.h"*/
+/*#include "Vector.h"*/
+/*#include "Sprites.h"*/
+
+#include "../Vector.hpp"
+#include <cstdint>
+
+class tspark
+{
+  public:
+    bool active;
+    std::int16_t num;
+    float lifefloat;
+    std::uint8_t life, lifeprev;
+    std::uint8_t style, owner;
+    std::uint8_t collidecount;
+
+  public:
+    void update();
+    void render();
+    bool checkmapcollision(float x, float y);
+    void kill();
+    void checkoutofbounds();
+};
+std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
+                         std::uint8_t sowner, std::int32_t life);
+
+extern std::int32_t sparkscount;

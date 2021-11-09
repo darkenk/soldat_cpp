@@ -1,0 +1,127 @@
+#pragma once
+
+#include <array>
+#include <map>
+#include <string>
+
+#include "shared/Console.hpp"
+#include "shared/LogFile.hpp"
+#include "shared/Vector.hpp"
+#include "shared/Weapons.hpp"
+#include "shared/network/NetworkClient.hpp"
+
+void joinserver();
+void startgame();
+void shutdown();
+void exittomenu();
+void restartgraph();
+void showmessage(const std::string &messagetext);
+void showmessage(const std::wstring &messagetext);
+
+struct tweaponstat
+{
+    std::string name;
+    std::uint32_t textureid;
+    std::uint32_t shots, hits, kills, headshots;
+    std::uint8_t accuracy;
+};
+
+extern bool gamelooprun;
+extern bool progready;
+
+extern std::string joinpassword; // server passsword
+extern std::string joinport;     // join port to server
+extern std::string joinip;       // join ip to server
+
+extern bool windowready;
+extern std::uint8_t initing;
+extern bool graphicsinitialized;
+
+extern std::string basedirectory;
+extern std::string userdirectory;
+
+extern std::string moddir;
+extern bool usesservermod;
+
+extern std::string serverip;
+extern std::int32_t serverport;
+
+extern float grav;
+extern std::uint8_t connection;
+
+extern PascalArray<std::uint8_t, 1, main_weapons> weaponactive; // sync
+extern std::int32_t weaponsingame;                              // sync
+
+extern std::uint8_t sniperline_client_hpp;
+
+extern std::uint8_t trails;
+extern std::uint8_t spectator; // TODO: Remove
+
+extern std::uint8_t packetadjusting;
+
+extern bool limbolock;
+extern std::uint8_t selteam;
+
+extern std::uint8_t mysprite;
+
+// Network
+extern tclientnetwork *udp;
+
+// Consoles
+extern tconsole mainconsole;
+extern tconsole bigconsole;
+extern tconsole killconsole;
+
+// Weapon Stats
+extern PascalArray<tweaponstat, 1, 20> wepstats;
+extern std::uint8_t wepstatsnum;
+
+extern std::array<std::string, 17> gundisplayname;
+
+extern std::uint8_t gamethingtarget;
+extern std::int32_t grenadeeffecttimer;
+
+extern std::uint8_t badmapidcount;
+
+extern bool abnormalterminate;
+
+extern std::string hwid;
+
+extern std::uint16_t hitspraycounter;
+extern bool screentaken;
+
+// bullet shot stats
+extern std::int32_t shotdistanceshow;
+extern float shotdistance;
+extern float shotlife;
+extern std::int32_t shotricochet;
+
+extern bool targetmode;
+
+extern bool muteall;
+
+extern bool redirecttoserver;
+extern std::string redirectip;
+extern std::int32_t redirectport;
+extern std::string redirectmsg;
+
+// Radio Menu
+extern std::map<std::string, std::string> radiomenu;
+extern std::array<char, 2> rmenustate;
+//  RMenuState: array[0..1] of Char = ' ';
+extern bool showradiomenu;
+extern std::uint8_t radiocooldown;
+
+// screen
+extern tvector2 cameraprev;
+extern float camerax, cameray;          // camera x and y within world
+extern std::uint8_t camerafollowsprite; // Tag number of object to follow
+
+// extern tdownloadthread downloadthread;
+#ifdef STEAM
+extern tsteam steamapi;
+// SteamCallbacks: TSteamCallbacks;
+extern bool voicespeakingnow;
+extern bool forcereconnect;
+
+#endif
