@@ -101,5 +101,5 @@ class tpolymap
     void loaddata(tmapfile &mapfile);
 };
 
-void checkoutofbounds(float &x, float &y);
-void checkoutofbounds(std::int16_t &x, std::int16_t &y);
+void checkoutofbounds(MyFloat &x, MyFloat &y);
+void checkoutofbounds(const int16_t &x, const int16_t &y);

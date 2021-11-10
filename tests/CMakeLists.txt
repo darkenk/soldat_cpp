@@ -27,6 +27,7 @@ add_executable(UnitTests
     ../src/shared/misc/PortUtils.cpp
     unit/FontAtlasTest.cpp ../src/shared/misc/FontAtlas.cpp
     unit/BitStreamTest.cpp
+    unit/SafeTypeTest.cpp
 )
 gtest_discover_tests(UnitTests)
 

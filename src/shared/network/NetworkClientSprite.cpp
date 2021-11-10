@@ -42,7 +42,6 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
     {
         spriteparts.oldpos[i] = spriteparts.pos[i];
         spriteparts.pos[i] = spritesnap->pos;
-        Assert(!std::isnan(spriteparts.pos[i].x));
         spriteparts.velocity[i] = spritesnap->velocity;
         sprite[i].respawn();
         sprite[i].olddeadmeat = sprite[i].deadmeat;
@@ -56,7 +55,6 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
         if (sprite[i].health == spritesnap->health)
         {
             spriteparts.oldpos[i] = spriteparts.pos[i];
-            Assert(!std::isnan(spriteparts.pos[i].x));
             spriteparts.pos[i] = spritesnap->pos;
             spriteparts.velocity[i] = spritesnap->velocity;
         }
@@ -158,7 +156,6 @@ void clienthandleserverspritesnapshot_major(SteamNetworkingMessage_t *netmessage
     {
         spriteparts.oldpos[i] = spriteparts.pos[i];
         spriteparts.pos[i] = spritesnapmajor->pos;
-        Assert(!std::isnan(spriteparts.pos[i].x));
         spriteparts.velocity[i] = spritesnapmajor->velocity;
         sprite[i].respawn();
         sprite[i].olddeadmeat = sprite[i].deadmeat;
@@ -263,7 +260,6 @@ void clientspritesnapshotmov()
     clientmsg.header.id = msgid_clientspritesnapshot_mov;
 
     clientmsg.pos = spriteparts.pos[mysprite];
-    Assert(!std::isnan(spriteparts.pos[mysprite].x));
     clientmsg.velocity = spriteparts.velocity[mysprite];
     clientmsg.mouseaimx = sprite[mysprite].control.mouseaimx;
     clientmsg.mouseaimy = sprite[mysprite].control.mouseaimy;
@@ -332,7 +328,6 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
             (round(deathsnap->oldpos[dminus1].y) != 0))
         {
             sprite[i].skeleton.pos[d].x = deathsnap->pos[dminus1].x;
-            Assert(!std::isnan(sprite[i].skeleton.pos[d].x));
             sprite[i].skeleton.pos[d].y = deathsnap->pos[dminus1].y;
             sprite[i].skeleton.oldpos[d].x = deathsnap->oldpos[dminus1].x;
             sprite[i].skeleton.oldpos[d].y = deathsnap->oldpos[dminus1].y;
@@ -620,7 +615,6 @@ void clienthandledelta_movement(SteamNetworkingMessage_t *netmessage)
     // a := Vec2Subtract(SpriteParts.Pos[i], DeltaMov.Pos);
 
     spriteparts.pos[i] = deltamov->pos;
-    Assert(!std::isnan(spriteparts.pos[i].x));
     spriteparts.velocity[i] = deltamov->velocity;
 
     sprite[i].control.mouseaimy = deltamov->mouseaimy;

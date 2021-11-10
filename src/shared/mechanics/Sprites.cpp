@@ -418,7 +418,6 @@ void tsprite::update()
             vec2normalize(rnorm, rnorm);
             vec2scale(rnorm, rnorm, 0.1);
             skeleton.pos[i].x = skeleton.pos[9].x - direction * rnorm.y;
-            Assert(!std::isnan(skeleton.pos[i].x));
             skeleton.pos[i].y = skeleton.pos[9].y + direction * rnorm.x;
 
             vec2scale(rnorm, rnorm, 50);
@@ -1132,7 +1131,6 @@ void tsprite::update()
             skeleton.doverlettimestep();
 
             spriteparts.pos[num] = skeleton.pos[12];
-            Assert(!std::isnan(spriteparts.pos[num].x));
 
             // Ping Impr
             for (i = max_oldpos; i >= 1; i--)
@@ -2293,7 +2291,6 @@ void tsprite::moveskeleton(float x1, float y1, bool fromzero)
             if (skeleton.active[i])
             {
                 skeleton.pos[i].x = skeleton.pos[i].x + x1;
-                Assert(!std::isnan(skeleton.pos[i].x));
                 skeleton.pos[i].y = skeleton.pos[i].y + y1;
                 skeleton.oldpos[i] = skeleton.pos[i];
             }
@@ -2303,7 +2300,6 @@ void tsprite::moveskeleton(float x1, float y1, bool fromzero)
             if (skeleton.active[i])
             {
                 skeleton.pos[i].x = x1;
-                Assert(!std::isnan(skeleton.pos[i].x));
                 skeleton.pos[i].y = y1;
                 skeleton.oldpos[i] = skeleton.pos[i];
             }
@@ -2821,7 +2817,6 @@ bool tsprite::checkskeletonmapcollision(std::int32_t i, float x, float y)
 
                     skeleton.pos[i] = skeleton.oldpos[i];
                     skeleton.pos[i] = vec2subtract(skeleton.pos[i], perp);
-                    Assert(!std::isnan(skeleton.pos[i].x));
 
 #ifndef SERVER
                     a = vec2subtract(skeleton.pos[i], skeleton.oldpos[i]);
@@ -2874,7 +2869,6 @@ bool tsprite::checkskeletonmapcollision(std::int32_t i, float x, float y)
 
                         skeleton.pos[i] = skeleton.oldpos[i];
                         skeleton.pos[i] = vec2subtract(skeleton.pos[i], perp);
-                        Assert(!std::isnan(skeleton.pos[i].x));
 
                         result = true;
                     }

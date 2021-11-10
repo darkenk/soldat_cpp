@@ -681,7 +681,6 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
     s.mouse.y = my;
 
     camerax = lerp(cameraprev.x, camerax, p);
-    Assert(!std::isnan(camerax));
     cameray = lerp(cameraprev.y, cameray, p);
     mx = lerp(mouseprev.x, mx, p);
     my = lerp(mouseprev.y, my, p);
@@ -765,7 +764,6 @@ void restorestate(tinterpolationstate &s)
         {
             std::memcpy(&sprite[i].skeleton.pos[1], &s.spritepos[i][1],
                         sizeof(tvector2) * length(s.spritepos[i]));
-            Assert(!std::isnan(sprite[i].skeleton.pos[12].x));
         }
     }
 

@@ -1460,7 +1460,6 @@ bool tthing::checkmapcollision(std::int32_t i, float x, float y)
                             vec2scale(posdiffperp, posdiffperp, posdifflen);
 
                             skeleton.pos[i] = vec2subtract(skeleton.pos[i], perp);
-                            Assert(!std::isnan(skeleton.pos[i].x));
                             skeleton.oldpos[i] = vec2add(skeleton.pos[i], posdiffperp);
 
                             if ((i == 2) && (holdingsprite == 0))
@@ -1506,7 +1505,6 @@ bool tthing::checkmapcollision(std::int32_t i, float x, float y)
                     case object_cluster_kit: {
                         skeleton.pos[i] = skeleton.oldpos[i];
                         skeleton.pos[i] = vec2subtract(skeleton.pos[i], perp);
-                        Assert(!std::isnan(skeleton.pos[i].x));
 
 #ifndef SERVER
                         if ((collidecount[i] == 0) ||
@@ -1520,7 +1518,6 @@ bool tthing::checkmapcollision(std::int32_t i, float x, float y)
 
                     case object_parachute: {
                         skeleton.pos[i] = skeleton.oldpos[i];
-                        Assert(!std::isnan(skeleton.pos[i].x));
                         skeleton.pos[i] = vec2subtract(skeleton.pos[i], perp);
 
 #ifndef SERVER

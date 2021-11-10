@@ -2549,9 +2549,9 @@ void tbullet::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int32_
                 a.y = (a.y * ((float)(1) / (s + 1)) * explosion_impact_multiply);
 
                 if (typ == hit_type_fragnade || typ == hit_type_explode)
-                    a.y *= 2.0;
+                    a.y *= 2.0f;
                 else
-                    hitboxmodifier *= 0.5; // cluster/flak is halved
+                    hitboxmodifier *= 0.5f; // cluster/flak is halved
 
                 pushtick = sprite[i].player->pingticks / 2 + ownerpingtick + 1;
                 pushtick = min(pushtick, max_pushtick);

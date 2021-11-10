@@ -650,7 +650,7 @@ bool tpolymap::raycast(const tvector2 a, tvector2 b, float &distance, float maxd
 
 // this should go inside TPolyMap, used only from Net.pas it seems
 
-void checkoutofbounds(float &x, float &y)
+void checkoutofbounds(MyFloat &x, MyFloat &y)
 {
     NotImplemented(NITag::MAP);
 #if 0
@@ -666,7 +666,7 @@ void checkoutofbounds(float &x, float &y)
 #endif
 }
 
-void checkoutofbounds(std::int16_t &x, std::int16_t &y)
+void checkoutofbounds(const std::int16_t &x, const std::int16_t &y)
 {
     NotImplemented(NITag::MAP);
 #if 0

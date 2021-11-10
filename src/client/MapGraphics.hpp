@@ -40,5 +40,5 @@ void destroymapgraphics();
 void updateprops(double t);
 void renderprops(std::int32_t level);
 void renderminimap(float x, float y, std::uint8_t alpha);
-void worldtominimap(float x, float y, float &ox, float &oy);
+void worldtominimap(float x, float y, MyFloat &ox, MyFloat &oy);
 void settexturefilter(tgfxtexture *texture, bool allowmipmaps);

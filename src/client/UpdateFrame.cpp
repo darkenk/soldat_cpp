@@ -37,7 +37,6 @@ void update_frame()
 #endif
 
     cameraprev.x = camerax;
-    Assert(!std::isnan(camerax));
     cameraprev.y = cameray;
     mouseprev.x = mx;
     mouseprev.y = my;
@@ -345,7 +344,6 @@ void update_frame()
             camv = vec2add(camv, m);
             camerax = camv.x;
             cameray = camv.y;
-            Assert(!std::isnan(camerax));
         }
         else
             camerafollowsprite = 0;

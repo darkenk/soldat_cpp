@@ -132,7 +132,6 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
 
     spriteparts.oldpos[i] = newplayermsg->pos;
     spriteparts.pos[i] = newplayermsg->pos;
-    Assert(!std::isnan(spriteparts.pos[i].x));
 
     sprite[i].respawn();
 

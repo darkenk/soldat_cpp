@@ -130,7 +130,6 @@ void tspark::update()
                     wobblex = Random(2 * wobble + 1);
                     wobbley = Random(2 * wobble);
                     camerax = camerax - wobble + wobblex;
-                    Assert(!std::isnan(camerax));
                     cameray = cameray - wobble + wobbley;
                 }
 

@@ -88,10 +88,10 @@ float gettexturetargetscale(tmapfile &mapfile, tgfximage *image);
 static void updatescale(const tmapvertex p, tmapvertex q, const float &resolutionx,
                         tgfximage *image, const float &resolutiony, tvector2 &scale)
 {
-    float dx, dy;
-    float du, dv;
-    float d1, d2;
-    float sx, sy;
+    MyFloat dx, dy;
+    MyFloat du, dv;
+    MyFloat d1, d2;
+    MyFloat sx, sy;
 
     dx = q.x - p.x;
     dy = q.y - p.y;
@@ -141,7 +141,7 @@ float gettexturetargetscale(tmapfile &mapfile, tgfximage *image)
         }
     }
 
-    result = min(1.f, max(scale.x, scale.y));
+    result = min(MyFloat(1.f), max(scale.x, scale.y));
     return result;
 }
 
@@ -310,12 +310,14 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
             {
                 prop = &mapfile.props[i];
                 scenerycounters[prop->style - 1] += 1;
-                scenerymaxsize[prop->style - 1].x = max(scenerymaxsize[prop->style - 1].x,
-                                                        (float)fabs(prop->scalex * prop->width) *
-                                                            ((float)(renderheight) / gameheight));
-                scenerymaxsize[prop->style - 1].y = max(scenerymaxsize[prop->style - 1].y,
-                                                        (float)fabs(prop->scaley * prop->height) *
-                                                            ((float)(renderheight) / gameheight));
+                scenerymaxsize[prop->style - 1].x =
+                    max(scenerymaxsize[prop->style - 1].x,
+                        (MyFloat)((MyFloat)fabs(prop->scalex * prop->width) *
+                                  ((MyFloat)(renderheight) / gameheight)));
+                scenerymaxsize[prop->style - 1].y =
+                    max(scenerymaxsize[prop->style - 1].y,
+                        (MyFloat)((MyFloat)fabs(prop->scaley * prop->height) *
+                                  ((MyFloat)(renderheight) / gameheight)));
             }
         }
 
@@ -887,7 +889,7 @@ void renderminimap(float x, float y, std::uint8_t alpha)
         gfxdrawsprite(&mapgfx.minimap, x, y, rgba(0xffffff, alpha));
 }
 
-void worldtominimap(float x, float y, float &ox, float &oy)
+void worldtominimap(float x, float y, MyFloat &ox, MyFloat &oy)
 {
     ox = (x - mapgfx.minimapoffset.x) * mapgfx.minimapscale;
     oy = (y - mapgfx.minimapoffset.y) * mapgfx.minimapscale;
