@@ -19,7 +19,8 @@ static bool inrange(const T v, const T &min, const T &max)
 tintersectionresult islineintersectingcircle(tvector2 line1, tvector2 line2, tvector2 circlecenter,
                                              float radius)
 {
-    MyFloat a, a1, b, b1, c1, delta, diffx, diffy, sqrtdelta, a2, minx, miny, maxx, maxy, temp;
+    MyFloat a = 0.f, a1 = 0.f, b = 0.f, b1 = 0.f, c1 = 0.f, delta = 0.f, diffx = 0.f, diffy = 0.f,
+            sqrtdelta = 0.f, a2 = 0.f, minx = 0.f, miny = 0.f, maxx = 0.f, maxy = 0.f, temp = 0.f;
     bool flipped;
     tvector2 intersect;
 

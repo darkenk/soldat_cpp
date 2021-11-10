@@ -24,13 +24,13 @@ typedef tmapcolor *pmapcolor;
 typedef struct tmapvertex *pmapvertex;
 struct tmapvertex
 {
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
-    float rhw = 0.0f;
+    MyFloat x = 0.0f;
+    MyFloat y = 0.0f;
+    MyFloat z = 0.0f;
+    MyFloat rhw = 0.0f;
     tmapcolor color;
-    float u = 0.0f;
-    float v = 0.0f;
+    MyFloat u = 0.0f;
+    MyFloat v = 0.0f;
 };
 
 typedef struct tmappolygon *pmappolygon;

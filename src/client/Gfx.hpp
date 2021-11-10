@@ -58,8 +58,8 @@ struct tgfxvertex
 typedef struct tgfxrect *pgfxrect;
 struct tgfxrect
 {
-    float left, right;
-    float top, bottom;
+    MyFloat left = 0.0f, right = 0.0f;
+    MyFloat top = 0.0f, bottom = 0.0f;
     float width()
     {
         return std::abs(right - left);
@@ -356,7 +356,7 @@ void gfxtextshadow(float dx, float dy, tgfxcolor color);
 void gfxtextverticalalign(tgfxverticalalign align);
 tgfxrect gfxtextmetrics();
 tgfxrect gfxtextmetrics(const std::string &text);
-void gfxdrawtext(float x, float y);
+void gfxdrawtext(MyFloat x, MyFloat y);
 void gfxdrawtext(const std::wstring &text, float x, float y);
 void gfxdrawtext(const std::string &text, float x, float y);
 

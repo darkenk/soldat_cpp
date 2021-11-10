@@ -1,15 +1,16 @@
 #pragma once
 
 #include "PortUtils.hpp"
+#include <atomic>
 #include <cmath>
 #include <cstdint>
-#include <atomic>
 
 template <typename T, void (*FASSERT)(const T &)>
 struct SafeType
 {
     SafeType()
     {
+        FASSERT(Value);
     }
 
     SafeType(const T value) : Value{value}

@@ -125,7 +125,7 @@ struct tfontnode
 typedef struct tcomputedglyph *pcomputedglyph;
 struct tcomputedglyph
 {
-    float x, y;
+    MyFloat x, y;
     pglyph glyph;
 };
 
@@ -1906,10 +1906,11 @@ tgfxrect gfxtextmetrics()
 
     for (i = 1; i <= gfxcontext.textcomputedcount; i++)
     {
-        result.left = min(result.left, pxl.x * (comp->x + comp->glyph->bounds.left));
-        result.right = max(result.right, pxl.x * (comp->x + comp->glyph->bounds.right));
-        result.top = min(result.top, pxl.y * (comp->y + comp->glyph->bounds.top));
-        result.bottom = max(result.bottom, pxl.y * (comp->y + comp->glyph->bounds.bottom));
+        result.left = min(result.left, (MyFloat)(pxl.x * (comp->x + comp->glyph->bounds.left)));
+        result.right = max(result.right, (MyFloat)(pxl.x * (comp->x + comp->glyph->bounds.right)));
+        result.top = min(result.top, (MyFloat)(pxl.y * (comp->y + comp->glyph->bounds.top)));
+        result.bottom =
+            max(result.bottom, (MyFloat)(pxl.y * (comp->y + comp->glyph->bounds.bottom)));
         comp += 1;
     }
     return result;
@@ -1921,7 +1922,7 @@ tgfxrect gfxtextmetrics(const std::string &text)
     return gfxtextmetrics();
 }
 
-void gfxdrawtext(float x, float y)
+void gfxdrawtext(MyFloat x, MyFloat y)
 {
     pfont f;
     pglyphtable table;

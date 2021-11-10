@@ -749,8 +749,8 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
         gfxtransform(gfxmat3ortho(0, 1, bounds.top, bounds.bottom));
         gfxbegin();
 
-        quad[0] = gfxvertex(0, min((float)-d, bounds.top), 0, 0, mg.bgcolortop);
-        quad[1] = gfxvertex(1, min((float)-d, bounds.top), 0, 0, mg.bgcolortop);
+        quad[0] = gfxvertex(0, min((MyFloat)-d, bounds.top), 0, 0, mg.bgcolortop);
+        quad[1] = gfxvertex(1, min((MyFloat)-d, bounds.top), 0, 0, mg.bgcolortop);
         quad[2] = gfxvertex(1, bounds.top, 0, 0, mg.bgcolortop);
         quad[3] = gfxvertex(0, bounds.top, 0, 0, mg.bgcolortop);
 
@@ -758,8 +758,8 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
 
         quad[0] = gfxvertex(0, bounds.bottom, 0, 0, mg.bgcolorbtm);
         quad[1] = gfxvertex(1, bounds.bottom, 0, 0, mg.bgcolorbtm);
-        quad[2] = gfxvertex(1, max((float)d, bounds.bottom), 0, 0, mg.bgcolorbtm);
-        quad[3] = gfxvertex(0, max((float)d, bounds.bottom), 0, 0, mg.bgcolorbtm);
+        quad[2] = gfxvertex(1, max((MyFloat)d, bounds.bottom), 0, 0, mg.bgcolorbtm);
+        quad[3] = gfxvertex(0, max((MyFloat)d, bounds.bottom), 0, 0, mg.bgcolorbtm);
 
         gfxdrawquad(nullptr, quad);
         gfxend();
