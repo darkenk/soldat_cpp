@@ -1643,7 +1643,7 @@ void tsprite::die(std::int32_t how, std::int32_t who, std::int32_t where, std::i
 
 #ifndef SERVER
         if ((who != num) && (who == mysprite))
-            for (i = 0; i <= 20; i++)
+            for (MyInt32<1, 20> i = 1; i <= 20; i++)
                 if (wepstats[i].name == s)
                 {
                     wepstats[i].kills = wepstats[i].kills + 1;
@@ -4426,8 +4426,8 @@ void tsprite::fire()
     // Recoil!
     if (mysprite == num)
     {
-        rc = (float)(burstcount) / 10;
-        rc = rc * weapon.recoil;
+        rc = (float)(burstcount) / 10.f;
+        rc = rc * (float)weapon.recoil;
 
         // less recoil on crouch
         if (onground)
