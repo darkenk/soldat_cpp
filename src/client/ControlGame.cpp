@@ -719,7 +719,7 @@ void gameinput()
         {
         case SDL_QUIT: {
             clientdisconnect();
-            exit(0);
+            shutdown();
         }
         break;
 

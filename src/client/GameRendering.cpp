@@ -105,6 +105,8 @@ static struct
     TIniFile::Entries custominterface;
 } scaledata;
 
+static SDL_Surface *IconSurface = nullptr;
+
 void loadmodinfo()
 {
     std::int32_t i;
@@ -527,7 +529,9 @@ bool initgamegraphics()
 
     iconfile = SDL_RWFromMem(&filebuffer[0], length(filebuffer));
 
-    SDL_SetWindowIcon(gamewindow, SDL_LoadBMP_RW(iconfile, 1));
+    IconSurface = SDL_LoadBMP_RW(iconfile, 1);
+
+    SDL_SetWindowIcon(gamewindow, IconSurface);
 
     if (gamewindow == nullptr)
     {
@@ -629,6 +633,10 @@ void destroygamegraphics()
 
     if (initialized == false)
         return;
+
+    SDL_SetWindowIcon(gamewindow, nullptr);
+    SDL_FreeSurface(IconSurface);
+    IconSurface = nullptr;
 
     freeandnullptr(mainspritesheet);
     freeandnullptr(interfacespritesheet);

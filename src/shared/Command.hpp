@@ -10,6 +10,7 @@
 #include <vector>
 
 void commandinit();
+void commanddeinit();
 bool parseinput(const std::string &input);
 bool parseinput(const std::string &input, std::uint8_t sender);
 bool loadconfig(const std::string &configname);

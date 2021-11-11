@@ -855,6 +855,8 @@ void shutdown()
 
     PHYSFS_deinit();
 
+    commanddeinit();
+
 #ifdef STEAM
     addlinetologfile(gamelog, "Steam API closing.", consolelogfilename);
     steamapi_shutdown(0);

@@ -697,3 +697,12 @@ void commandinit()
     }
 #endif
 }
+
+void commanddeinit()
+{
+    for (auto &c : commands)
+    {
+        delete c.second;
+    }
+    commands.clear();
+}
