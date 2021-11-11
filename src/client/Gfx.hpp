@@ -279,7 +279,7 @@ class tgfxspritesheet
 typedef struct tgfxdrawcommand *pgfxdrawcommand;
 struct tgfxdrawcommand
 {
-    tgfxtexture *texture;
+    tgfxtexture *texture = nullptr;
     std::int32_t offset;
     std::int32_t count;
 };

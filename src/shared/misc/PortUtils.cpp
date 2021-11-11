@@ -30,7 +30,7 @@ void NotImplementedImpl(const source_location &location, std::string_view msg)
     }
 }
 
-void AssertImpl(const bool condition, const MsgLineWrapper msg)
+void AssertImpl(const bool condition, const MsgLineWrapper &msg)
 {
     if (condition)
     {

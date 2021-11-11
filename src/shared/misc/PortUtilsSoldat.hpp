@@ -31,18 +31,30 @@ template <typename Tp, std::int32_t StartIndex, std::int32_t EndIndex>
 struct [[deprecated("PascalArray can start from -1")]] PascalArray
 {
   public:
-    Tp &operator[](std::int32_t n) noexcept
+    template <typename T>
+    struct SourceLocation
     {
-        Assert(n >= StartIndex);
-        Assert(n <= EndIndex);
-        return m_data[n - StartIndex];
+        constexpr SourceLocation(const T &v,
+                                 const source_location &location = source_location::current())
+            : Value{v}, Location{location}
+        {
+        }
+        T Value;
+        const source_location &Location;
+    };
+
+    Tp &operator[](SourceLocation<std::int32_t> n) noexcept
+    {
+        AssertL(n.Value >= StartIndex, n.Location);
+        AssertL(n.Value <= EndIndex, n.Location);
+        return m_data[n.Value - StartIndex];
     }
 
-    constexpr const Tp &operator[](std::int32_t n) const noexcept
+    constexpr const Tp &operator[](SourceLocation<std::int32_t> n) const noexcept
     {
-        Assert(n >= StartIndex);
-        Assert(n <= EndIndex);
-        return m_data[n - StartIndex];
+        AssertL(n.Value >= StartIndex, n.Location);
+        AssertL(n.Value <= EndIndex, n.Location);
+        return m_data[n.Value - StartIndex];
     }
 
     constexpr std::size_t size() const

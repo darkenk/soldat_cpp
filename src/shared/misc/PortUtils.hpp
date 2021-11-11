@@ -106,9 +106,10 @@ static inline void NotImplementedGeneric() requires(Config::IsRelease())
 {
 }
 
-void AssertImpl(const bool condition, const MsgLineWrapper msg = "") requires(Config::IsDebug());
+void AssertImpl(const bool condition, const MsgLineWrapper &msg = "") requires(Config::IsDebug());
 
-inline void AssertImpl(const bool /*condition*/, const char * /*msg*/) requires(Config::IsRelease())
+inline void AssertImpl(const bool /*condition*/,
+                       const char * /*msg*/ = "") requires(Config::IsRelease())
 {
 }
 
@@ -118,3 +119,4 @@ using NITag = PortUtils::NotImplementedArea::Tag;
 
 #define NotImplemented PortUtils::NotImplementedGeneric<__LINE__, __FILE__, __FUNCTION__>
 #define Assert(condition) PortUtils::AssertImpl(condition, #condition)
+#define AssertL(condition, location) PortUtils::AssertImpl(condition, {#condition, location})
