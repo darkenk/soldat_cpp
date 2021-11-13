@@ -362,16 +362,21 @@ void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targ
     votetimeremaining = default_voting_time;
     votenumvotes = 0;
     votemaxvotes = 0;
-    for (i = 1; i <= max_players; i++)
-        if (sprite[i].active)
-            if (sprite[i].player->controlmethod == human)
-                votemaxvotes = votemaxvotes + 1;
+    for (auto &s : sprite)
+    {
+        if (!s.active)
+        {
+            continue;
+        }
+        if (s.player->controlmethod == human)
+        {
+            votemaxvotes = votemaxvotes + 1;
+        }
+    }
 }
 
 void stopvote()
 {
-    std::uint8_t i;
-
     voteactive = false;
     votenumvotes = 0;
     votemaxvotes = 0;
@@ -380,8 +385,7 @@ void stopvote()
     votestarter = "";
     votereason = "";
     votetimeremaining = -1;
-    for (i = 1; i <= max_players; i++)
-        votehasvoted[i] = false;
+    std::fill(std::begin(votehasvoted), std::end(votehasvoted), false);
 }
 
 void timervote()
@@ -501,7 +505,7 @@ void changemap()
 #ifdef SERVER
     tvector2 a;
 #endif
-    std::int32_t i, j;
+    std::int32_t j;
     std::int32_t secwep;
 #ifndef SERVER
     tmapinfo mapchangestatus;
@@ -519,11 +523,11 @@ void changemap()
         mapslist.erase(it, mapslist.end());
     }
 
-    for (i = 1; i <= max_waypoints; i++)
+    for (auto &w : botpath.waypoint)
     {
-        botpath.waypoint[i].active = false;
-        botpath.waypoint[i].id = 0;
-        botpath.waypoint[i].pathnum = 0;
+        w.active = false;
+        w.id = 0;
+        w.pathnum = 0;
     }
 
     if (!map.loadmap(mapchange))
@@ -559,55 +563,73 @@ void changemap()
     }
 #endif
 
-    for (i = 1; i <= max_bullets; i++)
-        bullet[i].kill();
-    for (i = 1; i <= max_things; i++)
-        thing[i].kill();
-#ifndef SERVER
-    for (i = 1; i <= max_sparks; i++)
-        spark[i].kill();
-#endif
-
-    for (i = 1; i <= max_sprites; i++)
+    for (auto &b : bullet)
     {
-        if (sprite[i].active && sprite[i].isnotspectator())
-        {
-            randomizestart(spriteparts.pos[i], sprite[i].player->team);
-            sprite[i].respawn();
-            sprite[i].player->kills = 0;
-            sprite[i].player->deaths = 0;
-            sprite[i].player->flags = 0;
-            sprite[i].bonustime = 0;
-            sprite[i].bonusstyle = bonus_none;
+        b.kill();
+    }
+    for (auto &t : thing)
+    {
+        t.kill();
+    }
 #ifndef SERVER
-            sprite[i].selweapon = 0;
+    fo(auto &s : spark)
+    {
+        s.kill();
+    }
 #endif
-            sprite[i].freecontrols();
-            sprite[i].weapon = guns[noweapon];
 
-            secwep = sprite[i].player->secwep + 1;
+    {
+        auto i = 0;
+        for (auto &s : sprite)
+        {
+            i++;
+            if (s.active && s.isnotspectator())
+            {
+                randomizestart(spriteparts.pos[i], s.player->team);
+                s.respawn();
+                s.player->kills = 0;
+                s.player->deaths = 0;
+                s.player->flags = 0;
+                s.bonustime = 0;
+                s.bonusstyle = bonus_none;
+#ifndef SERVER
+                s.selweapon = 0;
+#endif
+                s.freecontrols();
+                s.weapon = guns[noweapon];
 
-            if ((secwep >= 1) && (secwep <= secondary_weapons) &&
-                (weaponactive[primary_weapons + secwep] == 1))
-                sprite[i].secondaryweapon = guns[primary_weapons + secwep];
-            else
-                sprite[i].secondaryweapon = guns[noweapon];
+                secwep = s.player->secwep + 1;
 
-            sprite[i].respawncounter = 0;
+                if ((secwep >= 1) && (secwep <= secondary_weapons) &&
+                    (weaponactive[primary_weapons + secwep] == 1))
+                    s.secondaryweapon = guns[primary_weapons + secwep];
+                else
+                    s.secondaryweapon = guns[noweapon];
+
+                s.respawncounter = 0;
+            }
         }
     }
 
 #ifndef SERVER
-    for (j = 1; j <= max_sprites; j++)
-        for (i = 1; i <= primary_weapons; i++)
-            weaponsel[j][i] = 1;
+    for (auto &w : weaponsel)
+    {
+        for (auto i = 1; i <= primary_weapons; i++)
+        {
+            w[i] = 1;
+        }
+    }
 #endif
 
     if (CVar::sv_advancemode)
     {
-        for (j = 1; j <= max_sprites; j++)
-            for (i = 1; i <= primary_weapons; i++)
-                weaponsel[j][i] = 0;
+        for (auto &w : weaponsel)
+        {
+            for (auto i = 1; i <= primary_weapons; i++)
+            {
+                w[i] = 0;
+            }
+        }
 
 #ifndef SERVER
         if (mysprite > 0)
@@ -616,11 +638,15 @@ void changemap()
 #endif
     }
 
-    for (i = 1; i <= 4; i++)
+    for (auto i = 1; i <= 4; i++)
+    {
         teamscore[i] = 0;
+    }
 
-    for (i = 1; i <= 2; i++)
+    for (auto i = 1; i <= 2; i++)
+    {
         teamflag[i] = 0;
+    }
 
 #ifndef SERVER
     fragsmenushow = false;
@@ -667,14 +693,22 @@ void changemap()
 
     // stat gun
     if (CVar::sv_stationaryguns)
-        for (i = 1; i <= max_spawnpoints; i++)
-            if (map.spawnpoints[i].active)
-                if (map.spawnpoints[i].team == 16)
-                {
-                    a.x = map.spawnpoints[i].x;
-                    a.y = map.spawnpoints[i].y;
-                    creatething(a, 255, object_stationary_gun, 255);
-                }
+    {
+        for (auto &s : map.spawnpoints)
+        {
+            if (!s.active)
+            {
+                continue;
+            }
+            if (s.team != 16)
+            {
+                continue;
+            }
+            a.x = s.x;
+            a.y = s.y;
+            creatething(a, 255, object_stationary_gun, 255);
+        }
+    }
 #endif
 #ifndef SERVER
     heartbeattime = maintickcounter;
@@ -745,85 +779,94 @@ void changemap()
 
 void sortplayers()
 {
-    std::int32_t i, j;
+    std::int32_t j;
     tkillsort temp;
 
     playersnum = 0;
     botsnum = 0;
     spectatorsnum = 0;
-    for (i = 1; i <= 4; i++)
-        playersteamnum[i] = 0;
+    std::fill(std::begin(playersteamnum), std::end(playersteamnum), 0);
 
-    for (i = 1; i <= max_sprites; i++)
+    for (auto &sp : sortedplayers)
     {
-        sortedplayers[i].kills = 0;
-        sortedplayers[i].deaths = 0;
-        sortedplayers[i].flags = 0;
-        sortedplayers[i].playernum = 0;
+        sp.kills = 0;
+        sp.deaths = 0;
+        sp.flags = 0;
+        sp.playernum = 0;
     }
 
-    for (i = 1; i <= max_sprites; i++)
-        if (sprite[i].active && (!sprite[i].player->demoplayer))
+    {
+        auto i = 0;
+        for (auto &s : sprite)
         {
-            playersnum += 1;
-            if (sprite[i].player->controlmethod == bot)
-                botsnum += 1;
-
-            if (sprite[i].isspectator())
-                spectatorsnum += 1;
-
-            if (sprite[i].isnotsolo() && sprite[i].isnotspectator())
-                playersteamnum[sprite[i].player->team] += 1;
-
-            if (sprite[i].isnotspectator())
+            i++;
+            if (s.active && (!s.player->demoplayer))
             {
-                sortedplayers[playersnum].kills = sprite[i].player->kills;
-                sortedplayers[playersnum].deaths = sprite[i].player->deaths;
-                sortedplayers[playersnum].flags = sprite[i].player->flags;
-                sortedplayers[playersnum].playernum = i;
-            }
-            else
-            {
-                sortedplayers[playersnum].kills = 0;
-                sortedplayers[playersnum].deaths = std::numeric_limits<std::int32_t>::max();
-                sortedplayers[playersnum].flags = 0;
-                sortedplayers[playersnum].playernum = i;
-            }
+                playersnum += 1;
+                if (s.player->controlmethod == bot)
+                    botsnum += 1;
 
-            // Kill Limit
-            if (mapchangecounter < 1)
-                if (!isteamgame())
-                    if (sprite[i].player->kills >= CVar::sv_killlimit)
-                    {
-#ifndef SERVER
-                        camerafollowsprite = i;
-                        if (escmenu->active)
+                if (s.isspectator())
+                    spectatorsnum += 1;
+
+                if (s.isnotsolo() && s.isnotspectator())
+                    playersteamnum[s.player->team] += 1;
+
+                if (s.isnotspectator())
+                {
+                    sortedplayers[playersnum].kills = s.player->kills;
+                    sortedplayers[playersnum].deaths = s.player->deaths;
+                    sortedplayers[playersnum].flags = s.player->flags;
+                    sortedplayers[playersnum].playernum = i;
+                }
+                else
+                {
+                    sortedplayers[playersnum].kills = 0;
+                    sortedplayers[playersnum].deaths = std::numeric_limits<std::int32_t>::max();
+                    sortedplayers[playersnum].flags = 0;
+                    sortedplayers[playersnum].playernum = i;
+                }
+
+                // Kill Limit
+                if (mapchangecounter < 1)
+                    if (!isteamgame())
+                        if (s.player->kills >= CVar::sv_killlimit)
                         {
-                            mx = gamewidthhalf;
-                            my = gameheighthalf;
-                            mouseprev.x = mx;
-                            mouseprev.y = my;
-                        }
+#ifndef SERVER
+                            camerafollowsprite = i;
+                            if (escmenu->active)
+                            {
+                                mx = gamewidthhalf;
+                                my = gameheighthalf;
+                                mouseprev.x = mx;
+                                mouseprev.y = my;
+                            }
 #else
-                        nextmap();
+                            nextmap();
 #endif
-                    }
+                        }
+            }
         }
+    }
 
     // sort by caps first if new score board
     if (playersnum > 0)
-        for (i = 1; i <= playersnum; i++)
+        for (auto i = 1; i <= playersnum; i++)
+        {
             for (j = i + 1; j <= playersnum; j++)
+            {
                 if (sortedplayers[j].flags > sortedplayers[i].flags)
                 {
                     temp = sortedplayers[i];
                     sortedplayers[i] = sortedplayers[j];
                     sortedplayers[j] = temp;
                 }
+            }
+        }
 
     // sort by kills
     if (playersnum > 0)
-        for (i = 1; i <= playersnum; i++)
+        for (auto i = 1; i <= playersnum; i++)
             for (j = i + 1; j <= playersnum; j++)
                 if (sortedplayers[j].flags == sortedplayers[i].flags)
                     if (sortedplayers[j].kills > sortedplayers[i].kills)
@@ -835,7 +878,7 @@ void sortplayers()
 
     // final sort by deaths
     if (playersnum > 0)
-        for (i = 1; i <= playersnum; i++)
+        for (auto i = 1; i <= playersnum; i++)
             for (j = i + 1; j <= playersnum; j++)
                 if (sortedplayers[j].flags == sortedplayers[i].flags)
                     if (sortedplayers[j].kills == sortedplayers[i].kills)
@@ -873,12 +916,16 @@ void sortplayers()
 #ifdef SERVER
     // Team - Kill Limit
     if (mapchangecounter < 1)
-        for (i = 1; i <= 4; i++)
+    {
+        for (auto i = 1; i <= 4; i++)
+        {
             if (teamscore[i] >= CVar::sv_killlimit)
             {
                 nextmap();
                 break;
             }
+        }
+    }
     // Wave respawn time
     updatewaverespawntime();
 #endif
@@ -896,15 +943,15 @@ void sortplayers()
     teamalivenum[4] = 0;
 #endif
 
-    for (i = 1; i <= max_sprites; i++)
+    for (auto &s : sprite)
     {
-        if (sprite[i].active)
+        if (s.active)
         {
-            if (team_alpha >= sprite[i].player->team && team_delta <= sprite[i].player->team)
+            if (team_alpha >= s.player->team && team_delta <= s.player->team)
 #ifdef SERVER
-                teamalivenum[sprite[i].player->team] += 1;
+                teamalivenum[s.player->team] += 1;
 #else
-                teamplayersnum[sprite[i].player->team] += 1;
+                teamplayersnum[s.player->team] += 1;
 #endif
         }
     }

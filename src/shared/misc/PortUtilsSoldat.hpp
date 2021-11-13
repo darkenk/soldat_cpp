@@ -72,6 +72,16 @@ struct [[deprecated("PascalArray can start from -1")]] PascalArray
         return EndIndex;
     }
 
+    auto begin() noexcept
+    {
+        return m_data.begin();
+    }
+
+    auto end() noexcept
+    {
+        return m_data.end();
+    }
+
   private:
     std::array<Tp, EndIndex - StartIndex + 1> m_data;
 };

@@ -51,7 +51,7 @@ void apponidle()
     std::int32_t heavysendersnum;
     float adjust;
 
-    LogTraceG("AppOnIdle");
+    // LogTraceG("AppOnIdle");
     number27timing(); // makes the program go and do the timing calculations
 
     // NET RECEIVE
