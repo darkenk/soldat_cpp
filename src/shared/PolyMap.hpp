@@ -102,4 +102,4 @@ class tpolymap
 };
 
 void checkoutofbounds(MyFloat &x, MyFloat &y);
-void checkoutofbounds(const int16_t &x, const int16_t &y);
+void checkoutofbounds(int16_t &x, int16_t &y);

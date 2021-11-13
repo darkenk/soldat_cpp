@@ -7,6 +7,7 @@
 #include "misc/PortUtilsSoldat.hpp"
 
 extern tconsole mainconsole;
+extern tpolymap map;
 
 /*#include "Classes.h"*/
 /*#include "SysUtils.h"*/
@@ -652,8 +653,6 @@ bool tpolymap::raycast(const tvector2 a, tvector2 b, float &distance, float maxd
 
 void checkoutofbounds(MyFloat &x, MyFloat &y)
 {
-    NotImplemented(NITag::MAP);
-#if 0
     if (x < (10 * (-map.sectorsnum * map.sectorsdivision) + 50))
         x = 1;
     else if (x > (10 * (map.sectorsnum * map.sectorsdivision) - 50))
@@ -663,13 +662,10 @@ void checkoutofbounds(MyFloat &x, MyFloat &y)
         y = 1;
     else if (y > (10 * (map.sectorsnum * map.sectorsdivision) - 50))
         y = 1;
-#endif
 }
 
-void checkoutofbounds(const std::int16_t &x, const std::int16_t &y)
+void checkoutofbounds(std::int16_t &x, std::int16_t &y)
 {
-    NotImplemented(NITag::MAP);
-#if 0
     if (x < (10 * (-map.sectorsnum * map.sectorsdivision) + 50))
         x = 1;
     else if (x > (10 * (map.sectorsnum * map.sectorsdivision) - 50))
@@ -679,5 +675,4 @@ void checkoutofbounds(const std::int16_t &x, const std::int16_t &y)
         y = 1;
     else if (y > (10 * (map.sectorsnum * map.sectorsdivision) - 50))
         y = 1;
-#endif
 }
