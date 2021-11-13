@@ -10,6 +10,7 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
+#include "../Logging.hpp"
 #include "../gfx.hpp"
 #include "../misc/BitStream.hpp"
 #include "../misc/PortUtils.hpp"
@@ -674,6 +675,21 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
                                 server_message_color);
 }
 
+template <typename T>
+bool ReadAndSetValue(BitStream &bs, std::uint8_t cvarid)
+{
+    auto &cvi = CVarBase<T>::Find(cvarid);
+    if (!cvi.IsValid())
+    {
+        return false;
+    }
+    T v = {};
+    bs.Read(v);
+    cvi = v;
+    LogDebug("net_msg", "{} id: {} value: {}", cvi.GetName(), cvi.GetId(), v);
+    return true;
+}
+
 void clienthandlesynccvars(SteamNetworkingMessage_t *netmessage)
 {
     tmsg_serversynccvars *varsmsg;
@@ -688,50 +704,29 @@ void clienthandlesynccvars(SteamNetworkingMessage_t *netmessage)
     std::uint8_t *data = reinterpret_cast<std::uint8_t *>(&varsmsg->data);
     BitStream bs(data, size);
 
+    LogDebug("net_msg", "Read sync variables. Count {}", varsmsg->itemcount);
     for (auto i = 0; i < varsmsg->itemcount; i++)
     {
         std::uint8_t cvarid = 0;
         bs.Read(cvarid);
+        if (ReadAndSetValue<std::int32_t>(bs, cvarid))
         {
-            auto &cvi = CVarInt::Find(cvarid);
-            if (cvi.IsValid())
-            {
-                std::int32_t v = 0;
-                bs.Read(v);
-                cvi = v;
-                continue;
-            }
+            continue;
         }
+        if (ReadAndSetValue<bool>(bs, cvarid))
         {
-            auto &cvi = CVarBool::Find(cvarid);
-            if (cvi.IsValid())
-            {
-                bool v = 0;
-                bs.Read(v);
-                cvi = v;
-                continue;
-            }
+            continue;
         }
+        if (ReadAndSetValue<float>(bs, cvarid))
         {
-            auto &cvi = CVarFloat::Find(cvarid);
-            if (cvi.IsValid())
-            {
-                float v = 0;
-                bs.Read(v);
-                cvi = v;
-                continue;
-            }
+            continue;
         }
+        if (ReadAndSetValue<std::string>(bs, cvarid))
         {
-            auto &cvi = CVarString::Find(cvarid);
-            if (cvi.IsValid())
-            {
-                std::string v = {};
-                bs.Read(v);
-                cvi = v;
-                continue;
-            }
+            continue;
         }
+
+        LogError("net_msg", "Cannot read sync variable {} of id {}", i, cvarid);
         // No support for cvar
         Assert(false);
     }

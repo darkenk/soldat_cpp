@@ -62,3 +62,21 @@ TEST(BitStreamTest, ReadString)
     bs.Read(v1);
     EXPECT_STREQ("ABC", v1.c_str());
 }
+
+TEST(BitSTreamTest, TestWriteOfSv_advancemode)
+{
+    BitStream bs;
+    std::uint8_t id = 14;
+    std::int32_t value = 2;
+    bs.Write(id);
+    bs.Write(value);
+
+    BitStream out{bs.Data().data(), bs.Data().size()};
+    std::uint8_t idOut = 0;
+    std::int32_t valueOut = 0;
+    out.Read(idOut);
+    out.Read(valueOut);
+
+    EXPECT_EQ(id, idOut);
+    EXPECT_EQ(value, valueOut);
+}

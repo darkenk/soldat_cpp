@@ -10,25 +10,11 @@
 #include "../gfx.hpp"
 #include "../mechanics/Sprites.hpp"
 #include "../mechanics/Things.hpp"
+#include "../misc/BitStream.hpp"
 #include "NetworkServerGame.hpp"
 #include "NetworkServerMessages.hpp"
 #include "NetworkServerThing.hpp"
 #include "NetworkUtils.hpp"
-
-/*#include "SteamTypes.h"*/
-/*#include "Server.h"*/
-/*#include "Client.h"*/
-/*#include "Game.h"*/
-/*#include "Things.h"*/
-/*#include "Sha1.h"*/
-/*#include "NetworkUtils.h"*/
-/*#include "Demo.h"*/
-/*#include "ServerHelper.h"*/
-/*#include "NetworkServerGame.h"*/
-/*#include "NetworkServerMessages.h"*/
-/*#include "NetworkServerThing.h"*/
-/*#include "BanSystem.h"*/
-/*#include "NetworkServerFae.h"*/
 
 auto constexpr minsperhour = 60;
 auto constexpr minsperday = 24 * minsperhour;
@@ -812,91 +798,66 @@ void serverping(std::uint8_t tonum)
 }
 #endif
 
-void serversynccvars(std::uint8_t tonum, HSteamNetConnection peer, bool fullsync)
+template <typename T>
+std::uint8_t CopyCVarsToBuffer(BitStream &bs, bool fullsync)
 {
-    NotImplemented(NITag::OTHER, "Missing function serversynccvars");
-#if 0
-    pmsg_serversynccvars varsmsg;
-    std::int32_t i;
     std::uint8_t fieldcount = 0;
-    tbitwriter packetstream;
-    std::uint8_t *buffer;
-    std::uint32_t buffersize;
-
-    packetstream = tbitwriter.create(100);
-
-    for (auto &v : CVarInt::GetAllCVars())
+    // TODO: always sync all variables, make use of fullsync
+    for (const auto &v : CVarBase<T>::GetAllCVars())
     {
         if (!v.IsSyncable())
         {
             continue;
         }
-
-        if ()
+        LogDebug("net_msg", "{} id: {} value:{}", v.GetName(), v.GetId(), T(v));
+        bs.Write(v.GetId());
+        bs.Write(T(v));
+        fieldcount++;
     }
-    for (i = 0; i <= cvarssync.count - 1; i++)
-    {
-        if ((!(tcvarbase(cvarssync.items[i]).flags.has(cvar_tosync))) && (!fullsync))
-            continue;
+    return fieldcount;
+}
 
-        if (tobject(cvarssync[i]) == tstd::int32_tcvar) // dk is
-        {
-            fieldcount += 1;
-            packetstream.writeuint8(i);
-            packetstream.writeint32(tstd::int32_tcvar(cvarssync.items[i]) CVar::);
-        }
+void serversynccvars(std::uint8_t tonum, HSteamNetConnection peer, bool fullsync)
+{
+    pmsg_serversynccvars varsmsg;
+    std::int32_t i;
+    std::uint8_t fieldcount = 0;
+    std::uint32_t buffersize;
 
-        if (tobject(cvarssync[i]) == tfloatcvar) // dk is
-        {
-            fieldcount += 1;
-            packetstream.writeuint8(i);
-            packetstream.writefloat(tfloatcvar(cvarssync.items[i]) CVar::);
-        }
+    BitStream bs;
+    LogDebug("net_msg", "Write sync variables");
 
-        if (tobject(cvarssync[i]) == tboolcvar) // dk is
-        {
-            fieldcount += 1;
-            packetstream.writeuint8(i);
-            packetstream.writebool(tboolcvar(cvarssync.items[i]) CVar::);
-        }
+    fieldcount += CopyCVarsToBuffer<std::int32_t>(bs, fullsync);
+    fieldcount += CopyCVarsToBuffer<bool>(bs, fullsync);
+    fieldcount += CopyCVarsToBuffer<float>(bs, fullsync);
+    fieldcount += CopyCVarsToBuffer<std::string>(bs, fullsync);
 
-        if (tobject(cvarssync[i]) == tstringcvar) // dk is
-        {
-            fieldcount += 1;
-            packetstream.writeuint8(i);
-            packetstream.writestring(tstringcvar(cvarssync.items[i]) CVar::);
-        }
-
-        if (!fullsync)
-            tcvarbase(cvarssync.items[i]).syncupdate(false);
-    }
-
-    packetstream.clonebuffer(buffer, buffersize);
-    getmem(varsmsg, sizeof(tmsg_serversynccvars) + buffersize);
+    buffersize = bs.Data().size();
+    auto data = new uint8_t[sizeof(tmsg_serversynccvars) + buffersize];
+    varsmsg = new (data) tmsg_serversynccvars();
     varsmsg->itemcount = fieldcount;
     varsmsg->header.id = msgid_synccvars;
-    move(buffer[0], varsmsg->data, buffersize);
+    std::memcpy(&varsmsg->data, bs.Data().data(), buffersize);
 
 #ifdef SERVER
-    cvarsneedsyncing = false;
     if (peer == 0)
     {
         for (i = 1; i <= max_players; i++)
             if ((tonum == 0) || (i == tonum))
                 if ((sprite[i].active) & (sprite[i].player->controlmethod == human))
-                    udp->senddata(&varsmsg, sizeof(tmsg_serversynccvars) + buffersize,
+                    udp->senddata(varsmsg, sizeof(tmsg_serversynccvars) + buffersize,
                                   sprite[i].player->peer, k_nSteamNetworkingSend_Reliable);
     }
     else
-        udp->senddata(&varsmsg, sizeof(tmsg_serversynccvars) + buffersize, peer,
+    {
+        udp->senddata(varsmsg, sizeof(tmsg_serversynccvars) + buffersize, peer,
                       k_nSteamNetworkingSend_Reliable);
+    }
 #else
     demorecorder.saverecord(varsmsg, sizeof(varsmsg) + buffersize);
 #endif
-    freemem(varsmsg);
-    freemem(buffer);
-    packetstream.free;
-#endif
+    varsmsg->~tmsg_serversynccvars();
+    delete[] data;
 }
 
 void servervars(std::uint8_t tonum)

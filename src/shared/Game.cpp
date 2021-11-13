@@ -572,7 +572,7 @@ void changemap()
         t.kill();
     }
 #ifndef SERVER
-    fo(auto &s : spark)
+    for (auto &s : spark)
     {
         s.kill();
     }
@@ -633,7 +633,7 @@ void changemap()
 
 #ifndef SERVER
         if (mysprite > 0)
-            for (i = 1; i <= main_weapons; i++)
+            for (auto i = 1; i <= main_weapons; i++)
                 limbomenu->button[i - 1].active = (bool)(weaponsel[mysprite][i]);
 #endif
     }
@@ -891,7 +891,7 @@ void sortplayers()
 
 #ifndef SERVER
     // Sort Team Score
-    for (i = 1; i <= 4; i++)
+    for (auto i = 1; i <= 4; i++)
     {
         sortedteamscore[i].kills = teamscore[i];
         sortedteamscore[i].playernum = i;
@@ -903,7 +903,7 @@ void sortplayers()
     sortedteamscore[3].color = (std::uint32_t(CVar::ui_status_transparency) << 24) | 0xd2d205;
     sortedteamscore[4].color = (std::uint32_t(CVar::ui_status_transparency) << 24) | 0x5d205;
 
-    for (i = 1; i <= 4; i++)
+    for (auto i = 1; i <= 4; i++)
         for (j = i + 1; j <= 4; j++)
             if (sortedteamscore[j].kills > sortedteamscore[i].kills)
             {

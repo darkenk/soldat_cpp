@@ -164,6 +164,16 @@ class CVarBase
         return AllCVars();
     }
 
+    std::uint8_t GetId() const
+    {
+        return Id;
+    }
+
+    const std::string &GetName() const
+    {
+        return Name;
+    }
+
   private:
     T Value;
     const std::string Name;
