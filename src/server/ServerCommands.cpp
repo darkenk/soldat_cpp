@@ -71,10 +71,7 @@ void commandaddbot(std::vector<std::string> &args, std::uint8_t sender)
         return;
 
     tempstr = args[0];
-    NotImplemented(NITag::OTHER);
-#if 0
-    teamset = strtointdef(tempstr[7], 0);
-#endif
+    teamset = strtointdef({tempstr[7], 1}, 0);
     addbotplayer(name, teamset);
 }
 

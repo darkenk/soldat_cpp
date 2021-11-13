@@ -20,10 +20,10 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
 
     heartbeat = pmsg_heartbeat(netmessage->m_pData);
 
+    auto c = 0;
     for (i = 1; i <= max_players; i++)
         if (sprite[i].active && (!sprite[i].player->demoplayer))
         {
-            [[deprecated("sprite - 1")]] auto c = i - 1;
             sprite[i].active = heartbeat->active[c];
             sprite[i].player->kills = heartbeat->kills[c];
             sprite[i].player->flags = heartbeat->caps[c];
@@ -34,6 +34,7 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
             sprite[i].player->pingtime = sprite[i].player->pingticks * 1000 / 60;
             sprite[i].player->realping = heartbeat->realping[c];
             sprite[i].player->connectionquality = heartbeat->connectionquality[c];
+            c++;
         }
 
     // play bding sound

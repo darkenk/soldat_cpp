@@ -81,30 +81,42 @@ void apponidle()
 #endif
         // Flood Nums Cancel
         if (maintickcounter % 1000 == 0)
-            for (j = 1; j <= max_floodips; j++)
-                floodnum[j] = 0;
+        {
+            std::fill(std::begin(floodnum), std::end(floodnum), 0);
+        }
 
         // clear last admin connect flood list every 3 seconds
         if (maintickcounter % (second * 3) == 0)
-            for (j = 0; j <= max_last_admin_ips; j++)
-                lastadminips[j] = "";
+        {
+            std::fill(std::begin(lastadminips), std::end(lastadminips), "");
+        }
 
         // Warnings Cancel
         if (maintickcounter % (minute * 5) == 0)
-            for (j = 1; j <= max_players; j++)
+        {
+            for (auto &p : pingwarnings)
             {
-                if (pingwarnings[j] > 0)
-                    pingwarnings[j] -= 1;
-
-                if (floodwarnings[j] > 0)
-                    floodwarnings[j] -= 1;
+                if (p > 0)
+                {
+                    p -= 1;
+                }
             }
+            for (auto &f : floodwarnings)
+            {
+                if (f > 0)
+                {
+                    f -= 1;
+                }
+            }
+        }
 
         if (maintickcounter % 1000 == 0)
-            for (j = 1; j <= max_players; j++)
+        {
+            for (auto &s : sprite)
             {
-                sprite[j].player->knifewarnings = 0;
+                s.player->knifewarnings = 0;
             }
+        }
         NotImplemented(NITag::NETWORK);
 #if 0
         // sync changed cvars to all players
@@ -128,8 +140,11 @@ void apponidle()
         {
             // Player Ping Warning
             if (mapchangecounter < 0)
+            {
                 if (maintickcounter % (second * 6) == 0)
+                {
                     for (j = 1; j <= max_players; j++)
+                    {
                         if ((sprite[j].active) && (sprite[j].player->controlmethod == human) &&
                             ((sprite[j].player->realping > (CVar::sv_maxping)) ||
                              ((sprite[j].player->realping < CVar::sv_minping) &&
@@ -141,6 +156,9 @@ void apponidle()
                             if (pingwarnings[j] > CVar::sv_warnings_ping)
                                 kickplayer(j, true, kick_ping, sixty_minutes / 4, "Ping Kick");
                         }
+                    }
+                }
+            }
 
             // Player Packet Flooding
             for (j = 1; j <= max_players; j++)
@@ -159,15 +177,20 @@ void apponidle()
                     }
                 }
 
-            for (j = 1; j <= max_players; j++)
-                messagesasecnum[j] = 0;
+            std::fill(std::begin(messagesasecnum), std::end(messagesasecnum), 0);
         }
 
         if (maintickcounter % (second * 10) == 0)
         {
-            for (j = 1; j <= max_players; j++)
-                if (sprite[j].active)
+            j = 0;
+            for (auto &s : sprite)
+            {
+                j++;
+                if (s.active)
+                {
                     udp->UpdateNetworkStats(j);
+                }
+            }
         }
 
         // Packet rate send adjusting

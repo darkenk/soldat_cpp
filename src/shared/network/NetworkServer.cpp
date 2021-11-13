@@ -20,13 +20,13 @@
 tplayer dummyplayer;
 
 std::int32_t servertickcounter;
-std::array<std::int32_t, max_players> noclientupdatetime;
-std::array<std::int32_t, max_players> messagesasecnum;
-std::array<std::uint8_t, max_players> floodwarnings;
-std::array<std::uint8_t, max_players> pingwarnings;
-std::array<std::int32_t, max_players> bullettime;
-std::array<std::int32_t, max_players> grenadetime;
-std::array<bool, max_players> knifecan;
+PascalArray<std::int32_t, 1, max_players> noclientupdatetime;
+PascalArray<std::int32_t, 1, max_players> messagesasecnum;
+PascalArray<std::uint8_t, 1, max_players> floodwarnings;
+PascalArray<std::uint8_t, 1, max_players> pingwarnings;
+PascalArray<std::int32_t, 1, max_players> bullettime;
+PascalArray<std::int32_t, 1, max_players> grenadetime;
+PascalArray<bool, 1, max_players> knifecan;
 
 std::int32_t pingticksadd = 0;
 

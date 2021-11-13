@@ -489,8 +489,10 @@ void ActivateServer()
     maintickcounter = 0;
 
     // Initialize player dummy objects (cf. DummyPlayer definition for documentation)
-    for (i = 1; i < max_sprites; i++)
-        sprite[i].player = new tplayer();
+    for (auto &s : sprite)
+    {
+        s.player = new tplayer();
+    }
 
     // Create Consoles
     mainconsole.countmax = 7;

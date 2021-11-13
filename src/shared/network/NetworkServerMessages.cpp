@@ -5,8 +5,11 @@
 #include "../Command.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
+#include "../Logging.hpp"
 #include "../misc/MemoryUtils.hpp"
 #include "../misc/PortUtilsSoldat.hpp"
+#include <clocale>
+#include <cuchar>
 #include <steam/isteamnetworkingmessages.h>
 
 void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
@@ -59,6 +62,21 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
     }
 }
 
+static inline std::string U16toString(const std::u16string &wstr)
+{
+    std::string str = "";
+    char cstr[3] = "\0";
+    mbstate_t mbs;
+    for (const auto &it : wstr)
+    {
+        std::memset(&mbs, 0, sizeof(mbs)); // set shift state to the initial state
+        std::memmove(cstr, "\0\0\0", 3);
+        std::c16rtomb(cstr, it, &mbs);
+        str.append(std::string(cstr));
+    } // for
+    return str;
+}
+
 void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage)
 {
     std::string cs, cschat;
@@ -72,12 +90,12 @@ void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage)
 
     messagesasecnum[player->spritenum] += 1;
 
-    auto v = reinterpret_cast<pmsg_stringmessage>(netmessage->m_pData)->text.data();
-    NotImplemented(NITag::NETWORK, "Missing conversion from ");
-#if 0
-    cs = std::string(v);
-#endif
+    char16_t *v = reinterpret_cast<char16_t *>(
+        &(reinterpret_cast<pmsg_stringmessage>(netmessage->m_pData)->text));
+    cs = U16toString(v);
     msgtype = pmsg_stringmessage(netmessage->m_pData)->msgtype;
+
+    LogDebug("net_msg", "Message {}", cs);
 
     if (msgtype > msgtype_radio)
         return;

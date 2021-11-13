@@ -10,7 +10,7 @@ void InitLogging()
 {
     {
         auto log = spdlog::default_logger();
-        log->set_level(spdlog::level::trace);
+        log->set_level(spdlog::level::debug);
     }
 
     {

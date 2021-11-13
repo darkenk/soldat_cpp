@@ -482,7 +482,6 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
 void serversendplaylist(HSteamNetConnection peer)
 {
     tmsg_playerslist playerslist;
-    std::int32_t i;
 
     playerslist.header.id = msgid_playerslist;
 
@@ -507,42 +506,42 @@ void serversendplaylist(HSteamNetConnection peer)
     playerslist.anticheatrequired = false;
 #endif
 
-    for (i = 1; i <= max_sprites; i++)
+    auto i = 0;
+    for (auto &s : sprite)
     {
-        if ((sprite[i].active) && (!sprite[i].player->demoplayer))
+        if ((s.active) && (!s.player->demoplayer))
         {
-            stringtoarray(playerslist.name[i].data(), sprite[i].player->name);
-            playerslist.shirtcolor[i] = 0xff000000 | sprite[i].player->shirtcolor;
-            playerslist.pantscolor[i] = 0xff000000 | sprite[i].player->pantscolor;
-            playerslist.skincolor[i] = 0xff000000 | sprite[i].player->skincolor;
-            playerslist.haircolor[i] = 0xff000000 | sprite[i].player->haircolor;
-            playerslist.jetcolor[i] = sprite[i].player->jetcolor;
-            playerslist.team[i] = sprite[i].player->team;
-            playerslist.predduration[i] = iif(sprite[i].bonusstyle == bonus_predator,
-                                              ((float)(sprite[i].bonustime) / 60), 0.f);
+            stringtoarray(playerslist.name[i].data(), s.player->name);
+            playerslist.shirtcolor[i] = 0xff000000 | s.player->shirtcolor;
+            playerslist.pantscolor[i] = 0xff000000 | s.player->pantscolor;
+            playerslist.skincolor[i] = 0xff000000 | s.player->skincolor;
+            playerslist.haircolor[i] = 0xff000000 | s.player->haircolor;
+            playerslist.jetcolor[i] = s.player->jetcolor;
+            playerslist.team[i] = s.player->team;
+            playerslist.predduration[i] =
+                iif(s.bonusstyle == bonus_predator, ((float)(s.bonustime) / 60), 0.f);
 
             playerslist.look[i] = 0;
-            if (sprite[i].player->hairstyle == 1)
+            if (s.player->hairstyle == 1)
                 playerslist.look[i] = playerslist.look[i] | B1;
-            if (sprite[i].player->hairstyle == 2)
+            if (s.player->hairstyle == 2)
                 playerslist.look[i] = playerslist.look[i] | B2;
-            if (sprite[i].player->hairstyle == 3)
+            if (s.player->hairstyle == 3)
                 playerslist.look[i] = playerslist.look[i] | B3;
-            if (sprite[i].player->hairstyle == 4)
+            if (s.player->hairstyle == 4)
                 playerslist.look[i] = playerslist.look[i] | B4;
-            if (sprite[i].player->headcap == GFX::GOSTEK_HELM)
+            if (s.player->headcap == GFX::GOSTEK_HELM)
                 playerslist.look[i] = playerslist.look[i] | B5;
-            if (sprite[i].player->headcap == GFX::GOSTEK_KAP)
+            if (s.player->headcap == GFX::GOSTEK_KAP)
                 playerslist.look[i] = playerslist.look[i] | B6;
-            if (sprite[i].player->chain == 1)
+            if (s.player->chain == 1)
                 playerslist.look[i] = playerslist.look[i] | B7;
-            if (sprite[i].player->chain == 2)
+            if (s.player->chain == 2)
                 playerslist.look[i] = playerslist.look[i] | B8;
 
-            playerslist.pos[i] = spriteparts.pos[sprite[i].num];
-            playerslist.vel[i] = spriteparts.velocity[sprite[i].num];
-            //      PlayersList.SteamID[i] := {$IFDEF
-            //      STEAM}UInt64(Sprite[i].Player.SteamID){$ELSE}0{$ENDIF};
+            playerslist.pos[i] = spriteparts.pos[s.num];
+            playerslist.vel[i] = spriteparts.velocity[s.num];
+            playerslist.steamid[i] = 0;
         }
         else
         {
@@ -559,21 +558,8 @@ void serversendplaylist(HSteamNetConnection peer)
             playerslist.vel[i] = vector2(0, 0);
             playerslist.steamid[i] = 0;
         }
+        i++;
     }
-    NotImplemented(NITag::NETWORK, "just to satisfy indexing from 1");
-    i = 0;
-    stringtoarray(playerslist.name[i].data(), "0 ");
-    playerslist.shirtcolor[i] = 0;
-    playerslist.pantscolor[i] = 0;
-    playerslist.skincolor[i] = 0;
-    playerslist.haircolor[i] = 0;
-    playerslist.jetcolor[i] = 0;
-    playerslist.team[i] = team_none;
-    playerslist.predduration[i] = 0;
-    playerslist.look[i] = 0;
-    playerslist.pos[i] = vector2(0, 0);
-    playerslist.vel[i] = vector2(0, 0);
-    playerslist.steamid[i] = 0;
 
 #ifdef SERVER
     udp->senddata(&playerslist, sizeof(playerslist), peer, k_nSteamNetworkingSend_Reliable);
@@ -737,21 +723,24 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
 void serverdisconnect()
 {
     tmsg_serverdisconnect servermsg;
-    std::int32_t i;
     tplayer dstplayer;
 
     servermsg.header.id = msgid_serverdisconnect;
 
     // NOTE send to pending like above
-    //  for DstPlayer in Players do
-    //    udp->senddata(&ServerMsg, sizeof(ServerMsg), DstPlayer.peer,
-    //    k_nSteamNetworkingSend_Reliable);
+    for (const auto &dstplayer : players)
+    {
+        udp->senddata(&servermsg, sizeof(servermsg), dstplayer->peer,
+                      k_nSteamNetworkingSend_Reliable);
+    }
 
-    for (i = 0; i < max_players; i++)
-        if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
+    for (auto &s : sprite)
+    {
+        if ((s.active) && (s.player->controlmethod == human))
         {
-            sprite[i].kill();
+            s.kill();
         }
+    }
 }
 
 void serverplayerdisconnect(std::uint8_t num, std::uint8_t why)
@@ -763,11 +752,12 @@ void serverplayerdisconnect(std::uint8_t num, std::uint8_t why)
     playermsg.num = num;
     playermsg.why = why;
 
-    NotImplemented(NITag::NETWORK);
     // NOTE send to pending like above
-    //  for DstPlayer in Players do
-    //    udp->senddata(&PlayerMsg, sizeof(PlayerMsg), DstPlayer.peer,
-    //    k_nSteamNetworkingSend_Reliable);
+    for (const auto &dstplayer : players)
+    {
+        udp->senddata(&playermsg, sizeof(playermsg), dstplayer->peer,
+                      k_nSteamNetworkingSend_Reliable);
+    }
 
     NotImplemented(NITag::OTHER, "No time functions");
 #if 0

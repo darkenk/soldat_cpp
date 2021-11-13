@@ -444,19 +444,15 @@ void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
 }
 void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage)
 {
-    tmsg_clientspritesnapshot_mov clientmovmsg;
-    tplayer player;
     std::int32_t i;
 
     if (!verifypacket(sizeof(tmsg_clientspritesnapshot_mov), netmessage->m_cbSize,
                       msgid_clientspritesnapshot_mov))
         return;
 
-    NotImplemented(NITag::NETWORK);
-#if 0
-    clientmovmsg = pmsg_clientspritesnapshot_mov(netmessage->m_pData);
-#endif
-    player = *reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+    tmsg_clientspritesnapshot_mov &clientmovmsg =
+        *pmsg_clientspritesnapshot_mov(netmessage->m_pData);
+    tplayer &player = *reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
     i = player.spritenum;
 
     messagesasecnum[i] += 1;

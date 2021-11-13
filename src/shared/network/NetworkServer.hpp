@@ -11,13 +11,13 @@
 extern tplayer dummyplayer;
 
 extern std::int32_t servertickcounter;
-extern std::array<std::int32_t, max_players> noclientupdatetime;
-extern std::array<std::int32_t, max_players> messagesasecnum;
-extern std::array<std::uint8_t, max_players> floodwarnings;
-extern std::array<std::uint8_t, max_players> pingwarnings;
-extern std::array<std::int32_t, max_players> bullettime;
-extern std::array<std::int32_t, max_players> grenadetime;
-extern std::array<bool, max_players> knifecan;
+extern PascalArray<std::int32_t, 1, max_players> noclientupdatetime;
+extern PascalArray<std::int32_t, 1, max_players> messagesasecnum;
+extern PascalArray<std::uint8_t, 1, max_players> floodwarnings;
+extern PascalArray<std::uint8_t, 1, max_players> pingwarnings;
+extern PascalArray<std::int32_t, 1, max_players> bullettime;
+extern PascalArray<std::int32_t, 1, max_players> grenadetime;
+extern PascalArray<bool, 1, max_players> knifecan;
 
 class tservernetwork : public TNetwork
 {

@@ -12,40 +12,39 @@
 void serverheartbeat()
 {
     tmsg_heartbeat heartbeatmsg;
-    std::int32_t j, c;
-
     heartbeatmsg.header.id = msgid_heartbeat;
 
-    c = 0;
+    std::fill(std::begin(heartbeatmsg.active), std::end(heartbeatmsg.active), false);
+    std::fill(std::begin(heartbeatmsg.kills), std::end(heartbeatmsg.kills), 0);
+    std::fill(std::begin(heartbeatmsg.caps), std::end(heartbeatmsg.caps), 0);
+    std::fill(std::begin(heartbeatmsg.team), std::end(heartbeatmsg.team), 0);
+    std::fill(std::begin(heartbeatmsg.deaths), std::end(heartbeatmsg.deaths), 0);
+    std::fill(std::begin(heartbeatmsg.flags), std::end(heartbeatmsg.flags), 0);
+    std::fill(std::begin(heartbeatmsg.ping), std::end(heartbeatmsg.ping), 255);
 
-    for (j = 1; j <= max_players; j++)
+    auto c = 0;
+    for (auto &s : sprite)
     {
-        heartbeatmsg.active[j] = false;
-        heartbeatmsg.kills[j] = 0;
-        heartbeatmsg.caps[j] = 0;
-        heartbeatmsg.team[j] = 0;
-        heartbeatmsg.deaths[j] = 0;
-        heartbeatmsg.flags[j] = 0;
-        heartbeatmsg.ping[j] = 255;
+        if (s.active)
+        {
+            heartbeatmsg.active[c] = s.active;
+            heartbeatmsg.kills[c] = s.player->kills;
+            heartbeatmsg.caps[c] = s.player->flags;
+            heartbeatmsg.deaths[c] = s.player->deaths;
+            heartbeatmsg.team[c] = s.player->team;
+            heartbeatmsg.flags[c] = s.player->flags;
+            heartbeatmsg.ping[c] = s.player->pingticks;
+            heartbeatmsg.realping[c] = s.player->realping;
+            heartbeatmsg.connectionquality[c] = s.player->connectionquality;
+            c++;
+        }
     }
 
-    for (j = 1; j <= max_players; j++)
-        if (sprite[j].active)
-        {
-            c += 1;
-            heartbeatmsg.active[c] = sprite[j].active;
-            heartbeatmsg.kills[c] = sprite[j].player->kills;
-            heartbeatmsg.caps[c] = sprite[j].player->flags;
-            heartbeatmsg.deaths[c] = sprite[j].player->deaths;
-            heartbeatmsg.team[c] = sprite[j].player->team;
-            heartbeatmsg.flags[c] = sprite[j].player->flags;
-            heartbeatmsg.ping[c] = sprite[j].player->pingticks;
-            heartbeatmsg.realping[c] = sprite[j].player->realping;
-            heartbeatmsg.connectionquality[c] = sprite[j].player->connectionquality;
-        }
-
-    for (j = team_alpha; j <= team_delta; j++)
-        heartbeatmsg.teamscore[j] = teamscore[j];
+    for (auto j = team_alpha; j <= team_delta; j++)
+    {
+        [[deprecated("indexing")]] auto jminus1 = j - 1;
+        heartbeatmsg.teamscore[jminus1] = teamscore[j];
+    }
 
     heartbeatmsg.mapid = map.mapid;
     if (mapchangecounter > 0)
@@ -55,8 +54,12 @@ void serverheartbeat()
     if ((timelimitcounter) < 600)
         heartbeatmsg.mapid = 0;
 
-    for (j = 1; j <= max_players; j++)
-        if ((sprite[j].active) && (sprite[j].player->controlmethod == human))
-            udp->senddata(&heartbeatmsg, sizeof(heartbeatmsg), sprite[j].player->peer,
+    for (auto &s : sprite)
+    {
+        if ((s.active) && (s.player->controlmethod == human))
+        {
+            udp->senddata(&heartbeatmsg, sizeof(heartbeatmsg), s.player->peer,
                           k_nSteamNetworkingSend_Unreliable);
+        }
+    }
 }

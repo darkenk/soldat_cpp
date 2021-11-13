@@ -37,6 +37,7 @@
 #include "Util.hpp"
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
+#include <chrono>
 
 // various
 // extern tconsole mainconsole;
@@ -137,10 +138,10 @@ using string = std::string;
 void number27timing()
 {
     timeinmillast = timeinmil;
-    NotImplemented(NITag::OTHER, "No gettickcount64");
-#if 0
-    timeinmil = gettickcount64();
-#endif
+    // NotImplemented(NITag::OTHER, "No gettickcount64");
+    timeinmil = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::steady_clock::now().time_since_epoch())
+                    .count();
     if (timeinmil - timeinmillast > 2000)
         timeinmillast = timeinmil; // safety precaution
 

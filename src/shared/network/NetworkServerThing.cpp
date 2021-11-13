@@ -25,10 +25,11 @@ void serverthingsnapshot(std::uint8_t tonum)
             thingmsg.num = i;
             for (j = 1; j <= 4; j++)
             {
-                thingmsg.pos[j].x = thing[i].skeleton.pos[j].x;
-                thingmsg.pos[j].y = thing[i].skeleton.pos[j].y;
-                thingmsg.oldpos[j].x = thing[i].skeleton.oldpos[j].x;
-                thingmsg.oldpos[j].y = thing[i].skeleton.oldpos[j].y;
+                [[deprecated("indexing")]] auto jminus1 = j - 1;
+                thingmsg.pos[jminus1].x = thing[i].skeleton.pos[j].x;
+                thingmsg.pos[jminus1].y = thing[i].skeleton.pos[j].y;
+                thingmsg.oldpos[jminus1].x = thing[i].skeleton.oldpos[j].x;
+                thingmsg.oldpos[jminus1].y = thing[i].skeleton.oldpos[j].y;
             }
 
             thingmsg.owner = thing[i].owner;
@@ -37,10 +38,10 @@ void serverthingsnapshot(std::uint8_t tonum)
 
             // send only if moving
             send = false;
-            if ((distance(thingmsg.pos[1].x, thingmsg.pos[1].y, thingmsg.oldpos[1].x,
-                          thingmsg.oldpos[1].y) > minmovedelta) ||
-                (distance(thingmsg.pos[2].x, thingmsg.pos[2].y, thingmsg.oldpos[2].x,
-                          thingmsg.oldpos[2].y) > minmovedelta))
+            if ((distance(thingmsg.pos[0].x, thingmsg.pos[0].y, thingmsg.oldpos[0].x,
+                          thingmsg.oldpos[0].y) > minmovedelta) ||
+                (distance(thingmsg.pos[1].x, thingmsg.pos[1].y, thingmsg.oldpos[1].x,
+                          thingmsg.oldpos[1].y) > minmovedelta))
                 send = true;
 
             if (maintickcounter % 2 == 0)
