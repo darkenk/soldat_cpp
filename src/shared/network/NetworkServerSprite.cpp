@@ -370,17 +370,14 @@ void serverspritedeltasmouse(std::uint8_t i)
 
 void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
 {
-    tmsg_clientspritesnapshot clientmsg;
+    pmsg_clientspritesnapshot clientmsg;
     tplayer *player;
     std::int32_t i;
 
     if (!verifypacket(sizeof(tmsg_clientspritesnapshot), netmessage->m_cbSize,
                       msgid_clientspritesnapshot))
         return;
-    NotImplemented(NITag::NETWORK);
-#if 0
     clientmsg = pmsg_clientspritesnapshot(netmessage->m_pData);
-#endif
     player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
     i = player->spritenum;
 
@@ -406,14 +403,14 @@ void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
     if (!forceweaponcalled)
     {
 #endif
-        if (sprite[i].weapon.num != clientmsg.weaponnum)
+        if (sprite[i].weapon.num != clientmsg->weaponnum)
         {
-            sprite[i].applyweaponbynum(clientmsg.weaponnum, 1, clientmsg.ammocount);
+            sprite[i].applyweaponbynum(clientmsg->weaponnum, 1, clientmsg->ammocount);
         }
-        if (sprite[i].secondaryweapon.num != clientmsg.secondaryweaponnum)
+        if (sprite[i].secondaryweapon.num != clientmsg->secondaryweaponnum)
         {
-            sprite[i].applyweaponbynum(clientmsg.secondaryweaponnum, 2,
-                                       clientmsg.secondaryammocount);
+            sprite[i].applyweaponbynum(clientmsg->secondaryweaponnum, 2,
+                                       clientmsg->secondaryammocount);
         }
 #ifdef SCRIPT
     }
@@ -428,11 +425,12 @@ void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
     if (sprite[i].weapon.num == guns[law].num)
         sprite[i].player->secwep = 3;
 
-    sprite[i].weapon.ammocount = clientmsg.ammocount;
-    sprite[i].secondaryweapon.ammocount = clientmsg.secondaryammocount;
+    sprite[i].weapon.ammocount = clientmsg->ammocount;
+    sprite[i].secondaryweapon.ammocount = clientmsg->secondaryammocount;
 
     // Toggle prone if it was activated or deactivated
-    sprite[i].control.prone = (clientmsg.position == pos_prone) ^ (sprite[i].position == pos_prone);
+    sprite[i].control.prone =
+        (clientmsg->position == pos_prone) ^ (sprite[i].position == pos_prone);
 
     if (checkweaponnotallowed(i))
     {
@@ -491,17 +489,14 @@ void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage)
 
 void serverhandleclientspritesnapshot_dead(SteamNetworkingMessage_t *netmessage)
 {
-    tmsg_clientspritesnapshot_dead clientdeadmsg;
+    pmsg_clientspritesnapshot_dead clientdeadmsg;
     tplayer *player;
     std::int32_t i;
 
     if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), netmessage->m_cbSize,
                       msgid_clientspritesnapshot_dead))
         return;
-    NotImplemented(NITag::NETWORK);
-#if 0
     clientdeadmsg = pmsg_clientspritesnapshot_dead(netmessage->m_pData);
-#endif
     player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
     i = player->spritenum;
 
@@ -511,6 +506,6 @@ void serverhandleclientspritesnapshot_dead(SteamNetworkingMessage_t *netmessage)
         return;
 
     // assign received sprite info to sprite
-    if (clientdeadmsg.camerafocus < max_sprites + 1)
-        sprite[i].player->camera = clientdeadmsg.camerafocus;
+    if (clientdeadmsg->camerafocus < max_sprites + 1)
+        sprite[i].player->camera = clientdeadmsg->camerafocus;
 }

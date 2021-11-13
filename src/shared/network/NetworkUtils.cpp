@@ -313,8 +313,8 @@ bool checkweaponnotallowed(std::uint8_t i)
     }
 
     if (((sprite[i].weapon.num == guns[bow].num) and (CVar::sv_gamemode != gamestyle_rambo)) or
-        ((sprite[i].weapon.num = guns[bow2].num) and (CVar::sv_gamemode != gamestyle_rambo)) or
-        ((sprite[i].weapon.num = guns[flamer].num) and (CVar::sv_bonus_flamer)))
+        ((sprite[i].weapon.num == guns[bow2].num) and (CVar::sv_gamemode != gamestyle_rambo)) or
+        ((sprite[i].weapon.num == guns[flamer].num) and (CVar::sv_bonus_flamer)))
     {
         return Result;
     }
