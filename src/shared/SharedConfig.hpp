@@ -2,7 +2,8 @@
 
 #include "mechanics/Sprites.hpp"
 #include "misc/SoldatConfig.hpp"
+#include "misc/TIniFile.hpp"
 
-bool loadbotconfig(const std::string filepath, tsprite &spritec) requires(Config::IsServer());
+bool loadbotconfig(TIniFile &iniFile, tsprite &spritec);
 
 bool loadweaponsconfig(const std::string &filepath);

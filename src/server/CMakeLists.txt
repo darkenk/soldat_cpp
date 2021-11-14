@@ -47,6 +47,7 @@ set(SHARED_SRC
     ../shared/PhysFSExt.cpp
     ../shared/misc/TIniFile.cpp
     ../shared/misc/RandomGenerator.cpp
+    ../shared/misc/TFileStream.cpp
 )
 
 

@@ -948,7 +948,7 @@ void sortplayers()
     {
         if (s.active)
         {
-            if (team_alpha >= s.player->team && team_delta <= s.player->team)
+            if (team_alpha >= s.player->team && s.player->team <= team_delta)
 #ifdef SERVER
                 teamalivenum[s.player->team] += 1;
 #else

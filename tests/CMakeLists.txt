@@ -15,6 +15,7 @@ link_libraries(${GTEST_MAIN_LIBRARY}
     ${PHYSFS_LIB}
     SDL2::SDL2main
     SDL2::SDL2-static
+    GameNetworkingSockets::GameNetworkingSockets_s
 )
 
 add_executable(UnitTests
@@ -28,6 +29,8 @@ add_executable(UnitTests
     unit/FontAtlasTest.cpp ../src/shared/misc/FontAtlas.cpp
     unit/BitStreamTest.cpp
     unit/SafeTypeTest.cpp
+    unit/TMemoryStreamTest.cpp ../src/shared/misc/TMemoryStream.cpp
+    unit/SharedConfigTest.cpp ../src/shared/SharedConfig.cpp ../src/shared/Weapons.cpp
 )
 gtest_discover_tests(UnitTests)
 

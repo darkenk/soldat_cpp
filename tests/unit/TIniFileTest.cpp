@@ -1,35 +1,7 @@
 #include "shared/misc/TIniFile.hpp"
+#include "shared/misc/TMemoryStream.hpp"
 #include <gtest/gtest.h>
 #include <string>
-
-class TestStream : public TStream
-{
-  public:
-    TestStream(const std::string_view &testContent) : Content{testContent.data()}
-    {
-    }
-
-    ~TestStream() = default;
-
-    bool ReadLine(std::string &out) override
-    {
-        if (Content.eof())
-        {
-            return false;
-        }
-        std::getline(Content, out);
-        return true;
-    }
-
-    void Reset() override
-    {
-        Content.clear(std::istringstream::goodbit);
-        Content.seekg(0);
-    }
-
-  private:
-    std::istringstream Content;
-};
 
 std::string_view TestIni = R"(
 [Section1]
@@ -44,7 +16,7 @@ Entry2=complex string
 
 TEST(TIniFileTest, ReadSectionValues)
 {
-    TIniFile ini(std::make_unique<TestStream>(TestIni));
+    TIniFile ini(ReadAsMemoryStream(TestIni));
     TIniFile::Entries out;
     ini.ReadSectionValues("Section1", out);
     ASSERT_EQ(2, out.size());
@@ -54,7 +26,7 @@ TEST(TIniFileTest, ReadSectionValues)
 
 TEST(TIniFileTest, OmittsComment)
 {
-    TIniFile ini(std::make_unique<TestStream>(TestIni));
+    TIniFile ini(ReadAsMemoryStream(TestIni));
     TIniFile::Entries out;
     ini.ReadSectionValues("Section2", out);
     ASSERT_EQ(2, out.size());
@@ -64,13 +36,31 @@ TEST(TIniFileTest, OmittsComment)
 
 TEST(TIniFileTest, ReadTwoDifferentSections)
 {
-    TIniFile ini(std::make_unique<TestStream>(TestIni));
+    TIniFile ini(ReadAsMemoryStream(TestIni));
     {
         TIniFile::Entries out;
         ini.ReadSectionValues("Section2", out);
     }
     TIniFile::Entries out;
     ini.ReadSectionValues("Section1", out);
+    ASSERT_EQ(2, out.size());
+    EXPECT_STREQ("1", out.at("Entry1").data());
+    EXPECT_STREQ("1.2", out.at("Entry2").data());
+}
+
+TEST(TIniFileTest, ReadSectionValuesReturnFalseInCaseOfMissingFile)
+{
+    TIniFile ini(nullptr);
+    TIniFile::Entries out;
+    EXPECT_EQ(false, ini.ReadSectionValues("Section1", out));
+}
+
+TEST(TIniFileTest, TrimWhiteSpaceFromLine)
+{
+    auto section = "[Section1]\r\nEntry1=1\r\nEntry2=1.2\r\n";
+    TIniFile ini(ReadAsMemoryStream(section));
+    TIniFile::Entries out;
+    EXPECT_EQ(true, ini.ReadSectionValues("Section1", out));
     ASSERT_EQ(2, out.size());
     EXPECT_STREQ("1", out.at("Entry1").data());
     EXPECT_STREQ("1.2", out.at("Entry2").data());

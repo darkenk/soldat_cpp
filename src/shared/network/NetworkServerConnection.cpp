@@ -693,7 +693,7 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
     {
         for (auto &player : players)
         {
-            newplayer.adoptspriteid = num = player->spritenum;
+            newplayer.adoptspriteid = num == player->spritenum;
             udp->senddata(&newplayer, sizeof(newplayer), player->peer,
                           k_nSteamNetworkingSend_Reliable);
         }

@@ -62,6 +62,7 @@ set(SHARED_SRC
     ../shared/misc/BitStream.cpp
     ../shared/misc/SHA1.cpp
     ../shared/misc/RandomGenerator.cpp
+    ../shared/misc/TFileStream.cpp
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

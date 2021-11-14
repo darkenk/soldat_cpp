@@ -12,9 +12,16 @@ bool TIniFile::ReadSectionValues(const std::string_view &section, Entries &out)
     std::regex desiredSectionRegex{std::string("^\\[") + section.data() + "]"};
     std::regex entryRegex{R"((.*)=(.*))"};
     bool sectionFound = false;
+
+    if (Stream == nullptr)
+    {
+        return false;
+    }
+
     Stream->Reset();
     while (Stream->ReadLine(line))
     {
+        line = trim(line);
         if (!(sectionFound || std::regex_match(line, desiredSectionRegex)))
         {
             continue;

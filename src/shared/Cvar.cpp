@@ -292,7 +292,6 @@ CVarInt bots_random_alpha{"bots_random_alpha", "Number of bots on Alpha in INF, 
 CVarInt bots_random_bravo{"bots_random_bravo", "Number of bots on Bravo in INF, CTF, HTF, PM and TM", CVarFlags::SERVER_FLAG, 0};
 CVarInt bots_random_charlie{"bots_random_charlie", "Number of bots on Charlie in INF, CTF, HTF, PM and TM.", CVarFlags::SERVER_FLAG, 0};
 CVarInt bots_random_delta{"bots_random_delta", "Number of bots on Delta in INF, CTF, HTF, PM and TM", CVarFlags::SERVER_FLAG, 0};
-CVarInt bots_difficulty{"bots_difficulty", "Sets the skill level of the bots: 300=stupid, 200=poor, 100=normal, 50=hard, 10=impossible", CVarFlags::SERVER_FLAG, 100};
 CVarBool bots_chat{"bots_chat", "Enables/disables bots chatting", CVarFlags::SERVER_FLAG, true};
 
 // ScriptCore cvars
@@ -306,6 +305,8 @@ CVarBool fileserver_enable{"fileserver_enable", "Enables/Disables built-in files
 CVarInt fileserver_port{"fileserver_port", "Binds fileserver to specific port", CVarFlags::SERVER_FLAG | CVarFlags::INITONLY, 0};
 CVarString fileserver_ip{"fileserver_ip", "Binds fileserver to specific ip address", CVarFlags::SERVER_FLAG | CVarFlags::INITONLY, "0.0.0.0"};
 #endif
+
+CVarInt bots_difficulty{"bots_difficulty", "Sets the skill level of the bots: 300=stupid, 200=poor, 100=normal, 50=hard, 10=impossible", CVarFlags::SERVER_FLAG, 100};
 
 // Sync vars (todo);
 

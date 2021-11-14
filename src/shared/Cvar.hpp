@@ -332,6 +332,9 @@ extern CVarString sv_downloadurl;
 extern CVarBool sv_pure;
 extern CVarString sv_website;
 
+// SERVER
+extern CVarInt bots_difficulty;
+
 #ifdef SERVER
 extern CVarBool bots_chat;
 extern CVarString sv_maplist;
@@ -344,7 +347,6 @@ extern CVarInt sv_maxspectators;
 extern CVarBool sv_echokills;
 extern CVarInt sv_respawntime_minwave;
 extern CVarInt sv_respawntime_maxwave;
-extern CVarInt bots_difficulty;
 extern CVarBool sv_botbalance;
 extern CVarString sv_adminpassword;
 extern CVarString sv_password;

@@ -18,6 +18,7 @@
 #include "shared/misc/PortUtils.hpp"
 #include "shared/misc/PortUtilsSoldat.hpp"
 #include "shared/misc/SignalUtils.hpp"
+#include "shared/misc/TFileStream.hpp"
 #include "shared/network/NetworkServer.hpp"
 #include "shared/network/NetworkServerConnection.hpp"
 #include "shared/network/NetworkServerGame.hpp"
@@ -885,11 +886,15 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
     p = createsprite(a, b, 1, 255, NewPlayer, true);
     Result = p;
 
-    if (not loadbotconfig(userdirectory + "configs/bots/" + name + ".bot", sprite[p]))
     {
-        mainconsole.console("Bot file " + name + " not found", warning_message_color);
-        sprite[p].kill();
-        return Result;
+        TIniFile ini(ReadAsFileStream(userdirectory + "configs/bots/" + name + ".bot"));
+
+        if (not loadbotconfig(ini, sprite[p]))
+        {
+            mainconsole.console("Bot file " + name + " not found", warning_message_color);
+            sprite[p].kill();
+            return Result;
+        }
     }
 
     sprite[p].respawn();
@@ -930,6 +935,7 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
 #endif
 
     sortplayers();
+    return Result;
 }
 
 void startserver()
