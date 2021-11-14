@@ -533,18 +533,19 @@ bool gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline)
 void gfxdestroycontext()
 {
     std::int32_t i;
-    tbatch *batch;
 
-    batch = &gfxcontext.batch;
+    tbatch &batch = gfxcontext.batch;
 
-    if (batch->vertexbuffer != nullptr)
-        gfxdeletebuffer(batch->vertexbuffer);
+    if (batch.vertexbuffer != nullptr)
+        gfxdeletebuffer(batch.vertexbuffer);
 
-    for (i = 0; i < batch->buffers.size(); i++)
-        freemem(batch->buffers[i].data);
+    for (i = 0; i < batch.buffers.size(); i++)
+        freemem(batch.buffers[i].data);
 
-    //    batch->buffers = nullptr;
-    //    batch->commands = nullptr;
+    batch.buffers.clear();
+    batch.buffers.shrink_to_fit();
+    batch.commands.clear();
+    batch.commands.shrink_to_fit();
 
     if (gfxcontext.whitetexture != nullptr)
         gfxdeletetexture(gfxcontext.whitetexture);
@@ -982,129 +983,128 @@ void gfxdeleteindexbuffer(tgfxindexbuffer *b)
 void gfxbegin()
 {
     std::int32_t i;
-    tbatch *batch;
 
-    batch = &gfxcontext.batch;
+    tbatch &batch = gfxcontext.batch;
 
-    if (length(batch->buffers) == 0)
+    if (length(batch.buffers) == 0)
     {
-        batch->buffers.clear();
-        batch->buffers.push_back({});
-        batch->buffers[0].size = 0;
-        batch->buffers[0].capacity = 6 * batch_min;
-        getmem(batch->buffers[0].data, batch->buffers[0].capacity * sizeof(tgfxvertex));
+        batch.buffers.clear();
+        batch.buffers.emplace_back();
+        batch.buffers[0].size = 0;
+        batch.buffers[0].capacity = 6 * batch_min;
+        getmem(batch.buffers[0].data, batch.buffers[0].capacity * sizeof(tgfxvertex));
     }
-    else if (length(batch->buffers) > 1)
+    else if (length(batch.buffers) > 1)
     {
-        for (i = 0; i < batch->buffers.size(); i++)
-            freemem(batch->buffers[i].data);
+        for (i = 0; i < batch.buffers.size(); i++)
+            freemem(batch.buffers[i].data);
 
-        batch->buffers.clear();
-        batch->buffers.push_back({});
-        batch->buffers[0] = batch->buffers[high(batch->buffers)];
+        batch.buffers.clear();
+        batch.buffers.emplace_back();
+        batch.buffers[0] = batch.buffers[high(batch.buffers)];
     }
 
-    batch->buffers[0].size = 0;
-    batch->commandssize = 0;
+    batch.buffers[0].size = 0;
+    batch.commandssize = 0;
 }
 
 void gfxend()
 {
     std::int32_t i, n, total;
-    tbatch *batch;
 
-    batch = &gfxcontext.batch;
+    tbatch &batch = gfxcontext.batch;
     total = 0;
-    n = batch->commandssize;
+    n = batch.commandssize;
 
     if (n > 0)
-        total = batch->commands[n - 1].offset + batch->commands[n - 1].count;
+        total = batch.commands[n - 1].offset + batch.commands[n - 1].count;
 
     if (total == 0)
         return;
 
-    if (batch->vertexbuffer == nullptr)
+    if (batch.vertexbuffer == nullptr)
     {
         n = 1;
 
         while (n < total)
             n = 2 * n;
 
-        batch->vertexbuffer = gfxcreatebuffer(max(n, 6 * batch_min));
+        batch.vertexbuffer = gfxcreatebuffer(max(n, 6 * batch_min));
     }
-    else if (batch->vertexbuffer->capacity() < total)
+    else if (batch.vertexbuffer->capacity() < total)
     {
-        n = batch->vertexbuffer->capacity();
+        n = batch.vertexbuffer->capacity();
 
         while (n < total)
             n = 2 * n;
 
-        gfxdeletebuffer(batch->vertexbuffer);
-        batch->vertexbuffer = gfxcreatebuffer(n);
+        gfxdeletebuffer(batch.vertexbuffer);
+        batch.vertexbuffer = gfxcreatebuffer(n);
     }
 
     n = 0;
 
-    for (const auto &buffer : batch->buffers)
+    for (const auto &buffer : batch.buffers)
     {
-        gfxupdatebuffer(batch->vertexbuffer, n, buffer.size, buffer.data);
+        gfxupdatebuffer(batch.vertexbuffer, n, buffer.size, buffer.data);
         n += buffer.size;
     }
 
-    gfxdraw(batch->vertexbuffer, &batch->commands[0], batch->commandssize);
+    gfxdraw(batch.vertexbuffer, &batch.commands[0], batch.commandssize);
 }
 
 void gfxdrawquad(tgfxtexture *texture, const std::vector<tgfxvertex> &vertices)
 {
-    tbatch *b;
     tbatchbuffer *buf;
     pgfxvertex v;
     tgfxtexture *curtex;
     std::int32_t n;
 
-    b = &gfxcontext.batch;
+    tbatch &b = gfxcontext.batch;
 
     // update commands list
 
     curtex = nullptr;
-    n = b->commandssize;
+    n = b.commandssize;
 
     if (n > 0)
-        curtex = b->commands[n - 1].texture;
+        curtex = b.commands[n - 1].texture;
 
     if (texture == nullptr)
         texture = gfxcontext.whitetexture;
 
     if (curtex != texture)
     {
-        if (length(b->commands) < (n + 1))
-            b->commands.resize(max(2 * length(b->commands), 32uL));
+        if (length(b.commands) < (n + 1))
+        {
+            b.commands.resize(max(2 * length(b.commands), 32uL));
+        }
 
-        b->commands[n].texture = texture;
-        b->commands[n].offset = 0;
-        b->commands[n].count = 0;
+        b.commands[n].texture = texture;
+        b.commands[n].offset = 0;
+        b.commands[n].count = 0;
 
         if (n > 0)
-            b->commands[n].offset = b->commands[n - 1].offset + b->commands[n - 1].count;
+            b.commands[n].offset = b.commands[n - 1].offset + b.commands[n - 1].count;
 
-        b->commandssize += 1;
-        n = b->commandssize;
+        b.commandssize += 1;
+        n = b.commandssize;
     }
 
-    b->commands[n - 1].count += 6;
+    b.commands[n - 1].count += 6;
 
     // update buffer
 
-    n = length(b->buffers);
-    buf = &b->buffers[n - 1];
+    n = length(b.buffers);
+    buf = &b.buffers[n - 1];
 
     if ((buf->size + 6) > buf->capacity)
     {
         n += 1;
-        b->buffers.resize(n);
-        buf = &b->buffers[n - 1];
+        b.buffers.resize(n);
+        buf = &b.buffers[n - 1];
         buf->size = 0;
-        buf->capacity = 2 * b->buffers[n - 2].capacity;
+        buf->capacity = 2 * b.buffers[n - 2].capacity;
         getmem(buf->data, buf->capacity * sizeof(tgfxvertex));
     }
 
