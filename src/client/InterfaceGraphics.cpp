@@ -1159,7 +1159,7 @@ void renderweaponstatstexts()
     j = 0;
     gfxtextcolor(rgba(0xffffff));
 
-    for (i = 0; i <= 20; i++)
+    for (i = 1; i <= 20; i++)
     {
         stat = &wepstats[i];
 

@@ -29,6 +29,7 @@
 #include "shared/misc/PortUtils.hpp"
 #include "shared/misc/PortUtilsSoldat.hpp"
 #include "shared/misc/SHA1.hpp"
+#include "shared/misc/TIniFile.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include <physfs.h>
@@ -418,19 +419,12 @@ void exittomenu()
 
 void startgame()
 {
-#if 0
-    tmeminifile ini;
-#endif
     float fov;
     SDL_DisplayMode currentdisplay;
     std::string systemlang = "en_US";
     std::string systemfallbacklang = "en_US";
-#if 0
-    tstream radiomenustream;
-#endif
     char *basepathsdl;
     char *userpathsdl;
-    std::int32_t i;
     if (Config::IsDebug())
     {
         userpathsdl = SDL_GetBasePath();
@@ -765,8 +759,10 @@ void startgame()
     killconsole.newmessagewait = 70;
 
     // Create static player objects
-    for (i = 1; i <= max_sprites; i++)
-        sprite[i].player = new tplayer();
+    for (auto &s : sprite)
+    {
+        s.player = new tplayer();
+    }
 
     loadanimobjects("");
     if (length(moddir) > 0)
@@ -794,18 +790,10 @@ void startgame()
 
     initgamemenus();
 
-    NotImplemented(NITag::FILESYSTEM, "No radiomenu-default.ini");
-#if 0
-    radiomenu = tstringlist.create;
-    radiomenustream = PhysFS_ReadAsStream("txt/radiomenu-default.ini");
-    ini = tmeminifile.create(radiomenustream);
-    if (assigned(ini))
     {
-        ini.CVar::readsectios("OPTIONS", radiomenu);
-        ini.free;
+        TIniFile ini{PhysFS_ReadAsStream("txt/radiomenu-default.ini")};
+        ini.ReadSectionValues("OPTIONS", radiomenu);
     }
-    radiomenustream.free;
-#endif
 
     // Play demo
     freecam = 1;
@@ -943,20 +931,3 @@ void showmessage(const std::string &message)
 {
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message.c_str(), nullptr);
 };
-
-// procedure ShowMessage(MessageText: WideString); overload;
-// begin
-//  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PChar('Error'),
-//  PAnsiChar(AnsiString(MessageText)), nullptr);
-// end;
-
-// initialization
-// Mask exceptions on 32 and 64 bit fpc builds
-//  {$IF defined(cpui386) or defined(cpux86_64)}
-//  SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow,
-//  exPrecision]);
-//  {$ENDIF}
-
-// finalization
-//  ShutDown;
-//#endif
