@@ -4,6 +4,6 @@
 int main(int argc, const char *argv[])
 {
     InitLogging();
-    startgame();
+    startgame(argc, argv);
     return 0;
 }

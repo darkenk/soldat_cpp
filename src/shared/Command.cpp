@@ -522,33 +522,25 @@ bool loadconfig(const std::string &configname)
     return result;
 }
 
-void parsecommandline()
+void parsecommandline(int argc, const char *argv[])
 {
-    std::string commandline = "";
-    tstringlist commandlineparser;
+    std::vector<std::string> commands;
     std::int32_t i;
 
-    NotImplemented(NITag::OTHER);
-#if 0
-
-    for (i = 1; i <= argc; i++)
+    for (i = 1; i < argc; i++)
     {
-        if (commandline != "")
-            commandline = commandline + ' ';
-        commandline = commandline + argv[i];
+        if (argv[i][0] == '-')
+        {
+            commands.push_back(argv[i] + 1);
+            continue;
+        }
+        commands.back() += " ";
+        commands.back() += argv[i];
     }
-
-    commandlineparser = tstringlist.create;
-    commandlineparser.delimiter = '-';
-    commandlineparser.strictdelimiter = true;
-    commandlineparser.delimitedtext = commandline;
-
-    for (i = 0; i <= commandlineparser.count - 1; i++)
+    for (const auto &c : commands)
     {
-        if (commandlineparser[i] != "")
-            parseinput(commandlineparser[i]);
+        parseinput(c);
     }
-#endif
 }
 
 tcommandtargets commandtarget(std::string target, std::uint8_t sender);

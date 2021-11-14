@@ -59,7 +59,9 @@ std::int32_t createsprite(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle
         }
     }
     else
+    {
         i = n; // i is now the active sprite
+    }
 
     result = i;
 
@@ -1643,13 +1645,19 @@ void tsprite::die(std::int32_t how, std::int32_t who, std::int32_t where, std::i
 
 #ifndef SERVER
         if ((who != num) && (who == mysprite))
-            for (auto i = 1; i <= 20; i++)
-                if (wepstats[i].name == s)
+        {
+            for (auto &w : wepstats)
+            {
+                if (w.name == s)
                 {
-                    wepstats[i].kills = wepstats[i].kills + 1;
+                    w.kills = w.kills + 1;
                     if (where == 12) /*head*/
-                        wepstats[i].headshots = wepstats[i].headshots + 1;
+                    {
+                        w.headshots = w.headshots + 1;
+                    }
                 }
+            }
+        }
 #endif
 
 #ifdef SERVER

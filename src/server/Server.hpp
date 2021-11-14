@@ -60,4 +60,4 @@ bool preparemapchange(std::string Name);
 std::int8_t addbotplayer(std::string name, std::int32_t team);
 void loadweapons(std::string Filename);
 void startserver();
-void ActivateServer();
+void ActivateServer(int argc, const char *argv[]);

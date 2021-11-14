@@ -11,7 +11,7 @@
 #include "shared/network/NetworkClient.hpp"
 
 void joinserver();
-void startgame();
+void startgame(int argc, const char *argv[]);
 void shutdown();
 void exittomenu();
 void restartgraph();

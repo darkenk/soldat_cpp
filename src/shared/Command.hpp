@@ -42,6 +42,6 @@ typedef std::vector<std::uint8_t> tcommandtargets;
 pcommand commandadd(const std::string &commandnamevar, tcommandfunction commandptr,
                     const std::string &description, tcommandflags flags);
 void commandexecutealias(std::vector<std::string> &args, std::uint8_t sender);
-void parsecommandline();
+void parsecommandline(int argc, const char *argv[]);
 void rundeferredcommands();
 tcommandtargets commandtarget(std::string target, std::uint8_t sender);

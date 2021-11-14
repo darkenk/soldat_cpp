@@ -5,9 +5,9 @@
 
 #include <shared/Logging.hpp>
 
-void RunServer()
+void RunServer(int argc, const char *argv[])
 {
-    ActivateServer();
+    ActivateServer(argc, argv);
     writepid();
 
     if (progready)
@@ -21,9 +21,9 @@ void RunServer()
     }
 }
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
     InitLogging();
-    RunServer();
+    RunServer(argc, argv);
     return 0;
 }

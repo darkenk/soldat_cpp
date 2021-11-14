@@ -213,15 +213,13 @@ void tabcomplete()
 // Resets the stats of all weapons
 void resetweaponstats()
 {
-    std::uint8_t i;
-
-    for (i = 1; i <= 20; i++)
+    for (auto &w : wepstats)
     {
-        wepstats[i].shots = 0;
-        wepstats[i].hits = 0;
-        wepstats[i].kills = 0;
-        wepstats[i].headshots = 0;
-        wepstats[i].accuracy = 0;
+        w.shots = 0;
+        w.hits = 0;
+        w.kills = 0;
+        w.headshots = 0;
+        w.accuracy = 0;
     }
 }
 

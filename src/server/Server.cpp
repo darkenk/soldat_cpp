@@ -453,7 +453,7 @@ Pointer Data;
 }
 #endif // STEAM
 
-void ActivateServer()
+void ActivateServer(int argc, const char *argv[])
 {
     std::int32_t j, i;
     NotImplemented(NITag::NETWORK, "Rewrite message");
@@ -512,7 +512,7 @@ void ActivateServer()
     cvarinit();
 #endif
     initservercommands();
-    parsecommandline();
+    parsecommandline(argc, argv);
 
     if (CVar::fs_basepath == "")
     {

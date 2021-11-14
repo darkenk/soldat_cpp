@@ -417,7 +417,7 @@ void exittomenu()
 //
 //{$ENDIF}
 
-void startgame()
+void startgame(int argc, const char *argv[])
 {
     float fov;
     SDL_DisplayMode currentdisplay;
@@ -438,9 +438,11 @@ void startgame()
 
     initclientcommands();
 
-    parsecommandline();
-    NotImplemented(NITag::OTHER, "Hardcoded input commands");
-    parseinput("join 127.0.0.1 23073");
+    parsecommandline(argc, argv);
+    if (argc == 1)
+    {
+        parseinput("join 127.0.0.1 23073");
+    }
 
     if (CVar::fs_portable)
     {
