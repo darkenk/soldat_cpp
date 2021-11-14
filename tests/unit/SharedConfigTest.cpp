@@ -146,7 +146,7 @@ TEST(SharedConfigTest, ReadHeadConfig)
     EXPECT_EQ(GFX::GOSTEK_HELM, sprite.player->headcap);
     EXPECT_EQ(0, sprite.wearhelmet);
     EXPECT_EQ(0, sprite.player->chain);
-    EXPECT_EQ(true, sprite.dummy);
+    EXPECT_EQ(false, sprite.dummy);
     delete sprite.player;
 }
 

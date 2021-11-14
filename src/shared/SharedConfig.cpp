@@ -12,113 +12,6 @@
 #include "shared/gfx.hpp"
 #include <sstream>
 
-// procedure ReadConfColor(conf: TStringList; const SectionName: string; var VarName: LongWord);
-// overload; begin
-//  try
-//    if conf.Values[SectionName] <> '' then
-//    begin
-//      VarName := LongWord(ColorToHex(StringToColor(conf.Values[SectionName])))
-//    end;
-//    else
-//      raise Exception.Create('Value "' + SectionName + '" not found');
-//  except
-//    raise Exception.Create('Value "' + SectionName + '" is not a number');
-//  end;
-// end;
-
-// procedure ReadConfMagicColor(conf: TStringList; const SectionName: string; var VarName:
-// LongWord); overload; begin
-//  try
-//    if conf.Values[SectionName] <> '' then
-//      VarName := StringToColor(conf.Values[SectionName])
-//    else
-//      raise Exception.Create('Value "' + SectionName + '" not found');
-//  except
-//    raise Exception.Create('Value "' + SectionName + '" is not a number');
-//  end;
-// end;
-
-// procedure ReadConf(conf: TStringList; const SectionName: string; var VarName: Integer); overload;
-// begin
-//  try
-//    if conf.Values[SectionName] <> '' then
-//      VarName := StrToInt(conf.Values[SectionName])
-//    else
-//      raise Exception.Create('Value "' + SectionName + '" not found');
-//  except
-//    raise Exception.Create('Value "' + SectionName + '" is not a number');
-//  end;
-// end;
-//
-// procedure ReadConf(conf: TStringList; const SectionName: string; var VarName: Byte); overload;
-// begin
-//  try
-//    if conf.Values[SectionName] <> '' then
-//      VarName := StrToInt(conf.Values[SectionName])
-//    else
-//      raise Exception.Create('Value "' + SectionName + '" not found');
-//  except
-//    raise Exception.Create('Value "' + SectionName + '" is not a number');
-//  end;
-// end;
-//
-// procedure ReadConf(conf: TStringList; const SectionName: string; var VarName: string;
-//  AllowBlank: Boolean = False); overload;
-// begin
-//  if (conf.Values[SectionName] <> '') or AllowBlank then
-//    VarName := conf.Values[SectionName]
-//  else
-//    raise Exception.Create('Value "' + SectionName + '" not found');
-// end;
-//
-// procedure ReadConf(conf: TStringList; const SectionName: string; var VarName: Boolean;
-//  AllowBlank: Boolean = False); overload;
-// begin
-//  if (conf.Values[SectionName] <> '') or AllowBlank then
-//    VarName := conf.Values[SectionName] = '1'
-//  else
-//    raise Exception.Create('Value "' + SectionName + '" not found');
-// end;
-//
-// procedure ReadWMConf(conf: TStringList; const SectionName: string; var VarName: Word); overload;
-// begin
-//  try
-//    if conf.Values[SectionName] <> '' then
-//      VarName := StrToInt(conf.Values[SectionName]);
-//  except
-//    raise Exception.Create('Value "' + SectionName + '" is not a number');
-//  end;
-// end;
-//
-// procedure ReadWMConf(conf: TStringList; const SectionName: string; var VarName: SmallInt);
-// overload; begin
-//  try
-//    if conf.Values[SectionName] <> '' then
-//      VarName := StrToInt(conf.Values[SectionName]);
-//  except
-//    raise Exception.Create('Value "' + SectionName + '" is not a number');
-//  end;
-// end;
-//
-// procedure ReadWMConf(conf: TStringList; const SectionName: string; var VarName: Byte); overload;
-// begin
-//  try
-//    if conf.Values[SectionName] <> '' then
-//      VarName := StrToInt(conf.Values[SectionName]);
-//  except
-//    raise Exception.Create('Value "' + SectionName + '" is not a number');
-//  end;
-// end;
-//
-// procedure ReadWMConf(conf: TStringList; const SectionName: string; var VarName: Single);
-// overload; begin
-//  try
-//    if conf.Values[SectionName] <> '' then
-//      VarName := StrToFloat(conf.Values[SectionName]);
-//  except
-//    raise Exception.Create('Value "' + SectionName + '" is not a number');
-//  end;
-// end;
 namespace
 {
 
@@ -142,7 +35,7 @@ void ReadConf(const TIniFile::Entries &conf, const std::string_view entry, bool 
     ReadConf(conf, entry, s, allowEmpty);
     if (s.empty())
     {
-        out = true;
+        out = false;
         return;
     }
     out = std::stoi(s) == 1;

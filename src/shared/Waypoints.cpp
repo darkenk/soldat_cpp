@@ -94,7 +94,7 @@ std::int32_t twaypoints::findclosest(float x, float y, std::int32_t radius,
 
     std::int32_t result = 0;
 
-    for (i = 0; i < max_waypoints; i++)
+    for (i = 1; i <= max_waypoints; i++)
     {
         if ((waypoint[i].active) && (currwaypoint != i))
         {

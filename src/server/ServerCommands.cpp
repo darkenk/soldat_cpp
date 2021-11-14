@@ -71,7 +71,7 @@ void commandaddbot(std::vector<std::string> &args, std::uint8_t sender)
         return;
 
     tempstr = args[0];
-    teamset = strtointdef({tempstr[7], 1}, 0);
+    teamset = strtointdef({tempstr[6], 1}, 0);
     addbotplayer(name, teamset);
 }
 
