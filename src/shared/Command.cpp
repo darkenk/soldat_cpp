@@ -395,14 +395,27 @@ bool parseinput(const std::string &input)
     return parseinput(input, 0);
 }
 
+template <typename T>
+bool SetValue(const std::string &cvarName, const std::string &value)
+{
+    auto &cvi = CVarBase<T>::Find(cvarName);
+    if (!cvi.IsValid())
+    {
+        return false;
+    }
+    auto ret = cvi.ParseAndSetValue(value);
+    if (ret)
+    {
+        LogInfoG("Set CVar variable {} to {}", cvarName, value);
+    }
+    return ret;
+}
+
 bool parseinput(const std::string &input, std::uint8_t sender)
 {
     tstringlist inputparse;
 
     pcommand commandptr;
-#if 0
-    tcvarbase acvar;
-#endif
     tcommandfunction commandfunction;
 
     bool result;
@@ -454,43 +467,38 @@ bool parseinput(const std::string &input, std::uint8_t sender)
         result = true;
         return result;
     }
-#if 0
-    acvar = tcvarbase.find(inputarray[0]);
-    if (acvar != nullptr)
+    if (inputarray.size() != 2)
     {
-#ifndef SERVER
-        if (acvar.flags.has(cvar_sync))
-        {
-            result = false;
-            return result;
-        }
+#ifdef SERVER
+        mainconsole.console("Cannot parse " + input, sender, debug_message_color);
+#else
+        mainconsole.console("Cannot parse " + input, sender);
 #endif
-        if (length(inputarray) == 1)
-        {
-            mainconsole.console(format("%s is \"%s\" (%s)", set::of(acvar.name, CVar::acvarasstring,
-                                                                    acvar.description, eos)),
-                                debug_message_color #ifdef SERVER, sender #endif);
-        }
-        else if (length(inputarray) == 2)
-        {
-            if (!acvar.parseandsetvalue(inputarray[1]))
-            {
-                mainconsole.console(
-                    format("Unable to set %s: %s", set::of(acvar.name, acvar.geterrormessage, eos)),
-                    debug_message_color #ifdef SERVER, sender #endif);
-            }
-            else
-            {
-                mainconsole.console(format("%s is now set to: \"%s\"",
-                                           set::of(acvar.name, CVar::acvarasstring, eos)),
-                                    debug_message_color #ifdef SERVER, sender #endif);
-            }
-        }
-        result = true;
+        return false;
     }
-    return result;
+
+    if (SetValue<std::int32_t>(inputarray[0], inputarray[1]))
+    {
+        return true;
+    }
+    if (SetValue<bool>(inputarray[0], inputarray[1]))
+    {
+        return true;
+    }
+    if (SetValue<std::string>(inputarray[0], inputarray[1]))
+    {
+        return true;
+    }
+    if (SetValue<float>(inputarray[0], inputarray[1]))
+    {
+        return true;
+    }
+#ifdef SERVER
+    mainconsole.console("Cannot set variable " + input, sender, debug_message_color);
+#else
+    mainconsole.console("Cannot set variable " + input, sender);
 #endif
-    return result;
+    return false;
 }
 
 bool loadconfig(const std::string &configname)
