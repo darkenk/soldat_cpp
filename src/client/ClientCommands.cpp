@@ -11,6 +11,7 @@
 #include "shared/Game.hpp"
 #include "shared/Util.hpp"
 #include "shared/network/NetworkClientMessages.hpp"
+#include <regex>
 
 std::uint8_t screenshotsinarow = 0;
 
@@ -39,11 +40,10 @@ void commandbind(std::vector<std::string> &args, std::uint8_t sender)
         if (bindkeyname.find("alt") != std::string::npos)
             modifier = modifier | km_alt;
 
-        NotImplemented(NITag::OTHER);
-#if 0
-        bindkeyname = stringsreplace(bindkeyname, set::of("ctrl", "shift", "alt", '+', eos),
-                                     set::of("", "", "", "", eos), set::of(rfreplaceall, eos));
-#endif
+        bindkeyname = std::regex_replace(bindkeyname, std::regex("shift"), "");
+        bindkeyname = std::regex_replace(bindkeyname, std::regex("alt"), "");
+        bindkeyname = std::regex_replace(bindkeyname, std::regex("ctrl"), "");
+        bindkeyname = std::regex_replace(bindkeyname, std::regex("\\+"), "");
     }
 
     if (args[2][0] == '+')

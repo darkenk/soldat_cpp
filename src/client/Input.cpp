@@ -37,33 +37,23 @@ bool bindkey(const std::string &key, const std::string &action, const std::strin
 
     if (bind.keyid == 0)
     {
-        LogDebug(LOG, "Key {} is invalid", key);
+        LogWarn(LOG, "Key {} is invalid", key);
         return bindkey_result;
     }
 
     if (findkeybind(modifier, (SDL_Scancode)bind.keyid) != nullptr)
     {
-        LogDebug(LOG, "Key {} is already binded", key);
+        LogWarn(LOG, "Key {} is already binded", key);
         return bindkey_result;
     }
 
     bind.action = GetActionEnum(action.substr(1));
-    NotImplemented(NITag::INPUT);
-#if 0
-    for (i = ord(low(taction)); i <= ord(high(taction)); i++)
-    {
-        if (lowercase(action) == string('+') + lowercase(getenumname(typeinfo(taction), ord(i))))
-        {
-            bind.action = (taction)(ord(i));
-        }
-    }
-#endif
 
     bind.command = command;
     bind.keymod = modifier;
 
-    LogDebug(LOG, "BindKey id: {} Key: {} ({}), Mod: {} Command: {}", binds.size(), key, bind.keyid,
-             bind.keymod, command);
+    LogInfo(LOG, "BindKey id: {} Key: {} ({}), Mod: {} Command: {}", binds.size(), key, bind.keyid,
+            bind.keymod, command);
 
     binds.push_back(bind);
     bindkey_result = true;

@@ -494,12 +494,6 @@ void startgame(int argc, const char *argv[])
 
     initing = 0;
 
-    NotImplemented(NITag::OTHER, "Pascal specific");
-#if 0
-    defaultformatsettings.decimalseparator = '.';
-    defaultformatsettings.dateseparator = '-';
-#endif
-
 #ifdef STEAM
     //  {$IFDEF STEAM}
     //  Debug('[Steam] Initializing system');
