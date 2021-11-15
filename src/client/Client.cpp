@@ -28,7 +28,7 @@
 #include "shared/misc/Config.hpp"
 #include "shared/misc/PortUtils.hpp"
 #include "shared/misc/PortUtilsSoldat.hpp"
-#include "shared/misc/SHA1.hpp"
+#include "shared/misc/SHA1Helper.hpp"
 #include "shared/misc/TIniFile.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
@@ -541,10 +541,7 @@ void startgame(int argc, const char *argv[])
             return;
         }
 
-        {
-            auto ret = SHA1::from_file(basedirectory + "/soldat.smod");
-            std::copy(ret.begin(), ret.end(), gamemodchecksum.Dummy.begin());
-        }
+        gamemodchecksum = sha1file(basedirectory + "/soldat.smod");
     }
 
     moddir = "";
@@ -565,11 +562,7 @@ void startgame(int argc, const char *argv[])
             return;
         }
         moddir = std::string("mods/") + lowercase(CVar::fs_mod) + '/';
-        NotImplemented(NITag::CHECKSUM, "No checksum");
-#if 0
-        custommodchecksum =
-            sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod", 4096);
-#endif
+        custommodchecksum = sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod");
     }
 
 #ifdef STEAM
@@ -642,12 +635,9 @@ void startgame(int argc, const char *argv[])
         //  WindowHeight := Screen.Height;
     }
 
-    NotImplemented(NITag::GFX);
-#if 0
-    gfxlog(format("Window size: %dx%d", set::of(windowwidth, windowheight, eos)));
-    gfxlog(format("Target resolution: %dx%d", set::of(screenwidth, screenheight, eos)));
-    gfxlog(format("Internal resolution: %dx%d", set::of(renderwidth, renderheight, eos)));
-#endif
+    LogInfo("gfx", "Window size: {}x{}", windowwidth, windowheight);
+    LogInfo("gfx", "Target resolution: {}x{}", screenwidth, screenheight);
+    LogInfo("gfx", "Internal resolution: {}x{}", renderwidth, renderheight);
 
     // even windowed mode can behave as fullscreen with the right size
     // IsFullscreen := (WindowWidth = Screen.Width) and (WindowHeight = Screen.Height);

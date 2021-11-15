@@ -6,17 +6,11 @@
 /*#include "Sha1.h"*/
 /*#include "typinfo.h"*/
 
+#include "misc/SHA1Helper.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
-
-// TODO: implement digest somewhere
-struct tsha1digest
-{
-    std::array<std::uint32_t, 5> Dummy = {0};
-};
-static_assert(sizeof(tsha1digest) == 20, "Pascals tsha1digest is 20 byte");
 
 using tcolor = std::uint32_t;
 const std::uint32_t min_tcolor = 0;
@@ -75,9 +69,9 @@ std::string md5stringhelper(std::string text);
 bool createdirifmissing(const std::string &dir);
 bool createfileifmissing(const std::string &filename);
 std::string getsize(int64_t bytes);
-tsha1digest getmapchecksum(tmapinfo map);
+tsha1digest getmapchecksum(const tmapinfo &map);
 bool getmapinfo(std::string mapname, std::string directory, tmapinfo &mapinfo); // dk out MapInfo
-// bool verifymapchecksum(tmapinfo map, tsha1digest checksum);
+bool verifymapchecksum(const tmapinfo &map, const tsha1digest &checksum);
 #ifdef DEVELOPMENT
 void tostr(const void *avalue, ptypeinfo atypeinfo);
 #endif

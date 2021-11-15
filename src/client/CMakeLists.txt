@@ -61,6 +61,7 @@ set(SHARED_SRC
     ../shared/misc/FontAtlas.cpp
     ../shared/misc/BitStream.cpp
     ../shared/misc/SHA1.cpp
+    ../shared/misc/SHA1Helper.cpp
     ../shared/misc/RandomGenerator.cpp
     ../shared/misc/TFileStream.cpp
 )

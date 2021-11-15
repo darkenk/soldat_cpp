@@ -42,4 +42,9 @@ void InitLogging()
         auto log = spdlog::stdout_color_mt("sprites");
         log->set_level(spdlog::level::trace);
     }
+
+    {
+        auto log = spdlog::stdout_color_mt("gfx");
+        log->set_level(spdlog::level::info);
+    }
 }

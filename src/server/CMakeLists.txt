@@ -48,6 +48,8 @@ set(SHARED_SRC
     ../shared/misc/TIniFile.cpp
     ../shared/misc/RandomGenerator.cpp
     ../shared/misc/TFileStream.cpp
+    ../shared/misc/SHA1.cpp
+    ../shared/misc/SHA1Helper.cpp
 )
 
 

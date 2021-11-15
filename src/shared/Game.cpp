@@ -138,7 +138,6 @@ using string = std::string;
 void number27timing()
 {
     timeinmillast = timeinmil;
-    // NotImplemented(NITag::OTHER, "No gettickcount64");
     timeinmil = std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::steady_clock::now().time_since_epoch())
                     .count();
@@ -543,9 +542,8 @@ void changemap()
     mapchanged = true;
     demorecorder.stoprecord();
 
-    NotImplemented(NITag::CHECKSUM);
-    if (getmapinfo(mapchangename, userdirectory, mapchangestatus)/* &&
-        verifymapchecksum(mapchangestatus, tsha1digest(mapchangechecksum)*/)
+    if (getmapinfo(mapchangename, userdirectory, mapchangestatus) &&
+        verifymapchecksum(mapchangestatus, mapchangechecksum))
     {
         if (!map.loadmap(mapchangestatus, CVar::r_forcebg, CVar::r_forcebg_color1,
                          CVar::r_forcebg_color2))

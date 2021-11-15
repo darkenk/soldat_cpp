@@ -234,12 +234,8 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     {
         if (modname != "")
         {
-            NotImplemented(NITag::NETWORK, "no sha1 checks");
-#if 0
-            checksum = sha1file(userdirectory + "mods/" + modname + ".smod", 4096);
-            if (sha1match(tsha1digest(playerslistmsg->modchecksum), checksum))
-#endif
-            if (true)
+            checksum = sha1file(userdirectory + "mods/" + modname + ".smod");
+            if (playerslistmsg->modchecksum == checksum)
             {
                 if (!PHYSFS_mount((pchar)(userdirectory + "mods/" + modname + ".smod"),
                                   (pchar)(string("mods/") + modname + '/'), false))
@@ -282,8 +278,8 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
 
     // Initialize Map
 
-    if (getmapinfo(mapname, userdirectory,
-                   mapstatus)) /*and VerifyMapChecksum(MapStatus, PlayersListMsg.MapChecksum)*/
+    if (getmapinfo(mapname, userdirectory, mapstatus) /*&&
+        verifymapchecksum(mapstatus, playerslistmsg->mapchecksum)*/)
     {
         if (!map.loadmap(mapstatus, CVar::r_forcebg, CVar::r_forcebg_color1,
                          CVar::r_forcebg_color2))

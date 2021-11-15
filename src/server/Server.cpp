@@ -546,10 +546,7 @@ void ActivateServer(int argc, const char *argv[])
         return;
     }
 
-    NotImplemented(NITag::OTHER, "No game mod checksum");
-#if 0
-    GameModChecksum = Sha1File(basedirectory + "/soldat.smod", 4096);
-#endif
+    gamemodchecksum = sha1file(basedirectory + "/soldat.smod");
 
     ModDir = "";
 
@@ -564,11 +561,7 @@ void ActivateServer(int argc, const char *argv[])
             return;
         }
         ModDir = "mods/" + lowercase(CVar::fs_mod) + "/";
-        NotImplemented(NITag::OTHER, "No custom mod checksum");
-#if 0
-        CustomModChecksum =
-            Sha1File(userdirectory + "mods/" + lowercase(fs_mod) + ".smod", 4096);
-#endif
+        custommodchecksum = sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod");
     }
 
     // Create the basic folder structure

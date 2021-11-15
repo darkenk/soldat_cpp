@@ -15,10 +15,12 @@
 /*#include "Game.h"*/
 /*#include "Steam.h"*/
 
+#include "Game.hpp"
+
 std::int32_t charcount(const char character, const std::string &str1)
 {
     std::int32_t result = 0;
-    for (std::size_t i = 1; i <= str1.length(); i++)
+    for (std::size_t i = 0; i < str1.length(); i++)
     {
         if (character == str1[i])
         {
@@ -169,31 +171,22 @@ std::string getsize(std::int64_t bytes)
     return std::to_string(filesize) + " Kb";
 }
 
-#if 0
-
-bool verifymapchecksum(tmapinfo map, tsha1digest checksum)
+bool verifymapchecksum(const tmapinfo &map, const tsha1digest &checksum)
 {
-    bool result;
-    result = false;
-    if (sha1match(getmapchecksum(map), checksum))
-        result = true;
-    return result;
+    return getmapchecksum(map) == checksum;
 }
-#endif
 
-tsha1digest getmapchecksum(tmapinfo map)
+tsha1digest getmapchecksum(const tmapinfo &map)
 {
-    NotImplemented(NITag::OTHER);
-    return tsha1digest{};
-#if 0
-    std::uint64_t result;
-    result = default_(tsha1digest);
     if (PHYSFS_exists((pchar)(std::string("maps/") + map.mapname + ".pms")))
-        result = gamemodchecksum;
+    {
+        return gamemodchecksum;
+    }
     else if (fileexists(map.path))
-        result = sha1file(map.path, 4096);
-    return result;
-#endif
+    {
+        return sha1file(map.path);
+    }
+    return tsha1digest{};
 }
 
 // for string delimiter
