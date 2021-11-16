@@ -231,10 +231,11 @@ void clienthandleserverthingmustsnapshot(SteamNetworkingMessage_t *netmessage)
     if ((thing[i].holdingsprite == 0) && (!(thing[i].style == object_stationary_gun)))
         for (d = 1; d <= 4; d++)
         {
-            thing[i].skeleton.pos[d].x = thingmustsnap->pos[d].x;
-            thing[i].skeleton.pos[d].y = thingmustsnap->pos[d].y;
-            thing[i].skeleton.oldpos[d].x = thingmustsnap->oldpos[d].x;
-            thing[i].skeleton.oldpos[d].y = thingmustsnap->oldpos[d].y;
+            [[deprecated("indexing")]] auto dminus1 = d - 1;
+            thing[i].skeleton.pos[d].x = thingmustsnap->pos[dminus1].x;
+            thing[i].skeleton.pos[d].y = thingmustsnap->pos[dminus1].y;
+            thing[i].skeleton.oldpos[d].x = thingmustsnap->oldpos[dminus1].x;
+            thing[i].skeleton.oldpos[d].y = thingmustsnap->oldpos[dminus1].y;
         }
 
     thing[i].timeout = thingmustsnap->timeout;
