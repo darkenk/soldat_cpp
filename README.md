@@ -4,8 +4,7 @@ Conversion was made with help of [ptoc](https://github.com/knizhnik/ptoc). Both 
 The big missing part is scriptcore and pascalscript in server. Places with missing code (mostly due to converter issue)
 are marked by `NotImplemented()` function.
 
-Current focus is on client part, so server can be inoperable. To test client you need [assets](https://github.com/Soldat/base)
-and Pascal version of server.
+To test client and server you need [assets](https://github.com/Soldat/base).
 
 # Current external dependencies
 * freetype-2.10.4
@@ -36,5 +35,5 @@ cd build
 mkdir out/linux_x86
 cd out/linux_x86
 cmake ../../../ -DCMAKE_BUILD_TYPE:STRING=Debug
-cmake --build --target SoldatClient
+cmake --build --target SoldatClient SoldatServer
 ```
