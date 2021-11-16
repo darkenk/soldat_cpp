@@ -160,3 +160,82 @@ TEST(SharedConfigTest, ReadInvalidOptionsReturnFalse)
     EXPECT_EQ(false, loadbotconfig(tf, sprite));
     delete sprite.player;
 }
+
+auto constexpr WeaponConfig = R"(
+[Info]
+Name=Default mod
+Version=1.7.1
+
+[Rambo Bow]
+Damage=12
+FireInterval=10
+Ammo=1
+ReloadTime=25
+Speed=21
+BulletStyle=7
+StartUpTime=0
+Bink=0
+MovementAcc=0
+BulletSpread=0
+Recoil=0
+Push=0.0148
+InheritedVelocity=0.5
+ModifierHead=1.15
+ModifierChest=1
+ModifierLegs=0.9
+)";
+
+TEST(SharedConfigTest, ReadWeaponsConfigModInfo)
+{
+    TIniFile tf{ReadAsMemoryStream(WeaponConfig)};
+    std::string modname;
+    std::string version;
+    GunsDescription gunDesc;
+    loadweaponsconfig(tf, modname, version, gunDesc);
+    EXPECT_EQ("Default mod", modname);
+    EXPECT_EQ("1.7.1", version);
+}
+
+TEST(SharedConfigTest, ReadWeaponsConfigRamboBow)
+{
+    TIniFile tf{ReadAsMemoryStream(WeaponConfig)};
+    std::string modname;
+    std::string version;
+    GunsDescription gunDesc;
+    gunDesc[bow].ininame = "Rambo Bow";
+    EXPECT_EQ(true, loadweaponsconfig(tf, modname, version, gunDesc));
+    const auto &gun = gunDesc[bow];
+    EXPECT_EQ(12, gun.hitmultiply);
+    EXPECT_EQ(10, gun.fireinterval);
+    EXPECT_EQ(1, gun.ammo);
+    EXPECT_EQ(25, gun.reloadtime);
+    EXPECT_EQ(21, gun.speed);
+    EXPECT_EQ(7, gun.bulletstyle);
+    EXPECT_EQ(0, gun.startuptime);
+    EXPECT_EQ(0, gun.bink);
+    EXPECT_EQ(0, gun.movementacc);
+    EXPECT_EQ(0, gun.bulletspread);
+    EXPECT_EQ(0, gun.recoil);
+    EXPECT_EQ(0.0148f, gun.push);
+    EXPECT_EQ(0.5f, gun.inheritedvelocity);
+    EXPECT_EQ(0.9f, gun.modifierlegs);
+    EXPECT_EQ(1.0f, gun.modifierchest);
+    EXPECT_EQ(1.15f, gun.modifierhead);
+    EXPECT_EQ(0, gun.nocollision);
+}
+
+TEST(SharedConfigTest, ReadWeaponsReturnsFalseInCaseOfMissingEntries)
+{
+    auto constexpr InvalidConfig = R"([Info]
+        Name=Default mod
+        Version=1.7.1
+
+        [Rambo Bow]
+        Damage=12)";
+    TIniFile tf{ReadAsMemoryStream(InvalidConfig)};
+    std::string modname;
+    std::string version;
+    GunsDescription gunDesc;
+    gunDesc[bow].ininame = "Rambo Bow";
+    EXPECT_EQ(false, loadweaponsconfig(tf, modname, version, gunDesc));
+}

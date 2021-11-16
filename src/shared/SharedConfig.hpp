@@ -6,4 +6,5 @@
 
 bool loadbotconfig(TIniFile &iniFile, tsprite &spritec);
 
-bool loadweaponsconfig(const std::string &filepath);
+bool loadweaponsconfig(TIniFile &iniFile, std::string &modname, std::string &modversion,
+                       GunsDescription &gunDesc);

@@ -89,7 +89,6 @@ float sinuscounter = 0;
 
 tpolymap map;
 
-tsha1digest gamemodchecksum;
 tsha1digest custommodchecksum;
 tsha1digest mapchecksum;
 

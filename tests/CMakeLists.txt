@@ -22,7 +22,7 @@ add_executable(UnitTests
     unit/BinPackTest.cpp ../src/client/BinPack.cpp
     unit/VectorTest.cpp ../src/shared/Vector.cpp
     unit/CalcTest.cpp ../src/shared/Calc.cpp
-    unit/UtilTests.cpp ../src/shared/Util.cpp
+    unit/UtilTests.cpp ../src/shared/Util.cpp ../src/shared/misc/SHA1.cpp ../src/shared/misc/SHA1Helper.cpp
     unit/CVarTests.cpp ../src/shared/Cvar.cpp
     unit/TIniFileTest.cpp ../src/shared/misc/TIniFile.cpp
     ../src/shared/misc/PortUtils.cpp

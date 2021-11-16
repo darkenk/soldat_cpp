@@ -65,3 +65,11 @@ TEST(TIniFileTest, TrimWhiteSpaceFromLine)
     EXPECT_STREQ("1", out.at("Entry1").data());
     EXPECT_STREQ("1.2", out.at("Entry2").data());
 }
+
+TEST(TIniFileTest, ReadReturnsFalseInCaseOfMissingSection)
+{
+    TIniFile ini(ReadAsMemoryStream(TestIni));
+    TIniFile::Entries out;
+    EXPECT_EQ(false, ini.ReadSectionValues("NonExistedSection", out));
+    EXPECT_EQ(0, out.size());
+}

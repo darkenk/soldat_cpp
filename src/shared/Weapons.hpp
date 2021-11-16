@@ -129,8 +129,9 @@ constexpr std::int32_t weapon_nocollision_exp_enemy = 1 << 3;
 constexpr std::int32_t weapon_nocollision_exp_team = 1 << 4;
 constexpr std::int32_t weapon_nocollision_exp_self = 1 << 5;
 
-extern PascalArray<tgun, 1, total_weapons> guns;
-extern PascalArray<tgun, 1, total_weapons> defaultguns;
+using GunsDescription = PascalArray<tgun, 1, total_weapons>;
+extern GunsDescription guns;
+extern GunsDescription defaultguns;
 extern std::uint64_t defaultwmchecksum, loadedwmchecksum;
 
 void createweapons(bool floatisticmode);

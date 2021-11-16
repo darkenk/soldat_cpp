@@ -24,7 +24,15 @@ void ReadConf(const TIniFile::Entries &conf, const std::string_view entry, std::
     }
     else
     {
-        out = conf.at(entry.data());
+        try
+        {
+            out = conf.at(entry.data());
+        }
+        catch (std::out_of_range &ex)
+        {
+            LogWarnG("{} is missing in config file", entry);
+            throw ex;
+        }
     }
 }
 
@@ -41,12 +49,25 @@ void ReadConf(const TIniFile::Entries &conf, const std::string_view entry, bool 
     out = std::stoi(s) == 1;
 }
 
-template <typename T>
-void ReadConf(const TIniFile::Entries &conf, const std::string_view entry, T &out,
+void ReadConf(const TIniFile::Entries &conf, const std::string_view entry, float &out,
               bool allowEmpty = false)
 {
     std::string s;
     ReadConf(conf, entry, s, allowEmpty);
+    out = std::stof(s);
+}
+
+template <typename T>
+void ReadConf(const TIniFile::Entries &conf, const std::string_view entry, T &out,
+              bool allowEmpty = false) requires std::is_integral<T>::value
+{
+    std::string s;
+    ReadConf(conf, entry, s, allowEmpty);
+    if (s.empty())
+    {
+        out = T{0};
+        return;
+    }
     out = std::stoi(s);
 }
 
@@ -140,79 +161,55 @@ bool loadbotconfig(TIniFile &ini, tsprite &spritec)
     return true;
 }
 
-bool loadweaponsconfig(const std::string &filepath)
+bool loadweaponsconfig(TIniFile &iniFile, std::string &modname, std::string &modversion,
+                       GunsDescription &gunDesc)
 {
-    NotImplemented(NITag::OTHER);
-    return false;
-#if 0
-    tmeminifile ini;
-    tstringlist conf;
-    std::int32_t weaponindex;
-    struct tgun *gun;
-    std::string filename;
+    TIniFile::Entries conf;
 
-    bool loadweaponsconfig_result;
-    result = false;
-    ini = nullptr;
-    conf = nullptr;
-
-    if (!fileexists(filepath))
-        return loadweaponsconfig_result;
-
-    //  try
-    conf = tstringlist.create;
-    ini = tmeminifile.create(filepath);
-
-    if (ini.sectionexists("Info"))
+    if (iniFile.ReadSectionValues("Info", conf))
     {
-        ini.readsectionvalues("Info", conf);
-        readconf(conf, "Name", wmname);
-        readconf(conf, "Version", wmversion);
+        ReadConf(conf, "Name", modname);
+        ReadConf(conf, "Version", modversion);
     }
-    //    else
-    //      raise Exception.Create('Section "[Info]" not found');
-
-    for (weaponindex = 1; weaponindex <= original_weapons; weaponindex++)
+    else
     {
-        gun = &guns[weaponindex];
+        LogWarnG("Weapon mod does not contain [Info] section. Skip loading");
+        return false;
+    }
 
-        if (ini.sectionexists(gun.ininame))
+    try
+    {
+        for (auto &gun : gunDesc)
         {
-            ini.readsectionvalues(gun.ininame, conf);
-
-            readwmconf(conf, "Damage", gun.hitmultiply);
-            readwmconf(conf, "FireInterval", gun.fireinterval);
-            readwmconf(conf, "Ammo", gun.ammo);
-            readwmconf(conf, "ReloadTime", gun.reloadtime);
-            readwmconf(conf, "Speed", gun.speed);
-            readwmconf(conf, "BulletStyle", gun.bulletstyle);
-            readwmconf(conf, "StartUpTime", gun.startuptime);
-            readwmconf(conf, "Bink", gun.bink);
-            readwmconf(conf, "MovementAcc", gun.movementacc);
-            readwmconf(conf, "BulletSpread", gun.bulletspread);
-            readwmconf(conf, "Recoil", gun.recoil);
-            readwmconf(conf, "Push", gun.push);
-            readwmconf(conf, "InheritedVelocity", gun.inheritedvelocity);
-            readwmconf(conf, "ModifierLegs", gun.modifierlegs);
-            readwmconf(conf, "ModifierChest", gun.modifierchest);
-            readwmconf(conf, "ModifierHead", gun.modifierhead);
-            readwmconf(conf, "NoCollision", gun.nocollision);
+            conf.clear();
+            if (!iniFile.ReadSectionValues(gun.ininame, conf))
+            {
+                continue;
+            }
+            ReadConf(conf, "Damage", gun.hitmultiply);
+            ReadConf(conf, "FireInterval", gun.fireinterval);
+            ReadConf(conf, "Ammo", gun.ammo);
+            ReadConf(conf, "ReloadTime", gun.reloadtime);
+            ReadConf(conf, "Speed", gun.speed);
+            ReadConf(conf, "BulletStyle", gun.bulletstyle);
+            ReadConf(conf, "StartUpTime", gun.startuptime);
+            ReadConf(conf, "Bink", gun.bink);
+            ReadConf(conf, "MovementAcc", gun.movementacc);
+            ReadConf(conf, "BulletSpread", gun.bulletspread);
+            ReadConf(conf, "Recoil", gun.recoil);
+            ReadConf(conf, "Push", gun.push);
+            ReadConf(conf, "InheritedVelocity", gun.inheritedvelocity);
+            ReadConf(conf, "ModifierLegs", gun.modifierlegs);
+            ReadConf(conf, "ModifierChest", gun.modifierchest);
+            ReadConf(conf, "ModifierHead", gun.modifierhead);
+            ReadConf(conf, "NoCollision", gun.nocollision, true);
         }
     }
+    catch (std::out_of_range &ex)
+    {
+        LogWarnG("Cannot parse weapon config");
+        return false;
+    }
 
-    buildweapons();
-
-    result = true;
-    //  except
-    //    on e : Exception do
-    //    begin
-    //      Filename := RightStr(FilePath, Length(FilePath) - LastDelimiter('\', FilePath));
-    //      mainconsole.console(Filename + ': ' + e.message, WARNING_MESSAGE_COLOR);
-    //    end;
-    //  end;
-
-    ini.free;
-    conf.free;
-    return loadweaponsconfig_result;
-#endif
+    return true;
 }

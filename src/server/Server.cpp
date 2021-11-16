@@ -819,7 +819,6 @@ void ShutDown()
 void loadweapons(std::string Filename)
 {
     bool IsRealistic;
-    std::int32_t i;
     LogDebugG("LoadWeapons");
 
     IsRealistic = CVar::sv_realisticmode = true;
@@ -831,11 +830,17 @@ void loadweapons(std::string Filename)
 #if 0
     DefaultWMChecksum = CreateWMChecksum();
 #endif
-
-    if (not loadweaponsconfig(userdirectory + "configs/" + Filename + ".ini"))
     {
-        WriteLn("Using default weapons mod");
-        createweapons(IsRealistic);
+        TIniFile ini{ReadAsFileStream(userdirectory + "configs/" + Filename + ".ini")};
+        if (loadweaponsconfig(ini, wmname, wmversion, guns))
+        {
+            buildweapons();
+        }
+        else
+        {
+            WriteLn("Using default weapons mod");
+            createweapons(IsRealistic);
+        }
     }
     NotImplemented(NITag::OTHER, "no checksum");
 #if 0
@@ -851,9 +856,13 @@ void loadweapons(std::string Filename)
         }
 #endif
 
-    for (i = 1; i < max_players; i++)
-        if (sprite[i].active)
-            sprite[i].applyweaponbynum(sprite[i].weapon.num, 1, sprite[i].weapon.ammocount);
+    for (auto &s : sprite)
+    {
+        if (s.active)
+        {
+            s.applyweaponbynum(s.weapon.num, 1, s.weapon.ammocount);
+        }
+    }
 }
 
 std::int8_t addbotplayer(std::string name, std::int32_t team)

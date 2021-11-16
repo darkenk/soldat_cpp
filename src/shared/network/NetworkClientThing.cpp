@@ -228,7 +228,7 @@ void clienthandleserverthingmustsnapshot(SteamNetworkingMessage_t *netmessage)
         thing[i].color = spritethingowner->player->shirtcolor;
     }
 
-    if ((thing[i].holdingsprite == 0) && (!thing[i].style == object_stationary_gun))
+    if ((thing[i].holdingsprite == 0) && (!(thing[i].style == object_stationary_gun)))
         for (d = 1; d <= 4; d++)
         {
             thing[i].skeleton.pos[d].x = thingmustsnap->pos[d].x;

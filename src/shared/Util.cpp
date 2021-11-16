@@ -17,6 +17,8 @@
 
 #include "Game.hpp"
 
+tsha1digest gamemodchecksum;
+
 std::int32_t charcount(const char character, const std::string &str1)
 {
     std::int32_t result = 0;

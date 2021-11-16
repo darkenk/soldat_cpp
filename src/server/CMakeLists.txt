@@ -52,6 +52,11 @@ set(SHARED_SRC
     ../shared/misc/SHA1Helper.cpp
 )
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # enable optimization for SHA1.cpp to boost startup of the game in debug mode
+    set_source_files_properties(../shared/misc/SHA1.cpp PROPERTIES COMPILE_FLAGS -O3)
+endif()
+
 
 add_executable(SoldatServer ${SRC} ${SHARED_SRC})
 target_compile_definitions(SoldatServer PUBLIC SERVER=1)

@@ -10,8 +10,8 @@
 /*#include "Constants.h"*/
 /*#include "SysUtils.h"*/
 
-PascalArray<tgun, 1, total_weapons> guns;
-PascalArray<tgun, 1, total_weapons> defaultguns;
+GunsDescription guns;
+GunsDescription defaultguns;
 std::uint64_t defaultwmchecksum, loadedwmchecksum;
 
 void createweapons(bool floatisticmode)

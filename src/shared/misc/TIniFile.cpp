@@ -41,5 +41,5 @@ bool TIniFile::ReadSectionValues(const std::string_view &section, Entries &out)
             out[match[1]] = match[2];
         }
     }
-    return true;
+    return sectionFound;
 }
