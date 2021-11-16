@@ -23,7 +23,7 @@ void commandbind(std::vector<std::string> &args, std::uint8_t sender)
 
     if (length(args) < 3)
     {
-        mainconsole.console("Usage: bind \"key\" \"command\"", game_message_color);
+        GetMainConsole().console("Usage: bind \"key\" \"command\"", game_message_color);
         return;
     }
 
@@ -58,7 +58,7 @@ void commandconnect(std::vector<std::string> &args, std::uint8_t sender)
 
     if (length(args) <= 1)
     {
-        mainconsole.console("Usage: connect ip port password", game_message_color);
+        GetMainConsole().console("Usage: connect ip port password", game_message_color);
         return;
     }
     exittomenu();
@@ -105,7 +105,7 @@ void commandsay(std::vector<std::string> &args, std::uint8_t sender)
 {
     if (length(args) <= 1)
     {
-        mainconsole.console("Usage: say \"text\"", game_message_color);
+        GetMainConsole().console("Usage: say \"text\"", game_message_color);
         return;
     }
     clientsendstringmessage((args[1]), msgtype_pub);
@@ -115,7 +115,7 @@ void commandsayteam(std::vector<std::string> &args, std::uint8_t sender)
 {
     if (length(args) <= 1)
     {
-        mainconsole.console("Usage: say_team \"text\"", game_message_color);
+        GetMainConsole().console("Usage: say_team \"text\"", game_message_color);
         return;
     }
     clientsendstringmessage((args[1]), msgtype_team);
@@ -153,9 +153,9 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
         muteall = !muteall;
 
         if (muteall)
-            mainconsole.console(("Everyone is muted"), client_message_color);
+            GetMainConsole().console(("Everyone is muted"), client_message_color);
         else
-            mainconsole.console(("Everyone is unmuted"), client_message_color);
+            GetMainConsole().console(("Everyone is unmuted"), client_message_color);
 
         return;
     }
@@ -164,14 +164,14 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
     for (i = 0; i <= high(targets); i++)
     {
         sprite[targets[i]].muted = true;
-        mainconsole.console(sprite[targets[i]].player->name + " is muted", client_message_color);
+        GetMainConsole().console(sprite[targets[i]].player->name + " is muted", client_message_color);
     }
 }
 
 void commandunbindall(std::vector<std::string> &args, std::uint8_t sender)
 {
     unbindall();
-    mainconsole.console("Unbinded all binds", game_message_color);
+    GetMainConsole().console("Unbinded all binds", game_message_color);
 }
 
 void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
@@ -189,7 +189,7 @@ void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
     for (i = 0; i <= high(targets); i++)
     {
         sprite[targets[i]].muted = false;
-        mainconsole.console(sprite[targets[i]].player->name + " is unmuted", client_message_color);
+        GetMainConsole().console(sprite[targets[i]].player->name + " is unmuted", client_message_color);
     }
 }
 
@@ -223,7 +223,7 @@ void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)
                      map.name + "_screenshot.png";
 #endif
 
-        mainconsole.console((("Screenshot saved to ") + screenfile), debug_message_color);
+        GetMainConsole().console((("Screenshot saved to ") + screenfile), debug_message_color);
 
         takescreenshot(screenfile);
 
@@ -240,7 +240,7 @@ void commandswitchcam(std::vector<std::string> &args, std::uint8_t sender)
 {
     if (length(args) <= 1)
     {
-        mainconsole.console("Usage: switchcam \"id\"", game_message_color);
+        GetMainConsole().console("Usage: switchcam \"id\"", game_message_color);
         return;
     }
     if (sprite[mysprite].isspectator())
@@ -253,7 +253,7 @@ void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
 
     if (length(args) <= 1)
     {
-        mainconsole.console("Usage: switchcamflag \"id\"", game_message_color);
+        GetMainConsole().console("Usage: switchcamflag \"id\"", game_message_color);
         return;
     }
     if (sprite[mysprite].isspectator())

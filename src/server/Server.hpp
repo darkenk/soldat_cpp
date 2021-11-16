@@ -11,7 +11,6 @@ extern std::string userdirectory;
 extern std::int32_t bonusfreq;
 
 extern tservernetwork *udp;
-extern tconsole mainconsole;
 
 extern std::string serverip;
 extern std::int32_t serverport;

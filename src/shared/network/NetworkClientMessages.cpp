@@ -71,7 +71,7 @@ void clienthandlechatmessage(SteamNetworkingMessage_t *netmessage)
     // chat from server
     if (i == 255)
     {
-        mainconsole.console(_("*SERVER*: ") + cs, server_message_color);
+        GetMainConsole().console(_("*SERVER*: ") + cs, server_message_color);
         return;
     }
 
@@ -105,11 +105,11 @@ void clienthandlechatmessage(SteamNetworkingMessage_t *netmessage)
     }
 
     if (length(cs) < morechattext)
-        mainconsole.console(prefix + "[" + (sprite[i].player->name) + "] " + cs, col);
+        GetMainConsole().console(prefix + "[" + (sprite[i].player->name) + "] " + cs, col);
     else
     {
-        mainconsole.console(prefix + "[" + (sprite[i].player->name) + "] ", col);
-        mainconsole.console(std::string(" ") + cs, col);
+        GetMainConsole().console(prefix + "[" + (sprite[i].player->name) + "] ", col);
+        GetMainConsole().console(std::string(" ") + cs, col);
     }
 
     /*if Radio and Sprite[i].IsInSameTeam(Sprite[MySprite]) then
@@ -128,7 +128,7 @@ void clienthandlespecialmessage(SteamNetworkingMessage_t *netmessage)
 
     if (specialmessage->msgtype == 0) // console
     {
-        mainconsole.console(cs, specialmessage->color);
+        GetMainConsole().console(cs, specialmessage->color);
     }
     else if (specialmessage->msgtype == 1) // big text
     {

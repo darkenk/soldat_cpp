@@ -336,11 +336,11 @@ void gameloop()
                 {
                     if (noheartbeattime > disconnection_time)
                     {
-                        mainconsole.console(("Connection timeout"), warning_message_color);
+                        GetMainConsole().console(("Connection timeout"), warning_message_color);
                     }
                     else
                     {
-                        mainconsole.console(("Connection problem"), warning_message_color);
+                        GetMainConsole().console(("Connection problem"), warning_message_color);
                     }
                 }
 
@@ -353,7 +353,7 @@ void gameloop()
 
                 gamemenushow(teammenu, false);
 
-                mainconsole.console(("Connection timeout"), warning_message_color);
+                GetMainConsole().console(("Connection timeout"), warning_message_color);
 
                 clientdisconnect();
             }

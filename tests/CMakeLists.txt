@@ -6,6 +6,7 @@ include_directories(${GTEST_INCLUDE_DIR})
 include_directories(../src/client)
 include_directories(../src/shared)
 include_directories(../src/)
+include_directories(config)
 link_libraries(${GTEST_MAIN_LIBRARY}
     ${GTEST_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}

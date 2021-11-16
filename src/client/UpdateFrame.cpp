@@ -241,10 +241,10 @@ void update_frame()
                 if (timelimitcounter % 60 == 0)
                     if (mapchangecounter == -60)
                     {
-                        mainconsole.console(_("Time Left:") + ' ' +
-                                                (inttostr(timelimitcounter / 60)) + ' ' +
-                                                _("seconds"),
-                                            game_message_color);
+                        GetMainConsole().console(_("Time Left:") + ' ' +
+                                                     (inttostr(timelimitcounter / 60)) + ' ' +
+                                                     _("seconds"),
+                                                 game_message_color);
                         playsound(sfx_signal);
                     }
             }
@@ -252,9 +252,10 @@ void update_frame()
             {
                 if (timelimitcounter % 600 == 0)
                 {
-                    mainconsole.console(_("Time Left:") + ' ' + (inttostr(timelimitcounter / 60)) +
-                                            ' ' + _("seconds"),
-                                        game_message_color);
+                    GetMainConsole().console(_("Time Left:") + ' ' +
+                                                 (inttostr(timelimitcounter / 60)) + ' ' +
+                                                 _("seconds"),
+                                             game_message_color);
                     playsound(sfx_signal);
                 }
             }
@@ -262,18 +263,19 @@ void update_frame()
             {
                 if (timelimitcounter % 3600 == 0)
                 {
-                    mainconsole.console(_("Time Left:") + ' ' +
-                                            (inttostr(timelimitcounter / 3600)) + ' ' +
-                                            _("minutes"),
-                                        game_message_color);
+                    GetMainConsole().console(_("Time Left:") + ' ' +
+                                                 (inttostr(timelimitcounter / 3600)) + ' ' +
+                                                 _("minutes"),
+                                             game_message_color);
                     playsound(sfx_signal);
                 }
             }
             else if (timelimitcounter % 18000 == 0)
             {
-                mainconsole.console(_("Time Left:") + ' ' + (inttostr(timelimitcounter / 3600)) +
-                                        ' ' + _("minutes"),
-                                    game_message_color);
+                GetMainConsole().console(_("Time Left:") + ' ' +
+                                             (inttostr(timelimitcounter / 3600)) + ' ' +
+                                             _("minutes"),
+                                         game_message_color);
                 playsound(sfx_signal);
             }
 
@@ -299,19 +301,20 @@ void update_frame()
             shotdistanceshow = shotdistanceshow - 1;
 
         // Consoles Update
-        mainconsole.scrolltick = mainconsole.scrolltick + 1;
-        if (mainconsole.scrolltick == mainconsole.scrolltickmax)
-            mainconsole.scrollconsole();
+        GetMainConsole().scrolltick = GetMainConsole().scrolltick + 1;
+        if (GetMainConsole().scrolltick == GetMainConsole().scrolltickmax)
+            GetMainConsole().scrollconsole();
 
-        if (mainconsole.alphacount > 0)
-            mainconsole.alphacount = mainconsole.alphacount - 1;
+        if (GetMainConsole().alphacount > 0)
+            GetMainConsole().alphacount = GetMainConsole().alphacount - 1;
 
-        killconsole.scrolltick = killconsole.scrolltick + 1;
-        if (killconsole.scrolltick == killconsole.scrolltickmax)
+        GetKillConsole().scrolltick = GetKillConsole().scrolltick + 1;
+        if (GetKillConsole().scrolltick == GetKillConsole().scrolltickmax)
         {
-            killconsole.scrollconsole();
-            if ((killconsole.count > 0) && (killconsole.nummessage[killconsole.count] == -255))
-                killconsole.scrollconsole();
+            GetKillConsole().scrollconsole();
+            if ((GetKillConsole().count > 0) &&
+                (GetKillConsole().nummessage[GetKillConsole().count] == -255))
+                GetKillConsole().scrollconsole();
         }
 
         if (chattimecounter > 0)

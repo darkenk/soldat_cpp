@@ -6,8 +6,9 @@ namespace Config
 
 enum Module
 {
-    CLIENT,
-    SERVER_MODULE
+    CLIENT_MODULE,
+    SERVER_MODULE,
+    TEST_MODULE
 };
 
 constexpr bool IsServer() noexcept
@@ -24,7 +25,7 @@ template <Config::Module T>
 using EnableInServer = Enable<T, Config::SERVER_MODULE>;
 
 template <Config::Module T>
-using EnableInClient = Enable<T, Config::CLIENT>;
+using EnableInClient = Enable<T, Config::CLIENT_MODULE>;
 
 } // namespace Config
 

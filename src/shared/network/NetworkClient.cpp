@@ -140,7 +140,7 @@ bool tclientnetwork::connect(std::string Host, std::uint32_t Port)
 
     if (FPeer == k_HSteamNetConnection_Invalid)
     {
-        mainconsole.console("[NET] Failed to connect to  server" +
+        GetMainConsole().console("[NET] Failed to connect to  server" +
                                 udp->GetStringAddress(&ServerAddress, true),
                             warning_message_color);
         Result = false;

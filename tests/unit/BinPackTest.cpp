@@ -1,4 +1,5 @@
 #include "BinPack.hpp"
+#include "shared/misc/SoldatConfig.hpp"
 #include "gtest/gtest.h"
 
 TEST(CompilationTest, BinPackTest)

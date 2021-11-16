@@ -67,7 +67,7 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
 
     if (badmapidcount < 1)
     {
-        mainconsole.console(_("Wrong map version detected"), server_message_color);
+        GetMainConsole().console(_("Wrong map version detected"), server_message_color);
         clientdisconnect();
         mapchangecounter = -60;
         return;

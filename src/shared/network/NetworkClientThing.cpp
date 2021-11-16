@@ -397,7 +397,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
             bigmessage(bigcaptext, capturemessagewait, capcolor);
             NotImplemented(NITag::NETWORK);
 #if 0
-            mainconsole.console(smallcaptext, (sprite[j].player->name), capcolor);
+            GetMainConsole().console(smallcaptext, (sprite[j].player->name), capcolor);
 #endif
         }
     }

@@ -343,10 +343,10 @@ void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targ
         if (startervote == mysprite)
             if (votetype == vote_kick)
             {
-                mainconsole.console(("You have voted to kick") + ' ' +
-                                        (sprite[kickmenuindex].player->name) + ' ' +
-                                        ("from the game"),
-                                    vote_message_color);
+                GetMainConsole().console(("You have voted to kick") + ' ' +
+                                             (sprite[kickmenuindex].player->name) + ' ' +
+                                             ("from the game"),
+                                         vote_message_color);
                 voteactive = false;
                 NotImplemented(NITag::NETWORK, "No clientvotekick");
 #if 0
@@ -387,6 +387,7 @@ void stopvote()
     std::fill(std::begin(votehasvoted), std::end(votehasvoted), false);
 }
 
+template <Config::Module>
 void timervote()
 {
 #ifdef SERVER
@@ -399,7 +400,7 @@ void timervote()
         if (votetimeremaining == 0)
         {
             if (votetype == vote_map)
-                mainconsole.console(
+                GetMainConsole().console(
 #ifdef SERVER
                     "No map has been voted",
 #else
@@ -412,6 +413,8 @@ void timervote()
     }
 #endif
 }
+
+template void timervote<Config::GetModule()>();
 #ifdef SERVER
 void countvote(std::uint8_t voter)
 {
@@ -440,9 +443,9 @@ void countvote(std::uint8_t voter)
             {
                 if (!preparemapchange(votetarget))
                 {
-                    mainconsole.console(string("Map not found (") + votetarget + ')',
-                                        warning_message_color);
-                    mainconsole.console("No map has been voted", vote_message_color);
+                    GetMainConsole().console(string("Map not found (") + votetarget + ')',
+                                             warning_message_color);
+                    GetMainConsole().console("No map has been voted", vote_message_color);
                 }
             }
             stopvote();
@@ -531,8 +534,8 @@ void changemap()
 
     if (!map.loadmap(mapchange))
     {
-        mainconsole.console(string("Error: Could not load map (") + mapchange.name + ')',
-                            debug_message_color);
+        GetMainConsole().console(string("Error: Could not load map (") + mapchange.name + ')',
+                                 debug_message_color);
         nextmap();
         return;
     }

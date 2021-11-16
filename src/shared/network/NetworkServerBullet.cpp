@@ -238,9 +238,9 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
                 sprite[p].player->knifewarnings += 1;
                 if (sprite[p].player->knifewarnings == 3)
                 {
-                    mainconsole.console(std::string("** DETECTED KNIFE CHEATING FROM ") +
-                                            sprite[p].player->name + " **",
-                                        server_message_color);
+                    GetServerMainConsole().console(std::string("** DETECTED KNIFE CHEATING FROM ") +
+                                                       sprite[p].player->name + " **",
+                                                   server_message_color);
                     kickplayer(p, true, kick_cheat, day, "Knife Throw Cheat");
                 }
             }

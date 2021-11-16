@@ -167,7 +167,7 @@ void clienthandlejoinserver(SteamNetworkingMessage_t *netmessage)
     joinservermsg = pmsg_joinserver(netmessage->m_pData);
     NotImplemented(NITag::NETWORK);
 #if 0
-    mainconsole.console(std::string("Redirecting to... ") +
+    GetMainConsole().console(std::string("Redirecting to... ") +
                             netaddrtostr(in_addr(joinservermsg->ip)) + ':' +
                             inttostr(joinservermsg->port),
                         server_message_color);

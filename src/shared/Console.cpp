@@ -9,9 +9,14 @@
 
 #include <locale>
 
-tconsole mainconsole;
-tconsole bigconsole;
-tconsole killconsole;
+template <Config::Module M>
+tconsole &GetMainConsole()
+{
+    static tconsole gMainConsole;
+    return gMainConsole;
+}
+
+template tconsole &GetMainConsole<Config::GetModule()>();
 
 void tconsole::scrollconsole()
 {
@@ -96,8 +101,8 @@ void tconsole::console(const std::string &what, std::int32_t col) // overload;
     if (count == countmax)
         scrollconsole();
 #else
-    mainconsole.consoleadd(what, col);
-    bigconsole.consoleadd(what, col);
+    GetMainConsole().consoleadd(what, col);
+    GetBigConsole().consoleadd(what, col);
 #endif
 }
 
@@ -123,3 +128,15 @@ void tconsole::console<std::string>(const std::string &what, std::int32_t col,
         serversendstringmessage(what, sender, 255, msgtype_pub);
 }
 #endif
+
+tconsole &GetBigConsole() requires(Config::IsClient())
+{
+    static tconsole bigconsole;
+    return bigconsole;
+}
+
+tconsole &GetKillConsole() requires(Config::IsClient())
+{
+    static tconsole killconsole;
+    return killconsole;
+}

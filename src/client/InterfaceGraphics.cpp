@@ -1472,17 +1472,21 @@ void renderconsoletexts(float w)
     setfontstyle(font_small);
 
     if (chattext != "")
-        console = &bigconsole;
+    {
+        console = &GetBigConsole();
+    }
     else
-        console = &mainconsole;
+    {
+        console = &GetMainConsole();
+    }
 
     l = CVar::font_consolelineheight * pixelsize.y * fontstylesize(font_small);
     alpha = 255;
     tiny = false;
 
     if (fragsmenushow || statsmenushow or teammenu->active or
-        ((console == &bigconsole) && limbomenu->active) or
-        ((console == &mainconsole) && escmenu->active && noobshow))
+        ((console == &GetBigConsole()) && limbomenu->active) or
+        ((console == &GetMainConsole()) && escmenu->active && noobshow))
         alpha = 60;
 
     for (i = 1; i <= console->count; i++)
@@ -1530,15 +1534,15 @@ void renderkillconsoletexts(float w)
             alpha = 180;
     }
 
-    for (i = 1; i <= killconsole.count; i++)
+    for (i = 1; i <= GetKillConsole().count; i++)
     {
-        if (killconsole.textmessage[i] == "")
+        if (GetKillConsole().textmessage[i] == "")
             continue;
 
-        if (killconsole.nummessage[i] > -255)
+        if (GetKillConsole().nummessage[i] > -255)
             dy = dy + killconsole_separate_height;
 
-        if ((length(killconsole.textmessage[i]) > 14) != tiny)
+        if ((length(GetKillConsole().textmessage[i]) > 14) != tiny)
         {
             tiny = !tiny;
 
@@ -1548,10 +1552,10 @@ void renderkillconsoletexts(float w)
                 setfontstyle(font_weapons_menu);
         }
 
-        x = 595 * _iscala.x - rectwidth(gfxtextmetrics(killconsole.textmessage[i]));
+        x = 595 * _iscala.x - rectwidth(gfxtextmetrics(GetKillConsole().textmessage[i]));
         y = 60 + (i - 1) * (CVar::font_weaponmenusize + 2) + dy;
 
-        gfxtextcolor(rgba(killconsole.textmessagecolor[i], alpha));
+        gfxtextcolor(rgba(GetKillConsole().textmessagecolor[i], alpha));
         gfxdrawtext(x, y);
     }
 }
@@ -2446,11 +2450,11 @@ void renderinterface(float timeelapsed, float width, float height)
             }
 
             l2 = 0;
-            for (j = 1; j <= killconsole.count; j++)
+            for (j = 1; j <= GetKillConsole().count; j++)
             {
-                if (killconsole.textmessage[j] > "")
+                if (GetKillConsole().textmessage[j] > "")
                 {
-                    if (killconsole.nummessage[j] > -255)
+                    if (GetKillConsole().nummessage[j] > -255)
                     {
                         x = 605;
                         y = (j - 1) * (CVar::font_weaponmenusize + 2) + 59;
@@ -2462,7 +2466,7 @@ void renderinterface(float timeelapsed, float width, float height)
                         _scala.x = 0.8;
                         _scala.y = 0.8;
 
-                        gfxdrawsprite(t[killconsole.nummessage[j]], x, y, _scala.x, _scala.y,
+                        gfxdrawsprite(t[GetKillConsole().nummessage[j]], x, y, _scala.x, _scala.y,
                                       rgba(0xffffff, alfa));
                     }
                 }

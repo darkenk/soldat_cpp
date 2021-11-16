@@ -208,7 +208,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     playerslistmsg = pmsg_playerslist(netmessage->m_pData);
 
     if (!demoplayer.active())
-        mainconsole.console(_("Connection accepted to") + ' ' +
+        GetMainConsole().console(_("Connection accepted to") + ' ' +
                                 (udp->GetStringAddress(&udp->Address(), true)),
                             client_message_color);
 
@@ -249,7 +249,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
                 loadsounds(moddir);
                 forcegraphicsreload = true;
                 usesservermod = true;
-                mainconsole.console(_(string("Loading server mod: ") + modname),
+                GetMainConsole().console(_(string("Loading server mod: ") + modname),
                                     mode_message_color);
             }
             else
@@ -466,30 +466,30 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     if (CVar::sv_realisticmode)
     {
         starthealth = floatistic_health;
-        mainconsole.console(_("Realistic Mode ON"), mode_message_color);
+        GetMainConsole().console(_("Realistic Mode ON"), mode_message_color);
     }
     if (CVar::sv_survivalmode)
-        mainconsole.console(_("Survival Mode ON"), mode_message_color);
+        GetMainConsole().console(_("Survival Mode ON"), mode_message_color);
     if (CVar::sv_advancemode)
-        mainconsole.console(_("Advance Mode ON"), mode_message_color);
+        GetMainConsole().console(_("Advance Mode ON"), mode_message_color);
 
     // newby stuff
     if (CVar::cl_runs < 3)
     {
         if (Random(3) == 0)
-            mainconsole.console(
+            GetMainConsole().console(
                 _("(!) Jet fuel is map specific. There can be more or less on certain maps."),
                 info_message_color);
         else
         {
-            mainconsole.console(_("(!) To leave your current weapon after respawn"),
+            GetMainConsole().console(_("(!) To leave your current weapon after respawn"),
                                 info_message_color);
-            mainconsole.console(string("    ") + _("click anywhere outside the weapons menu."),
+            GetMainConsole().console(string("    ") + _("click anywhere outside the weapons menu."),
                                 info_message_color);
         }
 
         if (CVar::sv_realisticmode)
-            mainconsole.console(_("(!) To prevent weapon recoil fire float shots or short bursts."),
+            GetMainConsole().console(_("(!) To prevent weapon recoil fire float shots or short bursts."),
                                 info_message_color);
     }
 
@@ -573,7 +573,7 @@ void clienthandleserverdisconnect(SteamNetworkingMessage_t *netmessage)
     showmapchangescoreboard(0);
 
     if (!demoplayer.active())
-        mainconsole.console(_("Server disconnected"), server_message_color);
+        GetMainConsole().console(_("Server disconnected"), server_message_color);
     else
         demoplayer.stopdemo();
 }
@@ -666,7 +666,7 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
 
     if (loadedwmchecksum != defaultwmchecksum)
         if (!demoplayer.active())
-            mainconsole.console(_("Server uses weapon mod (checksum") + ' ' +
+            GetMainConsole().console(_("Server uses weapon mod (checksum") + ' ' +
                                     (inttostr(loadedwmchecksum)) + ')',
                                 server_message_color);
 }

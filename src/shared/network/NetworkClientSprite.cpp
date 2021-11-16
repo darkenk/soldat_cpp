@@ -535,14 +535,14 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
 
     if (deathsnap->killer != i)
     {
-        killconsole.consolenum((sprite[deathsnap->killer].player->name) + " (" +
+        GetKillConsole().consolenum((sprite[deathsnap->killer].player->name) + " (" +
                                    (inttostr(sprite[deathsnap->killer].player->kills)) + ')',
                                col, k);
-        killconsole.consolenum((sprite[i].player->name), col2, -255);
+        GetKillConsole().consolenum((sprite[i].player->name), col2, -255);
     }
     else
     {
-        killconsole.consolenum((sprite[deathsnap->killer].player->name) + " (" +
+        GetKillConsole().consolenum((sprite[deathsnap->killer].player->name) + " (" +
                                    (inttostr(sprite[deathsnap->killer].player->kills)) + ')',
                                spectator_d_message_color, k);
     }

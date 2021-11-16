@@ -293,14 +293,14 @@ bool keydown(SDL_KeyboardEvent &keyevent)
                 if (votetype == vote_map)
                 {
                     clientsendstringmessage(std::string("votemap ") + (votetarget), msgtype_cmd);
-                    mainconsole.console(wideformat(_("You have voted on " + votetarget)),
+                    GetMainConsole().console(wideformat(_("You have voted on " + votetarget)),
                                         vote_message_color);
                 }
                 else if (votetype == vote_kick)
                 {
                     i = strtoint(votetarget);
                     clientvotekick(i, true, "");
-                    mainconsole.console(
+                    GetMainConsole().console(
                         wideformat(_("You have voted to kick " + sprite[i].player->name)),
                         vote_message_color);
                 }
@@ -513,7 +513,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
             {
                 volumeinternal = scalevolumesetting(CVar::snd_volume);
                 setvolume(-1, volumeinternal);
-                mainconsole.console(std::string("Volume: ") + inttostr(CVar::snd_volume) + "%",
+                GetMainConsole().console(std::string("Volume: ") + inttostr(CVar::snd_volume) + "%",
                                     music_message_color);
             }
         }
@@ -524,7 +524,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
         {
             i = iif(action == taction::mousesensitivitydown, -5, 5);
             CVar::cl_sensitivity = ((float)(max(0.f, i + floor(100 * CVar::cl_sensitivity))) / 100);
-            mainconsole.console(
+            GetMainConsole().console(
                 _("Sensitivity:") +
                     (std::string(" ") + inttostr(floor(100 * CVar::cl_sensitivity)) + "%"),
                 music_message_color);
@@ -599,7 +599,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
             {
                 gamemenushow(limbomenu, !limbomenu->active);
                 limbolock = !limbomenu->active;
-                mainconsole.console(
+                GetMainConsole().console(
                     iif(limbolock, _("Weapons menu disabled"), _("Weapons menu active")),
                     game_message_color);
             }
@@ -621,7 +621,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
                 {
                     gamemenushow(limbomenu, false);
                     limbolock = !limbolock;
-                    mainconsole.console(
+                    GetMainConsole().console(
                         iif(limbolock, _("Weapons menu disabled"), _("Weapons menu active")),
                         game_message_color);
                 }

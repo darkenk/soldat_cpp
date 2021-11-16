@@ -465,7 +465,7 @@ void loadsounds(string moddir)
     sfxpath = moddir + "sfx/";
 
     // Sound effects
-    mainconsole.console("Loading sound effects", debug_message_color);
+    GetMainConsole().console("Loading sound effects", debug_message_color);
 
     for (i = 1; i < sample_files.size(); i++)
     {
@@ -473,7 +473,7 @@ void loadsounds(string moddir)
         {
             samp[i] = loadsample((sfxpath + sample_files[i]), samp[i]);
             if (!samp[i].loaded)
-                mainconsole.console(string("Unable to load file ") + sfxpath + sample_files[i],
+                GetMainConsole().console(string("Unable to load file ") + sfxpath + sample_files[i],
                                     debug_message_color);
         }
     }

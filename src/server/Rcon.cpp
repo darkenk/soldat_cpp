@@ -144,7 +144,7 @@ void tadminserver::processcommands()
     }
     if (msg->msg == "SHUTDOWN")
     {
-        mainconsole.console(string("SHUTDOWN (") + msg->ip + ").", game_message_color);
+        GetMainConsole().console(string("SHUTDOWN (") + msg->ip + ").", game_message_color);
         progready = false;
         freemem(msg);
         return;
@@ -238,7 +238,7 @@ void tadminserver::processcommands()
     else
     {
         ip = msg->ip;
-        mainconsole.console(msg->msg + " (" + ip + ')', game_message_color);
+        GetMainConsole().console(msg->msg + " (" + ip + ')', game_message_color);
 #ifdef SCRIPT
         scrptdispatcher.onadminmessage(msg->ip, msg->port, msg->msg);
 #endif
@@ -352,12 +352,12 @@ void tadminserver::handleconnect(tidcontext athread)
         else
             iohandler.writeln1("Invalid password.");
 
-        mainconsole.console(string("Admin failed to connect (") + ip + ").", game_message_color);
+        GetMainConsole().console(string("Admin failed to connect (") + ip + ").", game_message_color);
         disconnect;
     }
     else
     {
-        mainconsole.console(string("Admin connected (") + ip + ").", game_message_color);
+        GetMainConsole().console(string("Admin connected (") + ip + ").", game_message_color);
         fadmins.add(athread);
         iohandler.writeln1("Welcome, you are in command of the server now.");
         iohandler.writeln1("List of commands available in the Soldat game Manual.");
@@ -421,7 +421,7 @@ void tadminserver::handledisconnect(tidcontext athread)
     //  except
     //  end;
     //  try
-    mainconsole.console(string("Admin disconnected (") + ip + ").", game_message_color);
+    GetMainConsole().console(string("Admin disconnected (") + ip + ").", game_message_color);
     //  except
     //  end;
 #ifdef SCRIPT

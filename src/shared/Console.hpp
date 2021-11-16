@@ -1,6 +1,7 @@
 #pragma once
 
 #include "misc/PortUtilsSoldat.hpp"
+#include "misc/SoldatConfig.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -43,3 +44,12 @@ class tconsole
     void consoleadd(const std::string &what, std::int32_t col);
     void consolenum(const std::string &what, std::int32_t col, std::int32_t num);
 };
+
+template <Config::Module M = Config::GetModule()>
+tconsole &GetMainConsole();
+
+constexpr auto GetServerMainConsole = GetMainConsole<Config::Module::SERVER_MODULE>;
+constexpr auto GetClientMainConsole = GetMainConsole<Config::Module::CLIENT_MODULE>;
+
+tconsole &GetBigConsole();
+tconsole &GetKillConsole();

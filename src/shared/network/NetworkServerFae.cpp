@@ -36,7 +36,7 @@ void kickforfaeviolation(tplayer player, std::string reason)
         name = string("Unnamed player ") + const std::wstring and
                (player.ip) + ':' + const std::wstring & (inttostr(player.port));
     msgtext = name + " removed by anti-cheat: " + const std::wstring & (reason);
-    mainconsole.console(string("[AC] ") + msgtext, client_message_color);
+    GetMainConsole().console(string("[AC] ") + msgtext, client_message_color);
     player.faekicked = true;
     if (player.spritenum != 0)
     {

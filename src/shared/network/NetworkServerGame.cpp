@@ -42,23 +42,28 @@ void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
     switch (sprite[i].player->team)
     {
     case team_none:
-        mainconsole.console(sprite[i].player->name + " has left the game.", enter_message_color);
+        GetServerMainConsole().console(sprite[i].player->name + " has left the game.",
+                                       enter_message_color);
         break;
     case team_alpha:
-        mainconsole.console(sprite[i].player->name + " has left alpha team.", alphaj_message_color);
+        GetServerMainConsole().console(sprite[i].player->name + " has left alpha team.",
+                                       alphaj_message_color);
         break;
     case team_bravo:
-        mainconsole.console(sprite[i].player->name + " has left bravo team.", bravoj_message_color);
+        GetServerMainConsole().console(sprite[i].player->name + " has left bravo team.",
+                                       bravoj_message_color);
         break;
     case team_charlie:
-        mainconsole.console(sprite[i].player->name + " has left charlie team.",
-                            charliej_message_color);
+        GetServerMainConsole().console(sprite[i].player->name + " has left charlie team.",
+                                       charliej_message_color);
         break;
     case team_delta:
-        mainconsole.console(sprite[i].player->name + " has left delta team.", deltaj_message_color);
+        GetServerMainConsole().console(sprite[i].player->name + " has left delta team.",
+                                       deltaj_message_color);
         break;
     case team_spectator:
-        mainconsole.console(sprite[i].player->name + " has left spectators", deltaj_message_color);
+        GetServerMainConsole().console(sprite[i].player->name + " has left spectators",
+                                       deltaj_message_color);
         break;
     }
 
@@ -250,10 +255,11 @@ void serverhandlevotekick(SteamNetworkingMessage_t *netmessage)
             startvote(i, vote_kick, inttostr(votekickmsg->num), votekickmsg->reason.data());
             serversendvoteon(votetype, i, inttostr(votekickmsg->num), votekickmsg->reason.data());
             // Show started votekick in admin console
-            mainconsole.console(sprite[i].player->name + " started votekick against " +
-                                    sprite[votekickmsg->num].player->name +
-                                    " - Reason:" + std::string(votekickmsg->reason.data()),
-                                vote_message_color);
+            GetServerMainConsole().console(
+                sprite[i].player->name + " started votekick against " +
+                    sprite[votekickmsg->num].player->name +
+                    " - Reason:" + std::string(votekickmsg->reason.data()),
+                vote_message_color);
         }
     }
 }

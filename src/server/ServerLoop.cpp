@@ -150,8 +150,9 @@ void apponidle()
                              ((sprite[j].player->realping < CVar::sv_minping) &&
                               (sprite[j].player->pingtime > 0))))
                         {
-                            mainconsole.console(sprite[j].player->name + " gets a ping warning",
-                                                warning_message_color);
+                            GetServerMainConsole().console(sprite[j].player->name +
+                                                               " gets a ping warning",
+                                                           warning_message_color);
                             pingwarnings[j] += 1;
                             if (pingwarnings[j] > CVar::sv_warnings_ping)
                                 kickplayer(j, true, kick_ping, sixty_minutes / 4, "Ping Kick");
@@ -169,8 +170,9 @@ void apponidle()
                         ((CVar::net_lan == INTERNET) &&
                          (messagesasecnum[j] > CVar::net_floodingpacketsinternet)))
                     {
-                        mainconsole.console(sprite[j].player->name + " is flooding the server",
-                                            warning_message_color);
+                        GetServerMainConsole().console(sprite[j].player->name +
+                                                           " is flooding the server",
+                                                       warning_message_color);
                         floodwarnings[j] += 1;
                         if (floodwarnings[j] > CVar::sv_warnings_flood)
                             kickplayer(j, true, kick_flooding, sixty_minutes / 4, "Flood Kicked");
@@ -259,8 +261,8 @@ void apponidle()
                 if (noclientupdatetime[j] > disconnection_time)
                 {
                     serverplayerdisconnect(j, kick_noresponse);
-                    mainconsole.console(sprite[j].player->name + " could not respond",
-                                        warning_message_color);
+                    GetServerMainConsole().console(sprite[j].player->name + " could not respond",
+                                                   warning_message_color);
 #ifdef SCRIPT
                     scrptdispatcher.onleavegame(j, false);
 #endif
@@ -280,8 +282,9 @@ void apponidle()
                     if (sprite[j].player->faeticks > (second * 20))
                     {
                         // Timeout reached; no valid response for 20 seconds. Boot the player.
-                        mainconsole.console(sprite[j].player->name + " no anti-cheat response",
-                                            warning_message_color);
+                        GetServerMainConsole().console(sprite[j].player->name +
+                                                           " no anti-cheat response",
+                                                       warning_message_color);
                         kickplayer(j, false, kick_ac, 0, "No Anti-Cheat Response");
                         continue;
                     }
@@ -475,7 +478,7 @@ void updateframe()
 #ifdef SCRIPT
                         }
 #endif
-                        mainconsole.console(
+                        GetServerMainConsole().console(
                             string("** Detected possible Mass-Flag cheating from ") +
                                 sprite[j].player->name,
                             warning_message_color);
@@ -508,7 +511,7 @@ void updateframe()
                 (lastreqip[1] == lastreqip[2]) && (lastreqip[2] == lastreqip[3]))
             {
                 dropip = lastreqip[0];
-                mainconsole.console(string("Firewalled IP ") + dropip, 0);
+                GetServerMainConsole().console(string("Firewalled IP ") + dropip, 0);
             }
 
         if (maintickcounter % (second * 3) == 0)
@@ -574,14 +577,14 @@ void updateframe()
             if (timelimitcounter < five_minutes + 1)
             {
                 if (timelimitcounter % minute == 0)
-                    mainconsole.console(string("Time Left: ") +
-                                            inttostr(timelimitcounter / minute) + " minutes",
-                                        game_message_color);
+                    GetServerMainConsole().console(
+                        string("Time Left: ") + inttostr(timelimitcounter / minute) + " minutes",
+                        game_message_color);
             }
             else if (timelimitcounter % five_minutes == 0)
-                mainconsole.console(string("Time Left: ") + inttostr(timelimitcounter / minute) +
-                                        " minutes",
-                                    game_message_color);
+                GetServerMainConsole().console(string("Time Left: ") +
+                                                   inttostr(timelimitcounter / minute) + " minutes",
+                                               game_message_color);
 
         LogTraceG("UpdateFrame 2");
 
@@ -589,12 +592,12 @@ void updateframe()
         timervote();
 
         // Consoles Update
-        mainconsole.scrolltick = mainconsole.scrolltick + 1;
-        if (mainconsole.scrolltick == mainconsole.scrolltickmax)
-            mainconsole.scrollconsole();
+        GetServerMainConsole().scrolltick = GetServerMainConsole().scrolltick + 1;
+        if (GetServerMainConsole().scrolltick == GetServerMainConsole().scrolltickmax)
+            GetServerMainConsole().scrollconsole();
 
-        if (mainconsole.alphacount > 0)
-            mainconsole.alphacount = mainconsole.alphacount - 1;
+        if (GetServerMainConsole().alphacount > 0)
+            GetServerMainConsole().alphacount = GetServerMainConsole().alphacount - 1;
 
         if (!CVar::sv_advancemode)
             for (j = 1; j <= max_sprites; j++)

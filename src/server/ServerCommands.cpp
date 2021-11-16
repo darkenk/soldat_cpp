@@ -101,24 +101,25 @@ void commandmap(std::vector<std::string> &args, std::uint8_t sender)
         {
             mapchangeitemid = status.workshopid;
             if (steamapi.ugc.downloaditem(mapchangeitemid, true))
-                mainconsole.console(string("[Steam] Workshop map ") + inttostr(mapchangeitemid) +
-                                        " not found in cache, downloading.",
-                                    warning_message_color, sender);
+                GetServerMainConsole().console(string("[Steam] Workshop map ") +
+                                                   inttostr(mapchangeitemid) +
+                                                   " not found in cache, downloading.",
+                                               warning_message_color, sender);
             else
-                mainconsole.console(string("[Steam] Workshop map ") + inttostr(mapchangeitemid) +
-                                        " is invalid",
-                                    warning_message_color, sender);
+                GetServerMainConsole().console(string("[Steam] Workshop map ") +
+                                                   inttostr(mapchangeitemid) + " is invalid",
+                                               warning_message_color, sender);
         }
         else
 #endif
-            mainconsole.console(string("Map not found (") + args[1] + ')', warning_message_color,
-                                sender);
+            GetServerMainConsole().console(string("Map not found (") + args[1] + ')',
+                                           warning_message_color, sender);
     }
 
     // if not MapExists(MapChangeName, userdirectory) then
     // begin
-    //  mainconsole.Console('Map not found (' + MapChangeName + ')', WARNING_MESSAGE_COLOR, Sender);
-    //  Exit;
+    //  GetServerMainConsole().Console('Map not found (' + MapChangeName + ')',
+    //  WARNING_MESSAGE_COLOR, Sender); Exit;
     // end;
 }
 
@@ -214,12 +215,14 @@ void commandbaniphw(std::vector<std::string> &args, std::uint8_t sender)
     if (args[0] == "banhw")
     {
         addbannedhw(name, string("Banned by ") + tempstr, (day * 30));
-        mainconsole.console(string("HWID ") + name + " banned", client_message_color, sender);
+        GetServerMainConsole().console(string("HWID ") + name + " banned", client_message_color,
+                                       sender);
     }
     else
     {
         addbannedip(name, string("Banned by ") + tempstr, day * 30);
-        mainconsole.console(string("IP number ") + name + " banned", client_message_color, sender);
+        GetServerMainConsole().console(string("IP number ") + name + " banned",
+                                       client_message_color, sender);
     }
 
     savetxtlists();
@@ -238,11 +241,12 @@ void commandunban(std::vector<std::string> &args, std::uint8_t sender)
         return;
 
     if (delbannedip(name))
-        mainconsole.console(string("IP number ") + name + " unbanned", client_message_color,
-                            sender);
+        GetServerMainConsole().console(string("IP number ") + name + " unbanned",
+                                       client_message_color, sender);
 
     if (delbannedhw(name))
-        mainconsole.console(string("HWID ") + name + " unbanned", client_message_color, sender);
+        GetServerMainConsole().console(string("HWID ") + name + " unbanned", client_message_color,
+                                       sender);
 
     savetxtlists();
 }
@@ -250,12 +254,12 @@ void commandunban(std::vector<std::string> &args, std::uint8_t sender)
 void commandunbanlast(std::vector<std::string> &args, std::uint8_t sender)
 {
     if (delbannedip(lastban))
-        mainconsole.console(string("IP number ") + lastban + " unbanned", client_message_color,
-                            sender);
+        GetServerMainConsole().console(string("IP number ") + lastban + " unbanned",
+                                       client_message_color, sender);
 
     if (delbannedhw(lastbanhw))
-        mainconsole.console(string("HWID ") + lastbanhw + " unbanned", client_message_color,
-                            sender);
+        GetServerMainConsole().console(string("HWID ") + lastbanhw + " unbanned",
+                                       client_message_color, sender);
 
     savetxtlists();
 }
@@ -279,9 +283,9 @@ void commandadm(std::vector<std::string> &args, std::uint8_t sender)
         if (isremoteadminip(sprite[targets[i]].player->ip))
         {
             remoteips.add(sprite[targets[i]].player->ip);
-            mainconsole.console(string("IP number ") + sprite[targets[i]].player->ip +
-                                    " added to Remote Admins",
-                                client_message_color, sender);
+            GetServerMainConsole().console(string("IP number ") + sprite[targets[i]].player->ip +
+                                               " added to Remote Admins",
+                                           client_message_color, sender);
             savetxtlists();
         }
 }
@@ -301,8 +305,8 @@ void commandadmip(std::vector<std::string> &args, std::uint8_t sender)
     if (!isremoteadminip(name))
     {
         remoteips.add(name);
-        mainconsole.console(string("IP number ") + name + " added to Remote Admins",
-                            client_message_color, sender);
+        GetServerMainConsole().console(string("IP number ") + name + " added to Remote Admins",
+                                       client_message_color, sender);
         savetxtlists();
     }
 }
@@ -327,8 +331,8 @@ void commandunadm(std::vector<std::string> &args, std::uint8_t sender)
         j = remoteips.indexof(name);
         remoteips.delete_(j);
 #endif
-        mainconsole.console(string("IP number ") + name + " removed from Remote Admins",
-                            client_message_color, sender);
+        GetServerMainConsole().console(string("IP number ") + name + " removed from Remote Admins",
+                                       client_message_color, sender);
         savetxtlists();
     }
 }
@@ -393,8 +397,8 @@ void commandkill(std::vector<std::string> &args, std::uint8_t sender)
     {
         sprite[targets[i]].vest = 0;
         sprite[targets[i]].healthhit(3430, targets[i], 1, -1, a);
-        mainconsole.console(sprite[targets[i]].player->name + " killed by admin",
-                            client_message_color, sender);
+        GetServerMainConsole().console(sprite[targets[i]].player->name + " killed by admin",
+                                       client_message_color, sender);
     }
 }
 
@@ -434,7 +438,7 @@ void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
 
     if (CVar::sv_lockedmode)
     {
-        mainconsole.console(
+        GetServerMainConsole().console(
             std::string("Locked Mode is enabled. Settings can't be changed mid-game."),
             server_message_color, sender);
         return;
@@ -466,7 +470,8 @@ void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
     }
 
     loadconfig(name);
-    mainconsole.console(string("Config reloaded ") + currentconf, client_message_color, sender);
+    GetServerMainConsole().console(string("Config reloaded ") + currentconf, client_message_color,
+                                   sender);
     startserver();
 }
 
@@ -491,7 +496,8 @@ void commandloadlist(std::vector<std::string> &args, std::uint8_t sender)
         i = 1;
         mapslist.erase(std::remove(mapslist.begin(), mapslist.end(), ""), mapslist.end());
         CVar::sv_maplist = name + ".txt";
-        mainconsole.console(string("Mapslist loaded ") + name, client_message_color, sender);
+        GetServerMainConsole().console(string("Mapslist loaded ") + name, client_message_color,
+                                       sender);
     }
 }
 
@@ -510,11 +516,11 @@ void commandpm(std::vector<std::string> &args, std::uint8_t sender)
     for (i = 0; i <= high(targets); i++)
     {
         pmmessage = args[2];
-        mainconsole.console(string("Private Message sent to ") + idtoname(targets[i]),
-                            server_message_color, sender);
-        mainconsole.console(string("(PM) To: ") + idtoname(targets[i]) +
-                                " From: " + idtoname(sender) + " Message: " + pmmessage,
-                            server_message_color);
+        GetServerMainConsole().console(string("Private Message sent to ") + idtoname(targets[i]),
+                                       server_message_color, sender);
+        GetServerMainConsole().console(string("(PM) To: ") + idtoname(targets[i]) +
+                                           " From: " + idtoname(sender) + " Message: " + pmmessage,
+                                       server_message_color);
         serversendstringmessage(string("(PM) ") + (pmmessage), targets[i], 255, msgtype_pub);
     }
 }
@@ -544,8 +550,8 @@ void commandgmute(std::vector<std::string> &args, std::uint8_t sender)
                 mutename[j] = sprite[targets[i]].player->name;
                 break;
             }
-        mainconsole.console(sprite[targets[i]].player->name + " has been muted.",
-                            client_message_color, sender);
+        GetServerMainConsole().console(sprite[targets[i]].player->name + " has been muted.",
+                                       client_message_color, sender);
     }
 }
 
@@ -573,8 +579,8 @@ void commandungmute(std::vector<std::string> &args, std::uint8_t sender)
                 mutelist[j] = "";
                 break;
             }
-        mainconsole.console(sprite[targets[i]].player->name + " has been unmuted.",
-                            client_message_color, sender);
+        GetServerMainConsole().console(sprite[targets[i]].player->name + " has been unmuted.",
+                                       client_message_color, sender);
     }
 }
 
@@ -592,13 +598,14 @@ void commandaddmap(std::vector<std::string> &args, std::uint8_t sender)
 
     // if not (MapExists(Name, userdirectory)) then
     // begin
-    //  mainconsole.Console('Map not found (' + Name + ')',
+    //  GetServerMainConsole().Console('Map not found (' + Name + ')',
     //    SERVER_MESSAGE_COLOR, Sender);
     //  Exit;
     // end;
 
     mapslist.add(name);
-    mainconsole.console(name + " has been added to the map list.", server_message_color, sender);
+    GetServerMainConsole().console(name + " has been added to the map list.", server_message_color,
+                                   sender);
     savemaplist();
 }
 
@@ -621,7 +628,7 @@ void commanddelmap(std::vector<std::string> &args, std::uint8_t sender)
 #if 0
         if (uppercase(mapslist[tempint]) == uppercase(name))
         {
-            mainconsole.console(name + " has been removed from the map list.", server_message_color,
+            GetServerMainConsole().console(name + " has been removed from the map list.", server_message_color,
                                 sender);
             mapslist.delete_(tempint);
             break;
@@ -646,8 +653,9 @@ void commandtempban(std::vector<std::string> &args, std::uint8_t sender)
     tempstr = args[2];
     // *BAN*
     addbannedip(tempstr, "Temporary Ban by an Admin", strtointdef(name, 1) * minute);
-    mainconsole.console(string("IP number ") + tempstr + " banned for " + name + " minutes.",
-                        client_message_color, sender);
+    GetServerMainConsole().console(string("IP number ") + tempstr + " banned for " + name +
+                                       " minutes.",
+                                   client_message_color, sender);
     savetxtlists();
 }
 
@@ -703,7 +711,7 @@ void commandbanlist(std::vector<std::string> &args, std::uint8_t sender)
     tdatetime banduration;
     std::string bandurationtext;
 
-    mainconsole.console(format("%-15s | %-9s | %s", set::of("HWID", "Duration", "Reason", eos)),
+    GetServerMainConsole().console(format("%-15s | %-9s | %s", set::of("HWID", "Duration", "Reason", eos)),
                         server_message_color, sender);
     for (i = 1; i <= high(bannedhwlist); i++)
     {
@@ -716,12 +724,12 @@ void commandbanlist(std::vector<std::string> &args, std::uint8_t sender)
                 format("%dd%s", set::of(trunc(banduration),
                                         formatdatetime("h\"h\"n\"m\"", banduration), eos));
         }
-        mainconsole.console(format("%-15s | %-9s | %s", set::of(bannedhwlist[i].hw, bandurationtext,
+        GetServerMainConsole().console(format("%-15s | %-9s | %s", set::of(bannedhwlist[i].hw, bandurationtext,
                                                                 bannedhwlist[i].reason, eos)),
                             server_message_color, sender);
     }
 
-    mainconsole.console(format("%-15s | %-9s | %s", set::of("IP", "Duration", "Reason", eos)),
+    GetServerMainConsole().console(format("%-15s | %-9s | %s", set::of("IP", "Duration", "Reason", eos)),
                         server_message_color, sender);
     for (i = 1; i <= high(bannediplist); i++)
     {
@@ -734,7 +742,7 @@ void commandbanlist(std::vector<std::string> &args, std::uint8_t sender)
                 format("%dd%s", set::of(trunc(banduration),
                                         formatdatetime("h\"h\"n\"m\"", banduration), eos));
         }
-        mainconsole.console(format("%-15s | %-9s | %s", set::of(bannediplist[i].ip, bandurationtext,
+        GetServerMainConsole().console(format("%-15s | %-9s | %s", set::of(bannediplist[i].ip, bandurationtext,
                                                                 bannediplist[i].reason, eos)),
                             server_message_color, sender);
     }
@@ -916,14 +924,14 @@ void commandadminlog(std::vector<std::string> &args, std::uint8_t sender)
         {
             if (!isadminip(sprite[sender].player->ip))
                 adminips.add(sprite[sender].player->ip);
-            mainconsole.console(sprite[sender].player->name + " added to Game Admins",
-                                server_message_color, sender);
+            GetServerMainConsole().console(sprite[sender].player->name + " added to Game Admins",
+                                           server_message_color, sender);
         }
         else
         {
-            mainconsole.console(sprite[sender].player->name +
-                                    " tried to login as Game Admin with bad password",
-                                server_message_color, sender);
+            GetServerMainConsole().console(sprite[sender].player->name +
+                                               " tried to login as Game Admin with bad password",
+                                           server_message_color, sender);
         }
     }
 }
@@ -988,7 +996,8 @@ void commandrecompile(std::vector<std::string> &args, std::uint8_t sender)
     if (length(args) == 1)
     {
         if (!CVar::sc_enable)
-            mainconsole.console("Scripting is currently disabled.", client_message_color, sender);
+            GetServerMainConsole().console("Scripting is currently disabled.", client_message_color,
+                                           sender);
         else
         {
             scrptdispatcher.prepare(0);
@@ -999,7 +1008,8 @@ void commandrecompile(std::vector<std::string> &args, std::uint8_t sender)
     {
         name = args[1];
         if (!CVar::sc_enable)
-            mainconsole.console("Scripting is currently disabled.", client_message_color, sender);
+            GetServerMainConsole().console("Scripting is currently disabled.", client_message_color,
+                                           sender);
         else
             scrptdispatcher.launch(name);
     }

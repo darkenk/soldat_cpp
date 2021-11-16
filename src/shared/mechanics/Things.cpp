@@ -868,14 +868,14 @@ void tthing::update()
 
                                 sortplayers();
 #ifdef SERVER
-                                mainconsole.console(sprite[holdingsprite].player->name + ' ' +
+                                GetMainConsole().console(sprite[holdingsprite].player->name + ' ' +
                                                         "scores for Alpha Team",
                                                     alpha_message_color);
                                 sprite[holdingsprite].player->scorespersecond += 1;
 #else
                                 bigmessage(_("Alpha Team Scores!"), capturectfmessagewait,
                                            alpha_message_color);
-                                mainconsole.console(
+                                GetMainConsole().console(
                                     wideformat(_("{} scores for Alpha Team"),
                                                set::of(sprite[holdingsprite].player->name, eos)),
                                     alpha_message_color);
@@ -901,14 +901,14 @@ void tthing::update()
 
                                 sortplayers();
 #ifdef SERVER
-                                mainconsole.console(sprite[holdingsprite].player->name + ' ' +
+                                GetMainConsole().console(sprite[holdingsprite].player->name + ' ' +
                                                         "scores for Bravo Team",
                                                     bravo_message_color);
                                 sprite[holdingsprite].player->scorespersecond += 1;
 #else
                                 bigmessage(_("Bravo Team Scores!"), capturectfmessagewait,
                                            bravo_message_color);
-                                mainconsole.console(
+                                GetMainConsole().console(
                                     wideformat(_("{} scores for Bravo Team"),
                                                set::of(sprite[holdingsprite].player->name, eos)),
                                     bravo_message_color);
@@ -2060,12 +2060,12 @@ std::int32_t tthing::checkspritecollision()
 
 #ifdef SERVER
                     if (smallcaptextstr != "")
-                        mainconsole.console(smallcaptextstr, capcolor);
+                        GetMainConsole().console(smallcaptextstr, capcolor);
 #else
                     if (smallcaptext != "")
                     {
                         bigmessage(bigcaptext, capturemessagewait, capcolor);
-                        mainconsole.console(
+                        GetMainConsole().console(
                             wideformat(smallcaptext, set::of(sprite[j].player->name, eos)),
                             capcolor);
                     }

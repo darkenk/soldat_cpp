@@ -141,7 +141,8 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
         // the sprite may be zero if we"re still in the setup phase
         if (Player->spritenum != 0)
         {
-            mainconsole.console(Player->name + " could not respond", warning_message_color);
+            GetServerMainConsole().console(Player->name + " could not respond",
+                                           warning_message_color);
             serverplayerdisconnect(Player->spritenum, kick_noresponse);
 #ifdef SCRIPT
             ScrptDispatcher.OnLeaveGame(Player->spritenum, false);

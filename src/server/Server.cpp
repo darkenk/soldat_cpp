@@ -496,15 +496,15 @@ void ActivateServer(int argc, const char *argv[])
     }
 
     // Create Consoles
-    mainconsole.countmax = 7;
-    mainconsole.scrolltickmax = 150;
-    mainconsole.newmessagewait = 150;
-    mainconsole.alphacount = 255;
+    GetServerMainConsole().countmax = 7;
+    GetServerMainConsole().scrolltickmax = 150;
+    GetServerMainConsole().newmessagewait = 150;
+    GetServerMainConsole().alphacount = 255;
 
     NotImplemented(NITag::OTHER, "Who cares about colors?");
 #if 0
     if GetEnvironmentVariable ("COLORTERM")
-        != "" then mainconsole.TerminalColors = true;
+        != "" then GetServerMainConsole().TerminalColors = true;
 #endif
 
     NotImplemented(NITag::OTHER, "No cvarinit");
@@ -754,7 +754,7 @@ void ShutDown()
     LogDebugG("ShutDown");
     progready = false;
 
-    mainconsole.console("Shutting down server...", game_message_color);
+    GetServerMainConsole().console("Shutting down server...", game_message_color);
     NotImplemented(NITag::OTHER, "Missing delete file");
 #if 0
     SysUtils.DeleteFile(userdirectory + "logs/" + sv_pidfilename);
@@ -764,7 +764,7 @@ void ShutDown()
     {
         serverdisconnect();
 
-        mainconsole.console("Shutting down game networking.", game_message_color);
+        GetServerMainConsole().console("Shutting down game networking.", game_message_color);
 
         freeandnullptr(udp);
     }
@@ -772,7 +772,7 @@ void ShutDown()
 #ifdef RCON
     if (sv_adminpassword != "")
     {
-        try mainconsole.console("Shutting down admin server...", GAME_MESSAGE_COLOR);
+        try GetServerMainConsole().console("Shutting down admin server...", GAME_MESSAGE_COLOR);
         if (AdminServer != nil)
         {
             AdminServer.Active = false;
@@ -849,7 +849,7 @@ void loadweapons(std::string Filename)
     if LoadedWMChecksum
         != DefaultWMChecksum then
         {
-            mainconsole.console("Loaded weapons mod "
+            GetServerMainConsole().console("Loaded weapons mod "
                                 " + WMName + " v " + WMVersion + "
                                 "",
                                 SERVER_MESSAGE_COLOR);
@@ -876,7 +876,8 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
 
     if (playersnum == max_players)
     {
-        mainconsole.console("Bot cannot be added because server is full", warning_message_color);
+        GetServerMainConsole().console("Bot cannot be added because server is full",
+                                       warning_message_color);
         return Result;
     }
 
@@ -893,7 +894,8 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
 
         if (not loadbotconfig(ini, sprite[p]))
         {
-            mainconsole.console("Bot file " + name + " not found", warning_message_color);
+            GetServerMainConsole().console("Bot file " + name + " not found",
+                                           warning_message_color);
             sprite[p].kill();
             return Result;
         }
@@ -927,8 +929,8 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
         TempStr = "as spectator";
         break;
     }
-    mainconsole.console(sprite[p].player->name + " " + "has joined " + TempStr + ".",
-                        enter_message_color);
+    GetServerMainConsole().console(sprite[p].player->name + " " + "has joined " + TempStr + ".",
+                                   enter_message_color);
 
 #ifdef SCRIPT
     ScrptDispatcher.OnJoinTeam(p, sprite[p].Player.Team, sprite[p].Player.Team, true);
@@ -1002,11 +1004,10 @@ void startserver()
     /*
         if (not map.loadmap(StartMap))
         {
-            mainconsole.console("Could Error not load map maps/" + StartMap.mapname + ".smap",
-                                debug_message_color);
-            if (not map.loadmap("Arena"))
+            GetServerMainConsole().console("Could Error not load map maps/" + StartMap.mapname +
+".smap", debug_message_color); if (not map.loadmap("Arena"))
             {
-                mainconsole.console("Could Error not load map maps/ Arena.smap",
+                GetServerMainConsole().console("Could Error not load map maps/ Arena.smap",
                                     debug_message_color);
                 return;
             }
@@ -1027,7 +1028,8 @@ void startserver()
     {
         if (not map.loadmap(StartMap))
         {
-            mainconsole.console("Could Error not load map " + StartMap.name, debug_message_color);
+            GetServerMainConsole().console("Could Error not load map " + StartMap.name,
+                                           debug_message_color);
             Abort();
             return;
         }
@@ -1046,7 +1048,7 @@ void startserver()
 
     if (CVar::sv_realisticmode)
     {
-        mainconsole.console("Realistic Mode ON", mode_message_color);
+        GetServerMainConsole().console("Realistic Mode ON", mode_message_color);
         starthealth = Constants::REALISTIC_HEALTH;
         loadweapons("weapons_realistic");
         lastwepmod = "weapons_realistic";
@@ -1076,7 +1078,7 @@ void startserver()
             for (i = 1; i < 11; i++)
                 weaponsel[j][i] = 1;
 
-        mainconsole.console("Advance Mode ON", mode_message_color);
+        GetServerMainConsole().console("Advance Mode ON", mode_message_color);
     }
 
     if (CVar::sv_gamemode == Constants::GAMESTYLE_DEATHMATCH)
@@ -1136,7 +1138,7 @@ void startserver()
     }
     else
     {
-        mainconsole.console("Survival Mode ON", mode_message_color);
+        GetServerMainConsole().console("Survival Mode ON", mode_message_color);
     }
 
     // stat gun
@@ -1261,7 +1263,7 @@ bool preparemapchange(std::string Name)
         mapchangecounter = mapchangetime;
         // s} to client that map changes
         servermapchange(all_players);
-        mainconsole.console("Next  map" + Status.name, game_message_color);
+        GetServerMainConsole().console("Next  map" + Status.name, game_message_color);
 #ifdef SCRIPT
         ScrptDispatcher.OnBeforeMapChange(Status.Name);
 #endif
@@ -1276,9 +1278,9 @@ void nextmap()
 
     if (mapslist.size() < 1)
     {
-        mainconsole.console("Can"
-                            "t load maps from mapslist",
-                            game_message_color);
+        GetServerMainConsole().console("Can"
+                                       "t load maps from mapslist",
+                                       game_message_color);
     }
     else
     {
@@ -1396,8 +1398,8 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
     {
         if (isremoteadminip(sprite[i].player->ip) or isadminip(sprite[i].player->ip))
         {
-            mainconsole.console(sprite[i].player->name + " is admin and cannot be kicked.",
-                                client_message_color);
+            GetServerMainConsole().console(
+                sprite[i].player->name + " is admin and cannot be kicked.", client_message_color);
             return Result;
         }
     }
@@ -1407,38 +1409,38 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
         switch (sprite[i].player->team)
         {
         case 0:
-            mainconsole.console(sprite[i].player->name + " has left the game.",
-                                enter_message_color);
+            GetServerMainConsole().console(sprite[i].player->name + " has left the game.",
+                                           enter_message_color);
             break;
         case 1:
-            mainconsole.console(sprite[i].player->name + " has left alpha team.",
-                                alphaj_message_color);
+            GetServerMainConsole().console(sprite[i].player->name + " has left alpha team.",
+                                           alphaj_message_color);
             break;
         case 2:
-            mainconsole.console(sprite[i].player->name + " has left bravo team.",
-                                bravoj_message_color);
+            GetServerMainConsole().console(sprite[i].player->name + " has left bravo team.",
+                                           bravoj_message_color);
             break;
         case 3:
-            mainconsole.console(sprite[i].player->name + " has left charlie team.",
-                                charliej_message_color);
+            GetServerMainConsole().console(sprite[i].player->name + " has left charlie team.",
+                                           charliej_message_color);
             break;
         case 4:
-            mainconsole.console(sprite[i].player->name + " has left delta team.",
-                                deltaj_message_color);
+            GetServerMainConsole().console(sprite[i].player->name + " has left delta team.",
+                                           deltaj_message_color);
             break;
         case 5:
-            mainconsole.console(sprite[i].player->name + " has left spectators",
-                                deltaj_message_color);
+            GetServerMainConsole().console(sprite[i].player->name + " has left spectators",
+                                           deltaj_message_color);
             break;
         }
     }
 
     if (not Ban and not(why == kick_leftgame) and not(why == kick_silent))
     {
-        mainconsole.console(sprite[i].player->name + " has been kicked." +
-                                iif(sprite[i].player->controlmethod == bot, std::string(""),
-                                    "(" + sprite[i].player->ip + ")"),
-                            client_message_color);
+        GetServerMainConsole().console(sprite[i].player->name + " has been kicked." +
+                                           iif(sprite[i].player->controlmethod == bot,
+                                               std::string(""), "(" + sprite[i].player->ip + ")"),
+                                       client_message_color);
     }
 
     if (Ban)
@@ -1458,15 +1460,15 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
 #if 0
             TimeStr = iif((time + 1) div 3600 > 1439, IntToStr((time + 1) div 5184000) + " days",
                           IntToStr((time + 1) div 3600) + " minutes");
-            mainconsole.console(sprite[i].player->name + " has been kicked and banned for " +
+            GetServerMainConsole().console(sprite[i].player->name + " has been kicked and banned for " +
                                     TimeStr + " (" + Reason + ")",
                                 client_message_color)
 #endif
         }
         else
-            mainconsole.console(sprite[i].player->name +
-                                    " has been kicked and permanently banned (" + Reason + ")",
-                                client_message_color);
+            GetServerMainConsole().console(
+                sprite[i].player->name + " has been kicked and permanently banned (" + Reason + ")",
+                client_message_color);
     }
 
     savetxtlists();

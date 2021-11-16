@@ -108,6 +108,7 @@ bool pointvisible2(float x, float y, std::int32_t i);
 void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targetvote,
                std::string reasonvote);
 void stopvote();
+template <Config::Module M = Config::GetModule()>
 void timervote();
 #ifdef SERVER
 void countvote(std::uint8_t voter);

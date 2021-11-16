@@ -38,7 +38,7 @@ static void commandexec(std::vector<std::string> &args, std::uint8_t sender = 25
 {
     if (length(args) == 1)
     {
-        mainconsole.console("Usage: exec \"filename.cfg\"", game_message_color);
+        GetMainConsole().console("Usage: exec \"filename.cfg\"", game_message_color);
         return;
     }
     loadconfig(args[1]);
@@ -52,13 +52,13 @@ static void commandtoggle(std::vector<std::string> &args, std::uint8_t sender)
 
     if (length(args) == 1)
     {
-        mainconsole.console("Usage: toggle \"cvarname\" \"value\" \"value2\"", game_message_color);
+        GetMainConsole().console("Usage: toggle \"cvarname\" \"value\" \"value2\"", game_message_color);
         return;
     }
     acvar = CVarBase.find(args[1]);
     if (!assigned(acvar))
     {
-        mainconsole.console(std::string("Toggle: Cvar ") + args[1] + " not found",
+        GetMainConsole().console(std::string("Toggle: Cvar ") + args[1] + " not found",
                             debug_message_color);
         return;
     }
@@ -75,7 +75,7 @@ void commandalias(std::vector<std::string> &args, std::uint8_t sender)
 
     if (length(args) == 1)
     {
-        mainconsole.console("Usage: alias \"name\" \"command\"", game_message_color);
+        GetMainConsole().console("Usage: alias \"name\" \"command\"", game_message_color);
         return;
     }
     aliasname = args[1];
@@ -83,12 +83,12 @@ void commandalias(std::vector<std::string> &args, std::uint8_t sender)
 #if 0
     if ((tcvarbase.find(aliasname) != nullptr) && (commandfind(aliasname) != nullptr))
     {
-        mainconsole.console("Cannot use this alias name because it's already used",
+        GetMainConsole().console("Cannot use this alias name because it's already used",
                             debug_message_color);
         return;
     }
     commandadd(aliasname, commandexecutealias, args[2], cmd_alias);
-    mainconsole.console(std::string("New alias: Args[1] with command: ") + args[2],
+    GetMainConsole().console(std::string("New alias: Args[1] with command: ") + args[2],
                         game_message_color);
 #endif
 }
@@ -102,7 +102,7 @@ void commandexecutealias(std::vector<std::string> &args, std::uint8_t sender)
     commandptr = commandfind(args[0]);
     if (!assigned(commandptr))
     {
-        mainconsole.console("Cannot find alias command", debug_message_color);
+        GetMainConsole().console("Cannot find alias command", debug_message_color);
         return;
     }
     NotImplemented(NITag::OTHER);
@@ -119,10 +119,10 @@ void commandecho(std::vector<std::string> &args, std::uint8_t sender)
 {
     if (length(args) == 1)
     {
-        mainconsole.console("Usage: echo \"text\"", game_message_color);
+        GetMainConsole().console("Usage: echo \"text\"", game_message_color);
         return;
     }
-    mainconsole.console(args[1], game_message_color);
+    GetMainConsole().console(args[1], game_message_color);
 }
 
 void commandreset(std::vector<std::string> &args, std::uint8_t sender)
@@ -134,19 +134,19 @@ void commandreset(std::vector<std::string> &args, std::uint8_t sender)
 
     if (length(args) == 1)
     {
-        mainconsole.console("Usage: reset \"cvarname\"", game_message_color);
+        GetMainConsole().console("Usage: reset \"cvarname\"", game_message_color);
         return;
     }
     cvarname = args[1];
     acvar = tcvarbase.find(cvarname);
     if (!assigned(acvar))
     {
-        mainconsole.console(std::string("Reset: Cvar ") + cvarname + " not found",
+        GetMainConsole().console(std::string("Reset: Cvar ") + cvarname + " not found",
                             debug_message_color);
         return;
     }
     acvar.reset(0);
-    mainconsole.console(std::string("Reset: ") + cvarname + " set to: " + CVar::acvarasstring,
+    GetMainConsole().console(std::string("Reset: ") + cvarname + " set to: " + CVar::acvarasstring,
                         debug_message_color);
 #endif
 }
@@ -161,7 +161,7 @@ void commandcmdlist(std::vector<std::string> &args, std::uint8_t sender)
     for (i = 0; i <= commands.count - 1; i++)
     {
         commandptr = commands.items[i];
-        mainconsole.console(commandptr->name + " - " + commandptr->description, game_message_color);
+        GetMainConsole().console(commandptr->name + " - " + commandptr->description, game_message_color);
     }
 #endif
 }
@@ -186,7 +186,7 @@ void commandcvarlist(std::vector<std::string> &args, std::uint8_t sender)
         if (length(args) == 2)
             if (!ansicontainsstr(acvar.name, args[1]))
                 continue;
-        mainconsole.console(padright(acvar.name, 30) + " : " + CVar::acvarasstring + " : [" +
+        GetMainConsole().console(padright(acvar.name, 30) + " : " + CVar::acvarasstring + " : [" +
                                 dumpflags(acvar) + " ] : " + acvar.description,
                             game_message_color);
     }
@@ -206,7 +206,7 @@ void commandinc(std::vector<std::string> &args, std::uint8_t sender)
 
     if (length(args) <= 4)
     {
-        mainconsole.console("Usage: inc \"cvarname\" \"min\" \"max\" \"delta\"",
+        GetMainConsole().console("Usage: inc \"cvarname\" \"min\" \"max\" \"delta\"",
                             game_message_color);
         return;
     }
@@ -215,7 +215,7 @@ void commandinc(std::vector<std::string> &args, std::uint8_t sender)
     acvar = tcvarbase.find(cvarname);
     if (!assigned(acvar))
     {
-        mainconsole.console(string("Inc: Cvar ") + cvarname + " not found", debug_message_color);
+        GetMainConsole().console(string("Inc: Cvar ") + cvarname + " not found", debug_message_color);
         return;
     }
 
@@ -261,7 +261,7 @@ void commandnetconfig(std::vector<std::string> &args, std::uint8_t sender)
 
     if (length(args) <= 3)
     {
-        mainconsole.console("Usage: netconfig \"id\" \"value\"", game_message_color);
+        GetMainConsole().console("Usage: netconfig \"id\" \"value\"", game_message_color);
         return;
     }
 
@@ -275,7 +275,7 @@ void commandnetconfig(std::vector<std::string> &args, std::uint8_t sender)
             setresult = udp.networkingutil.setconfigvalue(
                 esteamnetworkingconfigvalue(strtoint(args[1])), k_esteamnetworkingconfig_global, 0,
                 outdatatype, &std::int32_tvalue);
-            mainconsole.console(format("[NET] NetConfig: Set %S to %D, result: %S",
+            GetMainConsole().console(format("[NET] NetConfig: Set %S to %D, result: %S",
                                        set::of(std::string(name[0]), std::int32_tvalue,
                                                setresult.tostring(tuseboolstrs.true), eos)),
                                 debug_message_color #ifdef SERVER, sender #endif);
@@ -287,7 +287,7 @@ void commandnetconfig(std::vector<std::string> &args, std::uint8_t sender)
             setresult = udp.networkingutil.setconfigvalue(
                 esteamnetworkingconfigvalue(strtoint(args[1])), k_esteamnetworkingconfig_global, 0,
                 outdatatype, &floatvalue);
-            mainconsole.console(format("[NET] NetConfig: Set %S to %F, result: %S",
+            GetMainConsole().console(format("[NET] NetConfig: Set %S to %F, result: %S",
                                        set::of(std::string(name[0]), floatvalue,
                                                setresult.tostring(tuseboolstrs.true), eos)),
                                 debug_message_color #ifdef SERVER, sender #endif);
@@ -311,7 +311,7 @@ void commandnetconfglist(std::vector<std::string> &args, std::uint8_t sender)
     if (length(args) <= 4)
     {
         ;
-        // mainconsole.Console('Usage: netconfig "id" "value"', GAME_MESSAGE_COLOR);
+        // GetMainConsole().Console('Usage: netconfig "id" "value"', GAME_MESSAGE_COLOR);
         // Exit;
     }
 
@@ -333,7 +333,7 @@ void commandnetconfglist(std::vector<std::string> &args, std::uint8_t sender)
             if (udp.networkingutil.getconfigvalue(outnextvalue, k_esteamnetworkingconfig_global, 0,
                                                   &outdatatype, std::int32_tvalue,
                                                   &cbresult) == k_esteamnetworkinggetconfigvalue_ok)
-                mainconsole.console(format("[NET] NetConfig: %S is %D",
+                GetMainConsole().console(format("[NET] NetConfig: %S is %D",
                                            set::of(std::string(name[0]), std::int32_tvalue, eos)),
                                     debug_message_color #ifdef SERVER, sender #endif);
         }
@@ -343,7 +343,7 @@ void commandnetconfglist(std::vector<std::string> &args, std::uint8_t sender)
             if (udp.networkingutil.getconfigvalue(outnextvalue, k_esteamnetworkingconfig_global, 0,
                                                   &outdatatype, floatvalue,
                                                   &cbresult) == k_esteamnetworkinggetconfigvalue_ok)
-                mainconsole.console(format("[NET] NetConfig: %S is %F",
+                GetMainConsole().console(format("[NET] NetConfig: %S is %F",
                                            set::of(std::string(name[0]), floatvalue, eos)),
                                     debug_message_color #ifdef SERVER, sender #endif);
         }
@@ -354,13 +354,13 @@ void commandnetloglevel(std::vector<std::string> &args, std::uint8_t sender)
 {
     if (length(args) == 1)
     {
-        mainconsole.console("Usage: netconfig_loglevel \"level\"",
+        GetMainConsole().console("Usage: netconfig_loglevel \"level\"",
                             debug_message_color #ifdef SERVER, sender #endif);
         return;
     }
 
     udp.setdebuglevel(esteamnetworkingsocketsdebugoutputtype(strtointdef(args[1], 4)));
-    mainconsole.console(string("[NET] GNS log level set to ") + args[1],
+    GetMainConsole().console(string("[NET] GNS log level set to ") + args[1],
                         debug_message_color #ifdef SERVER, sender #endif);
 }
 /*$POP*/
@@ -470,9 +470,9 @@ bool parseinput(const std::string &input, std::uint8_t sender)
     if (inputarray.size() != 2)
     {
 #ifdef SERVER
-        mainconsole.console("Cannot parse " + input, sender, debug_message_color);
+        GetMainConsole().console("Cannot parse " + input, sender, debug_message_color);
 #else
-        mainconsole.console("Cannot parse " + input, sender);
+        GetMainConsole().console("Cannot parse " + input, sender);
 #endif
         return false;
     }
@@ -494,9 +494,9 @@ bool parseinput(const std::string &input, std::uint8_t sender)
         return true;
     }
 #ifdef SERVER
-    mainconsole.console("Cannot set variable " + input, sender, debug_message_color);
+    GetMainConsole().console("Cannot set variable " + input, sender, debug_message_color);
 #else
-    mainconsole.console("Cannot set variable " + input, sender);
+    GetMainConsole().console("Cannot set variable " + input, sender);
 #endif
     return false;
 }
@@ -510,7 +510,7 @@ bool loadconfig(const std::string &configname)
     path = userdirectory + "configs/" + configname;
     if (!std::filesystem::exists(path))
     {
-        mainconsole.console(std::string("No such config file: ") + configname,
+        GetMainConsole().console(std::string("No such config file: ") + configname,
                             warning_message_color);
         return result;
     }

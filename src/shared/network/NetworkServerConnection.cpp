@@ -77,8 +77,8 @@ void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
     else if (isadminpassword((pmsg_requestgame(netmessage->m_pData)->password.data())))
     {
         if (addiptoremoteadmins(player->ip))
-            mainconsole.console(player->ip + " added to Game Admins via Request password",
-                                server_message_color);
+            GetServerMainConsole().console(
+                player->ip + " added to Game Admins via Request password", server_message_color);
         state = ok;
     }
     else
@@ -118,7 +118,7 @@ void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
             state = steam_only;
 #endif
 
-    mainconsole.console(
+    GetServerMainConsole().console(
         player->ip + ':' + inttostr(player->port) +
             //    '|' + {$IFDEF
             //    STEAM}TSteamID(Player.SteamID).GetAsString{$ELSE}RequestMsg.HardwareID{$ENDIF} +
@@ -248,15 +248,15 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
             }
     } while (!playernameunused);
 
-    mainconsole.console(finalplayername + " joining game (" + player->ip + ':' +
-                            inttostr(player->port) + ") HWID:" +
+    GetServerMainConsole().console(finalplayername + " joining game (" + player->ip + ':' +
+                                       inttostr(player->port) + ") HWID:" +
 #ifdef STEAM
-                            Player.SteamID.GetAsString()
+                                       Player.SteamID.GetAsString()
 #else
-                            player->hwid
+                                       player->hwid
 #endif
-                            ,
-                        server_message_color);
+                                       ,
+                                   server_message_color);
 
     // Set a network name for debugging purposes
     udp->setconnectionname(player->peer, finalplayername);
@@ -417,22 +417,27 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     switch (player->team)
     {
     case team_none:
-        mainconsole.console(player->name + " has joined the game.", enter_message_color);
+        GetServerMainConsole().console(player->name + " has joined the game.", enter_message_color);
         break;
     case team_alpha:
-        mainconsole.console(player->name + " has joined alpha team.", alphaj_message_color);
+        GetServerMainConsole().console(player->name + " has joined alpha team.",
+                                       alphaj_message_color);
         break;
     case team_bravo:
-        mainconsole.console(player->name + " has joined bravo team.", bravoj_message_color);
+        GetServerMainConsole().console(player->name + " has joined bravo team.",
+                                       bravoj_message_color);
         break;
     case team_charlie:
-        mainconsole.console(player->name + " has joined charlie team.", charliej_message_color);
+        GetServerMainConsole().console(player->name + " has joined charlie team.",
+                                       charliej_message_color);
         break;
     case team_delta:
-        mainconsole.console(player->name + " has joined delta team.", deltaj_message_color);
+        GetServerMainConsole().console(player->name + " has joined delta team.",
+                                       deltaj_message_color);
         break;
     case team_spectator:
-        mainconsole.console(player->name + " has joined as spectator.", deltaj_message_color);
+        GetServerMainConsole().console(player->name + " has joined as spectator.",
+                                       deltaj_message_color);
         break;
     }
 

@@ -26,7 +26,7 @@ void tdownloadthread::canceldownload()
 void tdownloadthread::seterror()
 {
     showmessage(string("Download error: ") + const std::wstring &(ferrormsg));
-    mainconsole.console(string("Download error: ") + ferrormsg, debug_message_color);
+    GetMainConsole().console(string("Download error: ") + ferrormsg, debug_message_color);
 }
 
 void tdownloadthread::setstatus()

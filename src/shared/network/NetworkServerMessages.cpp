@@ -57,8 +57,8 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
     if (sprite[from].player->controlmethod == bot)
     {
         auto msg = iif(msgtype == msgtype_team, std::string("(TEAM)"), std::string(""));
-        mainconsole.console(msg + "[" + sprite[from].player->name + "] " + text,
-                            teamchat_message_color);
+        GetServerMainConsole().console(msg + "[" + sprite[from].player->name + "] " + text,
+                                       teamchat_message_color);
     }
 }
 
@@ -118,8 +118,8 @@ void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage)
         if (scrptdispatcher.onplayercommand(player.spritenum, std::string(cs)))
             return;
 #endif
-        mainconsole.console(cs + "(" + (player->ip) + "[" + (player->name) + "]" + ")",
-                            default_message_color);
+        GetServerMainConsole().console(cs + "(" + (player->ip) + "[" + (player->name) + "]" + ")",
+                                       default_message_color);
         parseinput(std::string(cs), player->spritenum);
         return;
     }
@@ -133,7 +133,7 @@ void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage)
     if (player->muted == 1)
         cschat = std::string("(MUTED) ") + cschat;
 
-    mainconsole.console(cschat, chat_message_color);
+    GetServerMainConsole().console(cschat, chat_message_color);
 
     if (player->muted == 1)
         serversendstringmessage("(Muted)", all_players, player->spritenum, msgtype_pub);

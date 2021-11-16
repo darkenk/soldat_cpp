@@ -168,15 +168,16 @@ void restartgraph()
         mouseprev.y = my;
     }
 
-    mainconsole.console(("Graphics restart"), debug_message_color);
+    GetMainConsole().console(("Graphics restart"), debug_message_color);
 }
 
 void loadweaponnames()
 {
     std::int32_t i;
 
-    mainconsole.console(std::string("Loading Weapon Names from ") + moddir + "txt/weaponnames.txt",
-                        debug_message_color);
+    GetMainConsole().console(std::string("Loading Weapon Names from ") + moddir +
+                                 "txt/weaponnames.txt",
+                             debug_message_color);
     if (PHYSFS_exists((pchar)(moddir + "txt/weaponnames.txt")))
     {
         PHYSFS_File *tf;
@@ -338,11 +339,11 @@ void exittomenu()
 //        end;
 //      end;
 //    end;
-////    mainconsole.Console(_('Succesfully saved screenshot on Steam'), DEBUG_MESSAGE_COLOR);
+////    GetMainConsole().Console(_('Succesfully saved screenshot on Steam'), DEBUG_MESSAGE_COLOR);
 //  end;
 ////  else
 ////  begin
-////    mainconsole.Console(_('Failed to save screenshot on Steam'), DEBUG_MESSAGE_COLOR);
+////    GetMainConsole().Console(_('Failed to save screenshot on Steam'), DEBUG_MESSAGE_COLOR);
 ////  end;
 // end;
 //
@@ -472,16 +473,16 @@ void startgame(int argc, const char *argv[])
 
     newlogfiles();
 
-    mainconsole.countmax = round(15 * _rscala.y);
-    mainconsole.scrolltickmax = 150;
-    mainconsole.newmessagewait = 150;
-    mainconsole.alphacount = 255;
-    mainconsole.count = 0;
-    mainconsole.countmax = round(CVar::ui_console_length * _rscala.y);
+    GetMainConsole().countmax = round(15 * _rscala.y);
+    GetMainConsole().scrolltickmax = 150;
+    GetMainConsole().newmessagewait = 150;
+    GetMainConsole().alphacount = 255;
+    GetMainConsole().count = 0;
+    GetMainConsole().countmax = round(CVar::ui_console_length * _rscala.y);
 
-    if (mainconsole.countmax > 254)
+    if (GetMainConsole().countmax > 254)
     {
-        mainconsole.countmax = 254;
+        GetMainConsole().countmax = 254;
     }
 
     // TODO remove HWIDs, replace by Fae auth tickets
@@ -723,26 +724,26 @@ void startgame(int argc, const char *argv[])
     addlinetologfile(gamelog, "Creating network interface.", consolelogfilename);
 
     // Create Consoles
-    mainconsole.countmax = round(CVar::ui_console_length * _rscala.y);
-    mainconsole.scrolltickmax = 150;
-    mainconsole.newmessagewait = 150;
-    mainconsole.alphacount = 255;
-    mainconsole.count = 0;
-    if (mainconsole.countmax > 254)
-        mainconsole.countmax = 254;
+    GetMainConsole().countmax = round(CVar::ui_console_length * _rscala.y);
+    GetMainConsole().scrolltickmax = 150;
+    GetMainConsole().newmessagewait = 150;
+    GetMainConsole().alphacount = 255;
+    GetMainConsole().count = 0;
+    if (GetMainConsole().countmax > 254)
+        GetMainConsole().countmax = 254;
 
-    bigconsole.countmax =
+    GetBigConsole().countmax =
         floor((0.85 * renderheight) / (CVar::font_consolelineheight * fontstylesize(font_small)));
-    bigconsole.scrolltickmax = 1500000;
-    bigconsole.newmessagewait = 0;
-    bigconsole.alphacount = 255;
-    bigconsole.count = 0;
-    if (bigconsole.countmax > 254)
-        bigconsole.countmax = 254;
+    GetBigConsole().scrolltickmax = 1500000;
+    GetBigConsole().newmessagewait = 0;
+    GetBigConsole().alphacount = 255;
+    GetBigConsole().count = 0;
+    if (GetBigConsole().countmax > 254)
+        GetBigConsole().countmax = 254;
 
-    killconsole.countmax = round(CVar::ui_killconsole_length * _rscala.y);
-    killconsole.scrolltickmax = 240;
-    killconsole.newmessagewait = 70;
+    GetKillConsole().countmax = round(CVar::ui_killconsole_length * _rscala.y);
+    GetKillConsole().scrolltickmax = 240;
+    GetKillConsole().newmessagewait = 70;
 
     // Create static player objects
     for (auto &s : sprite)
@@ -755,13 +756,13 @@ void startgame(int argc, const char *argv[])
         loadanimobjects(moddir);
 
     // greet!
-    // mainconsole.console(("Welcome to Soldat ") + soldat_version, default_message_color);
-    mainconsole.console(("Welcome to Soldat "), default_message_color);
+    // GetMainConsole().console(("Welcome to Soldat ") + soldat_version, default_message_color);
+    GetMainConsole().console(("Welcome to Soldat "), default_message_color);
 
 #ifdef ENABLE_FAE
     if (faeisenabled)
-        mainconsole.console("Multi-player sessions are protected by Fae Anti-Cheat",
-                            ac_message_color);
+        GetMainConsole().console("Multi-player sessions are protected by Fae Anti-Cheat",
+                                 ac_message_color);
 #endif
 
     // Load weapon display names

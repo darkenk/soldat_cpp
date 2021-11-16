@@ -178,7 +178,7 @@ bool tpolymap::loadmap(const tmapinfo &map)
         this->loaddata(mapfile);
         this->name = map.name;
         this->mapinfo = map;
-        mainconsole.console(mapfile.mapname, game_message_color);
+        GetMainConsole().console(mapfile.mapname, game_message_color);
         result = true;
     }
     return result;
@@ -213,7 +213,7 @@ bool tpolymap::loadmap(tmapinfo map, bool bgforce, std::uint32_t bgcolortop,
         }
 #endif
 
-        mainconsole.console(mapfile.mapname, game_message_color);
+        GetMainConsole().console(mapfile.mapname, game_message_color);
         result = true;
     }
     return result;
