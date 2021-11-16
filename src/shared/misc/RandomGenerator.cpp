@@ -17,6 +17,10 @@ float Random()
 
 std::int32_t Random(std::uint32_t range)
 {
+    if (range == 0)
+    {
+        return 0;
+    }
     std::uniform_int_distribution<> distrib(0, range - 1);
     return distrib(generator);
 }
