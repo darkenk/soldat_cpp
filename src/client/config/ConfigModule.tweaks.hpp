@@ -4,9 +4,14 @@
 namespace Config
 {
 
-constexpr Module GetModule()
+constexpr Module GetModule() noexcept
 {
-    return CLIENT;
+    return CLIENT_MODULE;
+}
+
+constexpr bool IsClient() noexcept
+{
+    return true;
 }
 
 } // namespace Config

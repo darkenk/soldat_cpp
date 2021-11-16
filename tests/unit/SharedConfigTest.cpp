@@ -5,6 +5,11 @@
 #include "shared/misc/TMemoryStream.hpp"
 #include <gtest/gtest.h>
 
+static_assert(Config::GetModule() == Config::Module::TEST_MODULE,
+              "Tests should be compiled with default module set to TEST_MODULE");
+
+static_assert(Config::IsTest(), "Tests should be compiled with default module set to TEST_MODULE");
+
 // just dummy to satisfy linker
 void tsprite::freecontrols()
 {

@@ -8,12 +8,21 @@ enum Module
 {
     CLIENT_MODULE,
     SERVER_MODULE,
-    TEST_MODULE
+    TEST_MODULE,
+    INVALID_MODULE
 };
+
+namespace defaults
+{
+
+constexpr Module GetModule() noexcept
+{
+    return INVALID_MODULE;
+}
 
 constexpr bool IsServer() noexcept
 {
-    return true;
+    return false;
 }
 
 constexpr bool IsClient() noexcept
@@ -21,11 +30,14 @@ constexpr bool IsClient() noexcept
     return false;
 }
 
-template <Config::Module T>
-using EnableInServer = Enable<T, Config::SERVER_MODULE>;
+constexpr bool IsTest() noexcept
+{
+    return false;
+}
 
-template <Config::Module T>
-using EnableInClient = Enable<T, Config::CLIENT_MODULE>;
+} // namespace defaults
+
+using namespace defaults;
 
 } // namespace Config
 
