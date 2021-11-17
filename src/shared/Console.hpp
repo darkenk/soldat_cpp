@@ -12,7 +12,8 @@ constexpr std::int32_t console_max_messages = 20;
 constexpr std::int32_t console_max_messages = 255;
 #endif
 
-class tconsole
+template <Config::Module M>
+class Console
 {
   public:
     PascalArray<std::string, 1, console_max_messages> textmessage;
@@ -31,10 +32,8 @@ class tconsole
 #endif
     //  public
     void scrollconsole();
-#ifdef SERVER
-    template <typename T>
-    void console(const T &what, std::int32_t col, std::uint8_t sender);
-#endif
+    void console(const std::string &what, std::int32_t col,
+                 std::uint8_t sender) requires(Config::IsServer(M));
     void console(const std::string &what, std::int32_t col);
 #if 0
     void console(const std::string &what, std::int32_t col);
@@ -45,11 +44,13 @@ class tconsole
     void consolenum(const std::string &what, std::int32_t col, std::int32_t num);
 };
 
+using tconsole = Console<Config::GetModule()>;
+
 template <Config::Module M = Config::GetModule()>
-tconsole &GetMainConsole();
+Console<M> &GetMainConsole();
 
-constexpr auto GetServerMainConsole = GetMainConsole<Config::Module::SERVER_MODULE>;
-constexpr auto GetClientMainConsole = GetMainConsole<Config::Module::CLIENT_MODULE>;
+constexpr auto GetServerMainConsole = GetMainConsole<Config::SERVER_MODULE>;
+constexpr auto GetClientMainConsole = GetMainConsole<Config::CLIENT_MODULE>;
 
-tconsole &GetBigConsole();
-tconsole &GetKillConsole();
+Console<Config::CLIENT_MODULE> &GetBigConsole();
+Console<Config::CLIENT_MODULE> &GetKillConsole();

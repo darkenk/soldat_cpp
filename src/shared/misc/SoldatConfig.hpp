@@ -20,21 +20,6 @@ constexpr Module GetModule() noexcept
     return INVALID_MODULE;
 }
 
-constexpr bool IsServer() noexcept
-{
-    return false;
-}
-
-constexpr bool IsClient() noexcept
-{
-    return false;
-}
-
-constexpr bool IsTest() noexcept
-{
-    return false;
-}
-
 } // namespace defaults
 
 using namespace defaults;
@@ -44,3 +29,21 @@ using namespace defaults;
 #if __has_include(<ConfigModule.tweaks.hpp>)
 #include <ConfigModule.tweaks.hpp>
 #endif
+
+namespace Config
+{
+constexpr bool IsServer(Config::Module module = Config::GetModule()) noexcept
+{
+    return module == Module::SERVER_MODULE;
+}
+
+constexpr bool IsClient(Config::Module module = Config::GetModule()) noexcept
+{
+    return module == Module::CLIENT_MODULE;
+}
+
+constexpr bool IsTest(Config::Module module = Config::GetModule()) noexcept
+{
+    return module == Config::Module::TEST_MODULE;
+}
+} // namespace Config

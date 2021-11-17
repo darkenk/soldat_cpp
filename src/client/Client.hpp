@@ -67,11 +67,6 @@ extern std::uint8_t mysprite;
 // Network
 extern tclientnetwork *udp;
 
-// Consoles
-extern tconsole mainconsole;
-extern tconsole bigconsole;
-extern tconsole killconsole;
-
 // Weapon Stats
 extern PascalArray<tweaponstat, 1, 20> wepstats;
 extern std::uint8_t wepstatsnum;

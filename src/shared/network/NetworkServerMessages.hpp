@@ -17,15 +17,15 @@
 /*#include "Sprites.h"*/
 /*#include "Command.h"*/
 /*#include "Constants.h"*/
+#include "../misc/SoldatConfig.hpp"
 #include <steam/isteamnetworkingmessages.h>
 #include <string>
 
 void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
                              std::uint8_t msgtype);
 
-void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
-                             std::uint8_t msgtype);
 void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage);
+
 void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8_t layerid,
                               std::int32_t delay, float scale, uint32 color, float x, float y,
                               std::uint8_t tonum);

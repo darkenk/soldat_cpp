@@ -89,11 +89,6 @@ std::uint8_t mysprite;
 // Network
 tclientnetwork *udp;
 
-// Consoles
-// tconsole mainconsole;
-// tconsole bigconsole;
-// tconsole killconsole;
-
 // Weapon Stats
 PascalArray<tweaponstat, 1, 20> wepstats;
 std::uint8_t wepstatsnum = 0;

@@ -39,10 +39,6 @@
 #include "misc/PortUtilsSoldat.hpp"
 #include <chrono>
 
-// various
-// extern tconsole mainconsole;
-// end
-
 twaypoints botpath;
 
 // TODO: move all dependent functions in this unit

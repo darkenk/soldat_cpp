@@ -6,7 +6,6 @@
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 
-extern tconsole mainconsole;
 extern tpolymap map;
 
 /*#include "Classes.h"*/

@@ -2,23 +2,13 @@
 #include "Console.hpp"
 #include "LogFile.hpp"
 #include "Logging.hpp"
-#ifdef SERVER
-#include "network/NetworkServer.hpp"
+#include "network/Net.hpp"
 #include "network/NetworkServerMessages.hpp"
-#endif
 
 #include <locale>
 
 template <Config::Module M>
-tconsole &GetMainConsole()
-{
-    static tconsole gMainConsole;
-    return gMainConsole;
-}
-
-template tconsole &GetMainConsole<Config::GetModule()>();
-
-void tconsole::scrollconsole()
+void Console<M>::scrollconsole()
 {
     std::int32_t x;
 
@@ -38,7 +28,8 @@ void tconsole::scrollconsole()
     scrolltick = 0;
 }
 
-void tconsole::consoleadd(const std::string &what, std::int32_t col)
+template <Config::Module M>
+void Console<M>::consoleadd(const std::string &what, std::int32_t col)
 {
     // adds a new message
     count += 1;
@@ -56,7 +47,8 @@ void tconsole::consoleadd(const std::string &what, std::int32_t col)
     }
 }
 
-void tconsole::consolenum(const std::string &what, std::int32_t col, std::int32_t num)
+template <Config::Module M>
+void Console<M>::consolenum(const std::string &what, std::int32_t col, std::int32_t num)
 {
     // adds a new message
     count += 1;
@@ -70,7 +62,8 @@ void tconsole::consolenum(const std::string &what, std::int32_t col, std::int32_
     }
 }
 
-void tconsole::console(const std::string &what, std::int32_t col) // overload;
+template <Config::Module M>
+void Console<M>::console(const std::string &what, std::int32_t col) // overload;
 {
     if (what.empty())
     {
@@ -79,64 +72,69 @@ void tconsole::console(const std::string &what, std::int32_t col) // overload;
 
     addlinetologfile(gamelog, what, consolelogfilename);
 
-#ifdef SERVER
-    LogDebugG("{}", what);
+    if constexpr (Config::IsServer(M))
+    {
+        LogDebugG("{}", what);
 #ifdef RCON
-    broadcastmsg(std::string(what));
+        broadcastmsg(std::string(what));
 #endif
 
-    // adds a new message
-    // NOTE: not thread save!
-    // added mod to prevent AVs
-    count += 1;
-    if (count >= countmax)
-        count = 1;
+        // adds a new message
+        // NOTE: not thread save!
+        // added mod to prevent AVs
+        count += 1;
+        if (count >= countmax)
+            count = 1;
 
-    scrolltick = -newmessagewait;
-    textmessage[count] = what;
-    textmessagecolor[count] = col;
-    nummessage[count] = -255;
-    if (count == 1)
-        alphacount = 255;
-    if (count == countmax)
-        scrollconsole();
-#else
-    GetMainConsole().consoleadd(what, col);
-    GetBigConsole().consoleadd(what, col);
-#endif
+        scrolltick = -newmessagewait;
+        textmessage[count] = what;
+        textmessagecolor[count] = col;
+        nummessage[count] = -255;
+        if (count == 1)
+            alphacount = 255;
+        if (count == countmax)
+            scrollconsole();
+    }
+    if constexpr (Config::IsClient(M))
+    {
+        GetMainConsole().consoleadd(what, col);
+        GetBigConsole().consoleadd(what, col);
+    }
 }
 
-#if 0
-void tconsole::console(const std::string &what, std::int32_t col) // overload;
-{
-    this->console(const std::wstring& (what), col);
-}
-
-void tconsole::console(variant what, std::uint32_t col) // overload;
-{
-  this->console(const std::wstring& (what), col);
-}
-#endif
-
-#ifdef SERVER
-template <>
-void tconsole::console<std::string>(const std::string &what, std::int32_t col,
-                                    std::uint8_t sender) // overload;
+template <Config::Module M>
+void Console<M>::console(const std::string &what, std::int32_t col,
+                         std::uint8_t sender) requires(Config::IsServer(M))
 {
     this->console(what, col);
     if ((sender > 0) && (sender < max_players + 1))
-        serversendstringmessage(what, sender, 255, msgtype_pub);
+    {
+        if constexpr (Config::IsServer(M))
+        {
+            serversendstringmessage(what, sender, 255, msgtype_pub);
+        }
+    }
 }
-#endif
 
-tconsole &GetBigConsole() requires(Config::IsClient())
+template class Console<Config::GetModule()>;
+
+Console<Config::CLIENT_MODULE> &GetBigConsole() requires(Config::IsClient())
 {
-    static tconsole bigconsole;
+    static Console<Config::CLIENT_MODULE> bigconsole;
     return bigconsole;
 }
 
-tconsole &GetKillConsole() requires(Config::IsClient())
+Console<Config::CLIENT_MODULE> &GetKillConsole() requires(Config::IsClient())
 {
-    static tconsole killconsole;
+    static Console<Config::CLIENT_MODULE> killconsole;
     return killconsole;
 }
+
+template <Config::Module M>
+Console<M> &GetMainConsole()
+{
+    static Console<M> gMainConsole;
+    return gMainConsole;
+}
+
+template tconsole &GetMainConsole<Config::GetModule()>();

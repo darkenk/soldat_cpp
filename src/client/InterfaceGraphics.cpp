@@ -1466,7 +1466,7 @@ void renderconsoletexts(float w)
     std::int32_t i;
     float l;
     std::uint8_t alpha;
-    tconsole *console;
+    Console<Config::CLIENT_MODULE> *console;
     bool tiny;
 
     setfontstyle(font_small);
