@@ -92,7 +92,7 @@ void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
     NotImplemented(NITag::OTHER, "Check if &player is used properly to remove player");
     players.erase(std::remove(players.begin(), players.end(), player), players.end());
 
-    udp->NetworkingSocket().CloseConnection(netmessage->m_conn, 0, "", false);
+    GetNetwork()->NetworkingSocket().CloseConnection(netmessage->m_conn, 0, "", false);
 
     dobalancebots(1, sprite[i].player->team);
 }
@@ -129,7 +129,7 @@ void servermapchange(std::uint8_t id)
         //      k_nSteamNetworkingSend_Reliable);
     }
     else if ((sprite[id].active) && (sprite[id].player->controlmethod == human))
-        udp->senddata(&mapchangemsg, sizeof(mapchangemsg), sprite[id].player->peer,
+        GetNetwork()->senddata(&mapchangemsg, sizeof(mapchangemsg), sprite[id].player->peer,
                       k_nSteamNetworkingSend_Reliable);
 }
 
@@ -144,7 +144,7 @@ void serverflaginfo(std::uint8_t style, std::uint8_t who)
 
     for (i = 1; i <= max_players; i++)
         if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
-            udp->senddata(&flagmsg, sizeof(flagmsg), sprite[i].player->peer,
+            GetNetwork()->senddata(&flagmsg, sizeof(flagmsg), sprite[i].player->peer,
                           k_nSteamNetworkingSend_Reliable);
 }
 
@@ -159,7 +159,7 @@ void serveridleanimation(std::uint8_t num, std::int16_t style)
 
     for (i = 1; i <= max_players; i++)
         if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
-            udp->senddata(&idlemsg, sizeof(idlemsg), sprite[i].player->peer,
+            GetNetwork()->senddata(&idlemsg, sizeof(idlemsg), sprite[i].player->peer,
                           k_nSteamNetworkingSend_Reliable);
 }
 
@@ -178,7 +178,7 @@ void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string ta
 
     for (i = 1; i <= max_players; i++)
         if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
-            udp->senddata(&votemsg, sizeof(votemsg), sprite[i].player->peer,
+            GetNetwork()->senddata(&votemsg, sizeof(votemsg), sprite[i].player->peer,
                           k_nSteamNetworkingSend_Reliable);
 }
 
@@ -191,7 +191,7 @@ void serversendvoteoff()
 
     for (i = 1; i <= max_players; i++)
         if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
-            udp->senddata(&votemsg, sizeof(votemsg), sprite[i].player->peer,
+            GetNetwork()->senddata(&votemsg, sizeof(votemsg), sprite[i].player->peer,
                           k_nSteamNetworkingSend_Reliable);
 }
 
@@ -285,7 +285,7 @@ void serverhandlevotemap(SteamNetworkingMessage_t *netmessage)
     votemapreplymsg.count = mapslist.size();
     strcpy(votemapreplymsg.mapname.data(), mapslist[votemapmsg->mapid].data());
 
-    udp->senddata(&votemapreplymsg, sizeof(votemapreplymsg), sprite[i].player->peer,
+    GetNetwork()->senddata(&votemapreplymsg, sizeof(votemapreplymsg), sprite[i].player->peer,
                   k_nSteamNetworkingSend_Reliable);
 }
 
@@ -318,7 +318,7 @@ void serversyncmsg(std::int32_t tonum)
     for (i = 1; i <= max_players; i++)
         if ((tonum == 0) || (i == tonum))
             if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
-                udp->senddata(&syncmsg, sizeof(syncmsg), sprite[i].player->peer,
+                GetNetwork()->senddata(&syncmsg, sizeof(syncmsg), sprite[i].player->peer,
                               k_nSteamNetworkingSend_Reliable);
 }
 

@@ -44,8 +44,8 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
                              (from == 255)) or
                             (((msgtype == msgtype_team) || (msgtype == msgtype_radio)) and
                              sprite[from].isinsameteam(sprite[i])))
-                            udp->senddata(pchatmessage, size, sprite[i].player->peer,
-                                          k_nSteamNetworkingSend_Reliable);
+                            GetNetwork()->senddata(pchatmessage, size, sprite[i].player->peer,
+                                                   k_nSteamNetworkingSend_Reliable);
                 }
     }
     freemem(pchatmessage);
@@ -176,8 +176,8 @@ void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8
     for (i = 1; i <= max_players; i++)
         if (sprite[i].active && (sprite[i].player->controlmethod == human))
             if ((tonum == 0) || (i == tonum))
-                udp->senddata(pchatmessage, size, sprite[i].player->peer,
-                              k_nSteamNetworkingSend_Reliable);
+                GetNetwork()->senddata(pchatmessage, size, sprite[i].player->peer,
+                                       k_nSteamNetworkingSend_Reliable);
 
     freemem(pchatmessage);
 }

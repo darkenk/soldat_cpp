@@ -10,8 +10,6 @@ extern std::string basedirectory;
 extern std::string userdirectory;
 extern std::int32_t bonusfreq;
 
-extern tservernetwork *udp;
-
 extern std::string serverip;
 extern std::int32_t serverport;
 extern std::string wmname, wmversion;

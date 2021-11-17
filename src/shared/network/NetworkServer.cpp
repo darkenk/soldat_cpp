@@ -34,7 +34,7 @@ auto LOG_NET = "network";
 
 void ProcessEventsCallback(PSteamNetConnectionStatusChangedCallback_t pInfo)
 {
-    udp->ProcessEvents(pInfo);
+    GetNetwork()->ProcessEvents(pInfo);
 }
 
 tservernetwork::tservernetwork(std::string Host, std::uint32_t Port)
@@ -359,4 +359,27 @@ void tservernetwork::UpdateNetworkStats(std::uint8_t Player)
     {
         sprite[Player].player->connectionquality = 0;
     }
+}
+
+namespace
+{
+tservernetwork *gUDP;
+}
+
+bool InitNetworkServer(const std::string &Host, uint32_t Port)
+{
+    gUDP = new tservernetwork(Host, Port);
+    return gUDP != nullptr;
+}
+
+tservernetwork *GetNetwork()
+{
+    return gUDP;
+}
+
+bool DeinitServerNetwork()
+{
+    delete gUDP;
+    gUDP = nullptr;
+    return true;
 }

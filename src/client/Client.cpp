@@ -86,9 +86,6 @@ std::uint8_t selteam;
 
 std::uint8_t mysprite;
 
-// Network
-tclientnetwork *udp;
-
 // Weapon Stats
 PascalArray<tweaponstat, 1, 20> wepstats;
 std::uint8_t wepstatsnum = 0;
@@ -251,7 +248,7 @@ void exittomenu()
     {
         clientdisconnect();
     }
-    udp->disconnect(true);
+    GetNetwork()->disconnect(true);
 
     stopsound(channel_weather);
 
@@ -843,7 +840,7 @@ void startgameloop()
 {
     while (gamelooprun)
     {
-        udp->processloop();
+        GetNetwork()->processloop();
         gameinput();
         gameloop();
     }
@@ -877,7 +874,7 @@ void joinserver()
     faepreflight; // no-op if Fae if called before or if Fae is disabled
 #endif
 
-    udp = new tclientnetwork();
+    InitClientNetwork();
     // DEMO
     if (joinport == "0")
     {
@@ -893,7 +890,7 @@ void joinserver()
 
         rendergameinfo(("Connecting to " + serverip + ":" + std::to_string(serverport)));
 
-        if (udp->connect(serverip, serverport))
+        if (GetNetwork()->connect(serverip, serverport))
         {
             progready = true;
             gamelooprun = true;

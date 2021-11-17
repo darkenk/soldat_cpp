@@ -39,8 +39,8 @@ void serverbulletsnapshot(std::uint8_t i, std::uint8_t tonum, bool forced)
                                   sprite[j].player->camera, bulletparts.velocity[i].x) or
                     forced)
                 {
-                    udp->senddata(&bulletmsg, sizeof(bulletmsg), sprite[j].player->peer,
-                                  k_nSteamNetworkingSend_Unreliable);
+                    GetNetwork()->senddata(&bulletmsg, sizeof(bulletmsg), sprite[j].player->peer,
+                                           k_nSteamNetworkingSend_Unreliable);
                 }
 #else
     demorecorder.saverecord(bulletmsg, sizeof(bulletmsg));

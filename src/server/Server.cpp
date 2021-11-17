@@ -189,7 +189,7 @@ std::string ModDir = "";
 #if 0
 tservernetwork<Config::GetModule()> *UDP;
 #endif
-tservernetwork *udp;
+tservernetwork *GetNetwork();
 #if 0
 TLobbyThread LobbyThread;
 #endif
@@ -760,13 +760,13 @@ void ShutDown()
     SysUtils.DeleteFile(userdirectory + "logs/" + sv_pidfilename);
 #endif
 
-    if (udp != nullptr)
+    if (GetNetwork() != nullptr)
     {
         serverdisconnect();
 
         GetServerMainConsole().console("Shutting down game networking.", game_message_color);
 
-        freeandnullptr(udp);
+        DeinitServerNetwork();
     }
 
 #ifdef RCON
@@ -1198,13 +1198,13 @@ void startserver()
 
     addlinetologfile(gamelog, "Starting Game Server.", consolelogfilename);
 
-    udp = new tservernetwork(CVar::net_ip, CVar::net_port);
+    InitNetworkServer(CVar::net_ip, CVar::net_port);
 
-    if (udp->Active() == true)
+    if (GetNetwork()->Active() == true)
     {
         WriteLn("[NET] Game networking initialized.");
-        auto addr = udp->Address();
-        WriteLn("[NET] Server is listening on " + udp->GetStringAddress(&addr, true));
+        auto addr = GetNetwork()->Address();
+        WriteLn("[NET] Server is listening on " + GetNetwork()->GetStringAddress(&addr, true));
     }
     else
     {
@@ -1214,7 +1214,7 @@ void startserver()
         return;
     }
 
-    serverport = udp->Port();
+    serverport = GetNetwork()->Port();
 
     if (CVar::fileserver_enable)
     {

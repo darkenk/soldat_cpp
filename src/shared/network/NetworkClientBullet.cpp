@@ -20,7 +20,7 @@ void clientsendbullet(std::uint8_t i)
     bulletmsg.clientticks = clienttickcount;
     bulletmsg.seed = bullet[i].seed;
 
-    udp->senddata(&bulletmsg, sizeof(bulletmsg), k_nSteamNetworkingSend_Unreliable);
+    GetNetwork()->senddata(&bulletmsg, sizeof(bulletmsg), k_nSteamNetworkingSend_Unreliable);
     NotImplemented(NITag::NETWORK);
 #if 0
     if (demorecorder.active())

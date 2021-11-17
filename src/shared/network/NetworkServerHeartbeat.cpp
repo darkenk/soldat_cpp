@@ -58,7 +58,7 @@ void serverheartbeat()
     {
         if ((s.active) && (s.player->controlmethod == human))
         {
-            udp->senddata(&heartbeatmsg, sizeof(heartbeatmsg), s.player->peer,
+            GetNetwork()->senddata(&heartbeatmsg, sizeof(heartbeatmsg), s.player->peer,
                           k_nSteamNetworkingSend_Unreliable);
         }
     }

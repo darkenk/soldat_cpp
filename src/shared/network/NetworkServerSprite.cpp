@@ -78,7 +78,7 @@ void serverspritesnapshot(std::uint8_t r)
                 if (r == netw)
                     for (j = 1; j <= max_players; j++)
                         if ((sprite[j].active) && (sprite[j].player->controlmethod == human))
-                            udp->senddata(&servermsg, sizeof(servermsg), sprite[j].player->peer,
+                            GetNetwork()->senddata(&servermsg, sizeof(servermsg), sprite[j].player->peer,
                                           k_nSteamNetworkingSend_Unreliable);
             }
             if (r == netw)
@@ -123,7 +123,7 @@ void serverspritesnapshotmajor(std::uint8_t r)
                 if (r == netw)
                     for (j = 1; j <= max_players; j++)
                         if ((sprite[j].active) && (sprite[j].player->controlmethod == human))
-                            udp->senddata(&servermsg, sizeof(servermsg), sprite[j].player->peer,
+                            GetNetwork()->senddata(&servermsg, sizeof(servermsg), sprite[j].player->peer,
                                           k_nSteamNetworkingSend_Unreliable);
             }
 
@@ -162,7 +162,7 @@ void serverspritesnapshotmajorfloat(std::uint8_t who, std::uint8_t r)
         for (i = 1; i <= max_players; i++)
             if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
             {
-                udp->senddata(&servermsg, sizeof(servermsg), sprite[i].player->peer,
+                GetNetwork()->senddata(&servermsg, sizeof(servermsg), sprite[i].player->peer,
                               k_nSteamNetworkingSend_Unreliable);
             }
     }
@@ -197,7 +197,7 @@ void serverskeletonsnapshot(std::uint8_t r)
             if (r == netw)
                 for (j = 1; j <= max_players; j++)
                     if ((sprite[j].active) && (sprite[j].player->controlmethod == human))
-                        udp->senddata(&skeletonmsg, sizeof(skeletonmsg), sprite[j].player->peer,
+                        GetNetwork()->senddata(&skeletonmsg, sizeof(skeletonmsg), sprite[j].player->peer,
                                       k_nSteamNetworkingSend_Unreliable);
         }
 }
@@ -273,7 +273,7 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
 
     for (j = 1; j <= max_players; j++)
         if ((sprite[j].active) && (sprite[j].player->controlmethod == human))
-            udp->senddata(&spritedeathmsg, sizeof(spritedeathmsg), sprite[j].player->peer,
+            GetNetwork()->senddata(&spritedeathmsg, sizeof(spritedeathmsg), sprite[j].player->peer,
                           k_nSteamNetworkingSend_Unreliable);
 }
 
@@ -320,7 +320,7 @@ void serverspritedeltas(std::uint8_t i)
                     (((vec2length(a) > posdelta) || (vec2length(b) > veldelta)) &&
                      (movementmsg.keys16 != oldmovementmsg[j][i].keys16)))
                 {
-                    udp->senddata(&movementmsg, sizeof(movementmsg), sprite[j].player->peer,
+                    GetNetwork()->senddata(&movementmsg, sizeof(movementmsg), sprite[j].player->peer,
                                   k_nSteamNetworkingSend_Unreliable);
                     oldmovementmsg[j][i] = movementmsg;
                 }
@@ -334,7 +334,7 @@ void serverspritedeltas(std::uint8_t i)
                                  sprite[j].player->camera) or
                     (sprite[j].isspectator() && (sprite[j].player->port == 0))) // visible to sprite
                 {
-                    udp->senddata(&weaponsmsg, sizeof(weaponsmsg), sprite[j].player->peer,
+                    GetNetwork()->senddata(&weaponsmsg, sizeof(weaponsmsg), sprite[j].player->peer,
                                   k_nSteamNetworkingSend_Unreliable);
                     oldweaponsmsg[j][i] = weaponsmsg;
                 }
@@ -343,7 +343,7 @@ void serverspritedeltas(std::uint8_t i)
         if ((sprite[j].active) && (sprite[j].player->controlmethod == human) && (j != i))
             if (helmetmsg.wearhelmet != oldhelmetmsg[j][i].wearhelmet)
             {
-                udp->senddata(&helmetmsg, sizeof(helmetmsg), sprite[j].player->peer,
+                GetNetwork()->senddata(&helmetmsg, sizeof(helmetmsg), sprite[j].player->peer,
                               k_nSteamNetworkingSend_Unreliable);
                 oldhelmetmsg[j][i] = helmetmsg;
             }
@@ -362,7 +362,7 @@ void serverspritedeltasmouse(std::uint8_t i)
     for (j = 1; j <= max_sprites; j++)
         if ((sprite[j].active) && (sprite[j].player->controlmethod == human) && (j != i))
         {
-            udp->senddata(&mouseaimmsg, sizeof(mouseaimmsg), sprite[j].player->peer,
+            GetNetwork()->senddata(&mouseaimmsg, sizeof(mouseaimmsg), sprite[j].player->peer,
                           k_nSteamNetworkingSend_Unreliable);
             oldmouseaimmsg[j][i] = mouseaimmsg;
         }

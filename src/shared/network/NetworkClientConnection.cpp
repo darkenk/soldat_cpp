@@ -69,7 +69,7 @@ void clientrequestgame()
     std::strcpy(requestmsg->hardwareid.data(), hwid.data());
 
     std::strcpy(requestmsg->password.data(), joinpassword.data());
-    udp->senddata((std::byte *)(requestmsg), size, k_nSteamNetworkingSend_Reliable);
+    GetNetwork()->senddata((std::byte *)(requestmsg), size, k_nSteamNetworkingSend_Reliable);
     // udp->senddata(requestmsg, size, k_nSteamNetworkingSend_Reliable);
     requestinggame = true;
 }
@@ -102,7 +102,7 @@ void clientsendplayerinfo()
     {
         changemsg.header.id = msgid_changeteam;
         changemsg.team = selteam;
-        udp->senddata(&changemsg, sizeof(changemsg), k_nSteamNetworkingSend_Reliable);
+        GetNetwork()->senddata(&changemsg, sizeof(changemsg), k_nSteamNetworkingSend_Reliable);
         return;
     }
 
@@ -144,7 +144,7 @@ void clientsendplayerinfo()
     playerinfo.gamemodchecksum.Dummy[4] = htobe32(gamemodchecksum.Dummy[4]);
     playerinfo.custommodchecksum = custommodchecksum;
 
-    udp->senddata(&playerinfo, sizeof(playerinfo), k_nSteamNetworkingSend_Reliable);
+    GetNetwork()->senddata(&playerinfo, sizeof(playerinfo), k_nSteamNetworkingSend_Reliable);
     clientplayersent = true;
     clientplayerreceivedcounter = clientplayerrecieved_time;
 }
@@ -158,18 +158,18 @@ void clientdisconnect()
         playermsg.header.id = msgid_playerdisconnect;
         playermsg.num = mysprite;
 
-        udp->senddata(&playermsg, sizeof(playermsg), k_nSteamNetworkingSend_Reliable);
+        GetNetwork()->senddata(&playermsg, sizeof(playermsg), k_nSteamNetworkingSend_Reliable);
 
         addlinetologfile(gamelog,
                          string("Client Disconnect from ") +
-                             udp->GetStringAddress(&udp->Address(), true),
+                             GetNetwork()->GetStringAddress(&GetNetwork()->Address(), true),
                          consolelogfilename);
-        udp->processloop();
-        udp->disconnect(false);
+        GetNetwork()->processloop();
+        GetNetwork()->disconnect(false);
     }
     else
     {
-        udp->disconnect(true);
+        GetNetwork()->disconnect(true);
         exittomenu();
     }
 }
@@ -181,7 +181,7 @@ void clientpong(std::uint8_t pingnum)
     pongmsg.header.id = msgid_pong;
     pongmsg.pingnum = pingnum;
 
-    udp->senddata(&pongmsg, sizeof(pongmsg), k_nSteamNetworkingSend_Reliable);
+    GetNetwork()->senddata(&pongmsg, sizeof(pongmsg), k_nSteamNetworkingSend_Reliable);
 }
 
 void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
@@ -208,11 +208,12 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     playerslistmsg = pmsg_playerslist(netmessage->m_pData);
 
     if (!demoplayer.active())
-        GetMainConsole().console(_("Connection accepted to") + ' ' +
-                                (udp->GetStringAddress(&udp->Address(), true)),
-                            client_message_color);
+        GetMainConsole().console(
+            _("Connection accepted to") + ' ' +
+                (GetNetwork()->GetStringAddress(&GetNetwork()->Address(), true)),
+            client_message_color);
 
-    serverip = udp->GetStringAddress(&udp->Address(), false);
+    serverip = GetNetwork()->GetStringAddress(&GetNetwork()->Address(), false);
     NotImplemented(NITag::NETWORK, "no sha1 checks");
 #if 1
     mapname = trim(playerslistmsg->mapname.data());
@@ -250,7 +251,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
                 forcegraphicsreload = true;
                 usesservermod = true;
                 GetMainConsole().console(_(string("Loading server mod: ") + modname),
-                                    mode_message_color);
+                                         mode_message_color);
             }
             else
             {
@@ -483,14 +484,15 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
         else
         {
             GetMainConsole().console(_("(!) To leave your current weapon after respawn"),
-                                info_message_color);
+                                     info_message_color);
             GetMainConsole().console(string("    ") + _("click anywhere outside the weapons menu."),
-                                info_message_color);
+                                     info_message_color);
         }
 
         if (CVar::sv_realisticmode)
-            GetMainConsole().console(_("(!) To prevent weapon recoil fire float shots or short bursts."),
-                                info_message_color);
+            GetMainConsole().console(
+                _("(!) To prevent weapon recoil fire float shots or short bursts."),
+                info_message_color);
     }
 
     mx = gamewidthhalf;
@@ -667,8 +669,8 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
     if (loadedwmchecksum != defaultwmchecksum)
         if (!demoplayer.active())
             GetMainConsole().console(_("Server uses weapon mod (checksum") + ' ' +
-                                    (inttostr(loadedwmchecksum)) + ')',
-                                server_message_color);
+                                         (inttostr(loadedwmchecksum)) + ')',
+                                     server_message_color);
 }
 
 template <typename T>

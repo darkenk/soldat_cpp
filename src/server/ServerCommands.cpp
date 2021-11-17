@@ -754,7 +754,7 @@ void commandnetstats(std::vector<std::string> &args, std::uint8_t sender)
     std::array<char, 2048> statstext;
     tplayer dstplayer;
 
-    if (udp->NetworkingSocket().GetDetailedConnectionStatus(1, statstext.data(), 2048) == 0)
+    if (GetNetwork()->NetworkingSocket().GetDetailedConnectionStatus(1, statstext.data(), 2048) == 0)
     {
         NotImplemented(NITag::OTHER);
 #if 0
@@ -763,7 +763,7 @@ void commandnetstats(std::vector<std::string> &args, std::uint8_t sender)
     }
     for (auto &dstplayer : players)
     {
-        if (udp->NetworkingSocket().GetDetailedConnectionStatus(dstplayer->peer, statstext.data(),
+        if (GetNetwork()->NetworkingSocket().GetDetailedConnectionStatus(dstplayer->peer, statstext.data(),
                                                                 2048) == 0)
         {
             NotImplemented(NITag::OTHER);

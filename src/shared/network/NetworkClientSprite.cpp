@@ -248,7 +248,7 @@ void clientspritesnapshot()
 
     oldclientsnapshotmsg = clientmsg;
 
-    udp->senddata(&clientmsg, sizeof(clientmsg), k_nSteamNetworkingSend_Unreliable);
+    GetNetwork()->senddata(&clientmsg, sizeof(clientmsg), k_nSteamNetworkingSend_Unreliable);
 }
 
 // CLIENT SPRITE SNAPSHOT MOV
@@ -285,7 +285,7 @@ void clientspritesnapshotmov()
         oldclientsnapshotmovmsg.mouseaimx = round(mx);
         oldclientsnapshotmovmsg.mouseaimy = round(my);
 
-        udp->senddata(&clientmsg, sizeof(clientmsg), k_nSteamNetworkingSend_Unreliable);
+        GetNetwork()->senddata(&clientmsg, sizeof(clientmsg), k_nSteamNetworkingSend_Unreliable);
     }
 }
 
@@ -297,7 +297,7 @@ void clientspritesnapshotdead()
     clientmsg.header.id = msgid_clientspritesnapshot_dead;
     clientmsg.camerafocus = camerafollowsprite;
 
-    udp->senddata(&clientmsg, sizeof(clientmsg), k_nSteamNetworkingSend_Unreliable);
+    GetNetwork()->senddata(&clientmsg, sizeof(clientmsg), k_nSteamNetworkingSend_Unreliable);
 }
 
 void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)

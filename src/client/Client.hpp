@@ -65,7 +65,7 @@ extern std::uint8_t selteam;
 extern std::uint8_t mysprite;
 
 // Network
-extern tclientnetwork *udp;
+extern tclientnetwork *GetNetwork();
 
 // Weapon Stats
 extern PascalArray<tweaponstat, 1, 20> wepstats;

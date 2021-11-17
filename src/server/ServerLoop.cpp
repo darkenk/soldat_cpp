@@ -55,7 +55,7 @@ void apponidle()
     number27timing(); // makes the program go and do the timing calculations
 
     // NET RECEIVE
-    udp->ProcessLoop();
+    GetNetwork()->ProcessLoop();
 
 #ifdef RCON
     if (adminserver != nullptr)
@@ -190,7 +190,7 @@ void apponidle()
                 j++;
                 if (s.active)
                 {
-                    udp->UpdateNetworkStats(j);
+                    GetNetwork()->UpdateNetworkStats(j);
                 }
             }
         }

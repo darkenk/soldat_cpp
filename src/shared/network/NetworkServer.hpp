@@ -36,3 +36,7 @@ class tservernetwork : public TNetwork
                   std::int32_t Flags);
     void UpdateNetworkStats(std::uint8_t Player);
 };
+
+bool InitNetworkServer(const std::string &Host, std::uint32_t Port) requires(Config::IsServer());
+tservernetwork *GetNetwork() requires(Config::IsServer());
+bool DeinitServerNetwork() requires(Config::IsServer());

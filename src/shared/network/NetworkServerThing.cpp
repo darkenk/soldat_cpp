@@ -54,8 +54,8 @@ void serverthingsnapshot(std::uint8_t tonum)
 
             if (send)
             {
-                udp->senddata(&thingmsg, sizeof(thingmsg), sprite[tonum].player->peer,
-                              k_nSteamNetworkingSend_Unreliable);
+                GetNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[tonum].player->peer,
+                                       k_nSteamNetworkingSend_Unreliable);
             }
         }
 }
@@ -87,8 +87,8 @@ void serverthingmustsnapshot(std::uint8_t i)
 
     for (i = 1; i <= max_players; i++)
         if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
-            udp->senddata(&thingmsg, sizeof(thingmsg), sprite[i].player->peer,
-                          k_nSteamNetworkingSend_Unreliable);
+            GetNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[i].player->peer,
+                                   k_nSteamNetworkingSend_Unreliable);
 }
 #endif
 
@@ -120,8 +120,8 @@ void serverthingmustsnapshotonconnect(std::uint8_t tonum)
                 thingmsg.holdingsprite = thing[i].holdingsprite;
 
 #ifdef SERVER
-                udp->senddata(&thingmsg, sizeof(thingmsg), sprite[tonum].player->peer,
-                              k_nSteamNetworkingSend_Unreliable);
+                GetNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[tonum].player->peer,
+                                       k_nSteamNetworkingSend_Unreliable);
 #else
                 demorecorder.saverecord(thingmsg, sizeof(thingmsg));
 #endif
@@ -154,8 +154,8 @@ void serverthingmustsnapshotonconnectto(std::uint8_t i, std::uint8_t tonum)
     thingmsg.style = thing[i].style;
     thingmsg.holdingsprite = thing[i].holdingsprite;
 
-    udp->senddata(&thingmsg, sizeof(thingmsg), sprite[tonum].player->peer,
-                  k_nSteamNetworkingSend_Unreliable);
+    GetNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[tonum].player->peer,
+                           k_nSteamNetworkingSend_Unreliable);
 }
 
 void serverthingtaken(std::uint8_t i, std::uint8_t w)
@@ -171,8 +171,8 @@ void serverthingtaken(std::uint8_t i, std::uint8_t w)
 
     for (i = 1; i <= max_players; i++)
         if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
-            udp->senddata(&thingmsg, sizeof(thingmsg), sprite[i].player->peer,
-                          k_nSteamNetworkingSend_Unreliable);
+            GetNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[i].player->peer,
+                                   k_nSteamNetworkingSend_Unreliable);
 }
 
 void serverhandlerequestthing(SteamNetworkingMessage_t *netmessage)

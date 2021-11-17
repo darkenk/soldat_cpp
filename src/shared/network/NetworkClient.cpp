@@ -28,7 +28,7 @@ std::int32_t pingticksadd = 2;
 
 void ProcessEventsCallback(PSteamNetConnectionStatusChangedCallback_t pInfo)
 {
-    udp->ProcessEvents(pInfo);
+    GetNetwork()->ProcessEvents(pInfo);
 }
 
 void tclientnetwork::processloop()
@@ -141,8 +141,8 @@ bool tclientnetwork::connect(std::string Host, std::uint32_t Port)
     if (FPeer == k_HSteamNetConnection_Invalid)
     {
         GetMainConsole().console("[NET] Failed to connect to  server" +
-                                udp->GetStringAddress(&ServerAddress, true),
-                            warning_message_color);
+                                     GetNetwork()->GetStringAddress(&ServerAddress, true),
+                                 warning_message_color);
         Result = false;
         return Result;
     }
@@ -377,4 +377,25 @@ bool tclientnetwork::senddata(const std::byte *Data, std::int32_t Size, std::int
     NetworkingSockets->SendMessageToConnection(FPeer, Data, Size, Flags, nullptr);
     Result = true;
     return Result;
+}
+
+namespace
+{
+tclientnetwork *gUDP = nullptr;
+}
+
+void DeinitClientNetwork()
+{
+    delete gUDP;
+    gUDP = nullptr;
+}
+
+tclientnetwork *GetNetwork()
+{
+    return gUDP;
+}
+
+void InitClientNetwork()
+{
+    gUDP = new tclientnetwork();
 }

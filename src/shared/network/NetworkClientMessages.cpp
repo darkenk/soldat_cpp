@@ -47,7 +47,7 @@ void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
     memcpy(&pchatmessage->text, text16.data(), text16.size() * 2);
     memset(&pchatmessage->text + text16.size() * 2, 0, 2);
 
-    udp->senddata(pchatmessage, size, k_nSteamNetworkingSend_Reliable);
+    GetNetwork()->senddata(pchatmessage, size, k_nSteamNetworkingSend_Reliable);
     freemem(pchatmessage);
 }
 

@@ -34,3 +34,7 @@ class tclientnetwork : public TNetwork
     bool senddata(const std::byte *Data, std::int32_t Size, std::int32_t Flags,
                   const source_location &location = source_location::current());
 };
+
+void InitClientNetwork() requires(Config::IsClient());
+tclientnetwork *GetNetwork() requires(Config::IsClient());
+void DeinitClientNetwork() requires(Config::IsClient());
