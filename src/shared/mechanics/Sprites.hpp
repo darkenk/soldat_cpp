@@ -91,7 +91,8 @@ struct tbotdata
     std::uint8_t fallsave;
 };
 
-class tbackgroundstate
+template <Config::Module M = Config::GetModule()>
+class BackgroundState
 {
   public:
     std::uint8_t backgroundstatus;
@@ -104,8 +105,10 @@ class tbackgroundstate
     void backgroundtestreset();
 };
 
-typedef struct tsprite *psprite;
-class tsprite
+using tbackgroundstate = BackgroundState<Config::GetModule()>;
+
+template <Config::Module M = Config::GetModule()>
+class Sprite
 {
   public:
     bool active = false;
@@ -218,16 +221,20 @@ class tsprite
     bool isinteam();
     bool isspectator();
     bool isnotspectator();
-    bool isinsameteam(const tsprite &otherplayer);
-    bool isnotinsameteam(const tsprite &otherplayer);
+    bool isinsameteam(const Sprite &otherplayer);
+    bool isnotinsameteam(const Sprite &otherplayer);
     bool canrespawn(bool deadmeatbeforerespawn);
 };
 
+using tsprite = Sprite<Config::GetModule()>;
+
+template <Config::Module M = Config::GetModule()>
 std::int32_t createsprite(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::uint8_t n,
                           tplayer *player, bool transferownership);
+
+template <Config::Module M = Config::GetModule()>
 bool teamcollides(std::int32_t poly, std::int32_t team, bool bullet);
 
-extern std::int32_t spritemapcolcount;
 #ifndef SERVER
 extern bool wasreloading;
 void selectdefaultweapons(std::uint8_t mysprite);

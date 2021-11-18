@@ -19,7 +19,6 @@ std::uint8_t fixteam(std::uint8_t team);
 #if 0
 std::string weaponnamebynum(std::int32_t num);
 #endif
-std::int32_t checkfilesize(const std::string &filename);
 void writepid();
 std::int32_t getpid();
 void writeconsole(std::uint8_t id, std::string text, std::uint32_t colour);

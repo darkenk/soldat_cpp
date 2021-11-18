@@ -34,12 +34,19 @@
 #include "shared/network/NetworkClientConnection.hpp"
 #include <physfs.h>
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
+namespace
+{
+bool progready;
+} // namespace
+
 // Game.hpp
 extern tpolymap client_map;
-extern tmapinfo mapchange;
 extern std::int32_t gamewidth;
 extern std::int32_t gameheight;
-extern std::int32_t goalticks;
 
 extern float gamewidthhalf;
 extern float gameheighthalf;
@@ -49,7 +56,6 @@ extern bool mapchanged;
 
 // Client.cpp variables
 bool gamelooprun;
-bool progready;
 
 std::string joinpassword;         // server password
 std::string joinport = "23073";   // join port to server
@@ -60,19 +66,14 @@ std::uint8_t initing;
 bool graphicsinitialized = false;
 
 std::string basedirectory;
-std::string userdirectory;
 
 std::string moddir = "";
 bool usesservermod;
 
-std::string serverip = "127.0.0.1";
-std::int32_t serverport = 23073;
+std::string gClientServerIP = "127.0.0.1";
+std::int32_t gClientServerPort = 23073;
 
-float grav = 0.06;
 std::uint8_t connection = INTERNET;
-
-PascalArray<std::uint8_t, 1, main_weapons> weaponactive;
-std::int32_t weaponsingame; // sync
 
 std::uint8_t sniperline_client_hpp = 0;
 
@@ -104,12 +105,6 @@ std::string hwid;
 
 std::uint16_t hitspraycounter;
 bool screentaken;
-
-// bullet shot stats
-std::int32_t shotdistanceshow;
-float shotdistance;
-float shotlife;
-std::int32_t shotricochet;
 
 bool targetmode = false;
 
@@ -854,7 +849,7 @@ void joinserver()
     if (initing > 10)
         initing = 10;
 
-    serverip = trim(joinip);
+    gClientServerIP = trim(joinip);
 
     NotImplemented(NITag::OTHER, "No error checking");
 #if 0
@@ -888,9 +883,10 @@ void joinserver()
     else
     {
 
-        rendergameinfo(("Connecting to " + serverip + ":" + std::to_string(serverport)));
+        rendergameinfo(
+            ("Connecting to " + gClientServerIP + ":" + std::to_string(gClientServerPort)));
 
-        if (GetNetwork()->connect(serverip, serverport))
+        if (GetNetwork()->connect(gClientServerIP, gClientServerPort))
         {
             progready = true;
             gamelooprun = true;

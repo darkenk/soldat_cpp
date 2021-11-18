@@ -21,6 +21,10 @@
 #include <SDL2/SDL.h>
 #include <numeric>
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 void clearchattext()
 {
     lastchattext = chattext;
@@ -294,7 +298,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
                 {
                     clientsendstringmessage(std::string("votemap ") + (votetarget), msgtype_cmd);
                     GetMainConsole().console(wideformat(_("You have voted on " + votetarget)),
-                                        vote_message_color);
+                                             vote_message_color);
                 }
                 else if (votetype == vote_kick)
                 {
@@ -514,7 +518,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
                 volumeinternal = scalevolumesetting(CVar::snd_volume);
                 setvolume(-1, volumeinternal);
                 GetMainConsole().console(std::string("Volume: ") + inttostr(CVar::snd_volume) + "%",
-                                    music_message_color);
+                                         music_message_color);
             }
         }
     }

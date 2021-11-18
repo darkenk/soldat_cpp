@@ -17,38 +17,11 @@
 #include "shared/network/NetworkServerSprite.hpp"
 #include "shared/network/NetworkServerThing.hpp"
 
-/*#include "ScriptDispatcher.h"*/
-/*#include "NetworkServerFae.h"*/
-/*#include "Server.h"*/
-/*#include "Game.h"*/
-/*#include "TraceLog.h"*/
-/*#include "Constants.h"*/
-/*#include "LogFile.h"*/
-/*#include "BanSystem.h"*/
-/*#include "sysutils.h"*/
-/*#include "Sprites.h"*/
-/*#include "Net.h"*/
-/*#include "Things.h"*/
-/*#include "Vector.h"*/
-/*#include "ServerHelper.h"*/
-/*#include "classes.h"*/
-/*#include "Demo.h"*/
-/*#include "Weapons.h"*/
-/*#include "Cvar.h"*/
-/*#include "LobbyClient.h"*/
-/*#include "NetworkServerGame.h"*/
-/*#include "NetworkServerSprite.h"*/
-/*#include "NetworkServerThing.h"*/
-/*#include "NetworkServerConnection.h"*/
-/*#include "NetworkServerHeartbeat.h"*/
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 using string = std::string;
-
-namespace
-{
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
-} // namespace
 
 void apponidle()
 {
@@ -61,7 +34,7 @@ void apponidle()
     number27timing(); // makes the program go and do the timing calculations
 
     // NET RECEIVE
-    GetNetwork()->ProcessLoop();
+    GetServerNetwork()->ProcessLoop();
 
 #ifdef RCON
     if (adminserver != nullptr)
@@ -196,7 +169,7 @@ void apponidle()
                 j++;
                 if (s.active)
                 {
-                    GetNetwork()->UpdateNetworkStats(j);
+                    GetServerNetwork()->UpdateNetworkStats(j);
                 }
             }
         }

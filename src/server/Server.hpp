@@ -6,8 +6,6 @@
 #include "shared/network/NetworkServer.hpp"
 
 extern bool progready;
-extern std::string basedirectory;
-extern std::string userdirectory;
 extern std::int32_t bonusfreq;
 
 extern std::string serverip;
@@ -15,17 +13,11 @@ extern std::int32_t serverport;
 extern std::string wmname, wmversion;
 extern std::string lastwepmod;
 
-extern PascalArray<std::int8_t, -1, 15> weaponactive;
 extern tstringlist mapslist;
 extern std::int8_t lastplayer;
 extern std::array<std::int8_t, max_sprites> cheattag;
 extern std::array<std::int8_t, max_sprites> bulletwarningcount;
-extern float grav;
 extern std::int32_t waverespawntime, waverespawncounter;
-extern std::int32_t weaponsingame;
-extern float shotdistance;
-extern float shotlife;
-extern std::int32_t shotricochet;
 extern tstringlist remoteips, adminips;
 extern std::array<std::string, 1000> floodip;
 extern std::array<std::int32_t, 1000> floodnum;
@@ -43,8 +35,6 @@ extern PascalArray<std::string, 1, max_players> mutename;
 // TK array
 extern PascalArray<std::string, 1, max_players> tklist;      // IP
 extern PascalArray<std::int8_t, 1, max_players> tklistkills; // TK Warnings
-
-extern std::array<tmsg_bulletsnapshot, max_sprites> oldbulletsnapshotmsg;
 
 extern std::array<std::string, Constants::MAX_ADMIN_FLOOD_IPS> adminfloodip;
 extern std::array<std::string, Constants::MAX_LAST_ADMIN_IPS> lastadminips;

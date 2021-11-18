@@ -47,6 +47,7 @@ find_package(spdlog REQUIRED)
 #add_subdirectory(src/shared)
 add_subdirectory(src/client)
 add_subdirectory(src/server)
+add_subdirectory(src/game)
 
 find_package(GTest REQUIRED)
 enable_testing()

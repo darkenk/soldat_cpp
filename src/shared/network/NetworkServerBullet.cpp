@@ -7,11 +7,14 @@
 #include "../mechanics/Bullets.hpp"
 #include "NetworkUtils.hpp"
 
+//clang-format off
+#include "../misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 namespace
 {
-auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
-auto &stand = InitGlobalVariable<tanimation, "stand">();
-} // namespace
+std::array<tmsg_bulletsnapshot, max_sprites> oldbulletsnapshotmsg;
+}
 
 void serverbulletsnapshot(std::uint8_t i, std::uint8_t tonum, bool forced)
 {
@@ -45,7 +48,7 @@ void serverbulletsnapshot(std::uint8_t i, std::uint8_t tonum, bool forced)
                                   sprite[j].player->camera, bulletparts.velocity[i].x) or
                     forced)
                 {
-                    GetNetwork()->senddata(&bulletmsg, sizeof(bulletmsg), sprite[j].player->peer,
+                    GetServerNetwork()->senddata(&bulletmsg, sizeof(bulletmsg), sprite[j].player->peer,
                                            k_nSteamNetworkingSend_Unreliable);
                 }
 #else

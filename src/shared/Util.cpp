@@ -71,7 +71,6 @@ tcolor std::stringtocolor(const std::string s)
 }
 #endif
 
-#ifndef SERVER
 std::string numberformat(std::uint32_t num)
 {
     return std::to_string(num);
@@ -82,7 +81,6 @@ std::int32_t checkfilesize(const std::string &filename)
     std::filesystem::path p(filename);
     return std::filesystem::file_size(p);
 }
-#endif
 
 std::string overridefileext(const std::string &filename, const std::string &ext)
 {

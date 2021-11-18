@@ -10,15 +10,12 @@ extern bool requestinggame;
 extern std::int32_t noheartbeattime;
 extern std::string votemapname;
 extern std::uint32_t votemapcount;
-extern std::int32_t pingticksadd;
 
 class tclientnetwork : public TNetwork
 {
   public:
     void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
-    tclientnetwork()
-    {
-    }
+    tclientnetwork();
     virtual ~tclientnetwork()
     {
     }
@@ -36,5 +33,6 @@ class tclientnetwork : public TNetwork
 };
 
 void InitClientNetwork() requires(Config::IsClient());
+template <Config::Module M = Config::GetModule()>
 tclientnetwork *GetNetwork() requires(Config::IsClient());
 void DeinitClientNetwork() requires(Config::IsClient());

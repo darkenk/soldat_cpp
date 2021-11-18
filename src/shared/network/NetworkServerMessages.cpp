@@ -12,6 +12,10 @@
 #include <cuchar>
 #include <steam/isteamnetworkingmessages.h>
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
                              std::uint8_t msgtype)
 {
@@ -44,7 +48,7 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
                              (from == 255)) or
                             (((msgtype == msgtype_team) || (msgtype == msgtype_radio)) and
                              sprite[from].isinsameteam(sprite[i])))
-                            GetNetwork()->senddata(pchatmessage, size, sprite[i].player->peer,
+                            GetServerNetwork()->senddata(pchatmessage, size, sprite[i].player->peer,
                                                    k_nSteamNetworkingSend_Reliable);
                 }
     }
@@ -176,7 +180,7 @@ void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8
     for (i = 1; i <= max_players; i++)
         if (sprite[i].active && (sprite[i].player->controlmethod == human))
             if ((tonum == 0) || (i == tonum))
-                GetNetwork()->senddata(pchatmessage, size, sprite[i].player->peer,
+                GetServerNetwork()->senddata(pchatmessage, size, sprite[i].player->peer,
                                        k_nSteamNetworkingSend_Reliable);
 
     freemem(pchatmessage);

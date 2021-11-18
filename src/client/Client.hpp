@@ -27,7 +27,6 @@ struct tweaponstat
 };
 
 extern bool gamelooprun;
-extern bool progready;
 
 extern std::string joinpassword; // server passsword
 extern std::string joinport;     // join port to server
@@ -38,19 +37,14 @@ extern std::uint8_t initing;
 extern bool graphicsinitialized;
 
 extern std::string basedirectory;
-extern std::string userdirectory;
 
 extern std::string moddir;
 extern bool usesservermod;
 
-extern std::string serverip;
-extern std::int32_t serverport;
+extern std::string gClientServerIP;
+extern std::int32_t gClientServerPort;
 
-extern float grav;
 extern std::uint8_t connection;
-
-extern PascalArray<std::uint8_t, 1, main_weapons> weaponactive; // sync
-extern std::int32_t weaponsingame;                              // sync
 
 extern std::uint8_t sniperline_client_hpp;
 
@@ -63,9 +57,6 @@ extern bool limbolock;
 extern std::uint8_t selteam;
 
 extern std::uint8_t mysprite;
-
-// Network
-extern tclientnetwork *GetNetwork();
 
 // Weapon Stats
 extern PascalArray<tweaponstat, 1, 20> wepstats;
@@ -84,12 +75,6 @@ extern std::string hwid;
 
 extern std::uint16_t hitspraycounter;
 extern bool screentaken;
-
-// bullet shot stats
-extern std::int32_t shotdistanceshow;
-extern float shotdistance;
-extern float shotlife;
-extern std::int32_t shotricochet;
 
 extern bool targetmode;
 

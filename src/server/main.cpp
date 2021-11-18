@@ -23,6 +23,7 @@ void RunServer(int argc, const char *argv[])
 
 int main(int argc, const char *argv[])
 {
+    InitAllGlobalVariables<Config::SERVER_MODULE>();
     InitLogging();
     RunServer(argc, argv);
     return 0;

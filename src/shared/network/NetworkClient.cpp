@@ -24,12 +24,14 @@ bool requestinggame;
 std::int32_t noheartbeattime = 0;
 std::string votemapname;
 std::uint32_t votemapcount;
-std::int32_t pingticksadd = 2;
 
+namespace
+{
 void ProcessEventsCallback(PSteamNetConnectionStatusChangedCallback_t pInfo)
 {
     GetNetwork()->ProcessEvents(pInfo);
 }
+} // namespace
 
 void tclientnetwork::processloop()
 {
@@ -116,6 +118,11 @@ void tclientnetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
     {
         // break;
     }
+}
+
+tclientnetwork::tclientnetwork()
+{
+    NetworkingUtils->SetGlobalCallback_SteamNetConnectionStatusChanged(&ProcessEventsCallback);
 }
 
 bool tclientnetwork::connect(std::string Host, std::uint32_t Port)
@@ -390,10 +397,13 @@ void DeinitClientNetwork()
     gUDP = nullptr;
 }
 
-tclientnetwork *GetNetwork()
+template <Config::Module M>
+tclientnetwork *GetNetwork() requires(Config::IsClient())
 {
     return gUDP;
 }
+
+template tclientnetwork *GetNetwork<Config::GetModule()>();
 
 void InitClientNetwork()
 {

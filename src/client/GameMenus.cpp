@@ -34,6 +34,10 @@
 #include "shared/network/NetworkClientSprite.hpp"
 #include <SDL2/SDL.h>
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 using string = std::string;
 
 std::vector<tgamemenu> gamemenu;

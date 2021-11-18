@@ -18,7 +18,8 @@
 /*#include "Sprites.h"*/
 /*#include "Things.h"*/
 
-class tbullet
+template <Config::Module M = Config::GetModule()>
+class Bullet
 {
   public:
     bool active;
@@ -69,6 +70,8 @@ class tbullet
     std::uint8_t getweaponindex();
 };
 
+using tbullet = Bullet<Config::GetModule()>;
+
 constexpr std::int32_t hit_type_wall = 1;
 constexpr std::int32_t hit_type_blood = 2;
 constexpr std::int32_t hit_type_explode = 3;
@@ -80,6 +83,7 @@ constexpr std::int32_t hit_type_flak = 8;
 constexpr std::int32_t hit_type_bodyhit = 9;
 constexpr std::int32_t hit_type_ricochet = 10;
 
+template <Config::Module M = Config::GetModule()>
 std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int32_t sowner,
                           std::uint8_t n, float hitm, bool net, bool mustcreate,
                           std::uint16_t seed = -1); // Seed -1
@@ -91,4 +95,5 @@ bool canhitspray(std::int32_t victim, std::int32_t attacker);
 void calculaterecoil(float px, float py, float &cx, float &cy, float da);
 void hitspray();
 #endif
+template <Config::Module M = Config::GetModule()>
 bool bulletcansend(float x, float y, std::int32_t i, float vx);

@@ -6,6 +6,10 @@
 #include "../Game.hpp"
 #include "NetworkUtils.hpp"
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 #ifdef SERVER
 void serverthingsnapshot(std::uint8_t tonum)
 {
@@ -54,8 +58,9 @@ void serverthingsnapshot(std::uint8_t tonum)
 
             if (send)
             {
-                GetNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[tonum].player->peer,
-                                       k_nSteamNetworkingSend_Unreliable);
+                GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
+                                             sprite[tonum].player->peer,
+                                             k_nSteamNetworkingSend_Unreliable);
             }
         }
 }
@@ -87,8 +92,8 @@ void serverthingmustsnapshot(std::uint8_t i)
 
     for (i = 1; i <= max_players; i++)
         if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
-            GetNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[i].player->peer,
-                                   k_nSteamNetworkingSend_Unreliable);
+            GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[i].player->peer,
+                                         k_nSteamNetworkingSend_Unreliable);
 }
 #endif
 
@@ -120,8 +125,9 @@ void serverthingmustsnapshotonconnect(std::uint8_t tonum)
                 thingmsg.holdingsprite = thing[i].holdingsprite;
 
 #ifdef SERVER
-                GetNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[tonum].player->peer,
-                                       k_nSteamNetworkingSend_Unreliable);
+                GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
+                                             sprite[tonum].player->peer,
+                                             k_nSteamNetworkingSend_Unreliable);
 #else
                 demorecorder.saverecord(thingmsg, sizeof(thingmsg));
 #endif
@@ -154,8 +160,8 @@ void serverthingmustsnapshotonconnectto(std::uint8_t i, std::uint8_t tonum)
     thingmsg.style = thing[i].style;
     thingmsg.holdingsprite = thing[i].holdingsprite;
 
-    GetNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[tonum].player->peer,
-                           k_nSteamNetworkingSend_Unreliable);
+    GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[tonum].player->peer,
+                                 k_nSteamNetworkingSend_Unreliable);
 }
 
 void serverthingtaken(std::uint8_t i, std::uint8_t w)
@@ -171,8 +177,8 @@ void serverthingtaken(std::uint8_t i, std::uint8_t w)
 
     for (i = 1; i <= max_players; i++)
         if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
-            GetNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[i].player->peer,
-                                   k_nSteamNetworkingSend_Unreliable);
+            GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[i].player->peer,
+                                         k_nSteamNetworkingSend_Unreliable);
 }
 
 void serverhandlerequestthing(SteamNetworkingMessage_t *netmessage)

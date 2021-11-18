@@ -4,9 +4,12 @@
 #include "../misc/PortUtils.hpp"
 #include <string>
 
+template <Config::Module M = Config::GetModule()>
 bool iswronggameversion(std::string RequestVersion);
+template <Config::Module M = Config::GetModule()>
 bool verifypacket(std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId,
                   const source_location &location = source_location::current());
+template <Config::Module M = Config::GetModule()>
 bool verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
                                std::int32_t PacketId,
                                const source_location &location = source_location::current());
@@ -17,9 +20,12 @@ extern bool isadminip(const std::string &IP);
 extern bool isadminpassword(std::string Password);
 #endif
 
+template <Config::Module M = Config::GetModule()>
 void encodekeys(tsprite &SpriteC, std::uint16_t &Keys16);
+template <Config::Module M = Config::GetModule()>
 void decodekeys(tsprite &SpriteC, std::uint16_t Keys16);
 
+template <Config::Module M = Config::GetModule()>
 std::string fixplayername(const char *);
 #ifdef SERVER
 bool checkweaponnotallowed(std::uint8_t i);
@@ -40,4 +46,5 @@ void newplayerweapon();
 std::string returnfixedplayername(std::string name);
 #endif
 
+template <Config::Module M = Config::GetModule()>
 void stringtoarray(char *c, std::string s);

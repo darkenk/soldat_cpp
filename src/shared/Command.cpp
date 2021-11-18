@@ -18,6 +18,10 @@
 #include <fstream>
 #include <map>
 
+//clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 static bool deferredinitialized = false;
 static std::map<std::string, tcommand *> commands;
 static std::vector<std::string> deferredcommands;
@@ -276,9 +280,9 @@ void commandnetconfig(std::vector<std::string> &args, std::uint8_t sender)
                 esteamnetworkingconfigvalue(strtoint(args[1])), k_esteamnetworkingconfig_global, 0,
                 outdatatype, &std::int32_tvalue);
             GetMainConsole().console(format("[NET] NetConfig: Set %S to %D, result: %S",
-                                       set::of(std::string(name[0]), std::int32_tvalue,
-                                               setresult.tostring(tuseboolstrs.true), eos)),
-                                debug_message_color #ifdef SERVER, sender #endif);
+                                            set::of(std::string(name[0]), std::int32_tvalue,
+                                                    setresult.tostring(tuseboolstrs.true), eos)),
+                                     debug_message_color #ifdef SERVER, sender #endif);
         }
         else if (outdatatype == k_esteamnetworkingconfig_float)
         {
@@ -288,9 +292,9 @@ void commandnetconfig(std::vector<std::string> &args, std::uint8_t sender)
                 esteamnetworkingconfigvalue(strtoint(args[1])), k_esteamnetworkingconfig_global, 0,
                 outdatatype, &floatvalue);
             GetMainConsole().console(format("[NET] NetConfig: Set %S to %F, result: %S",
-                                       set::of(std::string(name[0]), floatvalue,
-                                               setresult.tostring(tuseboolstrs.true), eos)),
-                                debug_message_color #ifdef SERVER, sender #endif);
+                                            set::of(std::string(name[0]), floatvalue,
+                                                    setresult.tostring(tuseboolstrs.true), eos)),
+                                     debug_message_color #ifdef SERVER, sender #endif);
         }
     }
 }
@@ -333,9 +337,10 @@ void commandnetconfglist(std::vector<std::string> &args, std::uint8_t sender)
             if (udp.networkingutil.getconfigvalue(outnextvalue, k_esteamnetworkingconfig_global, 0,
                                                   &outdatatype, std::int32_tvalue,
                                                   &cbresult) == k_esteamnetworkinggetconfigvalue_ok)
-                GetMainConsole().console(format("[NET] NetConfig: %S is %D",
-                                           set::of(std::string(name[0]), std::int32_tvalue, eos)),
-                                    debug_message_color #ifdef SERVER, sender #endif);
+                GetMainConsole().console(
+                    format("[NET] NetConfig: %S is %D",
+                           set::of(std::string(name[0]), std::int32_tvalue, eos)),
+                    debug_message_color #ifdef SERVER, sender #endif);
         }
         else if (outdatatype == k_esteamnetworkingconfig_float)
         {
@@ -344,8 +349,8 @@ void commandnetconfglist(std::vector<std::string> &args, std::uint8_t sender)
                                                   &outdatatype, floatvalue,
                                                   &cbresult) == k_esteamnetworkinggetconfigvalue_ok)
                 GetMainConsole().console(format("[NET] NetConfig: %S is %F",
-                                           set::of(std::string(name[0]), floatvalue, eos)),
-                                    debug_message_color #ifdef SERVER, sender #endif);
+                                                set::of(std::string(name[0]), floatvalue, eos)),
+                                         debug_message_color #ifdef SERVER, sender #endif);
         }
     }
 }
@@ -355,13 +360,13 @@ void commandnetloglevel(std::vector<std::string> &args, std::uint8_t sender)
     if (length(args) == 1)
     {
         GetMainConsole().console("Usage: netconfig_loglevel \"level\"",
-                            debug_message_color #ifdef SERVER, sender #endif);
+                                 debug_message_color #ifdef SERVER, sender #endif);
         return;
     }
 
     udp.setdebuglevel(esteamnetworkingsocketsdebugoutputtype(strtointdef(args[1], 4)));
     GetMainConsole().console(string("[NET] GNS log level set to ") + args[1],
-                        debug_message_color #ifdef SERVER, sender #endif);
+                             debug_message_color #ifdef SERVER, sender #endif);
 }
 /*$POP*/
 #endif
@@ -511,7 +516,7 @@ bool loadconfig(const std::string &configname)
     if (!std::filesystem::exists(path))
     {
         GetMainConsole().console(std::string("No such config file: ") + configname,
-                            warning_message_color);
+                                 warning_message_color);
         return result;
     }
     std::ifstream configfile{path.c_str()};

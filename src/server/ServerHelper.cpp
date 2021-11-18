@@ -12,6 +12,10 @@
 #include "shared/network/NetworkServerMessages.hpp"
 #include <filesystem>
 
+//clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 // procedure WriteLn1(S: Variant); overload;
 // begin
 //  if CvarsInitialized and log_timestamp.Value then
@@ -167,13 +171,6 @@ std::string weaponnamebynum(std::int32_t num)
     return result;
 }
 #endif
-
-std::int32_t checkfilesize(const std::string &filename)
-{
-    NotImplemented(NITag::FILESYSTEM);
-    std::filesystem::path p(filename);
-    return std::filesystem::file_size(p);
-}
 
 std::string checknextmap()
 {

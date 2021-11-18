@@ -19,27 +19,15 @@
 #include <physfs.h>
 #include <shared/Cvar.hpp>
 
-/*#include "Steam.h"*/
-/*#include "SteamTypes.h"*/
-/*#include "GameRendering.h"*/
-/*#include "Client.h"*/
-/*#include "Game.h"*/
-/*#include "Demo.h"*/
-/*#include "ClientGame.h"*/
-/*#include "GameMenus.h"*/
-/*#include "strutils.h"*/
-/*#include "NetworkUtils.h"*/
-/*#include "NetworkClientSprite.h"*/
-/*#include "FileClient.h"*/
-/*#include "Sha1.h"*/
-/*#include "Anims.h"*/
-/*#include "Sound.h"*/
+//clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 using string = std::string;
 
 namespace
 {
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-}
+} // namespace
 
 // REQUEST GAME FROM SERVER
 void clientrequestgame()
@@ -218,7 +206,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
                 (GetNetwork()->GetStringAddress(&GetNetwork()->Address(), true)),
             client_message_color);
 
-    serverip = GetNetwork()->GetStringAddress(&GetNetwork()->Address(), false);
+    gClientServerIP = GetNetwork()->GetStringAddress(&GetNetwork()->Address(), false);
     NotImplemented(NITag::NETWORK, "no sha1 checks");
 #if 1
     mapname = trim(playerslistmsg->mapname.data());
@@ -233,7 +221,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     if (CVar::sv_downloadurl != "")
         downloadurl = includetrailingpathdelimiter(CVar::sv_downloadurl);
     else
-        downloadurl = string("http://") + serverip + ':' + inttostr(serverport + 10) + '/';
+        downloadurl = string("http://") + gClientServerIP + ':' + inttostr(gClientServerPort + 10) + '/';
 #endif
 
     if (CVar::cl_servermods)

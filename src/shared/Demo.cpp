@@ -19,6 +19,10 @@
 #include "shared/Version.hpp"
 #include <filesystem>
 
+//clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 using string = std::string;
 
 tdemorecorder demorecorder;
@@ -269,7 +273,7 @@ bool tdemoplayer::opendemo(const string &filename)
     if (fdemoheader.header != demo_magic)
     {
         GetMainConsole().console(_("The provided file is not valid: ") + ' ' + (fname),
-                            info_message_color);
+                                 info_message_color);
         fdemofile.free();
     }
     else if (fdemoheader.version != demo_version)

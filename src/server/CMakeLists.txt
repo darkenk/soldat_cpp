@@ -1,5 +1,4 @@
 set(SRC
-    main.cpp
     Server.cpp
     ServerHelper.cpp
     BanSystem.cpp
@@ -50,6 +49,8 @@ set(SHARED_SRC
     ../shared/misc/TFileStream.cpp
     ../shared/misc/SHA1.cpp
     ../shared/misc/SHA1Helper.cpp
+    ../shared/misc/GlobalVariable.cpp
+    ../shared/misc/GlobalVariableStorage.cpp
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -58,7 +59,25 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 
 
-add_executable(SoldatServer ${SRC} ${SHARED_SRC})
-target_compile_definitions(SoldatServer PUBLIC SERVER=1)
+add_executable(SoldatServer main.cpp ${SRC} ${SHARED_SRC})
+target_compile_definitions(SoldatServer PRIVATE SERVER=1)
 target_link_libraries(SoldatServer SDL2::SDL2main SDL2::SDL2-static spdlog::spdlog Freetype::Freetype ${PHYSFS_LIB} GameNetworkingSockets::GameNetworkingSockets_s)
 target_include_directories(SoldatServer PRIVATE ./config ../ ${PHYSFS_INC} ${GLAD_INC} ${STB_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
+
+add_library(SoldatServerLib STATIC ${SRC} ${SHARED_SRC})
+target_compile_definitions(SoldatServerLib PRIVATE SERVER=1)
+target_include_directories(SoldatServerLib PRIVATE
+    ./config
+    ../
+    ${PHYSFS_INC}
+    ${GLAD_INC}
+    ${STB_INCLUDE_DIR}
+    ${FREETYPE_INCLUDE_DIRS}
+)
+target_link_libraries(SoldatServerLib
+    SDL2::SDL2main
+    SDL2::SDL2-static
+    spdlog::spdlog
+    Freetype::Freetype
+    GameNetworkingSockets::GameNetworkingSockets_s
+)

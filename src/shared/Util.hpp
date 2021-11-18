@@ -55,10 +55,8 @@ std::uint32_t colortohex(tcolor color);
 tcolor stringtocolor(const std::string s);
 #endif
 
-#ifndef SERVER
 std::string numberformat(std::uint32_t num);
 std::int32_t checkfilesize(const std::string &filename);
-#endif
 
 std::string overridefileext(const std::string &filename, const std::string &ext);
 // function MapExists(MapName: string; RootDirectory: string{$IFNDEF SERVER}; Checksum:

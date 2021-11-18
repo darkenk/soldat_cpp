@@ -15,6 +15,10 @@
 #include <numbers>
 #include <set>
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 /*#include "Gfx.h"*/
 /*#include "Sound.h"*/
 /*#include "Demo.h"*/
@@ -27,11 +31,6 @@
 std::int32_t sparkscount;
 
 using std::numbers::pi;
-
-namespace
-{
-auto &sparkparts = InitGlobalVariable<particlesystem, "sparkparts">();
-}
 
 std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
                          std::uint8_t sowner, std::int32_t life)

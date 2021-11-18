@@ -1,5 +1,4 @@
 set(SRC
-    main.cpp
     Client.cpp
     InterfaceGraphics.cpp
     ClientGame.cpp
@@ -17,6 +16,7 @@ set(SRC
     ClientCommands.cpp
     GostekGraphics.cpp
     ControlGame.cpp
+    CVarClient.cpp
 )
 
 set(SHARED_SRC
@@ -64,6 +64,8 @@ set(SHARED_SRC
     ../shared/misc/SHA1Helper.cpp
     ../shared/misc/RandomGenerator.cpp
     ../shared/misc/TFileStream.cpp
+    ../shared/misc/GlobalVariable.cpp
+    ../shared/misc/GlobalVariableStorage.cpp
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -71,7 +73,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set_source_files_properties(../shared/misc/SHA1.cpp PROPERTIES COMPILE_FLAGS -O3)
 endif()
 
-add_executable(SoldatClient ${SRC} ${SHARED_SRC})
+add_executable(SoldatClient main.cpp ${SRC} ${SHARED_SRC})
 target_link_libraries(SoldatClient
     SDL2::SDL2main
     SDL2::SDL2-static
@@ -89,4 +91,22 @@ target_include_directories(SoldatClient PRIVATE
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
     ${SOLOUD_INCLUDE_DIR}
+)
+
+add_library(SoldatClientLib STATIC ${SRC} ${SHARED_SRC})
+target_include_directories(SoldatClientLib PRIVATE
+    ./config
+    ../
+    ${PHYSFS_INC}
+    ${GLAD_INC}
+    ${STB_INCLUDE_DIR}
+    ${FREETYPE_INCLUDE_DIRS}
+    ${SOLOUD_INCLUDE_DIR}
+)
+target_link_libraries(SoldatClientLib
+    SDL2::SDL2main
+    SDL2::SDL2-static
+    Freetype::Freetype
+    GameNetworkingSockets::GameNetworkingSockets_s
+    spdlog::spdlog
 )

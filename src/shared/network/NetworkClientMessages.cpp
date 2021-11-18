@@ -11,6 +11,10 @@
 #include <codecvt>
 #include <locale>
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 // utility wrapper to adapt locale-bound facets for wstring/wbuffer convert
 template <class Facet>
 struct deletable_facet : Facet

@@ -7,12 +7,14 @@
 #include "../mechanics/Bullets.hpp"
 #include "NetworkUtils.hpp"
 
-std::array<tmsg_bulletsnapshot, max_sprites> oldbulletsnapshotmsg;
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 namespace
 {
-auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
-}
+std::array<tmsg_bulletsnapshot, max_sprites> oldbulletsnapshotmsg;
+} // namespace
 
 void clientsendbullet(std::uint8_t i)
 {

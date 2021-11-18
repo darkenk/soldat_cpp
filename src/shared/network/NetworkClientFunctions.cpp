@@ -12,10 +12,9 @@
 #include "NetworkUtils.hpp"
 #include <physfs.h>
 
-namespace
-{
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-}
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 void clienthandlevoteon(SteamNetworkingMessage_t *netmessage)
 {

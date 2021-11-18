@@ -13,6 +13,10 @@
 #include <physfs.h>
 #include <set>
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 using string = std::string;
 
 tmapgraphics mapgfx;

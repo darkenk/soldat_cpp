@@ -52,5 +52,7 @@ Console<M> &GetMainConsole();
 constexpr auto GetServerMainConsole = GetMainConsole<Config::SERVER_MODULE>;
 constexpr auto GetClientMainConsole = GetMainConsole<Config::CLIENT_MODULE>;
 
-Console<Config::CLIENT_MODULE> &GetBigConsole();
-Console<Config::CLIENT_MODULE> &GetKillConsole();
+template <Config::Module M = Config::GetModule()>
+Console<M> &GetBigConsole();
+template <Config::Module M = Config::GetModule()>
+Console<M> &GetKillConsole();

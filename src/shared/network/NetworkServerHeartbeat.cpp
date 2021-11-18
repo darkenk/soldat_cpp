@@ -8,6 +8,10 @@
 #include "../Game.hpp"
 #include <steam/isteamnetworkingmessages.h>
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 // HEARTBEAT
 void serverheartbeat()
 {
@@ -58,8 +62,8 @@ void serverheartbeat()
     {
         if ((s.active) && (s.player->controlmethod == human))
         {
-            GetNetwork()->senddata(&heartbeatmsg, sizeof(heartbeatmsg), s.player->peer,
-                          k_nSteamNetworkingSend_Unreliable);
+            GetServerNetwork()->senddata(&heartbeatmsg, sizeof(heartbeatmsg), s.player->peer,
+                                   k_nSteamNetworkingSend_Unreliable);
         }
     }
 }

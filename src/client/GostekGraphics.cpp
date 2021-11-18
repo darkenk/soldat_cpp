@@ -26,6 +26,10 @@
 #include <numbers>
 #include <set>
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 using std::numbers::pi;
 
 #define IDS 1
@@ -61,14 +65,6 @@ typedef std::set<std::int32_t> tgostekspriteset;
 
 std::array<tgosteksprite, GOSTEK_LAST> gosteksprites;
 tgostekspriteset gostekbase;
-
-namespace
-{
-auto &throw_ = InitGlobalVariable<tanimation, "throw_">();
-auto &wipe = InitGlobalVariable<tanimation, "wipe">();
-auto &reloadbow = InitGlobalVariable<tanimation, "reloadbow">();
-auto &takeoff = InitGlobalVariable<tanimation, "takeoff">();
-} // namespace
 
 void loaddefaults();
 

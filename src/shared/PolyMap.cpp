@@ -6,16 +6,9 @@
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 
-extern tpolymap map;
-
-/*#include "Classes.h"*/
-/*#include "SysUtils.h"*/
-/*#include "Server.h"*/
-/*#include "Client.h"*/
-/*#include "Math.h"*/
-/*#include "Calc.h"*/
-/*#include "Game.h"*/
-/*#include "Constants.h"*/
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 void tpolymap::initialize()
 {

@@ -27,7 +27,10 @@
 #include <numbers>
 #include <shared/Calc.hpp>
 
-std::int32_t spritemapcolcount;
+//clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+//clang-format on
+
 #ifndef SERVER
 bool wasreloading;
 #endif
@@ -36,58 +39,7 @@ auto constexpr LOG = "sprites";
 
 using std::numbers::pi;
 
-namespace
-{
-auto &run = InitGlobalVariable<tanimation, "run">();
-auto &stand = InitGlobalVariable<tanimation, "stand">();
-auto &runback = InitGlobalVariable<tanimation, "runback">();
-auto &jump = InitGlobalVariable<tanimation, "jump">();
-auto &jumpside = InitGlobalVariable<tanimation, "jumpside">();
-auto &roll = InitGlobalVariable<tanimation, "roll">();
-auto &rollback = InitGlobalVariable<tanimation, "rollback">();
-auto &fall = InitGlobalVariable<tanimation, "fall">();
-auto &crouch = InitGlobalVariable<tanimation, "crouch">();
-auto &crouchrun = InitGlobalVariable<tanimation, "crouchrun">();
-auto &crouchrunback = InitGlobalVariable<tanimation, "crouchrunback">();
-auto &reload = InitGlobalVariable<tanimation, "reload">();
-auto &throw_ = InitGlobalVariable<tanimation, "throw_">();
-auto &recoil = InitGlobalVariable<tanimation, "recoil">();
-auto &shotgun = InitGlobalVariable<tanimation, "shotgun">();
-auto &barret = InitGlobalVariable<tanimation, "barret">();
-auto &smallrecoil = InitGlobalVariable<tanimation, "smallrecoil">();
-auto &aimrecoil = InitGlobalVariable<tanimation, "aimrecoil">();
-auto &handsuprecoil = InitGlobalVariable<tanimation, "handsuprecoil">();
-auto &clipin = InitGlobalVariable<tanimation, "clipin">();
-auto &clipout = InitGlobalVariable<tanimation, "clipout">();
-auto &slideback = InitGlobalVariable<tanimation, "slideback">();
-auto &change = InitGlobalVariable<tanimation, "change">();
-auto &throwweapon = InitGlobalVariable<tanimation, "throwweapon">();
-auto &weaponnone = InitGlobalVariable<tanimation, "weaponnone">();
-auto &punch = InitGlobalVariable<tanimation, "punch">();
-auto &reloadbow = InitGlobalVariable<tanimation, "reloadbow">();
-auto &melee = InitGlobalVariable<tanimation, "melee">();
-auto &cigar = InitGlobalVariable<tanimation, "cigar">();
-auto &match = InitGlobalVariable<tanimation, "match">();
-auto &smoke = InitGlobalVariable<tanimation, "smoke">();
-auto &wipe = InitGlobalVariable<tanimation, "wipe">();
-auto &groin = InitGlobalVariable<tanimation, "groin">();
-auto &takeoff = InitGlobalVariable<tanimation, "takeoff">();
-auto &victory = InitGlobalVariable<tanimation, "victory">();
-auto &piss = InitGlobalVariable<tanimation, "piss">();
-auto &mercy = InitGlobalVariable<tanimation, "mercy">();
-auto &mercy2 = InitGlobalVariable<tanimation, "mercy2">();
-auto &own = InitGlobalVariable<tanimation, "own">();
-auto &prone = InitGlobalVariable<tanimation, "prone">();
-auto &getup = InitGlobalVariable<tanimation, "getup">();
-auto &pronemove = InitGlobalVariable<tanimation, "pronemove">();
-auto &aim = InitGlobalVariable<tanimation, "aim">();
-auto &handsupaim = InitGlobalVariable<tanimation, "handsupaim">();
-
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
-auto &gostekskeleton = InitGlobalVariable<particlesystem, "gostekskeleton">();
-} // namespace
-
+template <Config::Module M>
 std::int32_t createsprite(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::uint8_t n,
                           tplayer *player, bool transferownership)
 {
@@ -237,6 +189,7 @@ std::int32_t createsprite(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle
     return result;
 }
 
+template <Config::Module M>
 bool teamcollides(std::int32_t poly, std::int32_t team, bool bullet)
 {
     bool result;
@@ -296,7 +249,8 @@ bool teamcollides(std::int32_t poly, std::int32_t team, bool bullet)
     return result;
 }
 
-void tsprite::update()
+template <Config::Module M>
+void Sprite<M>::update()
 {
     std::int32_t i;
 #ifndef SERVER
@@ -1285,7 +1239,8 @@ void tsprite::update()
         spriteparts.velocity[num].y = -max_velocity;
 }
 
-void tsprite::kill()
+template <Config::Module M>
+void Sprite<M>::kill()
 {
     std::int32_t i;
     bool left;
@@ -1416,8 +1371,9 @@ float deg2rad(float deg)
 }
 #endif
 
-void tsprite::die(std::int32_t how, std::int32_t who, std::int32_t where, std::int32_t what,
-                  tvector2 impact)
+template <Config::Module M>
+void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std::int32_t what,
+                    tvector2 impact)
 {
     std::int32_t i, j;
     float k;
@@ -2224,7 +2180,8 @@ void tsprite::die(std::int32_t how, std::int32_t who, std::int32_t where, std::i
     sortplayers();
 }
 
-std::int32_t tsprite::dropweapon()
+template <Config::Module M>
+std::int32_t Sprite<M>::dropweapon()
 {
     std::int32_t result;
     result = -1;
@@ -2300,7 +2257,8 @@ std::int32_t tsprite::dropweapon()
     return result;
 }
 
-void tsprite::legsapplyanimation(tanimation anim, std::int32_t curr)
+template <Config::Module M>
+void Sprite<M>::legsapplyanimation(tanimation anim, std::int32_t curr)
 {
 #ifdef SERVER
     LogTraceG("TSprite.LegsApplyAnimation");
@@ -2316,7 +2274,8 @@ void tsprite::legsapplyanimation(tanimation anim, std::int32_t curr)
     }
 }
 
-void tsprite::bodyapplyanimation(tanimation anim, std::int32_t curr)
+template <Config::Module M>
+void Sprite<M>::bodyapplyanimation(tanimation anim, std::int32_t curr)
 {
 #ifdef SERVER
     LogTraceG("TSprite.BodyApplyAnimation");
@@ -2339,7 +2298,8 @@ void tsprite::bodyapplyanimation(tanimation anim, std::int32_t curr)
     }
 }
 
-void tsprite::moveskeleton(float x1, float y1, bool fromzero)
+template <Config::Module M>
+void Sprite<M>::moveskeleton(float x1, float y1, bool fromzero)
 {
     std::int32_t i;
 
@@ -2366,7 +2326,8 @@ void tsprite::moveskeleton(float x1, float y1, bool fromzero)
             }
 }
 
-bool tsprite::checkradiusmapcollision(float x, float y, bool hascollided)
+template <Config::Module M>
+bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
 {
     std::int32_t j, w, k, z, polytype;
     std::int32_t b = 0;
@@ -2478,7 +2439,8 @@ bool tsprite::checkradiusmapcollision(float x, float y, bool hascollided)
     return result;
 }
 
-bool tsprite::checkmapcollision(float x, float y, std::int32_t area)
+template <Config::Module M>
+bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 {
     std::int32_t j, w, polytype;
     std::int32_t k = 0;
@@ -2761,7 +2723,8 @@ bool tsprite::checkmapcollision(float x, float y, std::int32_t area)
     return result;
 }
 
-bool tsprite::checkmapverticescollision(float x, float y, float r, bool hascollided)
+template <Config::Module M>
+bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascollided)
 {
     std::int32_t i, j, w, polytype;
     tvector2 pos, dir, vert;
@@ -2824,7 +2787,8 @@ bool tsprite::checkmapverticescollision(float x, float y, float r, bool hascolli
     return result;
 }
 
-bool tsprite::checkskeletonmapcollision(std::int32_t i, float x, float y)
+template <Config::Module M>
+bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
 {
     std::int32_t j, w;
     std::int32_t b = 0;
@@ -2940,7 +2904,8 @@ bool tsprite::checkskeletonmapcollision(std::int32_t i, float x, float y)
     return result;
 }
 
-void tsprite::handlespecialpolytypes(std::int32_t polytype, tvector2 pos)
+template <Config::Module M>
+void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, tvector2 pos)
 {
     tvector2 a, b;
 
@@ -3048,7 +3013,8 @@ void tsprite::handlespecialpolytypes(std::int32_t polytype, tvector2 pos)
     }
 }
 
-bool tbackgroundstate::backgroundtest(std::uint64_t poly)
+template <Config::Module M>
+bool BackgroundState<M>::backgroundtest(std::uint64_t poly)
 {
     std::uint8_t polytype;
 
@@ -3076,7 +3042,8 @@ bool tbackgroundstate::backgroundtest(std::uint64_t poly)
     return result;
 }
 
-void tbackgroundstate::backgroundtestbigpolycenter(tvector2 pos)
+template <Config::Module M>
+void BackgroundState<M>::backgroundtestbigpolycenter(tvector2 pos)
 {
     if (backgroundstatus == background_transition)
     {
@@ -3094,7 +3061,8 @@ void tbackgroundstate::backgroundtestbigpolycenter(tvector2 pos)
     }
 }
 
-std::int16_t tbackgroundstate::backgroundfindcurrentpoly(tvector2 pos)
+template <Config::Module M>
+std::int16_t BackgroundState<M>::backgroundfindcurrentpoly(tvector2 pos)
 {
     std::int32_t i;
 
@@ -3111,12 +3079,14 @@ std::int16_t tbackgroundstate::backgroundfindcurrentpoly(tvector2 pos)
     return result;
 }
 
-void tbackgroundstate::backgroundtestprepare()
+template <Config::Module M>
+void BackgroundState<M>::backgroundtestprepare()
 {
     backgroundtestresult = false;
 }
 
-void tbackgroundstate::backgroundtestreset()
+template <Config::Module M>
+void BackgroundState<M>::backgroundtestreset()
 {
     if (!backgroundtestresult)
     {
@@ -3125,8 +3095,9 @@ void tbackgroundstate::backgroundtestreset()
     }
 }
 
-void tsprite::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32_t ammo,
-                               bool restoreprimarystate)
+template <Config::Module M>
+void Sprite<M>::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32_t ammo,
+                                 bool restoreprimarystate)
 {
     std::int32_t weaponindex;
 
@@ -3176,8 +3147,9 @@ void tsprite::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32_t
 #endif
 }
 
-void tsprite::healthhit(float amount, std::int32_t who, std::int32_t where, std::int32_t what,
-                        tvector2 impact)
+template <Config::Module M>
+void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, std::int32_t what,
+                          tvector2 impact)
 {
     tvector2 t;
     float hm;
@@ -3312,7 +3284,8 @@ void tsprite::healthhit(float amount, std::int32_t who, std::int32_t where, std:
 #endif
 }
 
-void tsprite::freecontrols()
+template <Config::Module M>
+void Sprite<M>::freecontrols()
 {
 #ifdef SERVER
     LogTraceG("TSprite.FreeControls");
@@ -3335,7 +3308,8 @@ void tsprite::freecontrols()
     control.flagthrow = false;
 }
 
-void tsprite::checkoutofbounds()
+template <Config::Module M>
+void Sprite<M>::checkoutofbounds()
 {
     std::int32_t bound;
 
@@ -3358,7 +3332,8 @@ void tsprite::checkoutofbounds()
     }
 }
 
-void tsprite::checkskeletonoutofbounds()
+template <Config::Module M>
+void Sprite<M>::checkskeletonoutofbounds()
 {
     std::int32_t i;
     std::int32_t bound;
@@ -3388,7 +3363,8 @@ void tsprite::checkskeletonoutofbounds()
     }
 }
 
-void tsprite::respawn()
+template <Config::Module M>
+void Sprite<M>::respawn()
 {
     std::int32_t j;
 #ifdef SERVER
@@ -3703,7 +3679,8 @@ void tsprite::respawn()
 }
 
 #ifdef SERVER
-void tsprite::resetspriteoldpos()
+template <Config::Module M>
+void Sprite<M>::resetspriteoldpos()
 {
     std::int32_t i;
 
@@ -3712,7 +3689,8 @@ void tsprite::resetspriteoldpos()
 }
 #endif
 
-void tsprite::parachute(tvector2 a)
+template <Config::Module M>
+void Sprite<M>::parachute(tvector2 a)
 {
     tvector2 b;
     std::int32_t n, i;
@@ -3750,9 +3728,11 @@ void tsprite::parachute(tvector2 a)
         }
 }
 #ifdef SERVER
-void tsprite::changeteam(std::int32_t team, bool adminchange, std::uint8_t jointype)
+template <Config::Module M>
+void Sprite<M>::changeteam(std::int32_t team, bool adminchange, std::uint8_t jointype)
 #else
-void tsprite::changeteam(std::int32_t team)
+template <Config::Module M>
+void Sprite<M>::changeteam(std::int32_t team)
 #endif
 {
     std::int32_t i;
@@ -3925,7 +3905,8 @@ void tsprite::changeteam(std::int32_t team)
 }
 
 // SPRITE FIRE
-void tsprite::fire()
+template <Config::Module M>
+void Sprite<M>::fire()
 {
     tvector2 a, b, d, m;
     tvector2 aimdirection;
@@ -4517,7 +4498,8 @@ void tsprite::fire()
 #endif
 }
 
-void tsprite::throwflag()
+template <Config::Module M>
+void Sprite<M>::throwflag()
 {
     std::int32_t i, j;
     tvector2 b;
@@ -4620,7 +4602,8 @@ void tsprite::throwflag()
     }
 }
 
-void tsprite::throwgrenade()
+template <Config::Module M>
+void Sprite<M>::throwgrenade()
 {
     tvector2 a, b, c, e;
     float f = 0.0;
@@ -4732,7 +4715,8 @@ void tsprite::throwgrenade()
     }
 }
 
-float tsprite::getmoveacc()
+template <Config::Module M>
+float Sprite<M>::getmoveacc()
 {
     float moveacc;
 
@@ -4772,7 +4756,8 @@ float tsprite::getmoveacc()
     return result;
 }
 
-tvector2 tsprite::getcursoraimdirection()
+template <Config::Module M>
+tvector2 Sprite<M>::getcursoraimdirection()
 {
     tvector2 mouseaim;
     tvector2 aimdirection;
@@ -4788,7 +4773,8 @@ tvector2 tsprite::getcursoraimdirection()
     return result;
 }
 
-tvector2 tsprite::gethandsaimdirection()
+template <Config::Module M>
+tvector2 Sprite<M>::gethandsaimdirection()
 {
     tvector2 aimdirection;
 
@@ -4800,21 +4786,24 @@ tvector2 tsprite::gethandsaimdirection()
     return result;
 }
 
-bool tsprite::issolo()
+template <Config::Module M>
+bool Sprite<M>::issolo()
 {
     bool result;
     result = player->team == team_none;
     return result;
 }
 
-bool tsprite::isnotsolo()
+template <Config::Module M>
+bool Sprite<M>::isnotsolo()
 {
     bool result;
     result = player->team != team_none;
     return result;
 }
 
-bool tsprite::isinteam()
+template <Config::Module M>
+bool Sprite<M>::isinteam()
 {
     bool result;
     switch (player->team)
@@ -4831,33 +4820,40 @@ bool tsprite::isinteam()
     return result;
 }
 
-bool tsprite::isspectator()
+template <Config::Module M>
+bool Sprite<M>::isspectator()
 {
     return player->team == team_spectator;
 }
 
-bool tsprite::isnotspectator()
+template <Config::Module M>
+bool Sprite<M>::isnotspectator()
 {
     return player->team != team_spectator;
 }
 
-bool tsprite::isinsameteam(const tsprite &otherplayer)
+template <Config::Module M>
+bool Sprite<M>::isinsameteam(const Sprite &otherplayer)
 {
     bool result;
     result = player->team == otherplayer.player->team;
     return result;
 }
 
-bool tsprite::isnotinsameteam(const tsprite &otherplayer)
+template <Config::Module M>
+bool Sprite<M>::isnotinsameteam(const Sprite &otherplayer)
 {
     bool result;
     result = player->team != otherplayer.player->team;
     return result;
 }
 
-bool tsprite::canrespawn(bool deadmeatbeforerespawn)
+template <Config::Module M>
+bool Sprite<M>::canrespawn(bool deadmeatbeforerespawn)
 {
     bool result;
     result = (CVar::sv_survivalmode == false) or (survivalendround) or (!deadmeatbeforerespawn);
     return result;
 }
+
+template class Sprite<Config::GetModule()>;

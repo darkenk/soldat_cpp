@@ -13,10 +13,9 @@
 #include "NetworkClientSprite.hpp"
 #include "NetworkUtils.hpp"
 
-namespace
-{
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-}
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 void clienthandleserverthingsnapshot(SteamNetworkingMessage_t *netmessage)
 {

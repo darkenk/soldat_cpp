@@ -16,10 +16,9 @@
 #include "NetworkUtils.hpp"
 #include <limits>
 
-namespace
-{
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-}
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
 {

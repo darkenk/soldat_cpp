@@ -8,19 +8,13 @@
 #include <fstream>
 #include <iomanip>
 
-/*#include "Server.h"*/
-/*#include "Util.h"*/
-/*#include "Client.h"*/
-/*#include "SysUtils.h"*/
-/*#include "Constants.h"*/
-/*#include "TraceLog.h"*/
-/*#include "Cvar.h"*/
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 std::mutex loglock;
 tstringlist *gamelog = nullptr;
 std::string consolelogfilename;
-
-extern std::string userdirectory;
 
 void newlogfile(tstringlist *f, const std::string &name)
 {

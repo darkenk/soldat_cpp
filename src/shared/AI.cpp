@@ -12,23 +12,9 @@
 #include "network/NetworkServer.hpp"
 #include "network/NetworkServerMessages.hpp"
 
-namespace
-{
-auto &pronemove = InitGlobalVariable<tanimation, "pronemove">();
-auto &barret = InitGlobalVariable<tanimation, "barret">();
-auto &shotgun = InitGlobalVariable<tanimation, "shotgun">();
-auto &throw_ = InitGlobalVariable<tanimation, "throw_">();
-auto &recoil = InitGlobalVariable<tanimation, "recoil">();
-auto &stand = InitGlobalVariable<tanimation, "stand">();
-auto &prone = InitGlobalVariable<tanimation, "prone">();
-auto &aim = InitGlobalVariable<tanimation, "aim">();
-auto &handsupaim = InitGlobalVariable<tanimation, "handsupaim">();
-auto &smallrecoil = InitGlobalVariable<tanimation, "smallrecoil">();
-auto &aimrecoil = InitGlobalVariable<tanimation, "aimrecoil">();
-auto &handsuprecoil = InitGlobalVariable<tanimation, "handsuprecoil">();
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
-} // namespace
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 // Checks the distance on one axis
 std::int32_t checkdistance(float posa, float posb)

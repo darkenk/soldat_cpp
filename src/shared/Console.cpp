@@ -118,15 +118,17 @@ void Console<M>::console(const std::string &what, std::int32_t col,
 
 template class Console<Config::GetModule()>;
 
-Console<Config::CLIENT_MODULE> &GetBigConsole() requires(Config::IsClient())
+template <Config::Module M>
+Console<M> &GetBigConsole()
 {
-    static Console<Config::CLIENT_MODULE> bigconsole;
+    static Console<M> bigconsole;
     return bigconsole;
 }
 
-Console<Config::CLIENT_MODULE> &GetKillConsole() requires(Config::IsClient())
+template <Config::Module M>
+Console<M> &GetKillConsole()
 {
-    static Console<Config::CLIENT_MODULE> killconsole;
+    static Console<M> killconsole;
     return killconsole;
 }
 
@@ -138,3 +140,5 @@ Console<M> &GetMainConsole()
 }
 
 template tconsole &GetMainConsole<Config::GetModule()>();
+template tconsole &GetKillConsole<Config::GetModule()>();
+template tconsole &GetBigConsole<Config::GetModule()>();

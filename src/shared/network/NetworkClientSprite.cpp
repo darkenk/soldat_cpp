@@ -12,19 +12,14 @@
 #include "../gfx.hpp"
 #include "NetworkUtils.hpp"
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 namespace
 {
 tmsg_clientspritesnapshot oldclientsnapshotmsg;
 tmsg_clientspritesnapshot_mov oldclientsnapshotmovmsg;
-
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
-auto &cigar = InitGlobalVariable<tanimation, "cigar">();
-auto &smoke = InitGlobalVariable<tanimation, "smoke">();
-auto &stand = InitGlobalVariable<tanimation, "stand">();
-auto &prone = InitGlobalVariable<tanimation, "prone">();
-auto &aim = InitGlobalVariable<tanimation, "aim">();
-
 } // namespace
 
 void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)

@@ -51,8 +51,6 @@ const std::int32_t background_poly_none = -1;
 typedef void (*tloadmapgraphics)(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop,
                                  tmapcolor bgcolorbtm);
 
-extern twaypoints botpath;
-
 class tpolymap
 {
   public:

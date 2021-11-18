@@ -44,6 +44,10 @@
 #include <physfs.h>
 #include <set>
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 using string = std::string;
 
 // Chat stuff
@@ -2785,7 +2789,7 @@ void renderinterface(float timeelapsed, float width, float height)
                         if ((sprite[sortedplayers[j].playernum].player->jetcolor & 0xff000000) ==
                             color_transparency_registered)
                             l = GFX::INTERFACE_STAR;
-                        else if ((sprite[sortedplayers[j].playernum].player->jetcolor and
+                        else if ((sprite[sortedplayers[j].playernum].player->jetcolor &
                                   0xff000000) == color_transparency_special)
                             l = GFX::INTERFACE_PROT;
 

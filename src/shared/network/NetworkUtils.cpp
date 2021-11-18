@@ -21,17 +21,14 @@
 #include "shared/Parts.hpp"
 #endif
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 void encodekeys(tsprite &SpriteC, uint16_t &Keys16);
 void decodekeys(tsprite &SpriteC, std::uint32_t Keys16);
 
 std::string ArrayToString(const char *c);
-
-namespace
-{
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-auto &change = InitGlobalVariable<tanimation, "change">();
-auto &throwweapon = InitGlobalVariable<tanimation, "throwweapon">();
-} // namespace
 
 #ifndef SERVER
 void playradiosound(std::uint8_t RadioID)
@@ -77,6 +74,7 @@ void playradiosound(std::uint8_t RadioID)
 }
 #endif
 
+template <Config::Module M>
 void encodekeys(tsprite &SpriteC, std::uint16_t &Keys16)
 {
     auto &Controls = SpriteC.control;
@@ -111,6 +109,7 @@ void encodekeys(tsprite &SpriteC, std::uint16_t &Keys16)
         Keys16 = Keys16 | B9;
 }
 
+template <Config::Module M>
 void decodekeys(tsprite &SpriteC, uint16_t Keys16)
 {
     auto &Controls = SpriteC.control;
@@ -129,6 +128,7 @@ void decodekeys(tsprite &SpriteC, uint16_t Keys16)
 }
 
 // Sets the player name to Major if it is invalid
+template <Config::Module M>
 std::string fixplayername(const char *Name)
 {
     NotImplemented(NITag::OTHER);
@@ -140,6 +140,7 @@ std::string fixplayername(const char *Name)
 #endif
 }
 
+template <Config::Module M>
 bool verifypacket(std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId,
                   const source_location &location)
 {
@@ -161,6 +162,7 @@ bool verifypacket(std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t
     return Result;
 }
 
+template <Config::Module M>
 bool verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
                                std::int32_t PacketId, const source_location &location)
 {
@@ -226,6 +228,7 @@ bool isserverfull()
 #endif
 
 // Checks if the Requested and the current Soldat version are the same
+template <Config::Module M>
 bool iswronggameversion(std::string RequestVersion)
 {
     NotImplemented(NITag::OTHER);
@@ -433,7 +436,20 @@ std::string ArrayToString(array c of Char)
 }
 #endif
 
+template <Config::Module M>
 void stringtoarray(char *c, std::string s)
 {
     std::strcpy(c, s.data());
 }
+
+template std::string fixplayername(const char *);
+template void encodekeys(tsprite &SpriteC, std::uint16_t &Keys16);
+template void decodekeys(tsprite &SpriteC, uint16_t Keys16);
+template void stringtoarray(char *c, std::string s);
+template bool iswronggameversion<Config::GetModule()>(std::string RequestVersion);
+template bool verifypacket<Config::GetModule()>(
+    std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId,
+    const source_location &location = source_location::current());
+template bool verifypacketlargerorequal<Config::GetModule()>(
+    std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId,
+    const source_location &location = source_location::current());

@@ -15,42 +15,14 @@
 #include "shared/network/NetworkServerMessages.hpp"
 #include "shared/network/NetworkUtils.hpp"
 
-/*#include "system.h"*/
-/*#include "and.h"*/
-/*#include "delphi.h"*/
-/*#include "units.h"*/
-/*#include "SysUtils.h"*/
-/*#include "Classes.h"*/
-/*#include "strutils.h"*/
-/*#include "dateutils.h"*/
-/*#include "helper.h"*/
-/*#include "units.h"*/
-/*#include "Vector.h"*/
-/*#include "Util.h"*/
-/*#include "Version.h"*/
-/*#include "scripting.h"*/
-/*#include "units.h"*/
-/*#include "ScriptDispatcher.h"*/
-/*#include "Server.h"*/
-/*#include "Command.h"*/
-/*#include "Weapons.h"*/
-/*#include "Net.h"*/
-/*#include "NetworkUtils.h"*/
-/*#include "NetworkServerMessages.h"*/
-/*#include "NetworkServerFunctions.h"*/
-/*#include "NetworkServerConnection.h"*/
-/*#include "NetworkServerGame.h"*/
-/*#include "Sprites.h"*/
-/*#include "PolyMap.h"*/
-/*#include "Game.h"*/
-/*#include "Things.h"*/
-/*#include "Constants.h"*/
-/*#include "ServerHelper.h"*/
-/*#include "BanSystem.h"*/
-/*#include "Demo.h"*/
-/*#include "Steam.h"*/
+//clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 using string = std::string;
+
+namespace
+{
 
 /*$PUSH*/
 /*$WARN 5024 OFF : Parameter "$1" not used*/
@@ -754,7 +726,8 @@ void commandnetstats(std::vector<std::string> &args, std::uint8_t sender)
     std::array<char, 2048> statstext;
     tplayer dstplayer;
 
-    if (GetNetwork()->NetworkingSocket().GetDetailedConnectionStatus(1, statstext.data(), 2048) == 0)
+    if (GetServerNetwork()->NetworkingSocket().GetDetailedConnectionStatus(1, statstext.data(),
+                                                                           2048) == 0)
     {
         NotImplemented(NITag::OTHER);
 #if 0
@@ -763,8 +736,8 @@ void commandnetstats(std::vector<std::string> &args, std::uint8_t sender)
     }
     for (auto &dstplayer : players)
     {
-        if (GetNetwork()->NetworkingSocket().GetDetailedConnectionStatus(dstplayer->peer, statstext.data(),
-                                                                2048) == 0)
+        if (GetServerNetwork()->NetworkingSocket().GetDetailedConnectionStatus(
+                dstplayer->peer, statstext.data(), 2048) == 0)
         {
             NotImplemented(NITag::OTHER);
 #if 0
@@ -1038,6 +1011,8 @@ void commandstop(std::vector<std::string> &args, std::uint8_t sender)
 {
     demorecorder.stoprecord();
 }
+
+} // namespace
 
 /*$POP*/
 

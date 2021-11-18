@@ -41,6 +41,10 @@
 #include <SDL2/SDL.h>
 #include <thread>
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 using string = std::string;
 
 tvector2 mouseprev;

@@ -32,11 +32,9 @@
 
 #include "shared/gfx.hpp"
 
-namespace
-{
-auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
-auto &sparkparts = InitGlobalVariable<particlesystem, "sparkparts">();
-} // namespace
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 tgamerenderingparams gamerenderingparams;
 tgfxspritearray textures;

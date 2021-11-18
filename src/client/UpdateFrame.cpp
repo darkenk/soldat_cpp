@@ -19,11 +19,9 @@
 #include "shared/network/NetworkClientConnection.hpp"
 #include <cstdint>
 
-namespace
-{
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
-} // namespace
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 std::int32_t idlecounter, oldmousex;
 

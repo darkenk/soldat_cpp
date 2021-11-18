@@ -24,15 +24,13 @@
 #include <limits>
 #include <numbers>
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 using std::numbers::pi;
 
-namespace
-{
-auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-auto &throwweapon = InitGlobalVariable<tanimation, "throwweapon">();
-} // namespace
-
+template <Config::Module M>
 std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int32_t sowner,
                           std::uint8_t n, float hitm, bool net, bool mustcreate,
                           std::uint16_t seed) // Seed = -1
@@ -382,6 +380,7 @@ std::int32_t servercreatebullet(tvector2 spos, tvector2 svelocity, std::uint8_t 
 }
 #endif
 
+template <Config::Module M>
 bool bulletcansend(float x, float y, std::int32_t i, float vx)
 {
     float sx, sy;
@@ -419,6 +418,9 @@ bool bulletcansend(float x, float y, std::int32_t i, float vx)
 #endif
     return result;
 }
+
+template bool bulletcansend<Config::GetModule()>(float x, float y, std::int32_t i, float vx);
+
 #ifndef SERVER
 bool canhitspray(std::int32_t victim, std::int32_t attacker)
 {
@@ -525,7 +527,8 @@ void calculaterecoil(float px, float py, float &cx, float &cy, float da)
 #endif
 
 // TBULLET
-void tbullet::update()
+template <Config::Module M>
+void Bullet<M>::update()
 {
     tvector2 oldv, a;
     float dist;
@@ -746,7 +749,8 @@ void tbullet::update()
 }
 
 #ifndef SERVER
-void tbullet::render(double timeelapsed)
+template <Config::Module M>
+void Bullet<M>::render(double timeelapsed)
 {
     tvector2 bulletpos, bulletvel;
     tvector2 _p, _p2, _scala, a, b;
@@ -1075,7 +1079,8 @@ void tbullet::render(double timeelapsed)
 }
 #endif
 
-void tbullet::kill()
+template <Config::Module M>
+void Bullet<M>::kill()
 {
 #ifdef SERVER
     LogTraceG("TBullet.Kill");
@@ -1087,7 +1092,8 @@ void tbullet::kill()
     setlength(thingcollisions, 0);
 }
 
-tvector2 tbullet::checkmapcollision(float x, float y)
+template <Config::Module M>
+tvector2 Bullet<M>::checkmapcollision(float x, float y)
 {
     float largestvelocitycomponent;
     std::int32_t j, b, w, k, w2;
@@ -1386,7 +1392,8 @@ tvector2 tbullet::checkmapcollision(float x, float y)
     return result;
 }
 
-tvector2 tbullet::checkspritecollision(float lasthitdist)
+template <Config::Module M>
+tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 {
     const std::array<std::int32_t, 7> bodypartspriority = {{12, 11, 10, 6, 5, 4, 3}};
     tspriteindexes spritesbydistance;
@@ -1959,7 +1966,8 @@ tvector2 tbullet::checkspritecollision(float lasthitdist)
     return result;
 }
 
-tvector2 tbullet::checkthingcollision(float lasthitdist)
+template <Config::Module M>
+tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
 {
     std::int32_t i, j;
     tvector2 startpoint, endpoint, pos, colpos, a;
@@ -2069,7 +2077,8 @@ tvector2 tbullet::checkthingcollision(float lasthitdist)
     return result;
 }
 
-tvector2 tbullet::checkcollidercollision(float lasthitdist)
+template <Config::Module M>
+tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
 {
     std::int32_t j;
 #ifndef SERVER
@@ -2194,7 +2203,8 @@ tvector2 tbullet::checkcollidercollision(float lasthitdist)
     return result;
 }
 
-void tbullet::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
+template <Config::Module M>
+void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 {
     tvector2 a, b;
     std::int32_t i;
@@ -2443,7 +2453,8 @@ void tbullet::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     } // case
 }
 
-void tbullet::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int32_t where)
+template <Config::Module M>
+void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int32_t where)
 {
     const float after_explosion_radius2 = after_explosion_radius * after_explosion_radius;
     const std::array<std::int32_t, 7> bodyparts = {{12, 11, 10, 6, 5, 4, 3}};
@@ -2785,7 +2796,8 @@ void tbullet::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int32_
 #endif
 }
 
-void tbullet::checkoutofbounds()
+template <Config::Module M>
+void Bullet<M>::checkoutofbounds()
 {
     std::int32_t bound;
     tvector2 *bulletpartspos;
@@ -2801,7 +2813,8 @@ void tbullet::checkoutofbounds()
         kill();
 }
 
-std::int32_t tbullet::filterspritesbydistance(tspriteindexes &spriteindexes)
+template <Config::Module M>
+std::int32_t Bullet<M>::filterspritesbydistance(tspriteindexes &spriteindexes)
 {
     std::int32_t i, j, spritecount;
     float roughdistance;
@@ -2837,7 +2850,8 @@ std::int32_t tbullet::filterspritesbydistance(tspriteindexes &spriteindexes)
     return result;
 }
 
-bool tbullet::targetablesprite(std::int32_t i)
+template <Config::Module M>
+bool Bullet<M>::targetablesprite(std::int32_t i)
 {
     std::int32_t ownervulnerabletime;
 
@@ -2857,7 +2871,8 @@ bool tbullet::targetablesprite(std::int32_t i)
     return result;
 }
 
-float tbullet::getcomparablespritedistance(std::int32_t i)
+template <Config::Module M>
+float Bullet<M>::getcomparablespritedistance(std::int32_t i)
 {
     tvector2 spritecol, distance;
 
@@ -2871,7 +2886,8 @@ float tbullet::getcomparablespritedistance(std::int32_t i)
     return result;
 }
 
-tvector2 tbullet::getspritecollisionpoint(std::int32_t i)
+template <Config::Module M>
+tvector2 Bullet<M>::getspritecollisionpoint(std::int32_t i)
 {
     // Why is this an exception to the usual rule??
     tvector2 result;
@@ -2898,7 +2914,8 @@ tvector2 tbullet::getspritecollisionpoint(std::int32_t i)
     return result;
 }
 
-std::uint8_t tbullet::getweaponindex()
+template <Config::Module M>
+std::uint8_t Bullet<M>::getweaponindex()
 {
     std::uint8_t weaponindex;
 
@@ -2914,3 +2931,5 @@ std::uint8_t tbullet::getweaponindex()
     result = 0; // Not possible
     return result;
 }
+
+template class Bullet<Config::GetModule()>;

@@ -38,5 +38,5 @@ class tservernetwork : public TNetwork
 };
 
 bool InitNetworkServer(const std::string &Host, std::uint32_t Port) requires(Config::IsServer());
-tservernetwork *GetNetwork() requires(Config::IsServer());
+tservernetwork *GetServerNetwork();
 bool DeinitServerNetwork() requires(Config::IsServer());

@@ -39,15 +39,9 @@
 #include "misc/PortUtilsSoldat.hpp"
 #include <chrono>
 
-twaypoints botpath;
-
-// TODO: move all dependent functions in this unit
-std::int32_t ticks, tickspersecond; // Tick counter and Ticks persecond counter
-// Ticks counter etc
-std::int32_t frames, framespersecond, ticktime, ticktimelast;
-std::int32_t goalticks = default_goalticks;
-
-std::int32_t bullettimetimer;
+//clang-format off
+#include "misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 #ifndef SERVER
 std::int32_t gamewidth = default_width;
@@ -56,85 +50,30 @@ std::int32_t gameheight = default_height;
 float gamewidthhalf = default_width;  // / 2;
 float gameheighthalf = default_width; // / 2;
 #endif
-// Ping Impr - vars
-PascalArray<PascalArray<tvector2, 0, max_oldpos>, 1, max_sprites> oldspritepos;
 
-// survival vars
-std::uint8_t alivenum;
-std::array<std::int8_t, 6> teamalivenum;
-PascalArray<std::int8_t, 0, 4> teamplayersnum;
-bool survivalendround = false;
-bool weaponscleaned = false;
-
-std::int32_t ceasefiretime = default_ceasefire_time;
-std::int32_t mapchangetime = default_mapchange_time;
-std::int32_t mapchangecounter;
-std::string mapchangename;
-tmapinfo mapchange;
-std::uint64_t mapchangeitemid;
-tsha1digest mapchangechecksum;
-std::int32_t timelimitcounter = 3600;
-std::int32_t starthealth = 150;
-std::int32_t timeleftsec, timeleftmin;
-PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, max_sprites> weaponsel;
-
-std::array<std::int32_t, 5> teamscore;
-std::array<std::int32_t, 4> teamflag;
-
-float sinuscounter = 0;
-
-tpolymap map;
-
-tsha1digest custommodchecksum;
-tsha1digest mapchecksum;
-
-std::int32_t mapindex;
-
-PascalArray<tkillsort, 1, max_sprites> sortedplayers;
 #ifndef SERVER
 PascalArray<tkillsort, 1, max_sprites> sortedteamscore;
 
 std::int32_t heartbeattime, heartbeattimewarnings;
 #endif
 
-// Sprites
-// FIXME: client has frozen bullets when Sprite array position is "bad"
-// if happens again change Sprite array to 0..MAX_SPRITES to "fix" it
-// possible cause: out of range array read (index 0 instead of 1)
-PascalArray<tsprite, 1, max_sprites> sprite; // player, game handling sprite
-PascalArray<tbullet, 1, max_bullets> bullet; // bullet game handling sprite
 #ifndef SERVER
 PascalArray<tspark, 1, max_sparks> spark; // spark game handling sprite
 #endif
-PascalArray<tthing, 1, max_things> thing; // thing game handling sprite
 
-// voting
-bool voteactive = false;
-std::uint8_t votetype = 0; // VOTE_MAP or VOTE_KICK
-std::string votetarget = "";
-std::string votestarter = "";
-std::string votereason = "";
-std::int32_t votetimeremaining = -1;
-std::uint8_t votenumvotes = 0;
-std::uint8_t votemaxvotes = 0;
-PascalArray<bool, 1, max_sprites> votehasvoted;
-PascalArray<std::int32_t, 1, max_sprites> votecooldown;
-bool votekickreasontype = false;
-
+namespace
+{
 // NUMBER27's TIMING ROUTINES
 std::uint64_t timeinmil, timeinmillast; // time in Milliseconds the computer has
 // been running
 std::uint64_t timepassed;          // Time in Milliseconds the program has been running
 std::int32_t seconds, secondslast; // Seconds the program has been running
-
-namespace
-{
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-}
+} // namespace
 
 using string = std::string;
 
 // Timing routine
+template <Config::Module M>
 void number27timing()
 {
     timeinmillast = timeinmil;
@@ -164,6 +103,7 @@ void number27timing()
     ticktime = trunc(timepassed / ((float)(1000) / goalticks));
 }
 
+template <Config::Module M>
 void updategamestats()
 {
     std::int32_t i;
@@ -233,6 +173,7 @@ void updategamestats()
     }
 }
 
+template <Config::Module M>
 void togglebullettime(bool turnon, std::int32_t duration)
 {
 #ifdef SERVER
@@ -250,6 +191,7 @@ void togglebullettime(bool turnon, std::int32_t duration)
     number27timing();
 }
 
+template <Config::Module M>
 bool pointvisible(float x, float y, std::int32_t i)
 {
 #ifdef SERVER
@@ -284,6 +226,7 @@ bool pointvisible(float x, float y, std::int32_t i)
     return result;
 }
 
+template <Config::Module M>
 bool pointvisible2(float x, float y, std::int32_t i)
 {
 // TODO: check why numbers differ on server and client
@@ -328,6 +271,7 @@ bool ispointonscreen(tvector2 point)
 }
 #endif
 
+template <Config::Module>
 void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targetvote,
                std::string reasonvote)
 {
@@ -375,6 +319,7 @@ void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targ
     }
 }
 
+template <Config::Module>
 void stopvote()
 {
     voteactive = false;
@@ -415,7 +360,6 @@ void timervote()
 #endif
 }
 
-template void timervote<Config::GetModule()>();
 #ifdef SERVER
 void countvote(std::uint8_t voter)
 {
@@ -456,11 +400,13 @@ void countvote(std::uint8_t voter)
 }
 #endif
 
+template <Config::Module M>
 void showmapchangescoreboard()
 {
     showmapchangescoreboard("EXIT*!*");
 }
 
+template <Config::Module M>
 void showmapchangescoreboard(const std::string nextmap)
 {
 #ifndef SERVER
@@ -486,6 +432,7 @@ void showmapchangescoreboard(const std::string nextmap)
 #endif
 }
 
+template <Config::Module M>
 bool isteamgame()
 {
     bool isteamgame_result;
@@ -503,6 +450,7 @@ bool isteamgame()
     return isteamgame_result;
 }
 
+template <Config::Module M>
 void changemap()
 {
 #ifdef SERVER
@@ -779,6 +727,7 @@ void changemap()
 #endif
 }
 
+template <Config::Module M>
 void sortplayers()
 {
     std::int32_t j;
@@ -958,3 +907,19 @@ void sortplayers()
         }
     }
 }
+
+template void number27timing<Config::GetModule()>();
+template void togglebullettime<Config::GetModule()>(bool turnon, std::int32_t duration);
+template void updategamestats<Config::GetModule()>();
+template bool pointvisible<Config::GetModule()>(float x, float y, std::int32_t i);
+template bool pointvisible2<Config::GetModule()>(float x, float y, std::int32_t i);
+template void startvote<Config::GetModule()>(std::uint8_t startervote, std::uint8_t typevote,
+                                             std::string targetvote, std::string reasonvote);
+
+template void stopvote<Config::GetModule()>();
+template void timervote<Config::GetModule()>();
+template void showmapchangescoreboard<Config::GetModule()>();
+template void showmapchangescoreboard<Config::GetModule()>(const std::string nextmap);
+template bool isteamgame<Config::GetModule()>();
+template void changemap<Config::GetModule()>();
+template void sortplayers<Config::GetModule()>();

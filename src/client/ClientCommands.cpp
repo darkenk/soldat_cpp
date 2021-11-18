@@ -13,7 +13,14 @@
 #include "shared/network/NetworkClientMessages.hpp"
 #include <regex>
 
+//clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 std::uint8_t screenshotsinarow = 0;
+
+namespace
+{
 
 void commandbind(std::vector<std::string> &args, std::uint8_t sender)
 {
@@ -164,7 +171,8 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
     for (i = 0; i <= high(targets); i++)
     {
         sprite[targets[i]].muted = true;
-        GetMainConsole().console(sprite[targets[i]].player->name + " is muted", client_message_color);
+        GetMainConsole().console(sprite[targets[i]].player->name + " is muted",
+                                 client_message_color);
     }
 }
 
@@ -189,7 +197,8 @@ void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
     for (i = 0; i <= high(targets); i++)
     {
         sprite[targets[i]].muted = false;
-        GetMainConsole().console(sprite[targets[i]].player->name + " is unmuted", client_message_color);
+        GetMainConsole().console(sprite[targets[i]].player->name + " is unmuted",
+                                 client_message_color);
     }
 }
 
@@ -277,6 +286,8 @@ void commanddemotick(std::vector<std::string> &args, std::uint8_t sender)
     else
         demoplayer.position(maintickcounter + strtointdef(args[1], 0));
 }
+
+} // namespace
 
 void initclientcommands()
 {

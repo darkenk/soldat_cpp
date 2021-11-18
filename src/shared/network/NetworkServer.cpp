@@ -11,6 +11,10 @@
 #include "NetworkServerSprite.hpp"
 #include "NetworkServerThing.hpp"
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 // We"re assigning a dummy player class to all sprites that are currently not being controlled
 // by a player. This avoids nasty surprises with older code that reads .Player despite .Active
 // being false. A player object is swapped in by CreateSprite as needed. For bots we simply leave
@@ -32,13 +36,17 @@ std::int32_t pingticksadd = 0;
 
 auto LOG_NET = "network";
 
+namespace
+{
 void ProcessEventsCallback(PSteamNetConnectionStatusChangedCallback_t pInfo)
 {
-    GetNetwork()->ProcessEvents(pInfo);
+    GetServerNetwork()->ProcessEvents(pInfo);
 }
+} // namespace
 
 tservernetwork::tservernetwork(std::string Host, std::uint32_t Port)
 {
+    NetworkingUtils->SetGlobalCallback_SteamNetConnectionStatusChanged(&ProcessEventsCallback);
     SteamNetworkingIPAddr ServerAddress;
     SteamNetworkingConfigValue_t InitSettings;
     // std::array<Char, 128> TempIP;
@@ -372,7 +380,7 @@ bool InitNetworkServer(const std::string &Host, uint32_t Port)
     return gUDP != nullptr;
 }
 
-tservernetwork *GetNetwork()
+tservernetwork *GetServerNetwork()
 {
     return gUDP;
 }

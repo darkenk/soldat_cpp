@@ -22,8 +22,6 @@ TPlayers players;
 std::int32_t playersnum, botsnum, spectatorsnum;
 PascalArray<std::int32_t, 1, 4> playersteamnum;
 
-extern void ProcessEventsCallback(PSteamNetConnectionStatusChangedCallback_t pInfo);
-
 void DebugNet(ESteamNetworkingSocketsDebugOutputType nType, const char *pszMsg)
 {
     LogDebug("network", "{}", pszMsg);
@@ -41,8 +39,6 @@ TNetwork::TNetwork()
 
     NetworkingSockets = SteamNetworkingSockets();
     NetworkingUtils = SteamNetworkingUtils();
-
-    NetworkingUtils->SetGlobalCallback_SteamNetConnectionStatusChanged(&ProcessEventsCallback);
 
     NetworkingUtils->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg,
                                             &DebugNet);

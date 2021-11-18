@@ -27,11 +27,17 @@
 #include <array>
 #include <steam/steamnetworkingsockets.h>
 
+//clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 constexpr auto PATH_MAX = 4095;
 
 bool progready = false;
+namespace
+{
 std::string basedirectory;
-std::string userdirectory;
+}
 
 tstringlist killlog;
 std::string killlogfilename;
@@ -42,7 +48,6 @@ CVarInt log_level;
 CVarInt log_filesupdate;
 CVarBool log_timestamp;
 
-CVarBool fs_localmount;
 CVarString fs_mod;
 CVarBool fs_portable;
 CVarString fs_basepath;
@@ -123,17 +128,15 @@ CVarString sv_website;
 CVarBool ac_enable;
 #endif
 #endif
+
 // config stuff
 std::string serverip = "127.0.0.1";
 std::int32_t serverport = 23073;
 std::int32_t bonusfreq = 3600;
-PascalArray<std::int8_t, -1, 15> weaponactive;
 
 tstringlist mapslist;
 
 std::int8_t lastplayer;
-
-std::array<tmsg_bulletsnapshot, max_sprites> oldbulletsnapshotmsg;
 
 // Mute array
 PascalArray<std::string, 1, max_players> mutelist;
@@ -161,18 +164,12 @@ std::int32_t AdminIPCounter = 0;
 
 std::int32_t waverespawntime, waverespawncounter;
 
-std::int32_t weaponsingame;
-
 std::array<std::int8_t, max_sprites> bulletwarningcount;
 std::array<std::int8_t, max_sprites> cheattag;
 
 #ifdef RCON
 TAdminServer AdminServer; // TIdTCPServer;
 #endif
-// bullet shot stats
-float shotdistance;
-float shotlife;
-std::int32_t shotricochet;
 
 std::int32_t htftime = Constants::HTF_SEC_POINT;
 
@@ -189,7 +186,7 @@ std::string ModDir = "";
 #if 0
 tservernetwork<Config::GetModule()> *UDP;
 #endif
-tservernetwork *GetNetwork();
+tservernetwork *GetServerNetwork();
 #if 0
 TLobbyThread LobbyThread;
 #endif
@@ -760,7 +757,7 @@ void ShutDown()
     SysUtils.DeleteFile(userdirectory + "logs/" + sv_pidfilename);
 #endif
 
-    if (GetNetwork() != nullptr)
+    if (GetServerNetwork() != nullptr)
     {
         serverdisconnect();
 
@@ -1062,7 +1059,7 @@ void startserver()
 
     // Weapons
     weaponsingame = 0;
-    for (i = 0; i < 15; i++)
+    for (i = 1; i < 15; i++)
     {
         if (weaponactive[i] == 1)
             weaponsingame++;
@@ -1200,11 +1197,12 @@ void startserver()
 
     InitNetworkServer(CVar::net_ip, CVar::net_port);
 
-    if (GetNetwork()->Active() == true)
+    if (GetServerNetwork()->Active() == true)
     {
         WriteLn("[NET] Game networking initialized.");
-        auto addr = GetNetwork()->Address();
-        WriteLn("[NET] Server is listening on " + GetNetwork()->GetStringAddress(&addr, true));
+        auto addr = GetServerNetwork()->Address();
+        WriteLn("[NET] Server is listening on " +
+                GetServerNetwork()->GetStringAddress(&addr, true));
     }
     else
     {
@@ -1214,7 +1212,7 @@ void startserver()
         return;
     }
 
-    serverport = GetNetwork()->Port();
+    serverport = GetServerNetwork()->Port();
 
     if (CVar::fileserver_enable)
     {

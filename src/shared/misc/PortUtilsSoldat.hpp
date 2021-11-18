@@ -29,7 +29,9 @@ class pchar final
 };
 
 template <typename Tp, std::int32_t StartIndex, std::int32_t EndIndex>
-struct [[deprecated("PascalArray can start from -1")]] PascalArray
+// FIXME disable deprecation for now
+// struct [[deprecated("PascalArray can start from -1")]] PascalArray
+struct PascalArray
 {
   public:
     template <typename T>
