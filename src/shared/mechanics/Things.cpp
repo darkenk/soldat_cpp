@@ -26,7 +26,31 @@
 
 using std::numbers::pi;
 
-extern float grav;
+namespace
+{
+// float &grav = InitGlobalVariable<float, "grav">();
+
+auto &change = InitGlobalVariable<tanimation, "change">();
+auto &prone = InitGlobalVariable<tanimation, "prone">();
+auto &stand = InitGlobalVariable<tanimation, "stand">();
+
+auto &flagskeleton = InitGlobalVariable<particlesystem, "flagskeleton">();
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+auto &boxskeleton = InitGlobalVariable<particlesystem, "boxskeleton">();
+auto &paraskeleton = InitGlobalVariable<particlesystem, "paraskeleton">();
+auto &statskeleton = InitGlobalVariable<particlesystem, "statskeleton">();
+auto &rifleskeleton10 = InitGlobalVariable<particlesystem, "rifleskeleton10">();
+auto &rifleskeleton11 = InitGlobalVariable<particlesystem, "rifleskeleton11">();
+auto &rifleskeleton18 = InitGlobalVariable<particlesystem, "rifleskeleton18">();
+auto &rifleskeleton22 = InitGlobalVariable<particlesystem, "rifleskeleton22">();
+auto &rifleskeleton28 = InitGlobalVariable<particlesystem, "rifleskeleton28">();
+auto &rifleskeleton36 = InitGlobalVariable<particlesystem, "rifleskeleton36">();
+auto &rifleskeleton37 = InitGlobalVariable<particlesystem, "rifleskeleton37">();
+auto &rifleskeleton39 = InitGlobalVariable<particlesystem, "rifleskeleton39">();
+auto &rifleskeleton43 = InitGlobalVariable<particlesystem, "rifleskeleton43">();
+auto &rifleskeleton50 = InitGlobalVariable<particlesystem, "rifleskeleton50">();
+auto &rifleskeleton55 = InitGlobalVariable<particlesystem, "rifleskeleton55">();
+} // namespace
 
 std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::uint8_t n)
 
@@ -869,8 +893,8 @@ void tthing::update()
                                 sortplayers();
 #ifdef SERVER
                                 GetMainConsole().console(sprite[holdingsprite].player->name + ' ' +
-                                                        "scores for Alpha Team",
-                                                    alpha_message_color);
+                                                             "scores for Alpha Team",
+                                                         alpha_message_color);
                                 sprite[holdingsprite].player->scorespersecond += 1;
 #else
                                 bigmessage(_("Alpha Team Scores!"), capturectfmessagewait,
@@ -902,8 +926,8 @@ void tthing::update()
                                 sortplayers();
 #ifdef SERVER
                                 GetMainConsole().console(sprite[holdingsprite].player->name + ' ' +
-                                                        "scores for Bravo Team",
-                                                    bravo_message_color);
+                                                             "scores for Bravo Team",
+                                                         bravo_message_color);
                                 sprite[holdingsprite].player->scorespersecond += 1;
 #else
                                 bigmessage(_("Bravo Team Scores!"), capturectfmessagewait,

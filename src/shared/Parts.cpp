@@ -1,6 +1,7 @@
 // automatically converted
 
 #include "Parts.hpp"
+#include "misc/GlobalVariable.hpp"
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 
@@ -8,10 +9,28 @@
 #include "PhysFSExt.hpp"
 #include <physfs.h>
 
-particlesystem spriteparts, bulletparts, sparkparts, gostekskeleton, boxskeleton, flagskeleton,
-    paraskeleton, statskeleton, rifleskeleton10, rifleskeleton11, rifleskeleton18, rifleskeleton22,
-    rifleskeleton28, rifleskeleton36, rifleskeleton37, rifleskeleton39, rifleskeleton43,
-    rifleskeleton50, rifleskeleton55;
+namespace
+{
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
+auto &sparkparts = InitGlobalVariable<particlesystem, "sparkparts">();
+auto &gostekskeleton = InitGlobalVariable<particlesystem, "gostekskeleton">();
+auto &boxskeleton = InitGlobalVariable<particlesystem, "boxskeleton">();
+auto &flagskeleton = InitGlobalVariable<particlesystem, "flagskeleton">();
+auto &paraskeleton = InitGlobalVariable<particlesystem, "paraskeleton">();
+auto &statskeleton = InitGlobalVariable<particlesystem, "statskeleton">();
+auto &rifleskeleton10 = InitGlobalVariable<particlesystem, "rifleskeleton10">();
+auto &rifleskeleton11 = InitGlobalVariable<particlesystem, "rifleskeleton11">();
+auto &rifleskeleton18 = InitGlobalVariable<particlesystem, "rifleskeleton18">();
+auto &rifleskeleton22 = InitGlobalVariable<particlesystem, "rifleskeleton22">();
+auto &rifleskeleton28 = InitGlobalVariable<particlesystem, "rifleskeleton28">();
+auto &rifleskeleton36 = InitGlobalVariable<particlesystem, "rifleskeleton36">();
+auto &rifleskeleton37 = InitGlobalVariable<particlesystem, "rifleskeleton37">();
+auto &rifleskeleton39 = InitGlobalVariable<particlesystem, "rifleskeleton39">();
+auto &rifleskeleton43 = InitGlobalVariable<particlesystem, "rifleskeleton43">();
+auto &rifleskeleton50 = InitGlobalVariable<particlesystem, "rifleskeleton50">();
+auto &rifleskeleton55 = InitGlobalVariable<particlesystem, "rifleskeleton55">();
+} // namespace
 
 void particlesystem::doverlettimestep()
 {

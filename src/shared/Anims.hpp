@@ -29,16 +29,3 @@ class tanimation
 };
 
 void loadanimobjects(const std::string &moddir);
-
-extern tanimation run, stand, runback;
-extern tanimation jump, jumpside, roll, rollback;
-extern tanimation fall;
-extern tanimation crouch, crouchrun, crouchrunback;
-extern tanimation reload, throw_, recoil, shotgun, barret, smallrecoil, aimrecoil, handsuprecoil;
-extern tanimation clipin, clipout, slideback;
-extern tanimation change;
-extern tanimation throwweapon, weaponnone;
-extern tanimation punch, reloadbow, melee;
-extern tanimation cigar, match, smoke, wipe, groin, takeoff, victory, piss, mercy, mercy2, own;
-extern tanimation prone, getup, pronemove;
-extern tanimation aim, handsupaim;

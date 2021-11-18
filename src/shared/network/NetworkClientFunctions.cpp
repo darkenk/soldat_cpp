@@ -12,6 +12,11 @@
 #include "NetworkUtils.hpp"
 #include <physfs.h>
 
+namespace
+{
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+}
+
 void clienthandlevoteon(SteamNetworkingMessage_t *netmessage)
 {
     tmsg_voteon *voteonmsg;

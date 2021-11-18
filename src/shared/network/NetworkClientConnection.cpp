@@ -36,6 +36,11 @@
 /*#include "Sound.h"*/
 using string = std::string;
 
+namespace
+{
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+}
+
 // REQUEST GAME FROM SERVER
 void clientrequestgame()
 {

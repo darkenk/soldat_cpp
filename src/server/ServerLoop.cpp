@@ -44,6 +44,12 @@
 
 using string = std::string;
 
+namespace
+{
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
+} // namespace
+
 void apponidle()
 {
     std::int32_t maincontrol;

@@ -15,8 +15,15 @@
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
+#include "shared/misc/GlobalVariable.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include <cstdint>
+
+namespace
+{
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
+} // namespace
 
 std::int32_t idlecounter, oldmousex;
 

@@ -62,6 +62,14 @@ typedef std::set<std::int32_t> tgostekspriteset;
 std::array<tgosteksprite, GOSTEK_LAST> gosteksprites;
 tgostekspriteset gostekbase;
 
+namespace
+{
+auto &throw_ = InitGlobalVariable<tanimation, "throw_">();
+auto &wipe = InitGlobalVariable<tanimation, "wipe">();
+auto &reloadbow = InitGlobalVariable<tanimation, "reloadbow">();
+auto &takeoff = InitGlobalVariable<tanimation, "takeoff">();
+} // namespace
+
 void loaddefaults();
 
 static void include(tgostekspriteset &sprite, std::int32_t v)

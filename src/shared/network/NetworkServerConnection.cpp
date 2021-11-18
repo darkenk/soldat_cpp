@@ -24,6 +24,11 @@ std::array<std::array<std::int32_t, max_players>, 10> pingtime;
 std::array<std::uint8_t, max_players> pingsendcount;
 #endif
 
+namespace
+{
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+}
+
 #ifdef SERVER
 void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
 {

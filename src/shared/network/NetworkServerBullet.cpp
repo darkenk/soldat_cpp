@@ -7,6 +7,12 @@
 #include "../mechanics/Bullets.hpp"
 #include "NetworkUtils.hpp"
 
+namespace
+{
+auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
+auto &stand = InitGlobalVariable<tanimation, "stand">();
+} // namespace
+
 void serverbulletsnapshot(std::uint8_t i, std::uint8_t tonum, bool forced)
 {
     tmsg_bulletsnapshot bulletmsg;

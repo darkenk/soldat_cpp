@@ -28,6 +28,11 @@ std::int32_t sparkscount;
 
 using std::numbers::pi;
 
+namespace
+{
+auto &sparkparts = InitGlobalVariable<particlesystem, "sparkparts">();
+}
+
 std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
                          std::uint8_t sowner, std::int32_t life)
 {

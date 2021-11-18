@@ -16,17 +16,10 @@
 #include "NetworkUtils.hpp"
 #include <limits>
 
-/*#include "Steam.h"*/
-/*#include "SteamTypes.h"*/
-/*#include "Client.h"*/
-/*#include "NetworkUtils.h"*/
-/*#include "Game.h"*/
-/*#include "Demo.h"*/
-/*#include "ClientGame.h"*/
-/*#include "Sparks.h"*/
-/*#include "GameMenus.h"*/
-/*#include "InterfaceGraphics.h"*/
-/*#include "Sha1.h"*/
+namespace
+{
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+}
 
 void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
 {
@@ -152,27 +145,27 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
         {
         case team_none:
             GetMainConsole().console(wideformat(_("{} has joined the game"), (player.name)),
-                                enter_message_color);
+                                     enter_message_color);
             break;
         case team_alpha:
             GetMainConsole().console(wideformat(_("{} has joined alpha team"), (player.name)),
-                                alphaj_message_color);
+                                     alphaj_message_color);
             break;
         case team_bravo:
             GetMainConsole().console(wideformat(_("{} has joined bravo team"), (player.name)),
-                                bravoj_message_color);
+                                     bravoj_message_color);
             break;
         case team_charlie:
             GetMainConsole().console(wideformat(_("{} has joined charlie team"), (player.name)),
-                                charliej_message_color);
+                                     charliej_message_color);
             break;
         case team_delta:
             GetMainConsole().console(wideformat(_("{} has joined delta team"), (player.name)),
-                                deltaj_message_color);
+                                     deltaj_message_color);
             break;
         case team_spectator:
             GetMainConsole().console(wideformat(_("{} has joined as spectator"), (player.name)),
-                                deltaj_message_color);
+                                     deltaj_message_color);
             break;
         }
 }
@@ -287,13 +280,13 @@ void clienthandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
         break;
     case kick_ping:
         GetMainConsole().console(wideformat(_("{} has been ping kicked (for 15 minutes)"),
-                                       (sprite[playermsg->num].player->name)),
-                            client_message_color);
+                                            (sprite[playermsg->num].player->name)),
+                                 client_message_color);
         break;
     case kick_flooding:
         GetMainConsole().console(wideformat(_("{} has been flood kicked (for 5 minutes)"),
-                                       (sprite[playermsg->num].player->name)),
-                            client_message_color);
+                                            (sprite[playermsg->num].player->name)),
+                                 client_message_color);
         break;
     case kick_console:
         GetMainConsole().console(
@@ -302,28 +295,28 @@ void clienthandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
         break;
     case kick_connectcheat:
         GetMainConsole().console(wideformat(_("{} has been 'connect cheat' kicked"),
-                                       (sprite[playermsg->num].player->name)),
-                            client_message_color);
+                                            (sprite[playermsg->num].player->name)),
+                                 client_message_color);
         break;
     case kick_cheat:
         GetMainConsole().console(wideformat(_("{} has been kicked for possible cheat"),
-                                       (sprite[playermsg->num].player->name)),
-                            client_message_color);
+                                            (sprite[playermsg->num].player->name)),
+                                 client_message_color);
         break;
     case kick_voted:
         GetMainConsole().console(wideformat(_("{} has been voted to leave the game"),
-                                       (sprite[playermsg->num].player->name)),
-                            client_message_color);
+                                            (sprite[playermsg->num].player->name)),
+                                 client_message_color);
         break;
     case kick_ac:
         GetMainConsole().console(wideformat(_("{} has been kicked for Anti-Cheat violation"),
-                                       (sprite[playermsg->num].player->name)),
-                            client_message_color);
+                                            (sprite[playermsg->num].player->name)),
+                                 client_message_color);
         break;
     case kick_steamticket:
         GetMainConsole().console(wideformat(_("{} has been kicked for invalid Steam ticket"),
-                                       (sprite[playermsg->num].player->name)),
-                            client_message_color);
+                                            (sprite[playermsg->num].player->name)),
+                                 client_message_color);
         break;
     }
     if (voteactive)

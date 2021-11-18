@@ -32,6 +32,12 @@
 
 #include "shared/gfx.hpp"
 
+namespace
+{
+auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
+auto &sparkparts = InitGlobalVariable<particlesystem, "sparkparts">();
+} // namespace
+
 tgamerenderingparams gamerenderingparams;
 tgfxspritearray textures;
 

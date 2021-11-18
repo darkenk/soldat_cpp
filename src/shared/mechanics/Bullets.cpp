@@ -26,6 +26,13 @@
 
 using std::numbers::pi;
 
+namespace
+{
+auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+auto &throwweapon = InitGlobalVariable<tanimation, "throwweapon">();
+} // namespace
+
 std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int32_t sowner,
                           std::uint8_t n, float hitm, bool net, bool mustcreate,
                           std::uint16_t seed) // Seed = -1

@@ -17,6 +17,11 @@
 
 using string = std::string;
 
+namespace
+{
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+}
+
 PascalArray<tsoundsample, 1, max_samples> samp;
 std::vector<tscriptsound> scriptsamp;
 float volumeinternal = 0.5f;
@@ -474,7 +479,7 @@ void loadsounds(string moddir)
             samp[i] = loadsample((sfxpath + sample_files[i]), samp[i]);
             if (!samp[i].loaded)
                 GetMainConsole().console(string("Unable to load file ") + sfxpath + sample_files[i],
-                                    debug_message_color);
+                                         debug_message_color);
         }
     }
 }

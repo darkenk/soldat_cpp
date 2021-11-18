@@ -12,8 +12,20 @@
 #include "../gfx.hpp"
 #include "NetworkUtils.hpp"
 
+namespace
+{
 tmsg_clientspritesnapshot oldclientsnapshotmsg;
 tmsg_clientspritesnapshot_mov oldclientsnapshotmovmsg;
+
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
+auto &cigar = InitGlobalVariable<tanimation, "cigar">();
+auto &smoke = InitGlobalVariable<tanimation, "smoke">();
+auto &stand = InitGlobalVariable<tanimation, "stand">();
+auto &prone = InitGlobalVariable<tanimation, "prone">();
+auto &aim = InitGlobalVariable<tanimation, "aim">();
+
+} // namespace
 
 void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
 {
@@ -536,15 +548,15 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
     if (deathsnap->killer != i)
     {
         GetKillConsole().consolenum((sprite[deathsnap->killer].player->name) + " (" +
-                                   (inttostr(sprite[deathsnap->killer].player->kills)) + ')',
-                               col, k);
+                                        (inttostr(sprite[deathsnap->killer].player->kills)) + ')',
+                                    col, k);
         GetKillConsole().consolenum((sprite[i].player->name), col2, -255);
     }
     else
     {
         GetKillConsole().consolenum((sprite[deathsnap->killer].player->name) + " (" +
-                                   (inttostr(sprite[deathsnap->killer].player->kills)) + ')',
-                               spectator_d_message_color, k);
+                                        (inttostr(sprite[deathsnap->killer].player->kills)) + ')',
+                                    spectator_d_message_color, k);
     }
 
     // Explode - lag compensate

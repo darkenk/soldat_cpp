@@ -26,6 +26,13 @@ void decodekeys(tsprite &SpriteC, std::uint32_t Keys16);
 
 std::string ArrayToString(const char *c);
 
+namespace
+{
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+auto &change = InitGlobalVariable<tanimation, "change">();
+auto &throwweapon = InitGlobalVariable<tanimation, "throwweapon">();
+} // namespace
+
 #ifndef SERVER
 void playradiosound(std::uint8_t RadioID)
 {
@@ -148,8 +155,8 @@ bool verifypacket(std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t
     if (CVar::log_level > 1)
     {
         GetMainConsole().console("[NET] Received Packet (" + inttostr(PacketId) +
-                                ") Size:" + inttostr(ReceiveSize) + Dropped,
-                            debug_message_color);
+                                     ") Size:" + inttostr(ReceiveSize) + Dropped,
+                                 debug_message_color);
     }
     return Result;
 }
@@ -169,8 +176,8 @@ bool verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
     if (CVar::log_level > 1)
     {
         GetMainConsole().console("[NET] Received Packet (" + inttostr(PacketId) +
-                                ") Size:" + inttostr(ReceiveSize) + Dropped,
-                            debug_message_color);
+                                     ") Size:" + inttostr(ReceiveSize) + Dropped,
+                                 debug_message_color);
     }
     return Result;
 }
@@ -384,7 +391,7 @@ std::int32_t updateantiflood(std::string SrcIP)
         {
             addbannedip(SrcIP, "Flooding", Constants::TWENTY_MINUTES);
             GetMainConsole().console("IP number " + SrcIP + " banned for flooding",
-                                client_message_color);
+                                     client_message_color);
         }
     }
     return FloodID;

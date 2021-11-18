@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 project(SoldatCPP)
 cmake_minimum_required(VERSION 3.18)
 
+set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(THIRD_PARTY_OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/out/linux_x86/debug/third_party)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/GameNetworkingSockets-1.3.0/cmake/)

@@ -9,6 +9,11 @@
 
 std::array<tmsg_bulletsnapshot, max_sprites> oldbulletsnapshotmsg;
 
+namespace
+{
+auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
+}
+
 void clientsendbullet(std::uint8_t i)
 {
     tmsg_clientbulletsnapshot bulletmsg;

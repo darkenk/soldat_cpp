@@ -36,6 +36,58 @@ auto constexpr LOG = "sprites";
 
 using std::numbers::pi;
 
+namespace
+{
+auto &run = InitGlobalVariable<tanimation, "run">();
+auto &stand = InitGlobalVariable<tanimation, "stand">();
+auto &runback = InitGlobalVariable<tanimation, "runback">();
+auto &jump = InitGlobalVariable<tanimation, "jump">();
+auto &jumpside = InitGlobalVariable<tanimation, "jumpside">();
+auto &roll = InitGlobalVariable<tanimation, "roll">();
+auto &rollback = InitGlobalVariable<tanimation, "rollback">();
+auto &fall = InitGlobalVariable<tanimation, "fall">();
+auto &crouch = InitGlobalVariable<tanimation, "crouch">();
+auto &crouchrun = InitGlobalVariable<tanimation, "crouchrun">();
+auto &crouchrunback = InitGlobalVariable<tanimation, "crouchrunback">();
+auto &reload = InitGlobalVariable<tanimation, "reload">();
+auto &throw_ = InitGlobalVariable<tanimation, "throw_">();
+auto &recoil = InitGlobalVariable<tanimation, "recoil">();
+auto &shotgun = InitGlobalVariable<tanimation, "shotgun">();
+auto &barret = InitGlobalVariable<tanimation, "barret">();
+auto &smallrecoil = InitGlobalVariable<tanimation, "smallrecoil">();
+auto &aimrecoil = InitGlobalVariable<tanimation, "aimrecoil">();
+auto &handsuprecoil = InitGlobalVariable<tanimation, "handsuprecoil">();
+auto &clipin = InitGlobalVariable<tanimation, "clipin">();
+auto &clipout = InitGlobalVariable<tanimation, "clipout">();
+auto &slideback = InitGlobalVariable<tanimation, "slideback">();
+auto &change = InitGlobalVariable<tanimation, "change">();
+auto &throwweapon = InitGlobalVariable<tanimation, "throwweapon">();
+auto &weaponnone = InitGlobalVariable<tanimation, "weaponnone">();
+auto &punch = InitGlobalVariable<tanimation, "punch">();
+auto &reloadbow = InitGlobalVariable<tanimation, "reloadbow">();
+auto &melee = InitGlobalVariable<tanimation, "melee">();
+auto &cigar = InitGlobalVariable<tanimation, "cigar">();
+auto &match = InitGlobalVariable<tanimation, "match">();
+auto &smoke = InitGlobalVariable<tanimation, "smoke">();
+auto &wipe = InitGlobalVariable<tanimation, "wipe">();
+auto &groin = InitGlobalVariable<tanimation, "groin">();
+auto &takeoff = InitGlobalVariable<tanimation, "takeoff">();
+auto &victory = InitGlobalVariable<tanimation, "victory">();
+auto &piss = InitGlobalVariable<tanimation, "piss">();
+auto &mercy = InitGlobalVariable<tanimation, "mercy">();
+auto &mercy2 = InitGlobalVariable<tanimation, "mercy2">();
+auto &own = InitGlobalVariable<tanimation, "own">();
+auto &prone = InitGlobalVariable<tanimation, "prone">();
+auto &getup = InitGlobalVariable<tanimation, "getup">();
+auto &pronemove = InitGlobalVariable<tanimation, "pronemove">();
+auto &aim = InitGlobalVariable<tanimation, "aim">();
+auto &handsupaim = InitGlobalVariable<tanimation, "handsupaim">();
+
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
+auto &gostekskeleton = InitGlobalVariable<particlesystem, "gostekskeleton">();
+} // namespace
+
 std::int32_t createsprite(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::uint8_t n,
                           tplayer *player, bool transferownership)
 {
@@ -1436,9 +1488,9 @@ void tsprite::die(std::int32_t how, std::int32_t who, std::int32_t where, std::i
             {
                 sprite[who].player->tkwarnings += 1;
                 GetMainConsole().console(sprite[who].player->name + " Team Killed " + player->name +
-                                        " (Warning #" + inttostr(sprite[who].player->tkwarnings) +
-                                        ')',
-                                    game_message_color);
+                                             " (Warning #" +
+                                             inttostr(sprite[who].player->tkwarnings) + ')',
+                                         game_message_color);
                 serversendstringmessage(std::string("TK Warning #") +
                                             (inttostr(sprite[who].player->tkwarnings)) +
                                             ". Max Warnings: " + (inttostr(CVar::sv_warnings_tk)),
@@ -1665,9 +1717,10 @@ void tsprite::die(std::int32_t how, std::int32_t who, std::int32_t where, std::i
         if ((CVar::sv_echokills) && !(sprite[who].player->name == player->name))
         {
             GetMainConsole().console(std::string("(") + inttostr(sprite[who].player->team) + ") " +
-                                    sprite[who].player->name + " killed (" +
-                                    inttostr(player->team) + ") " + player->name + " with " + s,
-                                0);
+                                         sprite[who].player->name + " killed (" +
+                                         inttostr(player->team) + ") " + player->name + " with " +
+                                         s,
+                                     0);
         }
 #endif
 
@@ -3795,40 +3848,45 @@ void tsprite::changeteam(std::int32_t team)
             GetMainConsole().console(player->name + " has joined the game.", enter_message_color);
             break;
         case team_alpha:
-            GetMainConsole().console(player->name + " has joined alpha team.", alphaj_message_color);
+            GetMainConsole().console(player->name + " has joined alpha team.",
+                                     alphaj_message_color);
             break;
         case team_bravo:
-            GetMainConsole().console(player->name + " has joined bravo team.", bravoj_message_color);
+            GetMainConsole().console(player->name + " has joined bravo team.",
+                                     bravoj_message_color);
             break;
         case team_charlie:
-            GetMainConsole().console(player->name + " has joined charlie team.", charliej_message_color);
+            GetMainConsole().console(player->name + " has joined charlie team.",
+                                     charliej_message_color);
             break;
         case team_delta:
-            GetMainConsole().console(player->name + " has joined delta team.", deltaj_message_color);
+            GetMainConsole().console(player->name + " has joined delta team.",
+                                     deltaj_message_color);
             break;
         case team_spectator:
-            GetMainConsole().console(player->name + " has joined spectators.", deltaj_message_color);
+            GetMainConsole().console(player->name + " has joined spectators.",
+                                     deltaj_message_color);
             break;
 #else
         case team_none:
             GetMainConsole().console(wideformat(_("%s has joined the game."), player->name),
-                                enter_message_color);
+                                     enter_message_color);
             break;
         case team_alpha:
             GetMainConsole().console(wideformat(_("%s has joined alpha team"), player->name),
-                                alphaj_message_color);
+                                     alphaj_message_color);
             break;
         case team_bravo:
             GetMainConsole().console(wideformat(_("%s has joined bravo team"), player->name),
-                                bravoj_message_color);
+                                     bravoj_message_color);
             break;
         case team_charlie:
             GetMainConsole().console(wideformat(_("%s has joined charlie team"), player->name),
-                                charliej_message_color);
+                                     charliej_message_color);
             break;
         case team_delta:
             GetMainConsole().console(wideformat(_("%s has joined delta team"), player->name),
-                                deltaj_message_color);
+                                     deltaj_message_color);
             break;
 #endif
         }

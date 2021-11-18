@@ -127,6 +127,11 @@ std::uint64_t timeinmil, timeinmillast; // time in Milliseconds the computer has
 std::uint64_t timepassed;          // Time in Milliseconds the program has been running
 std::int32_t seconds, secondslast; // Seconds the program has been running
 
+namespace
+{
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+}
+
 using string = std::string;
 
 // Timing routine

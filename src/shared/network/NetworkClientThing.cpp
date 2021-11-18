@@ -13,6 +13,11 @@
 #include "NetworkClientSprite.hpp"
 #include "NetworkUtils.hpp"
 
+namespace
+{
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+}
+
 void clienthandleserverthingsnapshot(SteamNetworkingMessage_t *netmessage)
 {
     tmsg_serverthingsnapshot *thingsnap;

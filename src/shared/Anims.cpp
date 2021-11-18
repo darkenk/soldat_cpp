@@ -9,23 +9,86 @@
 #include "misc/PortUtilsSoldat.hpp"
 #include "physfs.h"
 
+template <typename T, PortUtils::StringLiteral VariableName, Config::Module M>
+T &InitGlobalVariable()
+{
+    static T global = {};
+    return global;
+}
+
+namespace
+{
 // from Client.hpp
-extern float grav;
+float &grav = InitGlobalVariable<float, "grav">();
 
-tanimation run, stand, runback;
-tanimation jump, jumpside, roll, rollback;
-tanimation fall;
-tanimation crouch, crouchrun, crouchrunback;
-tanimation reload, throw_, recoil, shotgun, barret, smallrecoil, aimrecoil, handsuprecoil;
-tanimation clipin, clipout, slideback;
-tanimation change;
-tanimation throwweapon, weaponnone;
-tanimation punch, reloadbow, melee;
-tanimation cigar, match, smoke, wipe, groin, takeoff, victory, piss, mercy, mercy2, own;
-tanimation prone, getup, pronemove;
-tanimation aim, handsupaim;
+auto &run = InitGlobalVariable<tanimation, "run">();
+auto &stand = InitGlobalVariable<tanimation, "stand">();
+auto &runback = InitGlobalVariable<tanimation, "runback">();
+auto &jump = InitGlobalVariable<tanimation, "jump">();
+auto &jumpside = InitGlobalVariable<tanimation, "jumpside">();
+auto &roll = InitGlobalVariable<tanimation, "roll">();
+auto &rollback = InitGlobalVariable<tanimation, "rollback">();
+auto &fall = InitGlobalVariable<tanimation, "fall">();
+auto &crouch = InitGlobalVariable<tanimation, "crouch">();
+auto &crouchrun = InitGlobalVariable<tanimation, "crouchrun">();
+auto &crouchrunback = InitGlobalVariable<tanimation, "crouchrunback">();
+auto &reload = InitGlobalVariable<tanimation, "reload">();
+auto &throw_ = InitGlobalVariable<tanimation, "throw_">();
+auto &recoil = InitGlobalVariable<tanimation, "recoil">();
+auto &shotgun = InitGlobalVariable<tanimation, "shotgun">();
+auto &barret = InitGlobalVariable<tanimation, "barret">();
+auto &smallrecoil = InitGlobalVariable<tanimation, "smallrecoil">();
+auto &aimrecoil = InitGlobalVariable<tanimation, "aimrecoil">();
+auto &handsuprecoil = InitGlobalVariable<tanimation, "handsuprecoil">();
+auto &clipin = InitGlobalVariable<tanimation, "clipin">();
+auto &clipout = InitGlobalVariable<tanimation, "clipout">();
+auto &slideback = InitGlobalVariable<tanimation, "slideback">();
+auto &change = InitGlobalVariable<tanimation, "change">();
+auto &throwweapon = InitGlobalVariable<tanimation, "throwweapon">();
+auto &weaponnone = InitGlobalVariable<tanimation, "weaponnone">();
+auto &punch = InitGlobalVariable<tanimation, "punch">();
+auto &reloadbow = InitGlobalVariable<tanimation, "reloadbow">();
+auto &melee = InitGlobalVariable<tanimation, "melee">();
+auto &cigar = InitGlobalVariable<tanimation, "cigar">();
+auto &match = InitGlobalVariable<tanimation, "match">();
+auto &smoke = InitGlobalVariable<tanimation, "smoke">();
+auto &wipe = InitGlobalVariable<tanimation, "wipe">();
+auto &groin = InitGlobalVariable<tanimation, "groin">();
+auto &takeoff = InitGlobalVariable<tanimation, "takeoff">();
+auto &victory = InitGlobalVariable<tanimation, "victory">();
+auto &piss = InitGlobalVariable<tanimation, "piss">();
+auto &mercy = InitGlobalVariable<tanimation, "mercy">();
+auto &mercy2 = InitGlobalVariable<tanimation, "mercy2">();
+auto &own = InitGlobalVariable<tanimation, "own">();
+auto &prone = InitGlobalVariable<tanimation, "prone">();
+auto &getup = InitGlobalVariable<tanimation, "getup">();
+auto &pronemove = InitGlobalVariable<tanimation, "pronemove">();
+auto &aim = InitGlobalVariable<tanimation, "aim">();
+auto &handsupaim = InitGlobalVariable<tanimation, "handsupaim">();
 
-const std::int32_t scale = 3;
+auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
+auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
+auto &sparkparts = InitGlobalVariable<particlesystem, "sparkparts">();
+auto &gostekskeleton = InitGlobalVariable<particlesystem, "gostekskeleton">();
+auto &boxskeleton = InitGlobalVariable<particlesystem, "boxskeleton">();
+auto &flagskeleton = InitGlobalVariable<particlesystem, "flagskeleton">();
+auto &paraskeleton = InitGlobalVariable<particlesystem, "paraskeleton">();
+auto &statskeleton = InitGlobalVariable<particlesystem, "statskeleton">();
+auto &rifleskeleton10 = InitGlobalVariable<particlesystem, "rifleskeleton10">();
+auto &rifleskeleton11 = InitGlobalVariable<particlesystem, "rifleskeleton11">();
+auto &rifleskeleton18 = InitGlobalVariable<particlesystem, "rifleskeleton18">();
+auto &rifleskeleton22 = InitGlobalVariable<particlesystem, "rifleskeleton22">();
+auto &rifleskeleton28 = InitGlobalVariable<particlesystem, "rifleskeleton28">();
+auto &rifleskeleton36 = InitGlobalVariable<particlesystem, "rifleskeleton36">();
+auto &rifleskeleton37 = InitGlobalVariable<particlesystem, "rifleskeleton37">();
+auto &rifleskeleton39 = InitGlobalVariable<particlesystem, "rifleskeleton39">();
+auto &rifleskeleton43 = InitGlobalVariable<particlesystem, "rifleskeleton43">();
+auto &rifleskeleton50 = InitGlobalVariable<particlesystem, "rifleskeleton50">();
+auto &rifleskeleton55 = InitGlobalVariable<particlesystem, "rifleskeleton55">();
+
+} // namespace
+
+constexpr std::int32_t scale = 3;
 
 void tanimation::doanimation()
 {

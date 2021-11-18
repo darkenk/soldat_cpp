@@ -49,8 +49,3 @@ class particlesystem
     void euler(std::int32_t i);
     void satisfyconstraintsfor(std::int32_t i);
 };
-
-extern particlesystem spriteparts, bulletparts, sparkparts, gostekskeleton, boxskeleton,
-    flagskeleton, paraskeleton, statskeleton, rifleskeleton10, rifleskeleton11, rifleskeleton18,
-    rifleskeleton22, rifleskeleton28, rifleskeleton36, rifleskeleton37, rifleskeleton39,
-    rifleskeleton43, rifleskeleton50, rifleskeleton55;

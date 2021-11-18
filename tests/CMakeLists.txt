@@ -2,6 +2,10 @@ include(GoogleTest)
 
 find_package(Threads REQUIRED)
 
+
+add_subdirectory(unit/shared)
+add_subdirectory(unit/shared/misc)
+
 include_directories(${GTEST_INCLUDE_DIR})
 include_directories(../src/client)
 include_directories(../src/shared)
