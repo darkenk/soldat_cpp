@@ -1,5 +1,5 @@
 #include "Client.hpp"
-#include "shared/Logging.hpp"
+#include "common/Logging.hpp"
 
 int main(int argc, const char *argv[])
 {

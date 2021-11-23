@@ -2,10 +2,10 @@
 
 #include "Weapons.hpp"
 #include "Constants.hpp"
-#include "Logging.hpp"
+#include "common/Logging.hpp"
 #include "gfx.hpp"
-#include "misc/PortUtils.hpp"
-#include "misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 /*#include "TraceLog.h"*/
 /*#include "Constants.h"*/
 /*#include "SysUtils.h"*/

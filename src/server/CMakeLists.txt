@@ -12,7 +12,6 @@ set(SHARED_SRC
     ../shared/Command.cpp
     ../shared/Cvar.cpp
     ../shared/Game.cpp
-    ../shared/Logging.cpp
     #../shared/PolyMap.cpp
     ../shared/Demo.cpp
     ../shared/Console.cpp
@@ -21,7 +20,6 @@ set(SHARED_SRC
     ../shared/MapFile.cpp
     ../shared/Parts.cpp
     ../shared/PolyMap.cpp
-    ../shared/Util.cpp
     ../shared/Waypoints.cpp
     ../shared/Vector.cpp
     ../shared/Weapons.cpp
@@ -33,7 +31,6 @@ set(SHARED_SRC
     ../shared/network/Net.cpp
     ../shared/network/NetworkServer.cpp
     ../shared/network/NetworkUtils.cpp
-    ../shared/misc/PortUtils.cpp
     ../shared/network/NetworkServerSprite.cpp
     ../shared/network/NetworkServerMessages.cpp
     ../shared/network/NetworkServerGame.cpp
@@ -43,21 +40,9 @@ set(SHARED_SRC
     ../shared/network/NetworkServerFunctions.cpp
     ../shared/network/NetworkServerHeartbeat.cpp
     ../shared/SharedConfig.cpp
-    ../shared/PhysFSExt.cpp
-    ../shared/misc/TIniFile.cpp
-    ../shared/misc/RandomGenerator.cpp
-    ../shared/misc/TFileStream.cpp
-    ../shared/misc/SHA1.cpp
-    ../shared/misc/SHA1Helper.cpp
     ../shared/misc/GlobalVariable.cpp
     ../shared/misc/GlobalVariableStorage.cpp
 )
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    # enable optimization for SHA1.cpp to boost startup of the game in debug mode
-    set_source_files_properties(../shared/misc/SHA1.cpp PROPERTIES COMPILE_FLAGS -O3)
-endif()
-
 
 add_executable(SoldatServer main.cpp ${SRC} ${SHARED_SRC})
 target_compile_definitions(SoldatServer PRIVATE SERVER=1)

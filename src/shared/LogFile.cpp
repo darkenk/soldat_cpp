@@ -1,8 +1,8 @@
 // automatically converted
 #include "LogFile.hpp"
 #include "Cvar.hpp"
-#include "Logging.hpp"
-#include "Util.hpp"
+#include "common/Logging.hpp"
+#include "common/Util.hpp"
 #include <cstdio>
 #include <filesystem>
 #include <fstream>

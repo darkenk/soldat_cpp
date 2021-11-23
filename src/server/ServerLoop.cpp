@@ -9,7 +9,7 @@
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/LogFile.hpp"
-#include "shared/Logging.hpp"
+#include "common/Logging.hpp"
 #include "shared/network/NetworkServer.hpp"
 #include "shared/network/NetworkServerConnection.hpp"
 #include "shared/network/NetworkServerGame.hpp"

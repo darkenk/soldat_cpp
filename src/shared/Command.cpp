@@ -10,8 +10,8 @@
 #endif
 #include "Cvar.hpp"
 #include "Game.hpp"
-#include "Logging.hpp"
-#include "misc/Config.hpp"
+#include "common/Logging.hpp"
+#include "common/misc/Config.hpp"
 #include <sstream>
 
 #include <filesystem>

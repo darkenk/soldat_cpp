@@ -3,7 +3,7 @@
 #include "../../client/GameRendering.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "../Logging.hpp"
+#include "common/Logging.hpp"
 #include "NetworkClientBullet.hpp"
 #include "NetworkClientConnection.hpp"
 #include "NetworkClientFunctions.hpp"

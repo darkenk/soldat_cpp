@@ -12,9 +12,9 @@
 #endif
 #include "Cvar.hpp"
 #include "MapFile.hpp"
-#include "Util.hpp"
-#include "misc/PortUtils.hpp"
-#include "misc/PortUtilsSoldat.hpp"
+#include "common/Util.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Game.hpp"
 #include "shared/Version.hpp"
 #include <filesystem>

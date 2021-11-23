@@ -20,8 +20,8 @@
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/gfx.hpp"
-#include "shared/misc/PortUtils.hpp"
-#include "shared/misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include <array>
 #include <numbers>
 #include <set>

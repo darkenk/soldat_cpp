@@ -2,7 +2,6 @@
 #include "../../server/Server.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "../Logging.hpp"
 #include "NetworkServerBullet.hpp"
 #include "NetworkServerConnection.hpp"
 #include "NetworkServerFunctions.hpp"
@@ -10,6 +9,7 @@
 #include "NetworkServerMessages.hpp"
 #include "NetworkServerSprite.hpp"
 #include "NetworkServerThing.hpp"
+#include "common/Logging.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"

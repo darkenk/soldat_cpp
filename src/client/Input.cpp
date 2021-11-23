@@ -1,8 +1,8 @@
 // automatically converted
 #include "Input.hpp"
-#include "shared/Logging.hpp"
-#include "shared/misc/PortUtils.hpp"
-#include "shared/misc/PortUtilsSoldat.hpp"
+#include "common/Logging.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 
 /*#include "Server.h"*/
 /*#include "Client.h"*/

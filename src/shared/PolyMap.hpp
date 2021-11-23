@@ -1,10 +1,10 @@
 #pragma once
 
 #include "MapFile.hpp"
-#include "Util.hpp"
 #include "Vector.hpp"
 #include "Waypoints.hpp"
-#include "misc/PortUtilsSoldat.hpp"
+#include "common/Util.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 
 // Polygon constants go here
 // ...

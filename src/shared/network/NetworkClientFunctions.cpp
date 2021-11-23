@@ -7,7 +7,7 @@
 #include "../../client/Sound.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "../misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "NetworkClientConnection.hpp"
 #include "NetworkUtils.hpp"
 #include <physfs.h>

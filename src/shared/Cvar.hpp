@@ -1,12 +1,13 @@
 #pragma once
 
 #include "misc/FlagSet.hpp"
+#include "misc/SoldatConfig.hpp"
 #include <cstdint>
 #include <map>
 #include <stdexcept>
 #include <string>
 
-template <typename T>
+template <typename T, Config::Module M = Config::GetModule()>
 bool FromString(const std::string_view &value, T &outValue) noexcept;
 
 enum class CVarFlags : std::uint32_t
@@ -32,7 +33,7 @@ struct EnableFlagSet<CVarFlags>
     static constexpr bool enable = true;
 };
 
-template <typename T>
+template <typename T, Config::Module M = Config::GetModule()>
 class CVarBase
 {
   public:
@@ -187,11 +188,11 @@ class CVarBase
     static Map CVars;
 };
 
-template <typename T>
-CVarBase<T> CVarBase<T>::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
+template <typename T, Config::Module M>
+CVarBase<T, M> CVarBase<T, M>::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
 
-template <typename T>
-typename CVarBase<T>::Map CVarBase<T>::CVars{};
+template <typename T, Config::Module M>
+typename CVarBase<T, M>::Map CVarBase<T, M>::CVars{};
 
 using CVarBool = CVarBase<bool>;
 using CVarString = CVarBase<std::string>;

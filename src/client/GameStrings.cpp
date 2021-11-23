@@ -1,7 +1,7 @@
 // automatically converted
 #include "GameStrings.hpp"
-#include "shared/misc/PortUtils.hpp"
-#include "shared/misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 
 #define ENABLE_STUBS 1
 

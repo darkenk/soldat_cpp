@@ -6,9 +6,9 @@
 #include "shared/Command.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
-#include "shared/Logging.hpp"
+#include "common/Logging.hpp"
 #include "shared/mechanics/Sprites.hpp"
-#include "shared/misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/network/NetworkServerMessages.hpp"
 #include <filesystem>
 

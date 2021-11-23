@@ -8,10 +8,10 @@
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "../Util.hpp"
 #include "../gfx.hpp"
-#include "../misc/PortUtils.hpp"
-#include "../misc/PortUtilsSoldat.hpp"
+#include "common/Util.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include <numbers>
 #include <set>
 

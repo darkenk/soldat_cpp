@@ -5,6 +5,7 @@ target_include_directories(SoldatGame PRIVATE
 target_link_libraries(SoldatGame
     SoldatClientLib
     SoldatServerLib
+    CommonLib
     SDL2::SDL2main
     SDL2::SDL2-static
     spdlog::spdlog

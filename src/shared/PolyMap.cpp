@@ -3,8 +3,8 @@
 #include "Calc.hpp"
 #include "Console.hpp"
 #include "Constants.hpp"
-#include "misc/PortUtils.hpp"
-#include "misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"

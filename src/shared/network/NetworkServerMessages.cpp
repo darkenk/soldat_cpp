@@ -5,9 +5,9 @@
 #include "../Command.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "../Logging.hpp"
+#include "common/Logging.hpp"
 #include "../misc/MemoryUtils.hpp"
-#include "../misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include <clocale>
 #include <cuchar>
 #include <steam/isteamnetworkingmessages.h>

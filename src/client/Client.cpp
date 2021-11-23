@@ -14,22 +14,22 @@
 #include "Input.hpp"
 #include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
+#include "common/Logging.hpp"
+#include "common/PhysFSExt.hpp"
+#include "common/Util.hpp"
+#include "common/misc/Config.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SHA1Helper.hpp"
+#include "common/misc/TIniFile.hpp"
 #include "shared/Command.hpp"
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/LogFile.hpp"
-#include "shared/Logging.hpp"
-#include "shared/PhysFSExt.hpp"
 #include "shared/PolyMap.hpp"
-#include "shared/Util.hpp"
 #include "shared/mechanics/Sprites.hpp"
-#include "shared/misc/Config.hpp"
-#include "shared/misc/PortUtils.hpp"
-#include "shared/misc/PortUtilsSoldat.hpp"
-#include "shared/misc/SHA1Helper.hpp"
-#include "shared/misc/TIniFile.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include <physfs.h>
@@ -505,7 +505,7 @@ void startgame(int argc, const char *argv[])
 
     LogDebugG("[PhysFS] Initializing system");
 
-    if (!PHYSFS_init(nullptr))
+    if (PHYSFS_isInit() == 0 && not PHYSFS_init(nullptr))
     {
         showmessage(("Could not initialize PhysFS. Try to reinstall the game."));
         return;

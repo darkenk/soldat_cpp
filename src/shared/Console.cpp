@@ -1,7 +1,7 @@
 // automatically converted
 #include "Console.hpp"
 #include "LogFile.hpp"
-#include "Logging.hpp"
+#include "common/Logging.hpp"
 #include "network/Net.hpp"
 #include "network/NetworkServerMessages.hpp"
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "misc/PortUtilsSoldat.hpp"
-#include "misc/SoldatConfig.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/misc/SoldatConfig.hpp"
 #include <array>
 #include <cstdint>
 #include <string>

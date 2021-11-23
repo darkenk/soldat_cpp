@@ -3,22 +3,23 @@
 #include "FileServer.hpp"
 #include "ServerCommands.hpp"
 #include "ServerHelper.hpp"
+#include "ServerLoop.hpp"
+#include "common/Logging.hpp"
+#include "common/PhysFSExt.hpp"
+#include "common/Util.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/TFileStream.hpp"
 #include "shared/Command.hpp"
 #include "shared/Console.hpp"
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/LogFile.hpp"
-#include "shared/Logging.hpp"
-#include "shared/PhysFSExt.hpp"
 #include "shared/SharedConfig.hpp"
-#include "shared/Util.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
-#include "shared/misc/PortUtils.hpp"
-#include "shared/misc/PortUtilsSoldat.hpp"
 #include "shared/misc/SignalUtils.hpp"
-#include "shared/misc/TFileStream.hpp"
 #include "shared/network/NetworkServer.hpp"
 #include "shared/network/NetworkServerConnection.hpp"
 #include "shared/network/NetworkServerGame.hpp"
@@ -26,6 +27,7 @@
 #include "shared/network/NetworkUtils.hpp"
 #include <array>
 #include <steam/steamnetworkingsockets.h>
+#include <thread>
 
 //clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -528,7 +530,7 @@ void ActivateServer(int argc, const char *argv[])
     SetCurrentDir(userdirectory);
 #endif
 
-    if (not PHYSFS_init(pchar(ParamStr(0))))
+    if (PHYSFS_isInit() == 0 && not PHYSFS_init(pchar(ParamStr(0))))
     {
         WriteLn("Could not initialize PhysFS.");
         progready = false;
@@ -743,7 +745,7 @@ void ActivateServer(int argc, const char *argv[])
     writelogfile(&GetKillLog(), GetKillLogFilename());
     writelogfile(gamelog, consolelogfilename);
 
-    rundeferredcommands();
+    //    rundeferredcommands();
 }
 
 void ShutDown()
@@ -1503,3 +1505,19 @@ initialization
 // SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow,
 // exPrecision]);
 #endif
+
+void RunServer(int argc, const char *argv[])
+{
+    ActivateServer(argc, argv);
+    writepid();
+
+    if (progready)
+    {
+        startserver();
+    }
+    while (progready)
+    {
+        apponidle();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+}

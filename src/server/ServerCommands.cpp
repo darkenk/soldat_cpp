@@ -7,7 +7,7 @@
 #include "shared/Command.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
-#include "shared/misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/network/NetworkServer.hpp"
 #include "shared/network/NetworkServerConnection.hpp"
 #include "shared/network/NetworkServerFunctions.hpp"

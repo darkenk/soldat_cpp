@@ -1,4 +1,4 @@
-#include "shared/PhysFSExt.hpp"
+#include "common/PhysFSExt.hpp"
 #include <filesystem>
 #include <gtest/gtest.h>
 

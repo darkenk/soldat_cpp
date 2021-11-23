@@ -24,7 +24,8 @@ class tthingcollision
     std::uint32_t cooldownend;
 };
 
-class tthing
+template <Config::Module M = Config::GetModule()>
+class Thing
 {
   public:
     bool active;
@@ -68,7 +69,13 @@ class tthing
 #endif
 };
 
+template <Config::Module M = Config::GetModule()>
 std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::uint8_t n);
+template <Config::Module M = Config::GetModule()>
 tthingcollision thingcollision(std::uint8_t thingnum, std::uint32_t cooldownend);
+template <Config::Module M = Config::GetModule()>
 bool spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num);
+template <Config::Module M = Config::GetModule()>
 bool randomizestart(tvector2 &start, std::uint8_t team);
+
+using tthing = Thing<Config::GetModule()>;

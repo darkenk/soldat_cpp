@@ -2,11 +2,11 @@
 #include "../Console.hpp"
 #include "../Cvar.hpp"
 #include "../Game.hpp"
-#include "../Logging.hpp"
+#include "common/Logging.hpp"
 #include "../Version.hpp"
 #include "../Weapons.hpp"
 #include "../mechanics/Sprites.hpp"
-#include "../misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include <algorithm>
 #include <cstring>
 #include <string>

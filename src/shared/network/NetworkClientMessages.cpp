@@ -6,7 +6,7 @@
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
 #include "../misc/MemoryUtils.hpp"
-#include "../misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "NetworkUtils.hpp"
 #include <codecvt>
 #include <locale>

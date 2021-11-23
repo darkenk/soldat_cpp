@@ -6,7 +6,7 @@
 #include "../Waypoints.hpp"
 #include "../Weapons.hpp"
 #include "../mechanics/Sprites.hpp"
-#include "PortUtilsSoldat.hpp"
+#include "GlobalVariable.hpp"
 
 namespace
 {

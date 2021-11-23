@@ -13,7 +13,7 @@
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
-#include "shared/Logging.hpp"
+#include "common/Logging.hpp"
 #include "shared/network/NetworkClientBullet.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientGame.hpp"

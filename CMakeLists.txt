@@ -45,6 +45,7 @@ find_package(spdlog REQUIRED)
 
 #shared library must be compiled with client or server defines
 #add_subdirectory(src/shared)
+add_subdirectory(src/common)
 add_subdirectory(src/client)
 add_subdirectory(src/server)
 add_subdirectory(src/game)

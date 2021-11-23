@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../misc/PortUtilsSoldat.hpp"
 #include "../misc/SoldatConfig.hpp"
-#include "shared/Util.hpp"
+#include "common/Util.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Vector.hpp"
 #include "shared/Version.hpp"
 #include "shared/Weapons.hpp"

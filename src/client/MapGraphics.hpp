@@ -2,7 +2,7 @@
 
 #include "Gfx.hpp"
 #include "shared/MapFile.hpp"
-#include "shared/Util.hpp"
+#include "common/Util.hpp"
 #include "shared/Vector.hpp"
 
 #include <array>

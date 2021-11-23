@@ -2,11 +2,11 @@
 #include "Anims.hpp"
 
 #include "LogFile.hpp"
-#include "Logging.hpp"
 #include "Parts.hpp"
-#include "PhysFSExt.hpp"
-#include "misc/PortUtils.hpp"
-#include "misc/PortUtilsSoldat.hpp"
+#include "common/Logging.hpp"
+#include "common/PhysFSExt.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "physfs.h"
 
 // clang-format off

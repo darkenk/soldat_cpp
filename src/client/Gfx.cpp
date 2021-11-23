@@ -4,10 +4,10 @@
 
 #include "BinPack.hpp"
 #include "Input.hpp"
-#include "shared/Logging.hpp"
+#include "common/Logging.hpp"
 #include "shared/misc/FontAtlas.hpp"
-#include "shared/misc/PortUtils.hpp"
-#include "shared/misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/misc/SignalUtils.hpp"
 #include <SDL2/SDL.h>
 #include <cmath>
@@ -21,7 +21,7 @@
 #include <stb_image_resize.h>
 #include <stb_image_write.h>
 // clang-format on
-#include "shared/PhysFSExt.hpp"
+#include "common/PhysFSExt.hpp"
 #include "shared/misc/MemoryUtils.hpp"
 #include <algorithm>
 #include <glad/glad.h>

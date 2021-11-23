@@ -9,7 +9,7 @@
 #include "shared/Constants.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
-#include "shared/Util.hpp"
+#include "common/Util.hpp"
 #include "shared/network/NetworkClientMessages.hpp"
 #include <regex>
 

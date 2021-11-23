@@ -1,11 +1,5 @@
 #pragma once
 
-/*#include "Variants.h"*/
-/*#include "Classes.h"*/
-/*#include "SysUtils.h"*/
-/*#include "Sha1.h"*/
-/*#include "typinfo.h"*/
-
 #include "misc/SHA1Helper.hpp"
 #include <array>
 #include <cstdint>
@@ -67,9 +61,11 @@ std::string md5stringhelper(std::string text);
 bool createdirifmissing(const std::string &dir);
 bool createfileifmissing(const std::string &filename);
 std::string getsize(int64_t bytes);
-tsha1digest getmapchecksum(const tmapinfo &map);
-bool getmapinfo(std::string mapname, std::string directory, tmapinfo &mapinfo); // dk out MapInfo
-bool verifymapchecksum(const tmapinfo &map, const tsha1digest &checksum);
+tsha1digest getmapchecksum(const tmapinfo &map, const tsha1digest &defaultgamemodchecksum);
+bool getmapinfo(const std::string &mapname, std::string &directory,
+                tmapinfo &mapinfo); // dk out MapInfo
+bool verifymapchecksum(const tmapinfo &map, const tsha1digest &checksum,
+                       const tsha1digest &defaultgamemodchecksum);
 #ifdef DEVELOPMENT
 void tostr(const void *avalue, ptypeinfo atypeinfo);
 #endif

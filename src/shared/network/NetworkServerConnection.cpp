@@ -6,7 +6,7 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../LogFile.hpp"
-#include "../Logging.hpp"
+#include "common/Logging.hpp"
 #include "../gfx.hpp"
 #include "../mechanics/Sprites.hpp"
 #include "../mechanics/Things.hpp"

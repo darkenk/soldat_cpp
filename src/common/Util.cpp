@@ -1,23 +1,10 @@
 // automatically converted
 #include "Util.hpp"
+#include "misc/PortUtils.hpp"
+#include "misc/PortUtilsSoldat.hpp"
 #include <filesystem>
 #include <fstream>
 #include <physfs.h>
-
-#include "misc/PortUtils.hpp"
-#include "misc/PortUtilsSoldat.hpp"
-
-/*#include "Server.h"*/
-/*#include "Client.h"*/
-/*#include "Constants.h"*/
-/*#include "PhysFS.h"*/
-/*#include "Md5.h"*/
-/*#include "Game.h"*/
-/*#include "Steam.h"*/
-
-#include "Game.hpp"
-
-tsha1digest gamemodchecksum;
 
 std::int32_t charcount(const char character, const std::string &str1)
 {
@@ -171,16 +158,17 @@ std::string getsize(std::int64_t bytes)
     return std::to_string(filesize) + " Kb";
 }
 
-bool verifymapchecksum(const tmapinfo &map, const tsha1digest &checksum)
+bool verifymapchecksum(const tmapinfo &map, const tsha1digest &checksum,
+                       const tsha1digest &defaultgamemodchecksum)
 {
-    return getmapchecksum(map) == checksum;
+    return getmapchecksum(map, defaultgamemodchecksum) == checksum;
 }
 
-tsha1digest getmapchecksum(const tmapinfo &map)
+tsha1digest getmapchecksum(const tmapinfo &map, const tsha1digest &defaultgamemodchecksum)
 {
     if (PHYSFS_exists((pchar)(std::string("maps/") + map.mapname + ".pms")))
     {
-        return gamemodchecksum;
+        return defaultgamemodchecksum;
     }
     else if (fileexists(map.path))
     {
@@ -207,7 +195,8 @@ std::vector<std::string> split_string(std::string s, std::string delimiter)
     return res;
 }
 
-bool getmapinfo(std::string mapname, std::string directory, tmapinfo &mapinfo) // dk out MapInfo
+bool getmapinfo(const std::string &mapname, std::string &directory,
+                tmapinfo &mapinfo) // dk out MapInfo
 {
     tstringarray split;
     std::uint64_t itemid;
@@ -371,8 +360,8 @@ void tostr(const void *avalue, ptypeinfo atypeinfo)
         {
             void &with = gettypedata(atypeinfo);
 
-#ifndef VER3_0 // ifdef needed because of a field rename in trunk (ManagedFldCount to
-               // TotalFieldCount)
+#ifndef VER3_0 // ifdef needed because of a field rename in trunk (ManagedFldCount to \
+    // TotalFieldCount)
             firstfield = pmanagedfield(std::uint8_t*(&totalfieldcount) + sizeof(totalfieldcount));
             for (i = 0; i <= totalfieldcount - 1; i++)
 #else

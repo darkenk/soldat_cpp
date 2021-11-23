@@ -10,10 +10,10 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
-#include "../Logging.hpp"
+#include "common/Logging.hpp"
 #include "../gfx.hpp"
 #include "../misc/BitStream.hpp"
-#include "../misc/PortUtils.hpp"
+#include "common/misc/PortUtils.hpp"
 #include "NetworkClientSprite.hpp"
 #include "NetworkUtils.hpp"
 #include <physfs.h>

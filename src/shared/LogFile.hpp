@@ -7,7 +7,7 @@
 #include <mutex>
 #include <string>
 
-#include "misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "misc/SoldatConfig.hpp"
 
 void newlogfile(tstringlist *f, const std::string &name);

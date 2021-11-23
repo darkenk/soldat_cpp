@@ -2,7 +2,7 @@
 
 #include "Waypoints.hpp"
 #include "Calc.hpp"
-#include "Logging.hpp"
+#include "common/Logging.hpp"
 #include <fstream>
 
 std::ifstream &operator>>(std::ifstream &in, twaypoint &waypoint)

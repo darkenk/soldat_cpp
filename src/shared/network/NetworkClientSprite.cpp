@@ -8,7 +8,7 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
-#include "../Logging.hpp"
+#include "common/Logging.hpp"
 #include "../gfx.hpp"
 #include "NetworkUtils.hpp"
 

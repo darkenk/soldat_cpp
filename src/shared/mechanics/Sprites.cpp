@@ -19,9 +19,9 @@
 #endif
 #include "../Cvar.hpp"
 #include "../Game.hpp"
-#include "../Logging.hpp"
-#include "../misc/PortUtils.hpp"
-#include "../misc/PortUtilsSoldat.hpp"
+#include "common/Logging.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "Control.hpp"
 #include <client/ClientGame.hpp>
 #include <numbers>

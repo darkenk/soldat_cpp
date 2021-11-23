@@ -2,25 +2,24 @@
 
 #include "Sound.hpp"
 #include "Client.hpp"
+#include "common/PhysFSExt.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
-#include "shared/Logging.hpp"
+#include "common/Logging.hpp"
 #include "shared/Parts.hpp"
-#include "shared/PhysFSExt.hpp"
-#include "shared/misc/PortUtils.hpp"
-#include "shared/misc/PortUtilsSoldat.hpp"
 #include <SDL2/SDL.h>
 #include <array>
 #include <soloud.h>
 #include <soloud_wav.h>
 #include <string>
 
-using string = std::string;
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
-namespace
-{
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
-}
+using string = std::string;
 
 PascalArray<tsoundsample, 1, max_samples> samp;
 std::vector<tscriptsound> scriptsamp;

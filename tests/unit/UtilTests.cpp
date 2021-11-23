@@ -1,4 +1,4 @@
-#include "Util.hpp"
+#include "common/Util.hpp"
 #include "gtest/gtest.h"
 
 TEST(CompilationTest, UtilTest)

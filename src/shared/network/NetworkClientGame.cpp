@@ -12,7 +12,7 @@
 #include "../GameStrings.hpp"
 #include "../gfx.hpp"
 #include "../mechanics/Sprites.hpp"
-#include "../misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "NetworkUtils.hpp"
 #include <limits>
 

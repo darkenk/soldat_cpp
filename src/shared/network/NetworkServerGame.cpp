@@ -3,10 +3,10 @@
 #include "../../server/Server.hpp"
 #include "../../server/ServerHelper.hpp"
 #include "../Game.hpp"
-#include "../Util.hpp"
 #include "NetworkServerConnection.hpp"
 #include "NetworkServerMessages.hpp"
 #include "NetworkUtils.hpp"
+#include "common/Util.hpp"
 
 #include <string>
 
@@ -110,7 +110,7 @@ void servermapchange(std::uint8_t id)
     mapchangemsg.header.id = msgid_mapchange;
     mapchangemsg.counter = mapchangecounter;
     strcpy(mapchangemsg.mapname.data(), mapchange.name.data());
-    mapchecksum = getmapchecksum(mapchange);
+    mapchecksum = getmapchecksum(mapchange, gamemodchecksum);
     mapchangemsg.mapchecksum = mapchecksum;
 
     for (i = 1; i <= max_players; i++)
@@ -134,7 +134,7 @@ void servermapchange(std::uint8_t id)
     }
     else if ((sprite[id].active) && (sprite[id].player->controlmethod == human))
         GetServerNetwork()->senddata(&mapchangemsg, sizeof(mapchangemsg), sprite[id].player->peer,
-                               k_nSteamNetworkingSend_Reliable);
+                                     k_nSteamNetworkingSend_Reliable);
 }
 
 void serverflaginfo(std::uint8_t style, std::uint8_t who)
@@ -149,7 +149,7 @@ void serverflaginfo(std::uint8_t style, std::uint8_t who)
     for (i = 1; i <= max_players; i++)
         if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
             GetServerNetwork()->senddata(&flagmsg, sizeof(flagmsg), sprite[i].player->peer,
-                                   k_nSteamNetworkingSend_Reliable);
+                                         k_nSteamNetworkingSend_Reliable);
 }
 
 void serveridleanimation(std::uint8_t num, std::int16_t style)
@@ -164,7 +164,7 @@ void serveridleanimation(std::uint8_t num, std::int16_t style)
     for (i = 1; i <= max_players; i++)
         if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
             GetServerNetwork()->senddata(&idlemsg, sizeof(idlemsg), sprite[i].player->peer,
-                                   k_nSteamNetworkingSend_Reliable);
+                                         k_nSteamNetworkingSend_Reliable);
 }
 
 void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string targetname,
@@ -183,7 +183,7 @@ void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string ta
     for (i = 1; i <= max_players; i++)
         if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
             GetServerNetwork()->senddata(&votemsg, sizeof(votemsg), sprite[i].player->peer,
-                                   k_nSteamNetworkingSend_Reliable);
+                                         k_nSteamNetworkingSend_Reliable);
 }
 
 void serversendvoteoff()
@@ -196,7 +196,7 @@ void serversendvoteoff()
     for (i = 1; i <= max_players; i++)
         if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
             GetServerNetwork()->senddata(&votemsg, sizeof(votemsg), sprite[i].player->peer,
-                                   k_nSteamNetworkingSend_Reliable);
+                                         k_nSteamNetworkingSend_Reliable);
 }
 
 void serverhandlevotekick(SteamNetworkingMessage_t *netmessage)
@@ -290,7 +290,7 @@ void serverhandlevotemap(SteamNetworkingMessage_t *netmessage)
     strcpy(votemapreplymsg.mapname.data(), mapslist[votemapmsg->mapid].data());
 
     GetServerNetwork()->senddata(&votemapreplymsg, sizeof(votemapreplymsg), sprite[i].player->peer,
-                           k_nSteamNetworkingSend_Reliable);
+                                 k_nSteamNetworkingSend_Reliable);
 }
 
 void serverhandlechangeteam(SteamNetworkingMessage_t *netmessage)
@@ -323,7 +323,7 @@ void serversyncmsg(std::int32_t tonum)
         if ((tonum == 0) || (i == tonum))
             if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
                 GetServerNetwork()->senddata(&syncmsg, sizeof(syncmsg), sprite[i].player->peer,
-                                       k_nSteamNetworkingSend_Reliable);
+                                             k_nSteamNetworkingSend_Reliable);
 }
 
 #ifdef STEAM

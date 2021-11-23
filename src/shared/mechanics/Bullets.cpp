@@ -18,9 +18,9 @@
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "../Logging.hpp"
-#include "../Util.hpp"
 #include "../gfx.hpp"
+#include "common/Logging.hpp"
+#include "common/Util.hpp"
 #include <limits>
 #include <numbers>
 

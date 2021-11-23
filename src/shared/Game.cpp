@@ -28,15 +28,15 @@
 #else
 #include "../server/Server.hpp"
 #include "../server/ServerHelper.hpp"
-#include "shared/Logging.hpp"
+#include "common/Logging.hpp"
 #include "shared/network/NetworkServerGame.hpp"
 #include "shared/network/NetworkServerSprite.hpp"
 #endif
 #include "Cvar.hpp"
 #include "Demo.hpp"
-#include "Util.hpp"
-#include "misc/PortUtils.hpp"
-#include "misc/PortUtilsSoldat.hpp"
+#include "common/Util.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include <chrono>
 
 //clang-format off
@@ -494,7 +494,7 @@ void changemap()
     demorecorder.stoprecord();
 
     if (getmapinfo(mapchangename, userdirectory, mapchangestatus) &&
-        verifymapchecksum(mapchangestatus, mapchangechecksum))
+        verifymapchecksum(mapchangestatus, mapchangechecksum, gamemodchecksum))
     {
         if (!map.loadmap(mapchangestatus, CVar::r_forcebg, CVar::r_forcebg_color1,
                          CVar::r_forcebg_color2))

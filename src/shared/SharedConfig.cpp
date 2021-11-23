@@ -4,10 +4,10 @@
 #include "../server/Server.hpp"
 #include "Constants.hpp"
 #include "Game.hpp"
-#include "Logging.hpp"
-#include "Util.hpp"
+#include "common/Logging.hpp"
 #include "Weapons.hpp"
-#include "misc/TIniFile.hpp"
+#include "common/Util.hpp"
+#include "common/misc/TIniFile.hpp"
 #include "network/Net.hpp"
 #include "shared/gfx.hpp"
 #include <sstream>

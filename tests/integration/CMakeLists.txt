@@ -13,8 +13,8 @@ file(ARCHIVE_CREATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/test_archive.zip
 )
 
 add_executable(PhysFSTest
-    physfs/PhysFSTest.cpp ${SRC_DIR}/shared/PhysFSExt.cpp
-    ${SRC_DIR}/shared/misc/PortUtils.cpp
+    physfs/PhysFSTest.cpp ${SRC_DIR}/common/PhysFSExt.cpp
+    ${SRC_DIR}/common/misc/PortUtils.cpp
 )
 
 gtest_discover_tests(PhysFSTest)
@@ -32,6 +32,6 @@ target_include_directories(SoundTest PRIVATE ${SOLOUD_INCLUDE_DIR})
 gtest_discover_tests(SoundTest)
 
 add_executable(TFileStreamTest
-    fs/TFileStreamTest.cpp ${SRC_DIR}/shared/misc/TFileStream.cpp)
+    fs/TFileStreamTest.cpp ${SRC_DIR}/common/misc/TFileStream.cpp)
 
 gtest_discover_tests(TFileStreamTest)

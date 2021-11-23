@@ -27,14 +27,14 @@ add_executable(UnitTests
     unit/BinPackTest.cpp ../src/client/BinPack.cpp
     unit/VectorTest.cpp ../src/shared/Vector.cpp
     unit/CalcTest.cpp ../src/shared/Calc.cpp
-    unit/UtilTests.cpp ../src/shared/Util.cpp ../src/shared/misc/SHA1.cpp ../src/shared/misc/SHA1Helper.cpp
+    unit/UtilTests.cpp ../src/common/Util.cpp ../src/common/misc/SHA1.cpp ../src/common/misc/SHA1Helper.cpp
     unit/CVarTests.cpp ../src/shared/Cvar.cpp
-    unit/TIniFileTest.cpp ../src/shared/misc/TIniFile.cpp
-    ../src/shared/misc/PortUtils.cpp
+    unit/TIniFileTest.cpp ../src/common/misc/TIniFile.cpp
+    ../src/common/misc/PortUtils.cpp
     unit/FontAtlasTest.cpp ../src/shared/misc/FontAtlas.cpp
     unit/BitStreamTest.cpp
     unit/SafeTypeTest.cpp
-    unit/TMemoryStreamTest.cpp ../src/shared/misc/TMemoryStream.cpp
+    unit/TMemoryStreamTest.cpp ../src/common/misc/TMemoryStream.cpp
     unit/SharedConfigTest.cpp ../src/shared/SharedConfig.cpp ../src/shared/Weapons.cpp
 )
 gtest_discover_tests(UnitTests)

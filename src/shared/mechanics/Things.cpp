@@ -1,7 +1,7 @@
 // automatically converted
 #include "Things.hpp"
 
-#include "../Logging.hpp"
+#include "common/Logging.hpp"
 
 #ifndef SERVER
 #include "../../client/Client.hpp"
@@ -19,8 +19,8 @@
 #include "../Cvar.hpp"
 #include "../Game.hpp"
 #include "../gfx.hpp"
-#include "../misc/PortUtils.hpp"
-#include "../misc/PortUtilsSoldat.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 
 #include <numbers>
 
@@ -30,6 +30,7 @@
 
 using std::numbers::pi;
 
+template <Config::Module M>
 std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::uint8_t n)
 
 {
@@ -546,6 +547,7 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
     return result;
 }
 
+template <Config::Module M>
 tthingcollision thingcollision(std::uint8_t thingnum, std::uint32_t cooldownend)
 {
     tthingcollision result;
@@ -554,6 +556,7 @@ tthingcollision thingcollision(std::uint8_t thingnum, std::uint32_t cooldownend)
     return result;
 }
 
+template <Config::Module M>
 bool spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num)
 {
     std::int32_t i;
@@ -614,6 +617,7 @@ bool spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num)
     return result;
 }
 
+template <Config::Module M>
 bool randomizestart(tvector2 &start, std::uint8_t team)
 {
     std::int32_t i;
@@ -663,7 +667,8 @@ bool randomizestart(tvector2 &start, std::uint8_t team)
     return result;
 }
 
-void tthing::update()
+template <Config::Module M>
+void Thing<M>::update()
 {
     std::int32_t i;
 #ifdef SERVER
@@ -1080,7 +1085,8 @@ void tthing::update()
 }
 
 #ifndef SERVER
-void tthing::render(double timeelapsed)
+template <Config::Module M>
+void Thing<M>::render(double timeelapsed)
 {
     tvector2 _p, a;
     tvector2 _scala, _ra;
@@ -1266,7 +1272,8 @@ void tthing::render(double timeelapsed)
     }      // case
 }
 
-void tthing::polygonsrender()
+template <Config::Module M>
+void Thing<M>::polygonsrender()
 {
     tvector2 pos1, pos2, pos3, pos4;
     tvector2 a;
@@ -1381,7 +1388,8 @@ void tthing::polygonsrender()
 }
 #endif
 
-bool tthing::checkmapcollision(std::int32_t i, float x, float y)
+template <Config::Module M>
+bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
 {
     std::int32_t j, w;
     std::int32_t b = 0;
@@ -1550,7 +1558,8 @@ bool tthing::checkmapcollision(std::int32_t i, float x, float y)
     return result;
 }
 
-void tthing::kill()
+template <Config::Module M>
+void Thing<M>::kill()
 {
 #ifdef SERVER
     LogTraceG("TThing.Kill");
@@ -1565,7 +1574,8 @@ void tthing::kill()
 #endif
 }
 
-void tthing::checkoutofbounds()
+template <Config::Module M>
+void Thing<M>::checkoutofbounds()
 {
     std::int32_t i;
     std::int32_t bound;
@@ -1636,7 +1646,8 @@ void tthing::checkoutofbounds()
     }
 }
 
-void tthing::respawn()
+template <Config::Module M>
+void Thing<M>::respawn()
 {
     tvector2 a;
     std::int32_t i;
@@ -1713,7 +1724,8 @@ void tthing::respawn()
 #endif
 }
 
-void tthing::moveskeleton(float x1, float y1, bool fromzero)
+template <Config::Module M>
+void Thing<M>::moveskeleton(float x1, float y1, bool fromzero)
 {
     std::int32_t i;
 
@@ -1741,7 +1753,8 @@ void tthing::moveskeleton(float x1, float y1, bool fromzero)
 }
 
 #ifdef SERVER
-std::int32_t tthing::checkspritecollision()
+template <Config::Module M>
+std::int32_t Thing<M>::checkspritecollision()
 {
     std::int32_t j, closestplayer;
     tvector2 pos, norm, colpos, a;
@@ -2369,9 +2382,11 @@ std::int32_t tthing::checkspritecollision()
 #endif
 
 #ifdef SERVER
-std::int32_t tthing::checkstationaryguncollision()
+template <Config::Module M>
+std::int32_t Thing<M>::checkstationaryguncollision()
 #else
-std::int32_t tthing::checkstationaryguncollision(bool clientcheck)
+template <Config::Module M>
+std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
 #endif
 {
     std::int32_t i, j, k;
@@ -2542,3 +2557,10 @@ std::int32_t tthing::checkstationaryguncollision(bool clientcheck)
                 } // for j
     return result;
 }
+
+template class Thing<>;
+template std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
+                                  std::uint8_t n);
+template tthingcollision thingcollision(std::uint8_t thingnum, std::uint32_t cooldownend);
+template bool spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num);
+template bool randomizestart(tvector2 &start, std::uint8_t team);
