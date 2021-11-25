@@ -243,7 +243,10 @@ void exittomenu()
     {
         clientdisconnect();
     }
-    GetNetwork()->disconnect(true);
+    if (GetNetwork())
+    {
+        GetNetwork()->disconnect(true);
+    }
 
     stopsound(channel_weather);
 
