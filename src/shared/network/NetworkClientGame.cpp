@@ -10,7 +10,7 @@
 #include "../Game.hpp"
 #include "../GameMenus.hpp"
 #include "../GameStrings.hpp"
-#include "../gfx.hpp"
+#include "common/gfx.hpp"
 #include "../mechanics/Sprites.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "NetworkUtils.hpp"

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Vector.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
+#include "misc/PortUtilsSoldat.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
 
-const std::int32_t num_particles = 560;
-const float rkv = 0.98;
+constexpr std::int32_t num_particles = 560;
+constexpr float rkv = 0.98;
 
 struct constraint
 {

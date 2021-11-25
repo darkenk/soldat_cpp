@@ -65,7 +65,7 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
             (oldbulletsnapshotmsg[bulletsnap->owner].velocity.y == bulletsnap->velocity.y))
             return;
 
-    weaponindex = weaponnumtoindex(bulletsnap->weaponnum);
+    weaponindex = weaponnumtoindex(bulletsnap->weaponnum, guns);
     if (weaponindex == -1)
         return;
 

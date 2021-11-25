@@ -1,18 +1,11 @@
 #pragma once
 
-/*#include "GameStrings.h"*/
-/*#include "ClientGame.h"*/
-/*#include "SysUtils.h"*/
-/*#include "Classes.h"*/
-/*#include "Vector.h"*/
-/*#include "Sprites.h"*/
-/*#include "GameNetworkingSockets.h"*/
-/*#include "Net.h"*/
-
+#include "misc/SoldatConfig.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
 
+template <Config::Module M = Config::GetModule()>
 struct tmemorystream
 {
     enum pos
@@ -50,10 +43,11 @@ struct tdemoheader
     std::int32_t ticksnum;
 };
 
+template <Config::Module M = Config::GetModule()>
 class tdemo
 {
   protected:
-    tmemorystream fdemofile;
+    tmemorystream<M> fdemofile;
     tdemoheader fdemoheader;
     bool factive;
     std::string fname;
@@ -78,7 +72,8 @@ class tdemo
     };
 };
 
-class tdemorecorder : public tdemo
+template <Config::Module M = Config::GetModule()>
+class tdemorecorder : public tdemo<>
 {
   private:
     std::int32_t fticksnum;
@@ -102,7 +97,7 @@ class tdemorecorder : public tdemo
 };
 
 #ifndef SERVER
-class tdemoplayer : public tdemo
+class tdemoplayer : public tdemo<>
 {
   private:
     std::int32_t fskipto;
@@ -119,10 +114,6 @@ class tdemoplayer : public tdemo
 };
 #endif
 
-extern tdemorecorder demorecorder;
 #ifndef SERVER
 extern tdemoplayer demoplayer;
 #endif
-extern std::uint64_t rsize;
-extern std::uint8_t freecam;
-extern std::uint8_t notexts;

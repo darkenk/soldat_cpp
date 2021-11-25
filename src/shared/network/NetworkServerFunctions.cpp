@@ -51,11 +51,11 @@ void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, 
     sprite[id].applyweaponbynum(primary, 1);
     sprite[id].applyweaponbynum(secondary, 2);
 
-    if (ammo > guns[weaponnumtoindex(primary)].ammo)
-        ammo = guns[weaponnumtoindex(primary)].ammo;
+    if (ammo > guns[weaponnumtoindex(primary, guns)].ammo)
+        ammo = guns[weaponnumtoindex(primary, guns)].ammo;
 
-    if (secammo > guns[weaponnumtoindex(secondary)].ammo)
-        secammo = guns[weaponnumtoindex(secondary)].ammo;
+    if (secammo > guns[weaponnumtoindex(secondary, guns)].ammo)
+        secammo = guns[weaponnumtoindex(secondary, guns)].ammo;
 
     sprite[id].weapon.ammo = ammo;
     sprite[id].secondaryweapon.ammo = secammo;

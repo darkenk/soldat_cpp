@@ -5,7 +5,7 @@
 
 #include "Constants.hpp"
 #include "PolyMap.hpp"
-#include "Vector.hpp"
+#include "common/Vector.hpp"
 #include "mechanics/Bullets.hpp"
 #include "mechanics/Sparks.hpp"
 #include "mechanics/Sprites.hpp"

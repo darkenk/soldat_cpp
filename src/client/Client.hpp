@@ -4,10 +4,10 @@
 #include <map>
 #include <string>
 
+#include "common/Vector.hpp"
+#include "common/Weapons.hpp"
 #include "shared/Console.hpp"
 #include "shared/LogFile.hpp"
-#include "shared/Vector.hpp"
-#include "shared/Weapons.hpp"
 #include "shared/network/NetworkClient.hpp"
 
 void joinserver();

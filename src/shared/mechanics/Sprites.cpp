@@ -19,13 +19,13 @@
 #endif
 #include "../Cvar.hpp"
 #include "../Game.hpp"
+#include "Control.hpp"
+#include "common/Calc.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
-#include "Control.hpp"
 #include <client/ClientGame.hpp>
 #include <numbers>
-#include <shared/Calc.hpp>
 
 //clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -1608,7 +1608,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         if (what > 0)
         {
 #ifdef SERVER
-            s = weaponnamebynum(bullet[what].ownerweapon);
+            s = weaponnamebynum(bullet[what].ownerweapon, guns);
             if (bullet[what].ownerweapon == 0)
                 s = "USSOCOM";
             if (bullet[what].style == bullet_style_fragnade)
@@ -1621,7 +1621,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 s = "Stationary gun";
                 // if Bullet[What].OwnerWeapon = Guns[NOWEAPON].Num then S := 'Selfkill';
 #else
-            s = weaponnamebynum(what);
+            s = weaponnamebynum(what, guns);
             if (what == 222)
                 s = "Grenade";
             if (what == 210)
@@ -3114,7 +3114,7 @@ void Sprite<M>::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32
     }
     else
     {
-        weaponindex = weaponnumtoindex(wnum);
+        weaponindex = weaponnumtoindex(wnum, guns);
         if (gun == 1)
             weapon = guns[weaponindex];
         else
@@ -3224,7 +3224,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
             s = "Stationary gun";
             break;
         default:
-            s = weaponnamebynum(bullet[what].ownerweapon);
+            s = weaponnamebynum(bullet[what].ownerweapon, guns);
         }
     }
     else
@@ -3583,7 +3583,7 @@ void Sprite<M>::respawn()
             (weaponsel[num][9] == 0) && (weaponsel[num][10] == 0))
             weapon = guns[noweapon];
 
-        favweaponindex = weaponnumtoindex(brain.favweapon);
+        favweaponindex = weaponnumtoindex(brain.favweapon, guns);
         if ((brain.favweapon == noweapon_num) or issecondaryweaponindex(favweaponindex) or dummy)
         {
             weapon = guns[favweaponindex];
@@ -3793,7 +3793,9 @@ void Sprite<M>::changeteam(std::int32_t team)
         dropweapon();
 
         player->team = team;
+#ifdef SERVER
         player->applyshirtcolorfromteam();
+#endif
         num = createsprite(a, b, 1, num, player, isplayerobjectowner);
 
         if (sprite[num].holdedthing > 0)

@@ -28,14 +28,8 @@ set(SHARED_SRC
     ../shared/Demo.cpp
     ../shared/Game.cpp
     ../shared/Console.cpp
-    ../shared/Calc.cpp
     ../shared/LogFile.cpp
-    ../shared/MapFile.cpp
-    ../shared/Parts.cpp
     ../shared/PolyMap.cpp
-    ../shared/Waypoints.cpp
-    ../shared/Vector.cpp
-    ../shared/Weapons.cpp
     ../shared/mechanics/Sprites.cpp
     ../shared/mechanics/Sparks.cpp
     ../shared/mechanics/Bullets.cpp
@@ -78,7 +72,7 @@ target_include_directories(SoldatClient PRIVATE
     ${SOLOUD_INCLUDE_DIR}
 )
 
-add_library(SoldatClientLib STATIC ${SRC} ${SHARED_SRC})
+add_library(SoldatClientLib OBJECT ${SRC} ${SHARED_SRC})
 target_include_directories(SoldatClientLib PRIVATE
     ./config
     ../

@@ -1,4 +1,4 @@
-#include "Calc.hpp"
+#include "common/Calc.hpp"
 #include "gtest/gtest.h"
 
 TEST(CompilationTest, CalcTest)

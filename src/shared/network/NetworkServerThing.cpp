@@ -1,7 +1,7 @@
 // automatically converted
 #include "NetworkServerThing.hpp"
 #include "../../server/Server.hpp"
-#include "../Calc.hpp"
+#include "common/Calc.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "NetworkUtils.hpp"

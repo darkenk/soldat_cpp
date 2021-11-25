@@ -8,7 +8,7 @@
 /*#include "Vector.h"*/
 /*#include "Sprites.h"*/
 
-#include "../Vector.hpp"
+#include "common/Vector.hpp"
 #include <cstdint>
 
 class tspark

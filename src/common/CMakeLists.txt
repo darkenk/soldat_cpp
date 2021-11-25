@@ -6,9 +6,17 @@ set(SRC
     misc/TFileStream.cpp
     misc/TIniFile.cpp
     misc/TMemoryStream.cpp
+    network/Net.cpp
+    Anims.cpp
+    Calc.cpp
     Logging.cpp
+    MapFile.cpp
+    Parts.cpp
     PhysFSExt.cpp
     Util.cpp
+    Vector.cpp
+    Waypoints.cpp
+    Weapons.cpp
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -19,5 +27,6 @@ endif()
 add_library(CommonLib ${SRC})
 target_link_libraries(CommonLib
     spdlog::spdlog
+    GameNetworkingSockets::GameNetworkingSockets_s
 )
 

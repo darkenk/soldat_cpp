@@ -2,25 +2,18 @@
 
 #include "Weapons.hpp"
 #include "Constants.hpp"
-#include "common/Logging.hpp"
+#include "Logging.hpp"
 #include "gfx.hpp"
-#include "common/misc/PortUtils.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-/*#include "TraceLog.h"*/
-/*#include "Constants.h"*/
-/*#include "SysUtils.h"*/
+#include "misc/PortUtils.hpp"
+#include "misc/PortUtilsSoldat.hpp"
 
-GunsDescription guns;
-GunsDescription defaultguns;
-std::uint64_t defaultwmchecksum, loadedwmchecksum;
-
-void createweapons(bool floatisticmode)
+void createweapons(bool floatisticmode, GunsDescription &guns, GunsDescription &defaultguns)
 {
-    createweaponsbase();
-    createdefaultweapons(floatisticmode);
+    createweaponsbase(guns);
+    createdefaultweapons(floatisticmode, guns, defaultguns);
 }
 
-void createdefaultweapons(bool floatisticmode)
+void createdefaultweapons(bool floatisticmode, GunsDescription &guns, GunsDescription &defaultguns)
 {
     tgun *gun;
     tgun *defaultgun;
@@ -28,11 +21,11 @@ void createdefaultweapons(bool floatisticmode)
 
     if (floatisticmode)
     {
-        createfloatisticweapons();
+        createfloatisticweapons(guns);
     }
     else
     {
-        createnormalweapons();
+        createnormalweapons(guns);
     }
 
     // Set defaults for weapon menu selection comparisons
@@ -59,10 +52,10 @@ void createdefaultweapons(bool floatisticmode)
         defaultgun->modifierhead = gun->modifierhead;
     }
 
-    buildweapons();
+    buildweapons(guns);
 }
 
-void createweaponsbase()
+void createweaponsbase(GunsDescription &guns)
 {
     tgun *gun;
 
@@ -344,7 +337,7 @@ void createweaponsbase()
     gun->firemode = 0;
 }
 
-void createnormalweapons()
+void createnormalweapons(GunsDescription &guns)
 {
     tgun *gun;
 
@@ -729,7 +722,7 @@ void createnormalweapons()
     gun->modifierlegs = 1;
 }
 
-void createfloatisticweapons()
+void createfloatisticweapons(GunsDescription &guns)
 {
     tgun *gun;
 
@@ -1114,7 +1107,7 @@ void createfloatisticweapons()
     gun->modifierlegs = 0.6;
 }
 
-void buildweapons()
+void buildweapons(GunsDescription &guns)
 {
     tgun *gun;
     std::int32_t weaponindex;
@@ -1223,7 +1216,7 @@ void buildweapons()
 #if OPTION_R == 1 /*$R-*/
 #define NoRangeCheck
 #endif
-std::uint32_t createwmchecksum()
+std::uint32_t createwmchecksum(GunsDescription &guns)
 {
     std::uint32_t hash;
     std::int32_t weaponindex;
@@ -1263,7 +1256,7 @@ std::uint32_t createwmchecksum()
 #ifdef NoOverflowCheck /*$Q+*/ /*$UNDEF NoOverflowCheck*/
 #endif
 
-std::int32_t weaponnumtoindex(std::uint8_t num)
+std::int32_t weaponnumtoindex(std::uint8_t num, GunsDescription &guns)
 {
     std::uint8_t weaponindex;
 
@@ -1280,7 +1273,7 @@ std::int32_t weaponnumtoindex(std::uint8_t num)
     return result;
 }
 
-std::int32_t weaponnametonum(const std::string &name)
+std::int32_t weaponnametonum(const std::string &name, GunsDescription &guns)
 {
     std::uint8_t i;
 
@@ -1297,7 +1290,7 @@ std::int32_t weaponnametonum(const std::string &name)
     return result;
 }
 
-std::string weaponnumtoname(std::int32_t num)
+std::string weaponnumtoname(std::int32_t num, GunsDescription &guns)
 {
     std::string result;
     switch (num)
@@ -1435,7 +1428,7 @@ std::uint8_t weaponnumexternaltointernal(std::uint8_t num)
     return result;
 }
 
-std::string weaponnamebynum(std::int32_t num)
+std::string weaponnamebynum(std::int32_t num, GunsDescription &guns)
 {
     std::int32_t weaponindex;
 

@@ -745,7 +745,8 @@ void ActivateServer(int argc, const char *argv[])
     writelogfile(&GetKillLog(), GetKillLogFilename());
     writelogfile(gamelog, consolelogfilename);
 
-    //    rundeferredcommands();
+    NotImplemented(NITag::OTHER, "mixing commands between server and client");
+    // rundeferredcommands();
 }
 
 void ShutDown()
@@ -821,7 +822,7 @@ void loadweapons(std::string Filename)
     LogDebugG("LoadWeapons");
 
     IsRealistic = CVar::sv_realisticmode = true;
-    createweapons(IsRealistic);
+    createweapons(IsRealistic, guns, defaultguns);
     // FIXME (falcon) while the above instruction has to be done every time,
     // because you never know if WM provides all the values,
     // this could be done only once per mode (realistic/non-realistic)
@@ -833,12 +834,12 @@ void loadweapons(std::string Filename)
         TIniFile ini{ReadAsFileStream(userdirectory + "configs/" + Filename + ".ini")};
         if (loadweaponsconfig(ini, wmname, wmversion, guns))
         {
-            buildweapons();
+            buildweapons(guns);
         }
         else
         {
             WriteLn("Using default weapons mod");
-            createweapons(IsRealistic);
+            createweapons(IsRealistic, guns, defaultguns);
         }
     }
     NotImplemented(NITag::OTHER, "no checksum");

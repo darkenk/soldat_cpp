@@ -14,13 +14,13 @@
 #include "../../client/Sound.hpp"
 #include "../network/NetworkClientBullet.hpp"
 #endif
-#include "../Calc.hpp"
+#include "common/Calc.hpp"
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "../gfx.hpp"
 #include "common/Logging.hpp"
 #include "common/Util.hpp"
+#include "common/gfx.hpp"
 #include <limits>
 #include <numbers>
 
@@ -53,7 +53,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
             return result;
 #endif
 
-    weaponindex = weaponnumtoindex(snum);
+    weaponindex = weaponnumtoindex(snum, guns);
     sstyle = guns[weaponindex].bulletstyle;
 
     if (!mustcreate && (sowner > 0))
@@ -1543,7 +1543,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 
                     result = pos;
 
-                    nocollision = guns[weaponnumtoindex(ownerweapon)].nocollision;
+                    nocollision = guns[weaponnumtoindex(ownerweapon, guns)].nocollision;
 
                     if (((nocollision & weapon_nocollision_enemy) != 0) and
                         (sprite[j].isnotinsameteam(sprite[owner])))
@@ -1644,11 +1644,14 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 
                             // Head, torso or leg hitbox modifier
                             if (where <= 4)
-                                hitboxmodifier = guns[weaponnumtoindex(ownerweapon)].modifierlegs;
+                                hitboxmodifier =
+                                    guns[weaponnumtoindex(ownerweapon, guns)].modifierlegs;
                             else if (where <= 11)
-                                hitboxmodifier = guns[weaponnumtoindex(ownerweapon)].modifierchest;
+                                hitboxmodifier =
+                                    guns[weaponnumtoindex(ownerweapon, guns)].modifierchest;
                             else
-                                hitboxmodifier = guns[weaponnumtoindex(ownerweapon)].modifierhead;
+                                hitboxmodifier =
+                                    guns[weaponnumtoindex(ownerweapon, guns)].modifierhead;
 
                             speed = vec2length(bulletvelocity);
 
@@ -1757,13 +1760,13 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                 // Head, torso or leg hitbox modifier
                                 if (where <= 4)
                                     hitboxmodifier =
-                                        guns[weaponnumtoindex(ownerweapon)].modifierlegs;
+                                        guns[weaponnumtoindex(ownerweapon, guns)].modifierlegs;
                                 else if (where <= 11)
                                     hitboxmodifier =
-                                        guns[weaponnumtoindex(ownerweapon)].modifierchest;
+                                        guns[weaponnumtoindex(ownerweapon, guns)].modifierchest;
                                 else
                                     hitboxmodifier =
-                                        guns[weaponnumtoindex(ownerweapon)].modifierhead;
+                                        guns[weaponnumtoindex(ownerweapon, guns)].modifierhead;
 
                                 speed = vec2length(bulletparts.velocity[num]);
 
@@ -2502,7 +2505,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
         if (!sprite[i].active or sprite[i].isspectator())
             continue;
 
-        nocollision = guns[weaponnumtoindex(ownerweapon)].nocollision;
+        nocollision = guns[weaponnumtoindex(ownerweapon, guns)].nocollision;
 
         if (((nocollision & weapon_nocollision_exp_enemy) != 0) and
             (sprite[i].isnotinsameteam(sprite[owner])))

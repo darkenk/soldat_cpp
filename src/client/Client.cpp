@@ -754,7 +754,7 @@ void startgame(int argc, const char *argv[])
 
     // Load weapon display names
     loadweaponnames();
-    createweaponsbase();
+    createweaponsbase(guns);
 
     mapchangecounter = -60;
 

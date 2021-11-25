@@ -9,7 +9,7 @@
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
 #include "common/Logging.hpp"
-#include "../gfx.hpp"
+#include "common/gfx.hpp"
 #include "NetworkUtils.hpp"
 
 // clang-format off

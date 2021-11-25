@@ -9,10 +9,10 @@
 /*#include "Constants.h"*/
 #include "../Anims.hpp"
 #include "../Constants.hpp"
-#include "../Parts.hpp"
-#include "../Vector.hpp"
-#include "../Weapons.hpp"
+#include "common/Parts.hpp"
 #include "../network/Net.hpp"
+#include "common/Vector.hpp"
+#include "common/Weapons.hpp"
 #include <array>
 #include <cstdint>
 

@@ -1,10 +1,11 @@
 #pragma once
 
-#include "MapFile.hpp"
-#include "Vector.hpp"
-#include "Waypoints.hpp"
+#include "common/MapFile.hpp"
 #include "common/Util.hpp"
+#include "common/Vector.hpp"
+#include "common/Waypoints.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "misc/SoldatConfig.hpp"
 
 // Polygon constants go here
 // ...
@@ -51,7 +52,8 @@ const std::int32_t background_poly_none = -1;
 typedef void (*tloadmapgraphics)(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop,
                                  tmapcolor bgcolorbtm);
 
-class tpolymap
+template <Config::Module M = Config::GetModule()>
+class Polymap
 {
   public:
     std::uint32_t mapid;
@@ -99,5 +101,9 @@ class tpolymap
     void loaddata(tmapfile &mapfile);
 };
 
+using tpolymap = Polymap<>;
+
+template <Config::Module M = Config::GetModule()>
 void checkoutofbounds(MyFloat &x, MyFloat &y);
+template <Config::Module M = Config::GetModule()>
 void checkoutofbounds(int16_t &x, int16_t &y);

@@ -1,8 +1,8 @@
 // automatically converted
 #include "PolyMap.hpp"
-#include "Calc.hpp"
 #include "Console.hpp"
 #include "Constants.hpp"
+#include "common/Calc.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 
@@ -10,7 +10,8 @@
 #include "shared/misc/GlobalVariableStorage.cpp"
 // clang-format on
 
-void tpolymap::initialize()
+template <Config::Module M>
+void Polymap<M>::initialize()
 {
     std::int32_t i, j;
 
@@ -50,7 +51,8 @@ void tpolymap::initialize()
     fillchar(&botpath.waypoint[idx], sizeof(botpath.waypoint), 0);
 }
 
-void tpolymap::loaddata(tmapfile &mapfile)
+template <Config::Module M>
+void Polymap<M>::loaddata(tmapfile &mapfile)
 {
     std::int32_t i, j, k;
 
@@ -157,7 +159,8 @@ void tpolymap::loaddata(tmapfile &mapfile)
     }
 }
 
-bool tpolymap::loadmap(const tmapinfo &map)
+template <Config::Module M>
+bool Polymap<M>::loadmap(const tmapinfo &map)
 {
     tmapfile mapfile;
 
@@ -176,8 +179,9 @@ bool tpolymap::loadmap(const tmapinfo &map)
     return result;
 }
 #ifndef SERVER
-bool tpolymap::loadmap(tmapinfo map, bool bgforce, std::uint32_t bgcolortop,
-                       std::uint32_t bgcolorbtm)
+template <Config::Module M>
+bool Polymap<M>::loadmap(tmapinfo map, bool bgforce, std::uint32_t bgcolortop,
+                         std::uint32_t bgcolorbtm)
 {
     tmapfile mapfile;
 
@@ -211,7 +215,8 @@ bool tpolymap::loadmap(tmapinfo map, bool bgforce, std::uint32_t bgcolortop,
     return result;
 }
 #endif
-bool tpolymap::lineinpoly(const tvector2 a, tvector2 b, std::int32_t poly, tvector2 &v)
+template <Config::Module M>
+bool Polymap<M>::lineinpoly(const tvector2 a, tvector2 b, std::int32_t poly, tvector2 &v)
 {
     std::int32_t i, j;
     float ak, am, bk, bm;
@@ -283,7 +288,8 @@ bool tpolymap::lineinpoly(const tvector2 a, tvector2 b, std::int32_t poly, tvect
     return result;
 }
 
-bool tpolymap::pointinpolyedges(float x, float y, std::int32_t i)
+template <Config::Module M>
+bool Polymap<M>::pointinpolyedges(float x, float y, std::int32_t i)
 {
     tvector2 u;
     float d;
@@ -318,7 +324,8 @@ bool tpolymap::pointinpolyedges(float x, float y, std::int32_t i)
     return pointinpolyedges_result;
 }
 
-bool tpolymap::pointinpoly(const tvector2 p, const tmappolygon &poly)
+template <Config::Module M>
+bool Polymap<M>::pointinpoly(const tvector2 p, const tmappolygon &poly)
 {
     float ap_x;
     float ap_y;
@@ -370,7 +377,8 @@ bool tpolymap::pointinpoly(const tvector2 p, const tmappolygon &poly)
     return pointinpoly_result;
 }
 
-tvector2 tpolymap::closestperpendicular(std::int32_t j, tvector2 pos, float &d, std::int32_t &n)
+template <Config::Module M>
+tvector2 Polymap<M>::closestperpendicular(std::int32_t j, tvector2 pos, float &d, std::int32_t &n)
 {
     std::array<float, 3> px, py;
     tvector2 p1, p2;
@@ -455,7 +463,8 @@ bool has(const T &arr, const K &value)
     return std::find(arr.begin(), arr.end(), value);
 }
 
-bool tpolymap::collisiontest(tvector2 pos, tvector2 &perpvec, bool isflag)
+template <Config::Module M>
+bool Polymap<M>::collisiontest(tvector2 pos, tvector2 &perpvec, bool isflag)
 {
     std::array<std::int32_t, 9> excluded1 = {1, 2, 3, 11, 13, 15, 17, 24, 25};
     std::array<std::int32_t, 3> excluded2 = {21, 22, 23};
@@ -489,7 +498,8 @@ bool tpolymap::collisiontest(tvector2 pos, tvector2 &perpvec, bool isflag)
     return collisiontest_result;
 }
 
-bool tpolymap::collisiontestexcept(tvector2 pos, tvector2 &perpvec, std::int32_t c)
+template <Config::Module M>
+bool Polymap<M>::collisiontestexcept(tvector2 pos, tvector2 &perpvec, std::int32_t c)
 {
     std::array<std::int32_t, 6> excluded = {1, 2, 3, 11, 24, 25};
     std::int32_t j, w;
@@ -524,8 +534,9 @@ bool tpolymap::collisiontestexcept(tvector2 pos, tvector2 &perpvec, std::int32_t
 #ifdef NoOverflowCheck /*$Q+*/ /*$UNDEF NoOverflowCheck*/
 #endif
 
-bool tpolymap::raycast(const tvector2 a, tvector2 b, float &distance, float maxdist, bool player,
-                       bool flag, bool bullet, bool checkcollider, std::uint8_t team)
+template <Config::Module M>
+bool Polymap<M>::raycast(const tvector2 a, tvector2 b, float &distance, float maxdist, bool player,
+                         bool flag, bool bullet, bool checkcollider, std::uint8_t team)
 {
     std::int32_t i, j, ax, ay, bx, by, p, w;
     tvector2 c, d;
@@ -642,7 +653,7 @@ bool tpolymap::raycast(const tvector2 a, tvector2 b, float &distance, float maxd
 }
 
 // this should go inside TPolyMap, used only from Net.pas it seems
-
+template <Config::Module M>
 void checkoutofbounds(MyFloat &x, MyFloat &y)
 {
     if (x < (10 * (-map.sectorsnum * map.sectorsdivision) + 50))
@@ -656,6 +667,7 @@ void checkoutofbounds(MyFloat &x, MyFloat &y)
         y = 1;
 }
 
+template <Config::Module M>
 void checkoutofbounds(std::int16_t &x, std::int16_t &y)
 {
     if (x < (10 * (-map.sectorsnum * map.sectorsdivision) + 50))
@@ -668,3 +680,7 @@ void checkoutofbounds(std::int16_t &x, std::int16_t &y)
     else if (y > (10 * (map.sectorsnum * map.sectorsdivision) - 50))
         y = 1;
 }
+
+template class Polymap<>;
+template void checkoutofbounds(MyFloat &x, MyFloat &y);
+template void checkoutofbounds(int16_t &x, int16_t &y);

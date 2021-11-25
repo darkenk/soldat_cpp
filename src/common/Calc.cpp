@@ -1,7 +1,4 @@
-// automatically converted
-
 #include "Calc.hpp"
-
 #include <cmath>
 #include <numbers>
 

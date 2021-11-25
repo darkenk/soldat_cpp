@@ -3,7 +3,6 @@
 #include "../../client/GameRendering.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "common/Logging.hpp"
 #include "NetworkClientBullet.hpp"
 #include "NetworkClientConnection.hpp"
 #include "NetworkClientFunctions.hpp"
@@ -12,6 +11,11 @@
 #include "NetworkClientMessages.hpp"
 #include "NetworkClientSprite.hpp"
 #include "NetworkClientThing.hpp"
+#include "common/Logging.hpp"
+
+//clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 static std::string_view NETMSG = "net_msg";
 auto constexpr LOG_NET = "network";
@@ -122,13 +126,12 @@ void tclientnetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
 
 tclientnetwork::tclientnetwork()
 {
-    NetworkingUtils->SetGlobalCallback_SteamNetConnectionStatusChanged(&ProcessEventsCallback);
 }
 
 bool tclientnetwork::connect(std::string Host, std::uint32_t Port)
 {
     SteamNetworkingIPAddr ServerAddress;
-    SteamNetworkingConfigValue_t InitSettings;
+    SteamNetworkingConfigValue_t InitSettings[2];
 
     LogInfo(LOG_NET, "Connecting to {}:{}", Host, Port);
 
@@ -139,11 +142,13 @@ bool tclientnetwork::connect(std::string Host, std::uint32_t Port)
 
     NetworkingSockets->InitAuthentication();
 
-    InitSettings.m_eValue = k_ESteamNetworkingConfig_IP_AllowWithoutAuth;
-    InitSettings.m_eDataType = k_ESteamNetworkingConfig_Int32;
-    InitSettings.m_val.m_int32 = 1;
+    InitSettings[0].m_eValue = k_ESteamNetworkingConfig_IP_AllowWithoutAuth;
+    InitSettings[0].m_eDataType = k_ESteamNetworkingConfig_Int32;
+    InitSettings[0].m_val.m_int32 = 1;
+    InitSettings[1].SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged,
+                           (void *)&ProcessEventsCallback);
 
-    FPeer = NetworkingSockets->ConnectByIPAddress(ServerAddress, 1, &InitSettings);
+    FPeer = NetworkingSockets->ConnectByIPAddress(ServerAddress, 2, InitSettings);
 
     if (FPeer == k_HSteamNetConnection_Invalid)
     {

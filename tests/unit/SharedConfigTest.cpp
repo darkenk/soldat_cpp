@@ -1,6 +1,6 @@
 #include "shared/SharedConfig.hpp"
 #include "shared/Cvar.hpp"
-#include "shared/gfx.hpp"
+#include "common/gfx.hpp"
 #include "shared/misc/TIniFile.hpp"
 #include "shared/misc/TMemoryStream.hpp"
 #include <gtest/gtest.h>

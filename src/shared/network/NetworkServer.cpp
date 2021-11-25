@@ -46,23 +46,24 @@ void ProcessEventsCallback(PSteamNetConnectionStatusChangedCallback_t pInfo)
 
 tservernetwork::tservernetwork(std::string Host, std::uint32_t Port)
 {
-    NetworkingUtils->SetGlobalCallback_SteamNetConnectionStatusChanged(&ProcessEventsCallback);
     SteamNetworkingIPAddr ServerAddress;
-    SteamNetworkingConfigValue_t InitSettings;
+    SteamNetworkingConfigValue_t InitSettings[2];
     // std::array<Char, 128> TempIP;
     if (FInit)
     {
         ServerAddress.Clear();
         ServerAddress.ParseString(pchar(Host + ":" + inttostr(Port)));
-        InitSettings.m_eValue = k_ESteamNetworkingConfig_IP_AllowWithoutAuth;
-        InitSettings.m_eDataType = k_ESteamNetworkingConfig_Int32;
-        InitSettings.m_val.m_int32 = 1;
+        InitSettings[0].m_eValue = k_ESteamNetworkingConfig_IP_AllowWithoutAuth;
+        InitSettings[0].m_eDataType = k_ESteamNetworkingConfig_Int32;
+        InitSettings[0].m_val.m_int32 = 1;
+        InitSettings[1].SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged,
+                               (void *)&ProcessEventsCallback);
         //#ifdef STEAM
         // if sv_steamonly.Value then
         //  InitSettings.m_int32 = 0
         // else
         //#endif
-        FHost = NetworkingSockets->CreateListenSocketIP(ServerAddress, 1, &InitSettings);
+        FHost = NetworkingSockets->CreateListenSocketIP(ServerAddress, 2, InitSettings);
 
         if (FHost == k_HSteamListenSocket_Invalid)
         {
@@ -367,6 +368,25 @@ void tservernetwork::UpdateNetworkStats(std::uint8_t Player)
     {
         sprite[Player].player->connectionquality = 0;
     }
+}
+
+bool tservernetwork::disconnect(bool now)
+{
+    if (FHost != k_HSteamNetPollGroup_Invalid)
+    {
+        for (auto &DstPlayer : players)
+        {
+            if (FPeer != 0)
+            {
+                if (now)
+                    NetworkingSockets->CloseConnection(DstPlayer->peer, 0, "", false);
+                else
+                    NetworkingSockets->CloseConnection(DstPlayer->peer, 0, "", true);
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 namespace

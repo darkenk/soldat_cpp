@@ -4,7 +4,7 @@
 #include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
 #include "../../client/Sound.hpp"
-#include "../Calc.hpp"
+#include "common/Calc.hpp"
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
@@ -419,7 +419,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     case object_minimi:
     case object_minigun: {
         // Objects 1-3 are flags, so we need for WeaponIndex subtract by flags+1
-        weaponindex = weaponnumtoindex(thing[i].style - (object_num_flags + 1));
+        weaponindex = weaponnumtoindex(thing[i].style - (object_num_flags + 1), guns);
         sprite[thingtakensnap->who].applyweaponbynum(guns[weaponindex].num, n,
                                                      thingtakensnap->ammocount);
         if ((thingtakensnap->who == mysprite) && !sprite[mysprite].deadmeat)
@@ -516,7 +516,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     case object_law: {
         // There are in total OBJECT_NUM_NONWEAPON non-weapon objects before the
         // knife so we need to subtract it+1 for the WeaponIndex (like before)
-        weaponindex = weaponnumtoindex(thing[i].style - (object_num_nonweapon + 1));
+        weaponindex = weaponnumtoindex(thing[i].style - (object_num_nonweapon + 1), guns);
         sprite[thingtakensnap->who].applyweaponbynum(guns[weaponindex].num, n,
                                                      thingtakensnap->ammocount);
         if ((thingtakensnap->who == mysprite) && !sprite[mysprite].deadmeat)

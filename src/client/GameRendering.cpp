@@ -7,16 +7,16 @@
 #include "Input.hpp"
 #include "InterfaceGraphics.hpp"
 #include "MapGraphics.hpp"
+#include "common/Logging.hpp"
 #include "common/PhysFSExt.hpp"
 #include "common/Util.hpp"
+#include "common/Vector.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/TIniFile.hpp"
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
-#include "common/Logging.hpp"
-#include "shared/Vector.hpp"
 #include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
 #include "shared/mechanics/Sprites.hpp"
@@ -30,7 +30,7 @@
 #include <set>
 #include <string>
 
-#include "shared/gfx.hpp"
+#include "common/gfx.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"

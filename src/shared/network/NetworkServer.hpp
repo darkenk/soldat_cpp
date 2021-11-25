@@ -35,6 +35,11 @@ class tservernetwork : public TNetwork
     bool senddata(const std::byte *Data, std::int32_t Size, HSteamNetConnection peer,
                   std::int32_t Flags);
     void UpdateNetworkStats(std::uint8_t Player);
+
+    bool disconnect(bool now) override;
+
+  private:
+    HSteamNetPollGroup FPollGroup;
 };
 
 bool InitNetworkServer(const std::string &Host, std::uint32_t Port) requires(Config::IsServer());

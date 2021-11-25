@@ -1,12 +1,18 @@
 #pragma once
 
+#include "misc/SoldatConfig.hpp"
 #include <string>
 #include <vector>
 
+template <Config::Module M = Config::GetModule()>
 void commandinit();
+template <Config::Module M = Config::GetModule()>
 void commanddeinit();
+template <Config::Module M = Config::GetModule()>
 bool parseinput(const std::string &input);
+template <Config::Module M = Config::GetModule()>
 bool parseinput(const std::string &input, std::uint8_t sender);
+template <Config::Module M = Config::GetModule()>
 bool loadconfig(const std::string &configname);
 
 constexpr std::int32_t max_commands = 1024;
@@ -33,9 +39,12 @@ struct tcommand
 };
 typedef std::vector<std::uint8_t> tcommandtargets;
 
+template <Config::Module M = Config::GetModule()>
 pcommand commandadd(const std::string &commandnamevar, tcommandfunction commandptr,
                     const std::string &description, tcommandflags flags);
-void commandexecutealias(std::vector<std::string> &args, std::uint8_t sender);
+template <Config::Module M = Config::GetModule()>
 void parsecommandline(int argc, const char *argv[]);
+template <Config::Module M = Config::GetModule()>
 void rundeferredcommands();
+template <Config::Module M = Config::GetModule()>
 tcommandtargets commandtarget(std::string target, std::uint8_t sender);

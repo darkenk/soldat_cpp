@@ -6,6 +6,7 @@ target_link_libraries(SoldatGame
     SoldatClientLib
     SoldatServerLib
     CommonLib
+    PlatformLib
     SDL2::SDL2main
     SDL2::SDL2-static
     spdlog::spdlog

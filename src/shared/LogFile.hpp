@@ -10,14 +10,15 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "misc/SoldatConfig.hpp"
 
+template <Config::Module M = Config::GetModule()>
 void newlogfile(tstringlist *f, const std::string &name);
+template <Config::Module M = Config::GetModule()>
 void writelogfile(tstringlist *f, const std::string &name);
+template <Config::Module M = Config::GetModule()>
 void addlinetologfile(tstringlist *f, const std::string &s, const std::string &name,
                       bool withdate = true);
+template <Config::Module M = Config::GetModule()>
 void newlogfiles();
-
-extern tstringlist *gamelog;
-extern std::string consolelogfilename;
 
 constexpr tstringlist &GetKillLog() requires(Config::IsServer())
 {
@@ -30,4 +31,3 @@ constexpr std::string &GetKillLogFilename() requires(Config::IsServer())
     extern std::string killlogfilename;
     return killlogfilename;
 }
-extern std::mutex loglock;

@@ -11,7 +11,7 @@
 #include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
 #include "WeatherEffects.hpp"
-#include "shared/Calc.hpp"
+#include "common/Calc.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"

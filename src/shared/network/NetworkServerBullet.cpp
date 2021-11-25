@@ -2,7 +2,7 @@
 #include "NetworkServerBullet.hpp"
 
 #include "../../server/Server.hpp"
-#include "../Calc.hpp"
+#include "common/Calc.hpp"
 #include "../Game.hpp"
 #include "../mechanics/Bullets.hpp"
 #include "NetworkUtils.hpp"
@@ -48,8 +48,9 @@ void serverbulletsnapshot(std::uint8_t i, std::uint8_t tonum, bool forced)
                                   sprite[j].player->camera, bulletparts.velocity[i].x) or
                     forced)
                 {
-                    GetServerNetwork()->senddata(&bulletmsg, sizeof(bulletmsg), sprite[j].player->peer,
-                                           k_nSteamNetworkingSend_Unreliable);
+                    GetServerNetwork()->senddata(&bulletmsg, sizeof(bulletmsg),
+                                                 sprite[j].player->peer,
+                                                 k_nSteamNetworkingSend_Unreliable);
                 }
 #else
     demorecorder.saverecord(bulletmsg, sizeof(bulletmsg));
@@ -89,7 +90,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     if (sprite[p].player->pingticksb > max_oldpos)
         sprite[p].player->pingticksb = max_oldpos;
 
-    weaponindex = weaponnumtoindex(bulletsnap->weaponnum);
+    weaponindex = weaponnumtoindex(bulletsnap->weaponnum, guns);
     if (weaponindex == -1)
         return;
 

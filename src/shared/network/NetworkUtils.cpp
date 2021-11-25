@@ -2,10 +2,10 @@
 #include "../Console.hpp"
 #include "../Cvar.hpp"
 #include "../Game.hpp"
-#include "common/Logging.hpp"
 #include "../Version.hpp"
-#include "../Weapons.hpp"
 #include "../mechanics/Sprites.hpp"
+#include "common/Logging.hpp"
+#include "common/Weapons.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include <algorithm>
 #include <cstring>
@@ -18,7 +18,7 @@
 #include "../../client/Client.hpp"
 #include "../../client/GameMenus.hpp"
 #include "../../client/Sound.hpp"
-#include "shared/Parts.hpp"
+#include "common/Parts.hpp"
 #endif
 
 // clang-format off
@@ -316,7 +316,7 @@ bool checkweaponnotallowed(std::uint8_t i)
 
     auto Result = true;
 
-    WeaponIndex = weaponnumtoindex(sprite[i].weapon.num);
+    WeaponIndex = weaponnumtoindex(sprite[i].weapon.num, guns);
     if (ismainweaponindex(WeaponIndex) and (weaponactive[WeaponIndex] == 0))
     {
         return Result;

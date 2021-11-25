@@ -15,14 +15,8 @@ set(SHARED_SRC
     #../shared/PolyMap.cpp
     ../shared/Demo.cpp
     ../shared/Console.cpp
-    ../shared/Calc.cpp
     ../shared/LogFile.cpp
-    ../shared/MapFile.cpp
-    ../shared/Parts.cpp
     ../shared/PolyMap.cpp
-    ../shared/Waypoints.cpp
-    ../shared/Vector.cpp
-    ../shared/Weapons.cpp
     ../shared/mechanics/Sprites.cpp
     #../shared/mechanics/Sparks.cpp
     ../shared/mechanics/Bullets.cpp
@@ -49,7 +43,7 @@ target_compile_definitions(SoldatServer PRIVATE SERVER=1)
 target_link_libraries(SoldatServer SDL2::SDL2main SDL2::SDL2-static spdlog::spdlog Freetype::Freetype ${PHYSFS_LIB} GameNetworkingSockets::GameNetworkingSockets_s)
 target_include_directories(SoldatServer PRIVATE ./config ../ ${PHYSFS_INC} ${GLAD_INC} ${STB_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
 
-add_library(SoldatServerLib STATIC ${SRC} ${SHARED_SRC})
+add_library(SoldatServerLib OBJECT ${SRC} ${SHARED_SRC})
 target_compile_definitions(SoldatServerLib PRIVATE SERVER=1)
 target_include_directories(SoldatServerLib PRIVATE
     ./config

@@ -8,8 +8,8 @@
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "../gfx.hpp"
 #include "common/Util.hpp"
+#include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include <numbers>

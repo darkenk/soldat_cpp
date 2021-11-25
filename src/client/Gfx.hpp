@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "shared/Vector.hpp"
+#include "common/Vector.hpp"
 
 const std::int32_t gfx_monochrome = 1;
 

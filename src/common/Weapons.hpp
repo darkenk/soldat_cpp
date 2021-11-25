@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/misc/PortUtilsSoldat.hpp"
+#include "misc/PortUtilsSoldat.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -130,21 +130,18 @@ constexpr std::int32_t weapon_nocollision_exp_team = 1 << 4;
 constexpr std::int32_t weapon_nocollision_exp_self = 1 << 5;
 
 using GunsDescription = PascalArray<tgun, 1, total_weapons>;
-extern GunsDescription guns;
-extern GunsDescription defaultguns;
-extern std::uint64_t defaultwmchecksum, loadedwmchecksum;
 
-void createweapons(bool floatisticmode);
-void createdefaultweapons(bool floatisticmode);
-void createweaponsbase();
-void createnormalweapons();
-void createfloatisticweapons();
-void buildweapons();
-uint32_t createwmchecksum();
-std::int32_t weaponnumtoindex(std::uint8_t num);
-std::int32_t weaponnametonum(const std::string &name);
-std::string weaponnumtoname(std::int32_t num);
-std::string weaponnamebynum(std::int32_t num);
+void createweapons(bool floatisticmode, GunsDescription &guns, GunsDescription &defaultguns);
+void createdefaultweapons(bool floatisticmode, GunsDescription &guns, GunsDescription &defaultguns);
+void createweaponsbase(GunsDescription &guns);
+void createnormalweapons(GunsDescription &guns);
+void createfloatisticweapons(GunsDescription &guns);
+void buildweapons(GunsDescription &guns);
+std::uint32_t createwmchecksum(GunsDescription &guns);
+std::int32_t weaponnumtoindex(std::uint8_t num, GunsDescription &guns);
+std::int32_t weaponnametonum(const std::string &name, GunsDescription &guns);
+std::string weaponnumtoname(std::int32_t num, GunsDescription &guns);
+std::string weaponnamebynum(std::int32_t num, GunsDescription &guns);
 bool ismainweaponindex(std::int16_t weaponindex);
 bool issecondaryweaponindex(std::int16_t weaponindex);
 bool isdoubleweaponindex(std::int16_t weaponindex);

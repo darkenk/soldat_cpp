@@ -7,7 +7,7 @@
 #include "../Game.hpp"
 #include "../LogFile.hpp"
 #include "common/Logging.hpp"
-#include "../gfx.hpp"
+#include "common/gfx.hpp"
 #include "../mechanics/Sprites.hpp"
 #include "../mechanics/Things.hpp"
 #include "../misc/BitStream.hpp"

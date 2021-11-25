@@ -34,6 +34,8 @@ void InitAllGlobalVariables()
     votekickreasontype = false;
 
     pingticksadd = 2;
+
+    notexts = 0;
 }
 
 template void InitAllGlobalVariables<Config::GetModule()>();

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shared/Vector.hpp"
+#include "common/Vector.hpp"
 #include <array>
 #include <cstdint>
 #include <string>

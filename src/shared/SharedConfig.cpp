@@ -5,12 +5,16 @@
 #include "Constants.hpp"
 #include "Game.hpp"
 #include "common/Logging.hpp"
-#include "Weapons.hpp"
 #include "common/Util.hpp"
+#include "common/Weapons.hpp"
+#include "common/gfx.hpp"
 #include "common/misc/TIniFile.hpp"
 #include "network/Net.hpp"
-#include "shared/gfx.hpp"
 #include <sstream>
+
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
 
 namespace
 {
@@ -97,7 +101,7 @@ bool loadbotconfig(TIniFile &ini, tsprite &spritec)
     try
     {
         ReadConf(conf, "Favourite_Weapon", favweaponname);
-        spritec.brain.favweapon = weaponnametonum(favweaponname);
+        spritec.brain.favweapon = weaponnametonum(favweaponname, guns);
 
         ReadConf(conf, "Secondary_Weapon", spritec.player->secwep);
         ReadConf(conf, "Friend", spritec.brain.friend_, true);

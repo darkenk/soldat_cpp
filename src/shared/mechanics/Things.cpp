@@ -15,10 +15,10 @@
 #include "../network/NetworkServerThing.hpp"
 #endif
 
-#include "../Calc.hpp"
+#include "common/Calc.hpp"
 #include "../Cvar.hpp"
 #include "../Game.hpp"
-#include "../gfx.hpp"
+#include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 
@@ -2106,7 +2106,7 @@ std::int32_t Thing<M>::checkspritecollision()
                         if (timeout < gunresisttime - 30)
                         {
                             // Objects 1-3 are flags, so we need for WeaponIndex subtract by flags+1
-                            weaponindex = weaponnumtoindex(style - (object_num_flags + 1));
+                            weaponindex = weaponnumtoindex(style - (object_num_flags + 1), guns);
 #ifdef SCRIPT
                             // event must be before actual weapon apply.
                             // script might've called ForceWeapon, which we should check.
@@ -2346,7 +2346,8 @@ std::int32_t Thing<M>::checkspritecollision()
                         {
                             // There are in total OBJECT_NUM_NONWEAPON non-weapon objects before the
                             // knife so we need to subtract it+1 for the WeaponIndex (like before)
-                            weaponindex = weaponnumtoindex(style - (object_num_nonweapon + 1));
+                            weaponindex =
+                                weaponnumtoindex(style - (object_num_nonweapon + 1), guns);
 #ifdef SCRIPT
                             // event must be before actual weapon apply.
                             // script might've called ForceWeapon, which we should check.

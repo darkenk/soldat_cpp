@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../Constants.hpp"
-#include "../MapFile.hpp"
-#include "../Parts.hpp"
 #include "../PolyMap.hpp"
-#include "../Weapons.hpp"
 #include "Sprites.hpp"
 #include "Things.hpp"
+#include "common/MapFile.hpp"
+#include "common/Parts.hpp"
+#include "common/Weapons.hpp"
 #include <vector>
 /*#include "Parts.h"*/
 /*#include "MapFile.h"*/

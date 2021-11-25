@@ -20,8 +20,6 @@ float angle2points(const tvector2 p1, tvector2 p2);
 float distance(float x1, float y1, float x2, float y2);
 float sqrdist(float x1, float y1, float x2, float y2);
 float sqrdist(tvector2 p1, tvector2 p2);
-;
 float distance(tvector2 p1, tvector2 p2);
-;
 std::int32_t greaterpowerof2(std::int32_t n);
 std::int32_t roundfair(float value);

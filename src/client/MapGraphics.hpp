@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Gfx.hpp"
-#include "shared/MapFile.hpp"
+#include "common/MapFile.hpp"
 #include "common/Util.hpp"
-#include "shared/Vector.hpp"
+#include "common/Vector.hpp"
 
 #include <array>
 #include <vector>

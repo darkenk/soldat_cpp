@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Vector.hpp"
 #include "Waypoints.hpp"
-#include "common/Util.hpp"
+#include "Util.hpp"
+#include "Vector.hpp"
 #include <array>
 #include <vector>
 

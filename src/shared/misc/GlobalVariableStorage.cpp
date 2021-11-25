@@ -1,12 +1,13 @@
 #include "../Anims.hpp"
 #include "../Constants.hpp"
+#include "../Demo.hpp"
 #include "../Game.hpp"
-#include "../Parts.hpp"
 #include "../PolyMap.hpp"
-#include "../Waypoints.hpp"
-#include "../Weapons.hpp"
 #include "../mechanics/Sprites.hpp"
 #include "GlobalVariable.hpp"
+#include "common/Parts.hpp"
+#include "common/Waypoints.hpp"
+#include "common/Weapons.hpp"
 
 namespace
 {
@@ -153,4 +154,17 @@ auto &votecooldown =
 auto &votekickreasontype = InitGlobalVariable<bool, "votekickreasontype">();
 
 auto &pingticksadd = InitGlobalVariable<std::int32_t, "pingticksadd">();
+
+auto &guns = InitGlobalVariable<GunsDescription, "guns">();
+auto &defaultguns = InitGlobalVariable<GunsDescription, "defaultguns">();
+auto &defaultwmchecksum = InitGlobalVariable<std::uint64_t, "defaultwmchecksum">();
+auto &loadedwmchecksum = InitGlobalVariable<std::uint64_t, "loadedwmchecksum">();
+
+auto &demorecorder = InitGlobalVariable<tdemorecorder<>, "demorecorder">();
+auto &rsize = InitGlobalVariable<std::uint64_t, "rsize">();
+auto &freecam = InitGlobalVariable<std::uint8_t, "freecam">();
+auto &notexts = InitGlobalVariable<std::uint8_t, "notexts">();
+
+auto &gamelog = InitGlobalVariable<tstringlist *, "gamelog">();
+auto &consolelogfilename = InitGlobalVariable<std::string, "consolelogfilename">();
 } // namespace

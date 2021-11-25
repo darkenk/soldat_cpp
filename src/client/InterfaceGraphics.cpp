@@ -30,16 +30,16 @@
 #include "GameRendering.hpp"
 #include "Gfx.hpp"
 #include "MapGraphics.hpp"
+#include "common/Calc.hpp"
+#include "common/Logging.hpp"
 #include "common/PhysFSExt.hpp"
 #include "common/Util.hpp"
+#include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/Calc.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
-#include "common/Logging.hpp"
-#include "shared/gfx.hpp"
 #include <filesystem>
 #include <physfs.h>
 #include <set>
@@ -955,7 +955,7 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
         }
 
         // weapon
-        if (int_.weapon && isdoubleweaponindex(weaponnumtoindex(me->weapon.num)))
+        if (int_.weapon && isdoubleweaponindex(weaponnumtoindex(me->weapon.num, guns)))
         {
             x = relinfo.ammobar_rel_x * _iscala.x + (int_.weapon_x - relinfo.ammobar_rel_x);
             y = relinfo.ammobar_rel_y * _iscala.y + (int_.weapon_y - relinfo.ammobar_rel_y);

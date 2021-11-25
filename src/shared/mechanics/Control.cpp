@@ -16,10 +16,10 @@
 #include "../network/NetworkClientMessages.hpp"
 #include "../network/NetworkClientSprite.hpp"
 #endif
-#include "../Calc.hpp"
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
+#include "common/Calc.hpp"
 #include <SDL2/SDL.h>
 
 // clang-format on

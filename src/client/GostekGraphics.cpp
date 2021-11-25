@@ -17,11 +17,11 @@
 /*#include "Gfx.h"*/
 #include "GameRendering.hpp"
 #include "Gfx.hpp"
-#include "shared/Cvar.hpp"
-#include "shared/Game.hpp"
-#include "shared/gfx.hpp"
+#include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/Cvar.hpp"
+#include "shared/Game.hpp"
 #include <array>
 #include <numbers>
 #include <set>
@@ -408,7 +408,7 @@ void rendergostek(tsprite &soldier)
 
     // secondary weapon (on the back)
 
-    index = weaponnumtoindex(soldier.secondaryweapon.num);
+    index = weaponnumtoindex(soldier.secondaryweapon.num, guns);
 
     if ((index >= eagle) && (index <= flamer))
         include(visible, GOSTEK_SECONDARY_FIRST + index - eagle);
@@ -451,7 +451,7 @@ void rendergostek(tsprite &soldier)
     }
     else if (!soldier.deadmeat)
     {
-        index = weaponnumtoindex(soldier.weapon.num);
+        index = weaponnumtoindex(soldier.weapon.num, guns);
 
         if ((index >= eagle) && (index <= flamer))
         {

@@ -1,14 +1,10 @@
 // automatically converted
 
 #include "Parts.hpp"
-#include "common/PhysFSExt.hpp"
-#include "common/misc/PortUtils.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
+#include "PhysFSExt.hpp"
+#include "misc/PortUtils.hpp"
+#include "misc/PortUtilsSoldat.hpp"
 #include <physfs.h>
-
-// clang-format off
-#include "misc/GlobalVariableStorage.cpp"
-// clang-format on
 
 void particlesystem::doverlettimestep()
 {

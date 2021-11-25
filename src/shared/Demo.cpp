@@ -11,7 +11,7 @@
 #include "../client/InterfaceGraphics.hpp"
 #endif
 #include "Cvar.hpp"
-#include "MapFile.hpp"
+#include "common/MapFile.hpp"
 #include "common/Util.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
@@ -25,18 +25,19 @@
 
 using string = std::string;
 
-tdemorecorder demorecorder;
 #ifndef SERVER
 tdemoplayer demoplayer;
 #endif
-std::uint64_t rsize;
-std::uint8_t freecam;
-std::uint8_t notexts = 0;
+
+namespace
+{
 
 std::string extractfilename(const std::string &filepath)
 {
     return std::filesystem::path(filepath).stem();
 }
+
+} // namespace
 
 template <std::size_t N>
 void stringtoarray(std::array<char, N> &arr, const std::string &str)
@@ -47,8 +48,8 @@ void stringtoarray(std::array<char, N> &arr, const std::string &str)
         arr[i++] = c;
     }
 }
-
-bool tdemorecorder::startrecord(const string &filename)
+template <Config::Module M>
+bool tdemorecorder<M>::startrecord(const string &filename)
 {
     std::int32_t spriteid;
 
@@ -93,7 +94,8 @@ bool tdemorecorder::startrecord(const string &filename)
     return result;
 }
 
-void tdemorecorder::stoprecord()
+template <Config::Module M>
+void tdemorecorder<M>::stoprecord()
 {
     if (!active())
         return;
@@ -132,7 +134,8 @@ void tdemorecorder::stoprecord()
     fdemofile.free();
 }
 
-std::int32_t tdemorecorder::createdemoplayer()
+template <Config::Module M>
+std::int32_t tdemorecorder<M>::createdemoplayer()
 {
     std::int32_t p;
     tplayer player;
@@ -185,7 +188,8 @@ std::int32_t tdemorecorder::createdemoplayer()
     return createdemoplayer_result;
 }
 
-void tdemorecorder::saverecord(const void *r, std::int32_t size)
+template <Config::Module M>
+void tdemorecorder<M>::saverecord(const void *r, std::int32_t size)
 {
     if (size == 0)
         return;
@@ -197,7 +201,8 @@ void tdemorecorder::saverecord(const void *r, std::int32_t size)
 }
 
 #ifndef SERVER
-void tdemorecorder::savecamera()
+template <Config::Module M>
+void tdemorecorder<M>::savecamera()
 {
     NotImplemented(NITag::NETWORK);
 #if 0
@@ -209,7 +214,8 @@ void tdemorecorder::savecamera()
 #endif
 }
 
-void tdemorecorder::saveposition()
+template <Config::Module M>
+void tdemorecorder<M>::saveposition()
 {
     NotImplemented(NITag::NETWORK);
 #if 0
@@ -232,7 +238,8 @@ void tdemorecorder::saveposition()
 }
 #endif
 
-void tdemorecorder::savenextframe()
+template <Config::Module M>
+void tdemorecorder<M>::savenextframe()
 {
     if (!factive)
         return;
@@ -372,7 +379,7 @@ void tdemoplayer::position(std::int32_t ticks)
 
     if (fskipto < maintickcounter)
     {
-        fdemofile.seek(sizeof(fdemoheader), tmemorystream::sofrombeginning);
+        fdemofile.seek(sizeof(fdemoheader), tmemorystream<>::sofrombeginning);
 
         maintickcounter = 0;
 
@@ -430,44 +437,56 @@ void tdemoplayer::position(std::int32_t ticks)
 //  {$ENDIF}
 // end;
 
-bool tmemorystream::writebuffer(const void *buff, int32_t size)
+template <Config::Module M>
+bool tmemorystream<M>::writebuffer(const void *buff, int32_t size)
 {
     NotImplemented(NITag::FILESYSTEM);
     return false;
 }
 
-bool tmemorystream::savetofile(const std::string &filename)
+template <Config::Module M>
+bool tmemorystream<M>::savetofile(const std::string &filename)
 {
     NotImplemented(NITag::FILESYSTEM);
     return false;
 }
 
-void tmemorystream::write1(const void *buff, int32_t size)
+template <Config::Module M>
+void tmemorystream<M>::write1(const void *buff, int32_t size)
 {
     NotImplemented(NITag::FILESYSTEM);
 }
 
-void tmemorystream::read1(void *buff, int32_t size)
+template <Config::Module M>
+void tmemorystream<M>::read1(void *buff, int32_t size)
 {
     NotImplemented(NITag::FILESYSTEM);
 }
 
-void tmemorystream::readbuffer(void *buff, int32_t size)
+template <Config::Module M>
+void tmemorystream<M>::readbuffer(void *buff, int32_t size)
 {
     NotImplemented(NITag::FILESYSTEM);
 }
 
-void tmemorystream::loadfromfile(const std::string &filename)
+template <Config::Module M>
+void tmemorystream<M>::loadfromfile(const std::string &filename)
 {
     NotImplemented(NITag::FILESYSTEM);
 }
 
-void tmemorystream::seek(int32_t bytes, tmemorystream::pos position)
+template <Config::Module M>
+void tmemorystream<M>::seek(int32_t bytes, tmemorystream::pos position)
 {
     NotImplemented(NITag::FILESYSTEM);
 }
 
-void tmemorystream::free()
+template <Config::Module M>
+void tmemorystream<M>::free()
 {
     NotImplemented(NITag::FILESYSTEM);
 }
+
+template struct tmemorystream<>;
+template class tdemorecorder<>;
+template class tdemo<>;

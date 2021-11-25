@@ -10,7 +10,7 @@
 /*#include "Windows.h"*/
 /*#include "Vector.h"*/
 /*#include "Sprites.h"*/
-#include "../Parts.hpp"
+#include "common/Parts.hpp"
 #include "../PolyMap.hpp"
 #include "Sprites.hpp"
 

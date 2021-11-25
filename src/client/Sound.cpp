@@ -2,13 +2,13 @@
 
 #include "Sound.hpp"
 #include "Client.hpp"
+#include "common/Logging.hpp"
+#include "common/Parts.hpp"
 #include "common/PhysFSExt.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
-#include "common/Logging.hpp"
-#include "shared/Parts.hpp"
 #include <SDL2/SDL.h>
 #include <array>
 #include <soloud.h>

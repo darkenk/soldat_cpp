@@ -10,12 +10,12 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
-#include "common/Logging.hpp"
-#include "../gfx.hpp"
 #include "../misc/BitStream.hpp"
-#include "common/misc/PortUtils.hpp"
 #include "NetworkClientSprite.hpp"
 #include "NetworkUtils.hpp"
+#include "common/Logging.hpp"
+#include "common/gfx.hpp"
+#include "common/misc/PortUtils.hpp"
 #include <physfs.h>
 #include <shared/Cvar.hpp>
 
@@ -622,8 +622,8 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
         newplayerweapon();
     }
 
-    createdefaultweapons(CVar::sv_realisticmode);
-    defaultwmchecksum = createwmchecksum();
+    createdefaultweapons(CVar::sv_realisticmode, guns, defaultguns);
+    defaultwmchecksum = createwmchecksum(guns);
 
     for (weaponindex = 0; weaponindex < original_weapons; weaponindex++)
     {
@@ -647,7 +647,7 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
         gun.nocollision = varsmsg->nocollision[weaponindex];
     }
 
-    buildweapons();
+    buildweapons(guns);
 
     if (mysprite > 0)
     {
@@ -657,7 +657,7 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
             clientspritesnapshot();
     }
 
-    loadedwmchecksum = createwmchecksum();
+    loadedwmchecksum = createwmchecksum(guns);
 
     if (loadedwmchecksum != defaultwmchecksum)
         if (!demoplayer.active())

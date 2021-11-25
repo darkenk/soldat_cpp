@@ -73,7 +73,7 @@ static void commandtoggle(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 }
 
-void commandalias(std::vector<std::string> &args, std::uint8_t sender)
+static void commandalias(std::vector<std::string> &args, std::uint8_t sender)
 {
     std::string aliasname;
 
@@ -97,7 +97,7 @@ void commandalias(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 }
 
-void commandexecutealias(std::vector<std::string> &args, std::uint8_t sender)
+static void commandexecutealias(std::vector<std::string> &args, std::uint8_t sender)
 {
     pcommand commandptr;
     tstringlist inputparse;
@@ -119,7 +119,7 @@ void commandexecutealias(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 }
 
-void commandecho(std::vector<std::string> &args, std::uint8_t sender)
+static void commandecho(std::vector<std::string> &args, std::uint8_t sender)
 {
     if (length(args) == 1)
     {
@@ -129,7 +129,7 @@ void commandecho(std::vector<std::string> &args, std::uint8_t sender)
     GetMainConsole().console(args[1], game_message_color);
 }
 
-void commandreset(std::vector<std::string> &args, std::uint8_t sender)
+static void commandreset(std::vector<std::string> &args, std::uint8_t sender)
 {
     NotImplemented(NITag::OTHER);
 #if 0
@@ -155,7 +155,7 @@ void commandreset(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 }
 
-void commandcmdlist(std::vector<std::string> &args, std::uint8_t sender)
+static void commandcmdlist(std::vector<std::string> &args, std::uint8_t sender)
 {
     NotImplemented(NITag::OTHER);
 #if 0
@@ -170,7 +170,7 @@ void commandcmdlist(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 }
 
-void commandcvarlist(std::vector<std::string> &args, std::uint8_t sender)
+static void commandcvarlist(std::vector<std::string> &args, std::uint8_t sender)
 {
     NotImplemented(NITag::OTHER);
 #if 0
@@ -197,7 +197,7 @@ void commandcvarlist(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 }
 
-void commandinc(std::vector<std::string> &args, std::uint8_t sender)
+static void commandinc(std::vector<std::string> &args, std::uint8_t sender)
 {
     NotImplemented(NITag::OTHER);
 #if 0
@@ -371,6 +371,7 @@ void commandnetloglevel(std::vector<std::string> &args, std::uint8_t sender)
 /*$POP*/
 #endif
 
+template <Config::Module M>
 pcommand commandadd(const std::string &commandnamevar, tcommandfunction commandptr,
                     const std::string &description, tcommandflags flags)
 {
@@ -395,6 +396,7 @@ pcommand commandadd(const std::string &commandnamevar, tcommandfunction commandp
     return newcommand;
 }
 
+template <Config::Module M>
 bool parseinput(const std::string &input)
 {
     return parseinput(input, 0);
@@ -416,6 +418,7 @@ bool SetValue(const std::string &cvarName, const std::string &value)
     return ret;
 }
 
+template <Config::Module M>
 bool parseinput(const std::string &input, std::uint8_t sender)
 {
     tstringlist inputparse;
@@ -506,6 +509,7 @@ bool parseinput(const std::string &input, std::uint8_t sender)
     return false;
 }
 
+template <Config::Module M>
 bool loadconfig(const std::string &configname)
 {
     std::string path;
@@ -535,6 +539,7 @@ bool loadconfig(const std::string &configname)
     return result;
 }
 
+template <Config::Module M>
 void parsecommandline(int argc, const char *argv[])
 {
     std::vector<std::string> commands;
@@ -556,14 +561,13 @@ void parsecommandline(int argc, const char *argv[])
     }
 }
 
-tcommandtargets commandtarget(std::string target, std::uint8_t sender);
-
 static void addplayer(std::uint8_t id, std::vector<std::uint8_t> &players)
 {
     setlength(players, length(players) + 1);
     players[high(players)] = sprite[id].num;
 }
 
+template <Config::Module M>
 tcommandtargets commandtarget(std::string target, std::uint8_t sender)
 {
     std::vector<std::uint8_t> players;
@@ -670,6 +674,7 @@ tcommandtargets commandtarget(std::string target, std::uint8_t sender)
     return result;
 }
 
+template <Config::Module M>
 void rundeferredcommands()
 {
     deferredinitialized = true;
@@ -680,6 +685,7 @@ void rundeferredcommands()
     deferredcommands.clear();
 }
 
+template <Config::Module M>
 void commandinit()
 {
     commandadd("echo", commandecho, "echo text", 0);
@@ -703,6 +709,7 @@ void commandinit()
 #endif
 }
 
+template <Config::Module M>
 void commanddeinit()
 {
     for (auto &c : commands)
@@ -711,3 +718,15 @@ void commanddeinit()
     }
     commands.clear();
 }
+
+template void commandinit();
+template void commanddeinit();
+template bool parseinput(const std::string &input);
+template bool parseinput(const std::string &input, std::uint8_t sender);
+template bool loadconfig(const std::string &configname);
+
+template pcommand commandadd(const std::string &commandnamevar, tcommandfunction commandptr,
+                             const std::string &description, tcommandflags flags);
+template void parsecommandline(int argc, const char *argv[]);
+template void rundeferredcommands();
+template tcommandtargets commandtarget(std::string target, std::uint8_t sender);

@@ -1,4 +1,4 @@
-#include "Vector.hpp"
+#include "common/Vector.hpp"
 #include "gtest/gtest.h"
 
 TEST(CompilationTest, VectorTest)

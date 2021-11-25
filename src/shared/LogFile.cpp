@@ -12,10 +12,12 @@
 #include "shared/misc/GlobalVariableStorage.cpp"
 // clang-format on
 
+namespace
+{
 std::mutex loglock;
-tstringlist *gamelog = nullptr;
-std::string consolelogfilename;
+}
 
+template <Config::Module M>
 void newlogfile(tstringlist *f, const std::string &name)
 {
     if (not CVar::log_enable)
@@ -51,6 +53,7 @@ void newlogfile(tstringlist *f, const std::string &name)
     fclose(logfile);
 }
 
+template <Config::Module M>
 void addlinetologfile(tstringlist *f, const std::string &s, const std::string &name, bool withdate)
 {
     LogTraceG("{}", s);
@@ -99,6 +102,7 @@ void addlinetologfile(tstringlist *f, const std::string &s, const std::string &n
     }
 }
 
+template <Config::Module M>
 void writelogfile(tstringlist *f, const std::string &name)
 {
     if (not CVar::log_enable)
@@ -157,6 +161,7 @@ void writelogfile(tstringlist *f, const std::string &name)
     }
 }
 
+template <Config::Module M>
 void newlogfiles()
 {
     std::int32_t j;
@@ -211,3 +216,9 @@ void newlogfiles()
 #endif
 #endif
 }
+
+template void newlogfile(tstringlist *f, const std::string &name);
+template void writelogfile(tstringlist *f, const std::string &name);
+template void addlinetologfile(tstringlist *f, const std::string &s, const std::string &name,
+                               bool withdate);
+template void newlogfiles();
