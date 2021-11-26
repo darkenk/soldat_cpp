@@ -4,10 +4,10 @@
 #include "BanSystem.hpp"
 #include "Server.hpp"
 #include "ServerHelper.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Command.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/network/NetworkServer.hpp"
 #include "shared/network/NetworkServerConnection.hpp"
 #include "shared/network/NetworkServerFunctions.hpp"
@@ -43,7 +43,7 @@ void commandaddbot(std::vector<std::string> &args, std::uint8_t sender)
         return;
 
     tempstr = args[0];
-    teamset = strtointdef({tempstr[6], 1}, 0);
+    teamset = strtointdef({tempstr[6], 1}, 1);
     addbotplayer(name, teamset);
 }
 

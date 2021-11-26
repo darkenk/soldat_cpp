@@ -8,9 +8,9 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
+#include "NetworkUtils.hpp"
 #include "common/Logging.hpp"
 #include "common/gfx.hpp"
-#include "NetworkUtils.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -115,7 +115,7 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
 
     sprite[i].tertiaryweapon.ammocount = spritesnap->grenadecount;
 
-    LogDebugG("sprite: {} grenade {}", i, spritesnap->grenadecount);
+    // LogDebugG("sprite: {} grenade {}", i, spritesnap->grenadecount);
 
     sprite[i].health = spritesnap->health;
     sprite[i].vest = spritesnap->vest;

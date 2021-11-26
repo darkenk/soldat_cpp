@@ -14,10 +14,10 @@
 #include "../../client/Sound.hpp"
 #include "../network/NetworkClientBullet.hpp"
 #endif
-#include "common/Calc.hpp"
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
+#include "common/Calc.hpp"
 #include "common/Logging.hpp"
 #include "common/Util.hpp"
 #include "common/gfx.hpp"

@@ -14,6 +14,31 @@ std::int32_t maintickcounter;
 std::int32_t playersnum, botsnum, spectatorsnum;
 PascalArray<std::int32_t, 1, 4> playersteamnum;
 
+std::mutex TNetwork::sNetworksMutex;
+std::vector<TNetwork *> TNetwork::sNetworks;
+
+void NetworksGlobalCallback(PSteamNetConnectionStatusChangedCallback_t pInfo)
+{
+    std::lock_guard m(TNetwork::sNetworksMutex);
+    auto n = std::find_if(
+        std::begin(TNetwork::sNetworks), std::end(TNetwork::sNetworks), [pInfo](auto &v) {
+            if (v->FPeer != k_HSteamNetConnection_Invalid && pInfo->m_hConn == v->FPeer)
+            {
+                return true;
+            }
+            if (v->FHost != k_HSteamListenSocket_Invalid &&
+                pInfo->m_info.m_hListenSocket == v->FHost)
+            {
+                return true;
+            }
+            return false;
+        });
+    Assert(n != std::end(TNetwork::sNetworks));
+
+    std::lock_guard m2((*n)->QueueMutex);
+    (*n)->QuedCallbacks.emplace(*pInfo);
+}
+
 void DebugNet(ESteamNetworkingSocketsDebugOutputType nType, const char *pszMsg)
 {
     LogDebug("network", "{}", pszMsg);
@@ -31,13 +56,24 @@ TNetwork::TNetwork()
 
     NetworkingSockets = SteamNetworkingSockets();
     NetworkingUtils = SteamNetworkingUtils();
+    NetworkingUtils->SetGlobalCallback_SteamNetConnectionStatusChanged(NetworksGlobalCallback);
 
     NetworkingUtils->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg,
                                             &DebugNet);
+    std::lock_guard m(sNetworksMutex);
+    sNetworks.emplace_back(this);
 }
 
 TNetwork::~TNetwork()
 {
+    {
+        std::lock_guard m(sNetworksMutex);
+        auto n = std::find(std::begin(sNetworks), std::end(sNetworks), this);
+        if (n != std::end(sNetworks))
+        {
+            sNetworks.erase(n);
+        }
+    }
     disconnect(true);
 #ifndef STEAM
     NotImplemented(NITag::NETWORK);
@@ -94,6 +130,17 @@ std::string TNetwork::GetStringAddress(PSteamNetworkingIPAddr pAddress, bool Por
     std::array<char, 128> TempIP;
     pAddress->ToString(TempIP.data(), 128, Port);
     return TempIP.data();
+}
+
+void TNetwork::RunCallbacks()
+{
+    NetworkingSockets->RunCallbacks();
+    std::lock_guard m(QueueMutex);
+    while (!QuedCallbacks.empty())
+    {
+        ProcessEvents(&QuedCallbacks.front());
+        QuedCallbacks.pop();
+    }
 }
 
 template <>

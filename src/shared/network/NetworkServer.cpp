@@ -63,7 +63,7 @@ tservernetwork::tservernetwork(std::string Host, std::uint32_t Port)
         //  InitSettings.m_int32 = 0
         // else
         //#endif
-        FHost = NetworkingSockets->CreateListenSocketIP(ServerAddress, 2, InitSettings);
+        FHost = NetworkingSockets->CreateListenSocketIP(ServerAddress, 1, InitSettings);
 
         if (FHost == k_HSteamListenSocket_Invalid)
         {
@@ -92,9 +92,7 @@ void tservernetwork::ProcessLoop()
 {
     std::int32_t NumMsgs;
     PSteamNetworkingMessage_t IncomingMsg;
-#ifndef STEAM
-    NetworkingSockets->RunCallbacks();
-#endif
+    RunCallbacks();
 
     NumMsgs = NetworkingSockets->ReceiveMessagesOnPollGroup(FPollGroup, &IncomingMsg, 1);
 

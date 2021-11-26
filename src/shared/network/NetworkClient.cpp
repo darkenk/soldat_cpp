@@ -41,9 +41,7 @@ void tclientnetwork::processloop()
 {
     std::int32_t NumMsgs;
     PSteamNetworkingMessage_t IncomingMsg;
-#ifndef STEAM
-    NetworkingSockets->RunCallbacks();
-#endif
+    RunCallbacks();
     if (FPeer == k_HSteamNetConnection_Invalid)
     {
         return;
@@ -148,7 +146,7 @@ bool tclientnetwork::connect(std::string Host, std::uint32_t Port)
     InitSettings[1].SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged,
                            (void *)&ProcessEventsCallback);
 
-    FPeer = NetworkingSockets->ConnectByIPAddress(ServerAddress, 2, InitSettings);
+    FPeer = NetworkingSockets->ConnectByIPAddress(ServerAddress, 1, InitSettings);
 
     if (FPeer == k_HSteamNetConnection_Invalid)
     {

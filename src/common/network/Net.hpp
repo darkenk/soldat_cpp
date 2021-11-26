@@ -10,6 +10,8 @@
 #include <steam/isteamnetworkingutils.h>
 #include <steam/steamnetworkingsockets.h>
 #include <string>
+#include <mutex>
+#include <queue>
 
 // Binary ops
 auto constexpr B1 = 1;
@@ -158,20 +160,6 @@ using PSteamNetworkingMessage_t = SteamNetworkingMessage_t *;
 
 class TNetwork
 {
-  protected:
-    bool FInit;
-    bool FActive;
-    SteamNetworkingIPAddr FAddress;
-
-    HSteamNetConnection FPeer;
-    HSteamListenSocket FHost;
-#ifndef STEAM
-    ISteamNetworkingSockets *NetworkingSockets;
-    ISteamNetworkingUtils *NetworkingUtils;
-#else
-    TSteamNetworkingSockets NetworkingSockets;
-    TSteamNetworkingUtils NetworkingUtils;
-#endif
   public:
     bool Active()
     {
@@ -222,6 +210,30 @@ class TNetwork
     {
         return FAddress;
     }
+  protected:
+    bool FInit;
+    bool FActive;
+    SteamNetworkingIPAddr FAddress;
+
+    HSteamNetConnection FPeer;
+    HSteamListenSocket FHost;
+#ifndef STEAM
+    ISteamNetworkingSockets *NetworkingSockets;
+    ISteamNetworkingUtils *NetworkingUtils;
+#else
+    TSteamNetworkingSockets NetworkingSockets;
+    TSteamNetworkingUtils NetworkingUtils;
+#endif
+    void RunCallbacks();
+
+    static std::mutex sNetworksMutex;
+    static std::vector<TNetwork*> sNetworks;
+
+    friend void NetworksGlobalCallback(PSteamNetConnectionStatusChangedCallback_t pInfo);
+
+  private:
+    std::mutex QueueMutex;
+    std::queue<SteamNetConnectionStatusChangedCallback_t> QuedCallbacks;
 };
 
 

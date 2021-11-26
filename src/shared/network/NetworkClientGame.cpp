@@ -10,10 +10,10 @@
 #include "../Game.hpp"
 #include "../GameMenus.hpp"
 #include "../GameStrings.hpp"
-#include "common/gfx.hpp"
 #include "../mechanics/Sprites.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
 #include "NetworkUtils.hpp"
+#include "common/gfx.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include <limits>
 
 // clang-format off
@@ -370,7 +370,7 @@ void clienthandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
 
     if ((playermsg->num == mysprite) && (mapchangecounter < 1))
     {
-        showmapchangescoreboard(0);
+        showmapchangescoreboard();
         gamemenushow(teammenu, false);
     }
 
