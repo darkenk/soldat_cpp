@@ -38,10 +38,6 @@ set(SHARED_SRC
     ../shared/misc/GlobalVariableStorage.cpp
 )
 
-add_executable(SoldatServer main.cpp ${SRC} ${SHARED_SRC})
-target_compile_definitions(SoldatServer PRIVATE SERVER=1)
-target_link_libraries(SoldatServer SDL2::SDL2main SDL2::SDL2-static spdlog::spdlog Freetype::Freetype ${PHYSFS_LIB} GameNetworkingSockets::GameNetworkingSockets_s)
-target_include_directories(SoldatServer PRIVATE ./config ../ ${PHYSFS_INC} ${GLAD_INC} ${STB_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
 
 add_library(SoldatServerLib OBJECT ${SRC} ${SHARED_SRC})
 target_compile_definitions(SoldatServerLib PRIVATE SERVER=1)
@@ -59,4 +55,25 @@ target_link_libraries(SoldatServerLib
     spdlog::spdlog
     Freetype::Freetype
     GameNetworkingSockets::GameNetworkingSockets_s
+)
+
+add_executable(SoldatServer main.cpp)
+target_compile_definitions(SoldatServer PRIVATE SERVER=1)
+target_link_libraries(SoldatServer
+    CommonLib
+    SoldatServerLib
+    SDL2::SDL2main
+    SDL2::SDL2-static
+    spdlog::spdlog
+    Freetype::Freetype
+    ${PHYSFS_LIB}
+    GameNetworkingSockets::GameNetworkingSockets_s
+)
+target_include_directories(SoldatServer PRIVATE
+    ./config
+    ../
+    ${PHYSFS_INC}
+    ${GLAD_INC}
+    ${STB_INCLUDE_DIR}
+    ${FREETYPE_INCLUDE_DIRS}
 )

@@ -52,26 +52,6 @@ set(SHARED_SRC
     ../shared/misc/GlobalVariableStorage.cpp
 )
 
-add_executable(SoldatClient main.cpp ${SRC} ${SHARED_SRC})
-target_link_libraries(SoldatClient
-    SDL2::SDL2main
-    SDL2::SDL2-static
-    Freetype::Freetype
-    ${PHYSFS_LIB}
-    GameNetworkingSockets::GameNetworkingSockets_s
-    spdlog::spdlog
-    ${SOLOUD_LIBRARY}
-)
-target_include_directories(SoldatClient PRIVATE
-    ./config
-    ../
-    ${PHYSFS_INC}
-    ${GLAD_INC}
-    ${STB_INCLUDE_DIR}
-    ${FREETYPE_INCLUDE_DIRS}
-    ${SOLOUD_INCLUDE_DIR}
-)
-
 add_library(SoldatClientLib OBJECT ${SRC} ${SHARED_SRC})
 target_include_directories(SoldatClientLib PRIVATE
     ./config
@@ -88,4 +68,27 @@ target_link_libraries(SoldatClientLib
     Freetype::Freetype
     GameNetworkingSockets::GameNetworkingSockets_s
     spdlog::spdlog
+)
+
+
+add_executable(SoldatClient main.cpp)
+target_link_libraries(SoldatClient
+    CommonLib
+    SoldatClientLib
+    SDL2::SDL2main
+    SDL2::SDL2-static
+    Freetype::Freetype
+    ${PHYSFS_LIB}
+    GameNetworkingSockets::GameNetworkingSockets_s
+    spdlog::spdlog
+    ${SOLOUD_LIBRARY}
+)
+target_include_directories(SoldatClient PRIVATE
+    ./config
+    ../
+    ${PHYSFS_INC}
+    ${GLAD_INC}
+    ${STB_INCLUDE_DIR}
+    ${FREETYPE_INCLUDE_DIRS}
+    ${SOLOUD_INCLUDE_DIR}
 )
