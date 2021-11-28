@@ -821,7 +821,7 @@ void loadweapons(std::string Filename)
     bool IsRealistic;
     LogDebugG("LoadWeapons");
 
-    IsRealistic = CVar::sv_realisticmode = true;
+    IsRealistic = CVar::sv_realisticmode == true;
     createweapons(IsRealistic, guns, defaultguns);
     // FIXME (falcon) while the above instruction has to be done every time,
     // because you never know if WM provides all the values,
