@@ -361,25 +361,23 @@ void rendergostek(tsprite &soldier)
             switch (soldier.player->headcap)
             {
             case GFX::GOSTEK_HELM:
-                switch (grabbed)
+                if (grabbed)
                 {
-                case true:
                     include(visible, GOSTEK_GRABBED_HELMET);
-                    break;
-                case false:
+                }
+                else
+                {
                     include(visible, GOSTEK_HELMET);
-                    break;
                 }
                 break;
             case GFX::GOSTEK_KAP:
-                switch (grabbed)
+                if (grabbed)
                 {
-                case true:
                     include(visible, GOSTEK_GRABBED_HAT);
-                    break;
-                case false:
+                }
+                else
+                {
                     include(visible, GOSTEK_HAT);
-                    break;
                 }
                 break;
             }

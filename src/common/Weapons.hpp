@@ -8,9 +8,9 @@
 struct tgun
 {
     // Scrambled 1.6, to piss off gamehackers.
-    std::int8_t ammo;
-    std::int8_t ammocount;
-    std::int32_t num;
+    std::uint8_t ammo;
+    std::uint8_t ammocount;
+    std::uint8_t num;
     float movementacc;
     std::int16_t bink;
     std::uint32_t recoil;
@@ -24,8 +24,8 @@ struct tgun
     std::uint32_t reloadtimeprev;
     std::uint32_t reloadtimecount;
     float reloadtimefloat;
-    std::uint32_t texturenum;
-    std::uint32_t cliptexturenum;
+    std::uint8_t texturenum;
+    std::uint8_t cliptexturenum;
     bool clipreload;
     std::uint32_t clipintime;
     std::uint32_t clipouttime;
@@ -39,12 +39,12 @@ struct tgun
     float modifierlegs;
     float modifierchest;
     float modifierhead;
-    std::int8_t nocollision;
-    std::int8_t firemode;
+    std::uint8_t nocollision;
+    std::uint8_t firemode;
     std::uint32_t timeout;
-    std::int8_t bulletstyle;
-    std::int32_t firestyle;
-    std::int32_t bulletimagestyle;
+    std::uint8_t bulletstyle;
+    std::uint8_t firestyle;
+    std::uint8_t bulletimagestyle;
 };
 
 constexpr std::int32_t eagle = 1;

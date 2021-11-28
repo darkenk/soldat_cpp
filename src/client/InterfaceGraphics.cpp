@@ -1868,8 +1868,8 @@ void rendervotemenutexts()
         gfxdrawtext(str1[1], x + 65, y);
 
         gfxtextcolor(rgba(224, 218, 244, 205));
-        gfxdrawtext(("Voter:") + ' ' + (votestarter), x + 10, y + 11);
-        gfxdrawtext(("Reason:") + (votereason), x + 10, y + 20);
+        gfxdrawtext(("Voter: ") + (votestarter), x + 10, y + 11);
+        gfxdrawtext(("Reason: ") + (votereason), x + 10, y + 20);
 
         gfxtextcolor(rgba(234, 234, 114, 205));
         gfxdrawtext(("F12 - Yes   F11 - No"), x + 50, y + 31);

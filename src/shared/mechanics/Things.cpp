@@ -15,9 +15,9 @@
 #include "../network/NetworkServerThing.hpp"
 #endif
 
-#include "common/Calc.hpp"
 #include "../Cvar.hpp"
 #include "../Game.hpp"
+#include "common/Calc.hpp"
 #include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
@@ -578,8 +578,11 @@ bool spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num)
     previousspawn = 0;
 
     for (i = 1; i <= 255; i++)
+    {
         if (map.spawnpoints[i].active)
+        {
             if (map.spawnpoints[i].team == team)
+            {
                 if (thing[num].lastspawn != i)
                 {
                     spawnscount += 1;
@@ -587,6 +590,9 @@ bool spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num)
                 }
                 else
                     previousspawn = i;
+            }
+        }
+    }
 
     if (spawnscount == 0)
     {
@@ -638,31 +644,35 @@ bool randomizestart(tvector2 &start, std::uint8_t team)
     spawnscount = 0;
 
     for (i = 1; i <= max_spawnpoints; i++)
+    {
         if (map.spawnpoints[i].active)
+        {
             if (map.spawnpoints[i].team == team)
             {
                 spawnscount += 1;
                 spawns[spawnscount] = i;
             }
+        }
+    }
 
     if (spawnscount == 0)
     {
         result = false;
         for (i = 1; i <= max_spawnpoints; i++)
+        {
             if (map.spawnpoints[i].active)
             {
                 spawnscount += 1;
                 spawns[spawnscount] = i;
             }
+        }
     }
 
     if (spawnscount > 0)
     {
         i = Random(spawnscount) + 1;
-        LogDebugG("{} {}", map.spawnpoints[spawns[i]].x, Random(8));
         start.x = map.spawnpoints[spawns[i]].x - 4 + Random(8);
         start.y = map.spawnpoints[spawns[i]].y - 4 + Random(4);
-        LogDebugG("{} {}", map.spawnpoints[spawns[i]].y, -4 + Random(4));
     }
     return result;
 }
@@ -1003,6 +1013,7 @@ void Thing<M>::update()
 
     // Parachute
     if (style == object_parachute)
+    {
         if ((holdingsprite > 0) && (holdingsprite < max_sprites + 1))
         {
             skeleton.pos[4] = sprite[holdingsprite].skeleton.pos[12];
@@ -1026,6 +1037,7 @@ void Thing<M>::update()
                 timeout = 180;
 #endif
         }
+    }
 
 #ifdef SERVER
     LogTraceG("TThing.Update 4");

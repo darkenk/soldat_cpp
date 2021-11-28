@@ -3,12 +3,12 @@
 
 #include "BanSystem.hpp"
 #include "Server.hpp"
+#include "common/Logging.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Command.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
-#include "common/Logging.hpp"
 #include "shared/mechanics/Sprites.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/network/NetworkServerMessages.hpp"
 #include <filesystem>
 
@@ -235,6 +235,7 @@ void writepid()
 std::int32_t getpid()
 {
     NotImplemented(NITag::OTHER);
+    return 0;
 #if 0
     std::int32_t getpid_result;
     result = system.getprocessid;

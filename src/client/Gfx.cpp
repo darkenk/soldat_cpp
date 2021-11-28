@@ -5,9 +5,9 @@
 #include "BinPack.hpp"
 #include "Input.hpp"
 #include "common/Logging.hpp"
-#include "shared/misc/FontAtlas.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/misc/FontAtlas.hpp"
 #include "shared/misc/SignalUtils.hpp"
 #include <SDL2/SDL.h>
 #include <cmath>
@@ -1954,6 +1954,8 @@ void gfxdrawtext(MyFloat x, MyFloat y)
     case gfx_baseline:
         y = y;
         break;
+    default:
+        Assert(false);
     }
 
     x = pxl.x * floor((float)(x) / pxl.x);
@@ -2373,6 +2375,8 @@ void tgfxtexture::setwrap(tgfxtexturewrap s, tgfxtexturewrap t)
     case gfx_repeat:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         break;
+    default:
+        Assert(false);
     }
 
     switch (t)
@@ -2383,6 +2387,8 @@ void tgfxtexture::setwrap(tgfxtexturewrap s, tgfxtexturewrap t)
     case gfx_repeat:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         break;
+    default:
+        Assert(false);
     }
 }
 
@@ -2407,6 +2413,8 @@ void tgfxtexture::setfilter(tgfxtexturefilter min, tgfxtexturefilter mag)
     case gfx_mipmap_nearest:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
         break;
+    default:
+        Assert(false);
     }
 
     switch (mag)
@@ -2419,6 +2427,8 @@ void tgfxtexture::setfilter(tgfxtexturefilter min, tgfxtexturefilter mag)
     case gfx_mipmap_nearest:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         break;
+    default:
+        Assert(false);
     }
 }
 

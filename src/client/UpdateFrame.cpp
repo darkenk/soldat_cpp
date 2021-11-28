@@ -241,9 +241,11 @@ void update_frame()
         timeleftsec = (timelimitcounter - timeleftmin * 3600) / 60;
 
         if (timelimitcounter > 0)
+        {
             if (timelimitcounter < 601)
             {
                 if (timelimitcounter % 60 == 0)
+                {
                     if (mapchangecounter == -60)
                     {
                         GetMainConsole().console(_("Time Left:") + ' ' +
@@ -252,6 +254,7 @@ void update_frame()
                                                  game_message_color);
                         playsound(sfx_signal);
                     }
+                }
             }
             else if (timelimitcounter < 3601)
             {
@@ -283,6 +286,7 @@ void update_frame()
                                          game_message_color);
                 playsound(sfx_signal);
             }
+        }
 
         // Map voting timer
         timervote();

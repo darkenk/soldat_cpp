@@ -4,12 +4,12 @@
 #include "BanSystem.hpp"
 #include "Server.hpp"
 #include "ServerHelper.hpp"
+#include "common/Logging.hpp"
 #include "shared/Console.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/LogFile.hpp"
-#include "common/Logging.hpp"
 #include "shared/network/NetworkServer.hpp"
 #include "shared/network/NetworkServerConnection.hpp"
 #include "shared/network/NetworkServerGame.hpp"
@@ -553,6 +553,7 @@ void updateframe()
         timeleftsec = (timelimitcounter - timeleftmin * minute) / 60;
 
         if (timelimitcounter > 0)
+        {
             if (timelimitcounter < five_minutes + 1)
             {
                 if (timelimitcounter % minute == 0)
@@ -564,6 +565,7 @@ void updateframe()
                 GetServerMainConsole().console(string("Time Left: ") +
                                                    inttostr(timelimitcounter / minute) + " minutes",
                                                game_message_color);
+        }
 
         LogTraceG("UpdateFrame 2");
 

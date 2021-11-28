@@ -216,10 +216,12 @@ bool teamcollides(std::int32_t poly, std::int32_t team, bool bullet)
                 result = false;
         else if ((map.polytype[poly] == poly_type_green_bullets) ||
                  (map.polytype[poly] == poly_type_green_player))
+        {
             if ((team == team_delta) && (map.polytype[poly] == poly_type_green_bullets))
                 result = true;
             else
                 result = false;
+        }
     }
     else
     {
@@ -359,10 +361,12 @@ void Sprite<M>::update()
     }
 
     if (bodyanimation.id == getup.id)
+    {
         if (bodyanimation.currframe > 18)
             bodyy = 8;
         else
             bodyy = 4;
+    }
 
     if (flaggrabcooldown > 0)
         flaggrabcooldown -= 1;
@@ -542,10 +546,12 @@ void Sprite<M>::update()
                         rnd = 2 * rnd;
 
                     if ((k != 10) && (k != 11))
+                    {
                         if (Random(rnd) == 0)
                             createspark(m4, m3, 5, num, 85 - Random(25));
                         else if (Random(rnd / 3) == 0)
                             createspark(m4, m3, 4, num, 85 - Random(25));
+                    }
                 }
             } // bleed
 
@@ -1740,6 +1746,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifndef SERVER
         if (((who == mysprite) || (num == mysprite)) && (what > 0) &&
             ispointonscreen(skeleton.pos[9]))
+        {
             if ((who == mysprite) && (num == mysprite))
                 ;
             else
@@ -1747,6 +1754,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 screencounter = 5;
                 capscreen = 4;
             }
+        }
 #endif
     }
 
@@ -3476,10 +3484,12 @@ void Sprite<M>::respawn()
 #endif
 
     if ((holdedthing > 0) && (holdedthing < max_things + 1))
+    {
         if (thing[holdedthing].style != object_parachute)
             thing[holdedthing].respawn();
         else
             thing[holdedthing].kill();
+    }
 
     holdedthing = 0;
 
@@ -4118,7 +4128,8 @@ void Sprite<M>::fire()
         bn = createbullet(a, b, weapon.num, num, 255, weapon.hitmultiply, true, false);
     }
 
-    if (weapon.num == guns[law].num) // LAW
+    if (weapon.num == guns[law].num)
+    { // LAW
         if ((onground || ongroundpermanent || ongroundforlaw) &&
             (((legsanimation.id == crouch.id) && (legsanimation.currframe > 13)) ||
              (legsanimation.id == crouchrun.id) || (legsanimation.id == crouchrunback.id) ||
@@ -4130,6 +4141,7 @@ void Sprite<M>::fire()
         {
             return;
         }
+    }
 
     // Mercy animation
     if ((bodyanimation.id == mercy.id) || (bodyanimation.id == mercy2.id))

@@ -798,6 +798,7 @@ void controlbot(tsprite &spritec)
 
                         // check if standing in place because stuck or sth
                         if (spritec.brain.currentwaypoint > 0)
+                        {
                             if (botpath.waypoint[spritec.brain.currentwaypoint].c1 == 0)
                             {
                                 if ((spritec.control.left or spritec.control.right) and
@@ -816,6 +817,7 @@ void controlbot(tsprite &spritec)
                             }
                             else
                                 spritec.brain.oneplacecount += 1;
+                        }
 
                         if (botpath.waypoint[spritec.brain.currentwaypoint].c1 == 0)
                             if (spritec.brain.oneplacecount > 90)

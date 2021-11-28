@@ -288,9 +288,9 @@ void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targ
         if (startervote == mysprite)
             if (votetype == vote_kick)
             {
-                GetMainConsole().console(("You have voted to kick") + ' ' +
-                                             (sprite[kickmenuindex].player->name) + ' ' +
-                                             ("from the game"),
+                GetMainConsole().console(("You have voted to kick ") +
+                                             (sprite[kickmenuindex].player->name) +
+                                             (" from the game"),
                                          vote_message_color);
                 voteactive = false;
                 NotImplemented(NITag::NETWORK, "No clientvotekick");

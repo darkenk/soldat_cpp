@@ -60,14 +60,8 @@ bool tdemorecorder<M>::startrecord(const string &filename)
         return result;
 #endif
 
-    GetMainConsole().console(
-#ifdef SERVER
-        string("Recording demo:") +
-#else
-        ("Recording demo:") +
-#endif
-            ' ' + (extractfilename(filename)),
-        info_message_color);
+    GetMainConsole().console(("Recording demo: ") + (extractfilename(filename)),
+                             info_message_color);
 
     fname = extractfilename(filename);
     factive = true;

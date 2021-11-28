@@ -136,7 +136,8 @@ void Polymap<M>::loaddata(tmapfile &mapfile)
 
     for (i = 1; i <= length(mapfile.spawnpoints); i++)
     {
-        if ((fabs(this->spawnpoints[i].x) >= 2000000) || (fabs(this->spawnpoints[i].y) >= 2000000))
+        if ((std::abs(this->spawnpoints[i].x) >= 2000000) ||
+            (std::abs(this->spawnpoints[i].y) >= 2000000))
             this->spawnpoints[i].active = false;
 
         if (this->spawnpoints[i].active)

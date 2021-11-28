@@ -83,7 +83,7 @@ bool readallbytes(const tmapinfo &map, tfilebuffer &buffer)
     else
     {
         // Unmount previous map
-        PHYSFS_removeFromSearchPath("/current_map");
+        PHYSFS_unmount("/current_map");
         // Mount new map
         if (not PHYSFS_mount(map.path.c_str(), "/current_map", true))
         {
