@@ -9,11 +9,6 @@
 
 auto constexpr LOG_MSG = "net_msg";
 
-std::int32_t maintickcounter;
-
-std::int32_t playersnum, botsnum, spectatorsnum;
-PascalArray<std::int32_t, 1, 4> playersteamnum;
-
 std::mutex TNetwork::sNetworksMutex;
 std::vector<TNetwork *> TNetwork::sNetworks;
 

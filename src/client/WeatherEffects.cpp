@@ -11,6 +11,10 @@
 #include "shared/Game.hpp"
 #include "shared/mechanics/Sprites.hpp"
 
+// clang-format off
+#include "shared/misc/GlobalVariableStorage.cpp"
+// clang-format on
+
 // Backgorund animation and sound for rain
 void makerain()
 {

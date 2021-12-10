@@ -90,7 +90,6 @@ using TPlayers = std::vector<tplayer *>;
 
 #pragma pack(pop)
 
-extern std::int32_t maintickcounter;
 // Stores all network-generated TPlayer objects
 #ifdef SERVER
 extern TPlayers players;

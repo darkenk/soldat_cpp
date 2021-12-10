@@ -167,4 +167,6 @@ auto &notexts = InitGlobalVariable<std::uint8_t, "notexts">();
 
 auto &gamelog = InitGlobalVariable<tstringlist *, "gamelog">();
 auto &consolelogfilename = InitGlobalVariable<std::string, "consolelogfilename">();
+
+auto &maintickcounter = InitGlobalVariable<std::int32_t, "maintickcounter">();
 } // namespace
