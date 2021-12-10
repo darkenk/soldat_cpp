@@ -112,6 +112,15 @@ def SetupFreetype():
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=FT_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=FT_DIR)
 
+def SetupTracy():
+    TRC_SRC = THIRD_PARTY_SRC_DIR + 'tracy-0.7.8'
+    TRC_DIR = THIRD_PARTY_OUT_DIR + 'tracy'
+    os.makedirs(TRC_DIR, exist_ok = True)
+
+    subprocess.check_call(['make', '-j8', '--file=' + TRC_SRC + '/profiler/build/unix/Makefile', 'release'], cwd=TRC_SRC + '/profiler/build/unix/');
+
+#SetupTracy()
+
 SetupLibsodium()
 SetupProtobuf()
 SetupGameNetworkingSockets()

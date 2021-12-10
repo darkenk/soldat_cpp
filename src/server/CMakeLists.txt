@@ -48,6 +48,7 @@ target_include_directories(SoldatServerLib PRIVATE
     ${GLAD_INC}
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
+    ${TRACY_INCLUDE_DIR}
 )
 target_link_libraries(SoldatServerLib
     SDL2::SDL2main
@@ -76,4 +77,5 @@ target_include_directories(SoldatServer PRIVATE
     ${GLAD_INC}
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
+    ${TRACY_INCLUDE_DIR}
 )

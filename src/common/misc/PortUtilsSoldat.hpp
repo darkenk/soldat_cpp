@@ -46,14 +46,14 @@ struct PascalArray
         const source_location &Location;
     };
 
-    Tp &operator[](SourceLocation<std::int32_t> n) noexcept
+    inline Tp &operator[](SourceLocation<std::int32_t> n) noexcept
     {
         AssertL(n.Value >= StartIndex, n.Location);
         AssertL(n.Value <= EndIndex, n.Location);
         return m_data[n.Value - StartIndex];
     }
 
-    constexpr const Tp &operator[](SourceLocation<std::int32_t> n) const noexcept
+    inline constexpr const Tp &operator[](SourceLocation<std::int32_t> n) const noexcept
     {
         AssertL(n.Value >= StartIndex, n.Location);
         AssertL(n.Value <= EndIndex, n.Location);

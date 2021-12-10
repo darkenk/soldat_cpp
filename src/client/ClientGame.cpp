@@ -39,6 +39,7 @@
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientSprite.hpp"
 #include <SDL2/SDL.h>
+#include <Tracy.hpp>
 #include <thread>
 
 // clang-format off
@@ -234,6 +235,7 @@ std::int32_t getgamefps()
 
 void gameloop()
 {
+    ZoneScopedN("gameloop");
     std::int32_t maincontrol;
     std::int32_t heavysendersnum;
     float adjust;

@@ -61,6 +61,7 @@ target_include_directories(SoldatClientLib PRIVATE
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
     ${SOLOUD_INCLUDE_DIR}
+    ${TRACY_INCLUDE_DIR}
 )
 target_link_libraries(SoldatClientLib
     SDL2::SDL2main
@@ -91,4 +92,5 @@ target_include_directories(SoldatClient PRIVATE
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
     ${SOLOUD_INCLUDE_DIR}
+    ${TRACY_INCLUDE_DIR}
 )

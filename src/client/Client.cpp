@@ -32,6 +32,7 @@
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
+#include <Tracy.hpp>
 #include <physfs.h>
 
 // clang-format off
@@ -841,6 +842,7 @@ void startgameloop()
         GetNetwork()->processloop();
         gameinput();
         gameloop();
+        FrameMarkNamed("client");
     }
 }
 

@@ -33,10 +33,14 @@ set(GMOCK_MAIN_LIBRARY ${THIRD_PARTY_OUT_DIR}/gtest/out/lib/libgmock_maind.a)
 # solout
 set(SOLOUD_INCLUDE_DIR ${THIRD_PARTY_OUT_DIR}/soloud/out/include)
 set(SOLOUD_LIBRARY ${THIRD_PARTY_OUT_DIR}/soloud/out/lib/libsoloud_static.a)
+#tracy
+set(TRACY_SRC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8/TracyClient.cpp)
+set(TRACY_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8)
 
 
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+add_definitions(-DTRACY_ENABLE=1)
 
 find_package(SDL2 REQUIRED)
 find_package(Freetype REQUIRED)

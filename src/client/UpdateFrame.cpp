@@ -17,6 +17,7 @@
 #include "shared/Game.hpp"
 #include "shared/misc/GlobalVariable.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
+#include <Tracy.hpp>
 #include <cstdint>
 
 // clang-format off
@@ -27,6 +28,7 @@ std::int32_t idlecounter, oldmousex;
 
 void update_frame()
 {
+    ZoneScopedN("update_frame");
     std::int32_t j;
     tvector2 norm, camv, s, m, p;
     float displayratio;

@@ -24,9 +24,12 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set_source_files_properties(misc/SHA1.cpp PROPERTIES COMPILE_FLAGS -O3)
 endif()
 
-add_library(CommonLib ${SRC})
+add_library(CommonLib ${SRC} ${TRACY_SRC})
 target_link_libraries(CommonLib
     spdlog::spdlog
     GameNetworkingSockets::GameNetworkingSockets_s
 )
 
+target_include_directories(CommonLib PRIVATE
+    ${TRACY_INCLUDE_DIR}
+)
