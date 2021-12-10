@@ -248,9 +248,9 @@ void rendergostek(tsprite &soldier)
         color[color_cygar] = rgba(0x616161);
 
     alpha[alpha_base] = soldier.alpha;
-    alpha[alpha_blood] = max(0.0, min(255.0, 200 - round(soldier.health)));
+    alpha[alpha_blood] = max(0.0, min(255.0, 200 - round(soldier.GetHealth())));
 
-    if (soldier.health > (90 - 40 * CVar::sv_realisticmode))
+    if (soldier.GetHealth() > (90 - 40 * CVar::sv_realisticmode))
         alpha[alpha_blood] = 0;
 
     if ((CVar::sv_realisticmode) && (soldier.visible > 0) && (soldier.visible < 45) &&

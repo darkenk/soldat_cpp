@@ -894,7 +894,7 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
             x = relinfo.healthbar_rel_x * _iscala.x + (int_.healthbar_x - relinfo.healthbar_rel_x);
             y = relinfo.healthbar_rel_y * _iscala.y + (int_.healthbar_y - relinfo.healthbar_rel_y);
 
-            t = (float)(me->health) / starthealth;
+            t = (float)(me->GetHealth()) / starthealth;
             gfxdrawtext(inttostr(trunc(t * 100)) + '%', x, y);
         }
 
@@ -2153,7 +2153,7 @@ void renderinterface(float timeelapsed, float width, float height)
                 renderbar(GFX::INTERFACE_HEALTH_BAR, int_.healthbar_pos, int_.healthbar_x,
                           relinfo.healthbar_rel_x, int_.healthbar_y, relinfo.healthbar_rel_y,
                           int_.healthbar_width, int_.healthbar_height, int_.healthbar_rotate,
-                          (float)(spriteme->health) / starthealth, intalign.healthbar == 0);
+                          (float)(spriteme->GetHealth()) / starthealth, intalign.healthbar == 0);
             }
 
             if (int_.vest && (spriteme->vest > 0))

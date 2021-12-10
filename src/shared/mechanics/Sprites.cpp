@@ -138,7 +138,7 @@ std::int32_t createsprite(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle
     sprite[i].skeleton = gostekskeleton;
     sprite[i].skeleton.vdamping = 0.9945;
 
-    sprite[i].health = starthealth;
+    sprite[i].SetHealth(starthealth);
     sprite[i].aimdistcoef = defaultaimdist;
 
     sprite[i].weapon = guns[noweapon];
@@ -992,7 +992,7 @@ void Sprite<M>::update()
             }
 
             // bleed when hurt
-            if (health < hurt_health)
+            if (Health < hurt_health)
             {
                 m4 = skeleton.pos[5];
                 m4.x = m4.x + 2;
@@ -1040,8 +1040,8 @@ void Sprite<M>::update()
             // gain health from bow
             if ((maintickcounter % 3 == 0) &&
                 ((weapon.num == guns[bow].num) || (weapon.num == guns[bow2].num)) &&
-                (health < (starthealth)))
-                health = health + 1;
+                (Health < (starthealth)))
+                Health = Health + 1;
 
 #ifndef SERVER
             // smoke
@@ -2921,13 +2921,13 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, tvector2 pos)
     {
     case poly_type_deadly: {
 #ifdef SERVER
-        healthhit(50 + health, num, 12, -1, spriteparts.velocity[num]);
+        healthhit(50 + GetHealth(), num, 12, -1, spriteparts.velocity[num]);
 #endif
     }
     break;
     case poly_type_bloody_deadly: {
 #ifdef SERVER
-        healthhit(450 + health, num, 12, -1, spriteparts.velocity[num]);
+        healthhit(450 + GetHealth(), num, 12, -1, spriteparts.velocity[num]);
 #endif
     }
     break;
@@ -2939,7 +2939,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, tvector2 pos)
             if (Random(10) == 0)
             {
 #ifdef SERVER
-                health = health - 5;
+                Health = Health - 5;
 #else
                 if (polytype == poly_type_hurts)
                     playsound(sfx_arg, spriteparts.pos[num]);
@@ -2948,7 +2948,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, tvector2 pos)
 #endif
             }
 #ifdef SERVER
-            if (health < 1)
+            if (GetHealth() < 1)
                 healthhit(10, num, 12, -1, spriteparts.velocity[num]);
 #endif
         }
@@ -2974,7 +2974,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, tvector2 pos)
     }
     break;
     case poly_type_regenerates: {
-        if (health < starthealth)
+        if (Health < starthealth)
             if (maintickcounter % 12 == 0)
             {
 #ifdef SERVER
@@ -2997,7 +2997,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, tvector2 pos)
 #else
             servercreatebullet(a, b, guns[m79].num, num, 255, guns[m79].hitmultiply, true);
             healthhit(4000, num, 12, -1, spriteparts.velocity[num]);
-            health = -600;
+            Health = -600;
 #endif
         }
     }
@@ -3007,13 +3007,13 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, tvector2 pos)
             if (Random(10) == 0)
             {
 #ifdef SERVER
-                health = health - 10;
+                Health = Health - 10;
 #else
                 playsound(sfx_arg, spriteparts.pos[num]);
 #endif
             }
 #ifdef SERVER
-        if (health < 1)
+        if (Health < 1)
             healthhit(10, num, 12, -1, spriteparts.velocity[num]);
 #endif
     }
@@ -3207,7 +3207,6 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
 #else
     )
 #endif
-
         hm = 4 * amount;
 
 #ifdef SCRIPT
@@ -3215,7 +3214,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
         hm = scrptdispatcher.onplayerdamage(this->num, who, hm, (std::uint8_t)(what));
 #endif
 
-    health = health - hm;
+    Health = Health - hm;
 
 #ifndef SERVER
     if ((what > 0) && (this->num != mysprite))
@@ -3254,7 +3253,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
 #endif
 
     // helmet fall off
-    if ((health < helmetfallhealth) && (wearhelmet == 1) && (where == 12) &&
+    if ((Health < helmetfallhealth) && (wearhelmet == 1) && (where == 12) &&
         (weapon.num != guns[bow].num) && (weapon.num != guns[bow2].num) && (player->headcap > 0))
     {
         wearhelmet = 0;
@@ -3265,18 +3264,18 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
     }
 
     // safety precautions
-    if (health < (brutaldeathhealth - 1))
-        health = brutaldeathhealth;
-    if (health > starthealth)
-        health = starthealth;
+    if (Health < (brutaldeathhealth - 1))
+        Health = brutaldeathhealth;
+    if (Health > starthealth)
+        Health = starthealth;
 
     // death!
     t = impact;
-    if ((health < 1) && (health > headchopdeathhealth))
+    if ((Health < 1) && (Health > headchopdeathhealth))
         die(normal_death, who, where, what, t);
-    else if ((health < headchopdeathhealth + 1) && (health > brutaldeathhealth))
+    else if ((Health < headchopdeathhealth + 1) && (Health > brutaldeathhealth))
         die(headchop_death, who, where, what, t);
-    else if (health < brutaldeathhealth + 1)
+    else if (Health < brutaldeathhealth + 1)
         die(brutal_death, who, where, what, t);
 
     brain.targetnum = who;
@@ -3284,7 +3283,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
     // Bot Chat
 #ifdef SERVER
     if (CVar::bots_chat)
-        if ((health < hurt_health) && (player->controlmethod == bot))
+        if ((GetHealth() < hurt_health) && (player->controlmethod == bot))
         {
             if (Random(10 * brain.chatfreq) == 0)
                 serversendstringmessage((brain.chatlowhealth), all_players, num, msgtype_pub);
@@ -3424,7 +3423,7 @@ void Sprite<M>::respawn()
     deadmeatbeforerespawn = deadmeat;
     deadmeat = false;
     halfdead = false;
-    health = starthealth;
+    Health = starthealth;
     wearhelmet = 1;
 
     if (player->headcap == 0)
@@ -4868,6 +4867,19 @@ bool Sprite<M>::canrespawn(bool deadmeatbeforerespawn)
     bool result;
     result = (CVar::sv_survivalmode == false) or (survivalendround) or (!deadmeatbeforerespawn);
     return result;
+}
+
+template <Config::Module M>
+void Sprite<M>::SetHealth(float health)
+{
+    Health = health;
+}
+
+template <Config::Module M>
+float Sprite<M>::GetHealth()
+{
+    // LogDebugG("Health {}", Health);
+    return Health;
 }
 
 template class Sprite<Config::GetModule()>;

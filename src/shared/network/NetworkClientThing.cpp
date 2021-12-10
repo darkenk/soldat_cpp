@@ -4,7 +4,6 @@
 #include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
 #include "../../client/Sound.hpp"
-#include "common/Calc.hpp"
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
@@ -12,6 +11,7 @@
 #include "../mechanics/Things.hpp"
 #include "NetworkClientSprite.hpp"
 #include "NetworkUtils.hpp"
+#include "common/Calc.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -448,7 +448,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     break;
     case object_medical_kit: {
         playsound(sfx_takemedikit, thing[i].skeleton.pos[1]);
-        sprite[thingtakensnap->who].health = starthealth;
+        sprite[thingtakensnap->who].SetHealth(starthealth);
         thing[i].kill();
     }
     break;

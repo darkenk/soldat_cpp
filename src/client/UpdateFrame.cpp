@@ -152,7 +152,8 @@ void update_frame()
                         {
                             cursortext =
                                 cursortext + ' ' +
-                                inttostr(round(((float)(sprite[j].health) / starthealth) * 100)) +
+                                inttostr(
+                                    round(((float)(sprite[j].GetHealth()) / starthealth) * 100)) +
                                 '%';
                             cursorfriendly = true;
                         }

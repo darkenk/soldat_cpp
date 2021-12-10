@@ -59,7 +59,7 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
 
     if (i != mysprite)
     {
-        if (sprite[i].health == spritesnap->health)
+        if (sprite[i].GetHealth() == spritesnap->health)
         {
             spriteparts.oldpos[i] = spriteparts.pos[i];
             spriteparts.pos[i] = spritesnap->pos;
@@ -117,7 +117,7 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
 
     // LogDebugG("sprite: {} grenade {}", i, spritesnap->grenadecount);
 
-    sprite[i].health = spritesnap->health;
+    sprite[i].SetHealth(spritesnap->health);
     sprite[i].vest = spritesnap->vest;
     if (sprite[i].vest > defaultvest)
         sprite[i].vest = defaultvest;
@@ -173,7 +173,7 @@ void clienthandleserverspritesnapshot_major(SteamNetworkingMessage_t *netmessage
 
     if (i != mysprite)
     {
-        if (sprite[i].health == spritesnapmajor->health)
+        if (sprite[i].GetHealth() == spritesnapmajor->health)
         {
             spriteparts.oldpos[i] = spriteparts.pos[i];
             spriteparts.pos[i] = spritesnapmajor->pos;
@@ -199,7 +199,7 @@ void clienthandleserverspritesnapshot_major(SteamNetworkingMessage_t *netmessage
                 thing[j].kill();
             }
 
-    sprite[i].health = spritesnapmajor->health;
+    sprite[i].SetHealth(spritesnapmajor->health);
 
     if (i == mysprite)
     {
@@ -372,16 +372,16 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
 
     b.x = 0;
     b.y = 0;
-    sprite[i].health = deathsnap->health;
+    sprite[i].SetHealth(deathsnap->health);
 
     // death!
-    if ((sprite[i].health < 1) && (sprite[i].health > headchopdeathhealth))
+    if ((sprite[i].GetHealth() < 1) && (sprite[i].GetHealth() > headchopdeathhealth))
         sprite[i].die(normal_death, deathsnap->killer, deathsnap->where, deathsnap->killbullet, b);
-    else if ((sprite[i].health < (headchopdeathhealth + 1)) &&
-             (sprite[i].health > brutaldeathhealth))
+    else if ((sprite[i].GetHealth() < (headchopdeathhealth + 1)) &&
+             (sprite[i].GetHealth() > brutaldeathhealth))
         sprite[i].die(headchop_death, deathsnap->killer, deathsnap->where, deathsnap->killbullet,
                       b);
-    else if (sprite[i].health < (brutaldeathhealth + 1))
+    else if (sprite[i].GetHealth() < (brutaldeathhealth + 1))
         sprite[i].die(brutal_death, deathsnap->killer, deathsnap->where, deathsnap->killbullet, b);
 
     sprite[i].skeleton.constraints[2].active = true;

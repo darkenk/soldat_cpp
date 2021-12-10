@@ -902,7 +902,7 @@ void controlbot(tsprite &spritec)
                  (thing[i].style == object_predator_kit) || (thing[i].style == object_vest_kit) ||
                  (thing[i].style == object_berserk_kit) ||
                  (thing[i].style == object_combat_knife) ||
-                 ((thing[i].style == object_medical_kit) && (spritec.health < starthealth)) ||
+                 ((thing[i].style == object_medical_kit) && (spritec.GetHealth() < starthealth)) ||
                  ((thing[i].style == object_grenade_kit) &&
                   (spritec.tertiaryweapon.ammocount < CVar::sv_maxgrenades) &&
                   ((spritec.tertiaryweapon.num != guns[clustergrenade].num) ||
@@ -941,7 +941,7 @@ void controlbot(tsprite &spritec)
                             seething = false;
                         // or better take it if hurt and medikit is close
                         if ((thing[i].style == object_medical_kit) &&
-                            (spritec.health < hurt_health) && (d2 < dist_very_close))
+                            (spritec.GetHealth() < hurt_health) && (d2 < dist_very_close))
                             seething = true;
                         // dont take it when running away with flag
                         if (((thing[i].style == object_medical_kit) ||

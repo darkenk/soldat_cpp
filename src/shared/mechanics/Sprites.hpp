@@ -9,8 +9,8 @@
 /*#include "Constants.h"*/
 #include "../Anims.hpp"
 #include "../Constants.hpp"
-#include "common/Parts.hpp"
 #include "../network/Net.hpp"
+#include "common/Parts.hpp"
 #include "common/Vector.hpp"
 #include "common/Weapons.hpp"
 #include <array>
@@ -120,7 +120,6 @@ class Sprite
     bool ongroundlastframe;
     bool ongroundpermanent;
     std::int16_t direction, olddirection;
-    float health;
     std::uint8_t holdedthing;
     std::int32_t flaggrabcooldown;
     float aimdistcoef;
@@ -224,6 +223,12 @@ class Sprite
     bool isinsameteam(const Sprite &otherplayer);
     bool isnotinsameteam(const Sprite &otherplayer);
     bool canrespawn(bool deadmeatbeforerespawn);
+
+    void SetHealth(float health);
+    float GetHealth();
+
+  private:
+    float Health;
 };
 
 using tsprite = Sprite<Config::GetModule()>;

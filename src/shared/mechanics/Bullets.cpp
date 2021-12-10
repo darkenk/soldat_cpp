@@ -1841,7 +1841,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                             false, true);
                                     }
 
-                                    if (sprite[j].health > -1)
+                                    if (sprite[j].GetHealth() > -1)
                                         sprite[j].healthhit(
 #ifndef SERVER
                                             srv *
@@ -2700,7 +2700,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
     {
         if (mysprite > 0)
         {
-            if (sprite[mysprite].health > -50)
+            if (sprite[mysprite].GetHealth() > -50)
             {
                 if (distance(bulletparts.pos[num], spriteparts.pos[mysprite]) < grenadeeffect_dist)
                 {

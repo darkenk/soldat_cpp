@@ -210,6 +210,7 @@ class SoundEngine
             samp[i].buffer = i;
             Waves[i] = nullptr;
         }
+        Engine.setGlobalVolume(volumeinternal);
         return true;
     }
 

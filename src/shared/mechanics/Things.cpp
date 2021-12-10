@@ -1821,7 +1821,7 @@ std::int32_t Thing<M>::checkspritecollision()
             if (dist < radius)
                 if (dist < closestdist)
 #ifdef SERVER
-                    if (!((style == object_medical_kit) && (sprite[j].health == starthealth)))
+                    if (!((style == object_medical_kit) && (sprite[j].GetHealth() == starthealth)))
                         if (!((style == object_grenade_kit) &&
                               (sprite[j].tertiaryweapon.ammocount == CVar::sv_maxgrenades) &&
                               (sprite[j].tertiaryweapon.num == guns[fraggrenade].num)))
@@ -1844,7 +1844,7 @@ std::int32_t Thing<M>::checkspritecollision()
              (sprite[j].brain.favweapon != guns[noweapon].num) && (timeout < gunresisttime - 30)) ||
             ((style == 15) && (sprite[j].weapon.num == guns[noweapon].num) &&
              (timeout < (CVar::sv_respawntime * flag_timeout - 100))) ||
-            (((style == object_medical_kit) && (sprite[j].health < starthealth)
+            (((style == object_medical_kit) && (sprite[j].GetHealth() < starthealth)
 #ifdef SERVER
               && (sprite[j].haspack == false)
 #endif
@@ -2194,7 +2194,7 @@ std::int32_t Thing<M>::checkspritecollision()
                     }
             break;
         case object_medical_kit: {
-            if (sprite[j].health < starthealth)
+            if (sprite[j].GetHealth() < starthealth)
             {
                 // pickup health pack
 #ifdef SERVER
@@ -2206,7 +2206,7 @@ std::int32_t Thing<M>::checkspritecollision()
                     if (CVar::sv_healthcooldown > 0)
                         sprite[j].haspack = true;
 #endif
-                    sprite[j].health = starthealth;
+                    sprite[j].SetHealth(starthealth);
                     respawn();
 
 #ifdef SCRIPT
@@ -2268,11 +2268,11 @@ std::int32_t Thing<M>::checkspritecollision()
                         {
                             bigmessage(_("Flame God Mode!"), capturemessagewait,
                                        bonus_message_color);
-                            clientspritesnapshot;
+                            clientspritesnapshot();
                         }
 #endif
 
-                        sprite[j].health = starthealth;
+                        sprite[j].SetHealth(starthealth);
 #ifdef SCRIPT
                     }
 #endif
@@ -2291,7 +2291,7 @@ std::int32_t Thing<M>::checkspritecollision()
                     bigmessage(_("Predator Mode!"), capturemessagewait, bonus_message_color);
 #endif
 
-                sprite[j].health = starthealth;
+                sprite[j].SetHealth(starthealth);
 
 #ifdef SCRIPT
                 scrptdispatcher.onkitpickup(j, num);
@@ -2322,7 +2322,7 @@ std::int32_t Thing<M>::checkspritecollision()
                     bigmessage(_("Berserker Mode!"), capturemessagewait, bonus_message_color);
 #endif
 
-                sprite[j].health = starthealth;
+                sprite[j].SetHealth(starthealth);
 
 #ifdef SCRIPT
                 scrptdispatcher.onkitpickup(j, num);

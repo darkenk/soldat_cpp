@@ -95,9 +95,6 @@ using TPlayers = std::vector<tplayer *>;
 extern TPlayers players;
 #endif
 
-extern std::int32_t playersnum, botsnum, spectatorsnum;
-extern PascalArray<std::int32_t, 1, 4> playersteamnum;
-
 #ifdef SCRIPT
 bool ForceWeaponCalled;
 #endif

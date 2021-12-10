@@ -35,7 +35,7 @@ void serverspritesnapshot(std::uint8_t r)
             servermsg.pos = spriteparts.pos[i];
             servermsg.velocity = spriteparts.velocity[i];
             servermsg.num = sprite[i].num;
-            servermsg.health = sprite[i].health;
+            servermsg.health = sprite[i].GetHealth();
             servermsg.position = sprite[i].position;
             servermsg.serverticks = servertickcounter;
 
@@ -107,7 +107,7 @@ void serverspritesnapshotmajor(std::uint8_t r)
             servermsg.pos = spriteparts.pos[i];
             servermsg.velocity = spriteparts.velocity[i];
             servermsg.num = sprite[i].num;
-            servermsg.health = sprite[i].health;
+            servermsg.health = sprite[i].GetHealth();
             servermsg.position = sprite[i].position;
             servermsg.serverticks = servertickcounter;
 
@@ -153,7 +153,7 @@ void serverspritesnapshotmajorfloat(std::uint8_t who, std::uint8_t r)
     servermsg.pos = spriteparts.pos[who];
     servermsg.velocity = spriteparts.velocity[who];
     servermsg.num = sprite[who].num;
-    servermsg.health = sprite[who].health;
+    servermsg.health = sprite[who].GetHealth();
     servermsg.position = sprite[who].position;
     servermsg.serverticks = servertickcounter;
 
@@ -221,7 +221,7 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
     spritedeathmsg.killer = killer;
     spritedeathmsg.where = where;
     spritedeathmsg.respawncounter = sprite[who].respawncounter;
-    spritedeathmsg.health = sprite[who].health;
+    spritedeathmsg.health = sprite[who].GetHealth();
     spritedeathmsg.onfire = sprite[who].onfire;
     spritedeathmsg.shotdistance = shotdistance;
     spritedeathmsg.shotlife = shotlife;
