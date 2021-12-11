@@ -99,7 +99,7 @@ CVarBool r_renderbackground{"r_renderbackground", "", CVarFlags::CLIENT, true};
 CVarInt r_maxfps{"r_maxfps", "", CVarFlags::CLIENT, 60};
 CVarBool r_fpslimit{"r_fpslimit", "", CVarFlags::CLIENT, true};
 CVarInt r_resizefilter{"r_resizefilter", "", CVarFlags::CLIENT, 2};
-CVarInt r_sleeptime{"r_sleeptime", "", CVarFlags::CLIENT, 12};
+CVarInt r_sleeptime{"r_sleeptime", "", CVarFlags::CLIENT, 1};
 CVarInt r_screenwidth{"r_screenwidth", "", CVarFlags::CLIENT, 640};
 CVarInt r_screenheight{"r_screenheight", "", CVarFlags::CLIENT, 480};
 CVarInt r_renderwidth{"r_renderwidth", "", CVarFlags::CLIENT | CVarFlags::INITONLY, 0};

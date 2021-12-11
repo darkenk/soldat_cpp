@@ -25,6 +25,7 @@
 #include "shared/network/NetworkServerGame.hpp"
 #include "shared/network/NetworkServerSprite.hpp"
 #include "shared/network/NetworkUtils.hpp"
+#include <Tracy.hpp>
 #include <array>
 #include <steam/steamnetworkingsockets.h>
 #include <thread>
@@ -33,7 +34,7 @@
 #include "shared/misc/GlobalVariableStorage.cpp"
 // clang-format on
 
-constexpr auto PATH_MAX = 4095;
+// constexpr auto PATH_MAX = 4095;
 
 bool progready = false;
 namespace
@@ -1520,5 +1521,6 @@ void RunServer(int argc, const char *argv[])
     {
         apponidle();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        FrameMarkNamed("ServerFrame");
     }
 }

@@ -50,43 +50,62 @@ void update_frame()
 
     if (mapchangecounter < 0)
     {
+        ZoneScopedN("Update1");
         if (demoplayer.active() && escmenu->active)
             return;
 
-        for (j = 1; j <= max_sprites; j++)
-            if (sprite[j].active)
-                if (sprite[j].isnotspectator())
-                    if (clientstopmovingcounter > 0)
-                        spriteparts.doeulertimestepfor(j); // integrate sprite particles
-
-        for (j = 1; j <= max_sprites; j++)
-            if (sprite[j].active)
-                sprite[j].update(); // update sprite
-
-        // Bullets update
-        for (j = 1; j <= max_bullets; j++)
         {
-            if (bullet[j].active)
-                bullet[j].update();
-
-            if (bullet[j].pingadd > 0)
-                bullet[j].pingadd -= 4;
+            ZoneScopedN("SpriteParts");
+            for (j = 1; j <= max_sprites; j++)
+                if (sprite[j].active)
+                    if (sprite[j].isnotspectator())
+                        if (clientstopmovingcounter > 0)
+                            spriteparts.doeulertimestepfor(j); // integrate sprite particles
         }
 
-        bulletparts.doeulertimestep();
+        {
+            ZoneScopedN("Sprites");
+            for (j = 1; j <= max_sprites; j++)
+                if (sprite[j].active)
+                    sprite[j].update(); // update sprite
+        }
 
-        sparkscount = 0;
-        for (j = 1; j <= max_sparks; j++)
-            if (spark[j].active)
+        // Bullets update
+        {
+            ZoneScopedN("Bullets");
+            for (j = 1; j <= max_bullets; j++)
             {
-                spark[j].update();
-                sparkscount += 1;
-            }
+                if (bullet[j].active)
+                    bullet[j].update();
 
-        // update Things
-        for (j = 1; j <= max_things; j++)
-            if (thing[j].active)
-                thing[j].update();
+                if (bullet[j].pingadd > 0)
+                    bullet[j].pingadd -= 4;
+            }
+        }
+
+        {
+            ZoneScopedN("BulletParts");
+            bulletparts.doeulertimestep();
+        }
+
+        {
+            ZoneScopedN("Sparks");
+            sparkscount = 0;
+            for (j = 1; j <= max_sparks; j++)
+                if (spark[j].active)
+                {
+                    spark[j].update();
+                    sparkscount += 1;
+                }
+        }
+
+        {
+            ZoneScopedN("Things");
+            // update Things
+            for (j = 1; j <= max_things; j++)
+                if (thing[j].active)
+                    thing[j].update();
+        }
 
         if (maintickcounter % second == 0)
             if (screencounter != 255)

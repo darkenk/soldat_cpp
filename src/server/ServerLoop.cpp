@@ -16,6 +16,7 @@
 #include "shared/network/NetworkServerHeartbeat.hpp"
 #include "shared/network/NetworkServerSprite.hpp"
 #include "shared/network/NetworkServerThing.hpp"
+#include <Tracy.hpp>
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -25,6 +26,7 @@ using string = std::string;
 
 void apponidle()
 {
+    ZoneScopedN("AppOnIdle");
     std::int32_t maincontrol;
     std::int32_t j;
     std::int32_t heavysendersnum;
@@ -305,6 +307,7 @@ void apponidle()
 
 void updateframe()
 {
+    ZoneScopedN("UpdateFrame");
     std::int32_t i, j;
     tvector2 m;
     std::uint32_t _x;

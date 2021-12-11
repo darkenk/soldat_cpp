@@ -22,7 +22,9 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
+#include <Tracy.hpp>
 #include <array>
+#include <memory_resource>
 #include <numbers>
 #include <set>
 
@@ -172,14 +174,18 @@ void applygostekconstraints()
 }
 
 void drawgosteksprite(pgfxsprite sprite, float x, float y, float sx, float sy, float cx, float cy,
-                      float r, tgfxcolor color)
+                      float r, const tgfxcolor &color)
 {
+    ZoneScopedN("DrawGostekSprite");
     tgfxmat3 m;
     float c, s, w, h, u0, v0, u1, v1;
-    std::vector<tgfxvertex> v;
-    std::vector<tvector2> p;
-    v.resize(4);
-    p.resize(4);
+    std::array<tgfxvertex, 4> buff;
+    std::pmr::monotonic_buffer_resource res(buff.data(), buff.size() * sizeof(tgfxvertex));
+    std::pmr::vector<tgfxvertex> v{4, &res};
+
+    std::array<tgfxvertex, 4> buff2;
+    std::pmr::monotonic_buffer_resource res2(buff2.data(), buff2.size() * sizeof(tvector2));
+    std::pmr::vector<tvector2> p{4, &res2};
 
     c = cos(r);
     s = sin(r);

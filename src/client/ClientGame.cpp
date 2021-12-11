@@ -441,7 +441,10 @@ void gameloop()
     }
 
     if (CVar::r_sleeptime > 0)
+    {
+        ZoneScopedN("Sleeping");
         std::this_thread::sleep_for(std::chrono::milliseconds((std::int32_t)CVar::r_sleeptime));
+    }
 }
 
 std::uint8_t getcameratarget(bool backwards)

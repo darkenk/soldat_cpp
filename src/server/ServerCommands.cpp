@@ -47,6 +47,21 @@ void commandaddbot(std::vector<std::string> &args, std::uint8_t sender)
     addbotplayer(name, teamset);
 }
 
+void commandaddbots(std::vector<std::string> &args, std::uint8_t sender)
+{
+    if (length(args) == 1)
+        return;
+
+    if (playersnum == max_players)
+        return;
+
+    auto amount = strtointdef(args[1], 2);
+    for (auto i = 0; i < amount; i++)
+    {
+        addbotplayer("Terminator", i % 2 + 1);
+    }
+}
+
 void commandnextmap(std::vector<std::string> &args, std::uint8_t sender)
 {
     nextmap();
@@ -1024,6 +1039,7 @@ void initservercommands()
     commandadd("addbot3", commandaddbot, "Add specific bot to charlie team", cmd_adminonly);
     commandadd("addbot4", commandaddbot, "Add specific bot to delta team", cmd_adminonly);
     commandadd("addbot5", commandaddbot, "Add specific bot to spectators", cmd_adminonly);
+    commandadd("addbots", commandaddbots, "Add multiple bots for test", cmd_adminonly);
     commandadd("nextmap", commandnextmap, "Change map to next in maplist", cmd_adminonly);
     commandadd("map", commandmap, "Change map to specified mapname", cmd_adminonly);
     commandadd("pause", commandpause, "Pause game", cmd_adminonly);

@@ -23,6 +23,7 @@
 #include "shared/mechanics/Things.hpp"
 
 #include <SDL2/SDL.h>
+#include <Tracy.hpp>
 #include <algorithm>
 #include <array>
 #include <filesystem>
@@ -680,6 +681,7 @@ tvector2 lerp(tvector2 a, tvector2 b, float x)
 
 void interpolatestate(float p, tinterpolationstate &s, bool paused)
 {
+    ZoneScopedN("InterpolateState");
     const std::set<std::int32_t> kit_styles = {
         object_medical_kit, object_grenade_kit, object_flamer_kit, object_predator_kit,
         object_vest_kit,    object_berserk_kit, object_cluster_kit};
@@ -700,63 +702,77 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
     if (paused)
         p = 1.0;
 
-    for (i = 1; i <= max_sprites; i++)
     {
-        if (sprite[i].active)
+        ZoneScopedN("Sprites");
+        for (i = 1; i <= max_sprites; i++)
         {
-            sk = &sprite[i].skeleton;
-            gun = &sprite[i].weapon;
-            std::memcpy(&s.spritepos[i][1], &sk->pos[1], sizeof(tvector2) * length(s.spritepos[i]));
+            if (sprite[i].active)
+            {
+                sk = &sprite[i].skeleton;
+                gun = &sprite[i].weapon;
+                std::memcpy(&s.spritepos[i][1], &sk->pos[1],
+                            sizeof(tvector2) * length(s.spritepos[i]));
 
-            for (j = low(s.spritepos[i]); j <= high(s.spritepos[i]); j++)
-                sk->pos[j] = lerp(sk->oldpos[j], sk->pos[j], p);
+                for (j = low(s.spritepos[i]); j <= high(s.spritepos[i]); j++)
+                    sk->pos[j] = lerp(sk->oldpos[j], sk->pos[j], p);
 
-            gun->reloadtimefloat = lerp(gun->reloadtimeprev, gun->reloadtimecount, p);
-            gun->fireintervalfloat = lerp(gun->fireintervalprev, gun->fireintervalcount, p);
-            sprite[i].jetscountfloat = lerp(sprite[i].jetscountprev, sprite[i].jetscount, p);
+                gun->reloadtimefloat = lerp(gun->reloadtimeprev, gun->reloadtimecount, p);
+                gun->fireintervalfloat = lerp(gun->fireintervalprev, gun->fireintervalcount, p);
+                sprite[i].jetscountfloat = lerp(sprite[i].jetscountprev, sprite[i].jetscount, p);
+            }
         }
     }
 
-    for (i = 1; i <= max_bullets; i++)
     {
-        if (bullet[i].active or (bullet[i].pingadd > 0))
+        ZoneScopedN("Bullets");
+        for (i = 1; i <= max_bullets; i++)
         {
-            j = bullet[i].num;
+            if (bullet[i].active or (bullet[i].pingadd > 0))
+            {
+                j = bullet[i].num;
 
-            s.bulletpos[i] = bulletparts.pos[j];
-            s.bulletvel[i] = bulletparts.velocity[j];
-            s.bullethitmul[i] = bullet[i].hitmultiply;
+                s.bulletpos[i] = bulletparts.pos[j];
+                s.bulletvel[i] = bulletparts.velocity[j];
+                s.bullethitmul[i] = bullet[i].hitmultiply;
 
-            bulletparts.pos[j] = lerp(bulletparts.oldpos[j], bulletparts.pos[j], p);
-            bulletparts.velocity[j] = lerp(bullet[i].velocityprev, bulletparts.velocity[j], p);
-            bullet[i].hitmultiply = lerp(bullet[i].hitmultiplyprev, bullet[i].hitmultiply, p);
-            bullet[i].timeoutfloat = lerp(bullet[i].timeoutprev, bullet[i].timeout, p);
+                bulletparts.pos[j] = lerp(bulletparts.oldpos[j], bulletparts.pos[j], p);
+                bulletparts.velocity[j] = lerp(bullet[i].velocityprev, bulletparts.velocity[j], p);
+                bullet[i].hitmultiply = lerp(bullet[i].hitmultiplyprev, bullet[i].hitmultiply, p);
+                bullet[i].timeoutfloat = lerp(bullet[i].timeoutprev, bullet[i].timeout, p);
+            }
         }
     }
 
-    for (i = 1; i <= max_sparks; i++)
     {
-        if (spark[i].active)
+        ZoneScopedN("Sparks");
+        for (i = 1; i <= max_sparks; i++)
         {
-            j = spark[i].num;
-            s.sparkpos[i] = sparkparts.pos[j];
-            sparkparts.pos[j] = lerp(sparkparts.oldpos[j], sparkparts.pos[j], p);
-            spark[i].lifefloat = lerp(spark[i].lifeprev, spark[i].life, p);
+            if (spark[i].active)
+            {
+                j = spark[i].num;
+                s.sparkpos[i] = sparkparts.pos[j];
+                sparkparts.pos[j] = lerp(sparkparts.oldpos[j], sparkparts.pos[j], p);
+                spark[i].lifefloat = lerp(spark[i].lifeprev, spark[i].life, p);
+            }
         }
     }
 
-    for (i = 1; i <= max_things; i++)
     {
-        if (thing[i].active)
+        ZoneScopedN("Things");
+        for (i = 1; i <= max_things; i++)
         {
-            sk = &thing[i].skeleton;
-            std::memcpy(&s.thingpos[i][1], &sk->pos[1], sizeof(tvector2) * length(s.thingpos[i]));
+            if (thing[i].active)
+            {
+                sk = &thing[i].skeleton;
+                std::memcpy(&s.thingpos[i][1], &sk->pos[1],
+                            sizeof(tvector2) * length(s.thingpos[i]));
 
-            for (j = low(s.thingpos[i]); j <= high(s.thingpos[i]); j++)
-                sk->pos[j] = lerp(sk->oldpos[j], sk->pos[j], p);
+                for (j = low(s.thingpos[i]); j <= high(s.thingpos[i]); j++)
+                    sk->pos[j] = lerp(sk->oldpos[j], sk->pos[j], p);
 
-            if (kit_styles.contains(thing[i].style))
-                sk->satisfyconstraints();
+                if (kit_styles.contains(thing[i].style))
+                    sk->satisfyconstraints();
+            }
         }
     }
 }
@@ -807,6 +823,7 @@ void restorestate(tinterpolationstate &s)
 
 void renderframe(double timeelapsed, double framepercent, bool paused)
 {
+    ZoneScopedN("RenderFrame");
     tmapgraphics *mg;
     std::int32_t i;
     float dx, dy;
@@ -836,6 +853,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
     if (showscreen && actionsnaptaken)
     {
+        ZoneScopedN("Render1");
         rc = trect(0, renderheight, renderwidth, 0);
         gfxblit(actionsnaptexture, rendertarget, rc, rc, gfx_nearest);
         gfxtarget(rendertarget);
@@ -857,6 +875,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
     }
     else
     {
+        ZoneScopedN("Render2");
         grabactionsnap = false;
 
         if ((CVar::cl_actionsnap) && (capscreen == 0))
@@ -906,21 +925,35 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
         gfxbegin();
 
-        for (i = 1; i <= max_bullets; i++)
-            if (bullet[i].active or (bullet[i].pingadd > 0))
-                bullet[i].render(timeelapsed);
+        {
+            {
+                ZoneScopedN("RenderBullet");
+                for (i = 1; i <= max_bullets; i++)
+                    if (bullet[i].active or (bullet[i].pingadd > 0))
+                        bullet[i].render(timeelapsed);
+            }
 
-        for (i = 1; i <= max_sprites; i++)
-            if (sprite[i].active)
-                rendergostek(sprite[i]);
+            {
+                ZoneScopedN("RenderGostek");
+                for (i = 1; i <= max_sprites; i++)
+                    if (sprite[i].active)
+                        rendergostek(sprite[i]);
+            }
 
-        for (i = 1; i <= max_things; i++)
-            if (thing[i].active)
-                thing[i].render(timeelapsed);
+            {
+                ZoneScopedN("RenderThings");
+                for (i = 1; i <= max_things; i++)
+                    if (thing[i].active)
+                        thing[i].render(timeelapsed);
+            }
 
-        for (i = 1; i <= max_sparks; i++)
-            if (spark[i].active)
-                spark[i].render();
+            {
+                ZoneScopedN("RenderSpark");
+                for (i = 1; i <= max_sparks; i++)
+                    if (spark[i].active)
+                        spark[i].render();
+            }
+        }
 
         gfxend();
         renderprops(1);
@@ -958,6 +991,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
         if (CVar::r_renderui)
         {
+            ZoneScopedN("RenderUI");
             gfxbegin();
             gfxtransform(gfxmat3ortho(0, w, 0, h));
             renderinterface(timeelapsed, w, h);
@@ -969,6 +1003,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
     if (rendertarget != nullptr)
     {
+        ZoneScopedN("Render3");
         rt = rendertarget;
 
         if (rendertargetaa != nullptr)

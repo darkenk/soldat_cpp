@@ -317,7 +317,7 @@ tgfxcolor rgba(std::uint8_t r, std::uint8_t g, std::uint8_t b);
 tgfxcolor rgba(std::uint32_t rgba);
 // tgfxcolor rgba(std::uint8_t r, std::uint8_t g, std::uint8_t b, double a);
 tgfxcolor rgba(std::uint32_t rgb, float a);
-tgfxvertex gfxvertex(float x, float y, float u, float v, tgfxcolor c);
+tgfxvertex gfxvertex(float x, float y, float u, float v, const tgfxcolor &c);
 
 // texture
 tgfxtexture *gfxcreatetexture(std::int32_t w, std::int32_t h, std::int32_t c /*= 4*/,
@@ -363,7 +363,8 @@ void gfxdrawtext(const std::string &text, float x, float y);
 // batching
 void gfxbegin();
 void gfxend();
-void gfxdrawquad(tgfxtexture *texture, const std::vector<tgfxvertex> &vertices);
+template <typename Allocator = std::allocator<tgfxvertex>>
+void gfxdrawquad(tgfxtexture *texture, const std::vector<tgfxvertex, Allocator> &vertices);
 void gfxdrawquad(tgfxtexture *texture, const tgfxvertex a, tgfxvertex b, tgfxvertex c,
                  tgfxvertex d);
 
@@ -400,7 +401,7 @@ void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx,
 tgfxmat3 gfxmat3rot(float r);
 tgfxmat3 gfxmat3ortho(float l, float r, float t, float b);
 tgfxmat3 gfxmat3transform(float tx, float ty, float sx, float sy, float cx, float cy, float r);
-tvector2 gfxmat3mul(const tgfxmat3 m, float x, float y);
+tvector2 gfxmat3mul(const tgfxmat3 &m, float x, float y);
 
 // other
 std::int32_t npot(std::uint32_t x); // next power of two

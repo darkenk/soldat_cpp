@@ -24,6 +24,7 @@
 #include "common/Logging.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include <Tracy.hpp>
 #include <client/ClientGame.hpp>
 #include <numbers>
 
@@ -40,7 +41,7 @@ auto constexpr LOG = "sprites";
 using std::numbers::pi;
 
 template <Config::Module M>
-std::int32_t createsprite(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::uint8_t n,
+std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t sstyle, std::uint8_t n,
                           tplayer *player, bool transferownership)
 {
     std::int32_t i, j;
@@ -2266,7 +2267,7 @@ std::int32_t Sprite<M>::dropweapon()
 }
 
 template <Config::Module M>
-void Sprite<M>::legsapplyanimation(tanimation anim, std::int32_t curr)
+void Sprite<M>::legsapplyanimation(const tanimation &anim, std::int32_t curr)
 {
 #ifdef SERVER
     LogTraceG("TSprite.LegsApplyAnimation");
@@ -2283,8 +2284,9 @@ void Sprite<M>::legsapplyanimation(tanimation anim, std::int32_t curr)
 }
 
 template <Config::Module M>
-void Sprite<M>::bodyapplyanimation(tanimation anim, std::int32_t curr)
+void Sprite<M>::bodyapplyanimation(const tanimation &anim, std::int32_t curr)
 {
+    ZoneScopedN("ApplybodyAnimation");
 #ifdef SERVER
     LogTraceG("TSprite.BodyApplyAnimation");
 #endif
@@ -2450,6 +2452,7 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
 template <Config::Module M>
 bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 {
+    ZoneScopedN("CheckMapCollision");
     std::int32_t j, w, polytype;
     std::int32_t k = 0;
     tvector2 spos, pos, perp, step;
@@ -2798,6 +2801,7 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
 template <Config::Module M>
 bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
 {
+    ZoneScopedN("CheckSkeletonMapCollision");
     std::int32_t j, w;
     std::int32_t b = 0;
     tvector2 pos, perp;
@@ -3157,7 +3161,7 @@ void Sprite<M>::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32
 
 template <Config::Module M>
 void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, std::int32_t what,
-                          tvector2 impact)
+                          const tvector2 &impact)
 {
     tvector2 t;
     float hm;
@@ -3699,7 +3703,7 @@ void Sprite<M>::resetspriteoldpos()
 #endif
 
 template <Config::Module M>
-void Sprite<M>::parachute(tvector2 a)
+void Sprite<M>::parachute(tvector2 &a)
 {
     tvector2 b;
     std::int32_t n, i;

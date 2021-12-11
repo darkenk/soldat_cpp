@@ -21,6 +21,7 @@
 #include "../Game.hpp"
 #include "common/Calc.hpp"
 #include <SDL2/SDL.h>
+#include <Tracy.hpp>
 
 // clang-format on
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -76,6 +77,7 @@ bool areconflictingkeyspressed(tsprite &spritec)
 
 void controlsprite(tsprite &spritec)
 {
+    ZoneScopedN("ControlSprite");
     tvector2 a, b, lookpoint, startpoint;
     std::int32_t i, j;
 #ifndef SERVER

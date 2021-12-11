@@ -23,11 +23,13 @@
 // clang-format on
 #include "common/PhysFSExt.hpp"
 #include "shared/misc/MemoryUtils.hpp"
+#include <Tracy.hpp>
 #include <algorithm>
 #include <glad/glad.h>
 #include <iostream>
 #include <iterator>
 #include <map>
+#include <memory_resource>
 #include <sstream>
 #include <vector>
 
@@ -699,6 +701,7 @@ void gfxdraw(tgfxvertexbuffer *buffer, tgfxindexbuffer *indexbuffer, pgfxdrawcom
 
 void gfxpresent(bool finish)
 {
+    ZoneScopedN("GfxPresent");
     if (finish)
         glFinish();
 
@@ -845,7 +848,7 @@ tgfxcolor rgba(std::uint32_t rgb, float a)
     return result;
 }
 
-tgfxvertex gfxvertex(float x, float y, float u, float v, tgfxcolor c)
+tgfxvertex gfxvertex(float x, float y, float u, float v, const tgfxcolor &c)
 {
     tgfxvertex result;
     result.x = x;
@@ -1053,7 +1056,8 @@ void gfxend()
     gfxdraw(batch.vertexbuffer, &batch.commands[0], batch.commandssize);
 }
 
-void gfxdrawquad(tgfxtexture *texture, const std::vector<tgfxvertex> &vertices)
+template <typename Allocator>
+void gfxdrawquad(tgfxtexture *texture, const std::vector<tgfxvertex, Allocator> &vertices)
 {
     tbatchbuffer *buf;
     pgfxvertex v;
@@ -1741,9 +1745,12 @@ void computeglyphs(pfont f, pglyphtable table, const std::string &s)
     }
 }
 
-void drawglyph(pfont f, pglyph g, float x, float y, tgfxcolor color)
+void drawglyph(pfont f, pglyph g, float x, float y, const tgfxcolor &color)
 {
-    std::vector<tgfxvertex> v{4};
+    ZoneScopedN("DrawGlyph");
+    std::array<tgfxvertex, 4> buff;
+    std::pmr::monotonic_buffer_resource res(buff.data(), buff.size() * sizeof(tgfxvertex));
+    std::pmr::vector<tgfxvertex> v{4, &res};
     tvector2 pxl;
 
     pxl = gfxcontext.textpixelratio;
@@ -2060,7 +2067,7 @@ tgfxmat3 gfxmat3transform(float tx, float ty, float sx, float sy, float cx, floa
     return result;
 }
 
-tvector2 gfxmat3mul(const tgfxmat3 m, float x, float y)
+tvector2 gfxmat3mul(const tgfxmat3 &m, float x, float y)
 {
     tvector2 result;
     result.x = m[0] * x + m[3] * y + m[6];

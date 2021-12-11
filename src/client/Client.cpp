@@ -842,7 +842,7 @@ void startgameloop()
         GetNetwork()->processloop();
         gameinput();
         gameloop();
-        FrameMarkNamed("client");
+        FrameMarkNamed("ClientFrame");
     }
 }
 

@@ -158,7 +158,8 @@ std::int32_t tdemorecorder<M>::createdemoplayer()
     a.x = min_sectorz * map.sectorsdivision * 0.7;
     a.y = min_sectorz * map.sectorsdivision * 0.7;
 
-    p = createsprite(a, vector2(0, 0), 1, max_sprites, &player, true);
+    auto v = vector2(0, 0);
+    p = createsprite(a, v, 1, max_sprites, &player, true);
     if ((p > 0) && (p < max_sprites + 1))
     {
         NotImplemented(NITag::NETWORK);

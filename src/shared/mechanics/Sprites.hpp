@@ -183,8 +183,8 @@ class Sprite
     void die(std::int32_t how, std::int32_t who, std::int32_t where, std::int32_t what,
              tvector2 impact);
     std::int32_t dropweapon();
-    void legsapplyanimation(tanimation anim, std::int32_t curr);
-    void bodyapplyanimation(tanimation anim, std::int32_t curr);
+    void legsapplyanimation(const tanimation &anim, std::int32_t curr);
+    void bodyapplyanimation(const tanimation &anim, std::int32_t curr);
     void moveskeleton(float x1, float y1, bool fromzero);
     bool checkmapcollision(float x, float y, std::int32_t area);
     bool checkradiusmapcollision(float x, float y, bool hascollided);
@@ -194,7 +194,7 @@ class Sprite
     void applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32_t ammo = -1,
                           bool restoreprimarystate = false); // Ammo -1
     void healthhit(float amount, std::int32_t who, std::int32_t where, std::int32_t what,
-                   tvector2 impact);
+                   const tvector2 &impact);
     void freecontrols();
     void checkoutofbounds();
     void checkskeletonoutofbounds();
@@ -202,7 +202,7 @@ class Sprite
 #ifdef SERVER
     void resetspriteoldpos();
 #endif
-    void parachute(tvector2 a);
+    void parachute(tvector2 &a);
 #ifndef SERVER
     void changeteam(std::int32_t team);
 #else
@@ -234,7 +234,7 @@ class Sprite
 using tsprite = Sprite<Config::GetModule()>;
 
 template <Config::Module M = Config::GetModule()>
-std::int32_t createsprite(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::uint8_t n,
+std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t sstyle, std::uint8_t n,
                           tplayer *player, bool transferownership);
 
 template <Config::Module M = Config::GetModule()>
