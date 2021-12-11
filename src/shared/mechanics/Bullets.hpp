@@ -1,22 +1,12 @@
 #pragma once
 
 #include "../Constants.hpp"
-#include "../PolyMap.hpp"
 #include "Sprites.hpp"
 #include "Things.hpp"
 #include "common/MapFile.hpp"
 #include "common/Parts.hpp"
 #include "common/Weapons.hpp"
 #include <vector>
-/*#include "Parts.h"*/
-/*#include "MapFile.h"*/
-/*#include "PolyMap.h"*/
-/*#include "Net.h"*/
-/*#include "Weapons.h"*/
-/*#include "Constants.h"*/
-/*#include "Vector.h"*/
-/*#include "Sprites.h"*/
-/*#include "Things.h"*/
 
 template <Config::Module M = Config::GetModule()>
 class Bullet

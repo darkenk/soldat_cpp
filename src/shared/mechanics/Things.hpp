@@ -1,19 +1,8 @@
 #pragma once
 
-/*#include "Parts.h"*/
-/*#include "Anims.h"*/
-/*#include "MapFile.h"*/
-/*#include "PolyMap.h"*/
-/*#include "Net.h"*/
-/*#include "Weapons.h"*/
-/*#include "Constants.h"*/
-/*#include "Windows.h"*/
-/*#include "Vector.h"*/
-/*#include "Sprites.h"*/
-#include "common/Parts.hpp"
-#include "../PolyMap.hpp"
 #include "Sprites.hpp"
-
+#include "common/MapFile.hpp"
+#include "common/Parts.hpp"
 #include <array>
 #include <cstdint>
 

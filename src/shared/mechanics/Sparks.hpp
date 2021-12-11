@@ -1,13 +1,4 @@
 #pragma once
-
-/*#include "Parts.h"*/
-/*#include "MapFile.h"*/
-/*#include "PolyMap.h"*/
-/*#include "Net.h"*/
-/*#include "Constants.h"*/
-/*#include "Vector.h"*/
-/*#include "Sprites.h"*/
-
 #include "common/Vector.hpp"
 #include <cstdint>
 

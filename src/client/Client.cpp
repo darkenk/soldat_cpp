@@ -28,7 +28,6 @@
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/LogFile.hpp"
-#include "shared/PolyMap.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
@@ -45,7 +44,6 @@ bool progready;
 } // namespace
 
 // Game.hpp
-extern tpolymap client_map;
 extern std::int32_t gamewidth;
 extern std::int32_t gameheight;
 

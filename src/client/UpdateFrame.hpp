@@ -1,29 +1,3 @@
 #pragma once
 
-/*#include "Steam.h"*/
-/*#include "SteamTypes.h"*/
-/*#include "NetworkClientGame.h"*/
-/*#include "Sound.h"*/
-/*#include "Demo.h"*/
-/*#include "Classes.h"*/
-/*#include "GameStrings.h"*/
-/*#include "GameRendering.h"*/
-/*#include "Sprites.h"*/
-/*#include "Vector.h"*/
-/*#include "Weapons.h"*/
-/*#include "Net.h"*/
-/*#include "NetworkClientConnection.h"*/
-/*#include "Constants.h"*/
-/*#include "Control.h"*/
-/*#include "Polymap.h"*/
-/*#include "Game.h"*/
-/*#include "Client.h"*/
-/*#include "Util.h"*/
-/*#include "SysUtils.h"*/
-/*#include "Calc.h"*/
-/*#include "LogFile.h"*/
-/*#include "WeatherEffects.h"*/
-/*#include "Sparks.h"*/
-/*#include "FaeClient.h"*/
-
 void update_frame();

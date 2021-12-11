@@ -4,7 +4,6 @@
 #include <cstdint>
 
 #include "Constants.hpp"
-#include "PolyMap.hpp"
 #include "common/Vector.hpp"
 #include "mechanics/Bullets.hpp"
 #include "mechanics/Sparks.hpp"

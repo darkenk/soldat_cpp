@@ -1,34 +1,11 @@
 #include <cstdint>
 
-#include "InterfaceGraphics.hpp"
-
-/*#include "Client.h"*/
-/*#include "SysUtils.h"*/
-/*#include "Types.h"*/
-/*#include "TraceLog.h"*/
-/*#include "Game.h"*/
-/*#include "Math.h"*/
-/*#include "Calc.h"*/
-/*#include "Version.h"*/
-/*#include "Util.h"*/
-/*#include "PolyMap.h"*/
-/*#include "Demo.h"*/
-/*#include "Weapons.h"*/
-/*#include "GameStrings.h"*/
-/*#include "Net.h"*/
-/*#include "GameMenus.h"*/
-/*#include "Gfx.h"*/
-/*#include "GameRendering.h"*/
-/*#include "PhysFS.h"*/
-/*#include "ClientGame.h"*/
-/*#include "Console.h"*/
-/*#include "MapGraphics.h"*/
-/*#include "GameNetworkingSockets.h"*/
 #include "Client.hpp"
 #include "ClientGame.hpp"
 #include "GameMenus.hpp"
 #include "GameRendering.hpp"
 #include "Gfx.hpp"
+#include "InterfaceGraphics.hpp"
 #include "MapGraphics.hpp"
 #include "common/Calc.hpp"
 #include "common/Logging.hpp"

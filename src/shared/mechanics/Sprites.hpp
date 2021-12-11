@@ -1,12 +1,5 @@
 #pragma once
 
-/*#include "Parts.h"*/
-/*#include "Anims.h"*/
-/*#include "MapFile.h"*/
-/*#include "PolyMap.h"*/
-/*#include "Net.h"*/
-/*#include "Weapons.h"*/
-/*#include "Constants.h"*/
 #include "../Anims.hpp"
 #include "../Constants.hpp"
 #include "../network/Net.hpp"

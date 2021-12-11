@@ -12,13 +12,11 @@ set(SHARED_SRC
     ../shared/Command.cpp
     ../shared/Cvar.cpp
     ../shared/Game.cpp
-    #../shared/PolyMap.cpp
     ../shared/Demo.cpp
     ../shared/Console.cpp
     ../shared/LogFile.cpp
     ../shared/PolyMap.cpp
     ../shared/mechanics/Sprites.cpp
-    #../shared/mechanics/Sparks.cpp
     ../shared/mechanics/Bullets.cpp
     ../shared/mechanics/Things.cpp
     ../shared/mechanics/Control.cpp
