@@ -316,36 +316,51 @@ void updateframe()
 
     if (mapchangecounter < 0)
     {
-        for (j = 1; j <= max_sprites; j++)
-            if (sprite[j].active && !sprite[j].deadmeat)
-                if (sprite[j].isnotspectator())
-                {
-                    for (i = max_oldpos; i >= 1; i--)
-                        oldspritepos[j][i] = oldspritepos[j][i - 1];
+        {
+            ZoneScopedN("OldSpritePos");
+            for (j = 1; j <= max_sprites; j++)
+                if (sprite[j].active && !sprite[j].deadmeat)
+                    if (sprite[j].isnotspectator())
+                    {
+                        for (i = max_oldpos; i >= 1; i--)
+                            oldspritepos[j][i] = oldspritepos[j][i - 1];
 
-                    oldspritepos[j][0] = spriteparts.pos[j];
-                }
+                        oldspritepos[j][0] = spriteparts.pos[j];
+                    }
+        }
 
-        for (j = 1; j <= max_sprites; j++)
-            if (sprite[j].active)
-                if (sprite[j].isnotspectator())
-                    spriteparts.doeulertimestepfor(j); // integrate sprite particles
+        {
+            ZoneScopedN("SpriteParts");
+            for (j = 1; j <= max_sprites; j++)
+                if (sprite[j].active)
+                    if (sprite[j].isnotspectator())
+                        spriteparts.doeulertimestepfor(j); // integrate sprite particles
+        }
 
-        for (j = 1; j <= max_sprites; j++)
-            if (sprite[j].active)
-                sprite[j].update(); // update sprite
+        {
+            ZoneScopedN("Sprites");
+            for (j = 1; j <= max_sprites; j++)
+                if (sprite[j].active)
+                    sprite[j].update(); // update sprite
+        }
 
-        // Bullets update
-        for (j = 1; j <= max_bullets; j++)
-            if (bullet[j].active)
-                bullet[j].update();
+        {
+            ZoneScopedN("Bullets");
+            // Bullets update
+            for (j = 1; j <= max_bullets; j++)
+                if (bullet[j].active)
+                    bullet[j].update();
 
-        bulletparts.doeulertimestep();
+            bulletparts.doeulertimestep();
+        }
 
-        // update Things
-        for (j = 1; j <= max_things; j++)
-            if (thing[j].active)
-                thing[j].update();
+        {
+            ZoneScopedN("Things");
+            // update Things
+            for (j = 1; j <= max_things; j++)
+                if (thing[j].active)
+                    thing[j].update();
+        }
 
         // Bonuses spawn
         if ((!CVar::sv_survivalmode) && (!CVar::sv_realisticmode))

@@ -15,6 +15,7 @@ std::vector<TNetwork *> TNetwork::sNetworks;
 void NetworksGlobalCallback(PSteamNetConnectionStatusChangedCallback_t pInfo)
 {
     std::lock_guard m(TNetwork::sNetworksMutex);
+    auto s = TNetwork::sNetworks.size();
     auto n = std::find_if(
         std::begin(TNetwork::sNetworks), std::end(TNetwork::sNetworks), [pInfo](auto &v) {
             if (v->FPeer != k_HSteamNetConnection_Invalid && pInfo->m_hConn == v->FPeer)
@@ -51,11 +52,11 @@ TNetwork::TNetwork()
 
     NetworkingSockets = SteamNetworkingSockets();
     NetworkingUtils = SteamNetworkingUtils();
-    NetworkingUtils->SetGlobalCallback_SteamNetConnectionStatusChanged(NetworksGlobalCallback);
-
     NetworkingUtils->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg,
                                             &DebugNet);
+
     std::lock_guard m(sNetworksMutex);
+    NetworkingUtils->SetGlobalCallback_SteamNetConnectionStatusChanged(NetworksGlobalCallback);
     sNetworks.emplace_back(this);
 }
 

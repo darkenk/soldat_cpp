@@ -190,7 +190,7 @@ class Sprite
     bool checkradiusmapcollision(float x, float y, bool hascollided);
     bool checkmapverticescollision(float x, float y, float r, bool hascollided);
     bool checkskeletonmapcollision(std::int32_t i, float x, float y);
-    void handlespecialpolytypes(std::int32_t polytype, tvector2 pos);
+    void handlespecialpolytypes(std::int32_t polytype, const tvector2 &pos);
     void applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32_t ammo = -1,
                           bool restoreprimarystate = false); // Ammo -1
     void healthhit(float amount, std::int32_t who, std::int32_t where, std::int32_t what,

@@ -255,6 +255,7 @@ bool teamcollides(std::int32_t poly, std::int32_t team, bool bullet)
 template <Config::Module M>
 void Sprite<M>::update()
 {
+    ZoneScopedN("Sprite::Update");
     std::int32_t i;
 #ifndef SERVER
     std::int32_t k;
@@ -2917,7 +2918,7 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
 }
 
 template <Config::Module M>
-void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, tvector2 pos)
+void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &pos)
 {
     tvector2 a, b;
 

@@ -146,7 +146,10 @@ bool tclientnetwork::connect(std::string Host, std::uint32_t Port)
     InitSettings[1].SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged,
                            (void *)&ProcessEventsCallback);
 
-    FPeer = NetworkingSockets->ConnectByIPAddress(ServerAddress, 1, InitSettings);
+    {
+        std::lock_guard m(TNetwork::sNetworksMutex);
+        FPeer = NetworkingSockets->ConnectByIPAddress(ServerAddress, 1, InitSettings);
+    }
 
     if (FPeer == k_HSteamNetConnection_Invalid)
     {

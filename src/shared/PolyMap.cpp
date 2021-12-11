@@ -5,6 +5,7 @@
 #include "common/Calc.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include <Tracy.hpp>
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -181,7 +182,7 @@ bool Polymap<M>::loadmap(const tmapinfo &map)
 }
 #ifndef SERVER
 template <Config::Module M>
-bool Polymap<M>::loadmap(tmapinfo map, bool bgforce, std::uint32_t bgcolortop,
+bool Polymap<M>::loadmap(const tmapinfo &map, bool bgforce, std::uint32_t bgcolortop,
                          std::uint32_t bgcolorbtm)
 {
     tmapfile mapfile;
@@ -217,8 +218,9 @@ bool Polymap<M>::loadmap(tmapinfo map, bool bgforce, std::uint32_t bgcolortop,
 }
 #endif
 template <Config::Module M>
-bool Polymap<M>::lineinpoly(const tvector2 a, tvector2 b, std::int32_t poly, tvector2 &v)
+bool Polymap<M>::lineinpoly(const tvector2 &a, const tvector2 &b, std::int32_t poly, tvector2 &v)
 {
+    ZoneScopedN("LineInPoly");
     std::int32_t i, j;
     float ak, am, bk, bm;
 
@@ -326,8 +328,9 @@ bool Polymap<M>::pointinpolyedges(float x, float y, std::int32_t i)
 }
 
 template <Config::Module M>
-bool Polymap<M>::pointinpoly(const tvector2 p, const tmappolygon &poly)
+bool Polymap<M>::pointinpoly(const tvector2 &p, const tmappolygon &poly)
 {
+    ZoneScopedN("PointInPoly");
     float ap_x;
     float ap_y;
     bool p_ab;
@@ -465,7 +468,7 @@ bool has(const T &arr, const K &value)
 }
 
 template <Config::Module M>
-bool Polymap<M>::collisiontest(tvector2 pos, tvector2 &perpvec, bool isflag)
+bool Polymap<M>::collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag)
 {
     std::array<std::int32_t, 9> excluded1 = {1, 2, 3, 11, 13, 15, 17, 24, 25};
     std::array<std::int32_t, 3> excluded2 = {21, 22, 23};
@@ -500,9 +503,9 @@ bool Polymap<M>::collisiontest(tvector2 pos, tvector2 &perpvec, bool isflag)
 }
 
 template <Config::Module M>
-bool Polymap<M>::collisiontestexcept(tvector2 pos, tvector2 &perpvec, std::int32_t c)
+bool Polymap<M>::collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::int32_t c)
 {
-    std::array<std::int32_t, 6> excluded = {1, 2, 3, 11, 24, 25};
+    constexpr std::array<std::int32_t, 6> excluded = {1, 2, 3, 11, 24, 25};
     std::int32_t j, w;
     std::int32_t b = 0;
     float d = 0.0f;
@@ -536,9 +539,10 @@ bool Polymap<M>::collisiontestexcept(tvector2 pos, tvector2 &perpvec, std::int32
 #endif
 
 template <Config::Module M>
-bool Polymap<M>::raycast(const tvector2 a, tvector2 b, float &distance, float maxdist, bool player,
-                         bool flag, bool bullet, bool checkcollider, std::uint8_t team)
+bool Polymap<M>::raycast(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
+                         bool player, bool flag, bool bullet, bool checkcollider, std::uint8_t team)
 {
+    ZoneScopedN("PolyMap::RayCast");
     std::int32_t i, j, ax, ay, bx, by, p, w;
     tvector2 c, d;
     bool testcol;
@@ -576,35 +580,64 @@ bool Polymap<M>::raycast(const tvector2 a, tvector2 b, float &distance, float ma
     {
         for (j = ay; j <= by; j++)
         {
+            ZoneScopedN("CheckSector");
             for (p = 1; p < sectors[i][j].polys.size(); p++)
             {
+                ZoneScopedN("CheckPolygon");
                 auto &ref = sectors[i][j];
                 w = ref.polys[p];
+                const auto &polygonType = polytype[w];
 
                 testcol = true;
-                if (((polytype[w] == poly_type_red_bullets) && ((team != team_alpha) || nbcol)) ||
-                    ((polytype[w] == poly_type_red_player) && ((team != team_alpha) || npcol)))
+                if (polygonType == poly_type_normal)
+                {
+                }
+                else if (((polygonType == poly_type_only_bullets) && nbcol) ||
+                         ((polygonType == poly_type_only_player) && npcol) ||
+                         (polygonType == poly_type_doesnt) ||
+                         (polygonType == poly_type_background) ||
+                         (polygonType == poly_type_background_transition))
+                {
                     testcol = false;
-                if (((polytype[w] == poly_type_blue_bullets) && ((team != team_bravo) || nbcol)) ||
-                    ((polytype[w] == poly_type_blue_player) && ((team != team_bravo) || npcol)))
+                }
+                else if (((polygonType == poly_type_red_bullets) &&
+                          ((team != team_alpha) || nbcol)) ||
+                         ((polygonType == poly_type_red_player) && ((team != team_alpha) || npcol)))
+                {
                     testcol = false;
-                if (((polytype[w] == poly_type_yellow_bullets) &&
-                     ((team != team_charlie) || nbcol)) ||
-                    ((polytype[w] == poly_type_yellow_player) && ((team != team_charlie) || npcol)))
+                }
+                else if (((polygonType == poly_type_blue_bullets) &&
+                          ((team != team_bravo) || nbcol)) ||
+                         ((polygonType == poly_type_blue_player) &&
+                          ((team != team_bravo) || npcol)))
+                {
                     testcol = false;
-                if (((polytype[w] == poly_type_green_bullets) && ((team != team_delta) || nbcol)) ||
-                    ((polytype[w] == poly_type_green_player) && ((team != team_delta) || npcol)))
+                }
+                else if (((polygonType == poly_type_yellow_bullets) &&
+                          ((team != team_charlie) || nbcol)) ||
+                         ((polygonType == poly_type_yellow_player) &&
+                          ((team != team_charlie) || npcol)))
+                {
                     testcol = false;
-                if (((!flag || npcol) && (polytype[w] == poly_type_only_flaggers)) ||
-                    ((flag || npcol) && (polytype[w] == poly_type_not_flaggers)))
+                }
+                else if (((polygonType == poly_type_green_bullets) &&
+                          ((team != team_delta) || nbcol)) ||
+                         ((polygonType == poly_type_green_player) &&
+                          ((team != team_delta) || npcol)))
+                {
                     testcol = false;
-                if ((!flag || npcol || nbcol) && (polytype[w] == poly_type_non_flagger_collides))
+                }
+                else if (((!flag || npcol) && (polygonType == poly_type_only_flaggers)) ||
+                         ((flag || npcol) && (polygonType == poly_type_not_flaggers)))
+                {
                     testcol = false;
-                if (((polytype[w] == poly_type_only_bullets) && nbcol) ||
-                    ((polytype[w] == poly_type_only_player) && npcol) ||
-                    (polytype[w] == poly_type_doesnt) || (polytype[w] == poly_type_background) ||
-                    (polytype[w] == poly_type_background_transition))
+                }
+                else if ((!flag || npcol || nbcol) &&
+                         (polygonType == poly_type_non_flagger_collides))
+                {
                     testcol = false;
+                }
+
                 if (testcol)
                 {
                     if (pointinpoly(a, polys[w]))
@@ -627,6 +660,7 @@ bool Polymap<M>::raycast(const tvector2 a, tvector2 b, float &distance, float ma
 
     if (checkcollider)
     {
+        ZoneScopedN("CheckCollider");
         // check if vector crosses any colliders
         // |A*x + B*y + C| / Sqrt(A^2 + B^2) < r
         e = a.y - b.y;

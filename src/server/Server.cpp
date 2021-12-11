@@ -1519,8 +1519,14 @@ void RunServer(int argc, const char *argv[])
     }
     while (progready)
     {
+        auto begin = std::chrono::system_clock::now();
         apponidle();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        auto end = std::chrono::system_clock::now();
+        constexpr auto frameTime = std::chrono::seconds(1) / 60.f;
+        {
+            ZoneScopedN("WaitingForNextFrame");
+            std::this_thread::sleep_for(frameTime - (end - begin));
+        }
         FrameMarkNamed("ServerFrame");
     }
 }

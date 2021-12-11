@@ -3,6 +3,7 @@
 #include "Waypoints.hpp"
 #include "Calc.hpp"
 #include "Logging.hpp"
+#include <Tracy.hpp>
 #include <fstream>
 
 std::ifstream &operator>>(std::ifstream &in, twaypoint &waypoint)
@@ -89,22 +90,25 @@ std::int32_t twaypoints::findclosest(float x, float y, std::int32_t radius,
                                      std::int32_t currwaypoint)
 
 {
+    ZoneScopedN("TWaypoints::FindClosest");
     float d;
     std::int32_t i;
 
     std::int32_t result = 0;
 
-    for (i = 1; i <= max_waypoints; i++)
+    i = 1;
+    for (const auto &w : waypoint)
     {
-        if ((waypoint[i].active) && (currwaypoint != i))
+        if (w.active && currwaypoint != i)
         {
-            d = distance(x, y, waypoint[i].x, waypoint[i].y);
+            d = distance(x, y, w.x, w.y);
             if (d < radius)
             {
                 result = i;
                 return result;
             }
         }
+        i++;
     }
     return result;
 }

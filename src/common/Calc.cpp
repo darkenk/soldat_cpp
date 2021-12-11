@@ -138,8 +138,8 @@ tintersectionresult islineintersectingcircle(tvector2 line1, tvector2 line2, tve
     return result;
 }
 
-bool linecirclecollision(tvector2 startpoint, tvector2 endpoint, tvector2 circlecenter,
-                         float radius, tvector2 &collisionpoint)
+bool linecirclecollision(const tvector2 &startpoint, const tvector2 &endpoint,
+                         const tvector2 &circlecenter, float radius, tvector2 &collisionpoint)
 {
     float r2;
     tintersectionresult intersectionresult;
@@ -173,7 +173,7 @@ bool linecirclecollision(tvector2 startpoint, tvector2 endpoint, tvector2 circle
     return result;
 }
 
-float pointlinedistance(tvector2 p1, tvector2 p2, tvector2 p3)
+float pointlinedistance(const tvector2 &p1, const tvector2 &p2, const tvector2 &p3)
 {
     float u, x, y;
 
@@ -186,7 +186,7 @@ float pointlinedistance(tvector2 p1, tvector2 p2, tvector2 p3)
     return std::sqrt(sqr(x - p3.x) + sqr(y - p3.y));
 }
 
-float angle2points(const tvector2 p1, tvector2 p2)
+float angle2points(const tvector2 &p1, const tvector2 &p2)
 {
     float result = 0.0f;
     if ((p2.x - p1.x) != 0.0f)
@@ -213,7 +213,7 @@ float distance(float x1, float y1, float x2, float y2)
     return std::sqrt(sqr(x1 - x2) + sqr(y1 - y2));
 }
 
-float distance(tvector2 p1, tvector2 p2)
+float distance(const tvector2 &p1, const tvector2 &p2)
 {
     return std::sqrt(sqr(p1.x - p2.x) + sqr(p1.y - p2.y));
 }
@@ -223,7 +223,7 @@ float sqrdist(float x1, float y1, float x2, float y2)
     return sqr(x1 - x2) + sqr(y1 - y2);
 }
 
-float sqrdist(tvector2 p1, tvector2 p2)
+float sqrdist(const tvector2 &p1, const tvector2 &p2)
 {
     return sqr(p1.x - p2.x) + sqr(p1.y - p2.y);
 }

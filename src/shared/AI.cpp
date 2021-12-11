@@ -11,6 +11,7 @@
 #include "mechanics/Sprites.hpp"
 #include "network/NetworkServer.hpp"
 #include "network/NetworkServerMessages.hpp"
+#include <Tracy.hpp>
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -495,6 +496,7 @@ void gotothing(std::uint8_t snum, std::uint8_t tnum)
 
 void controlbot(tsprite &spritec)
 {
+    ZoneScopedN("ControlBot");
     tvector2 b, lookpoint, startpoint;
     std::int32_t k, i;
     bool seeclosest, seething, runaway;
@@ -521,63 +523,68 @@ void controlbot(tsprite &spritec)
         seeclosest = false;
         d = 999999;
         d2 = 0.0;
-        for (i = 1; i <= max_sprites; i++)
-            if (sprite[i].active && (i != spritec.num) &&
-                (sprite[i].player->name != spritec.brain.friend_) &&
-                ((sprite[i].alpha == 255) || (sprite[i].holdedthing > 0)) &&
-                sprite[i].isnotspectator())
-                if (!sprite[i].deadmeat or (sprite[i].deadmeat && ((spritec.brain.deadkill == 1) &&
-                                                                   (sprite[i].deadtime < 180))))
-                {
-                    startpoint = sprite[i].skeleton.pos[12];
-                    // check if ray startpoint is not in map
-                    if (map.collisiontest(startpoint, b))
-                        startpoint.y = startpoint.y + 6;
 
-                    if (!map.raycast(lookpoint, startpoint, d2, 651))
+        {
+            ZoneScopedN("SearchingForTarget");
+            for (i = 1; i <= max_sprites; i++)
+                if (sprite[i].active && (i != spritec.num) &&
+                    (sprite[i].player->name != spritec.brain.friend_) &&
+                    ((sprite[i].alpha == 255) || (sprite[i].holdedthing > 0)) &&
+                    sprite[i].isnotspectator())
+                    if (!sprite[i].deadmeat or
+                        (sprite[i].deadmeat &&
+                         ((spritec.brain.deadkill == 1) && (sprite[i].deadtime < 180))))
                     {
-                        if (CVar::sv_gamemode == gamestyle_rambo)
-                            if ((sprite[i].weapon.num == guns[bow].num) ||
-                                (sprite[i].weapon.num == guns[bow2].num))
+                        startpoint = sprite[i].skeleton.pos[12];
+                        // check if ray startpoint is not in map
+                        if (map.collisiontest(startpoint, b))
+                            startpoint.y = startpoint.y + 6;
+
+                        if (!map.raycast(lookpoint, startpoint, d2, 651))
+                        {
+                            if (CVar::sv_gamemode == gamestyle_rambo)
+                                if ((sprite[i].weapon.num == guns[bow].num) ||
+                                    (sprite[i].weapon.num == guns[bow2].num))
+                                {
+                                    spritec.brain.targetnum = i;
+                                    seeclosest = true;
+                                    break;
+                                }
+
+                            if (d > d2)
                             {
                                 spritec.brain.targetnum = i;
+
+                                dt = d;
+
+                                if (!sprite[i].deadmeat)
+                                    d = d2;
                                 seeclosest = true;
-                                break;
+
+                                // stop throwing grenades and weapons if it's dead
+                                if (sprite[i].deadmeat)
+                                {
+                                    spritec.control.thrownade = false;
+                                    spritec.control.throwweapon = false;
+                                }
+
+                                if ((CVar::sv_gamemode == gamestyle_rambo) &&
+                                    (spritec.weapon.num != guns[bow].num) &&
+                                    (spritec.weapon.num != guns[bow2].num))
+                                {
+                                    seeclosest = false;
+                                    d = dt;
+                                }
+                                if (isteamgame() && spritec.isinsameteam(sprite[i]))
+                                {
+                                    seeclosest = false;
+                                    // D := dt;
+                                }
                             }
-
-                        if (d > d2)
-                        {
-                            spritec.brain.targetnum = i;
-
-                            dt = d;
-
-                            if (!sprite[i].deadmeat)
-                                d = d2;
-                            seeclosest = true;
-
-                            // stop throwing grenades and weapons if it's dead
-                            if (sprite[i].deadmeat)
-                            {
-                                spritec.control.thrownade = false;
-                                spritec.control.throwweapon = false;
-                            }
-
-                            if ((CVar::sv_gamemode == gamestyle_rambo) &&
-                                (spritec.weapon.num != guns[bow].num) &&
-                                (spritec.weapon.num != guns[bow2].num))
-                            {
-                                seeclosest = false;
-                                d = dt;
-                            }
-                            if (isteamgame() && spritec.isinsameteam(sprite[i]))
-                            {
-                                seeclosest = false;
-                                // D := dt;
-                            }
-                        }
-                    } // if see
-                }
-        // <see?
+                        } // if see
+                    }
+            // <see?
+        }
 
         if (spritec.brain.targetnum > 0)
             if ((sprite[spritec.brain.targetnum].weapon.num == guns[bow].num) ||
@@ -894,111 +901,121 @@ void controlbot(tsprite &spritec)
         lookpoint.x = spritec.skeleton.pos[12].x;
         lookpoint.y = spritec.skeleton.pos[12].y - 4;
         // look for flag or bow
-        for (i = 1; i <= max_things; i++)
-            if (!seething && thing[i].active && (thing[i].holdingsprite != spritec.num) &&
-                ((thing[i].style == object_alpha_flag) || (thing[i].style == object_bravo_flag) ||
-                 (thing[i].style == object_pointmatch_flag) ||
-                 (thing[i].style == object_rambo_bow) || (thing[i].style == object_flamer_kit) ||
-                 (thing[i].style == object_predator_kit) || (thing[i].style == object_vest_kit) ||
-                 (thing[i].style == object_berserk_kit) ||
-                 (thing[i].style == object_combat_knife) ||
-                 ((thing[i].style == object_medical_kit) && (spritec.GetHealth() < starthealth)) ||
-                 ((thing[i].style == object_grenade_kit) &&
-                  (spritec.tertiaryweapon.ammocount < CVar::sv_maxgrenades) &&
-                  ((spritec.tertiaryweapon.num != guns[clustergrenade].num) ||
-                   (spritec.tertiaryweapon.ammocount == 0)))))
+        {
+            ZoneScopedN("LookingForFlagOrBow");
+            for (i = 1; i <= max_things; i++)
             {
-                startpoint.x = thing[i].skeleton.pos[2].x;
-                startpoint.y = thing[i].skeleton.pos[2].y - 5;
+                if (!seething && thing[i].active && (thing[i].holdingsprite != spritec.num) &&
+                    ((thing[i].style == object_alpha_flag) ||
+                     (thing[i].style == object_bravo_flag) ||
+                     (thing[i].style == object_pointmatch_flag) ||
+                     (thing[i].style == object_rambo_bow) ||
+                     (thing[i].style == object_flamer_kit) ||
+                     (thing[i].style == object_predator_kit) ||
+                     (thing[i].style == object_vest_kit) ||
+                     (thing[i].style == object_berserk_kit) ||
+                     (thing[i].style == object_combat_knife) ||
+                     ((thing[i].style == object_medical_kit) &&
+                      (spritec.GetHealth() < starthealth)) ||
+                     ((thing[i].style == object_grenade_kit) &&
+                      (spritec.tertiaryweapon.ammocount < CVar::sv_maxgrenades) &&
+                      ((spritec.tertiaryweapon.num != guns[clustergrenade].num) ||
+                       (spritec.tertiaryweapon.ammocount == 0)))))
+                {
+                    startpoint.x = thing[i].skeleton.pos[2].x;
+                    startpoint.y = thing[i].skeleton.pos[2].y - 5;
 
-                if (!map.raycast(lookpoint, startpoint, d2, 651))
-                    if (d2 < dist_far)
-                    { // i see the flag! or bow or sth
-                        seething = true;
-
-                        // dont take it if is my flag in base
-                        if (((CVar::sv_gamemode == gamestyle_ctf) ||
-                             (CVar::sv_gamemode == gamestyle_inf)) &&
-                            (thing[i].style == spritec.player->team) && thing[i].inbase)
-                        {
-                            seething = false;
-                            if ((spritec.holdedthing > 0) && (i != spritec.holdedthing))
-                                if (thing[spritec.holdedthing].holdingsprite == spritec.num)
-                                    seething = true;
-                        }
-                        // dont follow this flag if my flag is not inbase
-                        if (((CVar::sv_gamemode == gamestyle_ctf) ||
-                             (CVar::sv_gamemode == gamestyle_inf)) &&
-                            (thing[i].style != spritec.player->team) and
-                            !thing[teamflag[spritec.player->team]].inbase)
-                            seething = false;
-                        // dont take it if is flag in base
-                        if (((CVar::sv_gamemode == gamestyle_ctf) ||
-                             (CVar::sv_gamemode == gamestyle_inf)) &&
-                            (thing[i].style != spritec.player->team) &&
-                            (thing[i].style < object_ussocom) && thing[i].inbase &&
-                            (d2 > dist_close))
-                            seething = false;
-                        // or better take it if hurt and medikit is close
-                        if ((thing[i].style == object_medical_kit) &&
-                            (spritec.GetHealth() < hurt_health) && (d2 < dist_very_close))
-                            seething = true;
-                        // dont take it when running away with flag
-                        if (((thing[i].style == object_medical_kit) ||
-                             (thing[i].style == object_grenade_kit) ||
-                             (thing[i].style == object_flamer_kit) ||
-                             (thing[i].style == object_predator_kit) ||
-                             (thing[i].style == object_berserk_kit)) &&
-                            runaway)
-                            seething = false;
-                        if (((thing[i].style == object_flamer_kit) ||
-                             (thing[i].style == object_predator_kit) ||
-                             (thing[i].style == object_berserk_kit)) &&
-                            (spritec.bonusstyle > bonus_none))
-                            seething = false;
-                        if (thing[i].style == object_combat_knife)
+                    if (!map.raycast(lookpoint, startpoint, d2, 651))
+                        if (d2 < dist_far)
+                        { // i see the flag! or bow or sth
                             seething = true;
 
-                        // throw away weapon
-                        if ((d2 < 30) && (thing[i].style == object_rambo_bow))
-                            spritec.control.throwweapon = true;
-
-                        if (seething)
-                        {
-                            if (thing[i].holdingsprite == 0)
-                                thing[i].interest -= 1;
-
-                            if (thing[i].interest > 0)
+                            // dont take it if is my flag in base
+                            if (((CVar::sv_gamemode == gamestyle_ctf) ||
+                                 (CVar::sv_gamemode == gamestyle_inf)) &&
+                                (thing[i].style == spritec.player->team) && thing[i].inbase)
                             {
-                                if (CVar::bots_chat)
+                                seething = false;
+                                if ((spritec.holdedthing > 0) && (i != spritec.holdedthing))
+                                    if (thing[spritec.holdedthing].holdingsprite == spritec.num)
+                                        seething = true;
+                            }
+                            // dont follow this flag if my flag is not inbase
+                            if (((CVar::sv_gamemode == gamestyle_ctf) ||
+                                 (CVar::sv_gamemode == gamestyle_inf)) &&
+                                (thing[i].style != spritec.player->team) and
+                                !thing[teamflag[spritec.player->team]].inbase)
+                                seething = false;
+                            // dont take it if is flag in base
+                            if (((CVar::sv_gamemode == gamestyle_ctf) ||
+                                 (CVar::sv_gamemode == gamestyle_inf)) &&
+                                (thing[i].style != spritec.player->team) &&
+                                (thing[i].style < object_ussocom) && thing[i].inbase &&
+                                (d2 > dist_close))
+                                seething = false;
+                            // or better take it if hurt and medikit is close
+                            if ((thing[i].style == object_medical_kit) &&
+                                (spritec.GetHealth() < hurt_health) && (d2 < dist_very_close))
+                                seething = true;
+                            // dont take it when running away with flag
+                            if (((thing[i].style == object_medical_kit) ||
+                                 (thing[i].style == object_grenade_kit) ||
+                                 (thing[i].style == object_flamer_kit) ||
+                                 (thing[i].style == object_predator_kit) ||
+                                 (thing[i].style == object_berserk_kit)) &&
+                                runaway)
+                                seething = false;
+                            if (((thing[i].style == object_flamer_kit) ||
+                                 (thing[i].style == object_predator_kit) ||
+                                 (thing[i].style == object_berserk_kit)) &&
+                                (spritec.bonusstyle > bonus_none))
+                                seething = false;
+                            if (thing[i].style == object_combat_knife)
+                                seething = true;
+
+                            // throw away weapon
+                            if ((d2 < 30) && (thing[i].style == object_rambo_bow))
+                                spritec.control.throwweapon = true;
+
+                            if (seething)
+                            {
+                                if (thing[i].holdingsprite == 0)
+                                    thing[i].interest -= 1;
+
+                                if (thing[i].interest > 0)
                                 {
-                                    if (thing[i].style < object_pointmatch_flag)
-                                        if (Random(400 * spritec.brain.chatfreq) == 0)
-                                            serversendstringmessage("Flag!", all_players,
-                                                                    spritec.num, msgtype_pub);
+                                    if (CVar::bots_chat)
+                                    {
+                                        if (thing[i].style < object_pointmatch_flag)
+                                            if (Random(400 * spritec.brain.chatfreq) == 0)
+                                                serversendstringmessage("Flag!", all_players,
+                                                                        spritec.num, msgtype_pub);
+                                    }
+
+                                    spritec.brain.gothing = true;
+                                    gotothing(spritec.num, i);
                                 }
+                                else
+                                    spritec.brain.gothing = false;
 
-                                spritec.brain.gothing = true;
-                                gotothing(spritec.num, i);
-                            }
-                            else
-                                spritec.brain.gothing = false;
-
-                            // Pickup knife!
-                            if ((thing[i].style == object_combat_knife) &&
-                                (spritec.weapon.num == guns[noweapon].num) &&
-                                (spritec.brain.favweapon == guns[knife].num))
-                            {
-                                spritec.control.fire = false;
-                                spritec.brain.targetnum = 0;
-                                // ServerSendStringMessage(' Looking for knife...', SpriteC.Num);
-                                spritec.brain.gothing = true;
-                                gotothing(spritec.num, i);
+                                // Pickup knife!
+                                if ((thing[i].style == object_combat_knife) &&
+                                    (spritec.weapon.num == guns[noweapon].num) &&
+                                    (spritec.brain.favweapon == guns[knife].num))
+                                {
+                                    spritec.control.fire = false;
+                                    spritec.brain.targetnum = 0;
+                                    // ServerSendStringMessage(' Looking for knife...',
+                                    // SpriteC.Num);
+                                    spritec.brain.gothing = true;
+                                    gotothing(spritec.num, i);
+                                }
                             }
                         }
-                    }
+                }
+                // <see flag?
             }
-        // <see flag?
+        }
 
         if (!seething)
             spritec.brain.gothing = false;

@@ -83,18 +83,19 @@ class Polymap
     tloadmapgraphics loadgraphics;
     bool loadmap(const tmapinfo &map);
 #ifndef SERVER
-    bool loadmap(tmapinfo map, bool bgforce, std::uint32_t bgcolortop, std::uint32_t bgcolorbtm);
+    bool loadmap(const tmapinfo &map, bool bgforce, std::uint32_t bgcolortop,
+                 std::uint32_t bgcolorbtm);
     ;
 #endif
-    bool lineinpoly(const tvector2 a, tvector2 b, std::int32_t poly, tvector2 &v);
+    bool lineinpoly(const tvector2 &a, const tvector2 &b, std::int32_t poly, tvector2 &v);
     bool pointinpolyedges(float x, float y, std::int32_t i);
-    bool pointinpoly(const tvector2 p, const tmappolygon &poly);
+    bool pointinpoly(const tvector2 &p, const tmappolygon &poly);
     tvector2 closestperpendicular(std::int32_t j, tvector2 pos, float &d, std::int32_t &n);
-    bool collisiontest(tvector2 pos, tvector2 &perpvec, bool isflag = false);
-    bool collisiontestexcept(tvector2 pos, tvector2 &perpvec, std::int32_t c);
-    bool raycast(const tvector2 a, tvector2 b, float &distance, float maxdist, bool player = false,
-                 bool flag = false, bool bullet = true, bool checkcollider = false,
-                 std::uint8_t team = 0);
+    bool collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag = false);
+    bool collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::int32_t c);
+    bool raycast(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
+                 bool player = false, bool flag = false, bool bullet = true,
+                 bool checkcollider = false, std::uint8_t team = 0);
 
   private:
     void initialize();

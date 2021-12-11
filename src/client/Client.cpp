@@ -839,9 +839,16 @@ void startgameloop()
 {
     while (gamelooprun)
     {
+        auto begin = std::chrono::system_clock::now();
         GetNetwork()->processloop();
         gameinput();
         gameloop();
+        auto end = std::chrono::system_clock::now();
+        constexpr auto frameTime = std::chrono::seconds(1) / 60.f;
+        {
+            ZoneScopedN("WaitingForNextFrame");
+            std::this_thread::sleep_for(frameTime - (end - begin));
+        }
         FrameMarkNamed("ClientFrame");
     }
 }
