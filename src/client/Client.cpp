@@ -33,6 +33,7 @@
 #include "shared/network/NetworkClientConnection.hpp"
 #include <Tracy.hpp>
 #include <physfs.h>
+#include <thread>
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"

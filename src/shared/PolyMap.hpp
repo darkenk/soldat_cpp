@@ -87,9 +87,9 @@ class Polymap
                  std::uint32_t bgcolorbtm);
     ;
 #endif
-    bool lineinpoly(const tvector2 &a, const tvector2 &b, std::int32_t poly, tvector2 &v);
     bool pointinpolyedges(float x, float y, std::int32_t i);
     bool pointinpoly(const tvector2 &p, const tmappolygon &poly);
+    bool lineinpoly(const tvector2 &a, const tvector2 &b, const tmappolygon &poly, tvector2 &v);
     tvector2 closestperpendicular(std::int32_t j, tvector2 pos, float &d, std::int32_t &n);
     bool collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag = false);
     bool collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::int32_t c);

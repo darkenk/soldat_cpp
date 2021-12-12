@@ -218,7 +218,8 @@ bool Polymap<M>::loadmap(const tmapinfo &map, bool bgforce, std::uint32_t bgcolo
 }
 #endif
 template <Config::Module M>
-bool Polymap<M>::lineinpoly(const tvector2 &a, const tvector2 &b, std::int32_t poly, tvector2 &v)
+bool Polymap<M>::lineinpoly(const tvector2 &a, const tvector2 &b, const tmappolygon &poly,
+                            tvector2 &v)
 {
     ZoneScopedN("LineInPoly");
     std::int32_t i, j;
@@ -233,8 +234,8 @@ bool Polymap<M>::lineinpoly(const tvector2 &a, const tvector2 &b, std::int32_t p
         else
             j = i + 1;
 
-        tmapvertex &p = polys[poly].vertices[i];
-        tmapvertex &q = polys[poly].vertices[j];
+        const tmapvertex &p = poly.vertices[i];
+        const tmapvertex &q = poly.vertices[j];
 
         if ((b.x != a.x) || (q.x != p.x))
         {
@@ -331,12 +332,6 @@ template <Config::Module M>
 bool Polymap<M>::pointinpoly(const tvector2 &p, const tmappolygon &poly)
 {
     ZoneScopedN("PointInPoly");
-    float ap_x;
-    float ap_y;
-    bool p_ab;
-    bool p_ac;
-
-    bool pointinpoly_result = false;
 
     /*
       FIXME(skoskav): Explain what is going on here. Description from StackOverflow:
@@ -348,37 +343,33 @@ bool Polymap<M>::pointinpoly(const tvector2 &p, const tmappolygon &poly)
       they differ. If they do, p can't possibly be inside, otherwise p must be
       inside.
 
-      Some keystd::uint64_ts in the calculations are line half-planes and the determinant
+      Some keywords in the calculations are line half-planes and the determinant
       (2x2 cross product).
       Perhaps a more pedagogical way is probably to think of it as a point being
       inside iff it's to the same side (left or right) to each of the lines AB,
       BC and CA.
     */
-
-    NotImplemented(NITag::MAP);
     const tmapvertex &a = poly.vertices[1];
     const tmapvertex &b = poly.vertices[2];
     const tmapvertex &c = poly.vertices[3];
 
-    ap_x = p.x - a.x;
-    ap_y = p.y - a.y;
+    float ap_x = p.x - a.x;
+    float ap_y = p.y - a.y;
 
-    p_ab = (b.x - a.x) * ap_y - (b.y - a.y) * ap_x > 0;
-    p_ac = (c.x - a.x) * ap_y - (c.y - a.y) * ap_x > 0;
+    bool p_ab = (b.x - a.x) * ap_y - (b.y - a.y) * ap_x > 0;
+    bool p_ac = (c.x - a.x) * ap_y - (c.y - a.y) * ap_x > 0;
 
     if (p_ac == p_ab)
     {
-        return pointinpoly_result;
+        return false;
     }
 
     // p_bc <> p_ab
     if (((c.x - b.x) * (p.y - b.y) - (c.y - b.y) * (p.x - b.x) > 0) != p_ab)
     {
-        return pointinpoly_result;
+        return false;
     }
-
-    pointinpoly_result = true;
-    return pointinpoly_result;
+    return true;
 }
 
 template <Config::Module M>
@@ -646,7 +637,7 @@ bool Polymap<M>::raycast(const tvector2 &a, const tvector2 &b, float &distance, 
                         raycast_result = true;
                         return raycast_result;
                     }
-                    if (lineinpoly(a, b, w, d))
+                    if (lineinpoly(a, b, polys[w], d))
                     {
                         c = vec2subtract(d, a);
                         distance = vec2length(c);

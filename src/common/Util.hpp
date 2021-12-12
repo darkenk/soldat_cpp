@@ -62,7 +62,7 @@ bool createdirifmissing(const std::string &dir);
 bool createfileifmissing(const std::string &filename);
 std::string getsize(int64_t bytes);
 tsha1digest getmapchecksum(const tmapinfo &map, const tsha1digest &defaultgamemodchecksum);
-bool getmapinfo(const std::string &mapname, std::string &directory,
+bool getmapinfo(const std::string &mapname, const std::string &directory,
                 tmapinfo &mapinfo); // dk out MapInfo
 bool verifymapchecksum(const tmapinfo &map, const tsha1digest &checksum,
                        const tsha1digest &defaultgamemodchecksum);

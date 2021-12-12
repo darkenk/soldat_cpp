@@ -670,7 +670,7 @@ void destroygamegraphics()
 //    return a + (b - a) * x;
 //}
 
-tvector2 lerp(tvector2 a, tvector2 b, float x)
+tvector2 lerp(const tvector2 &a, const tvector2 &b, float x)
 {
 
     tvector2 lerp_result;

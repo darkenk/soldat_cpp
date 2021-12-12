@@ -36,7 +36,6 @@ set(SHARED_SRC
     ../shared/misc/GlobalVariableStorage.cpp
 )
 
-
 add_library(SoldatServerLib OBJECT ${SRC} ${SHARED_SRC})
 target_compile_definitions(SoldatServerLib PRIVATE SERVER=1)
 target_include_directories(SoldatServerLib PRIVATE

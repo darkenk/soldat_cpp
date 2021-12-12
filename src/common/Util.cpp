@@ -195,7 +195,7 @@ std::vector<std::string> split_string(std::string s, std::string delimiter)
     return res;
 }
 
-bool getmapinfo(const std::string &mapname, std::string &directory,
+bool getmapinfo(const std::string &mapname, const std::string &directory,
                 tmapinfo &mapinfo) // dk out MapInfo
 {
     tstringarray split;
