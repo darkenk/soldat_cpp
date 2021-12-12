@@ -37,6 +37,8 @@ typedef struct tmappolygon *pmappolygon;
 struct tmappolygon
 {
     PascalArray<tmapvertex, 1, 3> vertices;
+    // precomputed
+    std::array<float, 3> bk;
     PascalArray<tvector3, 1, 3> normals;
     std::uint8_t polytype = 0;
     std::uint8_t textureindex = 0;

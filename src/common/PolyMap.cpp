@@ -46,6 +46,23 @@ void Polymap::initialize()
     fillchar(&botpath.waypoint[idx], sizeof(botpath.waypoint), 0);
 }
 
+void Precompute(tmappolygon &polygon)
+{
+    auto calc = [](const tmapvertex &p, const tmapvertex &q) {
+        if (q.x != p.x)
+        {
+            return ((q.y - p.y)) / (q.x - p.x);
+        }
+        return std::numeric_limits<float>::max();
+    };
+    const auto &v1 = polygon.vertices[1];
+    const auto &v2 = polygon.vertices[2];
+    const auto &v3 = polygon.vertices[3];
+    polygon.bk[0] = calc(v1, v2);
+    polygon.bk[1] = calc(v2, v3);
+    polygon.bk[2] = calc(v3, v1);
+}
+
 void Polymap::loaddata(tmapfile &mapfile)
 {
     std::int32_t i, j, k;
@@ -108,6 +125,8 @@ void Polymap::loaddata(tmapfile &mapfile)
             this->backpolycount += 1;
             this->backpolys[this->backpolycount] = &this->polys[i];
         }
+
+        Precompute(this->polys[i]);
     }
 
     k = 0;
@@ -201,6 +220,61 @@ bool Polymap::loadmap(const tmapinfo &map, bool bgforce, std::uint32_t bgcolorto
         result = true;
     }
     return result;
+}
+
+bool LineInPolyOpt(const tvector2 &a, const tvector2 &b, const tmappolygon &poly, tvector2 &v,
+                   const float ak)
+{
+    ZoneScopedN("LineInPolyOpt");
+
+    auto calc = [&](const tmapvertex &p, const tmapvertex &q, const float bk) {
+        if (b.x != a.x && q.x != p.x)
+        {
+            if (ak != bk)
+            {
+                float am = a.y - ak * a.x;
+                float bm = p.y - bk * p.x;
+                v.x = ((bm - am)) / (ak - bk);
+                v.y = ak * v.x + am;
+
+                if ((v.x > std::min(p.x, q.x)) && (v.x < std::max(p.x, q.x)) &&
+                    (v.x > std::min(a.x, b.x)) && (v.x < std::max(a.x, b.x)))
+                {
+                    return true;
+                }
+            }
+        }
+        else if (b.x == a.x && q.x != p.x)
+        {
+            float bm = p.y - bk * p.x;
+            v.x = a.x;
+            v.y = bk * v.x + bm;
+
+            if ((v.x > std::min(p.x, q.x)) && (v.x < std::max(p.x, q.x)) &&
+                (v.y > std::min(a.y, b.y)) && (v.y < std::max(a.y, b.y)))
+            {
+                return true;
+            }
+        }
+        else if (q.x == p.x && b.x != a.x)
+        {
+            float am = a.y - ak * a.x;
+            v.x = p.x;
+            v.y = ak * v.x + am;
+
+            if ((v.y > std::min(p.y, q.y)) && (v.y < std::max(p.y, q.y)) &&
+                (v.x > std::min(a.x, b.x)) && (v.x < std::max(a.x, b.x)))
+            {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    const auto &v1 = poly.vertices[1];
+    const auto &v2 = poly.vertices[2];
+    const auto &v3 = poly.vertices[3];
+    return calc(v1, v2, poly.bk[0]) or calc(v2, v3, poly.bk[1]) or calc(v3, v1, poly.bk[2]);
 }
 
 bool Polymap::lineinpoly(const tvector2 &a, const tvector2 &b, const tmappolygon &poly, tvector2 &v)
@@ -508,8 +582,151 @@ bool Polymap::collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::i
 #ifdef NoOverflowCheck /*$Q+*/ /*$UNDEF NoOverflowCheck*/
 #endif
 
-bool Polymap::raycast(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
-                      bool player, bool flag, bool bullet, bool checkcollider, std::uint8_t team)
+bool Polymap::ShouldTestPolygonWithRay(const std::uint8_t polygonType, const bool npcol,
+                                       const bool nbcol, const bool flag, const std::uint8_t team)
+{
+    switch (polygonType)
+    {
+    case poly_type_normal:
+        return true;
+    case poly_type_only_bullets:
+        return !nbcol;
+    case poly_type_only_player:
+        return !npcol;
+    case poly_type_doesnt:
+    case poly_type_background:
+    case poly_type_background_transition:
+        return false;
+    case poly_type_red_bullets:
+        return !((team != Constants::TEAM_ALPHA) || nbcol);
+    case poly_type_red_player:
+        return !((team != Constants::TEAM_ALPHA) || npcol);
+    case poly_type_blue_bullets:
+        return !((team != Constants::TEAM_BRAVO) || nbcol);
+    case poly_type_blue_player:
+        return !((team != Constants::TEAM_BRAVO) || npcol);
+    case poly_type_yellow_bullets:
+        return !((team != Constants::TEAM_CHARLIE) || nbcol);
+    case poly_type_yellow_player:
+        return !((team != Constants::TEAM_CHARLIE) || npcol);
+    case poly_type_green_bullets:
+        return !((team != Constants::TEAM_DELTA) || nbcol);
+    case poly_type_green_player:
+        return !((team != Constants::TEAM_DELTA) || npcol);
+    case poly_type_only_flaggers:
+        return !(!flag || npcol);
+    case poly_type_not_flaggers:
+        return !(flag || npcol);
+    case poly_type_non_flagger_collides:
+        return !(!flag || npcol || nbcol);
+    default:;
+    }
+    return true;
+}
+
+bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
+                         bool player, bool flag, bool bullet, bool checkcollider, std::uint8_t team)
+{
+    ZoneScopedN("PolyMap::RayCastOpt");
+    std::int32_t i, j, ax, ay, bx, by;
+    tvector2 d;
+    bool npcol, nbcol;
+    float e, f, g, h, r;
+
+    bool raycast_result = false;
+    distance = vec2length(vec2subtract(a, b));
+    if (distance > maxdist)
+    {
+        distance = 9999999;
+        return true;
+    }
+
+    float s = 1.0f / sectorsdivision;
+
+    ax = round((std::min(a.x, b.x)) * s);
+    ay = round((std::min(a.y, b.y)) * s);
+    bx = round((std::max(a.x, b.x)) * s);
+    by = round((std::max(a.y, b.y)) * s);
+
+    if ((ax > max_sectorz) || (bx < min_sectorz) || (ay > max_sectorz) || (by < min_sectorz))
+    {
+        return false;
+    }
+
+    ax = std::max(min_sectorz, ax);
+    ay = std::max(min_sectorz, ay);
+    bx = std::min(max_sectorz, bx);
+    by = std::min(max_sectorz, by);
+
+    npcol = !player;
+    nbcol = !bullet;
+
+    float ak = std::numeric_limits<float>::max();
+    if (b.x != a.x)
+    {
+        ak = ((b.y - a.y)) / (b.x - a.x);
+    }
+
+    for (i = ax; i <= bx; i++)
+    {
+        for (j = ay; j <= by; j++)
+        {
+            ZoneScopedN("CheckSector");
+            auto &polygons = sectors[i][j].polys;
+            for (auto p = 1U; p < polygons.size(); p++)
+            {
+                ZoneScopedN("CheckPolygon");
+                auto const &w = polygons[p];
+                if (ShouldTestPolygonWithRay(polytype[w], npcol, nbcol, flag, team))
+                {
+                    auto &polygon = polys[w];
+                    if (pointinpoly(a, polygon))
+                    {
+                        distance = 0.f;
+                        return true;
+                    }
+                    if (LineInPolyOpt(a, b, polygon, d, ak))
+                    {
+                        tvector2 c = vec2subtract(d, a);
+                        distance = vec2length(c);
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    if (checkcollider)
+    {
+        ZoneScopedN("CheckCollider");
+        // check if vector crosses any colliders
+        // |A*x + B*y + C| / Sqrt(A^2 + B^2) < r
+        e = a.y - b.y;
+        f = b.x - a.x;
+        g = a.x * b.y - a.y * b.x;
+        h = sqrt(e * e + f * f);
+        for (i = 1; i <= collidercount; i++)
+        {
+            if (collider[i].active)
+            {
+                if (std::abs(e * collider[i].x + f * collider[i].y + g) / h <= collider[i].radius)
+                {
+                    r = sqrdist(a.x, a.y, b.x, b.y) + collider[i].radius * collider[i].radius;
+                    if (sqrdist(a.x, a.y, collider[i].x, collider[i].y) <= r)
+                        if (sqrdist(b.x, b.y, collider[i].x, collider[i].y) <= r)
+                        {
+                            raycast_result = false;
+                            break;
+                        }
+                }
+            }
+        }
+    }
+    return raycast_result;
+}
+
+bool Polymap::RayCastOld(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
+                         bool player, bool flag, bool bullet, bool checkcollider, uint8_t team)
 {
     ZoneScopedN("PolyMap::RayCast");
     std::int32_t i, j, ax, ay, bx, by, p, w;
@@ -655,6 +872,20 @@ bool Polymap::raycast(const tvector2 &a, const tvector2 &b, float &distance, flo
         }
     }
     return raycast_result;
+}
+
+bool Polymap::raycast(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
+                      bool player, bool flag, bool bullet, bool checkcollider, std::uint8_t team)
+{
+
+    auto retOpt = RayCastOpt(a, b, distance, maxdist, player, flag, bullet, checkcollider, team);
+#if 0
+    float dOld;
+    auto retOld = RayCastOld(a, b, dOld, maxdist, player, flag, bullet, checkcollider, team);
+    Assert(retOpt == retOld);
+    Assert(std::abs(dOld - distance) < 0.001f);
+#endif
+    return retOpt;
 }
 
 // this should go inside TPolyMap, used only from Net.pas it seems

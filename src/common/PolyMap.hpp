@@ -101,10 +101,20 @@ class Polymap
     void checkoutofbounds(MyFloat &x, MyFloat &y);
     void checkoutofbounds(std::int16_t &x, std::int16_t &y);
 
+    static bool ShouldTestPolygonWithRay(const uint8_t polygonType, const bool npcol,
+                                           const bool nbcol, const bool flag,
+                                         const uint8_t team);
+
   private:
     void initialize();
     void loaddata(tmapfile &mapfile);
     twaypoints &botpath;
+    bool RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
+                 bool player = false, bool flag = false, bool bullet = true,
+                 bool checkcollider = false, std::uint8_t team = 0);
+    bool RayCastOld(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
+                    bool player = false, bool flag = false, bool bullet = true,
+                    bool checkcollider = false, std::uint8_t team = 0);
 };
 
 using tpolymap = Polymap;
