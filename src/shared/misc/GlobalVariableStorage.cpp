@@ -2,10 +2,10 @@
 #include "../Constants.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "../PolyMap.hpp"
 #include "../mechanics/Sprites.hpp"
 #include "GlobalVariable.hpp"
 #include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
 #include "common/Waypoints.hpp"
 #include "common/Weapons.hpp"
 
@@ -129,7 +129,7 @@ auto &weaponsel =
 auto &teamscore = InitGlobalVariable<std::array<std::int32_t, 5>, "teamscore">();
 auto &teamflag = InitGlobalVariable<std::array<std::int32_t, 4>, "teamflag">();
 auto &sinuscounter = InitGlobalVariable<float, "sinuscounter">();
-auto &map = InitGlobalVariable<tpolymap, "map">();
+auto &map = InitGlobalVariable<tpolymap, "map">(botpath);
 auto &custommodchecksum = InitGlobalVariable<tsha1digest, "custommodchecksum">();
 auto &gamemodchecksum = InitGlobalVariable<tsha1digest, "gamemodchecksum">();
 auto &mapchecksum = InitGlobalVariable<tsha1digest, "mapchecksum">();

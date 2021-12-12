@@ -24,7 +24,6 @@ set(SHARED_SRC
     ../shared/Command.cpp
     ../shared/Cvar.cpp
     ../shared/Game.cpp
-    ../shared/PolyMap.cpp
     ../shared/Demo.cpp
     ../shared/Game.cpp
     ../shared/Console.cpp

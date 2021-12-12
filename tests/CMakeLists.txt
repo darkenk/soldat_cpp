@@ -11,6 +11,10 @@ include_directories(../src/client)
 include_directories(../src/shared)
 include_directories(../src/)
 include_directories(config)
+include_directories(${TRACY_INCLUDE_DIR})
+remove_definitions(-DTRACY_ENABLE=1)
+
+
 link_libraries(${GTEST_MAIN_LIBRARY}
     ${GTEST_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
@@ -36,6 +40,7 @@ add_executable(UnitTests
     unit/SafeTypeTest.cpp
     unit/TMemoryStreamTest.cpp ../src/common/misc/TMemoryStream.cpp
     unit/SharedConfigTest.cpp ../src/shared/SharedConfig.cpp ../src/common/Weapons.cpp
+    unit/PolyMapTest.cpp ../src/common/PolyMap.cpp ../src/common/MapFile.cpp ../src/common/PhysFSExt.cpp
 )
 gtest_discover_tests(UnitTests)
 

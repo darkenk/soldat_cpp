@@ -1,4 +1,4 @@
-#include "shared/misc/TMemoryStream.hpp"
+#include "common/misc/TMemoryStream.hpp"
 #include <gtest/gtest.h>
 
 class TMemStreamTest : public ::testing::Test

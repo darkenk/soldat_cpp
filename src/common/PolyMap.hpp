@@ -1,11 +1,10 @@
 #pragma once
 
-#include "common/MapFile.hpp"
-#include "common/Util.hpp"
-#include "common/Vector.hpp"
-#include "common/Waypoints.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "misc/SoldatConfig.hpp"
+#include "MapFile.hpp"
+#include "Util.hpp"
+#include "Vector.hpp"
+#include "Waypoints.hpp"
+#include "misc/PortUtilsSoldat.hpp"
 
 // Polygon constants go here
 // ...
@@ -52,7 +51,6 @@ const std::int32_t background_poly_none = -1;
 typedef void (*tloadmapgraphics)(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop,
                                  tmapcolor bgcolorbtm);
 
-template <Config::Module M = Config::GetModule()>
 class Polymap
 {
   public:
@@ -81,6 +79,9 @@ class Polymap
     PascalArray<tmapcollider, 1, max_spawnpoints> collider;
     PascalArray<std::int32_t, 1, 2> flagspawn;
     tloadmapgraphics loadgraphics;
+
+  public:
+    Polymap(twaypoints &botpath) : botpath{botpath} {};
     bool loadmap(const tmapinfo &map);
 #ifndef SERVER
     bool loadmap(const tmapinfo &map, bool bgforce, std::uint32_t bgcolortop,
@@ -97,14 +98,13 @@ class Polymap
                  bool player = false, bool flag = false, bool bullet = true,
                  bool checkcollider = false, std::uint8_t team = 0);
 
+    void checkoutofbounds(MyFloat &x, MyFloat &y);
+    void checkoutofbounds(std::int16_t &x, std::int16_t &y);
+
   private:
     void initialize();
     void loaddata(tmapfile &mapfile);
+    twaypoints &botpath;
 };
 
-using tpolymap = Polymap<>;
-
-template <Config::Module M = Config::GetModule()>
-void checkoutofbounds(MyFloat &x, MyFloat &y);
-template <Config::Module M = Config::GetModule()>
-void checkoutofbounds(int16_t &x, int16_t &y);
+using tpolymap = Polymap;

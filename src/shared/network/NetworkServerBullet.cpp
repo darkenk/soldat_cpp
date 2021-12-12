@@ -2,10 +2,10 @@
 #include "NetworkServerBullet.hpp"
 
 #include "../../server/Server.hpp"
-#include "common/Calc.hpp"
 #include "../Game.hpp"
 #include "../mechanics/Bullets.hpp"
 #include "NetworkUtils.hpp"
+#include "common/Calc.hpp"
 
 //clang-format off
 #include "../misc/GlobalVariableStorage.cpp"
@@ -164,7 +164,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
         }
     }
 
-    checkoutofbounds(bulletsnap->pos.x, bulletsnap->pos.y);
+    map.checkoutofbounds(bulletsnap->pos.x, bulletsnap->pos.y);
 
     if ((style < bullet_style_plain) || (style > bullet_style_m2))
         return;

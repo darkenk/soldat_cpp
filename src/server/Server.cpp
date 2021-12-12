@@ -893,7 +893,7 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
     {
         TIniFile ini(ReadAsFileStream(userdirectory + "configs/bots/" + name + ".bot"));
 
-        if (not loadbotconfig(ini, sprite[p]))
+        if (not loadbotconfig(ini, sprite[p], guns))
         {
             GetServerMainConsole().console("Bot file " + name + " not found",
                                            warning_message_color);

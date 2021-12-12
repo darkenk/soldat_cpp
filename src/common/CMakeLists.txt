@@ -13,6 +13,7 @@ set(SRC
     MapFile.cpp
     Parts.cpp
     PhysFSExt.cpp
+    PolyMap.cpp
     Util.cpp
     Vector.cpp
     Waypoints.cpp

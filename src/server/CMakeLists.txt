@@ -15,7 +15,7 @@ set(SHARED_SRC
     ../shared/Demo.cpp
     ../shared/Console.cpp
     ../shared/LogFile.cpp
-    ../shared/PolyMap.cpp
+    ../shared/SharedConfig.cpp
     ../shared/mechanics/Sprites.cpp
     ../shared/mechanics/Bullets.cpp
     ../shared/mechanics/Things.cpp
@@ -31,7 +31,6 @@ set(SHARED_SRC
     ../shared/network/NetworkServerConnection.cpp
     ../shared/network/NetworkServerFunctions.cpp
     ../shared/network/NetworkServerHeartbeat.cpp
-    ../shared/SharedConfig.cpp
     ../shared/misc/GlobalVariable.cpp
     ../shared/misc/GlobalVariableStorage.cpp
 )

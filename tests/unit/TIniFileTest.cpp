@@ -1,5 +1,5 @@
-#include "shared/misc/TIniFile.hpp"
-#include "shared/misc/TMemoryStream.hpp"
+#include "common/misc/TIniFile.hpp"
+#include "common/misc/TMemoryStream.hpp"
 #include <gtest/gtest.h>
 #include <string>
 

@@ -469,15 +469,15 @@ void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage)
     if (sprite[i].deadmeat)
         return;
 
-    checkoutofbounds(clientmovmsg.pos.x, clientmovmsg.pos.y);
-    checkoutofbounds(clientmovmsg.velocity.x, clientmovmsg.velocity.y);
+    map.checkoutofbounds(clientmovmsg.pos.x, clientmovmsg.pos.y);
+    map.checkoutofbounds(clientmovmsg.velocity.x, clientmovmsg.velocity.y);
 
     sprite[i].player->camera = i;
 
     spriteparts.pos[i] = clientmovmsg.pos;
     spriteparts.velocity[i] = clientmovmsg.velocity;
 
-    checkoutofbounds(clientmovmsg.mouseaimx, clientmovmsg.mouseaimy);
+    map.checkoutofbounds(clientmovmsg.mouseaimx, clientmovmsg.mouseaimy);
 
     sprite[i].control.mouseaimx = clientmovmsg.mouseaimx;
     sprite[i].control.mouseaimy = clientmovmsg.mouseaimy;

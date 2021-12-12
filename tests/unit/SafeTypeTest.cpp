@@ -1,4 +1,4 @@
-#include "shared/misc/SafeType.hpp"
+#include "common/misc/SafeType.hpp"
 #include <gtest/gtest.h>
 
 TEST(SafeTypeTest, ConvertToBasicType)

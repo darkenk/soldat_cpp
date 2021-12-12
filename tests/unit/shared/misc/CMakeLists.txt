@@ -27,7 +27,7 @@ target_include_directories(GlobalVariableClientTest PRIVATE ${INC_DIRS} ${ROOT_D
 add_library(GlobalVariableServerTest STATIC GlobalVariableStorage.cpp)
 target_include_directories(GlobalVariableServerTest PRIVATE ${INC_DIRS} ${ROOT_DIR}/src/server/config)
 
-add_executable(GlobalVariableTest GlobalVariableTest.cpp GlobalVariableStorage.cpp ${ROOT_DIR}/src/shared/misc/GlobalVariable.cpp)
+add_executable(GlobalVariableTest GlobalVariableTest.cpp GlobalVariableStorage.cpp)
 target_include_directories(GlobalVariableTest PRIVATE ${INC_DIRS} ${ROOT_DIR}/tests/config)
 target_link_libraries(GlobalVariableTest ${LIB_DIRS} GlobalVariableClientTest GlobalVariableServerTest)
 gtest_discover_tests(GlobalVariableTest)

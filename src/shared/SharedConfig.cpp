@@ -12,10 +12,6 @@
 #include "network/Net.hpp"
 #include <sstream>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 namespace
 {
 
@@ -87,7 +83,7 @@ void ReadConfColor(const TIniFile::Entries &conf, const std::string_view entry, 
 
 } // namespace
 
-bool loadbotconfig(TIniFile &ini, tsprite &spritec)
+bool loadbotconfig(TIniFile &ini, tsprite &spritec, GunsDescription &guns)
 {
     TIniFile::Entries conf;
     std::string filename;
