@@ -58,7 +58,6 @@ class Polymap
     tmapinfo mapinfo;
     std::string name;
     std::string filename;
-    std::int32_t sectorsdivision;
     std::int32_t sectorsnum;
     std::int32_t startjet;
     std::uint8_t grenades;
@@ -81,6 +80,18 @@ class Polymap
     tloadmapgraphics loadgraphics;
 
   public:
+    struct SectorCoord {
+        std::int32_t x; std::int32_t y;
+        inline bool IsValid() const
+        {
+            return x != std::numeric_limits<std::int32_t>::max() && y != std::numeric_limits<std::int32_t>::max();
+        }
+        static inline SectorCoord CreateInvalid()
+        {
+            return {std::numeric_limits<std::int32_t>::max(), std::numeric_limits<std::int32_t>::max()};
+        }
+    };
+
     Polymap(twaypoints &botpath) : botpath{botpath} {};
     bool loadmap(const tmapinfo &map);
 #ifndef SERVER
@@ -105,6 +116,11 @@ class Polymap
                                            const bool nbcol, const bool flag,
                                          const uint8_t team);
 
+    SectorCoord GetSectorCoord(const tvector2& pos);
+
+    void SetSectorsDivision(std::int32_t sectorsdivision);
+    std::int32_t GetSectorsDivision() { return SectorsDivision; }
+
   private:
     void initialize();
     void loaddata(tmapfile &mapfile);
@@ -115,6 +131,10 @@ class Polymap
     bool RayCastOld(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
                     bool player = false, bool flag = false, bool bullet = true,
                     bool checkcollider = false, std::uint8_t team = 0);
+    float PositionToSectorScale;
+    float MapHalfSize;
+
+    std::int32_t SectorsDivision;
 };
 
 using tpolymap = Polymap;

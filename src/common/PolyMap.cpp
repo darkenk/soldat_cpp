@@ -13,7 +13,7 @@ void Polymap::initialize()
     this->mapid = 0;
     this->name = "";
     this->filename = "";
-    this->sectorsdivision = 0;
+    this->SectorsDivision = 0;
     this->sectorsnum = 0;
     this->startjet = 0;
     this->grenades = 0;
@@ -68,8 +68,8 @@ void Polymap::loaddata(tmapfile &mapfile)
     std::int32_t i, j, k;
 
     this->mapid = mapfile.hash;
-    this->sectorsdivision = mapfile.sectorsdivision;
     this->sectorsnum = mapfile.sectorsnum;
+    this->SetSectorsDivision(mapfile.sectorsdivision);
     this->startjet = 119 * mapfile.startjet / 100; // quickfix bla bla
     this->grenades = mapfile.grenadepacks;
     this->medikits = mapfile.medikits;
@@ -523,14 +523,12 @@ bool Polymap::collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag)
     std::array<std::int32_t, 3> excluded2 = {21, 22, 23};
     std::int32_t b = 0;
     float d = 0.0f;
-    std::int32_t kx, ky;
 
-    kx = round((pos.x) / sectorsdivision);
-    ky = round((pos.y) / sectorsdivision);
+    const auto &coord = GetSectorCoord(pos);
 
-    if ((kx > -sectorsnum) && (kx < sectorsnum) && (ky > -sectorsnum) && (ky < sectorsnum))
+    if (coord.IsValid())
     {
-        auto &polygons = sectors[kx][ky].Polys;
+        auto &polygons = sectors[coord.x][coord.y].Polys;
         for (const auto &w : polygons)
         {
             if (!(has(excluded1, polytype[w])) && (isflag || !(has(excluded2, polytype[w]))))
@@ -552,15 +550,13 @@ bool Polymap::collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::i
     constexpr std::array<std::int32_t, 6> excluded = {1, 2, 3, 11, 24, 25};
     std::int32_t b = 0;
     float d = 0.0f;
-    std::int32_t kx, ky;
 
     bool collisiontestexcept_result = false;
-    kx = round((pos.x) / sectorsdivision);
-    ky = round((pos.y) / sectorsdivision);
+    const auto coord = GetSectorCoord(pos);
 
-    if ((kx > -sectorsnum) && (kx < sectorsnum) && (ky > -sectorsnum) && (ky < sectorsnum))
+    if (coord.IsValid())
     {
-        for (const auto &w : sectors[kx][ky].Polys)
+        for (const auto &w : sectors[coord.x][coord.y].Polys)
         {
             if ((w != c) && !(has(excluded, polytype[w])))
             {
@@ -621,6 +617,30 @@ bool Polymap::ShouldTestPolygonWithRay(const std::uint8_t polygonType, const boo
     return true;
 }
 
+Polymap::SectorCoord Polymap::GetSectorCoord(const tvector2 &pos)
+{
+    if ((pos.x >= MapHalfSize || pos.x <= -MapHalfSize) ||
+        (pos.y >= MapHalfSize || pos.y <= -MapHalfSize))
+    {
+        return SectorCoord::CreateInvalid();
+    }
+    std::int32_t kx = std::roundf((pos.x) * PositionToSectorScale);
+    std::int32_t ky = std::roundf((pos.y) * PositionToSectorScale);
+#if 0
+    std::int32_t kx2 = round((pos.x) / sectorsdivision);
+    std::int32_t ky2 = round((pos.y) / sectorsdivision);
+    Assert(kx == kx2 && y == ky2);
+#endif
+    return SectorCoord{kx, ky};
+}
+
+void Polymap::SetSectorsDivision(int32_t sectorsdivision)
+{
+    SectorsDivision = sectorsdivision;
+    PositionToSectorScale = 1.0f / sectorsdivision;
+    MapHalfSize = (float)sectorsdivision * ((float)sectorsnum + 0.5f);
+}
+
 bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
                          bool player, bool flag, bool bullet, bool checkcollider, std::uint8_t team)
 {
@@ -638,12 +658,10 @@ bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
         return true;
     }
 
-    float s = 1.0f / sectorsdivision;
-
-    ax = round((std::min(a.x, b.x)) * s);
-    ay = round((std::min(a.y, b.y)) * s);
-    bx = round((std::max(a.x, b.x)) * s);
-    by = round((std::max(a.y, b.y)) * s);
+    ax = round((std::min(a.x, b.x)) * PositionToSectorScale);
+    ay = round((std::min(a.y, b.y)) * PositionToSectorScale);
+    bx = round((std::max(a.x, b.x)) * PositionToSectorScale);
+    by = round((std::max(a.y, b.y)) * PositionToSectorScale);
 
     if ((ax > max_sectorz) || (bx < min_sectorz) || (ay > max_sectorz) || (by < min_sectorz))
     {
@@ -739,10 +757,10 @@ bool Polymap::RayCastOld(const tvector2 &a, const tvector2 &b, float &distance, 
         return raycast_result;
     }
 
-    ax = round((std::min(a.x, b.x)) / sectorsdivision);
-    ay = round((std::min(a.y, b.y)) / sectorsdivision);
-    bx = round((std::max(a.x, b.x)) / sectorsdivision);
-    by = round((std::max(a.y, b.y)) / sectorsdivision);
+    ax = round((std::min(a.x, b.x)) / SectorsDivision);
+    ay = round((std::min(a.y, b.y)) / SectorsDivision);
+    bx = round((std::max(a.x, b.x)) / SectorsDivision);
+    by = round((std::max(a.y, b.y)) / SectorsDivision);
 
     if ((ax > max_sectorz) || (bx < min_sectorz) || (ay > max_sectorz) || (by < min_sectorz))
     {
@@ -884,26 +902,26 @@ bool Polymap::raycast(const tvector2 &a, const tvector2 &b, float &distance, flo
 // this should go inside TPolyMap, used only from Net.pas it seems
 void Polymap::checkoutofbounds(MyFloat &x, MyFloat &y)
 {
-    if (x < (10 * (-sectorsnum * sectorsdivision) + 50))
+    if (x < (10 * (-sectorsnum * SectorsDivision) + 50))
         x = 1;
-    else if (x > (10 * (sectorsnum * sectorsdivision) - 50))
+    else if (x > (10 * (sectorsnum * SectorsDivision) - 50))
         x = 1;
 
-    if (y < (10 * (-sectorsnum * sectorsdivision) + 50))
+    if (y < (10 * (-sectorsnum * SectorsDivision) + 50))
         y = 1;
-    else if (y > (10 * (sectorsnum * sectorsdivision) - 50))
+    else if (y > (10 * (sectorsnum * SectorsDivision) - 50))
         y = 1;
 }
 
 void Polymap::checkoutofbounds(std::int16_t &x, std::int16_t &y)
 {
-    if (x < (10 * (-sectorsnum * sectorsdivision) + 50))
+    if (x < (10 * (-sectorsnum * SectorsDivision) + 50))
         x = 1;
-    else if (x > (10 * (sectorsnum * sectorsdivision) - 50))
+    else if (x > (10 * (sectorsnum * SectorsDivision) - 50))
         x = 1;
 
-    if (y < (10 * (-sectorsnum * sectorsdivision) + 50))
+    if (y < (10 * (-sectorsnum * SectorsDivision) + 50))
         y = 1;
-    else if (y > (10 * (sectorsnum * sectorsdivision) - 50))
+    else if (y > (10 * (sectorsnum * SectorsDivision) - 50))
         y = 1;
 }

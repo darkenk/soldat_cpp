@@ -87,7 +87,8 @@ int main(int argc, char *argv[])
         auto ret = PHYSFS_mount("./soldat.smod", "/", false);
         Assert(0 != ret);
     }
-    Polymap map;
+    twaypoints tw;
+    Polymap map{tw};
     tmapinfo mapinfo;
     auto ret = getmapinfo("ctf_Ash", "", mapinfo);
     Assert(true == ret);
@@ -116,9 +117,8 @@ int main(int argc, char *argv[])
         {
             for (auto &sector : s)
             {
-                for (auto i = 1U; i < sector.polys.size(); i++)
+                for (const auto &polyId : sector.Polys)
                 {
-                    auto polyId = sector.polys[i];
                     tvector2 out;
                     bool lineInsideTriangle =
                         map.lineinpoly(raycastLine.begin, raycastLine.end, map.polys[polyId], out);

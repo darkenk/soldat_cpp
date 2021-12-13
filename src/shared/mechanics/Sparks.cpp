@@ -533,7 +533,6 @@ bool tspark::checkmapcollision(float x, float y)
     std::int32_t b = 0;
     tvector2 pos, perp;
     float d = 0.0;
-    std::int32_t kx, ky;
     bool teamcol;
 
     bool result;
@@ -543,13 +542,11 @@ bool tspark::checkmapcollision(float x, float y)
     pos.y = y - 1;
 
     /*iterate through maps sector polygons*/
-    kx = round((float)(pos.x) / map.sectorsdivision);
-    ky = round((float)(pos.y) / map.sectorsdivision);
-    if ((kx < -map.sectorsnum) || (kx > map.sectorsnum) || (ky < -map.sectorsnum) ||
-        (ky > map.sectorsnum))
+    auto const coord = map.GetSectorCoord(pos);
+    if (!coord.IsValid())
         return result;
 
-    for (const auto &w : map.sectors[kx][ky].Polys)
+    for (const auto &w : map.sectors[coord.x][coord.y].Polys)
     {
         if ((owner < 1) || (owner > 32))
             return result;
@@ -707,7 +704,7 @@ void tspark::checkoutofbounds()
     std::int32_t bound;
     tvector2 *sparkpartspos;
 
-    bound = map.sectorsnum * map.sectorsdivision - 10;
+    bound = map.sectorsnum * map.GetSectorsDivision() - 10;
     sparkpartspos = &sparkparts.pos[num];
 
     if ((fabs(sparkpartspos->x) > bound) || (fabs(sparkpartspos->y) > bound))

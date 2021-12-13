@@ -155,8 +155,8 @@ std::int32_t tdemorecorder<M>::createdemoplayer()
     player.peer = std::numeric_limits<std::uint32_t>::max();
 #endif
 
-    a.x = min_sectorz * map.sectorsdivision * 0.7;
-    a.y = min_sectorz * map.sectorsdivision * 0.7;
+    a.x = min_sectorz * map.GetSectorsDivision() * 0.7;
+    a.y = min_sectorz * map.GetSectorsDivision() * 0.7;
 
     auto v = vector2(0, 0);
     p = createsprite(a, v, 1, max_sprites, &player, true);

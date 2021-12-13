@@ -1407,7 +1407,6 @@ bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
     tvector2 pos, perp, posdiff, posdiffperp;
     float d = 0.0;
     float posdifflen;
-    std::int32_t rx, ry;
     bool teamcol;
 
     bool result;
@@ -1421,14 +1420,12 @@ bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
     pos.y = y - 0.5;
 
     // iterate through map polygons
-    rx = round((float)(pos.x) / map.sectorsdivision);
-    ry = round((float)(pos.y) / map.sectorsdivision);
-    if ((rx > -map.sectorsnum) && (rx < map.sectorsnum) && (ry > -map.sectorsnum) &&
-        (ry < map.sectorsnum))
+    const auto coord = map.GetSectorCoord(pos);
+    if (coord.IsValid())
     {
         bgstate.backgroundtestbigpolycenter(pos);
 
-        for (const auto &w : map.sectors[rx][ry].Polys)
+        for (const auto &w : map.sectors[coord.x][coord.y].Polys)
         {
 
             teamcol = true;
@@ -1595,7 +1592,7 @@ void Thing<M>::checkoutofbounds()
     LogTraceG("TThing.CheckOutOfBounds");
 #endif
 
-    bound = map.sectorsnum * map.sectorsdivision - 10;
+    bound = map.sectorsnum * map.GetSectorsDivision() - 10;
 
     for (i = 1; i <= 4; i++)
     {

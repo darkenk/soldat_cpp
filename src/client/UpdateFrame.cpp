@@ -405,10 +405,10 @@ void update_frame()
 
     // safety
     if ((mysprite > 0) && (sprite[mysprite].isspectator()))
-        if ((camerax > max_sectorz * map.sectorsdivision) ||
-            (camerax < min_sectorz * map.sectorsdivision) ||
-            (cameray > max_sectorz * map.sectorsdivision) ||
-            (cameray < min_sectorz * map.sectorsdivision))
+        if ((camerax > max_sectorz * map.GetSectorsDivision()) ||
+            (camerax < min_sectorz * map.GetSectorsDivision()) ||
+            (cameray > max_sectorz * map.GetSectorsDivision()) ||
+            (cameray < min_sectorz * map.GetSectorsDivision()))
         {
             camerax = 0;
             cameray = 0;

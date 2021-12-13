@@ -93,7 +93,7 @@ class BackgroundState
     bool backgroundtestresult;
     bool backgroundtest(std::uint64_t poly);
     void backgroundtestbigpolycenter(tvector2 pos);
-    std::int16_t backgroundfindcurrentpoly(tvector2 pos);
+    std::int16_t backgroundfindcurrentpoly(const tvector2 &pos);
     void backgroundtestprepare();
     void backgroundtestreset();
 };

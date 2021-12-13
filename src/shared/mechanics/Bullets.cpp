@@ -1100,7 +1100,6 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
     tvector2 pos, perp, step, temp, temp2;
     float d = 0.0;
     std::int32_t detacc;
-    std::int32_t kx, ky;
     std::int32_t tempint = 0;
     bool teamcol;
 
@@ -1129,16 +1128,14 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
         pos.y = y + b * step.y;
 
         // iterate through maps sector polygons
-        kx = round((float)(pos.x) / map.sectorsdivision);
-        ky = round((float)(pos.y) / map.sectorsdivision);
-        if ((kx < -map.sectorsnum) || (kx > map.sectorsnum) || (ky < -map.sectorsnum) ||
-            (ky > map.sectorsnum))
+        const auto coord = map.GetSectorCoord(pos);
+        if (!coord.IsValid())
         {
             kill();
             return result;
         }
 
-        for (const auto &w : map.sectors[kx][ky].Polys)
+        for (const auto &w : map.sectors[coord.x][coord.y].Polys)
         {
             teamcol = teamcollides(w, sprite[owner].player->team, true);
             if (teamcol)
@@ -1188,12 +1185,10 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                                 bulletparts.oldpos[num] = bulletparts.pos[num];
                                 pos.x = bulletparts.pos[num].x + perp.x;
                                 pos.y = bulletparts.pos[num].y + perp.y;
-                                kx = round((float)(pos.x) / map.sectorsdivision);
-                                ky = round((float)(pos.y) / map.sectorsdivision);
-                                if ((kx > -map.sectorsnum) && (kx < map.sectorsnum) &&
-                                    (ky > -map.sectorsnum) && (ky < map.sectorsnum))
+                                const auto coord = map.GetSectorCoord(pos);
+                                if (coord.IsValid())
                                 {
-                                    for (const auto &w2 : map.sectors[kx][ky].Polys)
+                                    for (const auto &w2 : map.sectors[coord.x][coord.y].Polys)
                                     {
                                         if ((map.polytype[w2] != poly_type_only_player) &&
                                             (map.polytype[w2] != poly_type_doesnt) &&
@@ -1307,12 +1302,10 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
 
                                 pos.x = bulletparts.pos[num].x + perp.x;
                                 pos.y = bulletparts.pos[num].y + perp.y;
-                                kx = round((float)(pos.x) / map.sectorsdivision);
-                                ky = round((float)(pos.y) / map.sectorsdivision);
-                                if ((kx > -map.sectorsnum) && (kx < map.sectorsnum) &&
-                                    (ky > -map.sectorsnum) && (ky < map.sectorsnum))
+                                const auto coord = map.GetSectorCoord(pos);
+                                if (coord.IsValid())
                                 {
-                                    for (const auto &w2 : map.sectors[kx][ky].Polys)
+                                    for (const auto &w2 : map.sectors[coord.x][coord.y].Polys)
                                     {
                                         if ((map.polytype[w2] != poly_type_only_player) &&
                                             (map.polytype[w2] != poly_type_doesnt) &&
@@ -2804,7 +2797,7 @@ void Bullet<M>::checkoutofbounds()
     LogTraceG("TBullet.CheckOutOfBounds");
 #endif
 
-    bound = map.sectorsnum * map.sectorsdivision - 10;
+    bound = map.sectorsnum * map.GetSectorsDivision() - 10;
     bulletpartspos = &bulletparts.pos[num];
 
     if ((fabs(bulletpartspos->x) > bound) || (fabs(bulletpartspos->y) > bound))

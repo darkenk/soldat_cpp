@@ -126,8 +126,8 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
 
     if (sprite[i].player->team == team_spectator)
     {
-        spos.x = min_sectorz * map.sectorsdivision * 0.8;
-        spos.y = min_sectorz * map.sectorsdivision * 0.8;
+        spos.x = min_sectorz * map.GetSectorsDivision() * 0.8;
+        spos.y = min_sectorz * map.GetSectorsDivision() * 0.8;
     }
 
     // activate sprite part
@@ -273,6 +273,8 @@ void Sprite<M>::update()
     LogTraceG("TSprite.Update");
 #endif
 
+    Assert(&sprite[num] == this);
+
     jetscountprev = jetscount;
     weapon.reloadtimeprev = weapon.reloadtimecount;
     weapon.fireintervalprev = weapon.fireintervalcount;
@@ -288,18 +290,16 @@ void Sprite<M>::update()
     nextpush[max_pushtick].y = 0;
 
     // reload spas after shooting delay is over
-    if (sprite[num].autoreloadwhencanfire && ((sprite[num].weapon.num != guns[spas12].num) ||
-                                              (sprite[num].weapon.fireintervalcount == 0)))
+    if (autoreloadwhencanfire &&
+        ((weapon.num != guns[spas12].num) || (weapon.fireintervalcount == 0)))
     {
-        sprite[num].autoreloadwhencanfire = false;
+        autoreloadwhencanfire = false;
 
-        if ((sprite[num].weapon.num == guns[spas12].num) &&
-            (sprite[num].bodyanimation.id != roll.id) &&
-            (sprite[num].bodyanimation.id != rollback.id) &&
-            (sprite[num].bodyanimation.id != change.id) &&
-            (sprite[num].weapon.ammocount != sprite[num].weapon.ammo))
+        if ((weapon.num == guns[spas12].num) && (bodyanimation.id != roll.id) &&
+            (bodyanimation.id != rollback.id) && (bodyanimation.id != change.id) &&
+            (weapon.ammocount != weapon.ammo))
         {
-            sprite[num].bodyapplyanimation(reload, 1);
+            bodyapplyanimation(reload, 1);
         }
     }
 
@@ -508,86 +508,89 @@ void Sprite<M>::update()
         }
     }
 
-    for (i = 1; i <= 20; i++)
     {
-        // dead part
-        if (deadmeat || (halfdead && isnotspectator()))
+        ZoneScopedN("DeadMeatLoop");
+        for (i = 1; i <= 20; i++)
         {
-            if ((i != 17) && (i != 18) && (i != 19) && (i != 20) && (i != 8) && (i != 7) &&
-                (i < 21))
+            // dead part
+            if (deadmeat || (halfdead && isnotspectator()))
             {
-                onground = checkskeletonmapcollision(i, skeleton.pos[i].x, skeleton.pos[i].y);
-            }
+                if ((i != 17) && (i != 18) && (i != 19) && (i != 20) && (i != 8) && (i != 7) &&
+                    (i < 21))
+                {
+                    onground = checkskeletonmapcollision(i, skeleton.pos[i].x, skeleton.pos[i].y);
+                }
 
 #ifndef SERVER
-            // bleed
-            // check where constraints are cut then BLEED
-            for (k = 1; k <= skeleton.constraintcount; k++)
-            {
-                if (!skeleton.constraints[k].active and
-                    ((skeleton.constraints[k].parta == i) || (skeleton.constraints[k].partb == i)))
+                // bleed
+                // check where constraints are cut then BLEED
+                for (k = 1; k <= skeleton.constraintcount; k++)
                 {
-                    m4 = skeleton.pos[i];
-                    m4.y = m4.y + 2;
-                    m3 = vec2subtract(skeleton.pos[i], skeleton.oldpos[i]);
-                    vec2scale(m3, m3, 0.35);
-
-                    if (sparkscount > 300)
-                        rnd = blood_random_low;
-                    else if (sparkscount > 50)
-                        rnd = blood_random_normal;
-                    else
-                        rnd = blood_random_high;
-
-                    if (deadtime > lessbleed_time)
-                        rnd = 2 * rnd;
-                    if (deadtime > nobleed_time)
-                        rnd = 100 * rnd;
-
-                    if (CVar::r_maxsparks < (max_sparks - 10))
-                        rnd = 2 * rnd;
-
-                    if ((k != 10) && (k != 11))
-                    {
-                        if (Random(rnd) == 0)
-                            createspark(m4, m3, 5, num, 85 - Random(25));
-                        else if (Random(rnd / 3) == 0)
-                            createspark(m4, m3, 4, num, 85 - Random(25));
-                    }
-                }
-            } // bleed
-
-            // fire
-            if (deadtime < onfire_time)
-                if (onfire > 0)
-                    if (i % onfire == 0)
+                    if (!skeleton.constraints[k].active and ((skeleton.constraints[k].parta == i) ||
+                                                             (skeleton.constraints[k].partb == i)))
                     {
                         m4 = skeleton.pos[i];
-                        m4.y = m4.y + 3;
+                        m4.y = m4.y + 2;
                         m3 = vec2subtract(skeleton.pos[i], skeleton.oldpos[i]);
-                        vec2scale(m3, m3, 0.3);
+                        vec2scale(m3, m3, 0.35);
 
-                        rnd = fire_random_normal;
-                        if (sparkscount > 170)
-                            rnd = fire_random_low;
-                        if (sparkscount < 17)
-                            rnd = fire_random_high;
+                        if (sparkscount > 300)
+                            rnd = blood_random_low;
+                        else if (sparkscount > 50)
+                            rnd = blood_random_normal;
+                        else
+                            rnd = blood_random_high;
+
+                        if (deadtime > lessbleed_time)
+                            rnd = 2 * rnd;
+                        if (deadtime > nobleed_time)
+                            rnd = 100 * rnd;
 
                         if (CVar::r_maxsparks < (max_sparks - 10))
                             rnd = 2 * rnd;
 
-                        if (Random(rnd) == 0)
+                        if ((k != 10) && (k != 11))
                         {
-                            createspark(m4, m3, 36, num, 35);
-                            if (Random(8) == 0)
-                                playsound(sfx_onfire, spriteparts.pos[num]);
-                            if (Random(2) == 0)
-                                playsound(sfx_firecrack, spriteparts.pos[num]);
+                            if (Random(rnd) == 0)
+                                createspark(m4, m3, 5, num, 85 - Random(25));
+                            else if (Random(rnd / 3) == 0)
+                                createspark(m4, m3, 4, num, 85 - Random(25));
                         }
-                        else if (Random(rnd / 3) == 0)
-                            createspark(m4, m3, 37, num, 75);
                     }
+                } // bleed
+
+                // fire
+                if (deadtime < onfire_time)
+                    if (onfire > 0)
+                        if (i % onfire == 0)
+                        {
+                            m4 = skeleton.pos[i];
+                            m4.y = m4.y + 3;
+                            m3 = vec2subtract(skeleton.pos[i], skeleton.oldpos[i]);
+                            vec2scale(m3, m3, 0.3);
+
+                            rnd = fire_random_normal;
+                            if (sparkscount > 170)
+                                rnd = fire_random_low;
+                            if (sparkscount < 17)
+                                rnd = fire_random_high;
+
+                            if (CVar::r_maxsparks < (max_sparks - 10))
+                                rnd = 2 * rnd;
+
+                            if (Random(rnd) == 0)
+                            {
+                                createspark(m4, m3, 36, num, 35);
+                                if (Random(8) == 0)
+                                    playsound(sfx_onfire, spriteparts.pos[num]);
+                                if (Random(2) == 0)
+                                    playsound(sfx_firecrack, spriteparts.pos[num]);
+                            }
+                            else if (Random(rnd / 3) == 0)
+                                createspark(m4, m3, 37, num, 75);
+                        }
 #endif
+            }
         }
     }
 
@@ -695,7 +698,7 @@ void Sprite<M>::update()
                 }
 
             // If fire button is released, then the reload can begin
-            if (!sprite[num].control.fire)
+            if (!control.fire)
                 canautoreloadspas = true;
 
             // reload
@@ -1272,7 +1275,7 @@ void Sprite<M>::kill()
 
     if (num > 0)
     {
-        sprite[num].skeleton.destroy();
+        skeleton.destroy();
         spriteparts.active[num] = false;
     }
 
@@ -1690,7 +1693,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
 #ifdef SCRIPT
         // COMMENT: Sprite[Num].Num = Num?
-        scrptdispatcher.onplayerkill(sprite[who].num, sprite[num].num, (std::uint8_t)(what));
+        scrptdispatcher.onplayerkill(sprite[who].num, num, (std::uint8_t)(what));
 #endif
 
         // console message about kill
@@ -1708,8 +1711,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                                  false);
                 addlinetologfile(&GetKillLog(), sprite[who].player->name, GetKillLogFilename(),
                                  false);
-                addlinetologfile(&GetKillLog(), sprite[num].player->name, GetKillLogFilename(),
-                                 false);
+                addlinetologfile(&GetKillLog(), player->name, GetKillLogFilename(), false);
                 addlinetologfile(&GetKillLog(), s, GetKillLogFilename(), false);
             }
 
@@ -1831,7 +1833,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
                 if (bullet[what].ownerweapon == guns[barrett].num)
                     // corpse explode
-                    playsound(sfx_bryzg, sprite[num].skeleton.pos[12]);
+                    playsound(sfx_bryzg, skeleton.pos[12]);
 
                 if (who == mysprite)
                     playsound(sfx_boomheadshot);
@@ -1840,7 +1842,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         // siup leb!
         if (!deadmeat)
         {
-            playsound(sfx_headchop, sprite[num].skeleton.pos[12]);
+            playsound(sfx_headchop, skeleton.pos[12]);
         }
 #endif
     }
@@ -1860,7 +1862,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
 #ifndef SERVER
         // play bryzg sound!
-        playsound(sfx_bryzg, sprite[num].skeleton.pos[12]);
+        playsound(sfx_bryzg, skeleton.pos[12]);
 #endif
     }
     break;
@@ -1878,14 +1880,14 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             skeleton.constraints[23].active = false;
 
 #ifndef SERVER
-            playsound(sfx_killberserk, sprite[num].skeleton.pos[12]);
+            playsound(sfx_killberserk, skeleton.pos[12]);
 #endif
         }
 
 #ifndef SERVER
     if (!deadmeat && (what > 0))
         if (bullet[what].ownerweapon == guns[flamer].num)
-            playsound(sfx_burn, sprite[num].skeleton.pos[12]);
+            playsound(sfx_burn, skeleton.pos[12]);
 #endif
 
     if (!deadmeat && (hascigar == 10))
@@ -2121,7 +2123,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             i = CVar::sv_advancemode_amount;
 
 #ifndef SERVER
-            if ((num != who) && (sprite[num].isnotinsameteam(sprite[who]) or sprite[num].issolo()))
+            if ((num != who) && (isnotinsameteam(sprite[who]) or issolo()))
 #endif
             {
                 if ((sprite[who].player->kills % i) == 0)
@@ -2144,7 +2146,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
             i = CVar::sv_advancemode_amount;
 
-            if ((sprite[num].player->deaths % i) == 0)
+            if ((player->deaths % i) == 0)
             {
                 j = 0;
                 for (i = 1; i <= primary_weapons; i++)
@@ -2347,7 +2349,6 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
     tvector2 p1, p2, p3;
     float d = 0.0;
     std::int32_t detacc;
-    std::int32_t rx, ry;
     bool teamcol;
 
 #ifdef SERVER
@@ -2372,12 +2373,10 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
         spos.y = spos.y + step.y;
 
         // iterate through maps sector polygons
-        rx = round((float)(spos.x) / map.sectorsdivision);
-        ry = round((float)(spos.y) / map.sectorsdivision);
-        if ((rx > -map.sectorsnum) && (rx < map.sectorsnum) && (ry > -map.sectorsnum) &&
-            (ry < map.sectorsnum))
+        const auto coord = map.GetSectorCoord(spos);
+        if (coord.IsValid())
         {
-            for (const auto &w : map.sectors[rx][ry].Polys)
+            for (const auto &w : map.sectors[coord.x][coord.y].Polys)
             {
                 polytype = map.polytype[w];
 
@@ -2457,7 +2456,6 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
     std::int32_t k = 0;
     tvector2 spos, pos, perp, step;
     float d = 0.0;
-    std::int32_t rx, ry;
     bool teamcol;
 
 #ifdef SERVER
@@ -2473,14 +2471,12 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
     pos.y = spos.y + spriteparts.velocity[num].y;
 
     // iterate through maps sector polygons
-    rx = round((float)(pos.x) / map.sectorsdivision);
-    ry = round((float)(pos.y) / map.sectorsdivision);
-    if ((rx > -map.sectorsnum) && (rx < map.sectorsnum) && (ry > -map.sectorsnum) &&
-        (ry < map.sectorsnum))
+    const auto coord = map.GetSectorCoord(pos);
+    if (coord.IsValid())
     {
         bgstate.backgroundtestbigpolycenter(pos);
 
-        for (const auto &w : map.sectors[rx][ry].Polys)
+        for (const auto &w : map.sectors[coord.x][coord.y].Polys)
         {
             polytype = map.polytype[w];
 
@@ -2498,7 +2494,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                         continue;
 
 #ifdef SERVER
-                    sprite[num].player->standingpolytype = polytype;
+                    player->standingpolytype = polytype;
 #endif
 
                     handlespecialpolytypes(polytype, pos);
@@ -2739,7 +2735,6 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
     std::int32_t i, polytype;
     tvector2 pos, dir, vert;
     float d;
-    std::int32_t rx, ry;
     bool teamcol;
 
 #ifdef SERVER
@@ -2752,12 +2747,10 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
     pos.y = y;
 
     // iterate through maps sector polygons
-    rx = round((float)(pos.x) / map.sectorsdivision);
-    ry = round((float)(pos.y) / map.sectorsdivision);
-    if ((rx > -map.sectorsnum) && (rx < map.sectorsnum) && (ry > -map.sectorsnum) &&
-        (ry < map.sectorsnum))
+    const auto coord = map.GetSectorCoord(pos);
+    if (coord.IsValid())
     {
-        for (const auto &w : map.sectors[rx][ry].Polys)
+        for (const auto &w : map.sectors[coord.x][coord.y].Polys)
         {
             polytype = map.polytype[w];
 
@@ -2806,7 +2799,6 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
     tvector2 a;
 #endif
     float d = 0.0;
-    std::int32_t rx, ry;
     bool teamcol;
 
 #ifdef SERVER
@@ -2819,14 +2811,12 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
     pos.y = y + 4;
 
     // iterate through map polygons
-    rx = round((float)(pos.x) / map.sectorsdivision);
-    ry = round((float)(pos.y) / map.sectorsdivision);
-    if ((rx > -map.sectorsnum) && (rx < map.sectorsnum) && (ry > -map.sectorsnum) &&
-        (ry < map.sectorsnum))
+    const auto coord = map.GetSectorCoord(pos);
+    if (coord.IsValid())
     {
         bgstate.backgroundtestbigpolycenter(pos);
 
-        for (const auto &w : map.sectors[rx][ry].Polys)
+        for (const auto &w : map.sectors[coord.x][coord.y].Polys)
         {
             teamcol = teamcollides(w, player->team, false);
 
@@ -2874,15 +2864,13 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
         pos.y = y + 1;
 
         // iterate through map polygons
-        rx = round((float)(pos.x) / map.sectorsdivision);
-        ry = round((float)(pos.y) / map.sectorsdivision);
+        const auto coord = map.GetSectorCoord(pos);
 
-        if ((rx > -map.sectorsnum) && (rx < map.sectorsnum) && (ry > -map.sectorsnum) &&
-            (ry < map.sectorsnum))
+        if (coord.IsValid())
         {
             bgstate.backgroundtestbigpolycenter(pos);
 
-            for (const auto &w : map.sectors[rx][ry].Polys)
+            for (const auto &w : map.sectors[coord.x][coord.y].Polys)
             {
 
                 if ((map.polytype[w] != poly_type_doesnt) &&
@@ -3068,7 +3056,7 @@ void BackgroundState<M>::backgroundtestbigpolycenter(tvector2 pos)
 }
 
 template <Config::Module M>
-std::int16_t BackgroundState<M>::backgroundfindcurrentpoly(tvector2 pos)
+std::int16_t BackgroundState<M>::backgroundfindcurrentpoly(const tvector2 &pos)
 {
     std::int32_t i;
 
@@ -3257,7 +3245,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
         wearhelmet = 0;
 #ifndef SERVER
         createspark(skeleton.pos[12], spriteparts.velocity[num], 6, num, 198);
-        playsound(sfx_headchop, sprite[num].skeleton.pos[where]);
+        playsound(sfx_headchop, skeleton.pos[where]);
 #endif
     }
 
@@ -3325,7 +3313,7 @@ void Sprite<M>::checkoutofbounds()
     if (survivalendround)
         return;
 
-    bound = map.sectorsnum * map.sectorsdivision - 50;
+    bound = map.sectorsnum * map.GetSectorsDivision() - 50;
     tvector2 &spritepartspos = spriteparts.pos[num];
 
     if ((fabs(spritepartspos.x) > bound) || (fabs(spritepartspos.y) > bound))
@@ -3351,7 +3339,7 @@ void Sprite<M>::checkskeletonoutofbounds()
     if (survivalendround)
         return;
 
-    bound = map.sectorsnum * map.sectorsdivision - 50;
+    bound = map.sectorsnum * map.GetSectorsDivision() - 50;
 
     for (i = 1; i <= 20; i++)
     {
@@ -3805,11 +3793,11 @@ void Sprite<M>::changeteam(std::int32_t team)
 #endif
         num = createsprite(a, b, 1, num, player, isplayerobjectowner);
 
-        if (sprite[num].holdedthing > 0)
-            if (thing[sprite[num].holdedthing].style < object_ussocom)
+        if (holdedthing > 0)
+            if (thing[holdedthing].style < object_ussocom)
             {
-                thing[sprite[num].holdedthing].respawn();
-                sprite[num].holdedthing = 0;
+                thing[holdedthing].respawn();
+                holdedthing = 0;
             }
 
         for (i = 1; i <= max_things; i++)
@@ -3817,14 +3805,14 @@ void Sprite<M>::changeteam(std::int32_t team)
             if (thing[i].holdingsprite == num)
                 thing[i].respawn();
         }
-        sprite[num].respawn();
+        respawn();
 
 #ifdef SERVER
         bullettime[num] = maintickcounter - 10;
         grenadetime[num] = maintickcounter - 10;
         knifecan[num] = true;
 
-        if (!sprite[num].player->demoplayer)
+        if (!player->demoplayer)
             serversendnewplayerinfo(num, jointype);
         sortplayers();
         LogDebugG("Player switched teams");
@@ -3884,8 +3872,8 @@ void Sprite<M>::changeteam(std::int32_t team)
         if ((CVar::sv_survivalmode) && (player->team != team_spectator))
         {
             // TODO: Fix this shouldn't change wepstats
-            sprite[num].healthhit(4000, num, 1, 1, a);
-            sprite[num].player->deaths -= 1;
+            healthhit(4000, num, 1, 1, a);
+            player->deaths -= 1;
         }
 #ifndef SERVER
         if (num == mysprite)
@@ -3908,7 +3896,7 @@ void Sprite<M>::changeteam(std::int32_t team)
 #endif
 
 #ifdef SCRIPT
-        scrptdispatcher.onjointeam(sprite[num].num, team, spriteoldteam, false);
+        scrptdispatcher.onjointeam(num, team, spriteoldteam, false);
 #endif
     }
 }
