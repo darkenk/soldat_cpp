@@ -1420,12 +1420,12 @@ bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
     pos.y = y - 0.5;
 
     // iterate through map polygons
-    const auto coord = map.GetSectorCoord(pos);
-    if (coord.IsValid())
+    const auto sector = map.GetSector(pos);
+    if (sector.IsValid())
     {
         bgstate.backgroundtestbigpolycenter(pos);
 
-        for (const auto &w : map.sectors[coord.x][coord.y].Polys)
+        for (const auto &w : sector.GetPolys())
         {
 
             teamcol = true;

@@ -72,8 +72,7 @@ class Polymap
     PascalArray<std::uint8_t, 1, max_polys> polytype;
     PascalArray<PascalArray<tvector2, 1, 3>, 1, max_polys> perp;
     PascalArray<float, 1, max_polys> bounciness;
-    PascalArray<PascalArray<tmapsector, min_sectorz, max_sectorz>, min_sectorz, max_sectorz>
-        sectors;
+
     PascalArray<tmapspawnpoint, 1, max_spawnpoints> spawnpoints;
     PascalArray<tmapcollider, 1, max_spawnpoints> collider;
     PascalArray<std::int32_t, 1, 2> flagspawn;
@@ -92,13 +91,33 @@ class Polymap
         }
     };
 
+    struct Sector {
+        inline bool IsValid() const
+        {
+            return Polys != nullptr;
+        }
+
+        inline const tmapsector::TPolys& GetPolys() const {
+            return *Polys;
+        }
+
+        static inline Sector CreateInvalid()
+        {
+            return {nullptr};
+        }
+
+      private:
+        Sector(tmapsector::TPolys* polys): Polys{polys} {};
+        tmapsector::TPolys* Polys;
+
+        friend class Polymap;
+    };
+
     Polymap(twaypoints &botpath) : botpath{botpath} {};
+    bool loadmap(const tmapfile &mapfile);
     bool loadmap(const tmapinfo &map);
-#ifndef SERVER
     bool loadmap(const tmapinfo &map, bool bgforce, std::uint32_t bgcolortop,
                  std::uint32_t bgcolorbtm);
-    ;
-#endif
     bool pointinpolyedges(float x, float y, std::int32_t i);
     bool pointinpoly(const tvector2 &p, const tmappolygon &poly);
     bool lineinpoly(const tvector2 &a, const tvector2 &b, const tmappolygon &poly, tvector2 &v);
@@ -121,9 +140,11 @@ class Polymap
     void SetSectorsDivision(std::int32_t sectorsdivision);
     std::int32_t GetSectorsDivision() { return SectorsDivision; }
 
+    Sector GetSector(const tvector2& pos);
+
   private:
     void initialize();
-    void loaddata(tmapfile &mapfile);
+    void loaddata(const tmapfile &mapfile);
     twaypoints &botpath;
     bool RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
                  bool player = false, bool flag = false, bool bullet = true,
@@ -135,6 +156,8 @@ class Polymap
     float MapHalfSize;
 
     std::int32_t SectorsDivision;
+    PascalArray<PascalArray<tmapsector, min_sectorz, max_sectorz>, min_sectorz, max_sectorz>
+        sectors;
 };
 
 using tpolymap = Polymap;

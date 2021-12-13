@@ -63,7 +63,7 @@ void Precompute(tmappolygon &polygon)
     polygon.bk[2] = calc(v3, v1);
 }
 
-void Polymap::loaddata(tmapfile &mapfile)
+void Polymap::loaddata(const tmapfile &mapfile)
 {
     std::int32_t i, j, k;
 
@@ -170,6 +170,16 @@ void Polymap::loaddata(tmapfile &mapfile)
             botpath.waypoint[i].active = false;
         }
     }
+}
+
+bool Polymap::loadmap(const tmapfile &mapfile)
+{
+    initialize();
+    this->filename = mapfile.filename;
+    this->loaddata(mapfile);
+    this->name = mapfile.mapname;
+    this->mapinfo = mapfile.mapinfo;
+    return true;
 }
 
 bool Polymap::loadmap(const tmapinfo &map)
@@ -519,26 +529,26 @@ bool has(const T &arr, const K &value)
 bool Polymap::collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag)
 {
     ZoneScopedN("CollisionTest");
-    std::array<std::int32_t, 9> excluded1 = {1, 2, 3, 11, 13, 15, 17, 24, 25};
-    std::array<std::int32_t, 3> excluded2 = {21, 22, 23};
+    static constexpr std::array<std::int32_t, 9> excluded1 = {1, 2, 3, 11, 13, 15, 17, 24, 25};
+    static constexpr std::array<std::int32_t, 3> excluded2 = {21, 22, 23};
     std::int32_t b = 0;
     float d = 0.0f;
 
-    const auto &coord = GetSectorCoord(pos);
+    const auto &sector = GetSector(pos);
 
-    if (coord.IsValid())
+    if (!sector.IsValid())
     {
-        auto &polygons = sectors[coord.x][coord.y].Polys;
-        for (const auto &w : polygons)
+        return false;
+    }
+    for (const auto &w : sector.GetPolys())
+    {
+        if (!(has(excluded1, polytype[w])) && (isflag || !(has(excluded2, polytype[w]))))
         {
-            if (!(has(excluded1, polytype[w])) && (isflag || !(has(excluded2, polytype[w]))))
+            if (pointinpoly(pos, polys[w]))
             {
-                if (pointinpoly(pos, polys[w]))
-                {
-                    perpvec = closestperpendicular(w, pos, d, b);
-                    vec2scale(perpvec, perpvec, 1.5 * d);
-                    return true;
-                }
+                perpvec = closestperpendicular(w, pos, d, b);
+                vec2scale(perpvec, perpvec, 1.5 * d);
+                return true;
             }
         }
     }
@@ -547,26 +557,27 @@ bool Polymap::collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag)
 
 bool Polymap::collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::int32_t c)
 {
-    constexpr std::array<std::int32_t, 6> excluded = {1, 2, 3, 11, 24, 25};
+    static constexpr std::array<std::int32_t, 6> excluded = {1, 2, 3, 11, 24, 25};
     std::int32_t b = 0;
     float d = 0.0f;
 
     bool collisiontestexcept_result = false;
-    const auto coord = GetSectorCoord(pos);
+    const auto sector = GetSector(pos);
 
-    if (coord.IsValid())
+    if (!sector.IsValid())
     {
-        for (const auto &w : sectors[coord.x][coord.y].Polys)
+        return false;
+    }
+    for (const auto &w : sector.GetPolys())
+    {
+        if ((w != c) && !(has(excluded, polytype[w])))
         {
-            if ((w != c) && !(has(excluded, polytype[w])))
+            if (pointinpoly(pos, polys[w]))
             {
-                if (pointinpoly(pos, polys[w]))
-                {
-                    perpvec = closestperpendicular(w, pos, d, b);
-                    vec2scale(perpvec, perpvec, 1.5 * d);
-                    collisiontestexcept_result = true;
-                    break;
-                }
+                perpvec = closestperpendicular(w, pos, d, b);
+                vec2scale(perpvec, perpvec, 1.5 * d);
+                collisiontestexcept_result = true;
+                break;
             }
         }
     }
@@ -639,6 +650,16 @@ void Polymap::SetSectorsDivision(int32_t sectorsdivision)
     SectorsDivision = sectorsdivision;
     PositionToSectorScale = 1.0f / sectorsdivision;
     MapHalfSize = (float)sectorsdivision * ((float)sectorsnum + 0.5f);
+}
+
+Polymap::Sector Polymap::GetSector(const tvector2 &pos)
+{
+    const auto &coord = GetSectorCoord(pos);
+    if (!coord.IsValid())
+    {
+        return Sector::CreateInvalid();
+    }
+    return {&sectors[coord.x][coord.y].Polys};
 }
 
 bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,

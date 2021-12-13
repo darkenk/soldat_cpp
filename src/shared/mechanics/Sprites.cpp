@@ -2373,10 +2373,10 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
         spos.y = spos.y + step.y;
 
         // iterate through maps sector polygons
-        const auto coord = map.GetSectorCoord(spos);
-        if (coord.IsValid())
+        const auto sector = map.GetSector(spos);
+        if (sector.IsValid())
         {
-            for (const auto &w : map.sectors[coord.x][coord.y].Polys)
+            for (const auto &w : sector.GetPolys())
             {
                 polytype = map.polytype[w];
 
@@ -2471,12 +2471,12 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
     pos.y = spos.y + spriteparts.velocity[num].y;
 
     // iterate through maps sector polygons
-    const auto coord = map.GetSectorCoord(pos);
-    if (coord.IsValid())
+    const auto sector = map.GetSector(pos);
+    if (sector.IsValid())
     {
         bgstate.backgroundtestbigpolycenter(pos);
 
-        for (const auto &w : map.sectors[coord.x][coord.y].Polys)
+        for (const auto &w : sector.GetPolys())
         {
             polytype = map.polytype[w];
 
@@ -2747,10 +2747,10 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
     pos.y = y;
 
     // iterate through maps sector polygons
-    const auto coord = map.GetSectorCoord(pos);
-    if (coord.IsValid())
+    const auto sector = map.GetSector(pos);
+    if (sector.IsValid())
     {
-        for (const auto &w : map.sectors[coord.x][coord.y].Polys)
+        for (const auto &w : sector.GetPolys())
         {
             polytype = map.polytype[w];
 
@@ -2811,12 +2811,12 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
     pos.y = y + 4;
 
     // iterate through map polygons
-    const auto coord = map.GetSectorCoord(pos);
-    if (coord.IsValid())
+    const auto sector = map.GetSector(pos);
+    if (sector.IsValid())
     {
         bgstate.backgroundtestbigpolycenter(pos);
 
-        for (const auto &w : map.sectors[coord.x][coord.y].Polys)
+        for (const auto &w : sector.GetPolys())
         {
             teamcol = teamcollides(w, player->team, false);
 
@@ -2864,13 +2864,13 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
         pos.y = y + 1;
 
         // iterate through map polygons
-        const auto coord = map.GetSectorCoord(pos);
+        const auto sector = map.GetSector(pos);
 
-        if (coord.IsValid())
+        if (sector.IsValid())
         {
             bgstate.backgroundtestbigpolycenter(pos);
 
-            for (const auto &w : map.sectors[coord.x][coord.y].Polys)
+            for (const auto &w : sector.GetPolys())
             {
 
                 if ((map.polytype[w] != poly_type_doesnt) &&
@@ -3037,7 +3037,7 @@ bool BackgroundState<M>::backgroundtest(std::uint64_t poly)
 }
 
 template <Config::Module M>
-void BackgroundState<M>::backgroundtestbigpolycenter(tvector2 pos)
+void BackgroundState<M>::backgroundtestbigpolycenter(const tvector2 &pos)
 {
     if (backgroundstatus == background_transition)
     {

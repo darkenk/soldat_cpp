@@ -542,11 +542,11 @@ bool tspark::checkmapcollision(float x, float y)
     pos.y = y - 1;
 
     /*iterate through maps sector polygons*/
-    auto const coord = map.GetSectorCoord(pos);
-    if (!coord.IsValid())
+    auto const sector = map.GetSector(pos);
+    if (!sector.IsValid())
         return result;
 
-    for (const auto &w : map.sectors[coord.x][coord.y].Polys)
+    for (const auto &w : sector.GetPolys())
     {
         if ((owner < 1) || (owner > 32))
             return result;

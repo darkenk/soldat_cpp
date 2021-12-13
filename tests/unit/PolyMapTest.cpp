@@ -125,3 +125,35 @@ TEST(PolyMapTest, GetSectorCoordReturnsInvalidValueIfSectorDoesNotMatch)
         EXPECT_EQ(25, coord.x);
     }
 }
+
+TEST(PolyMapTest, GetSectorPolygons)
+{
+    twaypoints w;
+    Polymap p{w};
+    tmapfile mapfile;
+    mapfile.sectorsnum = 2;
+    mapfile.sectorsdivision = 10;
+    auto amountOfSectors = std::pow(2 * mapfile.sectorsnum + 1, 2);
+    for (auto s = 0; s < amountOfSectors; s++)
+    {
+        mapfile.sectors.emplace_back().Polys.emplace_back(s);
+    }
+    p.loadmap(mapfile);
+
+    {
+        const auto sector = p.GetSector({-25.0f, -25.0f});
+        EXPECT_EQ(false, sector.IsValid());
+    }
+
+    {
+        const auto sector = p.GetSector({-15.0f, -15.0f});
+        EXPECT_EQ(true, sector.IsValid());
+        EXPECT_EQ(0, sector.GetPolys()[0]);
+    }
+
+    {
+        const auto sector = p.GetSector({15.0f, 15.0f});
+        EXPECT_EQ(true, sector.IsValid());
+        EXPECT_EQ(24, sector.GetPolys()[0]);
+    }
+}

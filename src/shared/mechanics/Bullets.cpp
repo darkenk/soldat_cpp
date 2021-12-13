@@ -1128,14 +1128,14 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
         pos.y = y + b * step.y;
 
         // iterate through maps sector polygons
-        const auto coord = map.GetSectorCoord(pos);
-        if (!coord.IsValid())
+        const auto sector = map.GetSector(pos);
+        if (!sector.IsValid())
         {
             kill();
             return result;
         }
 
-        for (const auto &w : map.sectors[coord.x][coord.y].Polys)
+        for (const auto &w : sector.GetPolys())
         {
             teamcol = teamcollides(w, sprite[owner].player->team, true);
             if (teamcol)
@@ -1185,10 +1185,10 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                                 bulletparts.oldpos[num] = bulletparts.pos[num];
                                 pos.x = bulletparts.pos[num].x + perp.x;
                                 pos.y = bulletparts.pos[num].y + perp.y;
-                                const auto coord = map.GetSectorCoord(pos);
-                                if (coord.IsValid())
+                                const auto sector = map.GetSector(pos);
+                                if (sector.IsValid())
                                 {
-                                    for (const auto &w2 : map.sectors[coord.x][coord.y].Polys)
+                                    for (const auto &w2 : sector.GetPolys())
                                     {
                                         if ((map.polytype[w2] != poly_type_only_player) &&
                                             (map.polytype[w2] != poly_type_doesnt) &&
@@ -1302,10 +1302,10 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
 
                                 pos.x = bulletparts.pos[num].x + perp.x;
                                 pos.y = bulletparts.pos[num].y + perp.y;
-                                const auto coord = map.GetSectorCoord(pos);
-                                if (coord.IsValid())
+                                const auto sector = map.GetSector(pos);
+                                if (sector.IsValid())
                                 {
-                                    for (const auto &w2 : map.sectors[coord.x][coord.y].Polys)
+                                    for (const auto &w2 : sector.GetPolys())
                                     {
                                         if ((map.polytype[w2] != poly_type_only_player) &&
                                             (map.polytype[w2] != poly_type_doesnt) &&
