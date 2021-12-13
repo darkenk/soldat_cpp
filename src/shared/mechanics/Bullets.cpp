@@ -1096,7 +1096,7 @@ template <Config::Module M>
 tvector2 Bullet<M>::checkmapcollision(float x, float y)
 {
     float largestvelocitycomponent;
-    std::int32_t j, b, w, k, w2;
+    std::int32_t j, b;
     tvector2 pos, perp, step, temp, temp2;
     float d = 0.0;
     std::int32_t detacc;
@@ -1138,257 +1138,252 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
             return result;
         }
 
-        if (high(map.sectors[kx][ky].polys) > 0)
-            for (j = 1; j <= high(map.sectors[kx][ky].polys); j++)
-            {
-                w = map.sectors[kx][ky].polys[j];
-                teamcol = teamcollides(w, sprite[owner].player->team, true);
-                if (teamcol)
-                    if ((map.polytype[w] != poly_type_only_player) &&
-                        (map.polytype[w] != poly_type_doesnt) &&
-                        (map.polytype[w] != poly_type_only_flaggers) &&
-                        (map.polytype[w] != poly_type_not_flaggers) &&
-                        (map.polytype[w] != poly_type_background) &&
-                        (map.polytype[w] != poly_type_background_transition))
-                        if (map.pointinpolyedges(pos.x, pos.y, w))
+        for (const auto &w : map.sectors[kx][ky].Polys)
+        {
+            teamcol = teamcollides(w, sprite[owner].player->team, true);
+            if (teamcol)
+                if ((map.polytype[w] != poly_type_only_player) &&
+                    (map.polytype[w] != poly_type_doesnt) &&
+                    (map.polytype[w] != poly_type_only_flaggers) &&
+                    (map.polytype[w] != poly_type_not_flaggers) &&
+                    (map.polytype[w] != poly_type_background) &&
+                    (map.polytype[w] != poly_type_background_transition))
+                    if (map.pointinpolyedges(pos.x, pos.y, w))
+                    {
+                        switch (style)
                         {
-                            switch (style)
+                        case bullet_style_plain:
+                        case bullet_style_shotgun:
+                        case bullet_style_punch:
+                        case bullet_style_knife:
+                        case bullet_style_m2: {
+                            bulletparts.oldpos[num] = bulletparts.pos[num];
+                            bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
+                            temp = bulletparts.pos[num];
+                            temp2 = bulletparts.velocity[num];
+
+                            perp = vec2subtract(bulletparts.pos[num], hitspot);
+                            d = vec2length(perp);
+                            // ricochet!
+                            if (d > 50.0)
                             {
-                            case bullet_style_plain:
-                            case bullet_style_shotgun:
-                            case bullet_style_punch:
-                            case bullet_style_knife:
-                            case bullet_style_m2: {
-                                bulletparts.oldpos[num] = bulletparts.pos[num];
-                                bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
-                                temp = bulletparts.pos[num];
-                                temp2 = bulletparts.velocity[num];
-
-                                perp = vec2subtract(bulletparts.pos[num], hitspot);
-                                d = vec2length(perp);
-                                // ricochet!
-                                if (d > 50.0)
-                                {
-                                    ricochetcount += 1;
-                                    perp = map.closestperpendicular(w, bulletparts.pos[num], d,
-                                                                    tempint);
-                                    d = vec2length(bulletparts.velocity[num]);
-                                    vec2normalize(perp, perp);
-                                    vec2scale(perp, perp, -d);
-
-                                    bulletparts.velocity[num].x =
-                                        bulletparts.velocity[num].x * ((float)(25) / 35) +
-                                        perp.x * ((float)(10) / 35);
-                                    bulletparts.velocity[num].y =
-                                        bulletparts.velocity[num].y * ((float)(25) / 35) +
-                                        perp.y * ((float)(10) / 35);
-                                    bulletparts.pos[num] = pos;
-                                    hitspot = bulletparts.pos[num];
-
-                                    vec2normalize(perp, bulletparts.velocity[num]);
-                                    vec2scale(perp, perp, (float)(d) / 6);
-                                    bulletparts.oldpos[num] = bulletparts.pos[num];
-                                    pos.x = bulletparts.pos[num].x + perp.x;
-                                    pos.y = bulletparts.pos[num].y + perp.y;
-                                    kx = round((float)(pos.x) / map.sectorsdivision);
-                                    ky = round((float)(pos.y) / map.sectorsdivision);
-                                    if ((kx > -map.sectorsnum) && (kx < map.sectorsnum) &&
-                                        (ky > -map.sectorsnum) && (ky < map.sectorsnum))
-                                    {
-                                        for (k = 1; k <= high(map.sectors[kx][ky].polys); k++)
-                                        {
-                                            w2 = map.sectors[kx][ky].polys[k];
-                                            if ((map.polytype[w2] != poly_type_only_player) &&
-                                                (map.polytype[w2] != poly_type_doesnt) &&
-                                                (map.polytype[w2] != poly_type_only_flaggers) &&
-                                                (map.polytype[w2] != poly_type_not_flaggers) &&
-                                                (map.polytype[w2] != poly_type_background) &&
-                                                (map.polytype[w2] !=
-                                                 poly_type_background_transition) and
-                                                teamcollides(w2, sprite[owner].player->team, true))
-                                                if (map.pointinpolyedges(pos.x, pos.y, w2))
-                                                {
-                                                    kill();
-                                                    break;
-                                                }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    kill();
-                                }
-
-                                if (active)
-                                {
-                                    bulletparts.pos[num] = temp;
-                                    perp = bulletparts.velocity[num];
-                                    bulletparts.velocity[num] = temp2;
-                                    hit(hit_type_ricochet);
-                                    bulletparts.pos[num] = hitspot;
-                                    bulletparts.velocity[num] = perp;
-                                }
-                                else
-                                {
-                                    bulletparts.pos[num] = temp;
-                                    perp = bulletparts.velocity[num];
-                                    bulletparts.velocity[num] = temp2;
-                                    hit(hit_type_wall);
-                                    bulletparts.pos[num] = hitspot;
-                                    bulletparts.velocity[num] = perp;
-                                }
-                            }
-                            break;
-                            case bullet_style_arrow: {
-                                bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
-                                bulletparts.forces[num].y =
-                                    bulletparts.forces[num].y - bulletparts.gravity;
-                                if (timeout > arrow_resist)
-                                    timeout = arrow_resist;
-                                if (timeout < 20)
-                                    bulletparts.forces[num].y =
-                                        bulletparts.forces[num].y + bulletparts.gravity;
-                            }
-                            break;
-                            case bullet_style_fragnade:
-                            case bullet_style_flame: {
-#ifndef SERVER
-                                // bounce sound
-                                if (style == bullet_style_fragnade)
-                                    if (vec2length(bulletparts.velocity[num]) > 1.5)
-                                        playsound(sfx_grenade_bounce, spriteparts.pos[num]);
-#endif
-
+                                ricochetcount += 1;
                                 perp =
                                     map.closestperpendicular(w, bulletparts.pos[num], d, tempint);
-
+                                d = vec2length(bulletparts.velocity[num]);
                                 vec2normalize(perp, perp);
-                                vec2scale(perp, perp, d);
+                                vec2scale(perp, perp, -d);
 
+                                bulletparts.velocity[num].x =
+                                    bulletparts.velocity[num].x * ((float)(25) / 35) +
+                                    perp.x * ((float)(10) / 35);
+                                bulletparts.velocity[num].y =
+                                    bulletparts.velocity[num].y * ((float)(25) / 35) +
+                                    perp.y * ((float)(10) / 35);
                                 bulletparts.pos[num] = pos;
-                                bulletparts.velocity[num] =
-                                    vec2subtract(bulletparts.velocity[num], perp);
+                                hitspot = bulletparts.pos[num];
 
-                                vec2scale(bulletparts.velocity[num], bulletparts.velocity[num],
-                                          grenade_surfacecoef);
-
-                                if (style == bullet_style_flame)
-                                    if (timeout > 16)
-                                        timeout = 16;
-                            }
-                            break;
-                            case bullet_style_m79:
-                            case bullet_style_flamearrow:
-                            case bullet_style_law: {
+                                vec2normalize(perp, bulletparts.velocity[num]);
+                                vec2scale(perp, perp, (float)(d) / 6);
                                 bulletparts.oldpos[num] = bulletparts.pos[num];
-                                bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
-                                temp = bulletparts.pos[num];
-                                temp2 = bulletparts.velocity[num];
-
-                                perp = vec2subtract(bulletparts.pos[num], hitspot);
-                                d = vec2length(perp);
-                                // ricochet!
-                                if (d > 50.0)
+                                pos.x = bulletparts.pos[num].x + perp.x;
+                                pos.y = bulletparts.pos[num].y + perp.y;
+                                kx = round((float)(pos.x) / map.sectorsdivision);
+                                ky = round((float)(pos.y) / map.sectorsdivision);
+                                if ((kx > -map.sectorsnum) && (kx < map.sectorsnum) &&
+                                    (ky > -map.sectorsnum) && (ky < map.sectorsnum))
                                 {
-                                    ricochetcount += 1;
-                                    perp = map.closestperpendicular(w, bulletparts.pos[num], d,
-                                                                    tempint);
-                                    d = vec2length(bulletparts.velocity[num]);
-                                    vec2normalize(perp, perp);
-                                    vec2scale(perp, perp, -d);
-
-                                    bulletparts.velocity[num].x =
-                                        bulletparts.velocity[num].x * ((float)(25) / 35) +
-                                        perp.x * ((float)(10) / 35);
-                                    bulletparts.velocity[num].y =
-                                        bulletparts.velocity[num].y * ((float)(25) / 35) +
-                                        perp.y * ((float)(10) / 35);
-                                    bulletparts.pos[num] = pos;
-                                    hitspot = bulletparts.pos[num];
-
-                                    vec2normalize(perp, bulletparts.velocity[num]);
-                                    vec2scale(perp, perp, (float)(d) / 6);
-
-                                    pos.x = bulletparts.pos[num].x + perp.x;
-                                    pos.y = bulletparts.pos[num].y + perp.y;
-                                    kx = round((float)(pos.x) / map.sectorsdivision);
-                                    ky = round((float)(pos.y) / map.sectorsdivision);
-                                    if ((kx > -map.sectorsnum) && (kx < map.sectorsnum) &&
-                                        (ky > -map.sectorsnum) && (ky < map.sectorsnum))
+                                    for (const auto &w2 : map.sectors[kx][ky].Polys)
                                     {
-                                        for (k = 1; k <= high(map.sectors[kx][ky].polys); k++)
-                                        {
-                                            w2 = map.sectors[kx][ky].polys[k];
-                                            if ((map.polytype[w2] != poly_type_only_player) &&
-                                                (map.polytype[w2] != poly_type_doesnt) &&
-                                                (map.polytype[w2] != poly_type_only_flaggers) &&
-                                                (map.polytype[w2] != poly_type_not_flaggers) &&
-                                                (map.polytype[w2] != poly_type_background) &&
-                                                (map.polytype[w2] !=
-                                                 poly_type_background_transition) and
-                                                teamcollides(w2, sprite[owner].player->team, true))
-                                                if (map.pointinpolyedges(pos.x, pos.y, w2))
-                                                {
-                                                    kill();
-                                                    break;
-                                                }
-                                        }
+                                        if ((map.polytype[w2] != poly_type_only_player) &&
+                                            (map.polytype[w2] != poly_type_doesnt) &&
+                                            (map.polytype[w2] != poly_type_only_flaggers) &&
+                                            (map.polytype[w2] != poly_type_not_flaggers) &&
+                                            (map.polytype[w2] != poly_type_background) &&
+                                            (map.polytype[w2] !=
+                                             poly_type_background_transition) and
+                                            teamcollides(w2, sprite[owner].player->team, true))
+                                            if (map.pointinpolyedges(pos.x, pos.y, w2))
+                                            {
+                                                kill();
+                                                break;
+                                            }
                                     }
                                 }
-                                else
-                                {
-                                    kill();
-                                }
-
-                                if (active)
-                                {
-                                    bulletparts.pos[num] = temp;
-                                    perp = bulletparts.velocity[num];
-                                    bulletparts.velocity[num] = temp2;
-                                    hit(hit_type_ricochet);
-                                    bulletparts.pos[num] = hitspot;
-                                    bulletparts.velocity[num] = perp;
-                                }
-                                else
-                                {
-                                    bulletparts.pos[num] = temp;
-                                    perp = bulletparts.velocity[num];
-                                    bulletparts.velocity[num] = temp2;
-                                    hit(hit_type_explode);
-                                    bulletparts.pos[num] = hitspot;
-                                    bulletparts.velocity[num] = perp;
-                                }
                             }
-                            break;
-                            case bullet_style_clusternade: {
-                                hit(hit_type_clusternade);
+                            else
+                            {
                                 kill();
                             }
-                            break;
-                            case bullet_style_cluster: {
-                                hit(hit_type_cluster);
-                                kill();
-                            }
-                            break;
-                            case bullet_style_thrownknife: {
-                                bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
 
-                                // create knife thing
-#ifdef SERVER
-                                creatething(bulletparts.pos[num], owner, object_combat_knife, 255);
+                            if (active)
+                            {
+                                bulletparts.pos[num] = temp;
+                                perp = bulletparts.velocity[num];
+                                bulletparts.velocity[num] = temp2;
+                                hit(hit_type_ricochet);
+                                bulletparts.pos[num] = hitspot;
+                                bulletparts.velocity[num] = perp;
+                            }
+                            else
+                            {
+                                bulletparts.pos[num] = temp;
+                                perp = bulletparts.velocity[num];
+                                bulletparts.velocity[num] = temp2;
+                                hit(hit_type_wall);
+                                bulletparts.pos[num] = hitspot;
+                                bulletparts.velocity[num] = perp;
+                            }
+                        }
+                        break;
+                        case bullet_style_arrow: {
+                            bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
+                            bulletparts.forces[num].y =
+                                bulletparts.forces[num].y - bulletparts.gravity;
+                            if (timeout > arrow_resist)
+                                timeout = arrow_resist;
+                            if (timeout < 20)
+                                bulletparts.forces[num].y =
+                                    bulletparts.forces[num].y + bulletparts.gravity;
+                        }
+                        break;
+                        case bullet_style_fragnade:
+                        case bullet_style_flame: {
+#ifndef SERVER
+                            // bounce sound
+                            if (style == bullet_style_fragnade)
+                                if (vec2length(bulletparts.velocity[num]) > 1.5)
+                                    playsound(sfx_grenade_bounce, spriteparts.pos[num]);
 #endif
 
-                                hit(hit_type_wall);
+                            perp = map.closestperpendicular(w, bulletparts.pos[num], d, tempint);
+
+                            vec2normalize(perp, perp);
+                            vec2scale(perp, perp, d);
+
+                            bulletparts.pos[num] = pos;
+                            bulletparts.velocity[num] =
+                                vec2subtract(bulletparts.velocity[num], perp);
+
+                            vec2scale(bulletparts.velocity[num], bulletparts.velocity[num],
+                                      grenade_surfacecoef);
+
+                            if (style == bullet_style_flame)
+                                if (timeout > 16)
+                                    timeout = 16;
+                        }
+                        break;
+                        case bullet_style_m79:
+                        case bullet_style_flamearrow:
+                        case bullet_style_law: {
+                            bulletparts.oldpos[num] = bulletparts.pos[num];
+                            bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
+                            temp = bulletparts.pos[num];
+                            temp2 = bulletparts.velocity[num];
+
+                            perp = vec2subtract(bulletparts.pos[num], hitspot);
+                            d = vec2length(perp);
+                            // ricochet!
+                            if (d > 50.0)
+                            {
+                                ricochetcount += 1;
+                                perp =
+                                    map.closestperpendicular(w, bulletparts.pos[num], d, tempint);
+                                d = vec2length(bulletparts.velocity[num]);
+                                vec2normalize(perp, perp);
+                                vec2scale(perp, perp, -d);
+
+                                bulletparts.velocity[num].x =
+                                    bulletparts.velocity[num].x * ((float)(25) / 35) +
+                                    perp.x * ((float)(10) / 35);
+                                bulletparts.velocity[num].y =
+                                    bulletparts.velocity[num].y * ((float)(25) / 35) +
+                                    perp.y * ((float)(10) / 35);
+                                bulletparts.pos[num] = pos;
+                                hitspot = bulletparts.pos[num];
+
+                                vec2normalize(perp, bulletparts.velocity[num]);
+                                vec2scale(perp, perp, (float)(d) / 6);
+
+                                pos.x = bulletparts.pos[num].x + perp.x;
+                                pos.y = bulletparts.pos[num].y + perp.y;
+                                kx = round((float)(pos.x) / map.sectorsdivision);
+                                ky = round((float)(pos.y) / map.sectorsdivision);
+                                if ((kx > -map.sectorsnum) && (kx < map.sectorsnum) &&
+                                    (ky > -map.sectorsnum) && (ky < map.sectorsnum))
+                                {
+                                    for (const auto &w2 : map.sectors[kx][ky].Polys)
+                                    {
+                                        if ((map.polytype[w2] != poly_type_only_player) &&
+                                            (map.polytype[w2] != poly_type_doesnt) &&
+                                            (map.polytype[w2] != poly_type_only_flaggers) &&
+                                            (map.polytype[w2] != poly_type_not_flaggers) &&
+                                            (map.polytype[w2] != poly_type_background) &&
+                                            (map.polytype[w2] !=
+                                             poly_type_background_transition) and
+                                            teamcollides(w2, sprite[owner].player->team, true))
+                                            if (map.pointinpolyedges(pos.x, pos.y, w2))
+                                            {
+                                                kill();
+                                                break;
+                                            }
+                                    }
+                                }
+                            }
+                            else
+                            {
                                 kill();
                             }
-                            break;
-                            } // case
 
-                            result = pos;
-                            return result;
-                        } // PointinPolyEdges
-            }             // for j
-    }                     // for b
+                            if (active)
+                            {
+                                bulletparts.pos[num] = temp;
+                                perp = bulletparts.velocity[num];
+                                bulletparts.velocity[num] = temp2;
+                                hit(hit_type_ricochet);
+                                bulletparts.pos[num] = hitspot;
+                                bulletparts.velocity[num] = perp;
+                            }
+                            else
+                            {
+                                bulletparts.pos[num] = temp;
+                                perp = bulletparts.velocity[num];
+                                bulletparts.velocity[num] = temp2;
+                                hit(hit_type_explode);
+                                bulletparts.pos[num] = hitspot;
+                                bulletparts.velocity[num] = perp;
+                            }
+                        }
+                        break;
+                        case bullet_style_clusternade: {
+                            hit(hit_type_clusternade);
+                            kill();
+                        }
+                        break;
+                        case bullet_style_cluster: {
+                            hit(hit_type_cluster);
+                            kill();
+                        }
+                        break;
+                        case bullet_style_thrownknife: {
+                            bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
+
+                            // create knife thing
+#ifdef SERVER
+                            creatething(bulletparts.pos[num], owner, object_combat_knife, 255);
+#endif
+
+                            hit(hit_type_wall);
+                            kill();
+                        }
+                        break;
+                        } // case
+
+                        result = pos;
+                        return result;
+                    } // PointinPolyEdges
+        }             // for j
+    }                 // for b
     return result;
 }
 

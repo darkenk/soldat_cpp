@@ -530,7 +530,6 @@ void tspark::render()
 
 bool tspark::checkmapcollision(float x, float y)
 {
-    std::int32_t j, w;
     std::int32_t b = 0;
     tvector2 pos, perp;
     float d = 0.0;
@@ -550,153 +549,148 @@ bool tspark::checkmapcollision(float x, float y)
         (ky > map.sectorsnum))
         return result;
 
-    if (high(map.sectors[kx][ky].polys) > 0)
-        for (j = 1; j <= high(map.sectors[kx][ky].polys); j++)
-        {
-            w = map.sectors[kx][ky].polys[j];
+    for (const auto &w : map.sectors[kx][ky].Polys)
+    {
+        if ((owner < 1) || (owner > 32))
+            return result;
 
-            if ((owner < 1) || (owner > 32))
-                return result;
+        teamcol = teamcollides(w, sprite[owner].player->team, false);
 
-            teamcol = teamcollides(w, sprite[owner].player->team, false);
+        if (teamcol)
+            if (!((map.polytype[w] == poly_type_bouncy) && (sprite[owner].holdedthing == 0)))
+                if ((map.polytype[w] != poly_type_only_bullets) &&
+                    (map.polytype[w] != poly_type_only_player) &&
+                    (map.polytype[w] != poly_type_doesnt) &&
+                    (map.polytype[w] != poly_type_background) &&
+                    (map.polytype[w] != poly_type_background_transition))
+                    if (map.pointinpolyedges(pos.x, pos.y, w))
+                    {
+                        perp = map.closestperpendicular(w, pos, d, b);
 
-            if (teamcol)
-                if (!((map.polytype[w] == poly_type_bouncy) && (sprite[owner].holdedthing == 0)))
-                    if ((map.polytype[w] != poly_type_only_bullets) &&
-                        (map.polytype[w] != poly_type_only_player) &&
-                        (map.polytype[w] != poly_type_doesnt) &&
-                        (map.polytype[w] != poly_type_background) &&
-                        (map.polytype[w] != poly_type_background_transition))
-                        if (map.pointinpolyedges(pos.x, pos.y, w))
+                        vec2normalize(perp, perp);
+                        vec2scale(perp, perp, d);
+
+                        sparkparts.velocity[num] = vec2subtract(sparkparts.velocity[num], perp);
+
+                        vec2scale(sparkparts.velocity[num], sparkparts.velocity[num],
+                                  spark_surfacecoef);
+
+                        switch (style)
                         {
-                            perp = map.closestperpendicular(w, pos, d, b);
-
-                            vec2normalize(perp, perp);
-                            vec2scale(perp, perp, d);
-
-                            sparkparts.velocity[num] = vec2subtract(sparkparts.velocity[num], perp);
-
-                            vec2scale(sparkparts.velocity[num], sparkparts.velocity[num],
-                                      spark_surfacecoef);
-
-                            switch (style)
+                        case 2:
+                        case 62: {
+                            vec2scale(perp, perp, 2.5);
+                            perp.x = perp.x - 0.5 + (float)(Random(11)) / 10;
+                            perp.y = -perp.y;
+                            if (Random(2) == 0)
                             {
-                            case 2:
-                            case 62: {
-                                vec2scale(perp, perp, 2.5);
-                                perp.x = perp.x - 0.5 + (float)(Random(11)) / 10;
-                                perp.y = -perp.y;
                                 if (Random(2) == 0)
-                                {
-                                    if (Random(2) == 0)
-                                        createspark(pos, perp, 26, owner, 35);
-                                    else
-                                        createspark(pos, perp, 27, owner, 35);
-
-                                    playsound(sfx_ts, sparkparts.pos[num]);
-                                }
-                            }
-                            break;
-                            case 33:
-                            case 34: {
-                                vec2scale(perp, perp, 2.5);
-                                perp.x = perp.x - 0.5 + (float)(Random(11)) / 10;
-                                perp.y = -perp.y;
-                                if (Random(7) == 0)
                                     createspark(pos, perp, 26, owner, 35);
                                 else
                                     createspark(pos, perp, 27, owner, 35);
 
-                                if (collidecount > 4)
-                                    kill();
+                                playsound(sfx_ts, sparkparts.pos[num]);
                             }
-                            break;
-                            case 4:
-                            case 5: {
-                                if (style == 5)
-                                    createspark(sparkparts.pos[num], sparkparts.velocity[num], 55,
-                                                owner, 30);
+                        }
+                        break;
+                        case 33:
+                        case 34: {
+                            vec2scale(perp, perp, 2.5);
+                            perp.x = perp.x - 0.5 + (float)(Random(11)) / 10;
+                            perp.y = -perp.y;
+                            if (Random(7) == 0)
+                                createspark(pos, perp, 26, owner, 35);
+                            else
+                                createspark(pos, perp, 27, owner, 35);
 
-                                if (collidecount > 1)
-                                    kill();
-                            }
-                            break;
-                            case 6: {
-                                if ((collidecount == 0) || (collidecount == 2) ||
-                                    (collidecount == 4))
-                                    playsound(sfx_clipfall, sparkparts.pos[num]);
+                            if (collidecount > 4)
+                                kill();
+                        }
+                        break;
+                        case 4:
+                        case 5: {
+                            if (style == 5)
+                                createspark(sparkparts.pos[num], sparkparts.velocity[num], 55,
+                                            owner, 30);
 
-                                if (collidecount > 4)
-                                    kill();
-                            }
-                            break;
-                            case 7:
-                            case 21:
-                            case 22:
-                            case 16:
-                            case 30:
-                            case 52:
-                            case 65:
-                            case 66:
-                            case 67:
-                            case 68:
-                            case 69:
-                            case 70:
-                            case 71:
-                            case 72:
-                            case 73: {
-                                if ((collidecount == 0) || (collidecount == 2) ||
-                                    (collidecount == 4))
-                                    playsound(sfx_shell + Random(2), sparkparts.pos[num]);
-                                if (collidecount > 4)
-                                    kill();
-                            }
-                            break;
-                            case 51: {
-                                playsound(sfx_gaugeshell, sparkparts.pos[num]);
-                                if (collidecount > 4)
-                                    kill();
-                            }
-                            break;
-                            case 32:
-                            case 48:
-                            case 49: {
-                                if (collidecount > 2)
-                                    kill();
-                            }
-                            break;
-                            case 9:
-                            case 10:
-                            case 11:
-                            case 18:
-                            case 19:
-                            case 20:
-                            case 23: {
-                                if ((collidecount == 0) || (collidecount == 4))
-                                    playsound(sfx_clipfall, sparkparts.pos[num]);
+                            if (collidecount > 1)
+                                kill();
+                        }
+                        break;
+                        case 6: {
+                            if ((collidecount == 0) || (collidecount == 2) || (collidecount == 4))
+                                playsound(sfx_clipfall, sparkparts.pos[num]);
 
-                                if (collidecount > 4)
-                                    kill();
-                            }
-                            break;
-                            case 57: {
-                                vec2scale(perp, perp, 0.75);
-                                perp.x = perp.x - 0.5 + (float)(Random(11)) / 10;
-                                perp.y = -perp.y;
-                                if (Random(2) == 0)
-                                    createspark(pos, perp, 58, owner, 50);
-                                else
-                                    createspark(pos, perp, 58, owner, 50);
-                            }
-                            break;
-                            }
+                            if (collidecount > 4)
+                                kill();
+                        }
+                        break;
+                        case 7:
+                        case 21:
+                        case 22:
+                        case 16:
+                        case 30:
+                        case 52:
+                        case 65:
+                        case 66:
+                        case 67:
+                        case 68:
+                        case 69:
+                        case 70:
+                        case 71:
+                        case 72:
+                        case 73: {
+                            if ((collidecount == 0) || (collidecount == 2) || (collidecount == 4))
+                                playsound(sfx_shell + Random(2), sparkparts.pos[num]);
+                            if (collidecount > 4)
+                                kill();
+                        }
+                        break;
+                        case 51: {
+                            playsound(sfx_gaugeshell, sparkparts.pos[num]);
+                            if (collidecount > 4)
+                                kill();
+                        }
+                        break;
+                        case 32:
+                        case 48:
+                        case 49: {
+                            if (collidecount > 2)
+                                kill();
+                        }
+                        break;
+                        case 9:
+                        case 10:
+                        case 11:
+                        case 18:
+                        case 19:
+                        case 20:
+                        case 23: {
+                            if ((collidecount == 0) || (collidecount == 4))
+                                playsound(sfx_clipfall, sparkparts.pos[num]);
 
-                            collidecount += 1;
+                            if (collidecount > 4)
+                                kill();
+                        }
+                        break;
+                        case 57: {
+                            vec2scale(perp, perp, 0.75);
+                            perp.x = perp.x - 0.5 + (float)(Random(11)) / 10;
+                            perp.y = -perp.y;
+                            if (Random(2) == 0)
+                                createspark(pos, perp, 58, owner, 50);
+                            else
+                                createspark(pos, perp, 58, owner, 50);
+                        }
+                        break;
+                        }
 
-                            result = true;
-                            return result;
-                        } // PointinPolyEdges
-        }                 // for j
+                        collidecount += 1;
+
+                        result = true;
+                        return result;
+                    } // PointinPolyEdges
+    }                 // for j
     return result;
 }
 

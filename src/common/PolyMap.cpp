@@ -39,7 +39,7 @@ void Polymap::initialize()
         for (j = this->sectors[i].StartIdx(); j < this->sectors[i].EndIdx(); j++)
         {
             NotImplemented(NITag::MAP);
-            this->sectors[i][j].polys.clear();
+            this->sectors[i][j].Polys.clear();
         }
     }
     // BotPath (TWaypoints) defined in Game.pas
@@ -135,12 +135,11 @@ void Polymap::loaddata(tmapfile &mapfile)
     {
         for (j = -this->sectorsnum; j <= this->sectorsnum; j++)
         {
-            if (length(mapfile.sectors[k].polys) > 0)
+            if (length(mapfile.sectors[k].Polys) > 0)
             {
-                NotImplemented(NITag::MAP);
-                setlength(this->sectors[i][j].polys, length(mapfile.sectors[k].polys) + 1);
-                std::memcpy(&this->sectors[i][j].polys[1], &mapfile.sectors[k].polys[0],
-                            sizeof(std::uint16_t) * length(mapfile.sectors[k].polys));
+                sectors[i][j].Polys.resize(mapfile.sectors[k].Polys.size());
+                std::copy(std::begin(mapfile.sectors[k].Polys), std::end(mapfile.sectors[k].Polys),
+                          std::begin(sectors[i][j].Polys));
             }
 
             k += 1;
@@ -531,11 +530,9 @@ bool Polymap::collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag)
 
     if ((kx > -sectorsnum) && (kx < sectorsnum) && (ky > -sectorsnum) && (ky < sectorsnum))
     {
-        auto &polygons = sectors[kx][ky].polys;
-        for (auto j = 1U; j < polygons.size(); j++)
+        auto &polygons = sectors[kx][ky].Polys;
+        for (const auto &w : polygons)
         {
-            auto w = polygons[j];
-
             if (!(has(excluded1, polytype[w])) && (isflag || !(has(excluded2, polytype[w]))))
             {
                 if (pointinpoly(pos, polys[w]))
@@ -553,7 +550,6 @@ bool Polymap::collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag)
 bool Polymap::collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::int32_t c)
 {
     constexpr std::array<std::int32_t, 6> excluded = {1, 2, 3, 11, 24, 25};
-    std::int32_t j, w;
     std::int32_t b = 0;
     float d = 0.0f;
     std::int32_t kx, ky;
@@ -564,10 +560,8 @@ bool Polymap::collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::i
 
     if ((kx > -sectorsnum) && (kx < sectorsnum) && (ky > -sectorsnum) && (ky < sectorsnum))
     {
-        for (j = 0; j < sectors[kx][ky].polys.size(); j++)
+        for (const auto &w : sectors[kx][ky].Polys)
         {
-            w = sectors[kx][ky].polys[j];
-
             if ((w != c) && !(has(excluded, polytype[w])))
             {
                 if (pointinpoly(pos, polys[w]))
@@ -675,11 +669,10 @@ bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
         for (j = ay; j <= by; j++)
         {
             ZoneScopedN("CheckSector");
-            auto &polygons = sectors[i][j].polys;
-            for (auto p = 1U; p < polygons.size(); p++)
+            auto &polygons = sectors[i][j].Polys;
+            for (auto const &w : polygons)
             {
                 ZoneScopedN("CheckPolygon");
-                auto const &w = polygons[p];
                 auto &polygon = polys[w];
                 if (ShouldTestPolygonWithRay(polygon.polytype, npcol, nbcol, flag, team))
                 {
@@ -731,7 +724,7 @@ bool Polymap::RayCastOld(const tvector2 &a, const tvector2 &b, float &distance, 
                          bool player, bool flag, bool bullet, bool checkcollider, uint8_t team)
 {
     ZoneScopedN("PolyMap::RayCast");
-    std::int32_t i, j, ax, ay, bx, by, p, w;
+    std::int32_t i, j, ax, ay, bx, by;
     tvector2 c, d;
     bool testcol;
     bool npcol, nbcol;
@@ -769,11 +762,9 @@ bool Polymap::RayCastOld(const tvector2 &a, const tvector2 &b, float &distance, 
         for (j = ay; j <= by; j++)
         {
             ZoneScopedN("CheckSector");
-            for (p = 1; p < sectors[i][j].polys.size(); p++)
+            for (const auto &w : sectors[i][j].Polys)
             {
                 ZoneScopedN("CheckPolygon");
-                auto &ref = sectors[i][j];
-                w = ref.polys[p];
                 const auto &polygonType = polytype[w];
 
                 testcol = true;

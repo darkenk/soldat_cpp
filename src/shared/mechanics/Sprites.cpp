@@ -2340,7 +2340,7 @@ void Sprite<M>::moveskeleton(float x1, float y1, bool fromzero)
 template <Config::Module M>
 bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
 {
-    std::int32_t j, w, k, z, polytype;
+    std::int32_t k, z, polytype;
     std::int32_t b = 0;
     tvector2 spos, pos, perp, step;
     tvector2 norm;
@@ -2377,9 +2377,8 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
         if ((rx > -map.sectorsnum) && (rx < map.sectorsnum) && (ry > -map.sectorsnum) &&
             (ry < map.sectorsnum))
         {
-            for (j = 1; j <= high(map.sectors[rx][ry].polys); j++)
+            for (const auto &w : map.sectors[rx][ry].Polys)
             {
-                w = map.sectors[rx][ry].polys[j];
                 polytype = map.polytype[w];
 
                 teamcol = teamcollides(w, player->team, false);
@@ -2481,9 +2480,8 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
     {
         bgstate.backgroundtestbigpolycenter(pos);
 
-        for (j = 1; j <= high(map.sectors[rx][ry].polys); j++)
+        for (const auto &w : map.sectors[rx][ry].Polys)
         {
-            w = map.sectors[rx][ry].polys[j];
             polytype = map.polytype[w];
 
             teamcol = teamcollides(w, player->team, false);
@@ -2738,7 +2736,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 template <Config::Module M>
 bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascollided)
 {
-    std::int32_t i, j, w, polytype;
+    std::int32_t i, polytype;
     tvector2 pos, dir, vert;
     float d;
     std::int32_t rx, ry;
@@ -2759,9 +2757,8 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
     if ((rx > -map.sectorsnum) && (rx < map.sectorsnum) && (ry > -map.sectorsnum) &&
         (ry < map.sectorsnum))
     {
-        for (j = 1; j <= high(map.sectors[rx][ry].polys); j++)
+        for (const auto &w : map.sectors[rx][ry].Polys)
         {
-            w = map.sectors[rx][ry].polys[j];
             polytype = map.polytype[w];
 
             teamcol = teamcollides(w, player->team, false);
@@ -2803,7 +2800,6 @@ template <Config::Module M>
 bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
 {
     ZoneScopedN("CheckSkeletonMapCollision");
-    std::int32_t j, w;
     std::int32_t b = 0;
     tvector2 pos, perp;
 #ifndef SERVER
@@ -2830,10 +2826,8 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
     {
         bgstate.backgroundtestbigpolycenter(pos);
 
-        for (j = 1; j <= high(map.sectors[rx][ry].polys); j++)
+        for (const auto &w : map.sectors[rx][ry].Polys)
         {
-            w = map.sectors[rx][ry].polys[j];
-
             teamcol = teamcollides(w, player->team, false);
 
             if (((map.polytype[w] != poly_type_doesnt) &&
@@ -2888,9 +2882,8 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
         {
             bgstate.backgroundtestbigpolycenter(pos);
 
-            for (j = 1; j <= high(map.sectors[rx][ry].polys); j++)
+            for (const auto &w : map.sectors[rx][ry].Polys)
             {
-                w = map.sectors[rx][ry].polys[j];
 
                 if ((map.polytype[w] != poly_type_doesnt) &&
                     (map.polytype[w] != poly_type_only_bullets))

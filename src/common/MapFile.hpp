@@ -47,7 +47,7 @@ struct tmappolygon
 typedef struct tmapsector *pmapsector;
 struct tmapsector
 {
-    std::vector<std::uint16_t> polys;
+    std::vector<std::uint16_t> Polys;
 };
 
 typedef struct tmapprop *pmapprop;

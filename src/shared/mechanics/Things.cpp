@@ -1403,7 +1403,6 @@ void Thing<M>::polygonsrender()
 template <Config::Module M>
 bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
 {
-    std::int32_t j, w;
     std::int32_t b = 0;
     tvector2 pos, perp, posdiff, posdiffperp;
     float d = 0.0;
@@ -1429,9 +1428,8 @@ bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
     {
         bgstate.backgroundtestbigpolycenter(pos);
 
-        for (j = 1; j <= high(map.sectors[rx][ry].polys); j++)
+        for (const auto &w : map.sectors[rx][ry].Polys)
         {
-            w = map.sectors[rx][ry].polys[j];
 
             teamcol = true;
 

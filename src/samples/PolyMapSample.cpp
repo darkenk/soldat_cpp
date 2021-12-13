@@ -15,9 +15,9 @@ SDL_Renderer *renderer = nullptr;
 
 void DrawTriangle(const tmappolygon &triangle, const tvector2 &offset)
 {
-    auto &v1 = triangle.vertices[0];
-    auto &v2 = triangle.vertices[1];
-    auto &v3 = triangle.vertices[2];
+    const auto &v1 = triangle.vertices[0];
+    const auto &v2 = triangle.vertices[1];
+    const auto &v3 = triangle.vertices[2];
 
     SDL_RenderDrawLineF(renderer, v1.x + offset.x, v1.y + offset.y, v2.x + offset.x,
                         v2.y + offset.y);
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
         auto ret = PHYSFS_mount("./soldat.smod", "/", false);
         Assert(0 != ret);
     }
-    Polymap<Config::CLIENT_MODULE> map;
+    Polymap map;
     tmapinfo mapinfo;
     auto ret = getmapinfo("ctf_Ash", "", mapinfo);
     Assert(true == ret);

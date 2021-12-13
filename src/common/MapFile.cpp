@@ -279,7 +279,7 @@ bool loadmapfile(const tmapinfo &mapinfo, tmapfile &map)
 
         for (j = 0; j <= m - 1; j++)
         {
-            map.sectors[i].polys.push_back(readuint16(bf));
+            map.sectors[i].Polys.push_back(readuint16(bf));
         }
     }
 
