@@ -55,9 +55,9 @@ void Precompute(tmappolygon &polygon)
         }
         return std::numeric_limits<float>::max();
     };
-    const auto &v1 = polygon.vertices[1];
-    const auto &v2 = polygon.vertices[2];
-    const auto &v3 = polygon.vertices[3];
+    const auto &v1 = polygon.vertices[0];
+    const auto &v2 = polygon.vertices[1];
+    const auto &v3 = polygon.vertices[2];
     polygon.bk[0] = calc(v1, v2);
     polygon.bk[1] = calc(v2, v3);
     polygon.bk[2] = calc(v3, v1);
@@ -106,12 +106,12 @@ void Polymap::loaddata(tmapfile &mapfile)
     {
         this->polytype[i] = this->polys[i].polytype;
 
-        this->perp[i][1].x = this->polys[i].normals[1].x;
-        this->perp[i][1].y = this->polys[i].normals[1].y;
-        this->perp[i][2].x = this->polys[i].normals[2].x;
-        this->perp[i][2].y = this->polys[i].normals[2].y;
-        this->perp[i][3].x = this->polys[i].normals[3].x;
-        this->perp[i][3].y = this->polys[i].normals[3].y;
+        this->perp[i][1].x = this->polys[i].normals[0].x;
+        this->perp[i][1].y = this->polys[i].normals[0].y;
+        this->perp[i][2].x = this->polys[i].normals[1].x;
+        this->perp[i][2].y = this->polys[i].normals[1].y;
+        this->perp[i][3].x = this->polys[i].normals[2].x;
+        this->perp[i][3].y = this->polys[i].normals[2].y;
 
         this->bounciness[i] = vec2length(this->perp[i][3]); // gg
 
@@ -271,9 +271,9 @@ bool LineInPolyOpt(const tvector2 &a, const tvector2 &b, const tmappolygon &poly
         return false;
     };
 
-    const auto &v1 = poly.vertices[1];
-    const auto &v2 = poly.vertices[2];
-    const auto &v3 = poly.vertices[3];
+    const auto &v1 = poly.vertices[0];
+    const auto &v2 = poly.vertices[1];
+    const auto &v3 = poly.vertices[2];
     return calc(v1, v2, poly.bk[0]) or calc(v2, v3, poly.bk[1]) or calc(v3, v1, poly.bk[2]);
 }
 
@@ -285,10 +285,10 @@ bool Polymap::lineinpoly(const tvector2 &a, const tvector2 &b, const tmappolygon
 
     bool result = false;
 
-    for (i = 1; i <= 3; i++)
+    for (i = 0; i <= 2; i++)
     {
-        if (i == 3)
-            j = 1;
+        if (i == 2)
+            j = 0;
         else
             j = i + 1;
 
@@ -357,24 +357,26 @@ bool Polymap::pointinpolyedges(float x, float y, std::int32_t i)
 
     bool pointinpolyedges_result = false;
 
-    u.x = x - polys[i].vertices[1].x;
-    u.y = y - polys[i].vertices[1].y;
+    auto &polygon = polys[i];
+
+    u.x = x - polygon.vertices[0].x;
+    u.y = y - polygon.vertices[0].y;
     d = perp[i][1].x * u.x + perp[i][1].y * u.y;
     if (d < 0)
     {
         return pointinpolyedges_result;
     }
 
-    u.x = x - polys[i].vertices[2].x;
-    u.y = y - polys[i].vertices[2].y;
+    u.x = x - polygon.vertices[1].x;
+    u.y = y - polygon.vertices[1].y;
     d = perp[i][2].x * u.x + perp[i][2].y * u.y;
     if (d < 0)
     {
         return pointinpolyedges_result;
     }
 
-    u.x = x - polys[i].vertices[3].x;
-    u.y = y - polys[i].vertices[3].y;
+    u.x = x - polygon.vertices[2].x;
+    u.y = y - polygon.vertices[2].y;
     d = perp[i][3].x * u.x + perp[i][3].y * u.y;
     if (d < 0)
     {
@@ -405,9 +407,9 @@ bool Polymap::pointinpoly(const tvector2 &p, const tmappolygon &poly)
       inside iff it's to the same side (left or right) to each of the lines AB,
       BC and CA.
     */
-    const tmapvertex &a = poly.vertices[1];
-    const tmapvertex &b = poly.vertices[2];
-    const tmapvertex &c = poly.vertices[3];
+    const tmapvertex &a = poly.vertices[0];
+    const tmapvertex &b = poly.vertices[1];
+    const tmapvertex &c = poly.vertices[2];
 
     float ap_x = p.x - a.x;
     float ap_y = p.y - a.y;
@@ -428,7 +430,8 @@ bool Polymap::pointinpoly(const tvector2 &p, const tmappolygon &poly)
     return true;
 }
 
-tvector2 Polymap::closestperpendicular(std::int32_t j, tvector2 pos, float &d, std::int32_t &n)
+tvector2 Polymap::closestperpendicular(std::int32_t j, const tvector2 &pos, float &d,
+                                       std::int32_t &n)
 {
     std::array<float, 3> px, py;
     tvector2 p1, p2;
@@ -436,14 +439,15 @@ tvector2 Polymap::closestperpendicular(std::int32_t j, tvector2 pos, float &d, s
     std::int32_t edgev1, edgev2;
 
     tvector2 result;
-    px[0] = polys[j].vertices[1].x;
-    py[0] = polys[j].vertices[1].y;
+    auto &polygon = polys[j];
+    px[0] = polygon.vertices[0].x;
+    py[0] = polygon.vertices[0].y;
 
-    px[1] = polys[j].vertices[2].x;
-    py[1] = polys[j].vertices[2].y;
+    px[1] = polygon.vertices[1].x;
+    py[1] = polygon.vertices[1].y;
 
-    px[2] = polys[j].vertices[3].x;
-    py[2] = polys[j].vertices[3].y;
+    px[2] = polygon.vertices[2].x;
+    py[2] = polygon.vertices[2].y;
 
     // find closest edge
     p1.x = px[0];
@@ -515,22 +519,22 @@ bool has(const T &arr, const K &value)
 
 bool Polymap::collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag)
 {
+    ZoneScopedN("CollisionTest");
     std::array<std::int32_t, 9> excluded1 = {1, 2, 3, 11, 13, 15, 17, 24, 25};
     std::array<std::int32_t, 3> excluded2 = {21, 22, 23};
-    std::int32_t j, w;
     std::int32_t b = 0;
     float d = 0.0f;
     std::int32_t kx, ky;
 
-    bool collisiontest_result = false;
     kx = round((pos.x) / sectorsdivision);
     ky = round((pos.y) / sectorsdivision);
 
     if ((kx > -sectorsnum) && (kx < sectorsnum) && (ky > -sectorsnum) && (ky < sectorsnum))
     {
-        for (j = 1; j < sectors[kx][ky].polys.size(); j++)
+        auto &polygons = sectors[kx][ky].polys;
+        for (auto j = 1U; j < polygons.size(); j++)
         {
-            w = sectors[kx][ky].polys[j];
+            auto w = polygons[j];
 
             if (!(has(excluded1, polytype[w])) && (isflag || !(has(excluded2, polytype[w]))))
             {
@@ -538,13 +542,12 @@ bool Polymap::collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag)
                 {
                     perpvec = closestperpendicular(w, pos, d, b);
                     vec2scale(perpvec, perpvec, 1.5 * d);
-                    collisiontest_result = true;
-                    break;
+                    return true;
                 }
             }
         }
     }
-    return collisiontest_result;
+    return false;
 }
 
 bool Polymap::collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::int32_t c)
@@ -677,9 +680,9 @@ bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
             {
                 ZoneScopedN("CheckPolygon");
                 auto const &w = polygons[p];
-                if (ShouldTestPolygonWithRay(polytype[w], npcol, nbcol, flag, team))
+                auto &polygon = polys[w];
+                if (ShouldTestPolygonWithRay(polygon.polytype, npcol, nbcol, flag, team))
                 {
-                    auto &polygon = polys[w];
                     if (pointinpoly(a, polygon))
                     {
                         distance = 0.f;
@@ -687,8 +690,7 @@ bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
                     }
                     if (LineInPolyOpt(a, b, polygon, d, ak))
                     {
-                        tvector2 c = vec2subtract(d, a);
-                        distance = vec2length(c);
+                        distance = vec2length(vec2subtract(d, a));
                         return true;
                     }
                 }

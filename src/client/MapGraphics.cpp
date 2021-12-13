@@ -4,10 +4,10 @@
 #include "Client.hpp"
 #include "ClientGame.hpp"
 #include "GameRendering.hpp"
-#include "shared/Cvar.hpp"
-#include "shared/Game.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/Cvar.hpp"
+#include "shared/Game.hpp"
 #include <array>
 #include <cmath>
 #include <physfs.h>
@@ -130,9 +130,9 @@ float gettexturetargetscale(tmapfile &mapfile, tgfximage *image)
 
     for (i = low(mapfile.polygons); i <= high(mapfile.polygons); i++)
     {
-        a = mapfile.polygons[i].vertices[1];
-        b = mapfile.polygons[i].vertices[2];
-        c = mapfile.polygons[i].vertices[3];
+        a = mapfile.polygons[i].vertices[0];
+        b = mapfile.polygons[i].vertices[1];
+        c = mapfile.polygons[i].vertices[2];
 
         alpha = a.color[3] | b.color[3] | c.color[3];
         area = 0.5 * fabs((a.x - c.x) * (b.y - a.y) - (a.x - b.x) * (c.y - a.y));
@@ -420,9 +420,9 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
 
         for (i = low(mapfile.polygons); i <= high(mapfile.polygons); i++)
         {
-            j = 3;
+            j = 2;
 
-            for (k = 1; k <= 3; k++)
+            for (k = 0; k < 3; k++)
             {
                 edge.a = &mapfile.polygons[i].vertices[k];
                 edge.b = &mapfile.polygons[i].vertices[j];
@@ -681,7 +681,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
                     cmd->count = 0;
                 }
 
-                for (j = 1; j <= 3; j++)
+                for (j = 0; j < 3; j++)
                 {
                     vb[vbindex].x = poly->vertices[j].x;
                     vb[vbindex].y = poly->vertices[j].y;
@@ -705,15 +705,15 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
 
     if (length(mapfile.polygons) > 0)
     {
-        bounds.left = mapfile.polygons[0].vertices[1].x;
-        bounds.right = mapfile.polygons[0].vertices[1].x;
-        bounds.top = mapfile.polygons[0].vertices[1].y;
-        bounds.bottom = mapfile.polygons[0].vertices[1].y;
+        bounds.left = mapfile.polygons[0].vertices[0].x;
+        bounds.right = mapfile.polygons[0].vertices[0].x;
+        bounds.top = mapfile.polygons[0].vertices[0].y;
+        bounds.bottom = mapfile.polygons[0].vertices[0].y;
     }
 
     for (i = low(mapfile.polygons); i <= high(mapfile.polygons); i++)
     {
-        for (j = 1; j <= 3; j++)
+        for (j = 0; j < 3; j++)
         {
             bounds.left = min(mapfile.polygons[i].vertices[j].x, bounds.left);
             bounds.right = max(mapfile.polygons[i].vertices[j].x, bounds.right);

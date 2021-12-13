@@ -247,12 +247,12 @@ bool loadmapfile(const tmapinfo &mapinfo, tmapfile &map)
     for (i = 0; i <= n - 1; i++)
     {
         map.polygons.push_back(tmappolygon());
+        map.polygons[i].vertices[0] = readvertex(bf);
         map.polygons[i].vertices[1] = readvertex(bf);
         map.polygons[i].vertices[2] = readvertex(bf);
-        map.polygons[i].vertices[3] = readvertex(bf);
+        map.polygons[i].normals[0] = readvec3(bf);
         map.polygons[i].normals[1] = readvec3(bf);
         map.polygons[i].normals[2] = readvec3(bf);
-        map.polygons[i].normals[3] = readvec3(bf);
         map.polygons[i].polytype = readuint8(bf);
         map.polygons[i].textureindex = 0;
     }

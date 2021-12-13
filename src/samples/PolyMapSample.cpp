@@ -1,9 +1,9 @@
 #include "common/Logging.hpp"
 #include "common/MapFile.hpp"
 #include "common/PhysFSExt.hpp"
+#include "common/PolyMap.hpp"
 #include "common/Util.hpp"
 #include "common/Vector.hpp"
-#include "shared/PolyMap.hpp"
 #include <SDL.h>
 #include <Tracy.hpp>
 #include <chrono>
@@ -15,9 +15,9 @@ SDL_Renderer *renderer = nullptr;
 
 void DrawTriangle(const tmappolygon &triangle, const tvector2 &offset)
 {
-    auto &v1 = triangle.vertices[1];
-    auto &v2 = triangle.vertices[2];
-    auto &v3 = triangle.vertices[3];
+    auto &v1 = triangle.vertices[0];
+    auto &v2 = triangle.vertices[1];
+    auto &v3 = triangle.vertices[2];
 
     SDL_RenderDrawLineF(renderer, v1.x + offset.x, v1.y + offset.y, v2.x + offset.x,
                         v2.y + offset.y);
