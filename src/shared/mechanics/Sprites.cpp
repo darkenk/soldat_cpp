@@ -2408,24 +2408,24 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
                             switch (b)
                             {
                             case 1: {
+                                p1.x = map.polys[w].vertices[0].x;
+                                p1.y = map.polys[w].vertices[0].y;
+                                p2.x = map.polys[w].vertices[1].x;
+                                p2.y = map.polys[w].vertices[1].y;
+                            }
+                            break;
+                            case 2: {
                                 p1.x = map.polys[w].vertices[1].x;
                                 p1.y = map.polys[w].vertices[1].y;
                                 p2.x = map.polys[w].vertices[2].x;
                                 p2.y = map.polys[w].vertices[2].y;
                             }
                             break;
-                            case 2: {
+                            case 3: {
                                 p1.x = map.polys[w].vertices[2].x;
                                 p1.y = map.polys[w].vertices[2].y;
-                                p2.x = map.polys[w].vertices[3].x;
-                                p2.y = map.polys[w].vertices[3].y;
-                            }
-                            break;
-                            case 3: {
-                                p1.x = map.polys[w].vertices[3].x;
-                                p1.y = map.polys[w].vertices[3].y;
-                                p2.x = map.polys[w].vertices[1].x;
-                                p2.y = map.polys[w].vertices[1].y;
+                                p2.x = map.polys[w].vertices[0].x;
+                                p2.y = map.polys[w].vertices[0].y;
                             }
                             break;
                             }
@@ -2762,7 +2762,7 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
                 ((holdedthing != 0) && (polytype == poly_type_only_flaggers)) ||
                 ((holdedthing == 0) && (polytype == poly_type_not_flaggers)))
             {
-                for (i = 1; i <= 3; i++)
+                for (i = 0; i < 3; i++)
                 {
                     vert.x = map.polys[w].vertices[i].x;
                     vert.y = map.polys[w].vertices[i].y;
