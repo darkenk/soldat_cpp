@@ -1137,15 +1137,14 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
 
         for (const auto &w : sector.GetPolys())
         {
-            teamcol = teamcollides(w, sprite[owner].player->team, true);
+            const auto &polytype = w.Type;
+            teamcol = teamcollides(polytype, sprite[owner].player->team, true);
             if (teamcol)
-                if ((map.polytype[w] != poly_type_only_player) &&
-                    (map.polytype[w] != poly_type_doesnt) &&
-                    (map.polytype[w] != poly_type_only_flaggers) &&
-                    (map.polytype[w] != poly_type_not_flaggers) &&
-                    (map.polytype[w] != poly_type_background) &&
-                    (map.polytype[w] != poly_type_background_transition))
-                    if (map.pointinpolyedges(pos.x, pos.y, w))
+                if ((polytype != poly_type_only_player) && (polytype != poly_type_doesnt) &&
+                    (polytype != poly_type_only_flaggers) && (polytype != poly_type_not_flaggers) &&
+                    (polytype != poly_type_background) &&
+                    (polytype != poly_type_background_transition))
+                    if (map.pointinpolyedges(pos.x, pos.y, w.Index))
                     {
                         switch (style)
                         {
@@ -1165,8 +1164,8 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                             if (d > 50.0)
                             {
                                 ricochetcount += 1;
-                                perp =
-                                    map.closestperpendicular(w, bulletparts.pos[num], d, tempint);
+                                perp = map.closestperpendicular(w.Index, bulletparts.pos[num], d,
+                                                                tempint);
                                 d = vec2length(bulletparts.velocity[num]);
                                 vec2normalize(perp, perp);
                                 vec2scale(perp, perp, -d);
@@ -1190,15 +1189,16 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                                 {
                                     for (const auto &w2 : sector.GetPolys())
                                     {
-                                        if ((map.polytype[w2] != poly_type_only_player) &&
-                                            (map.polytype[w2] != poly_type_doesnt) &&
-                                            (map.polytype[w2] != poly_type_only_flaggers) &&
-                                            (map.polytype[w2] != poly_type_not_flaggers) &&
-                                            (map.polytype[w2] != poly_type_background) &&
-                                            (map.polytype[w2] !=
-                                             poly_type_background_transition) and
-                                            teamcollides(w2, sprite[owner].player->team, true))
-                                            if (map.pointinpolyedges(pos.x, pos.y, w2))
+                                        const auto &polytype = w2.Type;
+                                        if ((polytype != poly_type_only_player) &&
+                                            (polytype != poly_type_doesnt) &&
+                                            (polytype != poly_type_only_flaggers) &&
+                                            (polytype != poly_type_not_flaggers) &&
+                                            (polytype != poly_type_background) &&
+                                            (polytype != poly_type_background_transition) and
+                                            teamcollides(polytype, sprite[owner].player->team,
+                                                         true))
+                                            if (map.pointinpolyedges(pos.x, pos.y, w2.Index))
                                             {
                                                 kill();
                                                 break;
@@ -1251,7 +1251,8 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                                     playsound(sfx_grenade_bounce, spriteparts.pos[num]);
 #endif
 
-                            perp = map.closestperpendicular(w, bulletparts.pos[num], d, tempint);
+                            perp =
+                                map.closestperpendicular(w.Index, bulletparts.pos[num], d, tempint);
 
                             vec2normalize(perp, perp);
                             vec2scale(perp, perp, d);
@@ -1282,8 +1283,8 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                             if (d > 50.0)
                             {
                                 ricochetcount += 1;
-                                perp =
-                                    map.closestperpendicular(w, bulletparts.pos[num], d, tempint);
+                                perp = map.closestperpendicular(w.Index, bulletparts.pos[num], d,
+                                                                tempint);
                                 d = vec2length(bulletparts.velocity[num]);
                                 vec2normalize(perp, perp);
                                 vec2scale(perp, perp, -d);
@@ -1307,15 +1308,16 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                                 {
                                     for (const auto &w2 : sector.GetPolys())
                                     {
-                                        if ((map.polytype[w2] != poly_type_only_player) &&
-                                            (map.polytype[w2] != poly_type_doesnt) &&
-                                            (map.polytype[w2] != poly_type_only_flaggers) &&
-                                            (map.polytype[w2] != poly_type_not_flaggers) &&
-                                            (map.polytype[w2] != poly_type_background) &&
-                                            (map.polytype[w2] !=
-                                             poly_type_background_transition) and
-                                            teamcollides(w2, sprite[owner].player->team, true))
-                                            if (map.pointinpolyedges(pos.x, pos.y, w2))
+                                        const auto &polytype = w2.Type;
+                                        if ((polytype != poly_type_only_player) &&
+                                            (polytype != poly_type_doesnt) &&
+                                            (polytype != poly_type_only_flaggers) &&
+                                            (polytype != poly_type_not_flaggers) &&
+                                            (polytype != poly_type_background) &&
+                                            (polytype != poly_type_background_transition) and
+                                            teamcollides(polytype, sprite[owner].player->team,
+                                                         true))
+                                            if (map.pointinpolyedges(pos.x, pos.y, w2.Index))
                                             {
                                                 kill();
                                                 break;

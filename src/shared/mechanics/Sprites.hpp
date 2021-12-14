@@ -4,6 +4,7 @@
 #include "../Constants.hpp"
 #include "../network/Net.hpp"
 #include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
 #include "common/Vector.hpp"
 #include "common/Weapons.hpp"
 #include <array>
@@ -91,7 +92,7 @@ class BackgroundState
     std::uint8_t backgroundstatus;
     std::int16_t backgroundpoly;
     bool backgroundtestresult;
-    bool backgroundtest(std::uint64_t poly);
+    bool backgroundtest(const PolyMapSector::Poly &poly);
     void backgroundtestbigpolycenter(const tvector2 &pos);
     std::int16_t backgroundfindcurrentpoly(const tvector2 &pos);
     void backgroundtestprepare();
@@ -231,7 +232,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
                           tplayer *player, bool transferownership);
 
 template <Config::Module M = Config::GetModule()>
-bool teamcollides(std::int32_t poly, std::int32_t team, bool bullet);
+bool teamcollides(const PolygonType poly, const std::int32_t team, const bool bullet);
 
 #ifndef SERVER
 extern bool wasreloading;

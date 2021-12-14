@@ -8,32 +8,47 @@
 
 // Polygon constants go here
 // ...
-const std::int32_t poly_type_normal = 0;
-const std::int32_t poly_type_only_bullets = 1;
-const std::int32_t poly_type_only_player = 2;
-const std::int32_t poly_type_doesnt = 3;
-const std::int32_t poly_type_ice = 4;
-const std::int32_t poly_type_deadly = 5;
-const std::int32_t poly_type_bloody_deadly = 6;
-const std::int32_t poly_type_hurts = 7;
-const std::int32_t poly_type_regenerates = 8;
-const std::int32_t poly_type_lava = 9;
-const std::int32_t poly_type_red_bullets = 10;
-const std::int32_t poly_type_red_player = 11;
-const std::int32_t poly_type_blue_bullets = 12;
-const std::int32_t poly_type_blue_player = 13;
-const std::int32_t poly_type_yellow_bullets = 14;
-const std::int32_t poly_type_yellow_player = 15;
-const std::int32_t poly_type_green_bullets = 16;
-const std::int32_t poly_type_green_player = 17;
-const std::int32_t poly_type_bouncy = 18;
-const std::int32_t poly_type_explodes = 19;
-const std::int32_t poly_type_hurts_flaggers = 20;
-const std::int32_t poly_type_only_flaggers = 21;
-const std::int32_t poly_type_not_flaggers = 22;
-const std::int32_t poly_type_non_flagger_collides = 23;
-const std::int32_t poly_type_background = 24;
-const std::int32_t poly_type_background_transition = 25;
+
+enum PolygonType : std::uint16_t
+{
+poly_type_normal = 0,
+poly_type_only_bullets = 1,
+poly_type_only_player = 2,
+poly_type_doesnt = 3,
+poly_type_ice = 4,
+poly_type_deadly = 5,
+poly_type_bloody_deadly = 6,
+poly_type_hurts = 7,
+poly_type_regenerates = 8,
+poly_type_lava = 9,
+poly_type_red_bullets = 10,
+poly_type_red_player = 11,
+poly_type_blue_bullets = 12,
+poly_type_blue_player = 13,
+poly_type_yellow_bullets = 14,
+poly_type_yellow_player = 15,
+poly_type_green_bullets = 16,
+poly_type_green_player = 17,
+poly_type_bouncy = 18,
+poly_type_explodes = 19,
+poly_type_hurts_flaggers = 20,
+poly_type_only_flaggers = 21,
+poly_type_not_flaggers = 22,
+poly_type_non_flagger_collides = 23,
+poly_type_background = 24,
+poly_type_background_transition = 25
+};
+
+struct PolyMapSector
+{
+    struct Poly
+    {
+        std::uint16_t Index;
+        PolygonType Type;
+    };
+    using TPolys = std::vector<Poly>;
+    TPolys Polys;
+};
 
 // The poly will interact as an "only players collide" poly
 const std::int32_t background_normal = 0;
@@ -69,7 +84,6 @@ class Polymap
     std::int32_t collidercount;
     PascalArray<tmappolygon, 1, max_polys> polys;
     PascalArray<pmappolygon, 1, max_polys> backpolys;
-    PascalArray<std::uint8_t, 1, max_polys> polytype;
     PascalArray<PascalArray<tvector2, 1, 3>, 1, max_polys> perp;
     PascalArray<float, 1, max_polys> bounciness;
 
@@ -85,7 +99,7 @@ class Polymap
             return Polys != nullptr;
         }
 
-        inline const tmapsector::TPolys& GetPolys() const {
+        inline const PolyMapSector::TPolys& GetPolys() const {
             return *Polys;
         }
 
@@ -95,8 +109,8 @@ class Polymap
         }
 
       private:
-        Sector(tmapsector::TPolys* polys): Polys{polys} {};
-        tmapsector::TPolys* Polys;
+        Sector(PolyMapSector::TPolys* polys): Polys{polys} {};
+        PolyMapSector::TPolys* Polys;
 
         friend class Polymap;
     };
@@ -134,9 +148,6 @@ class Polymap
     bool RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
                  bool player = false, bool flag = false, bool bullet = true,
                  bool checkcollider = false, std::uint8_t team = 0);
-    bool RayCastOld(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
-                    bool player = false, bool flag = false, bool bullet = true,
-                    bool checkcollider = false, std::uint8_t team = 0);
 
     struct SectorCoord {
         std::int32_t x; std::int32_t y;
@@ -152,13 +163,13 @@ class Polymap
 
     SectorCoord GetSectorCoord(const tvector2& pos);
     SectorCoord GetSectorCoordUnsafe(const tvector2 &pos);
+    std::int32_t GetIndex(const SectorCoord& s);
 
     float PositionToSectorScale;
     float MapHalfSize;
 
     std::int32_t SectorsDivision;
-    PascalArray<PascalArray<tmapsector, min_sectorz, max_sectorz>, min_sectorz, max_sectorz>
-        sectors;
+    std::vector<PolyMapSector> Sectors;
 };
 
 using tpolymap = Polymap;

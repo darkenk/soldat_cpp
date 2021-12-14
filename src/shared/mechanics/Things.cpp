@@ -1430,27 +1430,27 @@ bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
 
             teamcol = true;
 
+            const auto &polytype = w.Type;
+
             if ((owner > 0) && (owner < max_sprites + 1))
             {
-                teamcol = teamcollides(w, sprite[owner].player->team, false);
+                teamcol = teamcollides(polytype, sprite[owner].player->team, false);
             }
 
-            if ((style < object_ussocom) && (map.polytype[w] > poly_type_lava) &&
-                (map.polytype[w] < poly_type_bouncy))
+            if ((style < object_ussocom) && (polytype > poly_type_lava) &&
+                (polytype < poly_type_bouncy))
                 teamcol = false;
 
-            if (teamcol && (map.polytype[w] != poly_type_only_bullets) &&
-                (map.polytype[w] != poly_type_only_player) &&
-                (map.polytype[w] != poly_type_doesnt) &&
-                (map.polytype[w] != poly_type_only_flaggers) &&
-                (map.polytype[w] != poly_type_not_flaggers))
+            if (teamcol && (polytype != poly_type_only_bullets) &&
+                (polytype != poly_type_only_player) && (polytype != poly_type_doesnt) &&
+                (polytype != poly_type_only_flaggers) && (polytype != poly_type_not_flaggers))
             {
-                if (map.pointinpolyedges(pos.x, pos.y, w))
+                if (map.pointinpolyedges(pos.x, pos.y, w.Index))
                 {
                     if (bgstate.backgroundtest(w))
                         continue;
 
-                    perp = map.closestperpendicular(w, pos, d, b);
+                    perp = map.closestperpendicular(w.Index, pos, d, b);
 
                     vec2normalize(perp, perp);
                     vec2scale(perp, perp, d);

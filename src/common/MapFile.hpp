@@ -44,7 +44,6 @@ struct tmappolygon
     std::uint8_t textureindex = 0;
 };
 
-typedef struct tmapsector *pmapsector;
 struct tmapsector
 {
     using TPolys = std::vector<std::uint16_t>;

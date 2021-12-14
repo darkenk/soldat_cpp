@@ -191,34 +191,30 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
 }
 
 template <Config::Module M>
-bool teamcollides(std::int32_t poly, std::int32_t team, bool bullet)
+bool teamcollides(PolygonType polytype, std::int32_t team, const bool bullet)
 {
     bool result;
     result = true;
     if (bullet)
     {
-        if ((map.polytype[poly] == poly_type_red_bullets) ||
-            (map.polytype[poly] == poly_type_red_player))
-            if ((team == team_alpha) && (map.polytype[poly] == poly_type_red_bullets))
+        if ((polytype == poly_type_red_bullets) || (polytype == poly_type_red_player))
+            if ((team == team_alpha) && (polytype == poly_type_red_bullets))
                 result = true;
             else
                 result = false;
-        else if ((map.polytype[poly] == poly_type_blue_bullets) ||
-                 (map.polytype[poly] == poly_type_blue_player))
-            if ((team == team_bravo) && (map.polytype[poly] == poly_type_yellow_bullets))
+        else if ((polytype == poly_type_blue_bullets) || (polytype == poly_type_blue_player))
+            if ((team == team_bravo) && (polytype == poly_type_yellow_bullets))
                 result = true;
             else
                 result = false;
-        else if ((map.polytype[poly] == poly_type_yellow_bullets) ||
-                 (map.polytype[poly] == poly_type_yellow_player))
-            if ((team == team_charlie) && (map.polytype[poly] == poly_type_yellow_bullets))
+        else if ((polytype == poly_type_yellow_bullets) || (polytype == poly_type_yellow_player))
+            if ((team == team_charlie) && (polytype == poly_type_yellow_bullets))
                 result = true;
             else
                 result = false;
-        else if ((map.polytype[poly] == poly_type_green_bullets) ||
-                 (map.polytype[poly] == poly_type_green_player))
+        else if ((polytype == poly_type_green_bullets) || (polytype == poly_type_green_player))
         {
-            if ((team == team_delta) && (map.polytype[poly] == poly_type_green_bullets))
+            if ((team == team_delta) && (polytype == poly_type_green_bullets))
                 result = true;
             else
                 result = false;
@@ -226,28 +222,25 @@ bool teamcollides(std::int32_t poly, std::int32_t team, bool bullet)
     }
     else
     {
-        if (((map.polytype[poly] == poly_type_red_bullets) && (team == team_alpha)) ||
-            (((map.polytype[poly] == poly_type_red_bullets) ||
-              (map.polytype[poly] == poly_type_red_player)) &&
+        if (((polytype == poly_type_red_bullets) && (team == team_alpha)) ||
+            (((polytype == poly_type_red_bullets) || (polytype == poly_type_red_player)) &&
              (team != team_alpha)))
             result = false;
-        else if (((map.polytype[poly] == poly_type_blue_bullets) && (team == team_bravo)) ||
-                 (((map.polytype[poly] == poly_type_blue_bullets) ||
-                   (map.polytype[poly] == poly_type_blue_player)) &&
+        else if (((polytype == poly_type_blue_bullets) && (team == team_bravo)) ||
+                 (((polytype == poly_type_blue_bullets) || (polytype == poly_type_blue_player)) &&
                   (team != team_bravo)))
             result = false;
-        else if (((map.polytype[poly] == poly_type_yellow_bullets) && (team == team_charlie)) ||
-                 (((map.polytype[poly] == poly_type_yellow_bullets) ||
-                   (map.polytype[poly] == poly_type_yellow_player)) &&
+        else if (((polytype == poly_type_yellow_bullets) && (team == team_charlie)) ||
+                 (((polytype == poly_type_yellow_bullets) ||
+                   (polytype == poly_type_yellow_player)) &&
                   (team != team_charlie)))
             result = false;
-        else if (((map.polytype[poly] == poly_type_green_bullets) && (team == team_delta)) ||
-                 (((map.polytype[poly] == poly_type_green_bullets) ||
-                   (map.polytype[poly] == poly_type_green_player)) &&
+        else if (((polytype == poly_type_green_bullets) && (team == team_delta)) ||
+                 (((polytype == poly_type_green_bullets) || (polytype == poly_type_green_player)) &&
                   (team != team_delta)))
             result = false;
     }
-    if (map.polytype[poly] == poly_type_non_flagger_collides)
+    if (polytype == poly_type_non_flagger_collides)
         result = false;
     return result;
 }
@@ -2342,7 +2335,7 @@ void Sprite<M>::moveskeleton(float x1, float y1, bool fromzero)
 template <Config::Module M>
 bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
 {
-    std::int32_t k, z, polytype;
+    std::int32_t k, z;
     std::int32_t b = 0;
     tvector2 spos, pos, perp, step;
     tvector2 norm;
@@ -2378,9 +2371,9 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
         {
             for (const auto &w : sector.GetPolys())
             {
-                polytype = map.polytype[w];
+                const auto polytype = w.Type;
 
-                teamcol = teamcollides(w, player->team, false);
+                teamcol = teamcollides(polytype, player->team, false);
 
                 if (((holdedthing == 0) && (polytype == poly_type_only_flaggers)) ||
                     ((holdedthing != 0) && (polytype == poly_type_not_flaggers)))
@@ -2390,12 +2383,12 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
                 {
                     for (k = 1; k <= 3; k++)
                     {
-                        norm = map.perp[w][k];
+                        norm = map.perp[w.Index][k];
                         vec2scale(norm, norm, -sprite_col_radius);
 
                         pos = vec2add(spos, norm);
 
-                        if (map.pointinpolyedges(pos.x, pos.y, w))
+                        if (map.pointinpolyedges(pos.x, pos.y, w.Index))
                         {
                             if (bgstate.backgroundtest(w))
                                 continue;
@@ -2403,29 +2396,31 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
                             if (!hascollided)
                                 handlespecialpolytypes(polytype, pos);
 
-                            perp = map.closestperpendicular(w, spos, d, b);
+                            perp = map.closestperpendicular(w.Index, spos, d, b);
+
+                            const auto &poly = map.polys[w.Index];
 
                             switch (b)
                             {
                             case 1: {
-                                p1.x = map.polys[w].vertices[0].x;
-                                p1.y = map.polys[w].vertices[0].y;
-                                p2.x = map.polys[w].vertices[1].x;
-                                p2.y = map.polys[w].vertices[1].y;
+                                p1.x = poly.vertices[0].x;
+                                p1.y = poly.vertices[0].y;
+                                p2.x = poly.vertices[1].x;
+                                p2.y = poly.vertices[1].y;
                             }
                             break;
                             case 2: {
-                                p1.x = map.polys[w].vertices[1].x;
-                                p1.y = map.polys[w].vertices[1].y;
-                                p2.x = map.polys[w].vertices[2].x;
-                                p2.y = map.polys[w].vertices[2].y;
+                                p1.x = poly.vertices[1].x;
+                                p1.y = poly.vertices[1].y;
+                                p2.x = poly.vertices[2].x;
+                                p2.y = poly.vertices[2].y;
                             }
                             break;
                             case 3: {
-                                p1.x = map.polys[w].vertices[2].x;
-                                p1.y = map.polys[w].vertices[2].y;
-                                p2.x = map.polys[w].vertices[0].x;
-                                p2.y = map.polys[w].vertices[0].y;
+                                p1.x = poly.vertices[2].x;
+                                p1.y = poly.vertices[2].y;
+                                p2.x = poly.vertices[0].x;
+                                p2.y = poly.vertices[0].y;
                             }
                             break;
                             }
@@ -2452,7 +2447,7 @@ template <Config::Module M>
 bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 {
     ZoneScopedN("CheckMapCollision");
-    std::int32_t j, w, polytype;
+    std::int32_t j, w;
     std::int32_t k = 0;
     tvector2 spos, pos, perp, step;
     float d = 0.0;
@@ -2478,9 +2473,9 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 
         for (const auto &w : sector.GetPolys())
         {
-            polytype = map.polytype[w];
+            const auto &polytype = w.Type;
 
-            teamcol = teamcollides(w, player->team, false);
+            teamcol = teamcollides(polytype, player->team, false);
 
             if (((polytype != poly_type_doesnt) && (polytype != poly_type_only_bullets) &&
                  teamcol && (polytype != poly_type_only_flaggers) &&
@@ -2488,7 +2483,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                 ((holdedthing != 0) && (polytype == poly_type_only_flaggers)) ||
                 ((holdedthing == 0) && (polytype == poly_type_not_flaggers)))
             {
-                if (map.pointinpoly(pos, map.polys[w]))
+                if (map.pointinpoly(pos, map.polys[w.Index]))
                 {
                     if (bgstate.backgroundtest(w))
                         continue;
@@ -2586,7 +2581,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                     }
 #endif
 
-                    perp = map.closestperpendicular(w, pos, d, k);
+                    perp = map.closestperpendicular(w.Index, pos, d, k);
                     step = perp;
 
                     vec2normalize(perp, perp);
@@ -2609,7 +2604,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                         if (polytype == poly_type_bouncy) // bouncy polygon
                         {
                             vec2normalize(perp, perp);
-                            vec2scale(perp, perp, map.bounciness[w] * d);
+                            vec2scale(perp, perp, map.bounciness[w.Index] * d);
 #ifndef SERVER
                             if (vec2length(perp) > 1)
                             {
@@ -2732,7 +2727,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 template <Config::Module M>
 bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascollided)
 {
-    std::int32_t i, polytype;
+    std::int32_t i;
     tvector2 pos, dir, vert;
     float d;
     bool teamcol;
@@ -2752,9 +2747,9 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
     {
         for (const auto &w : sector.GetPolys())
         {
-            polytype = map.polytype[w];
+            const auto &polytype = w.Type;
 
-            teamcol = teamcollides(w, player->team, false);
+            teamcol = teamcollides(polytype, player->team, false);
 
             if (((polytype != poly_type_doesnt) && (polytype != poly_type_only_bullets) &&
                  teamcol && (polytype != poly_type_only_flaggers) &&
@@ -2764,8 +2759,8 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
             {
                 for (i = 0; i < 3; i++)
                 {
-                    vert.x = map.polys[w].vertices[i].x;
-                    vert.y = map.polys[w].vertices[i].y;
+                    vert.x = map.polys[w.Index].vertices[i].x;
+                    vert.y = map.polys[w.Index].vertices[i].y;
                     d = distance(vert, pos);
                     if (d < r) // collision
                     {
@@ -2818,21 +2813,21 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
 
         for (const auto &w : sector.GetPolys())
         {
-            teamcol = teamcollides(w, player->team, false);
+            const auto &polytype = w.Type;
+            teamcol = teamcollides(polytype, player->team, false);
 
-            if (((map.polytype[w] != poly_type_doesnt) &&
-                 (map.polytype[w] != poly_type_only_bullets) && teamcol &&
-                 (map.polytype[w] != poly_type_only_flaggers) &&
-                 (map.polytype[w] != poly_type_not_flaggers)) ||
-                ((holdedthing != 0) && (map.polytype[w] == poly_type_only_flaggers)) ||
-                ((holdedthing == 0) && (map.polytype[w] == poly_type_not_flaggers)))
+            if (((polytype != poly_type_doesnt) && (polytype != poly_type_only_bullets) &&
+                 teamcol && (polytype != poly_type_only_flaggers) &&
+                 (polytype != poly_type_not_flaggers)) ||
+                ((holdedthing != 0) && (polytype == poly_type_only_flaggers)) ||
+                ((holdedthing == 0) && (polytype == poly_type_not_flaggers)))
             {
-                if (map.pointinpolyedges(pos.x, pos.y, w))
+                if (map.pointinpolyedges(pos.x, pos.y, w.Index))
                 {
                     if (bgstate.backgroundtest(w))
                         continue;
 
-                    perp = map.closestperpendicular(w, pos, d, b);
+                    perp = map.closestperpendicular(w.Index, pos, d, b);
 
                     vec2normalize(perp, perp);
                     vec2scale(perp, perp, d);
@@ -2872,16 +2867,15 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
 
             for (const auto &w : sector.GetPolys())
             {
-
-                if ((map.polytype[w] != poly_type_doesnt) &&
-                    (map.polytype[w] != poly_type_only_bullets))
+                const auto &polytype = w.Type;
+                if ((polytype != poly_type_doesnt) && (polytype != poly_type_only_bullets))
                 {
-                    if (map.pointinpolyedges(pos.x, pos.y, w))
+                    if (map.pointinpolyedges(pos.x, pos.y, w.Index))
                     {
                         if (bgstate.backgroundtest(w))
                             continue;
 
-                        perp = map.closestperpendicular(w, pos, d, b);
+                        perp = map.closestperpendicular(w.Index, pos, d, b);
 
                         vec2normalize(perp, perp);
                         vec2scale(perp, perp, d);
@@ -3008,19 +3002,17 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 }
 
 template <Config::Module M>
-bool BackgroundState<M>::backgroundtest(std::uint64_t poly)
+bool BackgroundState<M>::backgroundtest(const PolyMapSector::Poly &poly)
 {
-    std::uint8_t polytype;
-
     bool result;
     result = false;
 
-    polytype = map.polytype[poly];
+    const auto &polytype = poly.Type;
 
     if ((polytype == poly_type_background) && (backgroundstatus == background_transition))
     {
         backgroundtestresult = true;
-        backgroundpoly = poly;
+        backgroundpoly = poly.Index;
         backgroundstatus = background_transition;
 
         result = true;

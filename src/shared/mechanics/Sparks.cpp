@@ -551,18 +551,18 @@ bool tspark::checkmapcollision(float x, float y)
         if ((owner < 1) || (owner > 32))
             return result;
 
-        teamcol = teamcollides(w, sprite[owner].player->team, false);
+        const auto polytype = w.Type;
+
+        teamcol = teamcollides(polytype, sprite[owner].player->team, false);
 
         if (teamcol)
-            if (!((map.polytype[w] == poly_type_bouncy) && (sprite[owner].holdedthing == 0)))
-                if ((map.polytype[w] != poly_type_only_bullets) &&
-                    (map.polytype[w] != poly_type_only_player) &&
-                    (map.polytype[w] != poly_type_doesnt) &&
-                    (map.polytype[w] != poly_type_background) &&
-                    (map.polytype[w] != poly_type_background_transition))
-                    if (map.pointinpolyedges(pos.x, pos.y, w))
+            if (!((polytype == poly_type_bouncy) && (sprite[owner].holdedthing == 0)))
+                if ((polytype != poly_type_only_bullets) && (polytype != poly_type_only_player) &&
+                    (polytype != poly_type_doesnt) && (polytype != poly_type_background) &&
+                    (polytype != poly_type_background_transition))
+                    if (map.pointinpolyedges(pos.x, pos.y, w.Index))
                     {
-                        perp = map.closestperpendicular(w, pos, d, b);
+                        perp = map.closestperpendicular(w.Index, pos, d, b);
 
                         vec2normalize(perp, perp);
                         vec2scale(perp, perp, d);

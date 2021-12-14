@@ -5,11 +5,46 @@
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 #include <Tracy.hpp>
+#include <map>
+
+namespace
+{
+PolygonType SerializePolygonType(const std::uint8_t polygonType)
+{
+    static const std::map<std::uint8_t, PolygonType> convert = {
+        {0, poly_type_normal},
+        {1, poly_type_only_bullets},
+        {2, poly_type_only_player},
+        {3, poly_type_doesnt},
+        {4, poly_type_ice},
+        {5, poly_type_deadly},
+        {6, poly_type_bloody_deadly},
+        {7, poly_type_hurts},
+        {8, poly_type_regenerates},
+        {9, poly_type_lava},
+        {10, poly_type_red_bullets},
+        {11, poly_type_red_player},
+        {12, poly_type_blue_bullets},
+        {13, poly_type_blue_player},
+        {14, poly_type_yellow_bullets},
+        {15, poly_type_yellow_player},
+        {16, poly_type_green_bullets},
+        {17, poly_type_green_player},
+        {18, poly_type_bouncy},
+        {19, poly_type_explodes},
+        {20, poly_type_hurts_flaggers},
+        {21, poly_type_only_flaggers},
+        {22, poly_type_not_flaggers},
+        {23, poly_type_non_flagger_collides},
+        {24, poly_type_background},
+        {25, poly_type_background_transition}};
+    Assert(convert.contains(polygonType));
+    return convert.at(polygonType);
+};
+} // namespace
 
 void Polymap::initialize()
 {
-    std::int32_t i, j;
-
     this->mapid = 0;
     this->name = "";
     this->filename = "";
@@ -27,21 +62,12 @@ void Polymap::initialize()
     auto idx = 1;
     std::memset(&this->polys[idx], 0, sizeof(this->polys));
     fillchar(&this->backpolys[idx], sizeof(this->backpolys), 0);
-    fillchar(&this->polytype[idx], sizeof(this->polytype), 0);
     fillchar(&this->perp[idx][idx], sizeof(this->perp), 0);
     fillchar(&this->bounciness[idx], sizeof(this->bounciness), 0);
     fillchar(&this->spawnpoints[idx], sizeof(this->spawnpoints), 0);
     fillchar(&this->collider[idx], sizeof(this->collider), 0);
     fillchar(&this->flagspawn[idx], sizeof(this->flagspawn), 0);
 
-    for (i = this->sectors.StartIdx(); i < this->sectors.EndIdx(); i++)
-    {
-        for (j = this->sectors[i].StartIdx(); j < this->sectors[i].EndIdx(); j++)
-        {
-            NotImplemented(NITag::MAP);
-            this->sectors[i][j].Polys.clear();
-        }
-    }
     // BotPath (TWaypoints) defined in Game.pas
     fillchar(&botpath.waypoint[idx], sizeof(botpath.waypoint), 0);
 }
@@ -65,7 +91,7 @@ void Precompute(tmappolygon &polygon)
 
 void Polymap::loaddata(const tmapfile &mapfile)
 {
-    std::int32_t i, j, k;
+    std::int32_t i;
 
     this->mapid = mapfile.hash;
     this->sectorsnum = mapfile.sectorsnum;
@@ -104,8 +130,6 @@ void Polymap::loaddata(const tmapfile &mapfile)
 
     for (i = 1; i <= this->polycount; i++)
     {
-        this->polytype[i] = this->polys[i].polytype;
-
         this->perp[i][1].x = this->polys[i].normals[0].x;
         this->perp[i][1].y = this->polys[i].normals[0].y;
         this->perp[i][2].x = this->polys[i].normals[1].x;
@@ -119,8 +143,9 @@ void Polymap::loaddata(const tmapfile &mapfile)
         vec2normalize(this->perp[i][2], this->perp[i][2]);
         vec2normalize(this->perp[i][3], this->perp[i][3]);
 
-        if ((this->polytype[i] == poly_type_background) ||
-            (this->polytype[i] == poly_type_background_transition))
+        const auto polytype = SerializePolygonType(this->polys[i].polytype);
+
+        if ((polytype == poly_type_background) || (polytype == poly_type_background_transition))
         {
             this->backpolycount += 1;
             this->backpolys[this->backpolycount] = &this->polys[i];
@@ -129,20 +154,13 @@ void Polymap::loaddata(const tmapfile &mapfile)
         Precompute(this->polys[i]);
     }
 
-    k = 0;
-
-    for (i = -this->sectorsnum; i <= this->sectorsnum; i++)
+    Sectors.reserve(mapfile.sectors.size());
+    for (const auto &s : mapfile.sectors)
     {
-        for (j = -this->sectorsnum; j <= this->sectorsnum; j++)
+        auto &poly = Sectors.emplace_back().Polys;
+        for (const auto &p : s.Polys)
         {
-            if (length(mapfile.sectors[k].Polys) > 0)
-            {
-                sectors[i][j].Polys.resize(mapfile.sectors[k].Polys.size());
-                std::copy(std::begin(mapfile.sectors[k].Polys), std::end(mapfile.sectors[k].Polys),
-                          std::begin(sectors[i][j].Polys));
-            }
-
-            k += 1;
+            poly.push_back({p, SerializePolygonType(polys[p].polytype)});
         }
     }
 
@@ -542,11 +560,11 @@ bool Polymap::collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag)
     }
     for (const auto &w : sector.GetPolys())
     {
-        if (!(has(excluded1, polytype[w])) && (isflag || !(has(excluded2, polytype[w]))))
+        if (!(has(excluded1, w.Type)) && (isflag || !(has(excluded2, w.Type))))
         {
-            if (pointinpoly(pos, polys[w]))
+            if (pointinpoly(pos, polys[w.Index]))
             {
-                perpvec = closestperpendicular(w, pos, d, b);
+                perpvec = closestperpendicular(w.Index, pos, d, b);
                 vec2scale(perpvec, perpvec, 1.5 * d);
                 return true;
             }
@@ -570,11 +588,11 @@ bool Polymap::collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::i
     }
     for (const auto &w : sector.GetPolys())
     {
-        if ((w != c) && !(has(excluded, polytype[w])))
+        if ((w.Index != c) && !(has(excluded, w.Type)))
         {
-            if (pointinpoly(pos, polys[w]))
+            if (pointinpoly(pos, polys[w.Index]))
             {
-                perpvec = closestperpendicular(w, pos, d, b);
+                perpvec = closestperpendicular(w.Index, pos, d, b);
                 vec2scale(perpvec, perpvec, 1.5 * d);
                 collisiontestexcept_result = true;
                 break;
@@ -635,6 +653,11 @@ Polymap::SectorCoord Polymap::GetSectorCoordUnsafe(const tvector2 &pos)
     return {kx, ky};
 }
 
+std::int32_t Polymap::GetIndex(const SectorCoord &s)
+{
+    return (s.x + sectorsnum) * (2 * sectorsnum + 1) + (s.y + sectorsnum);
+}
+
 Polymap::SectorCoord Polymap::GetSectorCoord(const tvector2 &pos)
 {
     if ((pos.x >= MapHalfSize || pos.x <= -MapHalfSize) ||
@@ -659,7 +682,7 @@ Polymap::Sector Polymap::GetSector(const tvector2 &pos)
     {
         return Sector::CreateInvalid();
     }
-    return {&sectors[coord.x][coord.y].Polys};
+    return {&Sectors[GetIndex(coord)].Polys};
 }
 
 bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
@@ -679,7 +702,6 @@ bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
         return true;
     }
 
-#if 1
     const auto c1 = GetSectorCoordUnsafe(a);
     const auto c2 = GetSectorCoordUnsafe(b);
 
@@ -692,25 +714,27 @@ bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
     const auto ay = std::min(ky, zy);
     const auto bx = std::max(kx, zx);
     const auto by = std::max(ky, zy);
-#endif
 
     npcol = !player;
     nbcol = !bullet;
 
     float ak = std::numeric_limits<float>::max();
 
-    for (i = ax; i <= bx; i++)
+    const auto lineWidth = 2 * sectorsnum + 1;
+    const auto endx = (bx + sectorsnum) * lineWidth;
+    for (i = (ax + sectorsnum) * lineWidth; i <= endx; i += lineWidth)
     {
-        for (j = ay; j <= by; j++)
+        const auto jend = i + by + sectorsnum;
+        for (j = i + ay + sectorsnum; j <= jend; j++)
         {
             ZoneScopedN("CheckSector");
-            auto &polygons = sectors[i][j].Polys;
+            auto &polygons = Sectors[j].Polys;
             for (auto const &w : polygons)
             {
                 ZoneScopedN("CheckPolygon");
-                auto &polygon = polys[w];
-                if (ShouldTestPolygonWithRay(polygon.polytype, npcol, nbcol, flag, team))
+                if (ShouldTestPolygonWithRay(w.Type, npcol, nbcol, flag, team))
                 {
+                    auto &polygon = polys[w.Index];
                     if (pointinpoly(a, polygon))
                     {
                         distance = 0.f;
@@ -759,159 +783,12 @@ bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
     return raycast_result;
 }
 
-bool Polymap::RayCastOld(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
-                         bool player, bool flag, bool bullet, bool checkcollider, uint8_t team)
-{
-    ZoneScopedN("PolyMap::RayCast");
-    std::int32_t i, j, ax, ay, bx, by;
-    tvector2 c, d;
-    bool testcol;
-    bool npcol, nbcol;
-    float e, f, g, h, r;
-
-    bool raycast_result = false;
-    distance = vec2length(vec2subtract(a, b));
-    if (distance > maxdist)
-    {
-        distance = 9999999;
-        raycast_result = true;
-        return raycast_result;
-    }
-
-    ax = round((std::min(a.x, b.x)) / SectorsDivision);
-    ay = round((std::min(a.y, b.y)) / SectorsDivision);
-    bx = round((std::max(a.x, b.x)) / SectorsDivision);
-    by = round((std::max(a.y, b.y)) / SectorsDivision);
-
-    if ((ax > max_sectorz) || (bx < min_sectorz) || (ay > max_sectorz) || (by < min_sectorz))
-    {
-        return raycast_result;
-    }
-
-    ax = std::max(min_sectorz, ax);
-    ay = std::max(min_sectorz, ay);
-    bx = std::min(max_sectorz, bx);
-    by = std::min(max_sectorz, by);
-
-    npcol = !player;
-    nbcol = !bullet;
-
-    for (i = ax; i <= bx; i++)
-    {
-        for (j = ay; j <= by; j++)
-        {
-            ZoneScopedN("CheckSector");
-            for (const auto &w : sectors[i][j].Polys)
-            {
-                ZoneScopedN("CheckPolygon");
-                const auto &polygonType = polytype[w];
-
-                testcol = true;
-                if (polygonType == poly_type_normal)
-                {
-                }
-                else if (((polygonType == poly_type_only_bullets) && nbcol) ||
-                         ((polygonType == poly_type_only_player) && npcol) ||
-                         (polygonType == poly_type_doesnt) ||
-                         (polygonType == poly_type_background) ||
-                         (polygonType == poly_type_background_transition))
-                {
-                    testcol = false;
-                }
-                else if (((polygonType == poly_type_red_bullets) &&
-                          ((team != Constants::TEAM_ALPHA) || nbcol)) ||
-                         ((polygonType == poly_type_red_player) &&
-                          ((team != Constants::TEAM_ALPHA) || npcol)))
-                {
-                    testcol = false;
-                }
-                else if (((polygonType == poly_type_blue_bullets) &&
-                          ((team != Constants::TEAM_BRAVO) || nbcol)) ||
-                         ((polygonType == poly_type_blue_player) &&
-                          ((team != Constants::TEAM_BRAVO) || npcol)))
-                {
-                    testcol = false;
-                }
-                else if (((polygonType == poly_type_yellow_bullets) &&
-                          ((team != Constants::TEAM_CHARLIE) || nbcol)) ||
-                         ((polygonType == poly_type_yellow_player) &&
-                          ((team != Constants::TEAM_CHARLIE) || npcol)))
-                {
-                    testcol = false;
-                }
-                else if (((polygonType == poly_type_green_bullets) &&
-                          ((team != Constants::TEAM_DELTA) || nbcol)) ||
-                         ((polygonType == poly_type_green_player) &&
-                          ((team != Constants::TEAM_DELTA) || npcol)))
-                {
-                    testcol = false;
-                }
-                else if (((!flag || npcol) && (polygonType == poly_type_only_flaggers)) ||
-                         ((flag || npcol) && (polygonType == poly_type_not_flaggers)))
-                {
-                    testcol = false;
-                }
-                else if ((!flag || npcol || nbcol) &&
-                         (polygonType == poly_type_non_flagger_collides))
-                {
-                    testcol = false;
-                }
-
-                if (testcol)
-                {
-                    if (pointinpoly(a, polys[w]))
-                    {
-                        distance = 0;
-                        raycast_result = true;
-                        return raycast_result;
-                    }
-                    if (lineinpoly(a, b, polys[w], d))
-                    {
-                        c = vec2subtract(d, a);
-                        distance = vec2length(c);
-                        raycast_result = true;
-                        return raycast_result;
-                    }
-                }
-            }
-        }
-    }
-
-    if (checkcollider)
-    {
-        ZoneScopedN("CheckCollider");
-        // check if vector crosses any colliders
-        // |A*x + B*y + C| / Sqrt(A^2 + B^2) < r
-        e = a.y - b.y;
-        f = b.x - a.x;
-        g = a.x * b.y - a.y * b.x;
-        h = sqrt(e * e + f * f);
-        for (i = 1; i <= collidercount; i++)
-        {
-            if (collider[i].active)
-            {
-                if (std::abs(e * collider[i].x + f * collider[i].y + g) / h <= collider[i].radius)
-                {
-                    r = sqrdist(a.x, a.y, b.x, b.y) + collider[i].radius * collider[i].radius;
-                    if (sqrdist(a.x, a.y, collider[i].x, collider[i].y) <= r)
-                        if (sqrdist(b.x, b.y, collider[i].x, collider[i].y) <= r)
-                        {
-                            raycast_result = false;
-                            break;
-                        }
-                }
-            }
-        }
-    }
-    return raycast_result;
-}
-
 bool Polymap::raycast(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
                       bool player, bool flag, bool bullet, bool checkcollider, std::uint8_t team)
 {
 
     auto retOpt = RayCastOpt(a, b, distance, maxdist, player, flag, bullet, checkcollider, team);
-#if 1
+#if 0
     float dOld;
     auto retOld = RayCastOld(a, b, dOld, maxdist, player, flag, bullet, checkcollider, team);
     Assert(retOpt == retOld);
