@@ -79,18 +79,6 @@ class Polymap
     tloadmapgraphics loadgraphics;
 
   public:
-    struct SectorCoord {
-        std::int32_t x; std::int32_t y;
-        inline bool IsValid() const
-        {
-            return x != std::numeric_limits<std::int32_t>::max() && y != std::numeric_limits<std::int32_t>::max();
-        }
-        static inline SectorCoord CreateInvalid()
-        {
-            return {std::numeric_limits<std::int32_t>::max(), std::numeric_limits<std::int32_t>::max()};
-        }
-    };
-
     struct Sector {
         inline bool IsValid() const
         {
@@ -134,9 +122,6 @@ class Polymap
     static bool ShouldTestPolygonWithRay(const uint8_t polygonType, const bool npcol,
                                            const bool nbcol, const bool flag,
                                          const uint8_t team);
-
-    SectorCoord GetSectorCoord(const tvector2& pos);
-
     void SetSectorsDivision(std::int32_t sectorsdivision);
     std::int32_t GetSectorsDivision() { return SectorsDivision; }
 
@@ -152,6 +137,22 @@ class Polymap
     bool RayCastOld(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
                     bool player = false, bool flag = false, bool bullet = true,
                     bool checkcollider = false, std::uint8_t team = 0);
+
+    struct SectorCoord {
+        std::int32_t x; std::int32_t y;
+        inline bool IsValid() const
+        {
+            return x != std::numeric_limits<std::int32_t>::max() && y != std::numeric_limits<std::int32_t>::max();
+        }
+        static inline SectorCoord CreateInvalid()
+        {
+            return {std::numeric_limits<std::int32_t>::max(), std::numeric_limits<std::int32_t>::max()};
+        }
+    };
+
+    SectorCoord GetSectorCoord(const tvector2& pos);
+    SectorCoord GetSectorCoordUnsafe(const tvector2 &pos);
+
     float PositionToSectorScale;
     float MapHalfSize;
 

@@ -61,68 +61,38 @@ TEST(PolyMapTest, GetSectorCoordInitialTest)
 {
     twaypoints w;
     Polymap p{w};
-    p.sectorsnum = 25;
-    p.SetSectorsDivision(58);
+    tmapfile mapfile;
+    mapfile.sectorsnum = 2;
+    mapfile.sectorsdivision = 58;
+    auto amountOfSectors = std::pow(2 * mapfile.sectorsnum + 1, 2);
+    for (auto s = 0; s < amountOfSectors; s++)
+    {
+        mapfile.sectors.emplace_back().Polys.emplace_back(s);
+    }
+    p.loadmap(mapfile);
 
     {
-        auto coord = p.GetSectorCoord(tvector2(-100.f, 100.f));
-        EXPECT_EQ(-2, coord.x);
-        EXPECT_EQ(2, coord.y);
+        EXPECT_EQ(4, p.GetSector({-100.f, 100.f}).GetPolys()[0]);
     }
 
     {
-        auto coord = p.GetSectorCoord(tvector2(-58.f, 58.f));
-        EXPECT_EQ(-1, coord.x);
-        EXPECT_EQ(1, coord.y);
+        EXPECT_EQ(8, p.GetSector({-58.f, 58.f}).GetPolys()[0]);
     }
 
     {
-        auto coord = p.GetSectorCoord(tvector2(-28.f, 28.f));
-        EXPECT_EQ(0, coord.x);
-        EXPECT_EQ(0, coord.y);
+        EXPECT_EQ(12, p.GetSector({-28.f, 28.f}).GetPolys()[0]);
     }
 
     {
-        auto coord = p.GetSectorCoord(tvector2(-29.f, 29.f));
-        EXPECT_EQ(-1, coord.x);
-        EXPECT_EQ(1, coord.y);
+        EXPECT_EQ(8, p.GetSector({-29.f, 29.f}).GetPolys()[0]);
     }
 
     {
-        auto coord = p.GetSectorCoord(tvector2(-28.f - 58.f, 28.f + 58.f));
-        EXPECT_EQ(-1, coord.x);
-        EXPECT_EQ(1, coord.y);
+        EXPECT_EQ(8, p.GetSector({-28.f - 58.f, 28.f + 58.f}).GetPolys()[0]);
     }
 
     {
-        auto coord = p.GetSectorCoord(tvector2(-29.f - 58.f, 29.f + 58.f));
-        EXPECT_EQ(-2, coord.x);
-        EXPECT_EQ(2, coord.y);
-    }
-}
-
-TEST(PolyMapTest, GetSectorCoordReturnsInvalidValueIfSectorDoesNotMatch)
-{
-    twaypoints w;
-    Polymap p{w};
-    p.sectorsnum = 25;
-    p.SetSectorsDivision(58);
-
-    {
-        auto coord = p.GetSectorCoord(tvector2(58.0f * 25 + 29.0f, 0.0f));
-        EXPECT_EQ(false, coord.IsValid());
-    }
-
-    {
-        auto coord = p.GetSectorCoord(tvector2(58.0f * 25 + 28.0f, 0.0f));
-        EXPECT_EQ(true, coord.IsValid());
-        EXPECT_EQ(25, coord.x);
-    }
-
-    {
-        auto coord = p.GetSectorCoord(tvector2(58.0f * 25 + 28.5f, 0.0f));
-        EXPECT_EQ(true, coord.IsValid());
-        EXPECT_EQ(25, coord.x);
+        EXPECT_EQ(4, p.GetSector({-29.f - 58.f, 29.f + 58.f}).GetPolys()[0]);
     }
 }
 

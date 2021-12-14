@@ -8,12 +8,12 @@
 template <typename T, void (*FASSERT)(const T &)>
 struct SafeType
 {
-    SafeType()
+    constexpr SafeType()
     {
         FASSERT(Value);
     }
 
-    SafeType(const T value) : Value{value}
+    constexpr SafeType(const T value) : Value{value}
     {
         FASSERT(Value);
     }

@@ -13,11 +13,6 @@ static T sqr(T v)
     return v * v;
 }
 
-MyFloat vec2length(const tvector2 &v)
-{
-    return std::sqrt(sqr(v.x) + sqr(v.y));
-}
-
 MyFloat vec2length2(const tvector2 &v)
 {
     return sqr(v.x) + sqr(v.y);
@@ -26,16 +21,6 @@ MyFloat vec2length2(const tvector2 &v)
 MyFloat vec2dot(const tvector2 &v1, const tvector2 &v2)
 {
     return v1.x * v2.x + v1.y * v2.y;
-}
-
-tvector2 vec2add(const tvector2 &v1, const tvector2 &v2)
-{
-    return v1 + v2;
-}
-
-tvector2 vec2subtract(const tvector2 &v1, const tvector2 &v2)
-{
-    return v1 - v2;
 }
 
 pvector2 vec2scale(tvector2 &vout, const tvector2 &v, MyFloat s)
