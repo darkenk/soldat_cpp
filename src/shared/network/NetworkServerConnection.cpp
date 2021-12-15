@@ -6,8 +6,6 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../LogFile.hpp"
-#include "common/Logging.hpp"
-#include "common/gfx.hpp"
 #include "../mechanics/Sprites.hpp"
 #include "../mechanics/Things.hpp"
 #include "../misc/BitStream.hpp"
@@ -15,6 +13,8 @@
 #include "NetworkServerMessages.hpp"
 #include "NetworkServerThing.hpp"
 #include "NetworkUtils.hpp"
+#include "common/Logging.hpp"
+#include "common/gfx.hpp"
 
 //clang-format off
 #include "../misc/GlobalVariableStorage.cpp"
@@ -31,7 +31,7 @@ std::array<std::uint8_t, max_players> pingsendcount;
 #ifdef SERVER
 void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
 {
-    tplayer *player;
+    TServerPlayer *player;
     tmsg_requestgame *requestmsg;
     std::uint32_t state;
     std::int32_t banindex;
@@ -44,7 +44,7 @@ void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
         return;
 
     // Player := TPlayer(NetMessage^.m_pData);
-    player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+    player = reinterpret_cast<TServerPlayer *>(netmessage->m_nConnUserData);
     banindex = 0;
     banhw = false;
     banreason = "";
@@ -164,7 +164,7 @@ void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
 void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
 {
     pmsg_playerinfo playerinfomsg;
-    tplayer *player;
+    TServerPlayer *player;
     std::string fixedplayername, finalplayername;
     bool playernameunused;
     std::int32_t suffixlen;
@@ -178,7 +178,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
         return;
 
     playerinfomsg = pmsg_playerinfo(netmessage->m_pData);
-    player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+    player = reinterpret_cast<TServerPlayer *>(netmessage->m_nConnUserData);
     Assert(player->spritenum == 0);
 
 #ifdef ENABLE_FAE
@@ -572,7 +572,7 @@ void serversendplaylist(HSteamNetConnection peer)
 
 #ifdef SERVER
     GetServerNetwork()->senddata(&playerslist, sizeof(playerslist), peer,
-                           k_nSteamNetworkingSend_Reliable);
+                                 k_nSteamNetworkingSend_Reliable);
 #else
     demorecorder.saverecord(playerslist, sizeof(playerslist));
 #endif
@@ -658,9 +658,6 @@ void serversendunaccepted(HSteamNetConnection peer, std::uint8_t state, std::str
 void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
 {
     tmsg_newplayer newplayer;
-#ifdef SERVER
-    tplayer dstplayer;
-#endif
 
     newplayer.header.id = msgid_newplayer;
     newplayer.num = num;
@@ -705,7 +702,7 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
         {
             newplayer.adoptspriteid = num == player->spritenum;
             GetServerNetwork()->senddata(&newplayer, sizeof(newplayer), player->peer,
-                                   k_nSteamNetworkingSend_Reliable);
+                                         k_nSteamNetworkingSend_Reliable);
         }
     }
     else
@@ -733,7 +730,6 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
 void serverdisconnect()
 {
     tmsg_serverdisconnect servermsg;
-    tplayer dstplayer;
 
     servermsg.header.id = msgid_serverdisconnect;
 
@@ -741,7 +737,7 @@ void serverdisconnect()
     for (const auto &dstplayer : players)
     {
         GetServerNetwork()->senddata(&servermsg, sizeof(servermsg), dstplayer->peer,
-                               k_nSteamNetworkingSend_Reliable);
+                                     k_nSteamNetworkingSend_Reliable);
     }
 
     for (auto &s : sprite)
@@ -766,7 +762,7 @@ void serverplayerdisconnect(std::uint8_t num, std::uint8_t why)
     for (const auto &dstplayer : players)
     {
         GetServerNetwork()->senddata(&playermsg, sizeof(playermsg), dstplayer->peer,
-                               k_nSteamNetworkingSend_Reliable);
+                                     k_nSteamNetworkingSend_Reliable);
     }
 
     NotImplemented(NITag::OTHER, "No time functions");
@@ -794,7 +790,7 @@ void serverping(std::uint8_t tonum)
     pingmsg.pingnum = pingsendcount[tonum];
 
     GetServerNetwork()->senddata(&pingmsg, sizeof(pingmsg), sprite[tonum].player->peer,
-                           k_nSteamNetworkingSend_Reliable);
+                                 k_nSteamNetworkingSend_Reliable);
 }
 #endif
 
@@ -846,12 +842,13 @@ void serversynccvars(std::uint8_t tonum, HSteamNetConnection peer, bool fullsync
             if ((tonum == 0) || (i == tonum))
                 if ((sprite[i].active) & (sprite[i].player->controlmethod == human))
                     GetServerNetwork()->senddata(varsmsg, sizeof(tmsg_serversynccvars) + buffersize,
-                                           sprite[i].player->peer, k_nSteamNetworkingSend_Reliable);
+                                                 sprite[i].player->peer,
+                                                 k_nSteamNetworkingSend_Reliable);
     }
     else
     {
         GetServerNetwork()->senddata(varsmsg, sizeof(tmsg_serversynccvars) + buffersize, peer,
-                               k_nSteamNetworkingSend_Reliable);
+                                     k_nSteamNetworkingSend_Reliable);
     }
 #else
     demorecorder.saverecord(varsmsg, sizeof(varsmsg) + buffersize);
@@ -897,7 +894,7 @@ void servervars(std::uint8_t tonum)
 
 #ifdef SERVER
     GetServerNetwork()->senddata(&varsmsg, sizeof(varsmsg), sprite[tonum].player->peer,
-                           k_nSteamNetworkingSend_Reliable);
+                                 k_nSteamNetworkingSend_Reliable);
 #else
     demorecorder.saverecord(varsmsg, sizeof(varsmsg));
 #endif

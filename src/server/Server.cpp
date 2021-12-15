@@ -492,7 +492,7 @@ void ActivateServer(int argc, const char *argv[])
     // Initialize player dummy objects (cf. DummyPlayer definition for documentation)
     for (auto &s : sprite)
     {
-        s.player = new tplayer();
+        s.player = new TServerPlayer();
     }
 
     // Create Consoles
@@ -810,6 +810,7 @@ void ShutDown()
     LogDebugG("Freeing gamelog");
     delete gamelog;
     gamelog = nullptr;
+    commanddeinit();
 #if 0
     LogDebugG("Freeing killlog");
     delete killlog;
@@ -870,7 +871,7 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
 {
     tvector2 a, b;
     std::int32_t p;
-    tplayer *NewPlayer;
+    TServerPlayer *NewPlayer;
     std::string TempStr = "";
     LogDebugG("AddBotPlayer");
     std::int8_t Result = 0;
@@ -882,7 +883,7 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
         return Result;
     }
 
-    NewPlayer = new tplayer();
+    NewPlayer = new TServerPlayer();
     NewPlayer->team = team;
     NewPlayer->applyshirtcolorfromteam();
 
@@ -1529,4 +1530,10 @@ void RunServer(int argc, const char *argv[])
         }
         FrameMarkNamed("ServerFrame");
     }
+    ShutDown();
+}
+
+void ShutdownServer()
+{
+    progready = false;
 }

@@ -21,7 +21,7 @@
 // the bot object and free it when it is replaced.
 // Albeit this approach is very robust I"d prefer if we get rid of this and fix all .Active
 // checks (if any) later. Alternatively we could move a good bit if info from Player to Sprite.
-tplayer dummyplayer;
+TServerPlayer dummyplayer;
 
 std::int32_t servertickcounter;
 PascalArray<std::int32_t, 1, max_players> noclientupdatetime;
@@ -114,7 +114,7 @@ void tservernetwork::ProcessLoop()
 void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo)
 {
     std::array<char, 128> info;
-    tplayer *Player = nullptr;
+    TServerPlayer *Player = nullptr;
     TIPString TempIP;
 #ifdef DEVELOPMENT
     Debug("[NET] Received SteamNetConnectionStatusChangedCallback_t ",
@@ -137,7 +137,7 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
         // NOTE that this is not called for ordinary disconnects, where we use enet"s
         // disconnect_now, which does not generate additional events. Cleanup of Player is still
         // performed explicitly.
-        Player = reinterpret_cast<tplayer *>(pInfo->m_info.m_nUserData);
+        Player = reinterpret_cast<TServerPlayer *>(pInfo->m_info.m_nUserData);
 
         if (Player == nullptr)
         {
@@ -164,6 +164,7 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
         // call destructor; this releases any additional resources managed for the connection, such
         // as anti-cheat handles etc.
         players.erase(std::remove(players.begin(), players.end(), Player), players.end());
+        delete Player;
 
         NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
         break;
@@ -195,7 +196,7 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
     case k_ESteamNetworkingConnectionState_Connected: {
         // if pInfo->m_eOldState = k_ESteamNetworkingConnectionState_Connecting then
         {
-            Player = new tplayer();
+            Player = new TServerPlayer();
             Player->peer = pInfo->m_hConn;
             pInfo->m_info.m_addrRemote.ToString(TempIP.data(), 128, false);
             Player->ip = TempIP.data();
@@ -214,7 +215,7 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
 
 void tservernetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 {
-    tplayer *Player;
+    TServerPlayer *Player;
     pmsgheader PacketHeader;
     if (IncomingMsg->m_cbSize < sizeof(tmsgheader))
     {
@@ -226,7 +227,7 @@ void tservernetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
         return;
     }
 
-    Player = reinterpret_cast<tplayer *>(IncomingMsg->m_nConnUserData);
+    Player = reinterpret_cast<TServerPlayer *>(IncomingMsg->m_nConnUserData);
     PacketHeader = pmsgheader(IncomingMsg->m_pData);
 
     switch (PacketHeader->id)
@@ -316,6 +317,7 @@ void tservernetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 
 tservernetwork::~tservernetwork()
 {
+    tservernetwork::disconnect(true);
     if (FHost != k_HSteamNetConnection_Invalid)
     {
         NetworkingSockets->CloseListenSocket(FHost);
@@ -326,6 +328,7 @@ tservernetwork::~tservernetwork()
         NetworkingSockets->DestroyPollGroup(FPollGroup);
     }
 
+    std::for_each(std::begin(players), std::end(players), [](auto &v) { delete v; });
     players.clear();
 }
 

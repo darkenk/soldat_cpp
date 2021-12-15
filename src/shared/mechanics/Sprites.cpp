@@ -80,7 +80,11 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
             sprite[i].player = nullptr;
         }
     }
+#if SERVER
+    sprite[i].player = reinterpret_cast<TServerPlayer *>(player);
+#else
     sprite[i].player = player;
+#endif
     sprite[i].player->spritenum = i;
     sprite[i].isplayerobjectowner = transferownership;
 

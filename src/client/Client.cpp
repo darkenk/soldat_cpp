@@ -448,6 +448,10 @@ void startgame(int argc, const char *argv[])
         if (CVar::fs_basepath == "")
             basedirectory = basepathsdl;
     }
+    SDL_free(basepathsdl);
+    SDL_free(userpathsdl);
+    basepathsdl = nullptr;
+    userpathsdl = nullptr;
 
     LogDebugG("[FS] userdirectory: {}", userdirectory);
     LogDebugG("[FS] basedirectory: {}", basedirectory);
@@ -831,7 +835,7 @@ void shutdown()
 
     writelogfile(gamelog, consolelogfilename);
 
-    exit(0);
+    gamelooprun = false;
 }
 
 void startgameloop()
@@ -841,6 +845,10 @@ void startgameloop()
         auto begin = std::chrono::system_clock::now();
         GetNetwork()->processloop();
         gameinput();
+        if (!gamelooprun)
+        {
+            break;
+        }
         gameloop();
         auto end = std::chrono::system_clock::now();
         constexpr auto frameTime = std::chrono::seconds(1) / 60.f;

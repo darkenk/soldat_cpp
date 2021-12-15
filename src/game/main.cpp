@@ -14,5 +14,7 @@ int main(int argc, const char *argv[])
     SetThreadName(t1, "Server");
     SetCurrentThreadName("Client");
     startgame(argc, argv);
+    ShutdownServer();
+    t1.join();
     return 0;
 }

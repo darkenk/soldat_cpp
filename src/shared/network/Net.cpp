@@ -16,7 +16,7 @@
 #ifdef SERVER
 TPlayers players;
 
-void tplayer::applyshirtcolorfromteam()
+void TServerPlayer::applyshirtcolorfromteam()
 {
     if ((CVar::sv_teamcolors) and isteamgame())
     {
@@ -36,5 +36,9 @@ void tplayer::applyshirtcolorfromteam()
             break;
         }
     }
+}
+
+TServerPlayer::~TServerPlayer()
+{
 }
 #endif

@@ -149,7 +149,11 @@ class Sprite
     tgun weapon, secondaryweapon, tertiaryweapon;
     bool grenadecanthrow;
     tbotdata brain;
+#ifdef SERVER
+    TServerPlayer *player;
+#else
     tplayer *player;
+#endif
     bool isplayerobjectowner;
     bool typing;
     bool autoreloadwhencanfire;

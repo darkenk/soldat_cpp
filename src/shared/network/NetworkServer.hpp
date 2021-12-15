@@ -8,8 +8,6 @@
 // the bot object and free it when it is replaced.
 // Albeit this approach is very robust I'd prefer if we get rid of this and fix all .Active
 // checks (if any) later. Alternatively we could move a good bit if info from Player to Sprite.
-extern tplayer dummyplayer;
-
 extern std::int32_t servertickcounter;
 extern PascalArray<std::int32_t, 1, max_players> noclientupdatetime;
 extern PascalArray<std::int32_t, 1, max_players> messagesasecnum;

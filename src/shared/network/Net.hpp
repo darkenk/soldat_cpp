@@ -47,10 +47,15 @@ class tplayer
     std::uint8_t muted;
     std::uint8_t spritenum = 0; // 0 if no sprite exists yet
     bool demoplayer;
+};
 
-// server only below this line:
-// -----
+#pragma pack(pop)
+
+// Stores all network-generated TPlayer objects
 #ifdef SERVER
+class TServerPlayer : public tplayer
+{
+  public:
     std::string ip;
     std::int32_t port;
 
@@ -78,20 +83,12 @@ class tplayer
     std::uint8_t standingpolytype; // testing
     std::uint8_t knifewarnings;
 
-    ~tplayer()
-    {
-    }
+    ~TServerPlayer();
 
     void applyshirtcolorfromteam(); // TODO remove, see comment before Name
-#endif
 };
 
-using TPlayers = std::vector<tplayer *>;
-
-#pragma pack(pop)
-
-// Stores all network-generated TPlayer objects
-#ifdef SERVER
+using TPlayers = std::vector<TServerPlayer *>;
 extern TPlayers players;
 #endif
 

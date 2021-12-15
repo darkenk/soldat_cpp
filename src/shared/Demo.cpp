@@ -132,7 +132,11 @@ template <Config::Module M>
 std::int32_t tdemorecorder<M>::createdemoplayer()
 {
     std::int32_t p;
+#if SERVER
+    TServerPlayer player;
+#else
     tplayer player;
+#endif
     tvector2 a;
 
     std::int32_t createdemoplayer_result = -1;

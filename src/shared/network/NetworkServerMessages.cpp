@@ -5,8 +5,8 @@
 #include "../Command.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "common/Logging.hpp"
 #include "../misc/MemoryUtils.hpp"
+#include "common/Logging.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include <clocale>
 #include <cuchar>
@@ -49,7 +49,7 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
                             (((msgtype == msgtype_team) || (msgtype == msgtype_radio)) and
                              sprite[from].isinsameteam(sprite[i])))
                             GetServerNetwork()->senddata(pchatmessage, size, sprite[i].player->peer,
-                                                   k_nSteamNetworkingSend_Reliable);
+                                                         k_nSteamNetworkingSend_Reliable);
                 }
     }
     freemem(pchatmessage);
@@ -85,9 +85,9 @@ void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage)
 {
     std::string cs, cschat;
     std::uint8_t msgtype;
-    tplayer *player;
+    TServerPlayer *player;
 
-    player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+    player = reinterpret_cast<TServerPlayer *>(netmessage->m_nConnUserData);
 
     if (player->spritenum == 0)
         return;
@@ -181,7 +181,7 @@ void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8
         if (sprite[i].active && (sprite[i].player->controlmethod == human))
             if ((tonum == 0) || (i == tonum))
                 GetServerNetwork()->senddata(pchatmessage, size, sprite[i].player->peer,
-                                       k_nSteamNetworkingSend_Reliable);
+                                             k_nSteamNetworkingSend_Reliable);
 
     freemem(pchatmessage);
 }
