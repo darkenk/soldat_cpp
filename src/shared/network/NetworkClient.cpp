@@ -109,6 +109,8 @@ void tclientnetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
             clientrequestgame();
             break;
         }
+        default:
+            break;
         }
     }
     else

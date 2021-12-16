@@ -478,9 +478,9 @@ bool parseinput(const std::string &input, std::uint8_t sender)
     if (inputarray.size() != 2)
     {
 #ifdef SERVER
-        GetMainConsole().console("Cannot parse " + input, sender, debug_message_color);
+        GetMainConsole().console("Cannot parse " + input, debug_message_color, sender);
 #else
-        GetMainConsole().console("Cannot parse " + input, sender);
+        GetMainConsole().console("Cannot parse " + input, debug_message_color);
 #endif
         return false;
     }
@@ -502,9 +502,9 @@ bool parseinput(const std::string &input, std::uint8_t sender)
         return true;
     }
 #ifdef SERVER
-    GetMainConsole().console("Cannot set variable " + input, sender, debug_message_color);
+    GetMainConsole().console("Cannot set variable " + input, debug_message_color, sender);
 #else
-    GetMainConsole().console("Cannot set variable " + input, sender);
+    GetMainConsole().console("Cannot set variable " + input, debug_message_color);
 #endif
     return false;
 }

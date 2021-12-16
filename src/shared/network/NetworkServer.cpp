@@ -209,7 +209,10 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
             LogInfo(LOG_NET, "Connection  accepted {}", pInfo->m_info.m_szConnectionDescription);
             players.push_back(Player);
         }
+        break;
     }
+    default:
+        break;
     }
 }
 

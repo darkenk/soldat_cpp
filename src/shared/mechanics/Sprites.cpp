@@ -2451,7 +2451,6 @@ template <Config::Module M>
 bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 {
     ZoneScopedN("CheckMapCollision");
-    std::int32_t j, w;
     std::int32_t k = 0;
     tvector2 spos, pos, perp, step;
     float d = 0.0;
@@ -4674,13 +4673,13 @@ void Sprite<M>::throwgrenade()
             {
                 createbullet(a, b, tertiaryweapon.num, num, 255, guns[fraggrenade].hitmultiply,
                              true, false);
-                if
-#ifndef SERVER
-                    (((player->controlmethod == human) && (num == mysprite)) ||
+
+#ifdef SERVER
+                if (player->controlmethod == bot)
 #else
-                    (
+                if (((player->controlmethod == human) && (num == mysprite)) ||
+                    (player->controlmethod == bot))
 #endif
-                     (player->controlmethod == bot))
                     tertiaryweapon.ammocount -= 1;
 
 #ifndef SERVER
@@ -4719,11 +4718,10 @@ float Sprite<M>::getmoveacc()
     result = 0;
 
     // No moveacc for bots on harder difficulties
-    if ((player->controlmethod == bot)
-#ifndef SERVER
-    )
+#ifdef SERVER
+    if ((player->controlmethod == bot) && (CVar::bots_difficulty < 50))
 #else
-        && (CVar::bots_difficulty < 50))
+    if (player->controlmethod == bot)
 #endif
         moveacc = 0;
     else

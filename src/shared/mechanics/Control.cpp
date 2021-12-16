@@ -698,11 +698,11 @@ void controlsprite(tsprite &spritec)
         if ((spritec.bodyanimation.id == change.id) && (spritec.bodyanimation.currframe == 25) &&
             (spritec.bonusstyle != bonus_flamegod))
         {
-            if (
-#ifndef SERVER
-                (spritec.num == mysprite) ||
+#ifdef SERVER
+            if (spritec.player->controlmethod == bot)
+#else
+            if ((spritec.num == mysprite) || (spritec.player->controlmethod == bot))
 #endif
-                (spritec.player->controlmethod == bot))
             {
                 tempgun = spritec.weapon;
                 spritec.weapon = spritec.secondaryweapon;

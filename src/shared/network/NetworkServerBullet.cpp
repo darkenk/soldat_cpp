@@ -210,16 +210,28 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
         (style != bullet_style_thrownknife) && (style != bullet_style_m2))
     {
         if (sprite[p].weapon.ammo > 1)
+        {
             if ((maintickcounter - bullettime[p]) < ((sprite[p].lastweaponfire) * 0.85))
+            {
                 bulletwarningcount[p] += 1;
+            }
             else
+            {
                 bulletwarningcount[p] = 0;
+            }
+        }
 
         if (sprite[p].weapon.ammo == 1)
+        {
             if ((maintickcounter - bullettime[p]) < ((sprite[p].lastweaponreload) * 0.9))
+            {
                 bulletwarningcount[p] += 1;
+            }
             else
+            {
                 bulletwarningcount[p] = 0;
+            }
+        }
 
         if (bulletwarningcount[p] > 2)
             return;
