@@ -64,10 +64,11 @@ PascalArray<tspark, 1, max_sparks> spark; // spark game handling sprite
 namespace
 {
 // NUMBER27's TIMING ROUTINES
-std::uint64_t timeinmil, timeinmillast; // time in Milliseconds the computer has
+std::chrono::steady_clock::time_point timeinmil,
+    timeinmillast; // time in Milliseconds the computer has
 // been running
-std::uint64_t timepassed;          // Time in Milliseconds the program has been running
-std::int32_t seconds, secondslast; // Seconds the program has been running
+std::chrono::milliseconds timepassed;      // Time in Milliseconds the program has been running
+std::chrono::seconds seconds, secondslast; // Seconds the program has been running
 } // namespace
 
 using string = std::string;
@@ -76,16 +77,18 @@ using string = std::string;
 template <Config::Module M>
 void number27timing()
 {
+    using namespace std::literals;
     timeinmillast = timeinmil;
-    timeinmil = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    std::chrono::steady_clock::now().time_since_epoch())
-                    .count();
-    if (timeinmil - timeinmillast > 2000)
+    timeinmil = std::chrono::steady_clock::now();
+    if (timeinmil - timeinmillast > 2000ms)
+    {
         timeinmillast = timeinmil; // safety precaution
+    }
 
-    timepassed = timepassed + (timeinmil - timeinmillast);
+    timepassed = timepassed +
+                 std::chrono::duration_cast<std::chrono::milliseconds>(timeinmil - timeinmillast);
     secondslast = seconds;
-    seconds = trunc((float)(timepassed) / 1000);
+    seconds = std::chrono::duration_cast<std::chrono::seconds>(timepassed);
 
     if (seconds != secondslast)
     { // new Second
@@ -100,7 +103,7 @@ void number27timing()
 
     ticktimelast = ticktime;
 
-    ticktime = trunc(timepassed / ((float)(1000) / goalticks));
+    ticktime = timepassed / std::chrono::milliseconds((1000) / goalticks);
 }
 
 template <Config::Module M>

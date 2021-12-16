@@ -367,6 +367,8 @@ bool keydown(SDL_KeyboardEvent &keyevent)
                 case SDL_SCANCODE_3:
                     rmenustate[i] = '3';
                     break;
+                default:
+                    break;
                 }
 
                 if (i == 1)

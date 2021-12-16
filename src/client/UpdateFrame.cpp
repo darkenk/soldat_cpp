@@ -34,11 +34,6 @@ void update_frame()
     float displayratio;
     std::string screenfile;
 
-    NotImplemented(NITag::GAME);
-#if 0
-    checksynchronize;
-#endif
-
 #ifdef ENABLE_FAE
     faeontick;
 #endif
