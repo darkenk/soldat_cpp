@@ -47,20 +47,15 @@ void tclientnetwork::processloop()
         return;
     }
 
-    NumMsgs = NetworkingSockets->ReceiveMessagesOnConnection(FPeer, &IncomingMsg, 1);
-
-    if (NumMsgs == 0)
+    while ((NumMsgs = NetworkingSockets->ReceiveMessagesOnConnection(FPeer, &IncomingMsg, 1)) > 0)
     {
-        return;
+        handlemessages(IncomingMsg);
     }
-    else if (NumMsgs < 0)
+
+    if (NumMsgs < 0)
     {
         LogWarn(LOG_NET, "Failed to poll messages");
         return;
-    }
-    else
-    {
-        handlemessages(IncomingMsg);
     }
 }
 
