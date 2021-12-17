@@ -6,6 +6,7 @@
 #include "../Game.hpp"
 #include "../mechanics/Bullets.hpp"
 #include "NetworkUtils.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -76,14 +77,15 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
 
     // FIXME (falcon): Also serialize HitMultiply for CreateBullet()
     // on the other side, how the hell it works now? (because it does)
-    hm = sprite[bulletsnap->owner].weapon.hitmultiply;
+    hm = SpriteSystem::Get().GetSprite(bulletsnap->owner).weapon.hitmultiply;
     if (style == bullet_style_fragnade)
         hm = guns[fraggrenade].hitmultiply;
 
     i = createbullet(a, b, bulletsnap->weaponnum, bulletsnap->owner, 255, hm, false, true);
 
-    bullet[i].ownerpingtick = sprite[bulletsnap->owner].player->pingticks + pingticksadd;
-    pa = sprite[mysprite].player->pingticks + bullet[i].ownerpingtick;
+    bullet[i].ownerpingtick =
+        SpriteSystem::Get().GetSprite(bulletsnap->owner).player->pingticks + pingticksadd;
+    pa = SpriteSystem::Get().GetSprite(mysprite).player->pingticks + bullet[i].ownerpingtick;
     bullet[i].pingadd = pa;
     bullet[i].pingaddstart = pa;
     if (!bulletsnap->forced)
@@ -156,7 +158,7 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
             (style != bullet_style_cluster) && (style != bullet_style_thrownknife) &&
             (style != bullet_style_m2))
         {
-            sprite[bulletsnap->owner].fire();
+            SpriteSystem::Get().GetSprite(bulletsnap->owner).fire();
         }
     }
 

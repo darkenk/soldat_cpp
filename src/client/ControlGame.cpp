@@ -14,6 +14,7 @@
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/network/NetworkClientBullet.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientGame.hpp"
@@ -305,7 +306,8 @@ bool keydown(SDL_KeyboardEvent &keyevent)
                     i = strtoint(votetarget);
                     clientvotekick(i, true, "");
                     GetMainConsole().console(
-                        wideformat(_("You have voted to kick " + sprite[i].player->name)),
+                        wideformat(_("You have voted to kick " +
+                                     SpriteSystem::Get().GetSprite(i).player->name)),
                         vote_message_color);
                 }
             }
@@ -467,7 +469,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
     else if (action == taction::radio)
     {
         if ((chattext == "") && (CVar::sv_radio) && (mysprite > 0) and
-            (sprite[mysprite].isnotspectator)())
+            (SpriteSystem::Get().GetSprite(mysprite).isnotspectator)())
         {
             showradiomenu = !showradiomenu;
             rmenustate[0] = ' ';
@@ -561,7 +563,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
                 chattext = firechattext;
 
             // force spectator chat to teamchat in survival mode when Round hasn't ended
-            if ((CVar::sv_survivalmode)&sprite[mysprite].isspectator() && !survivalendround &&
+            if ((CVar::sv_survivalmode)&SpriteSystem::Get().GetSprite(mysprite).isspectator() && !survivalendround &&
                 (CVar::sv_survivalmode_antispy))
                 chattype = msgtype_team;
 
@@ -570,7 +572,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
     }
     else if (action == taction::teamchat)
     {
-        if ((chattext == "") && (mysprite > 0) && (sprite[mysprite].isspectator() || isteamgame()))
+        if ((chattext == "") && (mysprite > 0) && (SpriteSystem::Get().GetSprite(mysprite).isspectator() || isteamgame()))
         {
             SDL_StartTextInput();
             chattext = ' ';
@@ -599,9 +601,9 @@ bool keydown(SDL_KeyboardEvent &keyevent)
     else if (action == taction::weapons)
     {
         if ((chattext == "") && (mysprite > 0) && !escmenu->active &&
-            !sprite[mysprite].isspectator())
+            !SpriteSystem::Get().GetSprite(mysprite).isspectator())
         {
-            if (sprite[mysprite].deadmeat)
+            if (SpriteSystem::Get().GetSprite(mysprite).deadmeat)
             {
                 gamemenushow(limbomenu, !limbomenu->active);
                 limbolock = !limbomenu->active;
@@ -613,8 +615,8 @@ bool keydown(SDL_KeyboardEvent &keyevent)
             {
                 pricount = 0;
                 seccount = 0;
-                prinum = sprite[mysprite].weapon.num;
-                secnum = sprite[mysprite].secondaryweapon.num;
+                prinum = SpriteSystem::Get().GetSprite(mysprite).weapon.num;
+                secnum = SpriteSystem::Get().GetSprite(mysprite).secondaryweapon.num;
 
                 for (i = 1; i <= primary_weapons; i++)
                     pricount += weaponactive[i];

@@ -16,6 +16,7 @@
 #include "common/Logging.hpp"
 #include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include <physfs.h>
 #include <shared/Cvar.hpp>
 
@@ -328,8 +329,8 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
         if (strcmp(playerslistmsg->name[i].data(), "0 ") != 0)
         {
             [[deprecated("conversion from 0 to 1")]] auto iplus1 =
-                i + 1;                         // convert from indexing from 0 to indexing from 1
-            newplayer = sprite[iplus1].player; // reuse object
+                i + 1; // convert from indexing from 0 to indexing from 1
+            newplayer = SpriteSystem::Get().GetSprite(iplus1).player; // reuse object
             newplayer->name = returnfixedplayername(playerslistmsg->name[i].data());
             newplayer->shirtcolor = playerslistmsg->shirtcolor[i] | 0xff000000;
             newplayer->pantscolor = playerslistmsg->pantscolor[i] | 0xff000000;
@@ -371,14 +372,15 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
 
             createsprite(pos, b, 1, iplus1, newplayer, false);
 
-            spriteparts.velocity[sprite[iplus1].num] = vel;
+            spriteparts.velocity[SpriteSystem::Get().GetSprite(iplus1).num] = vel;
 
-            sprite[iplus1].ceasefirecounter = 0;
+            SpriteSystem::Get().GetSprite(iplus1).ceasefirecounter = 0;
             if (playerslistmsg->predduration[i] > 0)
             {
-                sprite[iplus1].alpha = predatoralpha;
-                sprite[iplus1].bonustime = playerslistmsg->predduration[i] * 60;
-                sprite[iplus1].bonusstyle = bonus_predator;
+                SpriteSystem::Get().GetSprite(iplus1).alpha = predatoralpha;
+                SpriteSystem::Get().GetSprite(iplus1).bonustime =
+                    playerslistmsg->predduration[i] * 60;
+                SpriteSystem::Get().GetSprite(iplus1).bonusstyle = bonus_predator;
             }
         }
     }
@@ -583,8 +585,10 @@ void clienthandleping(SteamNetworkingMessage_t *netmessage)
 
     if (mysprite != 0)
     {
-        sprite[mysprite].player->pingticks = pmsg_ping(netmessage->m_pData)->pingticks;
-        sprite[mysprite].player->pingtime = sprite[mysprite].player->pingticks * 1000 / 60;
+        SpriteSystem::Get().GetSprite(mysprite).player->pingticks =
+            pmsg_ping(netmessage->m_pData)->pingticks;
+        SpriteSystem::Get().GetSprite(mysprite).player->pingtime =
+            SpriteSystem::Get().GetSprite(mysprite).player->pingticks * 1000 / 60;
     }
 
     clientpong(pmsg_ping(netmessage->m_pData)->pingnum);
@@ -651,9 +655,11 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
 
     if (mysprite > 0)
     {
-        sprite[mysprite].applyweaponbynum(sprite[mysprite].weapon.num, 1);
-        sprite[mysprite].applyweaponbynum(sprite[mysprite].secondaryweapon.num, 2);
-        if (!sprite[mysprite].deadmeat)
+        SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
+            SpriteSystem::Get().GetSprite(mysprite).weapon.num, 1);
+        SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
+            SpriteSystem::Get().GetSprite(mysprite).secondaryweapon.num, 2);
+        if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
             clientspritesnapshot();
     }
 

@@ -6,6 +6,7 @@
 #include "../mechanics/Bullets.hpp"
 #include "NetworkUtils.hpp"
 #include "common/Calc.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 
 //clang-format off
 #include "../misc/GlobalVariableStorage.cpp"
@@ -34,22 +35,24 @@ void serverbulletsnapshot(std::uint8_t i, std::uint8_t tonum, bool forced)
 
 #ifdef SERVER
     if (!forced)
-        if ((sprite[bulletmsg.owner].weapon.ammocount > 0) &&
+        if ((SpriteSystem::Get().GetSprite(bulletmsg.owner).weapon.ammocount > 0) &&
             (bullet[i].style != bullet_style_fragnade) &&
             (bullet[i].style != bullet_style_clusternade) &&
             (bullet[i].style != bullet_style_cluster))
-            sprite[bulletmsg.owner].weapon.ammocount -= 1;
+            SpriteSystem::Get().GetSprite(bulletmsg.owner).weapon.ammocount -= 1;
 
     for (j = 1; j <= max_sprites; j++)
-        if (sprite[j].active && (sprite[j].player->controlmethod == human) &&
+        if (SpriteSystem::Get().GetSprite(j).active &&
+            (SpriteSystem::Get().GetSprite(j).player->controlmethod == human) &&
             (j != bullet[i].owner))
             if ((tonum == 0) || (j == tonum))
                 if (bulletcansend(bulletparts.pos[i].x, bulletparts.pos[i].y,
-                                  sprite[j].player->camera, bulletparts.velocity[i].x) or
+                                  SpriteSystem::Get().GetSprite(j).player->camera,
+                                  bulletparts.velocity[i].x) or
                     forced)
                 {
                     GetServerNetwork()->senddata(&bulletmsg, sizeof(bulletmsg),
-                                                 sprite[j].player->peer,
+                                                 SpriteSystem::Get().GetSprite(j).player->peer,
                                                  k_nSteamNetworkingSend_Unreliable);
                 }
 #else
@@ -84,11 +87,12 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
 
     messagesasecnum[p] += 1;
 
-    sprite[p].player->pingticksb = servertickcounter - bulletsnap->clientticks;
-    if (sprite[p].player->pingticksb < 0)
-        sprite[p].player->pingticksb = 0;
-    if (sprite[p].player->pingticksb > max_oldpos)
-        sprite[p].player->pingticksb = max_oldpos;
+    SpriteSystem::Get().GetSprite(p).player->pingticksb =
+        servertickcounter - bulletsnap->clientticks;
+    if (SpriteSystem::Get().GetSprite(p).player->pingticksb < 0)
+        SpriteSystem::Get().GetSprite(p).player->pingticksb = 0;
+    if (SpriteSystem::Get().GetSprite(p).player->pingticksb > max_oldpos)
+        SpriteSystem::Get().GetSprite(p).player->pingticksb = max_oldpos;
 
     weaponindex = weaponnumtoindex(bulletsnap->weaponnum, guns);
     if (weaponindex == -1)
@@ -99,9 +103,9 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     // Check for duplicated bullets
     // Using a ringbuffer of saved references of old ones
     failedbulletcheck = false;
-    for (i = 0; i <= sprite[p].bulletcheckamount; i++)
+    for (i = 0; i <= SpriteSystem::Get().GetSprite(p).bulletcheckamount; i++)
     {
-        if (sprite[p].bulletcheck[i] == bulletsnap->seed)
+        if (SpriteSystem::Get().GetSprite(p).bulletcheck[i] == bulletsnap->seed)
         {
             failedbulletcheck = true;
             break;
@@ -114,29 +118,31 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     }
     else
     {
-        if (sprite[p].bulletcheckindex > bulletcheckarraysize - 1)
+        if (SpriteSystem::Get().GetSprite(p).bulletcheckindex > bulletcheckarraysize - 1)
         {
-            sprite[p].bulletcheckindex = 0;
+            SpriteSystem::Get().GetSprite(p).bulletcheckindex = 0;
         }
-        if (sprite[p].bulletcheckamount < bulletcheckarraysize - 1)
+        if (SpriteSystem::Get().GetSprite(p).bulletcheckamount < bulletcheckarraysize - 1)
         {
-            sprite[p].bulletcheckamount += 1;
+            SpriteSystem::Get().GetSprite(p).bulletcheckamount += 1;
         }
-        sprite[p].bulletcheck[sprite[p].bulletcheckindex] = bulletsnap->seed;
-        sprite[p].bulletcheckindex += 1;
+        SpriteSystem::Get()
+            .GetSprite(p)
+            .bulletcheck[SpriteSystem::Get().GetSprite(p).bulletcheckindex] = bulletsnap->seed;
+        SpriteSystem::Get().GetSprite(p).bulletcheckindex += 1;
     }
 
     // spec kill: spectators NEVER send bullet snapshots
-    if (sprite[p].isspectator())
+    if (SpriteSystem::Get().GetSprite(p).isspectator())
         return;
 
     // Disable knife-cheat kick for now, until we have timestamped
     // packets, and will do a time-based comparison to sprite snapshot
     // with info about switching primary to secondary
-    /*if (BulletSnap.Style <> Sprite[p].Weapon.BulletStyle) then
+    /*if (BulletSnap.Style <> SpriteSystem::Get().GetSprite(p).Weapon.BulletStyle) then
       if ((BulletSnap.Style = 13) and
-        (Sprite[p].Weapon.BulletStyle <> 11) and
-        (Sprite[p].Weapon.Num <> NoWeapon.Num)) then
+        (SpriteSystem::Get().GetSprite(p).Weapon.BulletStyle <> 11) and
+        (SpriteSystem::Get().GetSprite(p).Weapon.Num <> NoWeapon.Num)) then
       begin
         KickPlayer(p, True, KICK_CHEAT, DAY, 'Knife Cheat');
         Exit
@@ -153,7 +159,8 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
         onstatgun = false;
         for (i = 0; i <= max_things; i++)
             if ((thing[i].style == object_stationary_gun) /*Stat Gun*/ && (onstatgun == false))
-                if (distance(sprite[p].skeleton.pos[1].x, sprite[p].skeleton.pos[1].y,
+                if (distance(SpriteSystem::Get().GetSprite(p).skeleton.pos[1].x,
+                             SpriteSystem::Get().GetSprite(p).skeleton.pos[1].y,
                              thing[i].skeleton.pos[1].x,
                              thing[i].skeleton.pos[1].y) < stat_radius * 2)
                     onstatgun = true;
@@ -172,7 +179,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     if ((style != bullet_style_fragnade) && (style != bullet_style_punch) &&
         (style != bullet_style_clusternade) && (style != bullet_style_cluster) &&
         (style != bullet_style_thrownknife) && (style != bullet_style_m2) &&
-        (sprite[p].lastweaponstyle != style))
+        (SpriteSystem::Get().GetSprite(p).lastweaponstyle != style))
         return;
 
     if ((oldbulletsnapshotmsg[p].weaponnum == bulletsnap->weaponnum) &&
@@ -185,12 +192,12 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     if ((style != bullet_style_fragnade) && (style != bullet_style_clusternade) &&
         (style != bullet_style_cluster) && (style != bullet_style_thrownknife) &&
         (style != bullet_style_m2))
-        if (vec2length(bulletsnap->velocity) >
-            sprite[p].lastweaponspeed + 10 * guns[weaponindex].inheritedvelocity)
+        if (vec2length(bulletsnap->velocity) > SpriteSystem::Get().GetSprite(p).lastweaponspeed +
+                                                   10 * guns[weaponindex].inheritedvelocity)
             return;
 
-    a.x = sprite[p].skeleton.pos[15].x - (bulletsnap->velocity.x / 1.33);
-    a.y = sprite[p].skeleton.pos[15].y - 2 - (bulletsnap->velocity.y / 1.33);
+    a.x = SpriteSystem::Get().GetSprite(p).skeleton.pos[15].x - (bulletsnap->velocity.x / 1.33);
+    a.y = SpriteSystem::Get().GetSprite(p).skeleton.pos[15].y - 2 - (bulletsnap->velocity.y / 1.33);
     b = vec2subtract(a, bulletsnap->pos);
 
     if ((style != bullet_style_fragnade) && (style != bullet_style_flame) &&
@@ -209,9 +216,10 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
         (style != bullet_style_clusternade) && (style != bullet_style_cluster) &&
         (style != bullet_style_thrownknife) && (style != bullet_style_m2))
     {
-        if (sprite[p].weapon.ammo > 1)
+        if (SpriteSystem::Get().GetSprite(p).weapon.ammo > 1)
         {
-            if ((maintickcounter - bullettime[p]) < ((sprite[p].lastweaponfire) * 0.85))
+            if ((maintickcounter - bullettime[p]) <
+                ((SpriteSystem::Get().GetSprite(p).lastweaponfire) * 0.85))
             {
                 bulletwarningcount[p] += 1;
             }
@@ -221,9 +229,10 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
             }
         }
 
-        if (sprite[p].weapon.ammo == 1)
+        if (SpriteSystem::Get().GetSprite(p).weapon.ammo == 1)
         {
-            if ((maintickcounter - bullettime[p]) < ((sprite[p].lastweaponreload) * 0.9))
+            if ((maintickcounter - bullettime[p]) <
+                ((SpriteSystem::Get().GetSprite(p).lastweaponreload) * 0.9))
             {
                 bulletwarningcount[p] += 1;
             }
@@ -254,15 +263,17 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     {
         if (CVar::sv_warnings_knifecheat == 69)
         {
-            if ((!knifecan[p]) or (sprite[p].weapon.bulletstyle != bullet_style_thrownknife) or
-                (sprite[p].weapon.bulletstyle != bullet_style_punch))
+            if ((!knifecan[p]) or
+                (SpriteSystem::Get().GetSprite(p).weapon.bulletstyle != bullet_style_thrownknife) or
+                (SpriteSystem::Get().GetSprite(p).weapon.bulletstyle != bullet_style_punch))
             {
-                sprite[p].player->knifewarnings += 1;
-                if (sprite[p].player->knifewarnings == 3)
+                SpriteSystem::Get().GetSprite(p).player->knifewarnings += 1;
+                if (SpriteSystem::Get().GetSprite(p).player->knifewarnings == 3)
                 {
-                    GetServerMainConsole().console(std::string("** DETECTED KNIFE CHEATING FROM ") +
-                                                       sprite[p].player->name + " **",
-                                                   server_message_color);
+                    GetServerMainConsole().console(
+                        std::string("** DETECTED KNIFE CHEATING FROM ") +
+                            SpriteSystem::Get().GetSprite(p).player->name + " **",
+                        server_message_color);
                     kickplayer(p, true, kick_cheat, day, "Knife Throw Cheat");
                 }
             }
@@ -272,28 +283,28 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
 
     a = bulletsnap->pos;
     b = bulletsnap->velocity;
-    k = sprite[p].lastweaponhm;
+    k = SpriteSystem::Get().GetSprite(p).lastweaponhm;
 
     if (style == bullet_style_punch)
         k = guns[noweapon].hitmultiply;
 
     if (style == bullet_style_cluster)
-        if (sprite[p].tertiaryweapon.ammocount == 0)
+        if (SpriteSystem::Get().GetSprite(p).tertiaryweapon.ammocount == 0)
             return;
 
     if ((style == bullet_style_fragnade) || (style == bullet_style_clusternade))
     {
         k = guns[fraggrenade].hitmultiply;
-        if (sprite[p].tertiaryweapon.ammocount == 0)
+        if (SpriteSystem::Get().GetSprite(p).tertiaryweapon.ammocount == 0)
             return;
-        if (sprite[p].tertiaryweapon.ammocount > 0)
-            sprite[p].tertiaryweapon.ammocount -= 1;
+        if (SpriteSystem::Get().GetSprite(p).tertiaryweapon.ammocount > 0)
+            SpriteSystem::Get().GetSprite(p).tertiaryweapon.ammocount -= 1;
     }
 
     if (style == bullet_style_thrownknife)
     {
         k = guns[thrownknife].hitmultiply;
-        sprite[p].bodyapplyanimation(stand, 1);
+        SpriteSystem::Get().GetSprite(p).bodyapplyanimation(stand, 1);
     }
 
     if (style == bullet_style_m2)
@@ -346,9 +357,9 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
         (style != bullet_style_cluster) && (style != bullet_style_thrownknife) &&
         (style != bullet_style_m2))
     {
-        sprite[p].weapon.fireintervalprev = 1;
-        sprite[p].weapon.fireintervalcount = 1;
-        sprite[p].control.fire = true;
+        SpriteSystem::Get().GetSprite(p).weapon.fireintervalprev = 1;
+        SpriteSystem::Get().GetSprite(p).weapon.fireintervalcount = 1;
+        SpriteSystem::Get().GetSprite(p).control.fire = true;
     }
 }
 #endif

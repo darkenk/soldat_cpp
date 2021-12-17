@@ -17,6 +17,7 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Game.hpp"
 #include "shared/Version.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include <filesystem>
 
 //clang-format off
@@ -103,7 +104,7 @@ void tdemorecorder<M>::stoprecord()
             " (" + (fname) + ')',
         info_message_color);
 
-    sprite[max_sprites].kill();
+    SpriteSystem::Get().GetSprite(max_sprites).kill();
 
     fdemofile.position = 0;
 
@@ -141,7 +142,7 @@ std::int32_t tdemorecorder<M>::createdemoplayer()
 
     std::int32_t createdemoplayer_result = -1;
 
-    if (sprite[max_sprites].active)
+    if (SpriteSystem::Get().GetSprite(max_sprites).active)
     {
         GetMainConsole().console(
             "Failed to create Demo Recorder player. Demos can be recorded with up to 31 players",
@@ -178,7 +179,7 @@ std::int32_t tdemorecorder<M>::createdemoplayer()
         servervars(p);
         serversendnewplayerinfo(p, join_normal);
         serverthingmustsnapshotonconnect(p);
-        sprite[p].player.demoplayer = true;
+        SpriteSystem::Get().GetSprite(p).player.demoplayer = true;
         spriteparts.pos[p] = vector2(0, 0);
         createdemoplayer_result = p;
 #endif
@@ -227,10 +228,10 @@ void tdemorecorder<M>::saveposition()
     movementmsg.pos = spriteparts.pos[mysprite];
     movementmsg.servertick = maintickcounter;
 
-    encodekeys(sprite[mysprite], movementmsg.keys16);
+    encodekeys(SpriteSystem::Get().GetSprite(mysprite), movementmsg.keys16);
 
-    movementmsg.mouseaimx = sprite[mysprite].control.mouseaimx;
-    movementmsg.mouseaimy = sprite[mysprite].control.mouseaimy;
+    movementmsg.mouseaimx = SpriteSystem::Get().GetSprite(mysprite).control.mouseaimx;
+    movementmsg.mouseaimy = SpriteSystem::Get().GetSprite(mysprite).control.mouseaimy;
 
     saverecord(&movementmsg, sizeof(movementmsg));
 #endif
@@ -383,7 +384,7 @@ void tdemoplayer::position(std::int32_t ticks)
         maintickcounter = 0;
 
         for (i = 1; i <= max_sprites; i++)
-            sprite[i].kill();
+            SpriteSystem::Get().GetSprite(i).kill();
         for (i = 1; i <= max_bullets; i++)
             bullet[i].kill();
         for (i = 1; i <= max_sparks; i++)

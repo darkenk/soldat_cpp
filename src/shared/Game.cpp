@@ -2,22 +2,6 @@
 
 #include "Game.hpp"
 
-/*#include "Server.h"*/
-/*#include "Client.h"*/
-/*#include "TraceLog.h"*/
-/*#include "ServerHelper.h"*/
-/*#include "ScriptDispatcher.h"*/
-/*#include "Sound.h"*/
-/*#include "GameMenus.h"*/
-/*#include "ClientGame.h"*/
-/*#include "GameRendering.h"*/
-/*#include "GameStrings.h"*/
-/*#include "InterfaceGraphics.h"*/
-/*#include "Net.h"*/
-/*#include "Demo.h"*/
-/*#include "NetworkClientGame.h"*/
-/*#include "NetworkServerGame.h"*/
-/*#include "NetworkServerSprite.h"*/
 #ifndef SERVER
 #include "../client/Client.hpp"
 #include "../client/ClientGame.hpp"
@@ -37,6 +21,7 @@
 #include "common/Util.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include <chrono>
 
 //clang-format off
@@ -157,11 +142,15 @@ void updategamestats()
         if (playersnum > 0)
             for (i = 1; i <= playersnum; i++)
             {
-                s.add(sprite[sortedplayers[i].playernum].player->name);
-                s.add(inttostr(sprite[sortedplayers[i].playernum].player->kills));
-                s.add(inttostr(sprite[sortedplayers[i].playernum].player->deaths));
-                s.add(inttostr(sprite[sortedplayers[i].playernum].player->team));
-                s.add(inttostr(sprite[sortedplayers[i].playernum].player->realping));
+                s.add(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->name);
+                s.add(inttostr(
+                    SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->kills));
+                s.add(inttostr(
+                    SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->deaths));
+                s.add(inttostr(
+                    SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->team));
+                s.add(inttostr(
+                    SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->realping));
             }
 #ifndef SERVER
         s.add("");
@@ -220,8 +209,10 @@ bool pointvisible(float x, float y, std::int32_t i)
     if ((i > max_players) || (i < 1))
         return result;
 
-    sx = spriteparts.pos[i].x - ((float)((spriteparts.pos[i].x - sprite[i].control.mouseaimx)) / 2);
-    sy = spriteparts.pos[i].y - ((float)((spriteparts.pos[i].y - sprite[i].control.mouseaimy)) / 2);
+    sx = spriteparts.pos[i].x -
+         ((float)((spriteparts.pos[i].x - SpriteSystem::Get().GetSprite(i).control.mouseaimx)) / 2);
+    sy = spriteparts.pos[i].y -
+         ((float)((spriteparts.pos[i].y - SpriteSystem::Get().GetSprite(i).control.mouseaimy)) / 2);
 
     if ((x > (sx - game_width)) && (x < (sx + game_width)) && (y > (sy - game_height)) &&
         (y < (sy + game_height)))
@@ -285,16 +276,17 @@ void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targ
         votestarter = "Server";
     else
     {
-        votestarter = sprite[startervote].player->name;
+        votestarter = SpriteSystem::Get().GetSprite(startervote).player->name;
         votecooldown[startervote] = default_vote_time;
 #ifndef SERVER
         if (startervote == mysprite)
             if (votetype == vote_kick)
             {
-                GetMainConsole().console(("You have voted to kick ") +
-                                             (sprite[kickmenuindex].player->name) +
-                                             (" from the game"),
-                                         vote_message_color);
+                GetMainConsole().console(
+                    ("You have voted to kick ") +
+                        (SpriteSystem::Get().GetSprite(kickmenuindex).player->name) +
+                        (" from the game"),
+                    vote_message_color);
                 voteactive = false;
                 NotImplemented(NITag::NETWORK, "No clientvotekick");
 #if 0
@@ -309,7 +301,7 @@ void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targ
     votetimeremaining = default_voting_time;
     votenumvotes = 0;
     votemaxvotes = 0;
-    for (auto &s : sprite)
+    for (auto &s : SpriteSystem::Get().GetSprites())
     {
         if (!s.active)
         {
@@ -385,7 +377,7 @@ void countvote(std::uint8_t voter)
                     kickplayer(i, true, kick_voted, hour, "Vote Kicked");
                 else
                     kickplayer(i, true, kick_voted, day, "Vote Kicked by Server");
-                dobalancebots(1, sprite[i].player->team);
+                dobalancebots(1, SpriteSystem::Get().GetSprite(i).player->team);
             }
             else if (votetype == vote_map)
             {
@@ -424,12 +416,12 @@ void showmapchangescoreboard(const std::string nextmap)
     statsmenushow = false;
     for (i = 1; i <= max_players; i++)
     {
-        if (sprite[i].active)
+        if (SpriteSystem::Get().GetSprite(i).active)
         {
-            stopsound(sprite[i].reloadsoundchannel);
-            stopsound(sprite[i].jetssoundchannel);
-            stopsound(sprite[i].gattlingsoundchannel);
-            stopsound(sprite[i].gattlingsoundchannel2);
+            stopsound(SpriteSystem::Get().GetSprite(i).reloadsoundchannel);
+            stopsound(SpriteSystem::Get().GetSprite(i).jetssoundchannel);
+            stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel);
+            stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel2);
         }
     }
 #endif
@@ -533,7 +525,7 @@ void changemap()
 
     {
         auto i = 0;
-        for (auto &s : sprite)
+        for (auto &s : SpriteSystem::Get().GetSprites())
         {
             i++;
             if (s.active && s.isnotspectator())
@@ -667,14 +659,14 @@ void changemap()
     heartbeattime = maintickcounter;
     heartbeattimewarnings = 0;
 
-    if ((mysprite > 0) && sprite[mysprite].isnotspectator())
+    if ((mysprite > 0) && SpriteSystem::Get().GetSprite(mysprite).isnotspectator())
     {
         camerafollowsprite = mysprite;
     }
     else
     {
         // If in freecam or the previous followee is gone, then find a new followee
-        if ((camerafollowsprite == 0) or !sprite[camerafollowsprite].active)
+        if ((camerafollowsprite == 0) or !SpriteSystem::Get().GetSprite(camerafollowsprite).active)
         {
             camerafollowsprite = getcameratarget(0);
             // If no appropriate player found, then just center the camera
@@ -751,7 +743,7 @@ void sortplayers()
 
     {
         auto i = 0;
-        for (auto &s : sprite)
+        for (auto &s : SpriteSystem::Get().GetSprites())
         {
             i++;
             if (s.active && (!s.player->demoplayer))
@@ -897,7 +889,7 @@ void sortplayers()
     teamalivenum[4] = 0;
 #endif
 
-    for (auto &s : sprite)
+    for (auto &s : SpriteSystem::Get().GetSprites())
     {
         if (s.active)
         {

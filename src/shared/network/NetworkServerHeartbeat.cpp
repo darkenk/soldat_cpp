@@ -6,6 +6,7 @@
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include <steam/isteamnetworkingmessages.h>
 
 // clang-format off
@@ -27,7 +28,7 @@ void serverheartbeat()
     std::fill(std::begin(heartbeatmsg.ping), std::end(heartbeatmsg.ping), 255);
 
     auto c = 0;
-    for (auto &s : sprite)
+    for (auto &s : SpriteSystem::Get().GetSprites())
     {
         if (s.active)
         {
@@ -58,12 +59,12 @@ void serverheartbeat()
     if ((timelimitcounter) < 600)
         heartbeatmsg.mapid = 0;
 
-    for (auto &s : sprite)
+    for (auto &s : SpriteSystem::Get().GetSprites())
     {
         if ((s.active) && (s.player->controlmethod == human))
         {
             GetServerNetwork()->senddata(&heartbeatmsg, sizeof(heartbeatmsg), s.player->peer,
-                                   k_nSteamNetworkingSend_Unreliable);
+                                         k_nSteamNetworkingSend_Unreliable);
         }
     }
 }

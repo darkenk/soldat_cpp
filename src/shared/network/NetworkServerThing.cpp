@@ -1,10 +1,11 @@
 // automatically converted
 #include "NetworkServerThing.hpp"
 #include "../../server/Server.hpp"
-#include "common/Calc.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "NetworkUtils.hpp"
+#include "common/Calc.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -59,7 +60,7 @@ void serverthingsnapshot(std::uint8_t tonum)
             if (send)
             {
                 GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
-                                             sprite[tonum].player->peer,
+                                             SpriteSystem::Get().GetSprite(tonum).player->peer,
                                              k_nSteamNetworkingSend_Unreliable);
             }
         }
@@ -91,8 +92,10 @@ void serverthingmustsnapshot(std::uint8_t i)
     thingmsg.holdingsprite = thing[i].holdingsprite;
 
     for (i = 1; i <= max_players; i++)
-        if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
-            GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[i].player->peer,
+        if ((SpriteSystem::Get().GetSprite(i).active) &&
+            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
+            GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
+                                         SpriteSystem::Get().GetSprite(i).player->peer,
                                          k_nSteamNetworkingSend_Unreliable);
 }
 #endif
@@ -126,7 +129,7 @@ void serverthingmustsnapshotonconnect(std::uint8_t tonum)
 
 #ifdef SERVER
                 GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
-                                             sprite[tonum].player->peer,
+                                             SpriteSystem::Get().GetSprite(tonum).player->peer,
                                              k_nSteamNetworkingSend_Unreliable);
 #else
                 demorecorder.saverecord(thingmsg, sizeof(thingmsg));
@@ -160,7 +163,8 @@ void serverthingmustsnapshotonconnectto(std::uint8_t i, std::uint8_t tonum)
     thingmsg.style = thing[i].style;
     thingmsg.holdingsprite = thing[i].holdingsprite;
 
-    GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[tonum].player->peer,
+    GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
+                                 SpriteSystem::Get().GetSprite(tonum).player->peer,
                                  k_nSteamNetworkingSend_Unreliable);
 }
 
@@ -176,8 +180,10 @@ void serverthingtaken(std::uint8_t i, std::uint8_t w)
     thingmsg.ammocount = thing[i].ammocount;
 
     for (i = 1; i <= max_players; i++)
-        if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
-            GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite[i].player->peer,
+        if ((SpriteSystem::Get().GetSprite(i).active) &&
+            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
+            GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
+                                         SpriteSystem::Get().GetSprite(i).player->peer,
                                          k_nSteamNetworkingSend_Unreliable);
 }
 

@@ -9,6 +9,7 @@
 #include "../GameStrings.hpp"
 #include "NetworkClientConnection.hpp"
 #include "NetworkUtils.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -26,18 +27,21 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
 
     auto c = 0;
     for (i = 1; i <= max_players; i++)
-        if (sprite[i].active && (!sprite[i].player->demoplayer))
+        if (SpriteSystem::Get().GetSprite(i).active &&
+            (!SpriteSystem::Get().GetSprite(i).player->demoplayer))
         {
-            sprite[i].active = heartbeat->active[c];
-            sprite[i].player->kills = heartbeat->kills[c];
-            sprite[i].player->flags = heartbeat->caps[c];
-            sprite[i].player->team = heartbeat->team[c];
-            sprite[i].player->deaths = heartbeat->deaths[c];
-            sprite[i].player->flags = heartbeat->flags[c];
-            sprite[i].player->pingticks = heartbeat->ping[c];
-            sprite[i].player->pingtime = sprite[i].player->pingticks * 1000 / 60;
-            sprite[i].player->realping = heartbeat->realping[c];
-            sprite[i].player->connectionquality = heartbeat->connectionquality[c];
+            SpriteSystem::Get().GetSprite(i).active = heartbeat->active[c];
+            SpriteSystem::Get().GetSprite(i).player->kills = heartbeat->kills[c];
+            SpriteSystem::Get().GetSprite(i).player->flags = heartbeat->caps[c];
+            SpriteSystem::Get().GetSprite(i).player->team = heartbeat->team[c];
+            SpriteSystem::Get().GetSprite(i).player->deaths = heartbeat->deaths[c];
+            SpriteSystem::Get().GetSprite(i).player->flags = heartbeat->flags[c];
+            SpriteSystem::Get().GetSprite(i).player->pingticks = heartbeat->ping[c];
+            SpriteSystem::Get().GetSprite(i).player->pingtime =
+                SpriteSystem::Get().GetSprite(i).player->pingticks * 1000 / 60;
+            SpriteSystem::Get().GetSprite(i).player->realping = heartbeat->realping[c];
+            SpriteSystem::Get().GetSprite(i).player->connectionquality =
+                heartbeat->connectionquality[c];
             c++;
         }
 

@@ -2,31 +2,6 @@
 
 #include "ClientGame.hpp"
 
-/*#include "SysUtils.h"*/
-/*#include "StrUtils.h"*/
-/*#include "Math.h"*/
-/*#include "Classes.h"*/
-/*#include "Client.h"*/
-/*#include "Game.h"*/
-/*#include "Sprites.h"*/
-/*#include "GameStrings.h"*/
-/*#include "LogFile.h"*/
-/*#include "Demo.h"*/
-/*#include "Net.h"*/
-/*#include "NetworkClientSprite.h"*/
-/*#include "NetworkClientConnection.h"*/
-/*#include "FaeBase.h"*/
-/*#include "FaeClient.h"*/
-/*#include "NetworkClientFae.h"*/
-/*#include "Steam.h"*/
-/*#include "SteamTypes.h"*/
-/*#include "NetworkClientGame.h"*/
-/*#include "GameRendering.h"*/
-/*#include "Gfx.h"*/
-/*#include "UpdateFrame.h"*/
-/*#include "GameMenus.h"*/
-/*#include "Util.h"*/
-/*#include "InterfaceGraphics.h"*/
 #include "Client.hpp"
 #include "GameMenus.hpp"
 #include "GameRendering.hpp"
@@ -36,6 +11,7 @@
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientSprite.hpp"
 #include <SDL2/SDL.h>
@@ -197,13 +173,16 @@ void tabcomplete()
              i++)
         {
             next = ((i - 1) % max_players) + 1;
-            if (sprite[next].active && (!sprite[next].player->demoplayer) && (next != mysprite))
+            if (SpriteSystem::Get().GetSprite(next).active &&
+                (!SpriteSystem::Get().GetSprite(next).player->demoplayer) && (next != mysprite))
             {
                 if ((completionbase == "") ||
-                    std::string::npos != sprite[next].player->name.find(completionbase))
+                    std::string::npos !=
+                        SpriteSystem::Get().GetSprite(next).player->name.find(completionbase))
                 {
                     availablechatspace = maxchattext - completionbaseseparator;
-                    spacefittedname = sprite[next].player->name.substr(0, availablechatspace);
+                    spacefittedname = SpriteSystem::Get().GetSprite(next).player->name.substr(
+                        0, availablechatspace);
                     chattext = chattext.substr(0, completionbaseseparator) + spacefittedname;
                     currenttabcompleteplayer = next;
                     cursorposition = length((chattext));
@@ -371,9 +350,9 @@ void gameloop()
 
             if (connection == INTERNET)
             {
-                if (sprite[mysprite].active)
+                if (SpriteSystem::Get().GetSprite(mysprite).active)
                 {
-                    if (!sprite[mysprite].deadmeat)
+                    if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
                     {
                         if ((maintickcounter % (std::int32_t)round(7 * adjust) == 1) &&
                             (maintickcounter % (std::int32_t)round(5 * adjust) != 0))
@@ -388,7 +367,7 @@ void gameloop()
             }
             else if (connection == LAN)
             {
-                if (!sprite[mysprite].deadmeat)
+                if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
                 {
                     if (maintickcounter % (std::int32_t)round(4 * adjust) == 0)
                         clientspritesnapshot();
@@ -475,24 +454,24 @@ std::uint8_t getcameratarget(bool backwards)
         else if (newcam < 1)
             newcam = max_sprites;
 
-        if (!sprite[newcam].active)
+        if (!SpriteSystem::Get().GetSprite(newcam).active)
             continue; // Sprite slot empty
-        if (sprite[newcam].deadmeat)
+        if (SpriteSystem::Get().GetSprite(newcam).deadmeat)
             continue; // Sprite is dead
-        if (sprite[newcam].isspectator())
+        if (SpriteSystem::Get().GetSprite(newcam).isspectator())
             continue; // Sprite is a spectator
 
-        if (sprite[mysprite].control.up && (!CVar::sv_realisticmode) &&
-            sprite[mysprite].isnotspectator())
+        if (SpriteSystem::Get().GetSprite(mysprite).control.up && (!CVar::sv_realisticmode) &&
+            SpriteSystem::Get().GetSprite(mysprite).isnotspectator())
         {
             newcam = 0;
             validcam = true;
             break;
         } // Freecam if not Realistic
 
-        if (sprite[mysprite].isspectator())
+        if (SpriteSystem::Get().GetSprite(mysprite).isspectator())
         {
-            if (sprite[mysprite].control.up)
+            if (SpriteSystem::Get().GetSprite(mysprite).control.up)
             {
                 newcam = 0;
                 validcam = true;
@@ -505,7 +484,8 @@ std::uint8_t getcameratarget(bool backwards)
             } // Let spectator view all players
         }
 
-        if (sprite[newcam].isnotinsameteam(sprite[mysprite]))
+        if (SpriteSystem::Get().GetSprite(newcam).isnotinsameteam(
+                SpriteSystem::Get().GetSprite(mysprite)))
             continue; // Dont swap camera to a player not on my team
 
         validcam = true;

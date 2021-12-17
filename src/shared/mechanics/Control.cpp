@@ -20,6 +20,7 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "common/Calc.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include <SDL2/SDL.h>
 #include <Tracy.hpp>
 
@@ -115,8 +116,8 @@ void controlsprite(tsprite &spritec)
         {
             spritec.freecontrols();
 
-            sprite[mysprite].control.mouseaimx = round(mx - gamewidthhalf + camerax);
-            sprite[mysprite].control.mouseaimy = round(my - gameheighthalf + cameray);
+            SpriteSystem::Get().GetSprite(mysprite).control.mouseaimx = round(mx - gamewidthhalf + camerax);
+            SpriteSystem::Get().GetSprite(mysprite).control.mouseaimy = round(my - gameheighthalf + cameray);
 
             if (!teammenu->active && !limbomenu->active)
             {
@@ -256,10 +257,10 @@ void controlsprite(tsprite &spritec)
 
                                 i = 0;
                                 for (j = 1; j <= max_sprites; j++)
-                                    if (sprite[j].active)
-                                        if (sprite[j].isnotspectator() and
-                                            (sprite[j].isinsameteam(sprite[mysprite]) or
-                                             sprite[mysprite].isspectator()))
+                                    if (SpriteSystem::Get().GetSprite(j).active)
+                                        if (SpriteSystem::Get().GetSprite(j).isnotspectator() and
+                                            (SpriteSystem::Get().GetSprite(j).isinsameteam(SpriteSystem::Get().GetSprite(mysprite)) or
+                                             SpriteSystem::Get().GetSprite(mysprite).isspectator()))
                                         {
                                             i = 1;
                                             break;
@@ -290,36 +291,36 @@ void controlsprite(tsprite &spritec)
             if (CVar::sv_realisticmode)
             {
                 for (i = 1; i <= max_sprites; i++)
-                    if (sprite[i].visible > 0)
-                        sprite[i].visible -= 1;
+                    if (SpriteSystem::Get().GetSprite(i).visible > 0)
+                        SpriteSystem::Get().GetSprite(i).visible -= 1;
 
                 lookpoint.x = spritec.skeleton.pos[7].x;
                 lookpoint.y = spritec.skeleton.pos[7].y - 2;
                 spritec.visible = 45;
 
                 for (i = 1; i <= max_sprites; i++)
-                    if (sprite[i].active)
+                    if (SpriteSystem::Get().GetSprite(i).active)
                     {
                         // Following sprites
                         if ((spritec.num != camerafollowsprite) and
-                            spritec.isnotinsameteam(sprite[i]) && spritec.isnotspectator())
+                            spritec.isnotinsameteam(SpriteSystem::Get().GetSprite(i)) && spritec.isnotspectator())
                         {
-                            if (checkspritelineofsightvisibility(sprite[camerafollowsprite],
-                                                                 sprite[i]))
-                                sprite[i].visible = 45;
+                            if (checkspritelineofsightvisibility(SpriteSystem::Get().GetSprite(camerafollowsprite),
+                                                                 SpriteSystem::Get().GetSprite(i)))
+                                SpriteSystem::Get().GetSprite(i).visible = 45;
                         }
                         else
                         {
                             if (spritec.deadmeat or
-                                ((isteamgame() && sprite[i].isinsameteam(spritec)) or
-                                 ((!isteamgame()) && sprite[i].isnotinsameteam(spritec))))
+                                ((isteamgame() && SpriteSystem::Get().GetSprite(i).isinsameteam(spritec)) or
+                                 ((!isteamgame()) && SpriteSystem::Get().GetSprite(i).isnotinsameteam(spritec))))
                             {
-                                sprite[i].visible = 45;
+                                SpriteSystem::Get().GetSprite(i).visible = 45;
                             }
                             else
                             {
-                                if (checkspritelineofsightvisibility(spritec, sprite[i]))
-                                    sprite[i].visible = 45;
+                                if (checkspritelineofsightvisibility(spritec, SpriteSystem::Get().GetSprite(i)))
+                                    SpriteSystem::Get().GetSprite(i).visible = 45;
                             }
                         }
                     }
@@ -429,9 +430,9 @@ void controlsprite(tsprite &spritec)
                         (spritec.weapon.num != guns[chainsaw].num))
                     {
                         for (i = 1; i <= max_sprites; i++)
-                            if (sprite[i].active && !sprite[i].deadmeat and
-                                (sprite[i].position == pos_stand) && (i != spritec.num) &&
-                                sprite[i].isnotspectator())
+                            if (SpriteSystem::Get().GetSprite(i).active && !SpriteSystem::Get().GetSprite(i).deadmeat and
+                                (SpriteSystem::Get().GetSprite(i).position == pos_stand) && (i != spritec.num) &&
+                                SpriteSystem::Get().GetSprite(i).isnotspectator())
                                 if (distance(spriteparts.pos[spritec.num], spriteparts.pos[i]) <
                                     melee_dist)
                                     spritec.bodyapplyanimation(melee, 1);
@@ -750,11 +751,10 @@ void controlsprite(tsprite &spritec)
             (spritec.bodyanimation.id == throwweapon.id) &&
             (!spritec.control.throwweapon or (spritec.bodyanimation.currframe == 16)))
         {
-            if ((spritec.player->controlmethod == bot)
-#ifndef SERVER
-                || (spritec.num == mysprite))
+#ifdef SERVER
+            if (spritec.player->controlmethod == bot)
 #else
-            )
+            if ((spritec.player->controlmethod == bot) || (spritec.num == mysprite))
 #endif
             {
                 // Set the dont drop flag so ThrowWeapon will not be sent to the server after
@@ -1359,13 +1359,13 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
                     if (spritec.weapon.num == guns[knife].num)
                         playsound(sfx_slash, spriteparts.pos[spritec.num],
-                                  sprite[spritec.num].gattlingsoundchannel);
+                                  SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
                     if (spritec.weapon.num == guns[chainsaw].num)
                         playsound(sfx_chainsaw_r, spriteparts.pos[spritec.num],
-                                  sprite[spritec.num].gattlingsoundchannel);
+                                  SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
                     if (spritec.weapon.num == guns[noweapon].num)
                         playsound(sfx_dead_hit, spriteparts.pos[spritec.num],
-                                  sprite[spritec.num].gattlingsoundchannel);
+                                  SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
 
                     if (spritec.num == mysprite)
                         clientsendstringmessage("/KILL", spritec.num);
@@ -1558,8 +1558,8 @@ void controlsprite(tsprite &spritec)
             // raise weapon above teammate when crouching
             for (j = 1; j <= max_sprites; j++)
                 if (isteamgame())
-                    if (sprite[j].active && sprite[j].isinsameteam(spritec) and
-                        (sprite[j].position == pos_crouch) && (j != spritec.num) &&
+                    if (SpriteSystem::Get().GetSprite(j).active && SpriteSystem::Get().GetSprite(j).isinsameteam(spritec) and
+                        (SpriteSystem::Get().GetSprite(j).position == pos_crouch) && (j != spritec.num) &&
                         spritec.isnotspectator())
                     {
                         a = spriteparts.pos[j];

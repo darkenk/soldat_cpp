@@ -19,6 +19,7 @@
 #include "shared/Game.hpp"
 #include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
 
@@ -706,10 +707,10 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
         ZoneScopedN("Sprites");
         for (i = 1; i <= max_sprites; i++)
         {
-            if (sprite[i].active)
+            if (SpriteSystem::Get().GetSprite(i).active)
             {
-                sk = &sprite[i].skeleton;
-                gun = &sprite[i].weapon;
+                sk = &SpriteSystem::Get().GetSprite(i).skeleton;
+                gun = &SpriteSystem::Get().GetSprite(i).weapon;
                 std::memcpy(&s.spritepos[i][1], &sk->pos[1],
                             sizeof(tvector2) * length(s.spritepos[i]));
 
@@ -718,7 +719,9 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
 
                 gun->reloadtimefloat = lerp(gun->reloadtimeprev, gun->reloadtimecount, p);
                 gun->fireintervalfloat = lerp(gun->fireintervalprev, gun->fireintervalcount, p);
-                sprite[i].jetscountfloat = lerp(sprite[i].jetscountprev, sprite[i].jetscount, p);
+                SpriteSystem::Get().GetSprite(i).jetscountfloat =
+                    lerp(SpriteSystem::Get().GetSprite(i).jetscountprev,
+                         SpriteSystem::Get().GetSprite(i).jetscount, p);
             }
         }
     }
@@ -788,9 +791,9 @@ void restorestate(tinterpolationstate &s)
 
     for (i = 1; i <= max_sprites; i++)
     {
-        if (sprite[i].active)
+        if (SpriteSystem::Get().GetSprite(i).active)
         {
-            std::memcpy(&sprite[i].skeleton.pos[1], &s.spritepos[i][1],
+            std::memcpy(&SpriteSystem::Get().GetSprite(i).skeleton.pos[1], &s.spritepos[i][1],
                         sizeof(tvector2) * length(s.spritepos[i]));
         }
     }
@@ -936,8 +939,8 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
             {
                 ZoneScopedN("RenderGostek");
                 for (i = 1; i <= max_sprites; i++)
-                    if (sprite[i].active)
-                        rendergostek(sprite[i]);
+                    if (SpriteSystem::Get().GetSprite(i).active)
+                        rendergostek(SpriteSystem::Get().GetSprite(i));
             }
 
             {

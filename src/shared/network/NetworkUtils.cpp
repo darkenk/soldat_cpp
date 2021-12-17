@@ -20,6 +20,7 @@
 #include "../../client/Sound.hpp"
 #include "common/Parts.hpp"
 #endif
+#include "shared/mechanics/SpriteSystem.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -265,14 +266,14 @@ void newplayerweapon()
 {
     std::int32_t j, i;
     std::int32_t SecWep;
-    if (sprite[mysprite].weapon.num == guns[noweapon].num)
+    if (SpriteSystem::Get().GetSprite(mysprite).weapon.num == guns[noweapon].num)
     {
         gamemenushow(limbomenu);
     }
 
     i = mysprite;
 
-    sprite[i].player->secwep = CVar::cl_player_secwep;
+    SpriteSystem::Get().GetSprite(i).player->secwep = CVar::cl_player_secwep;
 
     for (j = 1; j < main_weapons; j++)
     {
@@ -295,16 +296,16 @@ void newplayerweapon()
         }
     }
 
-    SecWep = sprite[i].player->secwep + 1;
+    SecWep = SpriteSystem::Get().GetSprite(i).player->secwep + 1;
 
     if ((SecWep >= 1) and (SecWep <= secondary_weapons) and
         (weaponactive[primary_weapons + SecWep] == 1))
     {
-        sprite[i].secondaryweapon = guns[primary_weapons + SecWep];
+        SpriteSystem::Get().GetSprite(i).secondaryweapon = guns[primary_weapons + SecWep];
     }
     else
     {
-        sprite[i].secondaryweapon = guns[noweapon];
+        SpriteSystem::Get().GetSprite(i).secondaryweapon = guns[noweapon];
     }
 }
 #endif
@@ -316,15 +317,18 @@ bool checkweaponnotallowed(std::uint8_t i)
 
     auto Result = true;
 
-    WeaponIndex = weaponnumtoindex(sprite[i].weapon.num, guns);
+    WeaponIndex = weaponnumtoindex(SpriteSystem::Get().GetSprite(i).weapon.num, guns);
     if (ismainweaponindex(WeaponIndex) and (weaponactive[WeaponIndex] == 0))
     {
         return Result;
     }
 
-    if (((sprite[i].weapon.num == guns[bow].num) and (CVar::sv_gamemode != gamestyle_rambo)) or
-        ((sprite[i].weapon.num == guns[bow2].num) and (CVar::sv_gamemode != gamestyle_rambo)) or
-        ((sprite[i].weapon.num == guns[flamer].num) and (CVar::sv_bonus_flamer)))
+    if (((SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow].num) and
+         (CVar::sv_gamemode != gamestyle_rambo)) or
+        ((SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow2].num) and
+         (CVar::sv_gamemode != gamestyle_rambo)) or
+        ((SpriteSystem::Get().GetSprite(i).weapon.num == guns[flamer].num) and
+         (CVar::sv_bonus_flamer)))
     {
         return Result;
     }

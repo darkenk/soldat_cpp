@@ -6,8 +6,9 @@
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
 #include "../misc/MemoryUtils.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
 #include "NetworkUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include <codecvt>
 #include <locale>
 
@@ -80,10 +81,10 @@ void clienthandlechatmessage(SteamNetworkingMessage_t *netmessage)
     }
 
     if ((i > 0) && (i < max_players))
-        if (!sprite[i].active)
+        if (!SpriteSystem::Get().GetSprite(i).active)
             return;
 
-    if ((sprite[i].muted == true) or muteall)
+    if ((SpriteSystem::Get().GetSprite(i).muted == true) or muteall)
         return;
 
     chatmessage[i] = cs;
@@ -100,7 +101,7 @@ void clienthandlechatmessage(SteamNetworkingMessage_t *netmessage)
 
     col = chat_message_color;
 
-    if (sprite[i].player->team == team_spectator)
+    if (SpriteSystem::Get().GetSprite(i).player->team == team_spectator)
         col = spectator_c_message_color;
     if ((msgtype == msgtype_team) || (msgtype == msgtype_radio))
     {
@@ -109,14 +110,16 @@ void clienthandlechatmessage(SteamNetworkingMessage_t *netmessage)
     }
 
     if (length(cs) < morechattext)
-        GetMainConsole().console(prefix + "[" + (sprite[i].player->name) + "] " + cs, col);
+        GetMainConsole().console(
+            prefix + "[" + (SpriteSystem::Get().GetSprite(i).player->name) + "] " + cs, col);
     else
     {
-        GetMainConsole().console(prefix + "[" + (sprite[i].player->name) + "] ", col);
+        GetMainConsole().console(
+            prefix + "[" + (SpriteSystem::Get().GetSprite(i).player->name) + "] ", col);
         GetMainConsole().console(std::string(" ") + cs, col);
     }
 
-    /*if Radio and Sprite[i].IsInSameTeam(Sprite[MySprite]) then
+    /*if Radio and SpriteSystem::Get().GetSprite(i).IsInSameTeam(SpriteSystem::Get().GetSprite(MySprite)) then
     begin
       PlayRadioSound(RadioID)
     end;*/

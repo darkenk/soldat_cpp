@@ -8,6 +8,7 @@
 #include "../misc/MemoryUtils.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include <clocale>
 #include <cuchar>
 #include <steam/isteamnetworkingmessages.h>
@@ -40,16 +41,19 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
     if (((from > 0) && (from < max_players + 1)) || (from == 255))
     {
         for (i = 1; i <= max_players; i++)
-            if (sprite[i].active && (sprite[i].player->controlmethod == human))
+            if (SpriteSystem::Get().GetSprite(i).active &&
+                (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
                 if ((tonum == 0) || (i == tonum))
                 {
                     if (!((from == 255) && (tonum == 0))) // TODO: Simplify it.
                         if ((!((msgtype == msgtype_team) || (msgtype == msgtype_radio)) ||
                              (from == 255)) or
                             (((msgtype == msgtype_team) || (msgtype == msgtype_radio)) and
-                             sprite[from].isinsameteam(sprite[i])))
-                            GetServerNetwork()->senddata(pchatmessage, size, sprite[i].player->peer,
-                                                         k_nSteamNetworkingSend_Reliable);
+                             SpriteSystem::Get().GetSprite(from).isinsameteam(
+                                 SpriteSystem::Get().GetSprite(i))))
+                            GetServerNetwork()->senddata(
+                                pchatmessage, size, SpriteSystem::Get().GetSprite(i).player->peer,
+                                k_nSteamNetworkingSend_Reliable);
                 }
     }
     freemem(pchatmessage);
@@ -58,11 +62,12 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
         return;
 
     // show text on servers side
-    if (sprite[from].player->controlmethod == bot)
+    if (SpriteSystem::Get().GetSprite(from).player->controlmethod == bot)
     {
         auto msg = iif(msgtype == msgtype_team, std::string("(TEAM)"), std::string(""));
-        GetServerMainConsole().console(msg + "[" + sprite[from].player->name + "] " + text,
-                                       teamchat_message_color);
+        GetServerMainConsole().console(
+            msg + "[" + SpriteSystem::Get().GetSprite(from).player->name + "] " + text,
+            teamchat_message_color);
     }
 }
 
@@ -178,9 +183,11 @@ void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8
     strcpy(pchatmessage->text.data(), (pchar)(text));
 
     for (i = 1; i <= max_players; i++)
-        if (sprite[i].active && (sprite[i].player->controlmethod == human))
+        if (SpriteSystem::Get().GetSprite(i).active &&
+            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
             if ((tonum == 0) || (i == tonum))
-                GetServerNetwork()->senddata(pchatmessage, size, sprite[i].player->peer,
+                GetServerNetwork()->senddata(pchatmessage, size,
+                                             SpriteSystem::Get().GetSprite(i).player->peer,
                                              k_nSteamNetworkingSend_Reliable);
 
     freemem(pchatmessage);

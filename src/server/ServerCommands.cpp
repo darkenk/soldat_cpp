@@ -8,6 +8,7 @@
 #include "shared/Command.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/network/NetworkServer.hpp"
 #include "shared/network/NetworkServerConnection.hpp"
 #include "shared/network/NetworkServerFunctions.hpp"
@@ -154,7 +155,7 @@ void commandkick(std::vector<std::string> &args, std::uint8_t sender)
 void commandkicklast(std::vector<std::string> &args, std::uint8_t sender)
 {
     if ((lastplayer > 0) && (lastplayer < max_sprites + 1))
-        if (sprite[lastplayer].active)
+        if (SpriteSystem::Get().GetSprite(lastplayer).active)
             kickplayer(lastplayer, false, kick_console, 0);
 }
 
@@ -175,7 +176,7 @@ void commandban(std::vector<std::string> &args, std::uint8_t sender)
     if (sender == 255)
         tempstr = "an admin";
     else
-        tempstr = sprite[sender].player->name;
+        tempstr = SpriteSystem::Get().GetSprite(sender).player->name;
 
     targets = commandtarget(name, sender);
     for (i = 0; i <= high(targets); i++)
@@ -197,7 +198,7 @@ void commandbaniphw(std::vector<std::string> &args, std::uint8_t sender)
     if (sender == 255)
         tempstr = "an admin";
     else
-        tempstr = sprite[sender].player->name;
+        tempstr = SpriteSystem::Get().GetSprite(sender).player->name;
 
     if (args[0] == "banhw")
     {
@@ -267,10 +268,10 @@ void commandadm(std::vector<std::string> &args, std::uint8_t sender)
 
     targets = commandtarget(name, sender);
     for (i = 0; i <= high(targets); i++)
-        if (isremoteadminip(sprite[targets[i]].player->ip))
+        if (isremoteadminip(SpriteSystem::Get().GetSprite(targets[i]).player->ip))
         {
-            remoteips.add(sprite[targets[i]].player->ip);
-            GetServerMainConsole().console(string("IP number ") + sprite[targets[i]].player->ip +
+            remoteips.add(SpriteSystem::Get().GetSprite(targets[i]).player->ip);
+            GetServerMainConsole().console(string("IP number ") + SpriteSystem::Get().GetSprite(targets[i]).player->ip +
                                                " added to Remote Admins",
                                            client_message_color, sender);
             savetxtlists();
@@ -348,7 +349,7 @@ void commandsetteam(std::vector<std::string> &args, std::uint8_t sender)
     targets = commandtarget(name, sender);
     for (i = 0; i <= high(targets); i++)
     {
-        sprite[targets[i]].changeteam(teamset, true);
+        SpriteSystem::Get().GetSprite(targets[i]).changeteam(teamset, true);
     }
 }
 
@@ -382,9 +383,9 @@ void commandkill(std::vector<std::string> &args, std::uint8_t sender)
     targets = commandtarget(name, sender);
     for (i = 0; i <= high(targets); i++)
     {
-        sprite[targets[i]].vest = 0;
-        sprite[targets[i]].healthhit(3430, targets[i], 1, -1, a);
-        GetServerMainConsole().console(sprite[targets[i]].player->name + " killed by admin",
+        SpriteSystem::Get().GetSprite(targets[i]).vest = 0;
+        SpriteSystem::Get().GetSprite(targets[i]).healthhit(3430, targets[i], 1, -1, a);
+        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name + " killed by admin",
                                        client_message_color, sender);
     }
 }
@@ -408,8 +409,8 @@ void commandloadwep(std::vector<std::string> &args, std::uint8_t sender)
     loadweapons(name);
 
     for (i = 1; i <= max_players; i++)
-        if (sprite[i].active)
-            if (sprite[i].player->controlmethod == human)
+        if (SpriteSystem::Get().GetSprite(i).active)
+            if (SpriteSystem::Get().GetSprite(i).player->controlmethod == human)
                 servervars(i);
 }
 
@@ -439,20 +440,21 @@ void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
         thing[i].kill();
     for (i = 1; i <= max_players; i++)
     {
-        if (sprite[i].active)
+        if (SpriteSystem::Get().GetSprite(i).active)
         {
-            sprite[i].player->team = fixteam(sprite[i].player->team);
-            sprite[i].respawn();
-            sprite[i].player->kills = 0;
-            sprite[i].player->deaths = 0;
-            sprite[i].player->flags = 0;
+            SpriteSystem::Get().GetSprite(i).player->team =
+                fixteam(SpriteSystem::Get().GetSprite(i).player->team);
+            SpriteSystem::Get().GetSprite(i).respawn();
+            SpriteSystem::Get().GetSprite(i).player->kills = 0;
+            SpriteSystem::Get().GetSprite(i).player->deaths = 0;
+            SpriteSystem::Get().GetSprite(i).player->flags = 0;
 
-            sprite[i].player->tkwarnings = 0;
-            sprite[i].player->chatwarnings = 0;
-            sprite[i].player->knifewarnings = 0;
+            SpriteSystem::Get().GetSprite(i).player->tkwarnings = 0;
+            SpriteSystem::Get().GetSprite(i).player->chatwarnings = 0;
+            SpriteSystem::Get().GetSprite(i).player->knifewarnings = 0;
 
-            sprite[i].player->scorespersecond = 0;
-            sprite[i].player->grabspersecond = 0;
+            SpriteSystem::Get().GetSprite(i).player->scorespersecond = 0;
+            SpriteSystem::Get().GetSprite(i).player->grabspersecond = 0;
         }
     }
 
@@ -529,15 +531,15 @@ void commandgmute(std::vector<std::string> &args, std::uint8_t sender)
     targets = commandtarget(name, sender);
     for (i = 0; i <= high(targets); i++)
     {
-        sprite[targets[i]].player->muted = 1;
+        SpriteSystem::Get().GetSprite(targets[i]).player->muted = 1;
         for (j = 1; j <= max_players; j++)
             if (trim(mutelist[j]) == "")
             {
-                mutelist[j] = sprite[targets[i]].player->ip;
-                mutename[j] = sprite[targets[i]].player->name;
+                mutelist[j] = SpriteSystem::Get().GetSprite(targets[i]).player->ip;
+                mutename[j] = SpriteSystem::Get().GetSprite(targets[i]).player->name;
                 break;
             }
-        GetServerMainConsole().console(sprite[targets[i]].player->name + " has been muted.",
+        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name + " has been muted.",
                                        client_message_color, sender);
     }
 }
@@ -559,14 +561,14 @@ void commandungmute(std::vector<std::string> &args, std::uint8_t sender)
     targets = commandtarget(name, sender);
     for (i = 0; i <= high(targets); i++)
     {
-        sprite[targets[i]].player->muted = 0;
+        SpriteSystem::Get().GetSprite(targets[i]).player->muted = 0;
         for (j = 1; j <= max_players; j++)
-            if (trim(mutelist[j]) == sprite[targets[i]].player->ip)
+            if (trim(mutelist[j]) == SpriteSystem::Get().GetSprite(targets[i]).player->ip)
             {
                 mutelist[j] = "";
                 break;
             }
-        GetServerMainConsole().console(sprite[targets[i]].player->name + " has been unmuted.",
+        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name + " has been unmuted.",
                                        client_message_color, sender);
     }
 }
@@ -660,7 +662,8 @@ void commandweaponon(std::vector<std::string> &args, std::uint8_t sender)
         return;
 
     for (i = 1; i <= max_players; i++)
-        if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
+        if ((SpriteSystem::Get().GetSprite(i).active) &&
+            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
         {
             j = strtointdef(name, -1);
             if ((j > -1) && (j < 15))
@@ -682,7 +685,8 @@ void commandweaponoff(std::vector<std::string> &args, std::uint8_t sender)
         return;
 
     for (i = 1; i <= max_players; i++)
-        if ((sprite[i].active) && (sprite[i].player->controlmethod == human))
+        if ((SpriteSystem::Get().GetSprite(i).active) &&
+            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
         {
             j = strtointdef(name, -1);
             if ((j > -1) && (j < 15))
@@ -775,54 +779,54 @@ void commandplayercommand(std::vector<std::string> &args, std::uint8_t sender)
 
     if (command == "tabac")
     {
-        sprite[sender].idlerandom = 0;
-        sprite[sender].idletime = 1;
+        SpriteSystem::Get().GetSprite(sender).idlerandom = 0;
+        SpriteSystem::Get().GetSprite(sender).idletime = 1;
     }
     else if (command == "smoke")
     {
-        sprite[sender].idlerandom = 1;
-        sprite[sender].idletime = 1;
+        SpriteSystem::Get().GetSprite(sender).idlerandom = 1;
+        SpriteSystem::Get().GetSprite(sender).idletime = 1;
     }
     else if (command == "takeoff")
     {
-        sprite[sender].idlerandom = 4;
-        sprite[sender].idletime = 1;
+        SpriteSystem::Get().GetSprite(sender).idlerandom = 4;
+        SpriteSystem::Get().GetSprite(sender).idletime = 1;
     }
     else if (command == "victory")
     {
-        sprite[sender].idlerandom = 5;
-        sprite[sender].idletime = 1;
+        SpriteSystem::Get().GetSprite(sender).idlerandom = 5;
+        SpriteSystem::Get().GetSprite(sender).idletime = 1;
     }
     else if (command == "piss")
     {
-        sprite[sender].idlerandom = 6;
-        sprite[sender].idletime = 1;
+        SpriteSystem::Get().GetSprite(sender).idlerandom = 6;
+        SpriteSystem::Get().GetSprite(sender).idletime = 1;
     }
     else if (command == "mercy")
     {
-        sprite[sender].idlerandom = 7;
-        sprite[sender].idletime = 1;
-        if (sprite[sender].player->kills > 0)
-            sprite[sender].player->kills -= 1;
+        SpriteSystem::Get().GetSprite(sender).idlerandom = 7;
+        SpriteSystem::Get().GetSprite(sender).idletime = 1;
+        if (SpriteSystem::Get().GetSprite(sender).player->kills > 0)
+            SpriteSystem::Get().GetSprite(sender).player->kills -= 1;
     }
     else if (command == "pwn")
     {
-        sprite[sender].idlerandom = 8;
-        sprite[sender].idletime = 1;
+        SpriteSystem::Get().GetSprite(sender).idlerandom = 8;
+        SpriteSystem::Get().GetSprite(sender).idletime = 1;
     }
     else if (command == "kill")
     {
-        sprite[sender].vest = 0;
-        sprite[sender].healthhit(150, sender, 1, -1, a);
-        if (sprite[sender].player->kills > 0)
-            sprite[sender].player->kills -= 1;
+        SpriteSystem::Get().GetSprite(sender).vest = 0;
+        SpriteSystem::Get().GetSprite(sender).healthhit(150, sender, 1, -1, a);
+        if (SpriteSystem::Get().GetSprite(sender).player->kills > 0)
+            SpriteSystem::Get().GetSprite(sender).player->kills -= 1;
     }
     else if (command == "brutalkill")
     {
-        sprite[sender].vest = 0;
-        sprite[sender].healthhit(3423, sender, 1, -1, a);
-        if (sprite[sender].player->kills > 0)
-            sprite[sender].player->kills -= 1;
+        SpriteSystem::Get().GetSprite(sender).vest = 0;
+        SpriteSystem::Get().GetSprite(sender).healthhit(3423, sender, 1, -1, a);
+        if (SpriteSystem::Get().GetSprite(sender).player->kills > 0)
+            SpriteSystem::Get().GetSprite(sender).player->kills -= 1;
     }
 }
 
@@ -910,14 +914,14 @@ void commandadminlog(std::vector<std::string> &args, std::uint8_t sender)
     {
         if (adminlog == CVar::sv_adminpassword)
         {
-            if (!isadminip(sprite[sender].player->ip))
-                adminips.add(sprite[sender].player->ip);
-            GetServerMainConsole().console(sprite[sender].player->name + " added to Game Admins",
+            if (!isadminip(SpriteSystem::Get().GetSprite(sender).player->ip))
+                adminips.add(SpriteSystem::Get().GetSprite(sender).player->ip);
+            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(sender).player->name + " added to Game Admins",
                                            server_message_color, sender);
         }
         else
         {
-            GetServerMainConsole().console(sprite[sender].player->name +
+            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(sender).player->name +
                                                " tried to login as Game Admin with bad password",
                                            server_message_color, sender);
         }

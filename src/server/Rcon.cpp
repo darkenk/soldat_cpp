@@ -155,29 +155,29 @@ void tadminserver::processcommands()
         for (i = 1; i <= max_players; i++)
             if (sortedplayers[i].playernum > 0)
             {
-                refreshmsgx.name[i] = sprite[sortedplayers[i].playernum].player.name;
+                refreshmsgx.name[i] = SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.name;
 #ifdef STEAM
                 refreshmsgx.hwid[i] = inttostr(
-                    tsteamid(sprite[sortedplayers[i].playernum].player.steamid).getaccountid);
+                    tsteamid(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.steamid).getaccountid);
 #else
-                refreshmsgx.hwid[i] = sprite[sortedplayers[i].playernum].player.hwid;
+                refreshmsgx.hwid[i] = SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.hwid;
 #endif
-                refreshmsgx.kills[i] = sprite[sortedplayers[i].playernum].player.kills;
-                refreshmsgx.caps[i] = sprite[sortedplayers[i].playernum].player.flags;
-                refreshmsgx.deaths[i] = sprite[sortedplayers[i].playernum].player.deaths;
-                refreshmsgx.ping[i] = sprite[sortedplayers[i].playernum].player.pingtime;
-                refreshmsgx.team[i] = sprite[sortedplayers[i].playernum].player.team;
-                refreshmsgx.number[i] = sprite[sortedplayers[i].playernum].num;
-                refreshmsgx.x[i] = iif(sprite[sortedplayers[i].playernum].deadmeat, 0,
-                                       sprite[sortedplayers[i].playernum].skeleton.pos[1].x);
-                refreshmsgx.y[i] = iif(sprite[sortedplayers[i].playernum].deadmeat, 0,
-                                       sprite[sortedplayers[i].playernum].skeleton.pos[1].y);
+                refreshmsgx.kills[i] = SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.kills;
+                refreshmsgx.caps[i] = SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.flags;
+                refreshmsgx.deaths[i] = SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.deaths;
+                refreshmsgx.ping[i] = SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.pingtime;
+                refreshmsgx.team[i] = SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.team;
+                refreshmsgx.number[i] = SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).num;
+                refreshmsgx.x[i] = iif(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).deadmeat, 0,
+                                       SpriteSystem::Get().GetSprite(sortedplayers[i].playernum].skeleton.pos[1).x);
+                refreshmsgx.y[i] = iif(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).deadmeat, 0,
+                                       SpriteSystem::Get().GetSprite(sortedplayers[i].playernum].skeleton.pos[1).y);
 
-                if (sprite[sortedplayers[i].playernum].player.controlmethod == human)
+                if (SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.controlmethod == human)
                 {
                     n = 1;
                     c = 0;
-                    ips = sprite[sortedplayers[i].playernum].player.ip;
+                    ips = SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.ip;
                     for (j = 1; j <= length(ips); j++)
                     {
                         c += 1;

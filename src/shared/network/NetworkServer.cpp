@@ -10,6 +10,7 @@
 #include "NetworkServerSprite.hpp"
 #include "NetworkServerThing.hpp"
 #include "common/Logging.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -154,8 +155,8 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
 #ifdef SCRIPT
             ScrptDispatcher.OnLeaveGame(Player->spritenum, false);
 #endif
-            sprite[Player->spritenum].kill();
-            sprite[Player->spritenum].player = &dummyplayer;
+            SpriteSystem::Get().GetSprite(Player->spritenum).kill();
+            SpriteSystem::Get().GetSprite(Player->spritenum).player = &dummyplayer;
         }
 
         LogWarn(LOG_NET, "Connection lost {} {}", pInfo->m_info.m_eEndReason,
@@ -254,7 +255,8 @@ void tservernetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
     }
 
     // all the following commands can only be issued after the player has joined the game.
-    if ((Player->spritenum == 0) or (sprite[Player->spritenum].player != Player))
+    if ((Player->spritenum == 0) or
+        (SpriteSystem::Get().GetSprite(Player->spritenum).player != Player))
     {
         return;
     }
@@ -362,15 +364,16 @@ bool tservernetwork::senddata(const std::byte *Data, std::int32_t Size, HSteamNe
 void tservernetwork::UpdateNetworkStats(std::uint8_t Player)
 {
     SteamNetworkingQuickConnectionStatus Stats;
-    Stats = GetQuickConnectionStatus(sprite[Player].player->peer);
-    sprite[Player].player->realping = Stats.m_nPing;
+    Stats = GetQuickConnectionStatus(SpriteSystem::Get().GetSprite(Player).player->peer);
+    SpriteSystem::Get().GetSprite(Player).player->realping = Stats.m_nPing;
     if (Stats.m_flConnectionQualityLocal > 0.0)
     {
-        sprite[Player].player->connectionquality = Stats.m_flConnectionQualityLocal * 100;
+        SpriteSystem::Get().GetSprite(Player).player->connectionquality =
+            Stats.m_flConnectionQualityLocal * 100;
     }
     else
     {
-        sprite[Player].player->connectionquality = 0;
+        SpriteSystem::Get().GetSprite(Player).player->connectionquality = 0;
     }
 }
 

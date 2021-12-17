@@ -10,6 +10,7 @@
 #include "shared/Constants.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/network/NetworkClientMessages.hpp"
 #include <regex>
 
@@ -170,8 +171,9 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
     targets = commandtarget(str1, sender);
     for (i = 0; i <= high(targets); i++)
     {
-        sprite[targets[i]].muted = true;
-        GetMainConsole().console(sprite[targets[i]].player->name + " is muted",
+        SpriteSystem::Get().GetSprite(targets[i]).muted = true;
+        GetMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name +
+                                     " is muted",
                                  client_message_color);
     }
 }
@@ -196,8 +198,9 @@ void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
     targets = commandtarget(str1, sender);
     for (i = 0; i <= high(targets); i++)
     {
-        sprite[targets[i]].muted = false;
-        GetMainConsole().console(sprite[targets[i]].player->name + " is unmuted",
+        SpriteSystem::Get().GetSprite(targets[i]).muted = false;
+        GetMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name +
+                                     " is unmuted",
                                  client_message_color);
     }
 }
@@ -252,7 +255,7 @@ void commandswitchcam(std::vector<std::string> &args, std::uint8_t sender)
         GetMainConsole().console("Usage: switchcam \"id\"", game_message_color);
         return;
     }
-    if (sprite[mysprite].isspectator())
+    if (SpriteSystem::Get().GetSprite(mysprite).isspectator())
         camerafollowsprite = strtointdef(args[1], 0);
 }
 
@@ -265,7 +268,7 @@ void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
         GetMainConsole().console("Usage: switchcamflag \"id\"", game_message_color);
         return;
     }
-    if (sprite[mysprite].isspectator())
+    if (SpriteSystem::Get().GetSprite(mysprite).isspectator())
     {
         for (i = 1; i <= max_things; i++)
         {

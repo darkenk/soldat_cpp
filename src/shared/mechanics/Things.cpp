@@ -17,6 +17,7 @@
 
 #include "../Cvar.hpp"
 #include "../Game.hpp"
+#include "SpriteSystem.hpp"
 #include "common/Calc.hpp"
 #include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
@@ -101,7 +102,7 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
 
     if (owner != 255)
     {
-        if (sprite[owner].direction == 1)
+        if (SpriteSystem::Get().GetSprite(owner).direction == 1)
             k = 0;
         else
             k = 1;
@@ -520,9 +521,9 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
                 vec2add(thing[i].skeleton.pos[2], spriteparts.velocity[owner]);
 
             // Add throw velocity
-            b = sprite[owner].getcursoraimdirection();
+            b = SpriteSystem::Get().GetSprite(owner).getcursoraimdirection();
 
-            if (!sprite[owner].deadmeat)
+            if (!SpriteSystem::Get().GetSprite(owner).deadmeat)
             {
                 weaponthrowspeedpos1 = 0.01;
                 weaponthrowspeedpos2 = 3;
@@ -769,19 +770,19 @@ void Thing<M>::update()
         if (style < object_ussocom)
             if ((holdingsprite > 0) && (holdingsprite < max_sprites + 1))
             {
-                skeleton.pos[1] = sprite[holdingsprite].skeleton.pos[8];
+                skeleton.pos[1] = SpriteSystem::Get().GetSprite(holdingsprite).skeleton.pos[8];
                 skeleton.forces[2].y = skeleton.forces[2].y + flag_holding_forceup * grav;
                 interest = default_interest_time;
 
                 interest = flag_interest_time;
 
-                sprite[holdingsprite].holdedthing = num;
+                SpriteSystem::Get().GetSprite(holdingsprite).holdedthing = num;
                 timeout = flag_timeout;
 
                 if (bgstate.backgroundstatus != background_transition)
                 {
-                    bgstate.backgroundstatus = sprite[holdingsprite].bgstate.backgroundstatus;
-                    bgstate.backgroundpoly = sprite[holdingsprite].bgstate.backgroundpoly;
+                    bgstate.backgroundstatus = SpriteSystem::Get().GetSprite(holdingsprite).bgstate.backgroundstatus;
+                    bgstate.backgroundpoly = SpriteSystem::Get().GetSprite(holdingsprite).bgstate.backgroundpoly;
                 }
             } // HoldingSprite > 0
     }
@@ -806,7 +807,7 @@ void Thing<M>::update()
 
 #ifdef SERVER
             if ((holdingsprite > 0) && (holdingsprite < max_sprites + 1))
-                if (sprite[holdingsprite].player->team == style)
+                if (SpriteSystem::Get().GetSprite(holdingsprite).player->team == style)
                     respawn();
 #endif
         }
@@ -834,14 +835,14 @@ void Thing<M>::update()
 #ifdef SERVER
     if ((style == object_alpha_flag) || (style == object_bravo_flag))
         if ((holdingsprite > 0) && (holdingsprite < max_sprites + 1))
-            if (sprite[holdingsprite].player->team != style)
+            if (SpriteSystem::Get().GetSprite(holdingsprite).player->team != style)
             { // check if other flag is inbase
                 for (i = 1; i <= max_things; i++)
                     if ((thing[i].active) && (thing[i].inbase) && (i != num) &&
                         (thing[i].holdingsprite == 0)) // check if flags are close
                         if (distance(skeleton.pos[1], thing[i].skeleton.pos[1]) < touchdown_radius)
                         {
-                            if (sprite[holdingsprite].player->team == team_alpha)
+                            if (SpriteSystem::Get().GetSprite(holdingsprite).player->team == team_alpha)
                             {
 #ifndef SERVER
                                 if (sv_gamemode.intvalue == gamestyle_inf)
@@ -850,8 +851,8 @@ void Thing<M>::update()
                                     playsound(sfx_ctf);
 #endif
 
-                                sprite[holdingsprite].player->flags =
-                                    sprite[holdingsprite].player->flags + 1;
+                                SpriteSystem::Get().GetSprite(holdingsprite).player->flags =
+                                    SpriteSystem::Get().GetSprite(holdingsprite).player->flags + 1;
                                 teamscore[1] += 1;
 
                                 b.x = 0;
@@ -885,28 +886,28 @@ void Thing<M>::update()
 
                                 sortplayers();
 #ifdef SERVER
-                                GetMainConsole().console(sprite[holdingsprite].player->name + ' ' +
+                                GetMainConsole().console(SpriteSystem::Get().GetSprite(holdingsprite).player->name + ' ' +
                                                              "scores for Alpha Team",
                                                          alpha_message_color);
-                                sprite[holdingsprite].player->scorespersecond += 1;
+                                SpriteSystem::Get().GetSprite(holdingsprite).player->scorespersecond += 1;
 #else
                                 bigmessage(_("Alpha Team Scores!"), capturectfmessagewait,
                                            alpha_message_color);
                                 GetMainConsole().console(
                                     wideformat(_("{} scores for Alpha Team"),
-                                               set::of(sprite[holdingsprite].player->name, eos)),
+                                               set::of(SpriteSystem::Get().GetSprite(holdingsprite).player->name, eos)),
                                     alpha_message_color);
 #endif
 
                                 serverflaginfo(capturered, holdingsprite);
                             }
-                            if (sprite[holdingsprite].player->team == team_bravo)
+                            if (SpriteSystem::Get().GetSprite(holdingsprite).player->team == team_bravo)
                             {
 #ifndef SERVER
                                 playsound(sfx_ctf);
 #endif
-                                sprite[holdingsprite].player->flags =
-                                    sprite[holdingsprite].player->flags + 1;
+                                SpriteSystem::Get().GetSprite(holdingsprite).player->flags =
+                                    SpriteSystem::Get().GetSprite(holdingsprite).player->flags + 1;
                                 teamscore[2] += 1;
 
 #ifndef SERVER
@@ -918,16 +919,16 @@ void Thing<M>::update()
 
                                 sortplayers();
 #ifdef SERVER
-                                GetMainConsole().console(sprite[holdingsprite].player->name + ' ' +
+                                GetMainConsole().console(SpriteSystem::Get().GetSprite(holdingsprite).player->name + ' ' +
                                                              "scores for Bravo Team",
                                                          bravo_message_color);
-                                sprite[holdingsprite].player->scorespersecond += 1;
+                                SpriteSystem::Get().GetSprite(holdingsprite).player->scorespersecond += 1;
 #else
                                 bigmessage(_("Bravo Team Scores!"), capturectfmessagewait,
                                            bravo_message_color);
                                 GetMainConsole().console(
                                     wideformat(_("{} scores for Bravo Team"),
-                                               set::of(sprite[holdingsprite].player->name, eos)),
+                                               set::of(SpriteSystem::Get().GetSprite(holdingsprite).player->name, eos)),
                                     bravo_message_color);
 #endif
                                 serverflaginfo(captureblue, holdingsprite);
@@ -938,10 +939,10 @@ void Thing<M>::update()
 
                             if (CVar::bots_chat)
                             {
-                                if (sprite[holdingsprite].player->controlmethod == bot)
-                                    if (Random(sprite[holdingsprite].brain.chatfreq / 3) == 0)
+                                if (SpriteSystem::Get().GetSprite(holdingsprite).player->controlmethod == bot)
+                                    if (Random(SpriteSystem::Get().GetSprite(holdingsprite).brain.chatfreq / 3) == 0)
                                         serversendstringmessage(
-                                            (sprite[holdingsprite].brain.chatwinning), all_players,
+                                            (SpriteSystem::Get().GetSprite(holdingsprite).brain.chatwinning), all_players,
                                             holdingsprite, msgtype_pub);
                             }
 
@@ -954,17 +955,19 @@ void Thing<M>::update()
                                 // Everyone should die in floatistic after cap
                                 // because if nobody is dead the round will not end
                                 for (j = 1; j <= max_sprites; j++)
-                                    if (sprite[j].active && !sprite[j].deadmeat)
+                                    if (SpriteSystem::Get().GetSprite(j).active &&
+                                        !SpriteSystem::Get().GetSprite(j).deadmeat)
                                     {
-                                        sprite[j].healthhit(
+                                        SpriteSystem::Get().GetSprite(j).healthhit(
 #ifdef SERVER
                                             4000
 #else
                                             150
 #endif
                                             ,
-                                            j, 1, -1, sprite[j].skeleton.pos[12]);
-                                        sprite[j].player->deaths -= 1;
+                                            j, 1, -1,
+                                            SpriteSystem::Get().GetSprite(j).skeleton.pos[12]);
+                                        SpriteSystem::Get().GetSprite(j).player->deaths -= 1;
                                     }
                             }
                         }
@@ -992,9 +995,9 @@ void Thing<M>::update()
     if (style == object_rambo_bow)
     {
         for (i = 1; i <= max_sprites; i++)
-            if (sprite[i].active)
-                if ((sprite[i].weapon.num == guns[bow].num) ||
-                    (sprite[i].weapon.num == guns[bow2].num))
+            if (SpriteSystem::Get().GetSprite(i).active)
+                if ((SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow].num) ||
+                    (SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow2].num))
                 {
 #ifndef SERVER
                     gamethingtarget = 0;
@@ -1016,9 +1019,9 @@ void Thing<M>::update()
     {
         if ((holdingsprite > 0) && (holdingsprite < max_sprites + 1))
         {
-            skeleton.pos[4] = sprite[holdingsprite].skeleton.pos[12];
+            skeleton.pos[4] = SpriteSystem::Get().GetSprite(holdingsprite).skeleton.pos[12];
             skeleton.forces[1].y = -spriteparts.velocity[holdingsprite].y;
-            sprite[holdingsprite].holdedthing = num;
+            SpriteSystem::Get().GetSprite(holdingsprite).holdedthing = num;
 
             if (skeleton.pos[3].x < skeleton.pos[4].x)
             {
@@ -1109,8 +1112,8 @@ void Thing<M>::render(double timeelapsed)
 
     if (CVar::sv_realisticmode)
         if ((owner > 0) && (owner < max_sprites + 1))
-            if (sprite[owner].active)
-                if (sprite[owner].visible == 0)
+            if (SpriteSystem::Get().GetSprite(owner).active)
+                if (SpriteSystem::Get().GetSprite(owner).visible == 0)
                     return;
 
     pos1 = &skeleton.pos[1];
@@ -1134,7 +1137,7 @@ void Thing<M>::render(double timeelapsed)
     case object_pointmatch_flag: // Flag
     {
         if ((CVar::sv_realisticmode) && (holdingsprite > 0))
-            if (sprite[holdingsprite].visible == 0)
+            if (SpriteSystem::Get().GetSprite(holdingsprite).visible == 0)
                 return;
 
         // fade out (sort of)
@@ -1308,7 +1311,7 @@ void Thing<M>::polygonsrender()
                 return;
 
         if ((CVar::sv_realisticmode) && (holdingsprite > 0))
-            if (sprite[holdingsprite].visible == 0)
+            if (SpriteSystem::Get().GetSprite(holdingsprite).visible == 0)
                 return;
     }
     break;
@@ -1434,7 +1437,7 @@ bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
 
             if ((owner > 0) && (owner < max_sprites + 1))
             {
-                teamcol = teamcollides(polytype, sprite[owner].player->team, false);
+                teamcol = teamcollides(polytype, SpriteSystem::Get().GetSprite(owner).player->team, false);
             }
 
             if ((style < object_ussocom) && (polytype > poly_type_lava) &&
@@ -1642,7 +1645,7 @@ void Thing<M>::checkoutofbounds()
             case object_parachute: {
 #ifndef SERVER
                 if ((holdingsprite > 0) && (holdingsprite < max_sprites + 1))
-                    sprite[holdingsprite].holdedthing = 0;
+                    SpriteSystem::Get().GetSprite(holdingsprite).holdedthing = 0;
                 holdingsprite = 0;
                 kill();
 #endif
@@ -1665,11 +1668,11 @@ void Thing<M>::respawn()
 
     if ((holdingsprite > 0) && (holdingsprite < max_sprites + 1))
     {
-        sprite[holdingsprite].holdedthing = 0;
-        if (sprite[holdingsprite].player->team == team_alpha)
-            sprite[holdingsprite].brain.pathnum = 1;
-        if (sprite[holdingsprite].player->team == team_bravo)
-            sprite[holdingsprite].brain.pathnum = 2;
+        SpriteSystem::Get().GetSprite(holdingsprite).holdedthing = 0;
+        if (SpriteSystem::Get().GetSprite(holdingsprite).player->team == team_alpha)
+            SpriteSystem::Get().GetSprite(holdingsprite).brain.pathnum = 1;
+        if (SpriteSystem::Get().GetSprite(holdingsprite).player->team == team_bravo)
+            SpriteSystem::Get().GetSprite(holdingsprite).brain.pathnum = 2;
     }
 
     kill();
@@ -1794,7 +1797,8 @@ std::int32_t Thing<M>::checkspritecollision()
     closestdist = 9999999;
     closestplayer = -1;
     for (j = 1; j <= max_sprites; j++)
-        if (sprite[j].active && !sprite[j].deadmeat && sprite[j].isnotspectator())
+        if (SpriteSystem::Get().GetSprite(j).active && !SpriteSystem::Get().GetSprite(j).deadmeat &&
+            SpriteSystem::Get().GetSprite(j).isnotspectator())
         {
             colpos = spriteparts.pos[j];
             norm = vec2subtract(pos, colpos);
@@ -1816,12 +1820,16 @@ std::int32_t Thing<M>::checkspritecollision()
             if (dist < radius)
                 if (dist < closestdist)
 #ifdef SERVER
-                    if (!((style == object_medical_kit) && (sprite[j].GetHealth() == starthealth)))
+                    if (!((style == object_medical_kit) &&
+                          (SpriteSystem::Get().GetSprite(j).GetHealth() == starthealth)))
                         if (!((style == object_grenade_kit) &&
-                              (sprite[j].tertiaryweapon.ammocount == CVar::sv_maxgrenades) &&
-                              (sprite[j].tertiaryweapon.num == guns[fraggrenade].num)))
+                              (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount ==
+                               CVar::sv_maxgrenades) &&
+                              (SpriteSystem::Get().GetSprite(j).tertiaryweapon.num ==
+                               guns[fraggrenade].num)))
 #endif
-                            if (!((style < object_ussocom) && (sprite[j].ceasefirecounter > 0)))
+                            if (!((style < object_ussocom) &&
+                                  (SpriteSystem::Get().GetSprite(j).ceasefirecounter > 0)))
                             {
                                 closestdist = dist;
                                 closestplayer = j;
@@ -1833,57 +1841,62 @@ std::int32_t Thing<M>::checkspritecollision()
     if (j > 0) // collision
     {
         if (((((style > object_pointmatch_flag) && (style < object_rambo_bow) &&
-               (sprite[j].bodyanimation.id != change.id)) ||
-              ((style > object_parachute) && (sprite[j].bodyanimation.id != change.id))) &&
-             (sprite[j].weapon.num == guns[noweapon].num) &&
-             (sprite[j].brain.favweapon != guns[noweapon].num) && (timeout < gunresisttime - 30)) ||
-            ((style == 15) && (sprite[j].weapon.num == guns[noweapon].num) &&
+               (SpriteSystem::Get().GetSprite(j).bodyanimation.id != change.id)) ||
+              ((style > object_parachute) &&
+               (SpriteSystem::Get().GetSprite(j).bodyanimation.id != change.id))) &&
+             (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num) &&
+             (SpriteSystem::Get().GetSprite(j).brain.favweapon != guns[noweapon].num) &&
+             (timeout < gunresisttime - 30)) ||
+            ((style == 15) && (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num) &&
              (timeout < (CVar::sv_respawntime * flag_timeout - 100))) ||
-            (((style == object_medical_kit) && (sprite[j].GetHealth() < starthealth)
+            (((style == object_medical_kit) &&
+              (SpriteSystem::Get().GetSprite(j).GetHealth() < starthealth)
 #ifdef SERVER
-              && (sprite[j].haspack == false)
+              && (SpriteSystem::Get().GetSprite(j).haspack == false)
 #endif
                   ) ||
              ((style == object_grenade_kit) &&
-              (sprite[j].tertiaryweapon.ammocount < CVar::sv_maxgrenades) &&
-              ((sprite[j].tertiaryweapon.num != guns[clustergrenade].num) ||
-               (sprite[j].tertiaryweapon.ammocount == 0)))) ||
-            ((((style == object_flamer_kit) && (sprite[j].weapon.num != guns[bow].num) &&
-               (sprite[j].weapon.num != guns[bow2].num)) ||
+              (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount < CVar::sv_maxgrenades) &&
+              ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num != guns[clustergrenade].num) ||
+               (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount == 0)))) ||
+            ((((style == object_flamer_kit) &&
+               (SpriteSystem::Get().GetSprite(j).weapon.num != guns[bow].num) &&
+               (SpriteSystem::Get().GetSprite(j).weapon.num != guns[bow2].num)) ||
               (style == object_predator_kit) || (style == object_berserk_kit)) &&
-             (sprite[j].bonusstyle == bonus_none) && (sprite[j].ceasefirecounter < 1)) ||
+             (SpriteSystem::Get().GetSprite(j).bonusstyle == bonus_none) &&
+             (SpriteSystem::Get().GetSprite(j).ceasefirecounter < 1)) ||
             ((style == object_vest_kit)
 #ifdef SERVER
-             && (sprite[j].vest < defaultvest)
+             && (SpriteSystem::Get().GetSprite(j).vest < defaultvest)
 #endif
                  ) ||
             ((style == object_cluster_kit)
 #ifdef SERVER
-             && ((sprite[j].tertiaryweapon.num == guns[fraggrenade].num) ||
-                 (sprite[j].tertiaryweapon.ammocount == 0))
+             && ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num == guns[fraggrenade].num) ||
+                 (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount == 0))
 #endif
                  ))
         {
 #ifndef SERVER
             if (((style > object_pointmatch_flag) && (style < object_rambo_bow)) ||
                 (style > object_parachute)) // take sound
-                playsound(sfx_takegun, spriteparts.pos[sprite[j].num]);
+                playsound(sfx_takegun, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
             else if (style == object_rambo_bow) // rambo sound
-                playsound(sfx_takebow, spriteparts.pos[sprite[j].num]);
+                playsound(sfx_takebow, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
             else if (style == object_medical_kit) // take medikit sound
-                playsound(sfx_takemedikit, spriteparts.pos[sprite[j].num]);
+                playsound(sfx_takemedikit, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
             else if (style == object_grenade_kit) // take grenade kit sound
-                playsound(sfx_pickupgun, spriteparts.pos[sprite[j].num]);
+                playsound(sfx_pickupgun, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
             else if (style == object_flamer_kit) // take flamer kit sound
-                playsound(sfx_godflame, spriteparts.pos[sprite[j].num]);
+                playsound(sfx_godflame, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
             else if (style == object_predator_kit) // take predator kit sound
-                playsound(sfx_predator, spriteparts.pos[sprite[j].num]);
+                playsound(sfx_predator, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
             else if (style == object_vest_kit) // take vest kit sound
-                playsound(sfx_vesttake, spriteparts.pos[sprite[j].num]);
+                playsound(sfx_vesttake, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
             else if (style == object_berserk_kit) // take berserker kit sound
-                playsound(sfx_berserker, spriteparts.pos[sprite[j].num]);
+                playsound(sfx_berserker, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
             else if (style == object_cluster_kit) // take cluster kit sound
-                playsound(sfx_pickupgun, spriteparts.pos[sprite[j].num]);
+                playsound(sfx_pickupgun, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
 #endif
 
 #ifdef SERVER
@@ -1915,9 +1928,9 @@ std::int32_t Thing<M>::checkspritecollision()
             timeout = flag_timeout;
             interest = flag_interest_time;
 
-            if ((sprite[j].player->team != style) || !inbase)
+            if ((SpriteSystem::Get().GetSprite(j).player->team != style) || !inbase)
             {
-                if ((holdingsprite == 0) && (sprite[j].flaggrabcooldown < 1))
+                if ((holdingsprite == 0) && (SpriteSystem::Get().GetSprite(j).flaggrabcooldown < 1))
                 {
 #ifndef SERVER
                     // capture sound
@@ -1933,7 +1946,7 @@ std::int32_t Thing<M>::checkspritecollision()
                     {
                     case gamestyle_htf:
                     case gamestyle_ctf:
-                        switch (sprite[j].player->team)
+                        switch (SpriteSystem::Get().GetSprite(j).player->team)
                         {
                         case team_alpha:
                             capcolor = alpha_message_color;
@@ -1956,11 +1969,13 @@ std::int32_t Thing<M>::checkspritecollision()
                     case gamestyle_pointmatch:
                     case gamestyle_htf: {
 #ifdef SERVER
-                        smallcaptextstr = sprite[j].player->name + " got the Yellow Flag";
+                        smallcaptextstr =
+                            SpriteSystem::Get().GetSprite(j).player->name + " got the Yellow Flag";
                         if (CVar::sv_gamemode == gamestyle_htf)
                         {
-                            sprite[j].player->grabbedinbase = thing[2].inbase;
-                            sprite[j].player->grabspersecond += 1;
+                            SpriteSystem::Get().GetSprite(j).player->grabbedinbase =
+                                thing[2].inbase;
+                            SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
                         }
 #else
                         bigcaptext =
@@ -1968,18 +1983,20 @@ std::int32_t Thing<M>::checkspritecollision()
                         smallcaptext = _("{} got the Yellow Flag");
 #endif
 #ifdef SCRIPT
-                        scrptdispatcher.onflaggrab(j, style, sprite[j].player->grabbedinbase);
+                        scrptdispatcher.onflaggrab(
+                            j, style, SpriteSystem::Get().GetSprite(j).player->grabbedinbase);
 #endif
                     }
                     break;
                     case gamestyle_ctf:
-                        if (sprite[j].player->team == style)
+                        if (SpriteSystem::Get().GetSprite(j).player->team == style)
                         {
-                            switch (sprite[j].player->team)
+                            switch (SpriteSystem::Get().GetSprite(j).player->team)
                             {
                             case team_alpha: {
 #ifdef SERVER
-                                smallcaptextstr = sprite[j].player->name + " returned the Red Flag";
+                                smallcaptextstr = SpriteSystem::Get().GetSprite(j).player->name +
+                                                  " returned the Red Flag";
 #else
                                 bigcaptext = _("Red flag returned!");
                                 smallcaptext = _("%s returned the Red Flag");
@@ -1988,8 +2005,8 @@ std::int32_t Thing<M>::checkspritecollision()
                             break;
                             case team_bravo: {
 #ifdef SERVER
-                                smallcaptextstr =
-                                    sprite[j].player->name + " returned the Blue Flag";
+                                smallcaptextstr = SpriteSystem::Get().GetSprite(j).player->name +
+                                                  " returned the Blue Flag";
 #else
                                 bigcaptext = _("Blue Flag returned!");
                                 smallcaptext = _("%s returned the Blue Flag");
@@ -2004,14 +2021,15 @@ std::int32_t Thing<M>::checkspritecollision()
                         }
                         else
                         {
-                            switch (sprite[j].player->team)
+                            switch (SpriteSystem::Get().GetSprite(j).player->team)
                             {
                             case team_alpha: {
 #ifdef SERVER
-                                smallcaptextstr =
-                                    sprite[j].player->name + " captured the Blue Flag";
-                                sprite[j].player->grabbedinbase = thing[2].inbase;
-                                sprite[j].player->grabspersecond += 1;
+                                smallcaptextstr = SpriteSystem::Get().GetSprite(j).player->name +
+                                                  " captured the Blue Flag";
+                                SpriteSystem::Get().GetSprite(j).player->grabbedinbase =
+                                    thing[2].inbase;
+                                SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
 #else
                                 bigcaptext = iif(j == mysprite, _("You got the Blue Flag!"),
                                                  _("Blue Flag captured!"));
@@ -2021,9 +2039,11 @@ std::int32_t Thing<M>::checkspritecollision()
                             break;
                             case team_bravo: {
 #ifdef SERVER
-                                smallcaptextstr = sprite[j].player->name + " captured the Red Flag";
-                                sprite[j].player->grabbedinbase = thing[1].inbase;
-                                sprite[j].player->grabspersecond += 1;
+                                smallcaptextstr = SpriteSystem::Get().GetSprite(j).player->name +
+                                                  " captured the Red Flag";
+                                SpriteSystem::Get().GetSprite(j).player->grabbedinbase =
+                                    thing[1].inbase;
+                                SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
 #else
                                 bigcaptext = iif(j == mysprite, _("You got the Red Flag!"),
                                                  _("Red Flag captured!"));
@@ -2033,20 +2053,22 @@ std::int32_t Thing<M>::checkspritecollision()
                             break;
                             }
 #ifdef SCRIPT
-                            scrptdispatcher.onflaggrab(j, style, sprite[j].player->grabbedinbase);
+                            scrptdispatcher.onflaggrab(
+                                j, style, SpriteSystem::Get().GetSprite(j).player->grabbedinbase);
 #endif
                         }
                         break;
                     case gamestyle_inf:
-                        if (sprite[j].player->team == style)
+                        if (SpriteSystem::Get().GetSprite(j).player->team == style)
                         {
-                            if (sprite[j].player->team == team_bravo)
+                            if (SpriteSystem::Get().GetSprite(j).player->team == team_bravo)
                             {
 #ifdef SERVER
-                                smallcaptextstr =
-                                    sprite[j].player->name + " returned the Objective";
-                                sprite[j].player->grabbedinbase = thing[2].inbase;
-                                sprite[j].player->grabspersecond += 1;
+                                smallcaptextstr = SpriteSystem::Get().GetSprite(j).player->name +
+                                                  " returned the Objective";
+                                SpriteSystem::Get().GetSprite(j).player->grabbedinbase =
+                                    thing[2].inbase;
+                                SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
 #else
                                 bigcaptext = iif(j == mysprite, _("You returned the Objective!"),
                                                  _("Objective returned!"));
@@ -2060,13 +2082,14 @@ std::int32_t Thing<M>::checkspritecollision()
                         }
                         else
                         {
-                            if (sprite[j].player->team == team_alpha)
+                            if (SpriteSystem::Get().GetSprite(j).player->team == team_alpha)
                             {
 #ifdef SERVER
-                                smallcaptextstr =
-                                    sprite[j].player->name + " captured the Objective";
-                                sprite[j].player->grabbedinbase = thing[2].inbase;
-                                sprite[j].player->grabspersecond += 1;
+                                smallcaptextstr = SpriteSystem::Get().GetSprite(j).player->name +
+                                                  " captured the Objective";
+                                SpriteSystem::Get().GetSprite(j).player->grabbedinbase =
+                                    thing[2].inbase;
+                                SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
 #else
                                 bigcaptext = iif(j == mysprite, _("You got the Objective!"),
                                                  _("Objective captured!"));
@@ -2074,7 +2097,8 @@ std::int32_t Thing<M>::checkspritecollision()
 #endif
                             }
 #ifdef SCRIPT
-                            scrptdispatcher.onflaggrab(j, style, sprite[j].player->grabbedinbase);
+                            scrptdispatcher.onflaggrab(
+                                j, style, SpriteSystem::Get().GetSprite(j).player->grabbedinbase);
 #endif
                         }
                         break;
@@ -2088,7 +2112,8 @@ std::int32_t Thing<M>::checkspritecollision()
                     {
                         bigmessage(bigcaptext, capturemessagewait, capcolor);
                         GetMainConsole().console(
-                            wideformat(smallcaptext, set::of(sprite[j].player->name, eos)),
+                            wideformat(smallcaptext,
+                                       set::of(SpriteSystem::Get().GetSprite(j).player->name, eos)),
                             capcolor);
                     }
 #endif
@@ -2107,9 +2132,9 @@ std::int32_t Thing<M>::checkspritecollision()
         case object_barret_m82a1:
         case object_minimi:
         case object_minigun:
-            if (sprite[j].weapon.num == guns[noweapon].num)
-                if (sprite[j].brain.favweapon != guns[noweapon].num)
-                    if (sprite[j].bodyanimation.id != change.id)
+            if (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num)
+                if (SpriteSystem::Get().GetSprite(j).brain.favweapon != guns[noweapon].num)
+                    if (SpriteSystem::Get().GetSprite(j).bodyanimation.id != change.id)
                         if (timeout < gunresisttime - 30)
                         {
                             // Objects 1-3 are flags, so we need for WeaponIndex subtract by flags+1
@@ -2120,18 +2145,22 @@ std::int32_t Thing<M>::checkspritecollision()
                             // if it did, we don't apply snapshot weapon's as they were already
                             // applied by force weapon.
                             forceweaponcalled = false;
-                            scrptdispatcher.onweaponchange(j, guns[weaponindex].num,
-                                                           sprite[j].secondaryweapon.num, ammocount,
-                                                           sprite[j].secondaryweapon.ammocount);
+                            scrptdispatcher.onweaponchange(
+                                j, guns[weaponindex].num,
+                                SpriteSystem::Get().GetSprite(j).secondaryweapon.num, ammocount,
+                                SpriteSystem::Get().GetSprite(j).secondaryweapon.ammocount);
 
                             if (!forceweaponcalled)
                             {
                                 ;
 #endif
-                                sprite[j].applyweaponbynum(guns[weaponindex].num, 1);
-                                sprite[j].weapon.ammocount = ammocount;
-                                sprite[j].weapon.fireintervalprev = sprite[j].weapon.fireinterval;
-                                sprite[j].weapon.fireintervalcount = sprite[j].weapon.fireinterval;
+                                SpriteSystem::Get().GetSprite(j).applyweaponbynum(
+                                    guns[weaponindex].num, 1);
+                                SpriteSystem::Get().GetSprite(j).weapon.ammocount = ammocount;
+                                SpriteSystem::Get().GetSprite(j).weapon.fireintervalprev =
+                                    SpriteSystem::Get().GetSprite(j).weapon.fireinterval;
+                                SpriteSystem::Get().GetSprite(j).weapon.fireintervalcount =
+                                    SpriteSystem::Get().GetSprite(j).weapon.fireinterval;
 #ifndef SERVER
                                 if (j == mysprite)
                                     clientspritesnapshot;
@@ -2142,8 +2171,8 @@ std::int32_t Thing<M>::checkspritecollision()
                         }
             break;
         case object_rambo_bow:
-            if (sprite[j].weapon.num == guns[noweapon].num)
-                if (sprite[j].bodyanimation.id != change.id)
+            if (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num)
+                if (SpriteSystem::Get().GetSprite(j).bodyanimation.id != change.id)
                     if (timeout < flag_timeout - 100)
                     {
 #ifdef SCRIPT
@@ -2157,14 +2186,16 @@ std::int32_t Thing<M>::checkspritecollision()
                         if (!forceweaponcalled)
                         {
 #endif
-                            sprite[j].applyweaponbynum(guns[bow].num, 1);
-                            sprite[j].applyweaponbynum(guns[bow2].num, 2);
+                            SpriteSystem::Get().GetSprite(j).applyweaponbynum(guns[bow].num, 1);
+                            SpriteSystem::Get().GetSprite(j).applyweaponbynum(guns[bow2].num, 2);
                             // BUG: shouldn't this be Guns[BOW].Ammo? Somebody might've set more
                             // than one
-                            sprite[j].weapon.ammocount = 1;
-                            sprite[j].weapon.fireintervalprev = sprite[j].weapon.fireinterval;
-                            sprite[j].weapon.fireintervalcount = sprite[j].weapon.fireinterval;
-                            sprite[j].wearhelmet = 1;
+                            SpriteSystem::Get().GetSprite(j).weapon.ammocount = 1;
+                            SpriteSystem::Get().GetSprite(j).weapon.fireintervalprev =
+                                SpriteSystem::Get().GetSprite(j).weapon.fireinterval;
+                            SpriteSystem::Get().GetSprite(j).weapon.fireintervalcount =
+                                SpriteSystem::Get().GetSprite(j).weapon.fireinterval;
+                            SpriteSystem::Get().GetSprite(j).wearhelmet = 1;
 #ifndef SERVER
                             if (j == mysprite)
                                 clientspritesnapshot;
@@ -2182,26 +2213,28 @@ std::int32_t Thing<M>::checkspritecollision()
                                 gamemenushow(limbomenu, false);
                         }
                         else
-                            bigmessage(wideformat(_("%s got the Bow!"),
-                                                  set::of(sprite[j].player->name, eos)),
-                                       capturemessagewait, capture_message_color);
+                            bigmessage(
+                                wideformat(
+                                    _("%s got the Bow!"),
+                                    set::of(SpriteSystem::Get().GetSprite(j).player->name, eos)),
+                                capturemessagewait, capture_message_color);
 #endif
                     }
             break;
         case object_medical_kit: {
-            if (sprite[j].GetHealth() < starthealth)
+            if (SpriteSystem::Get().GetSprite(j).GetHealth() < starthealth)
             {
                 // pickup health pack
 #ifdef SERVER
-                if (sprite[j].haspack == false)
+                if (SpriteSystem::Get().GetSprite(j).haspack == false)
 #endif
                 {
-                    team = sprite[j].player->team;
+                    team = SpriteSystem::Get().GetSprite(j).player->team;
 #ifdef SERVER
                     if (CVar::sv_healthcooldown > 0)
-                        sprite[j].haspack = true;
+                        SpriteSystem::Get().GetSprite(j).haspack = true;
 #endif
-                    sprite[j].SetHealth(starthealth);
+                    SpriteSystem::Get().GetSprite(j).SetHealth(starthealth);
                     respawn();
 
 #ifdef SCRIPT
@@ -2212,13 +2245,15 @@ std::int32_t Thing<M>::checkspritecollision()
         }
         break;
         case object_grenade_kit: {
-            if ((sprite[j].tertiaryweapon.ammocount < CVar::sv_maxgrenades) &&
-                ((sprite[j].tertiaryweapon.num != guns[clustergrenade].num) ||
-                 (sprite[j].tertiaryweapon.ammocount == 0)))
+            if ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount <
+                 CVar::sv_maxgrenades) &&
+                ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num !=
+                  guns[clustergrenade].num) ||
+                 (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount == 0)))
             {
-                team = sprite[j].player->team;
-                sprite[j].tertiaryweapon = guns[fraggrenade];
-                sprite[j].tertiaryweapon.ammocount = CVar::sv_maxgrenades;
+                team = SpriteSystem::Get().GetSprite(j).player->team;
+                SpriteSystem::Get().GetSprite(j).tertiaryweapon = guns[fraggrenade];
+                SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount = CVar::sv_maxgrenades;
                 respawn();
 
 #ifdef SCRIPT
@@ -2228,10 +2263,11 @@ std::int32_t Thing<M>::checkspritecollision()
         }
         break;
         case object_flamer_kit:
-            if ((sprite[j].bonusstyle == bonus_none) && (sprite[j].ceasefirecounter < 1))
+            if ((SpriteSystem::Get().GetSprite(j).bonusstyle == bonus_none) &&
+                (SpriteSystem::Get().GetSprite(j).ceasefirecounter < 1))
             {
-                if ((sprite[j].weapon.num != guns[bow].num) &&
-                    (sprite[j].weapon.num != guns[bow2].num))
+                if ((SpriteSystem::Get().GetSprite(j).weapon.num != guns[bow].num) &&
+                    (SpriteSystem::Get().GetSprite(j).weapon.num != guns[bow2].num))
                 {
 #ifdef SCRIPT
                     // event must be before actual weapon apply.
@@ -2239,24 +2275,25 @@ std::int32_t Thing<M>::checkspritecollision()
                     // if it did, we don't apply snapshot weapon's as they were already applied
                     // by force weapon.
                     forceweaponcalled = false;
-                    scrptdispatcher.onweaponchange(j, guns[flamer].num,
-                                                   sprite[j].secondaryweapon.num, ammocount,
-                                                   sprite[j].secondaryweapon.ammocount);
+                    scrptdispatcher.onweaponchange(
+                        j, guns[flamer].num, SpriteSystem::Get().GetSprite(j).secondaryweapon.num,
+                        ammocount, SpriteSystem::Get().GetSprite(j).secondaryweapon.ammocount);
                     scrptdispatcher.onkitpickup(j, num);
 
                     if (!forceweaponcalled)
                     {
                         ;
 #endif
-                        sprite[j].applyweaponbynum(sprite[j].weapon.num, 2
+                        SpriteSystem::Get().GetSprite(j).applyweaponbynum(
+                            SpriteSystem::Get().GetSprite(j).weapon.num, 2
 #ifndef SERVER
-                                                   ,
-                                                   -1, true
+                            ,
+                            -1, true
 #endif
                         );
-                        sprite[j].applyweaponbynum(guns[flamer].num, 1);
-                        sprite[j].bonustime = flamerbonustime;
-                        sprite[j].bonusstyle = bonus_flamegod;
+                        SpriteSystem::Get().GetSprite(j).applyweaponbynum(guns[flamer].num, 1);
+                        SpriteSystem::Get().GetSprite(j).bonustime = flamerbonustime;
+                        SpriteSystem::Get().GetSprite(j).bonusstyle = bonus_flamegod;
 
 #ifndef SERVER
                         if (j == mysprite)
@@ -2267,7 +2304,7 @@ std::int32_t Thing<M>::checkspritecollision()
                         }
 #endif
 
-                        sprite[j].SetHealth(starthealth);
+                        SpriteSystem::Get().GetSprite(j).SetHealth(starthealth);
 #ifdef SCRIPT
                     }
 #endif
@@ -2275,18 +2312,19 @@ std::int32_t Thing<M>::checkspritecollision()
             }
             break;
         case object_predator_kit:
-            if ((sprite[j].bonusstyle == bonus_none) && (sprite[j].ceasefirecounter < 1))
+            if ((SpriteSystem::Get().GetSprite(j).bonusstyle == bonus_none) &&
+                (SpriteSystem::Get().GetSprite(j).ceasefirecounter < 1))
             {
-                sprite[j].alpha = predatoralpha;
-                sprite[j].bonustime = predatorbonustime;
-                sprite[j].bonusstyle = bonus_predator;
+                SpriteSystem::Get().GetSprite(j).alpha = predatoralpha;
+                SpriteSystem::Get().GetSprite(j).bonustime = predatorbonustime;
+                SpriteSystem::Get().GetSprite(j).bonusstyle = bonus_predator;
 
 #ifndef SERVER
                 if (j == mysprite)
                     bigmessage(_("Predator Mode!"), capturemessagewait, bonus_message_color);
 #endif
 
-                sprite[j].SetHealth(starthealth);
+                SpriteSystem::Get().GetSprite(j).SetHealth(starthealth);
 
 #ifdef SCRIPT
                 scrptdispatcher.onkitpickup(j, num);
@@ -2294,7 +2332,7 @@ std::int32_t Thing<M>::checkspritecollision()
             }
             break;
         case object_vest_kit: {
-            sprite[j].vest = defaultvest;
+            SpriteSystem::Get().GetSprite(j).vest = defaultvest;
 
 #ifndef SERVER
             if (j == mysprite)
@@ -2307,17 +2345,18 @@ std::int32_t Thing<M>::checkspritecollision()
         }
         break;
         case object_berserk_kit:
-            if ((sprite[j].bonusstyle == 0) && (sprite[j].ceasefirecounter < 1))
+            if ((SpriteSystem::Get().GetSprite(j).bonusstyle == 0) &&
+                (SpriteSystem::Get().GetSprite(j).ceasefirecounter < 1))
             {
-                sprite[j].bonusstyle = bonus_berserker;
-                sprite[j].bonustime = berserkerbonustime;
+                SpriteSystem::Get().GetSprite(j).bonusstyle = bonus_berserker;
+                SpriteSystem::Get().GetSprite(j).bonustime = berserkerbonustime;
 
 #ifndef SERVER
                 if (j == mysprite)
                     bigmessage(_("Berserker Mode!"), capturemessagewait, bonus_message_color);
 #endif
 
-                sprite[j].SetHealth(starthealth);
+                SpriteSystem::Get().GetSprite(j).SetHealth(starthealth);
 
 #ifdef SCRIPT
                 scrptdispatcher.onkitpickup(j, num);
@@ -2326,12 +2365,12 @@ std::int32_t Thing<M>::checkspritecollision()
             break;
         case object_cluster_kit:
 #ifdef SERVER
-            if ((sprite[j].tertiaryweapon.num == guns[fraggrenade].num) ||
-                (sprite[j].tertiaryweapon.ammocount == 0))
+            if ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num == guns[fraggrenade].num) ||
+                (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount == 0))
 #endif
             {
-                sprite[j].tertiaryweapon = guns[clustergrenade];
-                sprite[j].tertiaryweapon.ammocount = cluster_grenades;
+                SpriteSystem::Get().GetSprite(j).tertiaryweapon = guns[clustergrenade];
+                SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount = cluster_grenades;
 
 #ifndef SERVER
                 if (j == mysprite)
@@ -2346,9 +2385,9 @@ std::int32_t Thing<M>::checkspritecollision()
         case object_combat_knife:
         case object_chainsaw:
         case object_law:
-            if (sprite[j].weapon.num == guns[noweapon].num)
-                if (sprite[j].brain.favweapon != guns[noweapon].num)
-                    if (sprite[j].bodyanimation.id != change.id)
+            if (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num)
+                if (SpriteSystem::Get().GetSprite(j).brain.favweapon != guns[noweapon].num)
+                    if (SpriteSystem::Get().GetSprite(j).bodyanimation.id != change.id)
                         if (timeout < gunresisttime - 30)
                         {
                             // There are in total OBJECT_NUM_NONWEAPON non-weapon objects before the
@@ -2361,17 +2400,21 @@ std::int32_t Thing<M>::checkspritecollision()
                             // if it did, we don't apply snapshot weapon's as they were already
                             // applied by force weapon.
                             forceweaponcalled = false;
-                            scrptdispatcher.onweaponchange(j, guns[weaponindex].num,
-                                                           sprite[j].secondaryweapon.num, ammocount,
-                                                           sprite[j].secondaryweapon.ammocount);
+                            scrptdispatcher.onweaponchange(
+                                j, guns[weaponindex].num,
+                                SpriteSystem::Get().GetSprite(j).secondaryweapon.num, ammocount,
+                                SpriteSystem::Get().GetSprite(j).secondaryweapon.ammocount);
 
                             if (!forceweaponcalled)
                             {
 #endif
-                                sprite[j].applyweaponbynum(guns[weaponindex].num, 1);
-                                sprite[j].weapon.ammocount = ammocount;
-                                sprite[j].weapon.fireintervalprev = sprite[j].weapon.fireinterval;
-                                sprite[j].weapon.fireintervalcount = sprite[j].weapon.fireinterval;
+                                SpriteSystem::Get().GetSprite(j).applyweaponbynum(
+                                    guns[weaponindex].num, 1);
+                                SpriteSystem::Get().GetSprite(j).weapon.ammocount = ammocount;
+                                SpriteSystem::Get().GetSprite(j).weapon.fireintervalprev =
+                                    SpriteSystem::Get().GetSprite(j).weapon.fireinterval;
+                                SpriteSystem::Get().GetSprite(j).weapon.fireintervalcount =
+                                    SpriteSystem::Get().GetSprite(j).weapon.fireinterval;
 #ifndef SERVER
                                 if (j == mysprite)
                                     clientspritesnapshot;
@@ -2420,43 +2463,44 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
     pos = skeleton.pos[1];
 
     for (i = 1; i <= max_sprites; i++)
-        if (sprite[i].active && !sprite[i].deadmeat && sprite[i].isnotspectator())
-            if (sprite[i].stat == num)
+        if (SpriteSystem::Get().GetSprite(i).active && !SpriteSystem::Get().GetSprite(i).deadmeat &&
+            SpriteSystem::Get().GetSprite(i).isnotspectator())
+            if (SpriteSystem::Get().GetSprite(i).stat == num)
             {
                 colpos = spriteparts.pos[i];
                 norm = vec2subtract(pos, colpos);
                 if (vec2length(norm) < radius) // collision
                 {
-                    if (sprite[i].player->controlmethod == bot)
-                        if (sprite[i].brain.camper > 0)
-                            if (sprite[i].holdedthing == 0)
+                    if (SpriteSystem::Get().GetSprite(i).player->controlmethod == bot)
+                        if (SpriteSystem::Get().GetSprite(i).brain.camper > 0)
+                            if (SpriteSystem::Get().GetSprite(i).holdedthing == 0)
                             {
-                                sprite[i].control.right = false;
-                                sprite[i].control.left = false;
-                                sprite[i].control.up = false;
-                                sprite[i].control.down = false;
-                                if (sprite[i].legsanimation.id == prone.id)
-                                    sprite[i].control.prone = true;
+                                SpriteSystem::Get().GetSprite(i).control.right = false;
+                                SpriteSystem::Get().GetSprite(i).control.left = false;
+                                SpriteSystem::Get().GetSprite(i).control.up = false;
+                                SpriteSystem::Get().GetSprite(i).control.down = false;
+                                if (SpriteSystem::Get().GetSprite(i).legsanimation.id == prone.id)
+                                    SpriteSystem::Get().GetSprite(i).control.prone = true;
                             }
 
                     statictype = true;
 
-                    pos.x = sprite[i].control.mouseaimx;
-                    pos.y = sprite[i].control.mouseaimy;
-                    norm = vec2subtract(pos, sprite[i].skeleton.pos[15]);
+                    pos.x = SpriteSystem::Get().GetSprite(i).control.mouseaimx;
+                    pos.y = SpriteSystem::Get().GetSprite(i).control.mouseaimy;
+                    norm = vec2subtract(pos, SpriteSystem::Get().GetSprite(i).skeleton.pos[15]);
                     vec2normalize(norm, norm);
                     vec2scale(norm, norm, 3);
                     norm.x = -norm.x;
                     skeleton.oldpos[4] = skeleton.pos[4];
                     skeleton.pos[4] = vec2add(skeleton.pos[1], norm);
 
-                    interest = sprite[i].usetime;
+                    interest = SpriteSystem::Get().GetSprite(i).usetime;
 
-                    if (sprite[i].control.fire)
-                        if (sprite[i].legsanimation.id == stand.id)
+                    if (SpriteSystem::Get().GetSprite(i).control.fire)
+                        if (SpriteSystem::Get().GetSprite(i).legsanimation.id == stand.id)
                             if (maintickcounter % guns[m2].fireinterval == 0)
                             {
-                                if (sprite[i].usetime > m2gun_overheat)
+                                if (SpriteSystem::Get().GetSprite(i).usetime > m2gun_overheat)
                                 {
 #ifndef SERVER
                                     playsound(sfx_m2overheat, spriteparts.pos[i]);
@@ -2465,9 +2509,9 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                                 }
 
                                 k = 0;
-                                if (sprite[i].usetime > m2gun_overaim)
+                                if (SpriteSystem::Get().GetSprite(i).usetime > m2gun_overaim)
                                 {
-                                    k = (sprite[i].usetime / 11);
+                                    k = (SpriteSystem::Get().GetSprite(i).usetime / 11);
                                     k = -k + Random(2 * k);
                                 }
 
@@ -2491,8 +2535,8 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                                 createspark(pos, norm, 35, i, 15); // smoke
 
                                 colpos = norm;
-                                norm.y = -sprite[i].direction * norm.x;
-                                norm.x = sprite[i].direction * colpos.y;
+                                norm.y = -SpriteSystem::Get().GetSprite(i).direction * norm.x;
+                                norm.x = SpriteSystem::Get().GetSprite(i).direction * colpos.y;
                                 vec2scale(norm, norm, 0.2);
                                 pos.x = skeleton.pos[3].x + 18;
                                 pos.y = skeleton.pos[3].y - 20;
@@ -2501,13 +2545,13 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                                 playsound(sfx_m2fire, spriteparts.pos[i]);
 #endif
 
-                                sprite[i].usetime += 1;
+                                SpriteSystem::Get().GetSprite(i).usetime += 1;
                             }
                     return result;
                 }
                 else
                 {
-                    sprite[i].stat = 0;
+                    SpriteSystem::Get().GetSprite(i).stat = 0;
                     statictype = false;
                     return result;
                 }
@@ -2519,7 +2563,9 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
 #endif
         if (!statictype)
             for (j = 1; j <= max_sprites; j++)
-                if (sprite[j].active && !sprite[j].deadmeat && sprite[j].isnotspectator())
+                if (SpriteSystem::Get().GetSprite(j).active &&
+                    !SpriteSystem::Get().GetSprite(j).deadmeat &&
+                    SpriteSystem::Get().GetSprite(j).isnotspectator())
                 {
                     colpos = spriteparts.pos[j];
                     norm = vec2subtract(pos, colpos);
@@ -2528,25 +2574,25 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                         switch (style)
                         {
                         case object_stationary_gun: {
-                            if (sprite[j].player->controlmethod == bot)
-                                if (sprite[j].brain.camper > 0)
+                            if (SpriteSystem::Get().GetSprite(j).player->controlmethod == bot)
+                                if (SpriteSystem::Get().GetSprite(j).brain.camper > 0)
                                 {
-                                    sprite[j].control.right = false;
-                                    sprite[j].control.left = false;
-                                    sprite[j].control.up = false;
-                                    sprite[j].control.down = false;
-                                    sprite[j].legsapplyanimation(stand, 1);
+                                    SpriteSystem::Get().GetSprite(j).control.right = false;
+                                    SpriteSystem::Get().GetSprite(j).control.left = false;
+                                    SpriteSystem::Get().GetSprite(j).control.up = false;
+                                    SpriteSystem::Get().GetSprite(j).control.down = false;
+                                    SpriteSystem::Get().GetSprite(j).legsapplyanimation(stand, 1);
                                 }
 
-                            if (sprite[j].legsanimation.id == stand.id)
+                            if (SpriteSystem::Get().GetSprite(j).legsanimation.id == stand.id)
                             {
 #ifndef SERVER
                                 playsound(sfx_m2use, spriteparts.pos[j]);
 #endif
 
                                 statictype = true;
-                                sprite[j].stat = num;
-                                sprite[j].brain.oneplacecount = 0;
+                                SpriteSystem::Get().GetSprite(j).stat = num;
+                                SpriteSystem::Get().GetSprite(j).brain.oneplacecount = 0;
 #ifdef SERVER
                                 serverthingtaken(num, j);
 #endif
@@ -2558,8 +2604,8 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                         result = j;
                         return result;
                     }
-                    else if (sprite[j].stat == num)
-                        sprite[j].stat = 0;
+                    else if (SpriteSystem::Get().GetSprite(j).stat == num)
+                        SpriteSystem::Get().GetSprite(j).stat = 0;
 
                     statictype = false;
                 } // for j

@@ -12,11 +12,11 @@
 #include "Game.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/Config.hpp"
-#include <sstream>
-
+#include "shared/mechanics/SpriteSystem.hpp"
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <sstream>
 
 //clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -461,8 +461,8 @@ bool parseinput(const std::string &input, std::uint8_t sender)
 #ifdef SERVER
             if (commandptr->flags & cmd_adminonly)
             {
-                if (!((sender == 255) or (isremoteadminip(sprite[sender].player->ip) or
-                                          isadminip(sprite[sender].player->ip))))
+                if (!((sender == 255) or (isremoteadminip(SpriteSystem::Get().GetSprite(sender).player->ip) or
+                                          isadminip(SpriteSystem::Get().GetSprite(sender).player->ip))))
                     return result;
             }
             if (commandptr->flags & (cmd_playeronly))
@@ -564,23 +564,22 @@ void parsecommandline(int argc, const char *argv[])
 static void addplayer(std::uint8_t id, std::vector<std::uint8_t> &players)
 {
     setlength(players, length(players) + 1);
-    players[high(players)] = sprite[id].num;
+    players[high(players)] = SpriteSystem::Get().GetSprite(id).num;
 }
 
 template <Config::Module M>
 tcommandtargets commandtarget(std::string target, std::uint8_t sender)
 {
     std::vector<std::uint8_t> players;
-    std::int32_t j;
     std::int32_t targetid;
 
     tcommandtargets result;
     targetid = strtointdef(target, 0);
     setlength(players, 0);
 
-    for (j = 1; j <= max_players; j++)
+    for (auto j = 1; j <= max_players; j++)
     {
-        if (sprite[j].active)
+        if (SpriteSystem::Get().GetSprite(j).active)
         {
             if ((targetid != 0) && (j == targetid))
             {
@@ -588,85 +587,85 @@ tcommandtargets commandtarget(std::string target, std::uint8_t sender)
                 break;
             }
 
-            if (sprite[j].player->name == target)
+            if (SpriteSystem::Get().GetSprite(j).player->name == target)
             {
-                addplayer(sprite[j].num, players);
+                addplayer(SpriteSystem::Get().GetSprite(j).num, players);
                 break;
             }
 
             if (target == "@all")
             {
-                addplayer(sprite[j].num, players);
+                addplayer(SpriteSystem::Get().GetSprite(j).num, players);
             }
             else if (target == "@bots")
             {
-                if (sprite[j].player->controlmethod == bot)
-                    addplayer(sprite[j].num, players);
+                if (SpriteSystem::Get().GetSprite(j).player->controlmethod == bot)
+                    addplayer(SpriteSystem::Get().GetSprite(j).num, players);
             }
             else if (target == "@humans")
             {
-                if (sprite[j].player->controlmethod == human)
-                    addplayer(sprite[j].num, players);
+                if (SpriteSystem::Get().GetSprite(j).player->controlmethod == human)
+                    addplayer(SpriteSystem::Get().GetSprite(j).num, players);
             }
             else if (target == "@alive")
             {
-                if (!sprite[j].deadmeat)
-                    addplayer(sprite[j].num, players);
+                if (!SpriteSystem::Get().GetSprite(j).deadmeat)
+                    addplayer(SpriteSystem::Get().GetSprite(j).num, players);
             }
             else if (target == "@dead")
             {
-                if (sprite[j].deadmeat)
-                    addplayer(sprite[j].num, players);
+                if (SpriteSystem::Get().GetSprite(j).deadmeat)
+                    addplayer(SpriteSystem::Get().GetSprite(j).num, players);
             }
             else if (target == "@aim")
             {
                 if ((sender > 0) && (sender <= max_players))
-                    if (sprite[sender].player->camera == sprite[j].num)
+                    if (SpriteSystem::Get().GetSprite(sender).player->camera == SpriteSystem::Get().GetSprite(j).num)
                     {
-                        addplayer(sprite[j].num, players);
+                        addplayer(SpriteSystem::Get().GetSprite(j).num, players);
                     }
             }
             else if (target == "@me")
             {
                 if ((sender > 0) && (sender <= max_players))
-                    if (sprite[sender].num == sprite[j].num)
-                        addplayer(sprite[sender].num, players);
+                    if (SpriteSystem::Get().GetSprite(sender).num == SpriteSystem::Get().GetSprite(j).num)
+                        addplayer(SpriteSystem::Get().GetSprite(sender).num, players);
             }
             else if (target == "@!me")
             {
                 if ((sender > 0) && (sender <= max_players))
-                    if (!(sprite[sender].num == sprite[j].num))
-                        addplayer(sprite[j].num, players);
+                    if (!(SpriteSystem::Get().GetSprite(sender).num == SpriteSystem::Get().GetSprite(j).num))
+                        addplayer(SpriteSystem::Get().GetSprite(j).num, players);
             }
             else if (target == "@none")
             {
-                if (sprite[j].player->team == team_none)
-                    addplayer(sprite[j].num, players);
+                if (SpriteSystem::Get().GetSprite(j).player->team == team_none)
+                    addplayer(SpriteSystem::Get().GetSprite(j).num, players);
             }
             else if (target == "@alpha")
             {
-                if (sprite[j].player->team == team_alpha)
-                    addplayer(sprite[j].num, players);
+                if (SpriteSystem::Get().GetSprite(j).player->team == team_alpha)
+                    addplayer(SpriteSystem::Get().GetSprite(j).num, players);
             }
             else if (target == "@bravo")
             {
-                if (sprite[j].player->team == team_bravo)
-                    addplayer(sprite[j].num, players);
+                if (SpriteSystem::Get().GetSprite(j).player->team == team_bravo)
+                    addplayer(SpriteSystem::Get().GetSprite(j).num, players);
             }
             else if (target == "@charlie")
             {
-                if (sprite[j].player->team == team_charlie)
-                    addplayer(sprite[j].num, players);
+                if (SpriteSystem::Get().GetSprite(j).player->team == team_charlie)
+                    addplayer(SpriteSystem::Get().GetSprite(j).num, players);
             }
             else if (target == "@delta")
             {
-                if (sprite[j].player->team == team_delta)
-                    addplayer(sprite[j].num, players);
+                if (SpriteSystem::Get().GetSprite(j).player->team == team_delta)
+                    addplayer(SpriteSystem::Get().GetSprite(j).num, players);
             }
             else if (target == "@spec")
             {
-                if (sprite[j].player->team == team_spectator)
-                    addplayer(sprite[j].num, players);
+                if (SpriteSystem::Get().GetSprite(j).player->team == team_spectator)
+                    addplayer(SpriteSystem::Get().GetSprite(j).num, players);
             }
         }
     }

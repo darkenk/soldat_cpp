@@ -1,32 +1,15 @@
 // automatically converted
 #include "GameMenus.hpp"
 
-/*#include "SDL2.h"*/
-/*#include "SysUtils.h"*/
-/*#include "Client.h"*/
-/*#include "Weapons.h"*/
-/*#include "Game.h"*/
-/*#include "GameStrings.h"*/
-/*#include "ClientGame.h"*/
-/*#include "Sound.h"*/
-/*#include "InterfaceGraphics.h"*/
-/*#include "Constants.h"*/
-/*#include "Net.h"*/
-/*#include "NetworkClientConnection.h"*/
-/*#include "NetworkClientSprite.h"*/
-/*#include "Sprites.h"*/
-/*#include "Cvar.h"*/
-/*#include "NetworkClientGame.h"*/
-/*#include "NetworkClientMessages.h"*/
-/*#include "SteamTypes.h"*/
 #include "Client.hpp"
 #include "ClientGame.hpp"
 #include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
-#include "shared/Cvar.hpp"
-#include "shared/Game.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/Cvar.hpp"
+#include "shared/Game.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientGame.hpp"
@@ -194,12 +177,12 @@ void gamemenushow(pgamemenu menu, bool show)
 
             for (i = 1; i <= max_players; i++)
             {
-                if (sprite[i].active)
+                if (SpriteSystem::Get().GetSprite(i).active)
                 {
-                    stopsound(sprite[i].reloadsoundchannel);
-                    stopsound(sprite[i].jetssoundchannel);
-                    stopsound(sprite[i].gattlingsoundchannel);
-                    stopsound(sprite[i].gattlingsoundchannel2);
+                    stopsound(SpriteSystem::Get().GetSprite(i).reloadsoundchannel);
+                    stopsound(SpriteSystem::Get().GetSprite(i).jetssoundchannel);
+                    stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel);
+                    stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel2);
                 }
             }
 
@@ -338,7 +321,7 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
             gamemenushow(menu, false);
             selteam = buttonindex;
 
-            if ((mysprite == 0) || (buttonindex != sprite[mysprite].player->team))
+            if ((mysprite == 0) || (buttonindex != SpriteSystem::Get().GetSprite(mysprite).player->team))
             {
                 // NOTE this actually sends a change team request
                 clientsendplayerinfo();
@@ -358,7 +341,7 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                 case 0: { // prev
                     kickmenuindex = ((max_sprites + kickmenuindex - 2) % max_sprites) + 1;
                     while (
-                        !(sprite[kickmenuindex].active or sprite[kickmenuindex].player->demoplayer))
+                        !(SpriteSystem::Get().GetSprite(kickmenuindex).active or SpriteSystem::Get().GetSprite(kickmenuindex).player->demoplayer))
                         kickmenuindex = ((max_sprites + kickmenuindex - 2) % max_sprites) + 1;
 
                     result = (kickmenuindex != i);
@@ -368,7 +351,7 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                 case 1: { // next
                     kickmenuindex = (kickmenuindex % max_sprites) + 1;
                     while (
-                        !(sprite[kickmenuindex].active or sprite[kickmenuindex].player->demoplayer))
+                        !(SpriteSystem::Get().GetSprite(kickmenuindex).active or SpriteSystem::Get().GetSprite(kickmenuindex).player->demoplayer))
                         kickmenuindex = (kickmenuindex % max_sprites) + 1;
 
                     result = (kickmenuindex != i);
@@ -438,16 +421,16 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                 if (i <= 10)
                 {
                     if ((weaponactive[i] == 1) && (weaponsel[mysprite][i] == 1))
-                        sprite[mysprite].selweapon = guns[i].num;
+                        SpriteSystem::Get().GetSprite(mysprite).selweapon = guns[i].num;
 
-                    if (sprite[mysprite].selweapon > 0)
+                    if (SpriteSystem::Get().GetSprite(mysprite).selweapon > 0)
                     {
                         gamemenushow(limbomenu, false);
-                        if (!sprite[mysprite].deadmeat and
-                            sprite[mysprite].weapon.num != guns[bow].num and
-                            sprite[mysprite].weapon.num != guns[bow2].num)
+                        if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat and
+                            SpriteSystem::Get().GetSprite(mysprite).weapon.num != guns[bow].num and
+                            SpriteSystem::Get().GetSprite(mysprite).weapon.num != guns[bow2].num)
                         {
-                            sprite[mysprite].applyweaponbynum(sprite[mysprite].selweapon, 1);
+                            SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(SpriteSystem::Get().GetSprite(mysprite).selweapon, 1);
                             clientspritesnapshot();
                         }
                     }
@@ -455,8 +438,8 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                 else
                 {
                     CVar::cl_player_secwep = (i - 11);
-                    sprite[mysprite].player->secwep = i - 11;
-                    sprite[mysprite].applyweaponbynum(guns[i].num, 2);
+                    SpriteSystem::Get().GetSprite(mysprite).player->secwep = i - 11;
+                    SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(guns[i].num, 2);
 
                     count = 0;
                     for (i = 1; i <= primary_weapons; i++)
@@ -465,11 +448,11 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                     if (count == 0)
                     {
                         gamemenushow(limbomenu, false);
-                        sprite[mysprite].weapon = sprite[mysprite].secondaryweapon;
-                        sprite[mysprite].secondaryweapon = guns[noweapon];
+                        SpriteSystem::Get().GetSprite(mysprite).weapon = SpriteSystem::Get().GetSprite(mysprite).secondaryweapon;
+                        SpriteSystem::Get().GetSprite(mysprite).secondaryweapon = guns[noweapon];
                     }
 
-                    if (!sprite[mysprite].deadmeat)
+                    if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
                         clientspritesnapshot();
                 }
             }

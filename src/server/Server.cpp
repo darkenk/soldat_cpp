@@ -17,6 +17,7 @@
 #include "shared/Game.hpp"
 #include "shared/LogFile.hpp"
 #include "shared/SharedConfig.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
 #include "shared/misc/SignalUtils.hpp"
@@ -274,11 +275,13 @@ var Byte j;
     Debug(Format("[Steam] GSStatsReceived result %d result steamid %s",
                  [ Ord(Callback.m_eResult), Callback.m_steamIDUser.GetAsString ]));
     for (j = 1; j < max_sprites; j++)
-        if ((sprite[j].Active) and
-            (Uint64(sprite[j].Player.SteamID) = Uint64(Callback.m_steamIDUser)))
+        if ((SpriteSystem::Get().GetSprite(j).Active) and
+            (Uint64(SpriteSystem::Get().GetSprite(j).Player.SteamID) =
+                 Uint64(Callback.m_steamIDUser)))
         {
             if (Callback.m_eResult = k_EResultOK)
-                sprite[j].Player.SteamStats = true else sprite[j].Player.SteamStats = false;
+                SpriteSystem::Get().GetSprite(j).Player.SteamStats =
+                    true else SpriteSystem::Get().GetSprite(j).Player.SteamStats = false;
         }
 }
 
@@ -490,7 +493,7 @@ void ActivateServer(int argc, const char *argv[])
     maintickcounter = 0;
 
     // Initialize player dummy objects (cf. DummyPlayer definition for documentation)
-    for (auto &s : sprite)
+    for (auto &s : SpriteSystem::Get().GetSprites())
     {
         s.player = new TServerPlayer();
     }
@@ -858,7 +861,7 @@ void loadweapons(std::string Filename)
         }
 #endif
 
-    for (auto &s : sprite)
+    for (auto &s : SpriteSystem::Get().GetSprites())
     {
         if (s.active)
         {
@@ -894,19 +897,19 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
     {
         TIniFile ini(ReadAsFileStream(userdirectory + "configs/bots/" + name + ".bot"));
 
-        if (not loadbotconfig(ini, sprite[p], guns))
+        if (not loadbotconfig(ini, SpriteSystem::Get().GetSprite(p), guns))
         {
             GetServerMainConsole().console("Bot file " + name + " not found",
                                            warning_message_color);
-            sprite[p].kill();
+            SpriteSystem::Get().GetSprite(p).kill();
             return Result;
         }
     }
 
-    sprite[p].respawn();
-    sprite[p].player->controlmethod = bot;
-    sprite[p].player->chatwarnings = 0;
-    sprite[p].player->grabspersecond = 0;
+    SpriteSystem::Get().GetSprite(p).respawn();
+    SpriteSystem::Get().GetSprite(p).player->controlmethod = bot;
+    SpriteSystem::Get().GetSprite(p).player->chatwarnings = 0;
+    SpriteSystem::Get().GetSprite(p).player->grabspersecond = 0;
 
     serversendnewplayerinfo(p, join_normal);
 
@@ -931,13 +934,17 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
         TempStr = "as spectator";
         break;
     }
-    GetServerMainConsole().console(sprite[p].player->name + " " + "has joined " + TempStr + ".",
+    GetServerMainConsole().console(SpriteSystem::Get().GetSprite(p).player->name + " " +
+                                       "has joined " + TempStr + ".",
                                    enter_message_color);
 
 #ifdef SCRIPT
-    ScrptDispatcher.OnJoinTeam(p, sprite[p].Player.Team, sprite[p].Player.Team, true);
-    ScrptDispatcher.OnWeaponChange(p, sprite[p].Weapon.Num, sprite[p].SecondaryWeapon.Num,
-                                   sprite[p].Weapon.AmmoCount, sprite[p].SecondaryWeapon.AmmoCount);
+    ScrptDispatcher.OnJoinTeam(p, SpriteSystem::Get().GetSprite(p).Player.Team,
+                               SpriteSystem::Get().GetSprite(p).Player.Team, true);
+    ScrptDispatcher.OnWeaponChange(p, SpriteSystem::Get().GetSprite(p).Weapon.Num,
+                                   SpriteSystem::Get().GetSprite(p).SecondaryWeapon.Num,
+                                   SpriteSystem::Get().GetSprite(p).Weapon.AmmoCount,
+                                   SpriteSystem::Get().GetSprite(p).SecondaryWeapon.AmmoCount);
 #endif
 
     sortplayers();
@@ -1387,7 +1394,7 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
 
     i = num;
 
-    if ((not sprite[i].active))
+    if ((not SpriteSystem::Get().GetSprite(i).active))
         return Result;
 
     if (((why == kick_cheat)) and (CVar::sv_anticheatkick))
@@ -1397,42 +1404,50 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
 
     // check if admin should be kicked
     if (((why == kick_ping or why == kick_flooding or why == kick_voted) and
-         (length(sprite[i].player->ip) > 5)))
+         (length(SpriteSystem::Get().GetSprite(i).player->ip) > 5)))
     {
-        if (isremoteadminip(sprite[i].player->ip) or isadminip(sprite[i].player->ip))
+        if (isremoteadminip(SpriteSystem::Get().GetSprite(i).player->ip) or
+            isadminip(SpriteSystem::Get().GetSprite(i).player->ip))
         {
-            GetServerMainConsole().console(
-                sprite[i].player->name + " is admin and cannot be kicked.", client_message_color);
+            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                               " is admin and cannot be kicked.",
+                                           client_message_color);
             return Result;
         }
     }
 
     if (why == kick_leftgame)
     {
-        switch (sprite[i].player->team)
+        switch (SpriteSystem::Get().GetSprite(i).player->team)
         {
         case 0:
-            GetServerMainConsole().console(sprite[i].player->name + " has left the game.",
+            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                               " has left the game.",
                                            enter_message_color);
             break;
         case 1:
-            GetServerMainConsole().console(sprite[i].player->name + " has left alpha team.",
+            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                               " has left alpha team.",
                                            alphaj_message_color);
             break;
         case 2:
-            GetServerMainConsole().console(sprite[i].player->name + " has left bravo team.",
+            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                               " has left bravo team.",
                                            bravoj_message_color);
             break;
         case 3:
-            GetServerMainConsole().console(sprite[i].player->name + " has left charlie team.",
+            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                               " has left charlie team.",
                                            charliej_message_color);
             break;
         case 4:
-            GetServerMainConsole().console(sprite[i].player->name + " has left delta team.",
+            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                               " has left delta team.",
                                            deltaj_message_color);
             break;
         case 5:
-            GetServerMainConsole().console(sprite[i].player->name + " has left spectators",
+            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                               " has left spectators",
                                            deltaj_message_color);
             break;
         }
@@ -1440,18 +1455,20 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
 
     if (not Ban and not(why == kick_leftgame) and not(why == kick_silent))
     {
-        GetServerMainConsole().console(sprite[i].player->name + " has been kicked." +
-                                           iif(sprite[i].player->controlmethod == bot,
-                                               std::string(""), "(" + sprite[i].player->ip + ")"),
-                                       client_message_color);
+        GetServerMainConsole().console(
+            SpriteSystem::Get().GetSprite(i).player->name + " has been kicked." +
+                iif(SpriteSystem::Get().GetSprite(i).player->controlmethod == bot, std::string(""),
+                    "(" + SpriteSystem::Get().GetSprite(i).player->ip + ")"),
+            client_message_color);
     }
 
     if (Ban)
     {
-        addbannedip(sprite[i].player->ip, Reason, time);
+        addbannedip(SpriteSystem::Get().GetSprite(i).player->ip, Reason, time);
 #ifdef STEAM
-        AddBannedHW(IntToStr(sprite[i].Player.SteamID.GetAccountID), Reason, time);
-        {$ELSE} AddBannedHW(sprite[i].Player.HWid, Reason, time);
+        AddBannedHW(IntToStr(SpriteSystem::Get().GetSprite(i).Player.SteamID.GetAccountID), Reason,
+                    time);
+        {$ELSE} AddBannedHW(SpriteSystem::Get().GetSprite(i).Player.HWid, Reason, time);
 #endif
     }
 
@@ -1463,20 +1480,21 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
 #if 0
             TimeStr = iif((time + 1) div 3600 > 1439, IntToStr((time + 1) div 5184000) + " days",
                           IntToStr((time + 1) div 3600) + " minutes");
-            GetServerMainConsole().console(sprite[i].player->name + " has been kicked and banned for " +
+            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name + " has been kicked and banned for " +
                                     TimeStr + " (" + Reason + ")",
                                 client_message_color)
 #endif
         }
         else
-            GetServerMainConsole().console(
-                sprite[i].player->name + " has been kicked and permanently banned (" + Reason + ")",
-                client_message_color);
+            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                               " has been kicked and permanently banned (" +
+                                               Reason + ")",
+                                           client_message_color);
     }
 
     savetxtlists();
 
-    if (not sprite[i].active)
+    if (not SpriteSystem::Get().GetSprite(i).active)
         return Result;
 #ifdef SCRIPT
     if (why in[KICK_AC, KICK_CHEAT, KICK_CONSOLE, KICK_PING, KICK_NORESPONSE, KICK_NOCHEATRESPONSE,
@@ -1490,10 +1508,10 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
 
     if ((why != kick_ac) and (why != kick_cheat) and (why != kick_console) and (why != kick_voted))
     {
-        sprite[i].dropweapon();
+        SpriteSystem::Get().GetSprite(i).dropweapon();
     }
 
-    sprite[i].kill();
+    SpriteSystem::Get().GetSprite(i).kill();
 
     Result = true;
     return Result;

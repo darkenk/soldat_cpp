@@ -12,6 +12,7 @@
 #include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include <numbers>
 #include <set>
 
@@ -176,11 +177,12 @@ void tspark::render()
     tgfxspritearray &t = textures;
     if (CVar::sv_realisticmode)
         if ((owner > 0) && (owner < max_sprites + 1))
-            if (sprite[owner].active)
-                if (sprite[owner].visible == 0)
-                    if (map.raycast(sparkparts.pos[num], sprite[mysprite].skeleton.pos[9], grenvel,
-                                    gamewidth, true) or
-                        (sprite[owner].visible == 0))
+            if (SpriteSystem::Get().GetSprite(owner).active)
+                if (SpriteSystem::Get().GetSprite(owner).visible == 0)
+                    if (map.raycast(sparkparts.pos[num],
+                                    SpriteSystem::Get().GetSprite(mysprite).skeleton.pos[9],
+                                    grenvel, gamewidth, true) or
+                        (SpriteSystem::Get().GetSprite(owner).visible == 0))
                         return;
 
     _p.x = sparkparts.pos[num].x;
@@ -210,9 +212,10 @@ void tspark::render()
     }
     break;
     case 6:
-        if (sprite[owner].player->headcap > 0)
-            gfxdrawsprite(t[sprite[owner].player->headcap], _p.x, _p.y, 0, 0, degtorad(l * 2),
-                          rgba(sprite[owner].player->shirtcolor));
+        if (SpriteSystem::Get().GetSprite(owner).player->headcap > 0)
+            gfxdrawsprite(t[SpriteSystem::Get().GetSprite(owner).player->headcap], _p.x, _p.y, 0, 0,
+                          degtorad(l * 2),
+                          rgba(SpriteSystem::Get().GetSprite(owner).player->shirtcolor));
         break;
     case 7:
         gfxdrawsprite(t[GFX::WEAPONS_SHELL], _p.x, _p.y, 0, 0, degtorad(l * 4));
@@ -317,8 +320,9 @@ void tspark::render()
     }
     break;
     case 25:
-        gfxdrawsprite(t[GFX::SPARKS_SPAWNSPARK], _p.x - 20, _p.y - 20, 0, 0, degtorad(l),
-                      rgba(sprite[owner].player->shirtcolor, min(6.0 * l, 255.0)));
+        gfxdrawsprite(
+            t[GFX::SPARKS_SPAWNSPARK], _p.x - 20, _p.y - 20, 0, 0, degtorad(l),
+            rgba(SpriteSystem::Get().GetSprite(owner).player->shirtcolor, min(6.0 * l, 255.0)));
         break;
     case 26:
         gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y,
@@ -410,12 +414,14 @@ void tspark::render()
         gfxdrawsprite(t[GFX::SPARKS_ODLAMEK4], _p.x, _p.y, 0.7, rgba(0xffffff, trunc(l * 2) + 15));
         break;
     case 48:
-        gfxdrawsprite(t[GFX::SPARKS_SKRAWEK], _p.x, _p.y, 0, 0, degtorad(l * 5),
-                      rgba(sprite[owner].player->shirtcolor, trunc(l * 2) + 15));
+        gfxdrawsprite(
+            t[GFX::SPARKS_SKRAWEK], _p.x, _p.y, 0, 0, degtorad(l * 5),
+            rgba(SpriteSystem::Get().GetSprite(owner).player->shirtcolor, trunc(l * 2) + 15));
         break;
     case 49:
-        gfxdrawsprite(t[GFX::SPARKS_SKRAWEK], _p.x, _p.y, 0, 0, degtorad(l * 5),
-                      rgba(sprite[owner].player->pantscolor, trunc(l * 2) + 15));
+        gfxdrawsprite(
+            t[GFX::SPARKS_SKRAWEK], _p.x, _p.y, 0, 0, degtorad(l * 5),
+            rgba(SpriteSystem::Get().GetSprite(owner).player->pantscolor, trunc(l * 2) + 15));
         break;
     case 50:
         gfxdrawsprite(t[GFX::SPARKS_PUFF], _p.x, _p.y, rgba(0xffffff, trunc(l) + 5));
@@ -484,11 +490,11 @@ void tspark::render()
     break;
     case 61:
         gfxdrawsprite(t[GFX::SPARKS_SPAWNSPARK], _p.x - 10, _p.y - 10, 0.5, 0.5, 0, 0, degtorad(l),
-                      rgba(sprite[owner].player->shirtcolor, 14 * l));
+                      rgba(SpriteSystem::Get().GetSprite(owner).player->shirtcolor, 14 * l));
         break;
     case 62:
         gfxdrawsprite(t[GFX::SPARKS_JETFIRE], _p.x, _p.y, 0, 0, degtorad(l),
-                      rgba(sprite[owner].player->jetcolor, l * 5));
+                      rgba(SpriteSystem::Get().GetSprite(owner).player->jetcolor, l * 5));
         break;
     case 64: {
         _scala.x = (float)(l) / 35;
@@ -553,10 +559,11 @@ bool tspark::checkmapcollision(float x, float y)
 
         const auto polytype = w.Type;
 
-        teamcol = teamcollides(polytype, sprite[owner].player->team, false);
+        teamcol = teamcollides(polytype, SpriteSystem::Get().GetSprite(owner).player->team, false);
 
         if (teamcol)
-            if (!((polytype == poly_type_bouncy) && (sprite[owner].holdedthing == 0)))
+            if (!((polytype == poly_type_bouncy) &&
+                  (SpriteSystem::Get().GetSprite(owner).holdedthing == 0)))
                 if ((polytype != poly_type_only_bullets) && (polytype != poly_type_only_player) &&
                     (polytype != poly_type_doesnt) && (polytype != poly_type_background) &&
                     (polytype != poly_type_background_transition))

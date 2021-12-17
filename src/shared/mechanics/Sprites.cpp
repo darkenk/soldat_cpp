@@ -20,6 +20,7 @@
 #include "../Cvar.hpp"
 #include "../Game.hpp"
 #include "Control.hpp"
+#include "SpriteSystem.hpp"
 #include "common/Calc.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/PortUtils.hpp"
@@ -59,7 +60,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
                 result = -1;
                 return result;
             }
-            if (!sprite[i].active)
+            if (!SpriteSystem::Get().GetSprite(i).active)
                 break;
         }
     }
@@ -71,64 +72,65 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     result = i;
 
     // replace player object
-    if (sprite[i].player != nullptr)
+    if (SpriteSystem::Get().GetSprite(i).player != nullptr)
     {
-        sprite[i].player->spritenum = 0;
-        if (sprite[i].isplayerobjectowner)
+        SpriteSystem::Get().GetSprite(i).player->spritenum = 0;
+        if (SpriteSystem::Get().GetSprite(i).isplayerobjectowner)
         {
-            delete sprite[i].player;
-            sprite[i].player = nullptr;
+            delete SpriteSystem::Get().GetSprite(i).player;
+            SpriteSystem::Get().GetSprite(i).player = nullptr;
         }
     }
 #if SERVER
-    sprite[i].player = reinterpret_cast<TServerPlayer *>(player);
+    SpriteSystem::Get().GetSprite(i).player = reinterpret_cast<TServerPlayer *>(player);
 #else
-    sprite[i].player = player;
+    SpriteSystem::Get().GetSprite(i).player = player;
 #endif
-    sprite[i].player->spritenum = i;
-    sprite[i].isplayerobjectowner = transferownership;
+    SpriteSystem::Get().GetSprite(i).player->spritenum = i;
+    SpriteSystem::Get().GetSprite(i).isplayerobjectowner = transferownership;
 
-    sprite[i].active = true;
-    sprite[i].style = sstyle;
-    sprite[i].num = i;
-    sprite[i].deadmeat = false;
-    sprite[i].respawncounter = 0;
-    sprite[i].ceasefirecounter = ceasefiretime;
+    SpriteSystem::Get().GetSprite(i).active = true;
+    SpriteSystem::Get().GetSprite(i).style = sstyle;
+    SpriteSystem::Get().GetSprite(i).num = i;
+    SpriteSystem::Get().GetSprite(i).deadmeat = false;
+    SpriteSystem::Get().GetSprite(i).respawncounter = 0;
+    SpriteSystem::Get().GetSprite(i).ceasefirecounter = ceasefiretime;
 
     if (CVar::sv_survivalmode)
-        sprite[i].ceasefirecounter = sprite[i].ceasefirecounter * 3;
+        SpriteSystem::Get().GetSprite(i).ceasefirecounter =
+            SpriteSystem::Get().GetSprite(i).ceasefirecounter * 3;
 
-    sprite[i].alpha = 255;
-    sprite[i].brain.pissedoff = 0;
-    sprite[i].vest = 0;
-    sprite[i].bonusstyle = bonus_none;
-    sprite[i].bonustime = 0;
-    sprite[i].multikills = 0;
-    sprite[i].multikilltime = 0;
-    sprite[i].tertiaryweapon = guns[fraggrenade];
-    sprite[i].hascigar = 0;
-    sprite[i].idletime = default_idletime;
-    sprite[i].idlerandom = -1;
-    sprite[i].position = pos_stand;
-    sprite[i].bodyanimation = stand;
-    sprite[i].legsanimation = stand;
-    sprite[i].onfire = 0;
-    sprite[i].holdedthing = 0;
-    sprite[i].selweapon = 0;
-    sprite[i].stat = 0;
+    SpriteSystem::Get().GetSprite(i).alpha = 255;
+    SpriteSystem::Get().GetSprite(i).brain.pissedoff = 0;
+    SpriteSystem::Get().GetSprite(i).vest = 0;
+    SpriteSystem::Get().GetSprite(i).bonusstyle = bonus_none;
+    SpriteSystem::Get().GetSprite(i).bonustime = 0;
+    SpriteSystem::Get().GetSprite(i).multikills = 0;
+    SpriteSystem::Get().GetSprite(i).multikilltime = 0;
+    SpriteSystem::Get().GetSprite(i).tertiaryweapon = guns[fraggrenade];
+    SpriteSystem::Get().GetSprite(i).hascigar = 0;
+    SpriteSystem::Get().GetSprite(i).idletime = default_idletime;
+    SpriteSystem::Get().GetSprite(i).idlerandom = -1;
+    SpriteSystem::Get().GetSprite(i).position = pos_stand;
+    SpriteSystem::Get().GetSprite(i).bodyanimation = stand;
+    SpriteSystem::Get().GetSprite(i).legsanimation = stand;
+    SpriteSystem::Get().GetSprite(i).onfire = 0;
+    SpriteSystem::Get().GetSprite(i).holdedthing = 0;
+    SpriteSystem::Get().GetSprite(i).selweapon = 0;
+    SpriteSystem::Get().GetSprite(i).stat = 0;
 
 #ifndef SERVER
-    sprite[i].olddeadmeat = false;
-    sprite[i].halfdead = false;
+    SpriteSystem::Get().GetSprite(i).olddeadmeat = false;
+    SpriteSystem::Get().GetSprite(i).halfdead = false;
 #endif
 
-    sprite[i].bgstate.backgroundstatus = background_transition;
-    sprite[i].bgstate.backgroundpoly = background_poly_unknown;
+    SpriteSystem::Get().GetSprite(i).bgstate.backgroundstatus = background_transition;
+    SpriteSystem::Get().GetSprite(i).bgstate.backgroundpoly = background_poly_unknown;
 
     svelocity.x = 0;
     svelocity.y = 0;
 
-    if (sprite[i].player->team == team_spectator)
+    if (SpriteSystem::Get().GetSprite(i).player->team == team_spectator)
     {
         spos.x = min_sectorz * map.GetSectorsDivision() * 0.8;
         spos.y = min_sectorz * map.GetSectorsDivision() * 0.8;
@@ -138,57 +140,58 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     spriteparts.createpart(spos, svelocity, 1, i);
 
     // create skeleton
-    sprite[i].skeleton.timestep = 1;
-    sprite[i].skeleton.gravity = 1.06 * grav;
-    sprite[i].skeleton = gostekskeleton;
-    sprite[i].skeleton.vdamping = 0.9945;
+    SpriteSystem::Get().GetSprite(i).skeleton.timestep = 1;
+    SpriteSystem::Get().GetSprite(i).skeleton.gravity = 1.06 * grav;
+    SpriteSystem::Get().GetSprite(i).skeleton = gostekskeleton;
+    SpriteSystem::Get().GetSprite(i).skeleton.vdamping = 0.9945;
 
-    sprite[i].SetHealth(starthealth);
-    sprite[i].aimdistcoef = defaultaimdist;
+    SpriteSystem::Get().GetSprite(i).SetHealth(starthealth);
+    SpriteSystem::Get().GetSprite(i).aimdistcoef = defaultaimdist;
 
-    sprite[i].weapon = guns[noweapon];
+    SpriteSystem::Get().GetSprite(i).weapon = guns[noweapon];
 
-    secwep = sprite[i].player->secwep + 1;
+    secwep = SpriteSystem::Get().GetSprite(i).player->secwep + 1;
     if ((secwep >= 1) && (secwep <= secondary_weapons) &&
         (weaponactive[primary_weapons + secwep] == 1))
-        sprite[i].secondaryweapon = guns[primary_weapons + secwep];
+        SpriteSystem::Get().GetSprite(i).secondaryweapon = guns[primary_weapons + secwep];
     else
-        sprite[i].secondaryweapon = guns[noweapon];
+        SpriteSystem::Get().GetSprite(i).secondaryweapon = guns[noweapon];
 
-    sprite[i].jetscount = map.startjet;
+    SpriteSystem::Get().GetSprite(i).jetscount = map.startjet;
 #ifndef SERVER
-    sprite[i].jetscountprev = map.startjet;
+    SpriteSystem::Get().GetSprite(i).jetscountprev = map.startjet;
 #endif
-    sprite[i].tertiaryweapon.ammocount = CVar::sv_maxgrenades / 2;
+    SpriteSystem::Get().GetSprite(i).tertiaryweapon.ammocount = CVar::sv_maxgrenades / 2;
 
-    sprite[i].wearhelmet = 1;
-    if (sprite[i].player->headcap == 0)
-        sprite[i].wearhelmet = 0;
+    SpriteSystem::Get().GetSprite(i).wearhelmet = 1;
+    if (SpriteSystem::Get().GetSprite(i).player->headcap == 0)
+        SpriteSystem::Get().GetSprite(i).wearhelmet = 0;
 
-    sprite[i].brain.targetnum = 1;
-    sprite[i].brain.waypointtimeoutcounter = waypointtimeout;
+    SpriteSystem::Get().GetSprite(i).brain.targetnum = 1;
+    SpriteSystem::Get().GetSprite(i).brain.waypointtimeoutcounter = waypointtimeout;
 
-    sprite[i].deadcollidecount = 0;
+    SpriteSystem::Get().GetSprite(i).deadcollidecount = 0;
 
 #ifndef SERVER
-    sprite[i].reloadsoundchannel = i - 1;
-    sprite[i].jetssoundchannel = 1 * max_sprites + i - 1;
-    sprite[i].gattlingsoundchannel = 2 * max_sprites + i - 1;
-    sprite[i].gattlingsoundchannel2 = 3 * max_sprites + i - 1;
-    sprite[i].moveskeleton(spos.x, spos.y, false);
+    SpriteSystem::Get().GetSprite(i).reloadsoundchannel = i - 1;
+    SpriteSystem::Get().GetSprite(i).jetssoundchannel = 1 * max_sprites + i - 1;
+    SpriteSystem::Get().GetSprite(i).gattlingsoundchannel = 2 * max_sprites + i - 1;
+    SpriteSystem::Get().GetSprite(i).gattlingsoundchannel2 = 3 * max_sprites + i - 1;
+    SpriteSystem::Get().GetSprite(i).moveskeleton(spos.x, spos.y, false);
 #else
-    sprite[i].moveskeleton(0, 0, false);
+    SpriteSystem::Get().GetSprite(i).moveskeleton(0, 0, false);
 #endif
 
     // clear push wait list
     for (j = 0; j <= max_pushtick; j++)
     {
-        sprite[i].nextpush[j].x = 0;
-        sprite[i].nextpush[j].y = 0;
+        SpriteSystem::Get().GetSprite(i).nextpush[j].x = 0;
+        SpriteSystem::Get().GetSprite(i).nextpush[j].y = 0;
     }
 
-    sprite[i].bulletcount = Random(std::numeric_limits<std::uint16_t>::max()); // FIXME wat?
-    sprite[i].freecontrols();
+    SpriteSystem::Get().GetSprite(i).bulletcount =
+        Random(std::numeric_limits<std::uint16_t>::max()); // FIXME wat?
+    SpriteSystem::Get().GetSprite(i).freecontrols();
 
     sortplayers(); // sort the players frag list
     return result;
@@ -270,7 +273,7 @@ void Sprite<M>::update()
     LogTraceG("TSprite.Update");
 #endif
 
-    Assert(&sprite[num] == this);
+    Assert(&SpriteSystem::Get().GetSprite(num) == this);
 
     jetscountprev = jetscount;
     weapon.reloadtimeprev = weapon.reloadtimecount;
@@ -306,7 +309,7 @@ void Sprite<M>::update()
     if (((player->controlmethod == human) && (noclientupdatetime[num] < clientstopmove_retrys)) ||
         (player->controlmethod == bot))
 #endif
-        controlsprite(sprite[num]);
+        controlsprite(SpriteSystem::Get().GetSprite(num));
 
     if (isspectator())
     {
@@ -1187,10 +1190,11 @@ void Sprite<M>::update()
                         if (respawncounter < 3)
                         {
                             for (i = 1; i <= max_sprites; i++)
-                                if (sprite[i].active && !sprite[i].deadmeat)
+                                if (SpriteSystem::Get().GetSprite(i).active &&
+                                    !SpriteSystem::Get().GetSprite(i).deadmeat)
                                 {
-                                    sprite[i].healthhit(4000, i, 1, -1, p);
-                                    sprite[i].player->deaths -= 1;
+                                    SpriteSystem::Get().GetSprite(i).healthhit(4000, i, 1, -1, p);
+                                    SpriteSystem::Get().GetSprite(i).player->deaths -= 1;
                                 }
                         }
 
@@ -1293,7 +1297,8 @@ void Sprite<M>::kill()
     {
         left = false;
         for (i = 1; i <= max_players; i++)
-            if (sprite[i].active && isinsameteam(sprite[i]) && (i != num))
+            if (SpriteSystem::Get().GetSprite(i).active &&
+                isinsameteam(SpriteSystem::Get().GetSprite(i)) && (i != num))
                 left = true;
 
         if (left == false)
@@ -1333,11 +1338,12 @@ void selectdefaultweapons(std::uint8_t mysprite)
             {
                 weaponsel[mysprite][j] = 1;
                 limbomenu->button[j - 1].active = true;
-                sprite[mysprite].selweapon = j;
+                SpriteSystem::Get().GetSprite(mysprite).selweapon = j;
 
-                if (limbomenu->active && !sprite[mysprite].deadmeat)
+                if (limbomenu->active && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
                 {
-                    sprite[mysprite].applyweaponbynum(sprite[mysprite].selweapon, 1);
+                    SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
+                        SpriteSystem::Get().GetSprite(mysprite).selweapon, 1);
                     clientspritesnapshot();
                 }
                 break;
@@ -1358,12 +1364,12 @@ void selectdefaultweapons(std::uint8_t mysprite)
             {
                 weaponsel[mysprite][j] = 1;
                 limbomenu->button[j - 1].active = true;
-                sprite[mysprite].player->secwep = j - primary_weapons - 1;
+                SpriteSystem::Get().GetSprite(mysprite).player->secwep = j - primary_weapons - 1;
 
-                CVar::cl_player_secwep = (sprite[mysprite].player->secwep);
+                CVar::cl_player_secwep = (SpriteSystem::Get().GetSprite(mysprite).player->secwep);
 
-                if (limbomenu->active && !sprite[mysprite].deadmeat)
-                    sprite[mysprite].applyweaponbynum(guns[j].num, 2);
+                if (limbomenu->active && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+                    SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(guns[j].num, 2);
                 clientspritesnapshot();
                 break;
             }
@@ -1393,9 +1399,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     std::string s2;
 #endif
 
-#ifdef SERVER
     LogTraceG("TSprite.Die");
-#endif
 
     if ((who < 1) || (who > max_sprites))
         return;
@@ -1410,8 +1414,9 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             {
                 k = 0;
                 for (i = 1; i <= max_sprites; i++)
-                    if (sprite[i].active && (i != who) && (!sprite[i].player->demoplayer) and
-                        sprite[i].isnotspectator())
+                    if (SpriteSystem::Get().GetSprite(i).active && (i != who) &&
+                        (!SpriteSystem::Get().GetSprite(i).player->demoplayer) and
+                        SpriteSystem::Get().GetSprite(i).isnotspectator())
                         if (distance(spriteparts.pos[i], spriteparts.pos[who]) >
                             bullettime_mindistance)
                             k = 1;
@@ -1439,37 +1444,44 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                  (CVar::sv_gamemode != gamestyle_rambo)))
                 if (bullet[what].dontcheat == false)
                 {
-                    kickplayer(sprite[who].num, true, kick_cheat, day, "Not allowed weapon");
+                    kickplayer(SpriteSystem::Get().GetSprite(who).num, true, kick_cheat, day,
+                               "Not allowed weapon");
                     return;
                 }
 
         // Anti-Team Killer Protection
         if (CVar::sv_punishtk)
         {
-            if (isinsameteam(sprite[who]) && !(CVar::sv_gamemode == gamestyle_deathmatch) &&
+            if (isinsameteam(SpriteSystem::Get().GetSprite(who)) &&
+                !(CVar::sv_gamemode == gamestyle_deathmatch) &&
                 !(CVar::sv_gamemode == gamestyle_rambo) &&
-                !(player->name == sprite[who].player->name))
+                !(player->name == SpriteSystem::Get().GetSprite(who).player->name))
             {
-                sprite[who].player->tkwarnings += 1;
-                GetMainConsole().console(sprite[who].player->name + " Team Killed " + player->name +
-                                             " (Warning #" +
-                                             inttostr(sprite[who].player->tkwarnings) + ')',
-                                         game_message_color);
-                serversendstringmessage(std::string("TK Warning #") +
-                                            (inttostr(sprite[who].player->tkwarnings)) +
-                                            ". Max Warnings: " + (inttostr(CVar::sv_warnings_tk)),
-                                        who, 255, msgtype_pub);
-                if (sprite[who].player->tkwarnings > (CVar::sv_warnings_tk / 2))
+                SpriteSystem::Get().GetSprite(who).player->tkwarnings += 1;
+                GetMainConsole().console(
+                    SpriteSystem::Get().GetSprite(who).player->name + " Team Killed " +
+                        player->name + " (Warning #" +
+                        inttostr(SpriteSystem::Get().GetSprite(who).player->tkwarnings) + ')',
+                    game_message_color);
+                serversendstringmessage(
+                    std::string("TK Warning #") +
+                        (inttostr(SpriteSystem::Get().GetSprite(who).player->tkwarnings)) +
+                        ". Max Warnings: " + (inttostr(CVar::sv_warnings_tk)),
+                    who, 255, msgtype_pub);
+                if (SpriteSystem::Get().GetSprite(who).player->tkwarnings >
+                    (CVar::sv_warnings_tk / 2))
                 {
-                    sprite[who].vest = 0;
-                    sprite[who].healthhit(200, who, 1, 1, a);
-                    serversendstringmessage((sprite[who].player->name) +
-                                                " has been punished for TeamKilling. (" +
-                                                (inttostr(sprite[who].player->tkwarnings)) + '/' +
-                                                (inttostr(CVar::sv_warnings_tk)) + ')',
-                                            0, 255, msgtype_pub);
+                    SpriteSystem::Get().GetSprite(who).vest = 0;
+                    SpriteSystem::Get().GetSprite(who).healthhit(200, who, 1, 1, a);
+                    serversendstringmessage(
+                        (SpriteSystem::Get().GetSprite(who).player->name) +
+                            " has been punished for TeamKilling. (" +
+                            (inttostr(SpriteSystem::Get().GetSprite(who).player->tkwarnings)) +
+                            '/' + (inttostr(CVar::sv_warnings_tk)) + ')',
+                        0, 255, msgtype_pub);
                 }
-                if (sprite[who].player->tkwarnings > (CVar::sv_warnings_tk - 1))
+                if (SpriteSystem::Get().GetSprite(who).player->tkwarnings >
+                    (CVar::sv_warnings_tk - 1))
                     kickplayer(who, true, kick_console, 3600 * 15, "Team Killing");
             }
         }
@@ -1479,12 +1491,12 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         {
             if (CVar::sv_gamemode == gamestyle_deathmatch)
             {
-                sprite[who].player->kills += 1;
+                SpriteSystem::Get().GetSprite(who).player->kills += 1;
 
                 // mulitkill count
 #ifdef SERVER
-                sprite[who].multikilltime = multikillinterval;
-                sprite[who].multikills += 1;
+                SpriteSystem::Get().GetSprite(who).multikilltime = multikillinterval;
+                SpriteSystem::Get().GetSprite(who).multikills += 1;
 #endif
             }
             if (CVar::sv_gamemode == gamestyle_pointmatch)
@@ -1493,81 +1505,83 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 i = 1;
 
                 // add another point for holding the flag
-                if ((sprite[who].holdedthing > 0) && (sprite[who].holdedthing < max_things + 1))
-                    if (thing[sprite[who].holdedthing].style == object_pointmatch_flag)
+                if ((SpriteSystem::Get().GetSprite(who).holdedthing > 0) &&
+                    (SpriteSystem::Get().GetSprite(who).holdedthing < max_things + 1))
+                    if (thing[SpriteSystem::Get().GetSprite(who).holdedthing].style ==
+                        object_pointmatch_flag)
                         i = i * 2;
 
                         // add points for multikill
 #ifdef SERVER
-                if (sprite[who].multikilltime > 0)
+                if (SpriteSystem::Get().GetSprite(who).multikilltime > 0)
                 {
-                    if (sprite[who].multikills == 2)
+                    if (SpriteSystem::Get().GetSprite(who).multikills == 2)
                         i = i * 2;
-                    if (sprite[who].multikills == 3)
+                    if (SpriteSystem::Get().GetSprite(who).multikills == 3)
                         i = i * 4;
-                    if (sprite[who].multikills == 4)
+                    if (SpriteSystem::Get().GetSprite(who).multikills == 4)
                         i = i * 8;
-                    if (sprite[who].multikills == 5)
+                    if (SpriteSystem::Get().GetSprite(who).multikills == 5)
                         i = i * 16;
-                    if (sprite[who].multikills > 5)
+                    if (SpriteSystem::Get().GetSprite(who).multikills > 5)
                         i = i * 32;
                 }
 #endif
 
-                sprite[who].player->kills += i;
+                SpriteSystem::Get().GetSprite(who).player->kills += i;
 
                 // mulitkill count
 #ifdef SERVER
-                sprite[who].multikilltime = multikillinterval;
-                sprite[who].multikills += 1;
+                SpriteSystem::Get().GetSprite(who).multikilltime = multikillinterval;
+                SpriteSystem::Get().GetSprite(who).multikills += 1;
 #endif
             }
             if (CVar::sv_gamemode == gamestyle_teammatch)
             {
-                if (isnotinsameteam(sprite[who]))
+                if (isnotinsameteam(SpriteSystem::Get().GetSprite(who)))
                 {
-                    sprite[who].player->kills += 1;
-                    teamscore[sprite[who].player->team] += 1;
+                    SpriteSystem::Get().GetSprite(who).player->kills += 1;
+                    teamscore[SpriteSystem::Get().GetSprite(who).player->team] += 1;
 #ifdef SERVER
                     // mulitkill count
-                    sprite[who].multikilltime = multikillinterval;
-                    sprite[who].multikills += 1;
+                    SpriteSystem::Get().GetSprite(who).multikilltime = multikillinterval;
+                    SpriteSystem::Get().GetSprite(who).multikills += 1;
 #endif
                 }
             }
             if (CVar::sv_gamemode == gamestyle_ctf)
             {
-                if (isnotinsameteam(sprite[who]))
+                if (isnotinsameteam(SpriteSystem::Get().GetSprite(who)))
                 {
-                    sprite[who].player->kills += 1;
+                    SpriteSystem::Get().GetSprite(who).player->kills += 1;
 #ifdef SERVER
                     // mulitkill count
-                    sprite[who].multikilltime = multikillinterval;
-                    sprite[who].multikills += 1;
+                    SpriteSystem::Get().GetSprite(who).multikilltime = multikillinterval;
+                    SpriteSystem::Get().GetSprite(who).multikills += 1;
 #endif
                 }
             }
             if (CVar::sv_gamemode == gamestyle_inf)
             {
-                if (isnotinsameteam(sprite[who]))
+                if (isnotinsameteam(SpriteSystem::Get().GetSprite(who)))
                 {
-                    sprite[who].player->kills += 1;
+                    SpriteSystem::Get().GetSprite(who).player->kills += 1;
 #ifdef SERVER
                     // mulitkill count
-                    sprite[who].multikilltime = multikillinterval;
-                    sprite[who].multikills += 1;
+                    SpriteSystem::Get().GetSprite(who).multikilltime = multikillinterval;
+                    SpriteSystem::Get().GetSprite(who).multikills += 1;
 #endif
                 }
             }
             if (CVar::sv_gamemode == gamestyle_htf)
             {
-                if (isnotinsameteam(sprite[who]))
+                if (isnotinsameteam(SpriteSystem::Get().GetSprite(who)))
                 {
-                    sprite[who].player->kills += 1;
+                    SpriteSystem::Get().GetSprite(who).player->kills += 1;
 #ifdef SERVER
                     // mulitkill count
-                    sprite[who].multikilltime = multikillinterval;
-                    sprite[who].multikills += 1;
+                    SpriteSystem::Get().GetSprite(who).multikilltime = multikillinterval;
+                    SpriteSystem::Get().GetSprite(who).multikills += 1;
 #endif
                 }
             }
@@ -1581,22 +1595,22 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                     (i == guns[bow2].num) || (weapon.num == guns[bow].num) || // Shootee is Rambo
                     (weapon.num == guns[bow2].num))
                 {
-                    sprite[who].player->kills += 1;
+                    SpriteSystem::Get().GetSprite(who).player->kills += 1;
 #ifdef SERVER
                     // mulitkill count
-                    sprite[who].multikilltime = multikillinterval;
-                    sprite[who].multikills += 1;
+                    SpriteSystem::Get().GetSprite(who).multikilltime = multikillinterval;
+                    SpriteSystem::Get().GetSprite(who).multikills += 1;
 #endif
                 }
                 else
                 {
                     // Punish for killing non-Rambos when someone is Rambo
                     for (i = 1; i <= max_players; i++)
-                        if ((sprite[i].weapon.num == guns[bow].num) ||
-                            (sprite[i].weapon.num == guns[bow2].num))
-                            if (sprite[who].player->kills > 0)
+                        if ((SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow].num) ||
+                            (SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow2].num))
+                            if (SpriteSystem::Get().GetSprite(who).player->kills > 0)
                             {
-                                sprite[who].player->kills -= 1;
+                                SpriteSystem::Get().GetSprite(who).player->kills -= 1;
                                 break;
                             }
                 }
@@ -1678,19 +1692,21 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
 #ifdef SERVER
         // console message for kills
-        if ((CVar::sv_echokills) && !(sprite[who].player->name == player->name))
+        if ((CVar::sv_echokills) &&
+            !(SpriteSystem::Get().GetSprite(who).player->name == player->name))
         {
-            GetMainConsole().console(std::string("(") + inttostr(sprite[who].player->team) + ") " +
-                                         sprite[who].player->name + " killed (" +
-                                         inttostr(player->team) + ") " + player->name + " with " +
-                                         s,
-                                     0);
+            GetMainConsole().console(
+                std::string("(") + inttostr(SpriteSystem::Get().GetSprite(who).player->team) +
+                    ") " + SpriteSystem::Get().GetSprite(who).player->name + " killed (" +
+                    inttostr(player->team) + ") " + player->name + " with " + s,
+                0);
         }
 #endif
 
 #ifdef SCRIPT
-        // COMMENT: Sprite[Num].Num = Num?
-        scrptdispatcher.onplayerkill(sprite[who].num, num, (std::uint8_t)(what));
+        // COMMENT: SpriteSystem::Get().GetSprite(Num).Num = Num?
+        scrptdispatcher.onplayerkill(SpriteSystem::Get().GetSprite(who).num, num,
+                                     (std::uint8_t)(what));
 #endif
 
         // console message about kill
@@ -1706,8 +1722,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #endif
                 addlinetologfile(&GetKillLog(), std::string("--- ") + s2, GetKillLogFilename(),
                                  false);
-                addlinetologfile(&GetKillLog(), sprite[who].player->name, GetKillLogFilename(),
-                                 false);
+                addlinetologfile(&GetKillLog(), SpriteSystem::Get().GetSprite(who).player->name,
+                                 GetKillLogFilename(), false);
                 addlinetologfile(&GetKillLog(), player->name, GetKillLogFilename(), false);
                 addlinetologfile(&GetKillLog(), s, GetKillLogFilename(), false);
             }
@@ -1718,10 +1734,11 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 if (player->controlmethod == bot)
                     if (Random(brain.chatfreq / 2) == 0)
                         serversendstringmessage((brain.chatdead), all_players, num, msgtype_pub);
-                if ((who != num) && (sprite[who].player->controlmethod == bot))
-                    if (Random(sprite[who].brain.chatfreq / 3) == 0)
-                        serversendstringmessage((sprite[who].brain.chatkill), all_players, who,
-                                                msgtype_pub);
+                if ((who != num) &&
+                    (SpriteSystem::Get().GetSprite(who).player->controlmethod == bot))
+                    if (Random(SpriteSystem::Get().GetSprite(who).brain.chatfreq / 3) == 0)
+                        serversendstringmessage((SpriteSystem::Get().GetSprite(who).brain.chatkill),
+                                                all_players, who, msgtype_pub);
             }
 
             k = weapon.hitmultiply;
@@ -1868,7 +1885,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifndef SERVER
     if (deadmeat)
 #endif
-        if (sprite[who].bonusstyle == bonus_berserker)
+        if (SpriteSystem::Get().GetSprite(who).bonusstyle == bonus_berserker)
         {
             skeleton.constraints[2].active = false;
             skeleton.constraints[4].active = false;
@@ -1905,7 +1922,9 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 alivenum = 0;
 
                 for (i = 1; i <= max_sprites; i++)
-                    if (sprite[i].active && !sprite[i].deadmeat && sprite[i].isnotspectator())
+                    if (SpriteSystem::Get().GetSprite(i).active &&
+                        !SpriteSystem::Get().GetSprite(i).deadmeat &&
+                        SpriteSystem::Get().GetSprite(i).isnotspectator())
                         alivenum += 1;
 
                 alivenum -= 1;
@@ -1913,16 +1932,17 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 if (alivenum < 2)
                 {
                     for (i = 1; i <= max_sprites; i++)
-                        if (sprite[i].active)
-                            sprite[i].respawncounter = survival_respawntime;
+                        if (SpriteSystem::Get().GetSprite(i).active)
+                            SpriteSystem::Get().GetSprite(i).respawncounter = survival_respawntime;
 
                     survivalendround = true;
 
 #ifndef SERVER
                     for (i = 1; i <= max_sprites; i++)
-                        if (sprite[i].active && !sprite[i].deadmeat and
+                        if (SpriteSystem::Get().GetSprite(i).active &&
+                            !SpriteSystem::Get().GetSprite(i).deadmeat and
                             (num != i) && // not the current player
-                            sprite[i].isnotspectator())
+                            SpriteSystem::Get().GetSprite(i).isnotspectator())
                         {
                             playsound(sfx_roar, spriteparts.pos[i]);
                         }
@@ -1930,7 +1950,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 }
 
 #ifndef SERVER
-                if (!sprite[mysprite].deadmeat)
+                if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
 #endif
                     GetMainConsole().console(
 #ifdef SERVER
@@ -1952,17 +1972,21 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
                 for (i = 1; i <= max_sprites; i++)
                 {
-                    if (sprite[i].active && !sprite[i].deadmeat and
-                        (sprite[i].player->team == team_alpha))
+                    if (SpriteSystem::Get().GetSprite(i).active &&
+                        !SpriteSystem::Get().GetSprite(i).deadmeat and
+                        (SpriteSystem::Get().GetSprite(i).player->team == team_alpha))
                         teamalivenum[team_alpha] += 1;
-                    if (sprite[i].active && !sprite[i].deadmeat and
-                        (sprite[i].player->team == team_bravo))
+                    if (SpriteSystem::Get().GetSprite(i).active &&
+                        !SpriteSystem::Get().GetSprite(i).deadmeat and
+                        (SpriteSystem::Get().GetSprite(i).player->team == team_bravo))
                         teamalivenum[team_bravo] += 1;
-                    if (sprite[i].active && !sprite[i].deadmeat and
-                        (sprite[i].player->team == team_charlie))
+                    if (SpriteSystem::Get().GetSprite(i).active &&
+                        !SpriteSystem::Get().GetSprite(i).deadmeat and
+                        (SpriteSystem::Get().GetSprite(i).player->team == team_charlie))
                         teamalivenum[team_charlie] += 1;
-                    if (sprite[i].active && !sprite[i].deadmeat and
-                        (sprite[i].player->team == team_delta))
+                    if (SpriteSystem::Get().GetSprite(i).active &&
+                        !SpriteSystem::Get().GetSprite(i).deadmeat and
+                        (SpriteSystem::Get().GetSprite(i).player->team == team_delta))
                         teamalivenum[team_delta] += 1;
                 }
 
@@ -1982,8 +2006,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                      (teamalivenum[4] < 1)))
                 {
                     for (i = 1; i <= max_sprites; i++)
-                        if (sprite[i].active)
-                            sprite[i].respawncounter = survival_respawntime;
+                        if (SpriteSystem::Get().GetSprite(i).active)
+                            SpriteSystem::Get().GetSprite(i).respawncounter = survival_respawntime;
 
                     if (!survivalendround)
                         if (CVar::sv_gamemode == gamestyle_ctf)
@@ -2009,20 +2033,23 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                     survivalendround = true;
 
                     for (i = 1; i <= max_sprites; i++)
-                        if (sprite[i].active && !sprite[i].deadmeat)
+                        if (SpriteSystem::Get().GetSprite(i).active &&
+                            !SpriteSystem::Get().GetSprite(i).deadmeat)
                         {
-                            sprite[i].idlerandom = 5;
-                            sprite[i].idletime = 1;
+                            SpriteSystem::Get().GetSprite(i).idlerandom = 5;
+                            SpriteSystem::Get().GetSprite(i).idletime = 1;
                         }
                 }
 
 #ifndef SERVER
                 if (mysprite > 0)
-                    if (isinsameteam(sprite[mysprite]))
-                        if (!sprite[mysprite].deadmeat)
+                    if (isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
+                        if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
                             GetMainConsole().console(
                                 _("Players left on your team:") + ' ' +
-                                    (inttostr(teamalivenum[sprite[mysprite].player->team])),
+                                    (inttostr(teamalivenum[SpriteSystem::Get()
+                                                               .GetSprite(mysprite)
+                                                               .player->team])),
                                 game_message_color);
 #endif
             }
@@ -2068,7 +2095,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                                    iif(player->team == team_alpha, _("Blue"), _("Red"))),
                         iif(player->team == team_alpha, bravo_message_color, alpha_message_color));
 
-                    if (isinsameteam(sprite[mysprite]))
+                    if (isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
                     {
                         if (thing[i].style == object_alpha_flag) // Alpha
                             bigmessage(wideformat(_("{} Flag dropped!"), _("Red")),
@@ -2120,10 +2147,10 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             i = CVar::sv_advancemode_amount;
 
 #ifndef SERVER
-            if ((num != who) && (isnotinsameteam(sprite[who]) or issolo()))
+            if ((num != who) && (isnotinsameteam(SpriteSystem::Get().GetSprite(who)) or issolo()))
 #endif
             {
-                if ((sprite[who].player->kills % i) == 0)
+                if ((SpriteSystem::Get().GetSprite(who).player->kills % i) == 0)
                 {
                     j = 0;
                     for (i = 1; i <= primary_weapons; i++)
@@ -2183,7 +2210,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
     spriteparts.velocity[num].x = 0;
     spriteparts.velocity[num].y = 0;
-    sprite[who].brain.pissedoff = 0;
+    SpriteSystem::Get().GetSprite(who).brain.pissedoff = 0;
 
     // sort the players frag list
     sortplayers();
@@ -2269,9 +2296,7 @@ std::int32_t Sprite<M>::dropweapon()
 template <Config::Module M>
 void Sprite<M>::legsapplyanimation(const tanimation &anim, std::int32_t curr)
 {
-#ifdef SERVER
     LogTraceG("TSprite.LegsApplyAnimation");
-#endif
 
     if ((legsanimation.id == prone.id) || (legsanimation.id == pronemove.id))
         return;
@@ -2287,9 +2312,7 @@ template <Config::Module M>
 void Sprite<M>::bodyapplyanimation(const tanimation &anim, std::int32_t curr)
 {
     ZoneScopedN("ApplybodyAnimation");
-#ifdef SERVER
     LogTraceG("TSprite.BodyApplyAnimation");
-#endif
 
 #ifndef SERVER
     if (anim.id == stand.id)
@@ -2313,10 +2336,7 @@ void Sprite<M>::moveskeleton(float x1, float y1, bool fromzero)
 {
     std::int32_t i;
 
-#ifdef SERVER
-    LogTraceG("TSprite.MoveSkeleton");
-#endif
-
+    ZoneScopedN("Sprite::MoveSkeleton");
     if (!fromzero)
         for (i = 1; i <= num_particles; i++)
             if (skeleton.active[i])
@@ -2348,10 +2368,7 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
     std::int32_t detacc;
     bool teamcol;
 
-#ifdef SERVER
-    bool checkradiusmapcollision_result;
     LogTraceG("TSprite.CheckRadiusMapCollision");
-#endif
 
     bool result = false;
     spos.x = x;
@@ -3151,11 +3168,13 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
     LogTraceG("TSprite.HealthHit");
 #endif
     // Friendly Fire
-    if ((!CVar::sv_friendlyfire) && isnotsolo() && isinsameteam(sprite[who]) && (num != who))
+    if ((!CVar::sv_friendlyfire) && isnotsolo() &&
+        isinsameteam(SpriteSystem::Get().GetSprite(who)) && (num != who))
         return;
 
 #ifdef SERVER
-    if (sprite[who].isspectator() && (sprite[who].player->controlmethod == human))
+    if (SpriteSystem::Get().GetSprite(who).isspectator() &&
+        (SpriteSystem::Get().GetSprite(who).player->controlmethod == human))
         return;
 #endif
 
@@ -3167,9 +3186,9 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
         if (num != who)
         {
             for (j = 1; j <= max_players; j++)
-                if ((sprite[j].active) && (who != j) && (num != j))
-                    if ((sprite[j].weapon.num == guns[bow].num) ||
-                        (sprite[j].weapon.num == guns[bow2].num))
+                if ((SpriteSystem::Get().GetSprite(j).active) && (who != j) && (num != j))
+                    if ((SpriteSystem::Get().GetSprite(j).weapon.num == guns[bow].num) ||
+                        (SpriteSystem::Get().GetSprite(j).weapon.num == guns[bow2].num))
                         return;
         }
 
@@ -3182,11 +3201,10 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
         hm = round(0.25 * amount);
     }
 
-    if ((sprite[who].bonusstyle == bonus_berserker)
-#ifndef SERVER
-        && (who != num))
+#ifdef SERVER
+    if (SpriteSystem::Get().GetSprite(who).bonusstyle == bonus_berserker)
 #else
-    )
+    if ((SpriteSystem::Get().GetSprite(who).bonusstyle == bonus_berserker) && (who != num))
 #endif
         hm = 4 * amount;
 
@@ -3364,9 +3382,7 @@ void Sprite<M>::respawn()
     bool deadmeatbeforerespawn;
     bool survivalcheckendround;
 
-#ifdef SERVER
     LogTraceG("TSprite.Respawn");
-#endif
     if (CVar::sv_survivalmode_clearweapons)
         if (survivalendround && !weaponscleaned)
         {
@@ -3642,9 +3658,9 @@ void Sprite<M>::respawn()
         {
             survivalcheckendround = false;
             for (j = 1; j <= max_sprites; j++)
-                if (sprite[j].active)
-                    if (sprite[j].player->team != team_spectator)
-                        if (sprite[j].deadmeat)
+                if (SpriteSystem::Get().GetSprite(j).active)
+                    if (SpriteSystem::Get().GetSprite(j).player->team != team_spectator)
+                        if (SpriteSystem::Get().GetSprite(j).deadmeat)
                         {
                             survivalcheckendround = true;
                             break;
@@ -3686,9 +3702,7 @@ void Sprite<M>::parachute(tvector2 &a)
     std::int32_t n, i;
     float d = 0.0;
 
-#ifdef SERVER
     LogTraceG("Parachute");
-#endif
     if (holdedthing > 0)
         return;
     if (isspectator())
@@ -3744,8 +3758,10 @@ void Sprite<M>::changeteam(std::int32_t team)
             teamscount[i] = 0;
 
         for (i = 1; i <= max_sprites; i++)
-            if (sprite[i].active && sprite[i].isnotspectator())
-                teamscount[sprite[i].player->team] = teamscount[sprite[i].player->team] + 1;
+            if (SpriteSystem::Get().GetSprite(i).active &&
+                SpriteSystem::Get().GetSprite(i).isnotspectator())
+                teamscount[SpriteSystem::Get().GetSprite(i).player->team] =
+                    teamscount[SpriteSystem::Get().GetSprite(i).player->team] + 1;
 
         // Check for uneven teams
         if ((CVar::sv_balanceteams) && (adminchange == false))
@@ -4064,9 +4080,7 @@ void Sprite<M>::fire()
         spriteparts.velocity[num] = vec2subtract(spriteparts.velocity[num], d);
     }
 
-#ifdef SERVER
     LogTraceG("SpriteFire 11");
-#endif
 
     if (weapon.num == guns[minigun].num) // Minigun
     {

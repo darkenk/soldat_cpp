@@ -136,7 +136,6 @@ auto &mapchecksum = InitGlobalVariable<tsha1digest, "mapchecksum">();
 auto &mapindex = InitGlobalVariable<std::int32_t, "mapindex">();
 auto &sortedplayers = InitGlobalVariable<PascalArray<tkillsort, 1, max_sprites>, "sortedplayers">();
 
-auto &sprite = InitGlobalVariable<PascalArray<tsprite, 1, max_sprites>, "sprite">();
 auto &bullet = InitGlobalVariable<PascalArray<tbullet, 1, max_bullets>, "bullet">();
 auto &thing = InitGlobalVariable<PascalArray<tthing, 1, max_things>, "thing">();
 

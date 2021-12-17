@@ -15,6 +15,7 @@
 #include "NetworkUtils.hpp"
 #include "common/Logging.hpp"
 #include "common/gfx.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 
 //clang-format off
 #include "../misc/GlobalVariableStorage.cpp"
@@ -232,7 +233,8 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     {
         playernameunused = true;
         for (i = 1; i <= max_players; i++)
-            if ((sprite[i].active) && (sprite[i].player->name == finalplayername))
+            if ((SpriteSystem::Get().GetSprite(i).active) &&
+                (SpriteSystem::Get().GetSprite(i).player->name == finalplayername))
             {
                 auto jstring = inttostr(j);
                 suffixlen = length(jstring) + 2;
@@ -354,7 +356,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
         player.team = newteam;
     else
     {
-        sprite[player.spritenum].kill();
+        SpriteSystem::Get().GetSprite(player.spritenum).kill();
         serversendunaccepted(player.peer, server_full);
         return;
     }
@@ -373,22 +375,25 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     // respawn holded thing if is
     // FIXME english
     // TODO do a good bit of these things in CreateSprite instead?
-    if (sprite[player->spritenum].holdedthing > 0)
-        if (thing[sprite[player->spritenum].holdedthing].style < object_ussocom)
+    if (SpriteSystem::Get().GetSprite(player->spritenum).holdedthing > 0)
+        if (thing[SpriteSystem::Get().GetSprite(player->spritenum).holdedthing].style <
+            object_ussocom)
         {
-            thing[sprite[player->spritenum].holdedthing].respawn();
-            sprite[player->spritenum].holdedthing = 0;
+            thing[SpriteSystem::Get().GetSprite(player->spritenum).holdedthing].respawn();
+            SpriteSystem::Get().GetSprite(player->spritenum).holdedthing = 0;
         }
     for (i = 1; i <= max_things; i++)
         if (thing[player->spritenum].holdingsprite == player->spritenum)
             thing[player->spritenum].respawn();
-    sprite[player->spritenum].haspack = false;
-    sprite[player->spritenum].respawn(); // FIXME do this later?
+    SpriteSystem::Get().GetSprite(player->spritenum).haspack = false;
+    SpriteSystem::Get().GetSprite(player->spritenum).respawn(); // FIXME do this later?
 
     if (CVar::sv_survivalmode)
     {
-        sprite[player->spritenum].healthhit(150, player->spritenum, 1, -1, a);
-        sprite[player->spritenum].player->deaths -= 1;
+        SpriteSystem::Get()
+            .GetSprite(player->spritenum)
+            .healthhit(150, player->spritenum, 1, -1, a);
+        SpriteSystem::Get().GetSprite(player->spritenum).player->deaths -= 1;
     }
 
     // reset legacy-ish counters that are stored under the sprite ID
@@ -450,14 +455,17 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
         servermapchange(player->spritenum);
 
 #ifdef SCRIPT
-    scrptdispatcher.onjointeam(sprite[player.spritenum].num, player.team, player.team, true);
+    scrptdispatcher.onjointeam(SpriteSystem::Get().GetSprite(player.spritenum).num, player.team,
+                               player.team, true);
 #endif
 
 #ifdef STEAMSTATS
     requestuserstats(player.steamid);
 #endif
 
-    if (sprite[player->spritenum].active) // FIXME like above, it's always active is it not?
+    if (SpriteSystem::Get()
+            .GetSprite(player->spritenum)
+            .active) // FIXME like above, it's always active is it not?
     {
         dobalancebots(0, player->team);
     }
@@ -516,7 +524,7 @@ void serversendplaylist(HSteamNetConnection peer)
 #endif
 
     auto i = 0;
-    for (auto &s : sprite)
+    for (auto &s : SpriteSystem::Get().GetSprites())
     {
         if ((s.active) && (!s.player->demoplayer))
         {
@@ -663,40 +671,41 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
     newplayer.num = num;
     newplayer.jointype = jointype;
 
-    stringtoarray(newplayer.name.data(), sprite[num].player->name);
-    newplayer.shirtcolor = sprite[num].player->shirtcolor & 0xffffff;
-    newplayer.pantscolor = sprite[num].player->pantscolor & 0xffffff;
-    newplayer.skincolor = sprite[num].player->skincolor & 0xffffff;
-    newplayer.haircolor = sprite[num].player->haircolor & 0xffffff;
-    newplayer.jetcolor = sprite[num].player->jetcolor;
-    newplayer.team = sprite[num].player->team;
+    stringtoarray(newplayer.name.data(), SpriteSystem::Get().GetSprite(num).player->name);
+    newplayer.shirtcolor = SpriteSystem::Get().GetSprite(num).player->shirtcolor & 0xffffff;
+    newplayer.pantscolor = SpriteSystem::Get().GetSprite(num).player->pantscolor & 0xffffff;
+    newplayer.skincolor = SpriteSystem::Get().GetSprite(num).player->skincolor & 0xffffff;
+    newplayer.haircolor = SpriteSystem::Get().GetSprite(num).player->haircolor & 0xffffff;
+    newplayer.jetcolor = SpriteSystem::Get().GetSprite(num).player->jetcolor;
+    newplayer.team = SpriteSystem::Get().GetSprite(num).player->team;
     newplayer.pos = spriteparts.pos[num];
-    //  NewPlayer.SteamID := {$IFDEF STEAM}UInt64(Sprite[Num].Player.SteamID){$ELSE}0{$ENDIF};
+    //  NewPlayer.SteamID := {$IFDEF
+    //  STEAM}UInt64(SpriteSystem::Get().GetSprite(Num).Player.SteamID){$ELSE}0{$ENDIF};
 
     if (newplayer.team == team_spectator)
         newplayer.shirtcolor = colortohex(0xffffff);
 
     newplayer.look = 0;
-    if (sprite[num].player->hairstyle == 1)
+    if (SpriteSystem::Get().GetSprite(num).player->hairstyle == 1)
         newplayer.look = newplayer.look | B1;
-    if (sprite[num].player->hairstyle == 2)
+    if (SpriteSystem::Get().GetSprite(num).player->hairstyle == 2)
         newplayer.look = newplayer.look | B2;
-    if (sprite[num].player->hairstyle == 3)
+    if (SpriteSystem::Get().GetSprite(num).player->hairstyle == 3)
         newplayer.look = newplayer.look | B3;
-    if (sprite[num].player->hairstyle == 4)
+    if (SpriteSystem::Get().GetSprite(num).player->hairstyle == 4)
         newplayer.look = newplayer.look | B4;
-    if (sprite[num].player->headcap == GFX::GOSTEK_HELM)
+    if (SpriteSystem::Get().GetSprite(num).player->headcap == GFX::GOSTEK_HELM)
         newplayer.look = newplayer.look | B5;
-    if (sprite[num].player->headcap == GFX::GOSTEK_KAP)
+    if (SpriteSystem::Get().GetSprite(num).player->headcap == GFX::GOSTEK_KAP)
         newplayer.look = newplayer.look | B6;
-    if (sprite[num].player->chain == 1)
+    if (SpriteSystem::Get().GetSprite(num).player->chain == 1)
         newplayer.look = newplayer.look | B7;
-    if (sprite[num].player->chain == 2)
+    if (SpriteSystem::Get().GetSprite(num).player->chain == 2)
         newplayer.look = newplayer.look | B8;
 
 #ifdef SERVER
     // NOTE we also send to pending players to avoid desynchronization of the players list
-    if (!sprite[num].player->demoplayer)
+    if (!SpriteSystem::Get().GetSprite(num).player->demoplayer)
     {
         for (auto &player : players)
         {
@@ -709,14 +718,15 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
     {
         if (demorecorder.active())
         {
-            newplayer.adoptspriteid = (std::uint8_t)(sprite[num].player->demoplayer == true);
+            newplayer.adoptspriteid =
+                (std::uint8_t)(SpriteSystem::Get().GetSprite(num).player->demoplayer == true);
             demorecorder.saverecord(&newplayer, sizeof(newplayer));
         }
     }
     NotImplemented(NITag::OTHER, "No time functions");
 #if 0
     addlinetologfile(gamelog,
-                     std::string(" Net - ") + sprite[num].player->name + " connected " +
+                     std::string(" Net - ") + SpriteSystem::Get().GetSprite(num).player->name + " connected " +
                          datetostr(get_date()) + ' ' + timetostr(get_time()),
                      consolelogfilename);
 #endif
@@ -740,7 +750,7 @@ void serverdisconnect()
                                      k_nSteamNetworkingSend_Reliable);
     }
 
-    for (auto &s : sprite)
+    for (auto &s : SpriteSystem::Get().GetSprites())
     {
         if ((s.active) && (s.player->controlmethod == human))
         {
@@ -768,7 +778,7 @@ void serverplayerdisconnect(std::uint8_t num, std::uint8_t why)
     NotImplemented(NITag::OTHER, "No time functions");
 #if 0
     addlinetologfile(gamelog,
-                     string(" Net - ") + sprite[num].player->name + " disconnected " +
+                     string(" Net - ") + SpriteSystem::Get().GetSprite(num).player->name + " disconnected " +
                          datetostr(get_date()) + ' ' + timetostr(get_time()),
                      consolelogfilename);
 #endif
@@ -779,7 +789,7 @@ void serverping(std::uint8_t tonum)
     tmsg_ping pingmsg;
 
     pingmsg.header.id = msgid_ping;
-    pingmsg.pingticks = sprite[tonum].player->pingticks;
+    pingmsg.pingticks = SpriteSystem::Get().GetSprite(tonum).player->pingticks;
 
     if (pingsendcount[tonum] < 8)
         pingsendcount[tonum] += 1;
@@ -789,7 +799,8 @@ void serverping(std::uint8_t tonum)
 
     pingmsg.pingnum = pingsendcount[tonum];
 
-    GetServerNetwork()->senddata(&pingmsg, sizeof(pingmsg), sprite[tonum].player->peer,
+    GetServerNetwork()->senddata(&pingmsg, sizeof(pingmsg),
+                                 SpriteSystem::Get().GetSprite(tonum).player->peer,
                                  k_nSteamNetworkingSend_Reliable);
 }
 #endif
@@ -840,9 +851,10 @@ void serversynccvars(std::uint8_t tonum, HSteamNetConnection peer, bool fullsync
     {
         for (i = 1; i <= max_players; i++)
             if ((tonum == 0) || (i == tonum))
-                if ((sprite[i].active) & (sprite[i].player->controlmethod == human))
+                if ((SpriteSystem::Get().GetSprite(i).active) &
+                    (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
                     GetServerNetwork()->senddata(varsmsg, sizeof(tmsg_serversynccvars) + buffersize,
-                                                 sprite[i].player->peer,
+                                                 SpriteSystem::Get().GetSprite(i).player->peer,
                                                  k_nSteamNetworkingSend_Reliable);
     }
     else
@@ -893,7 +905,8 @@ void servervars(std::uint8_t tonum)
     }
 
 #ifdef SERVER
-    GetServerNetwork()->senddata(&varsmsg, sizeof(varsmsg), sprite[tonum].player->peer,
+    GetServerNetwork()->senddata(&varsmsg, sizeof(varsmsg),
+                                 SpriteSystem::Get().GetSprite(tonum).player->peer,
                                  k_nSteamNetworkingSend_Reliable);
 #else
     demorecorder.saverecord(varsmsg, sizeof(varsmsg));
@@ -919,8 +932,10 @@ void serverhandlepong(SteamNetworkingMessage_t *netmessage)
     if ((pongmsg->pingnum < 1) || (pongmsg->pingnum > 8))
         return;
 
-    sprite[i].player->pingticks = maintickcounter - pingtime[i][pongmsg->pingnum];
-    sprite[i].player->pingtime = sprite[i].player->pingticks * 1000 / 60;
+    SpriteSystem::Get().GetSprite(i).player->pingticks =
+        maintickcounter - pingtime[i][pongmsg->pingnum];
+    SpriteSystem::Get().GetSprite(i).player->pingtime =
+        SpriteSystem::Get().GetSprite(i).player->pingticks * 1000 / 60;
 
     noclientupdatetime[i] = 0;
 }

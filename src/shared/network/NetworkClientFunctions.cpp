@@ -7,9 +7,10 @@
 #include "../../client/Sound.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
 #include "NetworkClientConnection.hpp"
 #include "NetworkUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include <physfs.h>
 
 // clang-format off
@@ -54,12 +55,12 @@ void clienthandleserversyncmsg(SteamNetworkingMessage_t *netmessage)
         mapchangecounter = 999999999;
         mapchangename = "PAUSE*!*";
         for (i = 1; i <= max_players; i++)
-            if (sprite[i].active)
+            if (SpriteSystem::Get().GetSprite(i).active)
             {
-                stopsound(sprite[i].reloadsoundchannel);
-                stopsound(sprite[i].jetssoundchannel);
-                stopsound(sprite[i].gattlingsoundchannel);
-                stopsound(sprite[i].gattlingsoundchannel2);
+                stopsound(SpriteSystem::Get().GetSprite(i).reloadsoundchannel);
+                stopsound(SpriteSystem::Get().GetSprite(i).jetssoundchannel);
+                stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel);
+                stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel2);
             }
     }
     else if (mapchangecounter == 999999999)
@@ -102,10 +103,10 @@ void clienthandleforceweapon(SteamNetworkingMessage_t *netmessage)
 
     if (mysprite > 0)
     {
-        sprite[mysprite].applyweaponbynum(forceweapon->weaponnum, 1);
-        sprite[mysprite].applyweaponbynum(forceweapon->secondaryweaponnum, 2);
-        sprite[mysprite].weapon.ammocount = forceweapon->ammocount;
-        sprite[mysprite].secondaryweapon.ammocount = forceweapon->secammocount;
+        SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(forceweapon->weaponnum, 1);
+        SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(forceweapon->secondaryweaponnum, 2);
+        SpriteSystem::Get().GetSprite(mysprite).weapon.ammocount = forceweapon->ammocount;
+        SpriteSystem::Get().GetSprite(mysprite).secondaryweapon.ammocount = forceweapon->secammocount;
     }
 }
 

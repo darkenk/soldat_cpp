@@ -14,6 +14,7 @@
 #include "NetworkUtils.hpp"
 #include "common/gfx.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include <limits>
 
 // clang-format off
@@ -36,7 +37,7 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
 
     b.x = 0;
     b.y = 0;
-    auto &player = *sprite[i].player; // reuse object
+    auto &player = *SpriteSystem::Get().GetSprite(i).player; // reuse object
     player.name = returnfixedplayername(newplayermsg->name.data());
     player.shirtcolor = newplayermsg->shirtcolor & 0xffffff;
     player.pantscolor = newplayermsg->pantscolor & 0xffffff;
@@ -93,10 +94,11 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
         mysprite = i;
 
         if (demoplayer.active())
-            sprite[mysprite].player->demoplayer = true;
+            SpriteSystem::Get().GetSprite(mysprite).player->demoplayer = true;
 
         // TODO wat?
-        sprite[mysprite].bulletcount = Random(std::numeric_limits<std::uint16_t>::max());
+        SpriteSystem::Get().GetSprite(mysprite).bulletcount =
+            Random(std::numeric_limits<std::uint16_t>::max());
 
         if (player.team == team_spectator)
         {
@@ -125,12 +127,12 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
     spriteparts.oldpos[i] = newplayermsg->pos;
     spriteparts.pos[i] = newplayermsg->pos;
 
-    sprite[i].respawn();
+    SpriteSystem::Get().GetSprite(i).respawn();
 
     if (d == 1)
     {
-        sprite[i].weapon = guns[noweapon];
-        sprite[i].secondaryweapon = guns[noweapon];
+        SpriteSystem::Get().GetSprite(i).weapon = guns[noweapon];
+        SpriteSystem::Get().GetSprite(i).secondaryweapon = guns[noweapon];
 
         if (mysprite > 0)
         {
@@ -226,36 +228,42 @@ void clienthandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
 
     if ((playermsg->why == kick_unknown) || (playermsg->why >= _kick_end) ||
         (playermsg->why == kick_leftgame))
-        switch (sprite[playermsg->num].player->team)
+        switch (SpriteSystem::Get().GetSprite(playermsg->num).player->team)
         {
         case 0:
             GetMainConsole().console(
-                wideformat(_("{} has left the game"), (sprite[playermsg->num].player->name)),
+                wideformat(_("{} has left the game"),
+                           (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
                 enter_message_color);
             break;
         case 1:
             GetMainConsole().console(
-                wideformat(_("{} has left alpha team"), (sprite[playermsg->num].player->name)),
+                wideformat(_("{} has left alpha team"),
+                           (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
                 alphaj_message_color);
             break;
         case 2:
             GetMainConsole().console(
-                wideformat(_("{} has left bravo team"), (sprite[playermsg->num].player->name)),
+                wideformat(_("{} has left bravo team"),
+                           (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
                 bravoj_message_color);
             break;
         case 3:
             GetMainConsole().console(
-                wideformat(_("{} has left charlie team"), (sprite[playermsg->num].player->name)),
+                wideformat(_("{} has left charlie team"),
+                           (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
                 charliej_message_color);
             break;
         case 4:
             GetMainConsole().console(
-                wideformat(_("{} has left delta team"), (sprite[playermsg->num].player->name)),
+                wideformat(_("{} has left delta team"),
+                           (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
                 deltaj_message_color);
             break;
         case 5:
             GetMainConsole().console(
-                wideformat(_("{} has left spectators"), (sprite[playermsg->num].player->name)),
+                wideformat(_("{} has left spectators"),
+                           (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
                 deltaj_message_color);
             break;
         }
@@ -264,58 +272,69 @@ void clienthandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
     {
     case kick_noresponse:
         GetMainConsole().console(
-            wideformat(_("{} has disconnected"), (sprite[playermsg->num].player->name)),
+            wideformat(_("{} has disconnected"),
+                       (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
             client_message_color);
         break;
     case kick_nocheatresponse:
         GetMainConsole().console(
-            wideformat(_("{} has been disconnected"), (sprite[playermsg->num].player->name)),
+            wideformat(_("{} has been disconnected"),
+                       (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
             client_message_color);
         break;
     case kick_changeteam:
         GetMainConsole().console(
-            wideformat(_("{} is changing teams"), (sprite[playermsg->num].player->name)),
+            wideformat(_("{} is changing teams"),
+                       (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
             client_message_color);
         break;
     case kick_ping:
-        GetMainConsole().console(wideformat(_("{} has been ping kicked (for 15 minutes)"),
-                                            (sprite[playermsg->num].player->name)),
-                                 client_message_color);
+        GetMainConsole().console(
+            wideformat(_("{} has been ping kicked (for 15 minutes)"),
+                       (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
+            client_message_color);
         break;
     case kick_flooding:
-        GetMainConsole().console(wideformat(_("{} has been flood kicked (for 5 minutes)"),
-                                            (sprite[playermsg->num].player->name)),
-                                 client_message_color);
+        GetMainConsole().console(
+            wideformat(_("{} has been flood kicked (for 5 minutes)"),
+                       (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
+            client_message_color);
         break;
     case kick_console:
         GetMainConsole().console(
-            wideformat(_("{} has been kicked from console"), (sprite[playermsg->num].player->name)),
+            wideformat(_("{} has been kicked from console"),
+                       (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
             client_message_color);
         break;
     case kick_connectcheat:
-        GetMainConsole().console(wideformat(_("{} has been 'connect cheat' kicked"),
-                                            (sprite[playermsg->num].player->name)),
-                                 client_message_color);
+        GetMainConsole().console(
+            wideformat(_("{} has been 'connect cheat' kicked"),
+                       (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
+            client_message_color);
         break;
     case kick_cheat:
-        GetMainConsole().console(wideformat(_("{} has been kicked for possible cheat"),
-                                            (sprite[playermsg->num].player->name)),
-                                 client_message_color);
+        GetMainConsole().console(
+            wideformat(_("{} has been kicked for possible cheat"),
+                       (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
+            client_message_color);
         break;
     case kick_voted:
-        GetMainConsole().console(wideformat(_("{} has been voted to leave the game"),
-                                            (sprite[playermsg->num].player->name)),
-                                 client_message_color);
+        GetMainConsole().console(
+            wideformat(_("{} has been voted to leave the game"),
+                       (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
+            client_message_color);
         break;
     case kick_ac:
-        GetMainConsole().console(wideformat(_("{} has been kicked for Anti-Cheat violation"),
-                                            (sprite[playermsg->num].player->name)),
-                                 client_message_color);
+        GetMainConsole().console(
+            wideformat(_("{} has been kicked for Anti-Cheat violation"),
+                       (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
+            client_message_color);
         break;
     case kick_steamticket:
-        GetMainConsole().console(wideformat(_("{} has been kicked for invalid Steam ticket"),
-                                            (sprite[playermsg->num].player->name)),
-                                 client_message_color);
+        GetMainConsole().console(
+            wideformat(_("{} has been kicked for invalid Steam ticket"),
+                       (SpriteSystem::Get().GetSprite(playermsg->num).player->name)),
+            client_message_color);
         break;
     }
     if (voteactive)
@@ -364,7 +383,7 @@ void clienthandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
         }
 
     if (playermsg->why != kick_changeteam)
-        sprite[playermsg->num].kill();
+        SpriteSystem::Get().GetSprite(playermsg->num).kill();
 
     sortplayers();
 
@@ -406,12 +425,12 @@ void clienthandlemapchange(SteamNetworkingMessage_t *netmessage)
         screentaken = true;
 
     for (i = 1; i <= max_players; i++)
-        if (sprite[i].active)
+        if (SpriteSystem::Get().GetSprite(i).active)
         {
-            stopsound(sprite[i].reloadsoundchannel);
-            stopsound(sprite[i].jetssoundchannel);
-            stopsound(sprite[i].gattlingsoundchannel);
-            stopsound(sprite[i].gattlingsoundchannel2);
+            stopsound(SpriteSystem::Get().GetSprite(i).reloadsoundchannel);
+            stopsound(SpriteSystem::Get().GetSprite(i).jetssoundchannel);
+            stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel);
+            stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel2);
         }
 
     if (demoplayer.active())
@@ -458,7 +477,9 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
 
             GetMainConsole().console(
                 wideformat(_("{} returned the Red Flag"),
-                           (sprite[pmsg_serverflaginfo(netmessage->m_pData)->who].player->name)),
+                           (SpriteSystem::Get()
+                                .GetSprite(pmsg_serverflaginfo(netmessage->m_pData)->who)
+                                .player->name)),
                 alpha_message_color);
             if (teamflag[1] > 0)
                 thing[teamflag[1]].respawn();
@@ -471,7 +492,9 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
 
             GetMainConsole().console(
                 wideformat(_("{} returned the Blue Flag"),
-                           (sprite[pmsg_serverflaginfo(netmessage->m_pData)->who].player->name)),
+                           (SpriteSystem::Get()
+                                .GetSprite(pmsg_serverflaginfo(netmessage->m_pData)->who)
+                                .player->name)),
                 bravo_message_color);
             if (teamflag[2] > 0)
                 thing[teamflag[2]].respawn();
@@ -481,7 +504,9 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
         bigmessage(_("Alpha Team Scores!"), capturectfmessagewait, alpha_message_color);
         GetMainConsole().console(
             wideformat(_("{} scores for Alpha Team"),
-                       (sprite[pmsg_serverflaginfo(netmessage->m_pData)->who].player->name)),
+                       (SpriteSystem::Get()
+                            .GetSprite(pmsg_serverflaginfo(netmessage->m_pData)->who)
+                            .player->name)),
             alpha_message_color);
 
         if (CVar::sv_gamemode == gamestyle_inf)
@@ -517,7 +542,9 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
         bigmessage(_("Bravo Team Scores!"), capturectfmessagewait, bravo_message_color);
         GetMainConsole().console(
             wideformat(_("{} scores for Bravo Team"),
-                       (sprite[pmsg_serverflaginfo(netmessage->m_pData)->who].player->name)),
+                       (SpriteSystem::Get()
+                            .GetSprite(pmsg_serverflaginfo(netmessage->m_pData)->who)
+                            .player->name)),
             bravo_message_color);
         playsound(sfx_ctf);
         if (teamflag[1] > 0)
@@ -541,11 +568,12 @@ void clienthandleidleanimation(SteamNetworkingMessage_t *netmessage)
 
     i = pmsg_idleanimation(netmessage->m_pData)->num;
 
-    if (!sprite[i].active)
+    if (!SpriteSystem::Get().GetSprite(i).active)
         return;
 
-    sprite[i].idletime = 1;
-    sprite[i].idlerandom = pmsg_idleanimation(netmessage->m_pData)->idlerandom;
+    SpriteSystem::Get().GetSprite(i).idletime = 1;
+    SpriteSystem::Get().GetSprite(i).idlerandom =
+        pmsg_idleanimation(netmessage->m_pData)->idlerandom;
 }
 
 #ifdef STEAM
@@ -563,7 +591,7 @@ void clientsendvoicedata(pointer data, std::uint64_t datasize)
 
     move(data, voicemsg.data, datasize);
 
-    sprite[mysprite].player->lastreceivevoicetime = maintickcounter + 10;
+    SpriteSystem::Get().GetSprite(mysprite).player->lastreceivevoicetime = maintickcounter + 10;
 
     udp->senddata(&voicemsg, size, k_nsteamnetworkingsend_nodelay);
 }
@@ -586,10 +614,10 @@ void clienthandlevoicedata(SteamNetworkingMessage_t *netmessage)
 
     if ((voicemsg.speaker > 0) && (voicemsg.speaker < max_players))
     {
-        if (!sprite[voicemsg.speaker].active)
+        if (!SpriteSystem::Get().GetSprite(voicemsg.speaker).active)
             return;
 
-        if (sprite[voicemsg.speaker].player->muted == 1)
+        if (SpriteSystem::Get().GetSprite(voicemsg.speaker).player->muted == 1)
             return;
 
         setlength(audiodata, 20480);
@@ -607,7 +635,8 @@ void clienthandlevoicedata(SteamNetworkingMessage_t *netmessage)
 
         if ((voiceresult == k_evoiceresultok) && (audiolength > 0))
         {
-            sprite[voicemsg.speaker].player->lastreceivevoicetime = maintickcounter + 30;
+            SpriteSystem::Get().GetSprite(voicemsg.speaker).player->lastreceivevoicetime =
+                maintickcounter + 30;
             playvoicedata(&audiodata[0], audiolength, voicemsg.speaker);
         }
     }

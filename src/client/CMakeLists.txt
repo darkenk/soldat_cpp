@@ -33,6 +33,7 @@ set(SHARED_SRC
     ../shared/mechanics/Bullets.cpp
     ../shared/mechanics/Things.cpp
     ../shared/mechanics/Control.cpp
+    ../shared/mechanics/SpriteSystem.cpp
     ../shared/network/Net.cpp
     ../shared/network/NetworkClient.cpp
     ../shared/network/NetworkClientConnection.cpp

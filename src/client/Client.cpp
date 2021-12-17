@@ -28,6 +28,7 @@
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/LogFile.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
@@ -262,8 +263,8 @@ void exittomenu()
     // WindowReady := False;
 
     for (i = 1; i <= max_sprites; i++)
-        if (sprite[i].active)
-            sprite[i].kill();
+        if (SpriteSystem::Get().GetSprite(i).active)
+            SpriteSystem::Get().GetSprite(i).kill();
     for (i = 1; i <= max_bullets; i++)
         bullet[i].kill();
     for (i = 1; i <= max_sparks; i++)
@@ -321,11 +322,13 @@ void exittomenu()
 //    // Tag all visible players
 //    for i := 1 to MAX_SPRITES do
 //    begin
-//      if Sprite[i].Active and (Sprite[i].Player.ControlMethod = HUMAN) and
-//      (UInt64(Sprite[i].Player.SteamID) > 0) then begin
+//      if SpriteSystem::Get().GetSprite(i).Active and
+//      (SpriteSystem::Get().GetSprite(i).Player.ControlMethod = HUMAN) and
+//      (UInt64(SpriteSystem::Get().GetSprite(i).Player.SteamID) > 0) then begin
 //        if PointVisible(SpriteParts.Pos[i].X, SpriteParts.Pos[i].Y,
-//        Sprite[MySprite].Player.Camera) then begin
-//          SteamAPI.Screenshots.TagUser(Event.m_hLocal, Sprite[i].Player.SteamID);
+//        SpriteSystem::Get().GetSprite(MySprite).Player.Camera) then begin
+//          SteamAPI.Screenshots.TagUser(Event.m_hLocal,
+//          SpriteSystem::Get().GetSprite(i).Player.SteamID);
 //        end;
 //      end;
 //    end;
@@ -740,7 +743,7 @@ void startgame(int argc, const char *argv[])
     GetKillConsole().newmessagewait = 70;
 
     // Create static player objects
-    for (auto &s : sprite)
+    for (auto &s : SpriteSystem::Get().GetSprites())
     {
         s.player = new tplayer();
     }
