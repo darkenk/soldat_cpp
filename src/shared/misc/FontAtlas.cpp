@@ -52,7 +52,7 @@ bool RectangleArea::Add(Rectangle &rect)
     {
         it = Skyline.emplace(it + 1, it->Width - rect.w, it->Height, it->StartPos + rect.w) - 1;
         it->Width = rect.w;
-        Assert(it->Width + it->StartPos <= Width);
+        SoldatAssert(it->Width + it->StartPos <= Width);
     }
 
     rect.x = it->StartPos;

@@ -38,7 +38,7 @@ PolygonType SerializePolygonType(const std::uint8_t polygonType)
         {23, poly_type_non_flagger_collides},
         {24, poly_type_background},
         {25, poly_type_background_transition}};
-    Assert(convert.contains(polygonType));
+    SoldatAssert(convert.contains(polygonType));
     return convert.at(polygonType);
 };
 } // namespace

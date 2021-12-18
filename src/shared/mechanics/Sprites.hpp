@@ -225,6 +225,11 @@ class Sprite
     void SetHealth(float health);
     float GetHealth();
 
+    bool IsActive()
+    {
+        return active;
+    }
+
   private:
     float Health;
 };

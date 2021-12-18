@@ -29,7 +29,7 @@ void NetworksGlobalCallback(PSteamNetConnectionStatusChangedCallback_t pInfo)
             }
             return false;
         });
-    Assert(n != std::end(TNetwork::sNetworks));
+    SoldatAssert(n != std::end(TNetwork::sNetworks));
 
     std::lock_guard m2((*n)->QueueMutex);
     (*n)->QuedCallbacks.emplace(*pInfo);

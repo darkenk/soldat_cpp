@@ -49,6 +49,7 @@ set(SHARED_SRC
     ../shared/misc/BitStream.cpp
     ../shared/misc/GlobalVariable.cpp
     ../shared/misc/GlobalVariableStorage.cpp
+    ../shared/misc/GlobalSystems.cpp
 )
 
 add_library(SoldatClientLib OBJECT ${SRC} ${SHARED_SRC})

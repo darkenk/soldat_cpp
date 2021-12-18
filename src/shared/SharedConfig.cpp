@@ -76,7 +76,7 @@ void ReadConfColor(const TIniFile::Entries &conf, const std::string_view entry, 
 {
     std::string s;
     ReadConf(conf, entry, s, allowEmpty);
-    Assert(s[0] == '$');
+    SoldatAssert(s[0] == '$');
     s.erase(0, 1);
     out = std::stoi(s, 0, 16);
 }

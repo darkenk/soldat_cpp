@@ -180,7 +180,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
 
     playerinfomsg = pmsg_playerinfo(netmessage->m_pData);
     player = reinterpret_cast<TServerPlayer *>(netmessage->m_nConnUserData);
-    Assert(player->spritenum == 0);
+    SoldatAssert(player->spritenum == 0);
 
 #ifdef ENABLE_FAE
     if (player.faekicked)

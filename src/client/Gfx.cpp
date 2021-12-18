@@ -406,7 +406,7 @@ void OpenGLGladDebug(const char *name, void * /*funcptr*/, int /*len_args*/, ...
     {
         LogErrorG("[GL] ERROR {} in {}", TranslateError(error_code), name);
     }
-    Assert(error_code == GL_NO_ERROR);
+    SoldatAssert(error_code == GL_NO_ERROR);
 }
 
 bool gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline)
@@ -1554,7 +1554,7 @@ pglyph loadglyph(pfont f, pglyphtable table, std::int32_t glyphindex)
     }
 
     auto glyphError = FT_Load_Glyph(f->handle, glyphindex, flags);
-    Assert(glyphError == 0);
+    SoldatAssert(glyphError == 0);
 
     w = f->handle->glyph->bitmap.width;
     h = f->handle->glyph->bitmap.rows;
@@ -1962,7 +1962,7 @@ void gfxdrawtext(MyFloat x, MyFloat y)
         y = y;
         break;
     default:
-        Assert(false);
+        SoldatAssert(false);
     }
 
     x = pxl.x * floor((float)(x) / pxl.x);
@@ -2359,7 +2359,7 @@ void tgfxtexture::update(std::int32_t x, std::int32_t y, std::int32_t w, std::in
     glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, OPENGL_TEXTURE_FORMAT[fcomponents - 1],
                     GL_UNSIGNED_BYTE, data);
     auto glError = glGetError();
-    Assert(glError == 0);
+    SoldatAssert(glError == 0);
     glFinish();
 
     fpixel.x = x;
@@ -2383,7 +2383,7 @@ void tgfxtexture::setwrap(tgfxtexturewrap s, tgfxtexturewrap t)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         break;
     default:
-        Assert(false);
+        SoldatAssert(false);
     }
 
     switch (t)
@@ -2395,7 +2395,7 @@ void tgfxtexture::setwrap(tgfxtexturewrap s, tgfxtexturewrap t)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         break;
     default:
-        Assert(false);
+        SoldatAssert(false);
     }
 }
 
@@ -2421,7 +2421,7 @@ void tgfxtexture::setfilter(tgfxtexturefilter min, tgfxtexturefilter mag)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
         break;
     default:
-        Assert(false);
+        SoldatAssert(false);
     }
 
     switch (mag)
@@ -2435,7 +2435,7 @@ void tgfxtexture::setfilter(tgfxtexturefilter min, tgfxtexturefilter mag)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         break;
     default:
-        Assert(false);
+        SoldatAssert(false);
     }
 }
 
@@ -2892,10 +2892,10 @@ void tgfxspritesheet::packrects()
 
     for (i = 0; i < ld->images.size(); i++)
     {
-        Assert(ld->images[i]->numframes() == 1);
+        SoldatAssert(ld->images[i]->numframes() == 1);
         for (j = 0; j <= ld->images[i]->numframes() - 1; j++)
         {
-            Assert(k < n);
+            SoldatAssert(k < n);
 
             ld->rectinfo[k].image = i;
             ld->rectinfo[k].frame = j;

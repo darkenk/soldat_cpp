@@ -81,19 +81,19 @@ int main(int argc, char *argv[])
 
     {
         auto ret = PHYSFS_init(nullptr);
-        Assert(0 != ret);
+        SoldatAssert(0 != ret);
     }
     {
         auto ret = PHYSFS_mount("./soldat.smod", "/", false);
-        Assert(0 != ret);
+        SoldatAssert(0 != ret);
     }
     twaypoints tw;
     Polymap map{tw};
     tmapinfo mapinfo;
     auto ret = getmapinfo("ctf_Ash", "", mapinfo);
-    Assert(true == ret);
+    SoldatAssert(true == ret);
     ret = map.loadmap(mapinfo);
-    Assert(true == ret);
+    SoldatAssert(true == ret);
     float scale = 1.0f;
 
     tvector2 offset{600.0f, 600.0f};

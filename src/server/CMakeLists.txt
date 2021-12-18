@@ -34,6 +34,7 @@ set(SHARED_SRC
     ../shared/network/NetworkServerHeartbeat.cpp
     ../shared/misc/GlobalVariable.cpp
     ../shared/misc/GlobalVariableStorage.cpp
+    ../shared/misc/GlobalSystems.cpp
 )
 
 add_library(SoldatServerLib OBJECT ${SRC} ${SHARED_SRC})

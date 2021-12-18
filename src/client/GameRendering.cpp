@@ -283,7 +283,7 @@ void loadmaintextures()
                 path = pngoverride(GFXData[i].Path);
 
             imagescale[id] = getimagescale(path);
-            Assert(!path.empty());
+            SoldatAssert(!path.empty());
 
             if (CVar::r_optimizetextures)
                 mainspritesheet->addimage(path, color, (float)(scale) / imagescale[id]);

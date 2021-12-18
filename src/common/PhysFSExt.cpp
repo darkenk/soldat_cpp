@@ -12,13 +12,13 @@ class PhysFSStream : public TStream
     explicit PhysFSStream(const std::string_view &filename)
     {
         Handle = PHYSFS_openRead(filename.data());
-        Assert(Handle != nullptr);
+        SoldatAssert(Handle != nullptr);
     }
 
     ~PhysFSStream()
     {
         auto errorCode = PHYSFS_close(Handle);
-        Assert(errorCode != 0);
+        SoldatAssert(errorCode != 0);
     }
 
     bool ReadLine(std::string &out) override
@@ -55,7 +55,7 @@ void PhysFS_ReadLn(PHYSFS_File *fileHandle, std::string &line)
 
 PhysFS_Buffer PhysFS_readBuffer(const std::string_view &name)
 {
-    Assert(not name.empty());
+    SoldatAssert(not name.empty());
     LogDebug(LOG, "Loading file {}", name);
     PhysFS_Buffer result;
     if (not PHYSFS_exists(name.data()))

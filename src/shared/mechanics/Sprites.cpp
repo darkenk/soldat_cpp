@@ -273,7 +273,7 @@ void Sprite<M>::update()
     LogTraceG("TSprite.Update");
 #endif
 
-    Assert(&SpriteSystem::Get().GetSprite(num) == this);
+    SoldatAssert(&SpriteSystem::Get().GetSprite(num) == this);
 
     jetscountprev = jetscount;
     weapon.reloadtimeprev = weapon.reloadtimecount;

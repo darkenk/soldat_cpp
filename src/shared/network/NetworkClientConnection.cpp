@@ -725,6 +725,6 @@ void clienthandlesynccvars(SteamNetworkingMessage_t *netmessage)
 
         LogError("net_msg", "Cannot read sync variable {} of id {}", i, cvarid);
         // No support for cvar
-        Assert(false);
+        SoldatAssert(false);
     }
 }

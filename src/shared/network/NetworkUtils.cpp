@@ -147,7 +147,7 @@ bool verifypacket(std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t
 {
     std::string Dropped = "";
     auto Result = true;
-    Assert(ValidSize == ReceiveSize);
+    SoldatAssert(ValidSize == ReceiveSize);
     LogDebug("net_msg", "{}", location.function_name());
     if (ValidSize != ReceiveSize)
     {
@@ -169,7 +169,7 @@ bool verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
 {
     std::string Dropped = "";
     auto Result = true;
-    Assert(ValidSize <= ReceiveSize);
+    SoldatAssert(ValidSize <= ReceiveSize);
     LogDebug("net_msg", "{}", location.function_name());
     if (ValidSize > ReceiveSize)
     {

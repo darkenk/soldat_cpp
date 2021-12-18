@@ -240,7 +240,7 @@ class SoundEngine
             return result;
         }
 
-        Assert(samp.loaded == false);
+        SoldatAssert(samp.loaded == false);
         Waves[samp.buffer] = wav;
 
         result.loaded = true;

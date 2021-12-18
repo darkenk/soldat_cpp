@@ -78,15 +78,15 @@ struct SafeType
 template <typename T>
 void EnsureNotNan(const T &v)
 {
-    Assert(not std::isnan(v));
-    Assert(not std::isinf(v));
+    SoldatAssert(not std::isnan(v));
+    SoldatAssert(not std::isinf(v));
 }
 
 template <typename T, T Start, T End>
 void EnsureInt(const T &v)
 {
-    Assert(v >= Start);
-    Assert(v <= End);
+    SoldatAssert(v >= Start);
+    SoldatAssert(v <= End);
 }
 
 using MyFloat = SafeType<float, EnsureNotNan<float>>;
