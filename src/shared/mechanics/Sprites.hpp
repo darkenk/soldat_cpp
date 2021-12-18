@@ -105,6 +105,8 @@ template <Config::Module M = Config::GetModule()>
 class Sprite
 {
   public:
+    Sprite() = default;
+    Sprite(const Sprite &s) = delete;
     bool active = false;
     bool deadmeat, dummy;
     std::uint8_t style;

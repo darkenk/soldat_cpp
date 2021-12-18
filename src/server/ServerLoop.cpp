@@ -483,10 +483,10 @@ void updateframe()
         {
             if (CVar::sv_antimassflag)
             {
-                for (auto &sprite : SpriteSystem::Get().GetSprites())
+                for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
                 {
 
-                    if ((sprite.active) && (sprite.player->grabspersecond > 0) &&
+                    if ((sprite.player->grabspersecond > 0) &&
                         (sprite.player->scorespersecond > 0) && (sprite.player->grabbedinbase))
                     {
                         j = sprite.num;

@@ -527,7 +527,7 @@ void serversendplaylist(HSteamNetConnection peer)
     auto i = 0;
     for (auto &s : SpriteSystem::Get().GetSprites())
     {
-        if ((s.active) && (!s.player->demoplayer))
+        if (s.IsActive() and !s.player->demoplayer)
         {
             stringtoarray(playerslist.name[i].data(), s.player->name);
             playerslist.shirtcolor[i] = 0xff000000 | s.player->shirtcolor;
@@ -751,9 +751,9 @@ void serverdisconnect()
                                      k_nSteamNetworkingSend_Reliable);
     }
 
-    for (auto &s : SpriteSystem::Get().GetSprites())
+    for (auto &s : SpriteSystem::Get().GetActiveSprites())
     {
-        if ((s.active) && (s.player->controlmethod == human))
+        if (s.player->controlmethod == human)
         {
             s.kill();
         }

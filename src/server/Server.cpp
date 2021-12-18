@@ -660,12 +660,9 @@ void loadweapons(std::string Filename)
         }
 #endif
 
-    for (auto &s : SpriteSystem::Get().GetSprites())
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
-        if (s.active)
-        {
-            s.applyweaponbynum(s.weapon.num, 1, s.weapon.ammocount);
-        }
+        sprite.applyweaponbynum(sprite.weapon.num, 1, sprite.weapon.ammocount);
     }
 }
 

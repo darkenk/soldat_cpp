@@ -28,21 +28,18 @@ void serverheartbeat()
     std::fill(std::begin(heartbeatmsg.ping), std::end(heartbeatmsg.ping), 255);
 
     auto c = 0;
-    for (auto &s : SpriteSystem::Get().GetSprites())
+    for (auto &s : SpriteSystem::Get().GetActiveSprites())
     {
-        if (s.active)
-        {
-            heartbeatmsg.active[c] = s.active;
-            heartbeatmsg.kills[c] = s.player->kills;
-            heartbeatmsg.caps[c] = s.player->flags;
-            heartbeatmsg.deaths[c] = s.player->deaths;
-            heartbeatmsg.team[c] = s.player->team;
-            heartbeatmsg.flags[c] = s.player->flags;
-            heartbeatmsg.ping[c] = s.player->pingticks;
-            heartbeatmsg.realping[c] = s.player->realping;
-            heartbeatmsg.connectionquality[c] = s.player->connectionquality;
-            c++;
-        }
+        heartbeatmsg.active[c] = s.active;
+        heartbeatmsg.kills[c] = s.player->kills;
+        heartbeatmsg.caps[c] = s.player->flags;
+        heartbeatmsg.deaths[c] = s.player->deaths;
+        heartbeatmsg.team[c] = s.player->team;
+        heartbeatmsg.flags[c] = s.player->flags;
+        heartbeatmsg.ping[c] = s.player->pingticks;
+        heartbeatmsg.realping[c] = s.player->realping;
+        heartbeatmsg.connectionquality[c] = s.player->connectionquality;
+        c++;
     }
 
     for (auto j = team_alpha; j <= team_delta; j++)
@@ -59,9 +56,9 @@ void serverheartbeat()
     if ((timelimitcounter) < 600)
         heartbeatmsg.mapid = 0;
 
-    for (auto &s : SpriteSystem::Get().GetSprites())
+    for (auto &s : SpriteSystem::Get().GetActiveSprites())
     {
-        if ((s.active) && (s.player->controlmethod == human))
+        if (s.player->controlmethod == human)
         {
             GetServerNetwork()->senddata(&heartbeatmsg, sizeof(heartbeatmsg), s.player->peer,
                                          k_nSteamNetworkingSend_Unreliable);
