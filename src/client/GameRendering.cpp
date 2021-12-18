@@ -671,9 +671,8 @@ void destroygamegraphics()
 //    return a + (b - a) * x;
 //}
 
-tvector2 lerp(const tvector2 &a, const tvector2 &b, float x)
+inline constexpr tvector2 lerp(const tvector2 &a, const tvector2 &b, float x)
 {
-
     tvector2 lerp_result;
     lerp_result.x = a.x + (b.x - a.x) * x;
     lerp_result.y = a.y + (b.y - a.y) * x;
@@ -683,7 +682,7 @@ tvector2 lerp(const tvector2 &a, const tvector2 &b, float x)
 void interpolatestate(float p, tinterpolationstate &s, bool paused)
 {
     ZoneScopedN("InterpolateState");
-    const std::set<std::int32_t> kit_styles = {
+    static const std::set<std::int32_t> kit_styles = {
         object_medical_kit, object_grenade_kit, object_flamer_kit, object_predator_kit,
         object_vest_kit,    object_berserk_kit, object_cluster_kit};
     std::int32_t i, j;
@@ -712,8 +711,13 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
             gun = &sprite.weapon;
             std::memcpy(&s.spritepos[i][1], &sk->pos[1], sizeof(tvector2) * length(s.spritepos[i]));
 
-            for (j = low(s.spritepos[i]); j <= high(s.spritepos[i]); j++)
-                sk->pos[j] = lerp(sk->oldpos[j], sk->pos[j], p);
+            {
+                ZoneScopedN("LerpSpritePos");
+                for (j = low(s.spritepos[i]); j <= high(s.spritepos[i]); j++)
+                {
+                    sk->pos[j] = lerp(sk->oldpos[j], sk->pos[j], p);
+                }
+            }
 
             gun->reloadtimefloat = lerp(gun->reloadtimeprev, gun->reloadtimecount, p);
             gun->fireintervalfloat = lerp(gun->fireintervalprev, gun->fireintervalcount, p);
@@ -930,7 +934,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
             }
 
             {
-                ZoneScopedN("RenderGostek");
+                ZoneScopedN("RenderAllGosteks");
                 auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
                 std::for_each(std::begin(activeSprites), std::end(activeSprites),
                               [](auto &sprite) { rendergostek(sprite); });

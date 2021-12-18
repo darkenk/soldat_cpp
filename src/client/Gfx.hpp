@@ -341,7 +341,7 @@ void gfxdeletebuffer(tgfxvertexbuffer *b);
 // index buffer
 tgfxindexbuffer *gfxcreateindexbuffer(std::int32_t capacity, bool static_ = false,
                                       std::uint16_t *data = nullptr);
-void gfxupdateindexbuffer(tgfxindexbuffer b, std::int32_t i, std::int32_t n, uint16_t *data);
+void gfxupdateindexbuffer(tgfxindexbuffer &b, std::int32_t i, std::int32_t n, uint16_t *data);
 void gfxdeleteindexbuffer(tgfxindexbuffer *b);
 
 // fonts
@@ -349,10 +349,10 @@ tgfxfont gfxcreatefont(const std::string &filename, std::int32_t w = 512, std::i
 void gfxdeletefont(tgfxfont font);
 std::int32_t gfxsetfont(tgfxfont font, float fontsize, std::uint32_t flags, float stretch = 1);
 void gfxsetfonttable(tgfxfont font, std::int32_t tableindex);
-void gfxtextpixelratio(tvector2 pixelratio);
+void gfxtextpixelratio(const tvector2 &pixelratio);
 void gfxtextscale(float s);
-void gfxtextcolor(tgfxcolor color);
-void gfxtextshadow(float dx, float dy, tgfxcolor color);
+void gfxtextcolor(const tgfxcolor &color);
+void gfxtextshadow(float dx, float dy, const tgfxcolor &color);
 void gfxtextverticalalign(tgfxverticalalign align);
 tgfxrect gfxtextmetrics();
 tgfxrect gfxtextmetrics(const std::string &text);
@@ -365,8 +365,8 @@ void gfxbegin();
 void gfxend();
 template <typename Allocator = std::allocator<tgfxvertex>>
 void gfxdrawquad(tgfxtexture *texture, const std::vector<tgfxvertex, Allocator> &vertices);
-void gfxdrawquad(tgfxtexture *texture, const tgfxvertex a, tgfxvertex b, tgfxvertex c,
-                 tgfxvertex d);
+void gfxdrawquad(tgfxtexture *texture, const tgfxvertex &a, const tgfxvertex &b,
+                 const tgfxvertex &c, const tgfxvertex &d);
 
 void gfxdrawsprite(pgfxsprite s, float x, float y);
 void gfxdrawsprite(pgfxsprite s, float x, float y, float scale);
@@ -374,28 +374,30 @@ void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy);
 void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r);
 void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx, float ry, float r);
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, tgfxrect rc);
-void gfxdrawsprite(pgfxsprite s, float x, float y, float scale, tgfxrect rc);
-void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, tgfxrect rc);
-void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r, tgfxrect rc);
+void gfxdrawsprite(pgfxsprite s, float x, float y, const tgfxrect &rc);
+void gfxdrawsprite(pgfxsprite s, float x, float y, float scale, const tgfxrect &rc);
+void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, const tgfxrect &rc);
+void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r, const tgfxrect &rc);
 void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx, float ry, float r,
-                   tgfxrect rc);
+                   const tgfxrect &rc);
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, tgfxcolor color);
-void gfxdrawsprite(pgfxsprite s, float x, float y, float scale, tgfxcolor color);
-void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, tgfxcolor color);
-void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r, tgfxcolor color);
+void gfxdrawsprite(pgfxsprite s, float x, float y, const tgfxcolor &color);
+void gfxdrawsprite(pgfxsprite s, float x, float y, float scale, const tgfxcolor &color);
+void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, const tgfxcolor &color);
+void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r,
+                   const tgfxcolor &color);
 void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx, float ry, float r,
-                   tgfxcolor color);
+                   const tgfxcolor &color);
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, tgfxcolor color, tgfxrect rc);
-void gfxdrawsprite(pgfxsprite s, float x, float y, float scale, tgfxcolor color, tgfxrect rc);
-void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, tgfxcolor color,
-                   tgfxrect rc);
-void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r, tgfxcolor color,
-                   tgfxrect rc);
+void gfxdrawsprite(pgfxsprite s, float x, float y, const tgfxcolor &color, const tgfxrect &rc);
+void gfxdrawsprite(pgfxsprite s, float x, float y, float scale, const tgfxcolor &color,
+                   const tgfxrect &rc);
+void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, const tgfxcolor &color,
+                   const tgfxrect &rc);
+void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r,
+                   const tgfxcolor &color, const tgfxrect &rc);
 void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx, float ry, float r,
-                   tgfxcolor color, tgfxrect rc);
+                   const tgfxcolor &color, const tgfxrect &rc);
 
 // matrix
 tgfxmat3 gfxmat3rot(float r);

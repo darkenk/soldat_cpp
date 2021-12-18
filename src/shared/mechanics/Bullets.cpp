@@ -22,6 +22,7 @@
 #include "common/Util.hpp"
 #include "common/gfx.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include <Tracy.hpp>
 #include <limits>
 #include <numbers>
 
@@ -551,9 +552,7 @@ void Bullet<M>::update()
     tvector2 oldp, oldop;
     tvector2 hitp, hitp2, hitp3;
 
-#ifdef SERVER
     LogTraceG("TBullet.Update");
-#endif
 
     timeoutprev = timeout;
     hitmultiplyprev = hitmultiply;
@@ -1112,6 +1111,7 @@ void Bullet<M>::kill()
 template <Config::Module M>
 tvector2 Bullet<M>::checkmapcollision(float x, float y)
 {
+    ZoneScopedN("Bullet::CheckMapCollision");
     float largestvelocitycomponent;
     std::int32_t j, b;
     tvector2 pos, perp, step, temp, temp2;
@@ -1407,6 +1407,7 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
 template <Config::Module M>
 tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 {
+    ZoneScopedN("Bullet::CheckSpriteCollision");
     const std::array<std::int32_t, 7> bodypartspriority = {{12, 11, 10, 6, 5, 4, 3}};
     tspriteindexes spritesbydistance;
     std::int32_t spritecount, spritecounter;
@@ -1435,10 +1436,8 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 #endif
 
     tvector2 result;
-#ifdef SERVER
     LogTraceG("TBullet.CheckSpriteCollision {} {} {} {} {}", style, owner, ownerweapon, timeout,
               tracking);
-#endif
 
     if ((style == bullet_style_arrow) && (timeout <= arrow_resist))
         return result;
@@ -1448,9 +1447,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 
     bulletvelocity = bulletparts.velocity[num];
 
-#ifdef SERVER
     LogTraceG("TBullet.CheckSpriteCollision 2");
-#endif
     // Iterate through sprites
     if (style != bullet_style_clusternade)
     {
@@ -2118,6 +2115,7 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
 template <Config::Module M>
 tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
 {
+    ZoneScopedN("Bullet::CheckColliderCollision");
     std::int32_t j;
 #ifndef SERVER
     std::int32_t i;
@@ -2125,9 +2123,7 @@ tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
     tvector2 startpoint, endpoint, pos, colpos, a;
     float dist;
 
-#ifdef SERVER
     LogTraceG("TBullet.CheckColliderCollision");
-#endif
 
     tvector2 result;
 
@@ -2858,6 +2854,7 @@ void Bullet<M>::checkoutofbounds()
 template <Config::Module M>
 std::int32_t Bullet<M>::filterspritesbydistance(tspriteindexes &spriteindexes)
 {
+    ZoneScopedN("Bullet::FilterSpritesByDistance");
     std::int32_t i, j, spritecount;
     float roughdistance;
     tspritedistances distances;

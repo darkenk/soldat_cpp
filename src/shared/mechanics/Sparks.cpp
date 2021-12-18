@@ -13,6 +13,7 @@
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include <Tracy.hpp>
 #include <numbers>
 #include <set>
 
@@ -20,15 +21,6 @@
 #include "shared/misc/GlobalVariableStorage.cpp"
 // clang-format on
 
-/*#include "Gfx.h"*/
-/*#include "Sound.h"*/
-/*#include "Demo.h"*/
-/*#include "GameRendering.h"*/
-/*#include "Client.h"*/
-/*#include "Util.h"*/
-/*#include "SysUtils.h"*/
-/*#include "Math.h"*/
-/*#include "Game.h"*/
 std::int32_t sparkscount;
 
 using std::numbers::pi;
@@ -36,6 +28,7 @@ using std::numbers::pi;
 std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
                          std::uint8_t sowner, std::int32_t life)
 {
+    ZoneScopedN("CreateSpark");
     std::int32_t i;
     float m;
 
@@ -536,6 +529,7 @@ void tspark::render()
 
 bool tspark::checkmapcollision(float x, float y)
 {
+    ZoneScopedN("TSpark::CheckMapCollision");
     std::int32_t b = 0;
     tvector2 pos, perp;
     float d = 0.0;

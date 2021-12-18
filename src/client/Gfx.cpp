@@ -973,7 +973,7 @@ tgfxindexbuffer *gfxcreateindexbuffer(std::int32_t capacity, bool _static, std::
     return new tgfxindexbuffer(capacity, _static, data);
 }
 
-void gfxupdateindexbuffer(tgfxindexbuffer b, std::int32_t i, std::int32_t n, std::uint16_t *data)
+void gfxupdateindexbuffer(tgfxindexbuffer &b, std::int32_t i, std::int32_t n, std::uint16_t *data)
 {
     b.update(i, n, data);
 }
@@ -1130,7 +1130,8 @@ void gfxdrawquad(tgfxtexture *texture, const std::vector<tgfxvertex, Allocator> 
     buf->size += 6;
 }
 
-void gfxdrawquad(tgfxtexture *texture, const tgfxvertex a, tgfxvertex b, tgfxvertex c, tgfxvertex d)
+void gfxdrawquad(tgfxtexture *texture, const tgfxvertex &a, const tgfxvertex &b,
+                 const tgfxvertex &c, const tgfxvertex &d)
 {
     std::vector<tgfxvertex> v{4};
 
@@ -1210,75 +1211,78 @@ void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx,
     gfxdrawsprite(s, x, y, sx, sy, rx, ry, r, rgba(0xffffff));
 }
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, tgfxrect rc)
+void gfxdrawsprite(pgfxsprite s, float x, float y, const tgfxrect &rc)
 {
     gfxdrawsprite(s, x, y, 1, 1, 0, 0, 0, rgba(0xffffff), rc);
 }
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, float scale, tgfxrect rc)
+void gfxdrawsprite(pgfxsprite s, float x, float y, float scale, const tgfxrect &rc)
 {
     gfxdrawsprite(s, x, y, scale, scale, 0, 0, 0, rgba(0xffffff), rc);
 }
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, tgfxrect rc)
+void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, const tgfxrect &rc)
 {
     gfxdrawsprite(s, x, y, sx, sy, 0, 0, 0, rgba(0xffffff), rc);
 }
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r, tgfxrect rc)
+void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r, const tgfxrect &rc)
 {
     gfxdrawsprite(s, x, y, 1, 1, rx, ry, r, rgba(0xffffff), rc);
 }
 
 void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx, float ry, float r,
-                   tgfxrect rc)
+                   const tgfxrect &rc)
 {
     gfxdrawsprite(s, x, y, sx, sy, rx, ry, r, rgba(0xffffff), rc);
 }
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, tgfxcolor color)
+void gfxdrawsprite(pgfxsprite s, float x, float y, const tgfxcolor &color)
 {
     gfxdrawsprite(s, x, y, 1, 1, 0, 0, 0, color);
 }
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, float scale, tgfxcolor color)
+void gfxdrawsprite(pgfxsprite s, float x, float y, float scale, const tgfxcolor &color)
 {
     gfxdrawsprite(s, x, y, scale, scale, 0, 0, 0, color);
 }
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, tgfxcolor color)
+void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, const tgfxcolor &color)
 {
     gfxdrawsprite(s, x, y, sx, sy, 0, 0, 0, color);
 }
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r, tgfxcolor color)
+void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r,
+                   const tgfxcolor &color)
 {
     gfxdrawsprite(s, x, y, 1, 1, rx, ry, r, color);
 }
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, tgfxcolor color, tgfxrect rc)
+void gfxdrawsprite(pgfxsprite s, float x, float y, const tgfxcolor &color, const tgfxrect &rc)
 {
     gfxdrawsprite(s, x, y, 1, 1, 0, 0, 0, color, rc);
 }
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, float scale, tgfxcolor color, tgfxrect rc)
+void gfxdrawsprite(pgfxsprite s, float x, float y, float scale, const tgfxcolor &color,
+                   const tgfxrect &rc)
 {
     gfxdrawsprite(s, x, y, scale, scale, 0, 0, 0, color, rc);
 }
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, tgfxcolor color, tgfxrect rc)
+void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, const tgfxcolor &color,
+                   const tgfxrect &rc)
 {
     gfxdrawsprite(s, x, y, sx, sy, 0, 0, 0, color, rc);
 }
 
-void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r, tgfxcolor color,
-                   tgfxrect rc)
+void gfxdrawsprite(pgfxsprite s, float x, float y, float rx, float ry, float r,
+                   const tgfxcolor &color, const tgfxrect &rc)
 {
     gfxdrawsprite(s, x, y, 1, 1, rx, ry, r, color, rc);
 }
 
 void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx, float ry, float r,
-                   tgfxcolor color)
+                   const tgfxcolor &color)
 {
     std::vector<tgfxvertex> v{4};
 
@@ -1287,7 +1291,7 @@ void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx,
 }
 
 void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx, float ry, float r,
-                   tgfxcolor color, tgfxrect rc)
+                   const tgfxcolor &color, const tgfxrect &rc)
 {
     float w, h;
     std::vector<tgfxvertex> v{4};
@@ -1872,7 +1876,7 @@ void gfxsetfonttable(tgfxfont font, std::int32_t tableindex)
     requestfontsize((pfont)font, gfxcontext.glyphtable->fontsize, gfxcontext.glyphtable->stretch);
 }
 
-void gfxtextpixelratio(tvector2 pixelratio)
+void gfxtextpixelratio(const tvector2 &pixelratio)
 {
     gfxcontext.textpixelratio = pixelratio;
 }
@@ -1882,12 +1886,12 @@ void gfxtextscale(float s)
     gfxcontext.textscale = s;
 }
 
-void gfxtextcolor(tgfxcolor color)
+void gfxtextcolor(const tgfxcolor &color)
 {
     gfxcontext.textcolor = color;
 }
 
-void gfxtextshadow(float dx, float dy, tgfxcolor color)
+void gfxtextshadow(float dx, float dy, const tgfxcolor &color)
 {
     gfxcontext.textshadowoffset.x = dx;
     gfxcontext.textshadowoffset.y = dy;

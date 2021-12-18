@@ -223,6 +223,7 @@ void drawgosteksprite(pgfxsprite sprite, float x, float y, float sx, float sy, f
 
 void rendergostek(tsprite &soldier)
 {
+    ZoneScopedN("RenderGostek");
     std::int32_t i, n, index;
     bool showclip, grabbed;
     tgostekspriteset visible;
@@ -238,7 +239,10 @@ void rendergostek(tsprite &soldier)
         (soldier.player->name == "") or (soldier.player->demoplayer))
         return;
 
-    visible = gostekbase;
+    {
+        ZoneScopedN("CopyGostekBase");
+        visible = gostekbase;
+    }
 
     // setup colors
 
@@ -543,7 +547,9 @@ void rendergostek(tsprite &soldier)
                 sx = 0.75 + (1 - 0.75) / 5 * (i - GOSTEK_HAIR_DREADLOCK1);
             }
             else if (gs.flex > 0)
+            {
                 sx = min(1.5, sqrt(sqr(x2 - x1) + sqr(y2 - y1)) / gs.flex);
+            }
 
             drawgosteksprite(textures[tex], x1, y1 + 1, sx, sy, cx, cy, r, color[gs.color]);
         }

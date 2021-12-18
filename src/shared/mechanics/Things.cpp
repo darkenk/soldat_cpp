@@ -1760,9 +1760,7 @@ void Thing<M>::moveskeleton(float x1, float y1, bool fromzero)
 {
     std::int32_t i;
 
-#ifdef SERVER
     LogTraceG("TThing.MoveSkeleton");
-#endif
 
     if (!fromzero)
         for (i = 1; i <= num_particles; i++)

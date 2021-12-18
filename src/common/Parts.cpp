@@ -4,10 +4,12 @@
 #include "PhysFSExt.hpp"
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
+#include <Tracy.hpp>
 #include <physfs.h>
 
 void particlesystem::doverlettimestep()
 {
+    ZoneScopedN("DoVerletTimeStep");
     std::int32_t i;
 
     for (i = 1; i <= num_particles; i++)
@@ -29,6 +31,7 @@ void particlesystem::doeulertimestepfor(std::int32_t i)
 
 void particlesystem::doeulertimestep()
 {
+    ZoneScopedN("DoEulerTimeStep");
     std::int32_t i;
 
     for (i = 1; i <= num_particles; i++)

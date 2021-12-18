@@ -8,7 +8,7 @@ static float sqr(float v)
 }
 
 template <typename T>
-static bool inrange(const T v, const T &min, const T &max)
+static constexpr bool inrange(const T &v, const T &min, const T &max)
 {
     return v >= min && v <= max;
 }

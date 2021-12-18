@@ -199,9 +199,6 @@ class Sprite
     void checkoutofbounds();
     void checkskeletonoutofbounds();
     void respawn();
-#ifdef SERVER
-    void resetspriteoldpos();
-#endif
     void parachute(tvector2 &a);
 #ifndef SERVER
     void changeteam(std::int32_t team);

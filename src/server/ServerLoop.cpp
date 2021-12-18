@@ -330,26 +330,6 @@ void updateframe()
     if (mapchangecounter < 0)
     {
         {
-            ZoneScopedN("OldSpritePos");
-            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-            {
-                if (!sprite.deadmeat)
-                {
-                    if (sprite.isnotspectator())
-                    {
-                        j = sprite.num;
-                        for (i = max_oldpos; i >= 1; i--)
-                        {
-                            oldspritepos[j][i] = oldspritepos[j][i - 1];
-                        }
-
-                        oldspritepos[j][0] = spriteparts.pos[j];
-                    }
-                }
-            }
-        }
-
-        {
             ZoneScopedN("SpriteParts");
             for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
             {

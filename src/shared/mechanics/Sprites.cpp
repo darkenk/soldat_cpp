@@ -283,8 +283,11 @@ void Sprite<M>::update()
 
     spriteparts.velocity[num] = vec2add(spriteparts.velocity[num], nextpush[0]);
 #ifndef SERVER
-    for (i = 0; i <= max_pushtick - 1; i++)
-        nextpush[i] = nextpush[i + 1];
+    {
+        ZoneScopedN("NextPushCopy");
+        for (i = 0; i <= max_pushtick - 1; i++)
+            nextpush[i] = nextpush[i + 1];
+    }
 #endif
     nextpush[max_pushtick].x = 0;
     nextpush[max_pushtick].y = 0;
@@ -332,6 +335,7 @@ void Sprite<M>::update()
     skeleton.pos[25] = skeleton.pos[5];
     if (!deadmeat)
     {
+        NotImplemented(NITag::OTHER, "This code has no effect");
         vec2add(skeleton.pos[21], spriteparts.velocity[num]);
         vec2add(skeleton.pos[23], spriteparts.velocity[num]);
         vec2add(skeleton.pos[25], spriteparts.velocity[num]);
@@ -420,6 +424,7 @@ void Sprite<M>::update()
 
     if (!deadmeat)
     {
+        ZoneScopedN("RotateParts");
         // Rotate parts
         // head
         i = 12;
@@ -605,6 +610,7 @@ void Sprite<M>::update()
 
     if (!deadmeat)
     {
+        ZoneScopedN("DoAnimation");
         switch (style)
         {
         case 1: {
@@ -1131,11 +1137,14 @@ void Sprite<M>::update()
             skeleton.doverlettimestepfor(24, 30);
 
 #ifndef SERVER
-            // Ping Impr
-            for (i = max_oldpos; i >= 1; i--)
-                oldspritepos[num][i] = oldspritepos[num][i - 1];
+            {
+                ZoneScopedN("CopyOldSpritePos");
+                // Ping Impr
+                for (i = max_oldpos; i >= 1; i--)
+                    oldspritepos[num][i] = oldspritepos[num][i - 1];
 
-            oldspritepos[num][0] = spriteparts.pos[num];
+                oldspritepos[num][0] = spriteparts.pos[num];
+            }
 #endif
         }
         break; // 1
@@ -1151,11 +1160,16 @@ void Sprite<M>::update()
 
             spriteparts.pos[num] = skeleton.pos[12];
 
-            // Ping Impr
-            for (i = max_oldpos; i >= 1; i--)
-                oldspritepos[num][i] = oldspritepos[num][i - 1];
+            {
+                ZoneScopedN("CopyOldSpritePos");
+                // Ping Impr
+                for (i = max_oldpos; i >= 1; i--)
+                {
+                    oldspritepos[num][i] = oldspritepos[num][i - 1];
+                }
 
-            oldspritepos[num][0] = spriteparts.pos[num];
+                oldspritepos[num][0] = spriteparts.pos[num];
+            }
 
             checkskeletonoutofbounds();
 
@@ -3629,15 +3643,14 @@ void Sprite<M>::respawn()
     scrptdispatcher.onafterplayerrespawn(num);
 #endif
 
-#ifdef SERVER
-    resetspriteoldpos();
-#endif
-
     // clear push wait list
-    for (j = 0; j <= max_pushtick; j++)
     {
-        nextpush[j].x = 0;
-        nextpush[j].y = 0;
+        ZoneScopedN("CleanNextPush");
+        for (j = 0; j <= max_pushtick; j++)
+        {
+            nextpush[j].x = 0;
+            nextpush[j].y = 0;
+        }
     }
 
 #ifndef SERVER
@@ -3686,17 +3699,6 @@ void Sprite<M>::respawn()
         player->deaths -= 1;
     }
 }
-
-#ifdef SERVER
-template <Config::Module M>
-void Sprite<M>::resetspriteoldpos()
-{
-    std::int32_t i;
-
-    for (i = max_oldpos; i >= 1; i--)
-        oldspritepos[num][i] = spriteparts.pos[num];
-}
-#endif
 
 template <Config::Module M>
 void Sprite<M>::parachute(tvector2 &a)
