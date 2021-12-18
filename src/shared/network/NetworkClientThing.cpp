@@ -58,12 +58,13 @@ void clienthandleserverthingsnapshot(SteamNetworkingMessage_t *netmessage)
     // is not holded anymore
     if (thing[i].holdingsprite == 0)
     {
-        for (d = 1; d <= max_sprites; d++)
-            if (SpriteSystem::Get().GetSprite(d).active)
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            if (sprite.holdedthing == i)
             {
-                if (SpriteSystem::Get().GetSprite(d).holdedthing == i)
-                    SpriteSystem::Get().GetSprite(d).holdedthing = 0;
+                sprite.holdedthing = 0;
             }
+        }
     }
 
     if ((thingsnap->owner > 0) && (thingsnap->owner < max_sprites + 1))
@@ -214,12 +215,13 @@ void clienthandleserverthingmustsnapshot(SteamNetworkingMessage_t *netmessage)
     // is not holded anymore
     if (thing[i].holdingsprite == 0)
     {
-        for (d = 1; d <= max_sprites; d++)
-            if (SpriteSystem::Get().GetSprite(d).active)
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            if (sprite.holdedthing == i)
             {
-                if (SpriteSystem::Get().GetSprite(d).holdedthing == i)
-                    SpriteSystem::Get().GetSprite(d).holdedthing = 0;
+                sprite.holdedthing = 0;
             }
+        }
     }
 
     if ((thingmustsnap->owner > 0) && (thingmustsnap->owner < max_sprites + 1))
@@ -421,8 +423,9 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     case object_minigun: {
         // Objects 1-3 are flags, so we need for WeaponIndex subtract by flags+1
         weaponindex = weaponnumtoindex(thing[i].style - (object_num_flags + 1), guns);
-        SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(guns[weaponindex].num, n,
-                                                     thingtakensnap->ammocount);
+        SpriteSystem::Get()
+            .GetSprite(thingtakensnap->who)
+            .applyweaponbynum(guns[weaponindex].num, n, thingtakensnap->ammocount);
         if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
             clientspritesnapshot();
     }
@@ -443,7 +446,8 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
         if (thingtakensnap->who == mysprite)
             bigmessage(_("You got the Bow!"), capturemessagewait, capture_message_color);
         else
-            bigmessage(wideformat(_("{} got the Bow!"), SpriteSystem::Get().GetSprite(thingtakensnap->who).player->name),
+            bigmessage(wideformat(_("{} got the Bow!"),
+                                  SpriteSystem::Get().GetSprite(thingtakensnap->who).player->name),
                        capturemessagewait, capture_message_color);
     }
     break;
@@ -456,7 +460,8 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     case object_grenade_kit: {
         playsound(sfx_pickupgun, thing[i].skeleton.pos[1]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon = guns[fraggrenade];
-        SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon.ammocount = CVar::sv_maxgrenades;
+        SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon.ammocount =
+            CVar::sv_maxgrenades;
         thing[i].kill();
     }
     break;
@@ -464,8 +469,10 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
         playsound(sfx_godflame, thing[i].skeleton.pos[1]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).bonustime = flamerbonustime;
         SpriteSystem::Get().GetSprite(thingtakensnap->who).bonusstyle = bonus_flamegod;
-        SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.num, 2, -1,
-                                                     true);
+        SpriteSystem::Get()
+            .GetSprite(thingtakensnap->who)
+            .applyweaponbynum(SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.num, 2, -1,
+                              true);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(guns[flamer].num, 1);
         if (thingtakensnap->who == mysprite)
         {
@@ -506,7 +513,8 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     case object_cluster_kit: {
         playsound(sfx_pickupgun, thing[i].skeleton.pos[1]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon = guns[clustergrenade];
-        SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon.ammocount = cluster_grenades;
+        SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon.ammocount =
+            cluster_grenades;
         if (thingtakensnap->who == mysprite)
             bigmessage(_("Cluster Grenades!"), capturemessagewait, capture_message_color);
         thing[i].kill();
@@ -518,8 +526,9 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
         // There are in total OBJECT_NUM_NONWEAPON non-weapon objects before the
         // knife so we need to subtract it+1 for the WeaponIndex (like before)
         weaponindex = weaponnumtoindex(thing[i].style - (object_num_nonweapon + 1), guns);
-        SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(guns[weaponindex].num, n,
-                                                     thingtakensnap->ammocount);
+        SpriteSystem::Get()
+            .GetSprite(thingtakensnap->who)
+            .applyweaponbynum(guns[weaponindex].num, n, thingtakensnap->ammocount);
         if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
             clientspritesnapshot();
     }

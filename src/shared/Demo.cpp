@@ -142,7 +142,7 @@ std::int32_t tdemorecorder<M>::createdemoplayer()
 
     std::int32_t createdemoplayer_result = -1;
 
-    if (SpriteSystem::Get().GetSprite(max_sprites).active)
+    if (SpriteSystem::Get().GetSprite(max_sprites).IsActive())
     {
         GetMainConsole().console(
             "Failed to create Demo Recorder player. Demos can be recorded with up to 31 players",

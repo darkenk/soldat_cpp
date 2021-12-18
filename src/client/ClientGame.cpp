@@ -173,16 +173,14 @@ void tabcomplete()
              i++)
         {
             next = ((i - 1) % max_players) + 1;
-            if (SpriteSystem::Get().GetSprite(next).active &&
-                (!SpriteSystem::Get().GetSprite(next).player->demoplayer) && (next != mysprite))
+            auto &sprite = SpriteSystem::Get().GetSprite(next);
+            if (sprite.IsActive() && (!sprite.player->demoplayer) && (next != mysprite))
             {
                 if ((completionbase == "") ||
-                    std::string::npos !=
-                        SpriteSystem::Get().GetSprite(next).player->name.find(completionbase))
+                    std::string::npos != sprite.player->name.find(completionbase))
                 {
                     availablechatspace = maxchattext - completionbaseseparator;
-                    spacefittedname = SpriteSystem::Get().GetSprite(next).player->name.substr(
-                        0, availablechatspace);
+                    spacefittedname = sprite.player->name.substr(0, availablechatspace);
                     chattext = chattext.substr(0, completionbaseseparator) + spacefittedname;
                     currenttabcompleteplayer = next;
                     cursorposition = length((chattext));
@@ -348,11 +346,13 @@ void gameloop()
 
             clientstopmovingcounter -= 1;
 
+            auto &sprite = SpriteSystem::Get().GetSprite(mysprite);
+
             if (connection == INTERNET)
             {
-                if (SpriteSystem::Get().GetSprite(mysprite).active)
+                if (sprite.IsActive())
                 {
-                    if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+                    if (!sprite.deadmeat)
                     {
                         if ((maintickcounter % (std::int32_t)round(7 * adjust) == 1) &&
                             (maintickcounter % (std::int32_t)round(5 * adjust) != 0))
@@ -367,7 +367,7 @@ void gameloop()
             }
             else if (connection == LAN)
             {
-                if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+                if (!sprite.deadmeat)
                 {
                     if (maintickcounter % (std::int32_t)round(4 * adjust) == 0)
                         clientspritesnapshot();

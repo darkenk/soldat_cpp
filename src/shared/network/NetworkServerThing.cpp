@@ -91,12 +91,14 @@ void serverthingmustsnapshot(std::uint8_t i)
     thingmsg.style = thing[i].style;
     thingmsg.holdingsprite = thing[i].holdingsprite;
 
-    for (i = 1; i <= max_players; i++)
-        if ((SpriteSystem::Get().GetSprite(i).active) &&
-            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
-            GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
-                                         SpriteSystem::Get().GetSprite(i).player->peer,
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (sprite.player->controlmethod == human)
+        {
+            GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite.player->peer,
                                          k_nSteamNetworkingSend_Unreliable);
+        }
+    }
 }
 #endif
 
@@ -179,12 +181,14 @@ void serverthingtaken(std::uint8_t i, std::uint8_t w)
     thingmsg.style = thing[i].style;
     thingmsg.ammocount = thing[i].ammocount;
 
-    for (i = 1; i <= max_players; i++)
-        if ((SpriteSystem::Get().GetSprite(i).active) &&
-            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
-            GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
-                                         SpriteSystem::Get().GetSprite(i).player->peer,
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (sprite.player->controlmethod == human)
+        {
+            GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite.player->peer,
                                          k_nSteamNetworkingSend_Unreliable);
+        }
+    }
 }
 
 void serverhandlerequestthing(SteamNetworkingMessage_t *netmessage)

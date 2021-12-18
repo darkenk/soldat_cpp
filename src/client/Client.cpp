@@ -262,9 +262,10 @@ void exittomenu()
     mapchangecounter = -60;
     // WindowReady := False;
 
-    for (i = 1; i <= max_sprites; i++)
-        if (SpriteSystem::Get().GetSprite(i).active)
-            SpriteSystem::Get().GetSprite(i).kill();
+    auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+
+    std::for_each(std::begin(activeSprites), std::end(activeSprites),
+                  [](auto &sprite) { sprite.kill(); });
     for (i = 1; i <= max_bullets; i++)
         bullet[i].kill();
     for (i = 1; i <= max_sparks; i++)
@@ -308,108 +309,6 @@ void exittomenu()
     if (redirecttoserver)
         redirectdialog();
 }
-
-//{$IFDEF STEAM}
-// procedure OnScreenshotReady(Event: PScreenshotReady_t); cdecl;
-// var
-//  i: Byte;
-// begin
-//  if Event.m_eResult = k_EResultOK then
-//  begin
-//    // Set map name as location
-//    SteamAPI.Screenshots.SetLocation(Event.m_hLocal, PChar(AnsiString(Map.Name)));
-//    SteamAPI.Screenshots.TagPublishedFile(Event.m_hLocal, Map.MapInfo.WorkshopID);
-//    // Tag all visible players
-//    for i := 1 to MAX_SPRITES do
-//    begin
-//      if SpriteSystem::Get().GetSprite(i).Active and
-//      (SpriteSystem::Get().GetSprite(i).Player.ControlMethod = HUMAN) and
-//      (UInt64(SpriteSystem::Get().GetSprite(i).Player.SteamID) > 0) then begin
-//        if PointVisible(SpriteParts.Pos[i].X, SpriteParts.Pos[i].Y,
-//        SpriteSystem::Get().GetSprite(MySprite).Player.Camera) then begin
-//          SteamAPI.Screenshots.TagUser(Event.m_hLocal,
-//          SpriteSystem::Get().GetSprite(i).Player.SteamID);
-//        end;
-//      end;
-//    end;
-////    GetMainConsole().Console(_('Succesfully saved screenshot on Steam'), DEBUG_MESSAGE_COLOR);
-//  end;
-////  else
-////  begin
-////    GetMainConsole().Console(_('Failed to save screenshot on Steam'), DEBUG_MESSAGE_COLOR);
-////  end;
-// end;
-//
-// procedure LoadWorkshopModArchives;
-// var
-//  SizeOnDisk: uint64;
-//  Path: array[0..4096] of Char;
-//  TimeStamp: Cardinal;
-//  Sr: TSearchRec;
-//  Name: String;
-// begin
-//  if SteamAPI.UGC.GetItemInstallInfo(CVar::fs_workshop_mod, @SizeOnDisk, @Path, 1024, @TimeStamp)
-//  then begin
-//    if FindFirst(Path + '/*.smod', faAnyFile - faDirectory, sr) = 0 then
-//    begin
-//      Name := Sr.Name;
-//      Name := Name.SubString(0, Name.Length - 5);
-//      Debug('[PhysFS] Mounting mods/' + LowerCase(Sr.Name));
-//      if not PhysFS_mount(PChar(Path + '/' + Sr.Name),
-//        PChar('mods/' + LowerCase(Name) + '/'), False) then
-//      begin
-//        ShowMessage(_('Could not load mod archive (' + IntToStr(CVar::fs_workshop_mod) + '/' +
-//        Sr.Name + ').')); Exit;
-//      end;
-//      ModDir := 'mods/' + LowerCase(Name) + '/';
-//      CustomModChecksum := Sha1File(Path + '/' + Sr.Name, 4096);
-//    end;
-//    FindClose(Sr);
-//  end else
-//    Debug('Failed to load mod archive from workshop - ' + IntToStr(CVar::fs_workshop_mod));
-// end;
-//
-// procedure LoadWorkshopInterfaceArchives;
-// var
-//  SizeOnDisk: uint64;
-//  Path: array[0..4096] of Char;
-//  TimeStamp: Cardinal;
-// begin
-//  if SteamAPI.UGC.GetItemInstallInfo(CVar::fs_workshop_interface, @SizeOnDisk, @Path, 1024,
-//  @TimeStamp) then
-//    LoadInterfaceArchives(Path + '/', True)
-//  else
-//    Debug('Failed to load interface from workshop - ' + IntToStr(CVar::fs_workshop_interface));
-// end;
-//
-// procedure DownloadItemResult(Callback: PDownloadItemResult_t); cdecl;
-// begin
-//  if Callback.m_unAppID = STEAM_APPID then
-//  begin
-//    if Callback.m_eResult = k_EResultOK then
-//    begin
-//      if MapChangeItemID = Callback.m_nPublishedFileId then
-//      begin
-//        if ForceReconnect then
-//        begin
-//          ExitToMenu();
-//          JoinServer;
-//          ForceReconnect := False;
-//        end;
-//      end;
-//    end else
-//      Debug('[Steam] Failed to download workshop item, id:' +
-//      IntToStr(Callback.m_nPublishedFileId) + ' error: ' + IntToStr(Ord(Callback.m_eResult)));
-//  end;
-// end;
-//
-// procedure SteamNetConnectionStatusChangedCallback(Callback:
-// PSteamNetConnectionStatusChangedCallback_t); cdecl; begin
-//  if Assigned(UDP) then
-//    UDP.ProcessEvents(Callback);
-// end;
-//
-//{$ENDIF}
 
 void startgame(int argc, const char *argv[])
 {

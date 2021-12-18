@@ -21,7 +21,6 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
                              std::uint8_t msgtype)
 {
     pmsg_stringmessage pchatmessage;
-    std::int32_t i;
     std::int32_t size;
 
     if (length(text) == 0)
@@ -40,21 +39,22 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
 
     if (((from > 0) && (from < max_players + 1)) || (from == 255))
     {
-        for (i = 1; i <= max_players; i++)
-            if (SpriteSystem::Get().GetSprite(i).active &&
-                (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
-                if ((tonum == 0) || (i == tonum))
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            if (sprite.player->controlmethod == human)
+            {
+                if ((tonum == 0) || (sprite.num == tonum))
                 {
                     if (!((from == 255) && (tonum == 0))) // TODO: Simplify it.
                         if ((!((msgtype == msgtype_team) || (msgtype == msgtype_radio)) ||
                              (from == 255)) or
                             (((msgtype == msgtype_team) || (msgtype == msgtype_radio)) and
-                             SpriteSystem::Get().GetSprite(from).isinsameteam(
-                                 SpriteSystem::Get().GetSprite(i))))
-                            GetServerNetwork()->senddata(
-                                pchatmessage, size, SpriteSystem::Get().GetSprite(i).player->peer,
-                                k_nSteamNetworkingSend_Reliable);
+                             SpriteSystem::Get().GetSprite(from).isinsameteam(sprite)))
+                            GetServerNetwork()->senddata(pchatmessage, size, sprite.player->peer,
+                                                         k_nSteamNetworkingSend_Reliable);
                 }
+            }
+        }
     }
     freemem(pchatmessage);
 
@@ -166,7 +166,6 @@ void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8
 {
     pmsg_serverspecialmessage pchatmessage;
     std::int32_t size;
-    std::int32_t i;
 
     size = sizeof(tmsg_serverspecialmessage) + length(text) + 1;
     getmem(pchatmessage, size);
@@ -182,13 +181,13 @@ void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8
 
     strcpy(pchatmessage->text.data(), (pchar)(text));
 
-    for (i = 1; i <= max_players; i++)
-        if (SpriteSystem::Get().GetSprite(i).active &&
-            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
-            if ((tonum == 0) || (i == tonum))
-                GetServerNetwork()->senddata(pchatmessage, size,
-                                             SpriteSystem::Get().GetSprite(i).player->peer,
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (sprite.player->controlmethod == human)
+            if ((tonum == 0) || (sprite.num == tonum))
+                GetServerNetwork()->senddata(pchatmessage, size, sprite.player->peer,
                                              k_nSteamNetworkingSend_Reliable);
+    }
 
     freemem(pchatmessage);
 }

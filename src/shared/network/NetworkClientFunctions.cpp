@@ -42,7 +42,6 @@ void clienthandlevoteoff()
 void clienthandleserversyncmsg(SteamNetworkingMessage_t *netmessage)
 {
     tmsg_serversyncmsg *syncmsg;
-    std::int32_t i;
 
     if (!verifypacket(sizeof(tmsg_serversyncmsg), netmessage->m_cbSize, msgid_serversyncmsg))
         return;
@@ -54,14 +53,13 @@ void clienthandleserversyncmsg(SteamNetworkingMessage_t *netmessage)
     {
         mapchangecounter = 999999999;
         mapchangename = "PAUSE*!*";
-        for (i = 1; i <= max_players; i++)
-            if (SpriteSystem::Get().GetSprite(i).active)
-            {
-                stopsound(SpriteSystem::Get().GetSprite(i).reloadsoundchannel);
-                stopsound(SpriteSystem::Get().GetSprite(i).jetssoundchannel);
-                stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel);
-                stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel2);
-            }
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            stopsound(sprite.reloadsoundchannel);
+            stopsound(sprite.jetssoundchannel);
+            stopsound(sprite.gattlingsoundchannel);
+            stopsound(sprite.gattlingsoundchannel2);
+        }
     }
     else if (mapchangecounter == 999999999)
         mapchangecounter = -60;
@@ -104,9 +102,11 @@ void clienthandleforceweapon(SteamNetworkingMessage_t *netmessage)
     if (mysprite > 0)
     {
         SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(forceweapon->weaponnum, 1);
-        SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(forceweapon->secondaryweaponnum, 2);
+        SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(forceweapon->secondaryweaponnum,
+                                                                 2);
         SpriteSystem::Get().GetSprite(mysprite).weapon.ammocount = forceweapon->ammocount;
-        SpriteSystem::Get().GetSprite(mysprite).secondaryweapon.ammocount = forceweapon->secammocount;
+        SpriteSystem::Get().GetSprite(mysprite).secondaryweapon.ammocount =
+            forceweapon->secammocount;
     }
 }
 

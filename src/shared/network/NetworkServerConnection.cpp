@@ -232,9 +232,9 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     do
     {
         playernameunused = true;
-        for (i = 1; i <= max_players; i++)
-            if ((SpriteSystem::Get().GetSprite(i).active) &&
-                (SpriteSystem::Get().GetSprite(i).player->name == finalplayername))
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            if (sprite.player->name == finalplayername)
             {
                 auto jstring = inttostr(j);
                 suffixlen = length(jstring) + 2;
@@ -252,6 +252,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
                 }
                 playernameunused = false;
             }
+        }
     } while (!playernameunused);
 
     GetServerMainConsole().console(finalplayername + " joining game (" + player->ip + ':' +
@@ -827,7 +828,6 @@ std::uint8_t CopyCVarsToBuffer(BitStream &bs, bool fullsync)
 void serversynccvars(std::uint8_t tonum, HSteamNetConnection peer, bool fullsync)
 {
     pmsg_serversynccvars varsmsg;
-    std::int32_t i;
     std::uint8_t fieldcount = 0;
     std::uint32_t buffersize;
 
@@ -849,13 +849,15 @@ void serversynccvars(std::uint8_t tonum, HSteamNetConnection peer, bool fullsync
 #ifdef SERVER
     if (peer == 0)
     {
-        for (i = 1; i <= max_players; i++)
-            if ((tonum == 0) || (i == tonum))
-                if ((SpriteSystem::Get().GetSprite(i).active) &
-                    (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+
+            if ((tonum == 0) || (sprite.num == tonum))
+                if (sprite.player->controlmethod == human)
                     GetServerNetwork()->senddata(varsmsg, sizeof(tmsg_serversynccvars) + buffersize,
-                                                 SpriteSystem::Get().GetSprite(i).player->peer,
+                                                 sprite.player->peer,
                                                  k_nSteamNetworkingSend_Reliable);
+        }
     }
     else
     {

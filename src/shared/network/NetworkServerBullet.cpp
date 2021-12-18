@@ -20,9 +20,6 @@ std::array<tmsg_bulletsnapshot, max_sprites> oldbulletsnapshotmsg;
 void serverbulletsnapshot(std::uint8_t i, std::uint8_t tonum, bool forced)
 {
     tmsg_bulletsnapshot bulletmsg;
-#ifdef SERVER
-    std::int32_t j;
-#endif
 
     // SERVER BULLETS SNAPSHOT
     bulletmsg.header.id = msgid_bulletsnapshot;
@@ -41,20 +38,18 @@ void serverbulletsnapshot(std::uint8_t i, std::uint8_t tonum, bool forced)
             (bullet[i].style != bullet_style_cluster))
             SpriteSystem::Get().GetSprite(bulletmsg.owner).weapon.ammocount -= 1;
 
-    for (j = 1; j <= max_sprites; j++)
-        if (SpriteSystem::Get().GetSprite(j).active &&
-            (SpriteSystem::Get().GetSprite(j).player->controlmethod == human) &&
-            (j != bullet[i].owner))
-            if ((tonum == 0) || (j == tonum))
-                if (bulletcansend(bulletparts.pos[i].x, bulletparts.pos[i].y,
-                                  SpriteSystem::Get().GetSprite(j).player->camera,
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if ((sprite.player->controlmethod == human) && (sprite.num != bullet[i].owner))
+            if ((tonum == 0) || (sprite.num == tonum))
+                if (bulletcansend(bulletparts.pos[i].x, bulletparts.pos[i].y, sprite.player->camera,
                                   bulletparts.velocity[i].x) or
                     forced)
                 {
-                    GetServerNetwork()->senddata(&bulletmsg, sizeof(bulletmsg),
-                                                 SpriteSystem::Get().GetSprite(j).player->peer,
+                    GetServerNetwork()->senddata(&bulletmsg, sizeof(bulletmsg), sprite.player->peer,
                                                  k_nSteamNetworkingSend_Unreliable);
                 }
+    }
 #else
     demorecorder.saverecord(bulletmsg, sizeof(bulletmsg));
 #endif

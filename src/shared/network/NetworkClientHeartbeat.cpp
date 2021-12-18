@@ -26,24 +26,23 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
     heartbeat = pmsg_heartbeat(netmessage->m_pData);
 
     auto c = 0;
-    for (i = 1; i <= max_players; i++)
-        if (SpriteSystem::Get().GetSprite(i).active &&
-            (!SpriteSystem::Get().GetSprite(i).player->demoplayer))
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (!sprite.player->demoplayer)
         {
-            SpriteSystem::Get().GetSprite(i).active = heartbeat->active[c];
-            SpriteSystem::Get().GetSprite(i).player->kills = heartbeat->kills[c];
-            SpriteSystem::Get().GetSprite(i).player->flags = heartbeat->caps[c];
-            SpriteSystem::Get().GetSprite(i).player->team = heartbeat->team[c];
-            SpriteSystem::Get().GetSprite(i).player->deaths = heartbeat->deaths[c];
-            SpriteSystem::Get().GetSprite(i).player->flags = heartbeat->flags[c];
-            SpriteSystem::Get().GetSprite(i).player->pingticks = heartbeat->ping[c];
-            SpriteSystem::Get().GetSprite(i).player->pingtime =
-                SpriteSystem::Get().GetSprite(i).player->pingticks * 1000 / 60;
-            SpriteSystem::Get().GetSprite(i).player->realping = heartbeat->realping[c];
-            SpriteSystem::Get().GetSprite(i).player->connectionquality =
-                heartbeat->connectionquality[c];
+            sprite.active = heartbeat->active[c];
+            sprite.player->kills = heartbeat->kills[c];
+            sprite.player->flags = heartbeat->caps[c];
+            sprite.player->team = heartbeat->team[c];
+            sprite.player->deaths = heartbeat->deaths[c];
+            sprite.player->flags = heartbeat->flags[c];
+            sprite.player->pingticks = heartbeat->ping[c];
+            sprite.player->pingtime = sprite.player->pingticks * 1000 / 60;
+            sprite.player->realping = heartbeat->realping[c];
+            sprite.player->connectionquality = heartbeat->connectionquality[c];
             c++;
         }
+    }
 
     // play bding sound
     if (CVar::sv_gamemode == gamestyle_inf)

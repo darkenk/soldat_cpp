@@ -403,7 +403,6 @@ void clienthandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
 void clienthandlemapchange(SteamNetworkingMessage_t *netmessage)
 {
     tmsg_mapchange *mapchange;
-    std::int32_t i;
 
     if (!verifypacket(sizeof(tmsg_mapchange), netmessage->m_cbSize, msgid_mapchange))
         return;
@@ -424,14 +423,13 @@ void clienthandlemapchange(SteamNetworkingMessage_t *netmessage)
     if (CVar::cl_endscreenshot)
         screentaken = true;
 
-    for (i = 1; i <= max_players; i++)
-        if (SpriteSystem::Get().GetSprite(i).active)
-        {
-            stopsound(SpriteSystem::Get().GetSprite(i).reloadsoundchannel);
-            stopsound(SpriteSystem::Get().GetSprite(i).jetssoundchannel);
-            stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel);
-            stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel2);
-        }
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        stopsound(sprite.reloadsoundchannel);
+        stopsound(sprite.jetssoundchannel);
+        stopsound(sprite.gattlingsoundchannel);
+        stopsound(sprite.gattlingsoundchannel2);
+    }
 
     if (demoplayer.active())
     {
@@ -575,70 +573,3 @@ void clienthandleidleanimation(SteamNetworkingMessage_t *netmessage)
     SpriteSystem::Get().GetSprite(i).idlerandom =
         pmsg_idleanimation(netmessage->m_pData)->idlerandom;
 }
-
-#ifdef STEAM
-void clientsendvoicedata(pointer data, std::uint64_t datasize)
-{
-    pmsg_voicedata voicemsg;
-    std::int32_t size;
-    array of std::uint8_t sendbuffer;
-
-    size = sizeof(tmsg_voicedata) + datasize;
-    setlength(sendbuffer, size);
-
-    voicemsg = pmsg_voicedata(sendbuffer);
-    voicemsg.header.id = msgid_voicedata;
-
-    move(data, voicemsg.data, datasize);
-
-    SpriteSystem::Get().GetSprite(mysprite).player->lastreceivevoicetime = maintickcounter + 10;
-
-    udp->senddata(&voicemsg, size, k_nsteamnetworkingsend_nodelay);
-}
-
-void clienthandlevoicedata(SteamNetworkingMessage_t *netmessage)
-{
-    pmsg_voicedata voicemsg;
-    std::uint64_t textlen;
-    evoiceresult voiceresult;
-    array of std::uint8_t audiodata;
-    std::uint32_t audiolength;
-
-    if (!CVar::cl_voicechat)
-        return;
-
-    if (!verifypacketlargerorequal(sizeof(voicemsg), netmessage->m_cbSize, msgid_voicedata))
-        return;
-
-    voicemsg = pmsg_voicedata(netmessage->m_pData);
-
-    if ((voicemsg.speaker > 0) && (voicemsg.speaker < max_players))
-    {
-        if (!SpriteSystem::Get().GetSprite(voicemsg.speaker).active)
-            return;
-
-        if (SpriteSystem::Get().GetSprite(voicemsg.speaker).player->muted == 1)
-            return;
-
-        setlength(audiodata, 20480);
-
-        textlen = netmessage->m_cbSize - sizeof(tmsg_voicedata);
-        voiceresult = steamapi.user.decompressvoice(&voicemsg->data, textlen, audiodata,
-                                                    length(audiodata), &audiolength, 44100);
-
-        if (voiceresult == k_evoiceresultbuffertoosmall)
-        {
-            setlength(audiodata, audiolength);
-            voiceresult = steamapi.user.decompressvoice(&voicemsg->data, textlen, audiodata,
-                                                        length(audiodata), &audiolength, 44100);
-        }
-
-        if ((voiceresult == k_evoiceresultok) && (audiolength > 0))
-        {
-            SpriteSystem::Get().GetSprite(voicemsg.speaker).player->lastreceivevoicetime =
-                maintickcounter + 30;
-            playvoicedata(&audiodata[0], audiolength, voicemsg.speaker);
-        }
-    }
-}
-#endif

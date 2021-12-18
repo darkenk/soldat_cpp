@@ -705,24 +705,19 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
 
     {
         ZoneScopedN("Sprites");
-        for (i = 1; i <= max_sprites; i++)
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
         {
-            if (SpriteSystem::Get().GetSprite(i).active)
-            {
-                sk = &SpriteSystem::Get().GetSprite(i).skeleton;
-                gun = &SpriteSystem::Get().GetSprite(i).weapon;
-                std::memcpy(&s.spritepos[i][1], &sk->pos[1],
-                            sizeof(tvector2) * length(s.spritepos[i]));
+            i = sprite.num;
+            sk = &sprite.skeleton;
+            gun = &sprite.weapon;
+            std::memcpy(&s.spritepos[i][1], &sk->pos[1], sizeof(tvector2) * length(s.spritepos[i]));
 
-                for (j = low(s.spritepos[i]); j <= high(s.spritepos[i]); j++)
-                    sk->pos[j] = lerp(sk->oldpos[j], sk->pos[j], p);
+            for (j = low(s.spritepos[i]); j <= high(s.spritepos[i]); j++)
+                sk->pos[j] = lerp(sk->oldpos[j], sk->pos[j], p);
 
-                gun->reloadtimefloat = lerp(gun->reloadtimeprev, gun->reloadtimecount, p);
-                gun->fireintervalfloat = lerp(gun->fireintervalprev, gun->fireintervalcount, p);
-                SpriteSystem::Get().GetSprite(i).jetscountfloat =
-                    lerp(SpriteSystem::Get().GetSprite(i).jetscountprev,
-                         SpriteSystem::Get().GetSprite(i).jetscount, p);
-            }
+            gun->reloadtimefloat = lerp(gun->reloadtimeprev, gun->reloadtimecount, p);
+            gun->fireintervalfloat = lerp(gun->fireintervalprev, gun->fireintervalcount, p);
+            sprite.jetscountfloat = lerp(sprite.jetscountprev, sprite.jetscount, p);
         }
     }
 
@@ -789,13 +784,11 @@ void restorestate(tinterpolationstate &s)
     mx = s.mouse.x;
     my = s.mouse.y;
 
-    for (i = 1; i <= max_sprites; i++)
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
-        if (SpriteSystem::Get().GetSprite(i).active)
-        {
-            std::memcpy(&SpriteSystem::Get().GetSprite(i).skeleton.pos[1], &s.spritepos[i][1],
-                        sizeof(tvector2) * length(s.spritepos[i]));
-        }
+        i = sprite.num;
+        std::memcpy(&sprite.skeleton.pos[1], &s.spritepos[i][1],
+                    sizeof(tvector2) * length(s.spritepos[i]));
     }
 
     for (i = 1; i <= max_bullets; i++)
@@ -938,9 +931,9 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
             {
                 ZoneScopedN("RenderGostek");
-                for (i = 1; i <= max_sprites; i++)
-                    if (SpriteSystem::Get().GetSprite(i).active)
-                        rendergostek(SpriteSystem::Get().GetSprite(i));
+                auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+                std::for_each(std::begin(activeSprites), std::end(activeSprites),
+                              [](auto &sprite) { rendergostek(sprite); });
             }
 
             {

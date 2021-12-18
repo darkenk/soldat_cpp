@@ -34,7 +34,8 @@ std::string idtoname(std::int32_t id)
         result = "Server Admin";
         return result;
     }
-    if (SpriteSystem::Get().GetSprite(id).active)
+
+    if (SpriteSystem::Get().GetSprite(id).IsActive())
         result = SpriteSystem::Get().GetSprite(id).player->name;
     return result;
 }
@@ -301,7 +302,6 @@ std::string randombot()
 
 void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
 {
-    std::int32_t i;
     std::array<std::int32_t, 4> teams;
     std::string thebot;
 
@@ -316,55 +316,61 @@ void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
     teams[3] = 0;
     teams[4] = 0;
 
-    for (i = 1; i <= max_sprites; ++i)
-        if (SpriteSystem::Get().GetSprite(i).active &&
-            SpriteSystem::Get().GetSprite(i).isnotspectator())
-            teams[SpriteSystem::Get().GetSprite(i).player->team] += 1;
+    auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+    std::for_each(std::begin(activeSprites), std::end(activeSprites), [&teams](auto &sprite) {
+        if (sprite.isnotspectator())
+        {
+            teams[sprite.player->team] += 1;
+        }
+    });
 
     if (leftgame == 1)
     {
         // Player Left Game
-        for (i = 1; i <= max_sprites; i++)
-            if ((SpriteSystem::Get().GetSprite(i).player->controlmethod == bot) &&
-                SpriteSystem::Get().GetSprite(i).active)
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            if (sprite.player->controlmethod == bot)
             {
-                if ((teams[1] > teams[2]) &&
-                    (SpriteSystem::Get().GetSprite(i).player->team == team_alpha))
+                if ((teams[1] > teams[2]) && (sprite.player->team == team_alpha))
                 {
-                    kickplayer(i, false, kick_leftgame, 0);
+                    kickplayer(sprite.num, false, kick_leftgame, 0);
                     return;
                 }
-                if ((teams[2] > teams[1]) &&
-                    (SpriteSystem::Get().GetSprite(i).player->team == team_bravo))
+                if ((teams[2] > teams[1]) && (sprite.player->team == team_bravo))
                 {
-                    kickplayer(i, false, kick_leftgame, 0);
+                    kickplayer(sprite.num, false, kick_leftgame, 0);
                     return;
                 }
             }
+        }
     }
     else
     {
         // Player Joined Game}
-        for (i = 1; i <= max_sprites; i++)
-            if (SpriteSystem::Get().GetSprite(i).active &&
-                (SpriteSystem::Get().GetSprite(i).player->controlmethod == bot) &&
-                (SpriteSystem::Get().GetSprite(i).player->team == newteam))
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            if ((sprite.player->controlmethod == bot) && (sprite.player->team == newteam))
             {
                 if (teams[1] > teams[2])
                 {
-                    kickplayer(i, false, kick_leftgame, 0);
-                    if (SpriteSystem::Get().GetSprite(i).player->team == newteam)
+                    kickplayer(sprite.num, false, kick_leftgame, 0);
+                    if (sprite.player->team == newteam)
+                    {
                         dobalancebots(1, 2);
+                    }
                     return;
                 }
                 if (teams[2] > teams[1])
                 {
-                    kickplayer(i, false, kick_leftgame, 0);
-                    if (SpriteSystem::Get().GetSprite(i).player->team == newteam)
+                    kickplayer(sprite.num, false, kick_leftgame, 0);
+                    if (sprite.player->team == newteam)
+                    {
                         dobalancebots(1, 1);
+                    }
                     return;
                 }
             }
+        }
     }
     if (teams[1] > teams[2])
     {

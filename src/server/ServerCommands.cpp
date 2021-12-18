@@ -155,8 +155,12 @@ void commandkick(std::vector<std::string> &args, std::uint8_t sender)
 void commandkicklast(std::vector<std::string> &args, std::uint8_t sender)
 {
     if ((lastplayer > 0) && (lastplayer < max_sprites + 1))
-        if (SpriteSystem::Get().GetSprite(lastplayer).active)
+    {
+        if (SpriteSystem::Get().GetSprite(lastplayer).IsActive())
+        {
             kickplayer(lastplayer, false, kick_console, 0);
+        }
+    }
 }
 
 void commandban(std::vector<std::string> &args, std::uint8_t sender)
@@ -271,9 +275,10 @@ void commandadm(std::vector<std::string> &args, std::uint8_t sender)
         if (isremoteadminip(SpriteSystem::Get().GetSprite(targets[i]).player->ip))
         {
             remoteips.add(SpriteSystem::Get().GetSprite(targets[i]).player->ip);
-            GetServerMainConsole().console(string("IP number ") + SpriteSystem::Get().GetSprite(targets[i]).player->ip +
-                                               " added to Remote Admins",
-                                           client_message_color, sender);
+            GetServerMainConsole().console(
+                string("IP number ") + SpriteSystem::Get().GetSprite(targets[i]).player->ip +
+                    " added to Remote Admins",
+                client_message_color, sender);
             savetxtlists();
         }
 }
@@ -385,7 +390,8 @@ void commandkill(std::vector<std::string> &args, std::uint8_t sender)
     {
         SpriteSystem::Get().GetSprite(targets[i]).vest = 0;
         SpriteSystem::Get().GetSprite(targets[i]).healthhit(3430, targets[i], 1, -1, a);
-        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name + " killed by admin",
+        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name +
+                                           " killed by admin",
                                        client_message_color, sender);
     }
 }
@@ -393,7 +399,6 @@ void commandkill(std::vector<std::string> &args, std::uint8_t sender)
 void commandloadwep(std::vector<std::string> &args, std::uint8_t sender)
 {
     std::string name;
-    std::int32_t i;
 
     if (length(args) == 1)
     {
@@ -408,10 +413,13 @@ void commandloadwep(std::vector<std::string> &args, std::uint8_t sender)
     lastwepmod = name;
     loadweapons(name);
 
-    for (i = 1; i <= max_players; i++)
-        if (SpriteSystem::Get().GetSprite(i).active)
-            if (SpriteSystem::Get().GetSprite(i).player->controlmethod == human)
-                servervars(i);
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (sprite.player->controlmethod == human)
+        {
+            servervars(sprite.num);
+        }
+    }
 }
 
 void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
@@ -438,24 +446,20 @@ void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
         bullet[i].kill();
     for (i = 1; i <= max_things; i++)
         thing[i].kill();
-    for (i = 1; i <= max_players; i++)
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
-        if (SpriteSystem::Get().GetSprite(i).active)
-        {
-            SpriteSystem::Get().GetSprite(i).player->team =
-                fixteam(SpriteSystem::Get().GetSprite(i).player->team);
-            SpriteSystem::Get().GetSprite(i).respawn();
-            SpriteSystem::Get().GetSprite(i).player->kills = 0;
-            SpriteSystem::Get().GetSprite(i).player->deaths = 0;
-            SpriteSystem::Get().GetSprite(i).player->flags = 0;
+        sprite.player->team = fixteam(sprite.player->team);
+        sprite.respawn();
+        sprite.player->kills = 0;
+        sprite.player->deaths = 0;
+        sprite.player->flags = 0;
 
-            SpriteSystem::Get().GetSprite(i).player->tkwarnings = 0;
-            SpriteSystem::Get().GetSprite(i).player->chatwarnings = 0;
-            SpriteSystem::Get().GetSprite(i).player->knifewarnings = 0;
+        sprite.player->tkwarnings = 0;
+        sprite.player->chatwarnings = 0;
+        sprite.player->knifewarnings = 0;
 
-            SpriteSystem::Get().GetSprite(i).player->scorespersecond = 0;
-            SpriteSystem::Get().GetSprite(i).player->grabspersecond = 0;
-        }
+        sprite.player->scorespersecond = 0;
+        sprite.player->grabspersecond = 0;
     }
 
     loadconfig(name);
@@ -539,7 +543,8 @@ void commandgmute(std::vector<std::string> &args, std::uint8_t sender)
                 mutename[j] = SpriteSystem::Get().GetSprite(targets[i]).player->name;
                 break;
             }
-        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name + " has been muted.",
+        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name +
+                                           " has been muted.",
                                        client_message_color, sender);
     }
 }
@@ -568,7 +573,8 @@ void commandungmute(std::vector<std::string> &args, std::uint8_t sender)
                 mutelist[j] = "";
                 break;
             }
-        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name + " has been unmuted.",
+        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name +
+                                           " has been unmuted.",
                                        client_message_color, sender);
     }
 }
@@ -651,7 +657,7 @@ void commandtempban(std::vector<std::string> &args, std::uint8_t sender)
 void commandweaponon(std::vector<std::string> &args, std::uint8_t sender)
 {
     std::string name;
-    std::int32_t i, j;
+    std::int32_t j;
 
     if (length(args) == 1)
         return;
@@ -661,20 +667,21 @@ void commandweaponon(std::vector<std::string> &args, std::uint8_t sender)
     if (length(name) < 1)
         return;
 
-    for (i = 1; i <= max_players; i++)
-        if ((SpriteSystem::Get().GetSprite(i).active) &&
-            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (sprite.player->controlmethod == human)
         {
             j = strtointdef(name, -1);
             if ((j > -1) && (j < 15))
-                setweaponactive(i, j, true);
+                setweaponactive(sprite.num, j, true);
         }
+    }
 }
 
 void commandweaponoff(std::vector<std::string> &args, std::uint8_t sender)
 {
     std::string name;
-    std::int32_t i, j;
+    std::int32_t j;
 
     if (length(args) == 1)
         return;
@@ -684,14 +691,15 @@ void commandweaponoff(std::vector<std::string> &args, std::uint8_t sender)
     if (length(name) < 1)
         return;
 
-    for (i = 1; i <= max_players; i++)
-        if ((SpriteSystem::Get().GetSprite(i).active) &&
-            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (sprite.player->controlmethod == human)
         {
             j = strtointdef(name, -1);
             if ((j > -1) && (j < 15))
-                setweaponactive(i, j, false);
+                setweaponactive(sprite.num, j, false);
         }
+    }
 }
 
 void commandbanlist(std::vector<std::string> &args, std::uint8_t sender)
@@ -916,7 +924,8 @@ void commandadminlog(std::vector<std::string> &args, std::uint8_t sender)
         {
             if (!isadminip(SpriteSystem::Get().GetSprite(sender).player->ip))
                 adminips.add(SpriteSystem::Get().GetSprite(sender).player->ip);
-            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(sender).player->name + " added to Game Admins",
+            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(sender).player->name +
+                                               " added to Game Admins",
                                            server_message_color, sender);
         }
         else

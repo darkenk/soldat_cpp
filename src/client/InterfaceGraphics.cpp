@@ -573,7 +573,8 @@ void renderweaponmenutext()
 
             gfxtextcolor(rgba(0xffffff, 230));
 
-            if (((i + 1) == SpriteSystem::Get().GetSprite(mysprite).selweapon) || ((i + 1) == 11 + CVar::cl_player_secwep))
+            if (((i + 1) == SpriteSystem::Get().GetSprite(mysprite).selweapon) ||
+                ((i + 1) == 11 + CVar::cl_player_secwep))
             {
                 if (btn == hoveredbutton)
                     gfxtextcolor(rgba(85, 105, 55, 230));
@@ -769,11 +770,12 @@ void renderkickwindowtext()
 
     if ((kickmenuindex > 0) && (kickmenuindex < max_sprites + 1))
     {
-        if (SpriteSystem::Get().GetSprite(kickmenuindex).active)
+        auto &sprite = SpriteSystem::Get().GetSprite(kickmenuindex);
+        if (sprite.IsActive())
         {
             btn = &kickmenu->button[0];
-            gfxtextcolor(argb(SpriteSystem::Get().GetSprite(kickmenuindex).player->shirtcolor));
-            gfxdrawtext(SpriteSystem::Get().GetSprite(kickmenuindex).player->name, btn->x1, btn->y1 - 15);
+            gfxtextcolor(argb(sprite.player->shirtcolor));
+            gfxdrawtext(sprite.player->name, btn->x1, btn->y1 - 15);
         }
     }
 
@@ -1564,7 +1566,8 @@ void renderchattexts()
             continue;
 
         hide = (CVar::sv_realisticmode) && (SpriteSystem::Get().GetSprite(i).visible == 0) and
-               SpriteSystem::Get().GetSprite(mysprite).isnotinsameteam(SpriteSystem::Get().GetSprite(i)) &&
+               SpriteSystem::Get().GetSprite(mysprite).isnotinsameteam(
+                   SpriteSystem::Get().GetSprite(i)) &&
                SpriteSystem::Get().GetSprite(mysprite).isnotspectator();
 
         x = (SpriteSystem::Get().GetSprite(i).skeleton.pos[12].x - camerax + 0.5 * gamewidth) *
@@ -1663,55 +1666,6 @@ void renderchatinput(float w, float h, double t)
         gfxtextverticalalign(gfx_top);
     }
 }
-
-#ifdef STEAM
-void rendervoicechattexts()
-{
-    std::uint8_t i;
-    tgfxcolor color;
-    float sx, sy;
-
-    color = rgba(0xffffff, CVar::ui_status_transparency * 0.56);
-    for (i = 1; i <= max_sprites; i++)
-    {
-        if (SpriteSystem::Get().GetSprite(i).active)
-        {
-            if (SpriteSystem::Get().GetSprite(i).player->lastreceivevoicetime > maintickcounter)
-            {
-                sx = 10;
-                sy = 240 + fragy + (10 * i);
-
-                switch (SpriteSystem::Get().GetSprite(i).player->team)
-                {
-                case 0:
-                    color = argb(enter_message_color);
-                    break;
-                case 1:
-                    color = rgba(255, 0, 0);
-                    break;
-                case 2:
-                    color = rgba(0, 0, 255);
-                    break;
-                case 3:
-                    color = argb(charliej_message_color);
-                    break;
-                case 4:
-                    color = argb(deltaj_message_color);
-                    break;
-                case 5:
-                    color = rgba(129, 52, 118);
-                    break;
-                }
-
-                gfxdrawsprite(textures[gfx_interface_mic], pixelalignx(sx), pixelaligny(sy),
-                              rgba(255, 255, 255));
-                gfxtextcolor(color);
-                gfxdrawtext(SpriteSystem::Get().GetSprite(i).player->name, sx + 15, sy - 2);
-            }
-        }
-    }
-}
-#endif
 
 void renderrespawnandsurvivaltexts()
 {
@@ -1919,22 +1873,24 @@ void renderplayernames(float width, float height)
     {
         if (!demoplayer.active())
         {
-            for (i = 1; i <= max_sprites; i++)
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
             {
-                if (SpriteSystem::Get().GetSprite(i).active &&
-                    SpriteSystem::Get().GetSprite(i).isinteam() and
-                    !((CVar::sv_realisticmode) && (SpriteSystem::Get().GetSprite(i).visible == 0)))
-                    renderplayername(width, height, i, false);
+                if (sprite.isinteam() and !((CVar::sv_realisticmode) && (sprite.visible == 0)))
+                {
+                    renderplayername(width, height, sprite.num, false);
+                }
             }
         }
     }
     else if (SpriteSystem::Get().GetSprite(mysprite).isinteam())
     {
-        for (i = 1; i <= max_sprites; i++)
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
         {
-            if (SpriteSystem::Get().GetSprite(i).active && (i != mysprite) &&
-                SpriteSystem::Get().GetSprite(i).isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
-                renderplayername(width, height, i, true);
+            if ((sprite.num != mysprite) &&
+                sprite.isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
+            {
+                renderplayername(width, height, sprite.num, true);
+            }
         }
     }
 }
@@ -1943,14 +1899,15 @@ void renderceasefirecounter()
 {
     float x, y;
 
-    x = SpriteSystem::Get().GetSprite(mysprite).skeleton.pos[9].x - 2;
-    y = SpriteSystem::Get().GetSprite(mysprite).skeleton.pos[9].y - 15;
+    auto &sprite = SpriteSystem::Get().GetSprite(mysprite);
+    x = sprite.skeleton.pos[9].x - 2;
+    y = sprite.skeleton.pos[9].y - 15;
     x = (x - camerax + 0.5 * gamewidth) * _rscala.x;
     y = (y - cameray + 0.5 * gameheight) * _rscala.y;
 
     setfontstyle(font_small);
     gfxtextcolor(rgba(game_message_color));
-    gfxdrawtext(inttostr(SpriteSystem::Get().GetSprite(mysprite).ceasefirecounter / 60 + 1), x, y);
+    gfxdrawtext(inttostr(sprite.ceasefirecounter / 60 + 1), x, y);
 }
 
 void renderactionsnaptext(double t)
@@ -2346,16 +2303,12 @@ void renderinterface(float timeelapsed, float width, float height)
             gfxdrawsprite(t[GFX::INTERFACE_CURSOR], x, y, cursorscale, rgba(cursorcolor, alfa));
 
 #ifdef DEBUGCURSORS
-            for (i = 1; i <= 32; i++)
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites)
             {
-                // debug cursors
-                if ((SpriteSystem::Get().GetSprite(i).active) &&
-                    !(SpriteSystem::Get().GetSprite(i).deadmeat))
+                if (!(sprite.deadmeat))
                 {
-                    x = (gamewidthhalf - camerax) * _rscala.x +
-                        SpriteSystem::Get().GetSprite(i).control.mouseaimx;
-                    y = (gameheighthalf - cameray) * _rscala.y +
-                        SpriteSystem::Get().GetSprite(i).control.mouseaimy;
+                    x = (gamewidthhalf - camerax) * _rscala.x + sprite.control.mouseaimx;
+                    y = (gameheighthalf - cameray) * _rscala.y + sprite.control.mouseaimy;
 
                     gfxdrawsprite(t[GFX::INTERFACE_CURSOR], x, y, _rscala.x, _rscala.y,
                                   rgba(0xff00ff, alfa));
@@ -2395,7 +2348,8 @@ void renderinterface(float timeelapsed, float width, float height)
             gfxdrawsprite(t[GFX::INTERFACE_ARROW], x, y, rgba(0xffffff, alfa));
         }
 
-        if ((spectnumber > 0) && (spectnumber <= 32) && SpriteSystem::Get().GetSprite(spectnumber).isspectator() &&
+        if ((spectnumber > 0) && (spectnumber <= 32) &&
+            SpriteSystem::Get().GetSprite(spectnumber).isspectator() &&
             (CVar::sv_advancedspectator))
         {
             mysprite = spectnumber;
@@ -2520,33 +2474,31 @@ void renderinterface(float timeelapsed, float width, float height)
 
         if (mysprite > 0)
         {
-            for (j = 1; j <= max_sprites; j++)
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
             {
-                if ((!SpriteSystem::Get().GetSprite(j).active) ||
-                    SpriteSystem::Get().GetSprite(j).isspectator() ||
-                    (spriteme->isnotspectator() &&
-                     !spriteme->isinsameteam(SpriteSystem::Get().GetSprite(j))))
+                if (sprite.isspectator() ||
+                    (spriteme->isnotspectator() && !spriteme->isinsameteam(sprite)))
                     continue;
 
-                if ((SpriteSystem::Get().GetSprite(j).holdedthing > 0) &&
-                    (thing[SpriteSystem::Get().GetSprite(j).holdedthing].style < 4))
+                if ((sprite.holdedthing > 0) && (thing[sprite.holdedthing].style < 4))
                 {
-                    p = tominimap(SpriteSystem::Get().GetSprite(j).skeleton.pos[7]);
+                    p = tominimap(sprite.skeleton.pos[7]);
                     gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xffff00, alfa));
                 }
-                else if (((j == camerafollowsprite) && spriteme->isspectator()) or (j == mysprite))
+                else if (((sprite.num == camerafollowsprite) && spriteme->isspectator()) or
+                         (sprite.num == mysprite))
                 {
-                    p = tominimap(SpriteSystem::Get().GetSprite(j).skeleton.pos[7], 0.8);
+                    p = tominimap(sprite.skeleton.pos[7], 0.8);
                     gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, 0.8, rgba(0xffffff, alfa));
                 }
-                else if (!SpriteSystem::Get().GetSprite(j).issolo() && (j != mysprite))
+                else if (!sprite.issolo() && (sprite.num != mysprite))
                 {
                     color = rgba(0);
-                    p = tominimap(SpriteSystem::Get().GetSprite(j).skeleton.pos[7], 0.65);
+                    p = tominimap(sprite.skeleton.pos[7], 0.65);
 
-                    if (!SpriteSystem::Get().GetSprite(j).deadmeat)
+                    if (!sprite.deadmeat)
                     {
-                        switch (SpriteSystem::Get().GetSprite(j).player->team)
+                        switch (sprite.player->team)
                         {
                         case team_alpha:
                             color = rgba(0xff0000, alfa);
@@ -2566,10 +2518,10 @@ void renderinterface(float timeelapsed, float width, float height)
                     gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, 0.65, color);
 
                     // Chat indicator
-                    if (chatdelay[j] > 0)
+                    if (chatdelay[sprite.num] > 0)
                     {
-                        p.x = SpriteSystem::Get().GetSprite(j).skeleton.pos[7].x;
-                        p.y = SpriteSystem::Get().GetSprite(j).skeleton.pos[7].y - 40;
+                        p.x = sprite.skeleton.pos[7].x;
+                        p.y = sprite.skeleton.pos[7].y - 40;
                         p = tominimap(p, 0.5);
                         gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, 0.5,
                                       rgba(0xffffff, alfa));
@@ -2698,7 +2650,9 @@ void renderinterface(float timeelapsed, float width, float height)
             {
                 if (sortedplayers[j].playernum > 0)
                 {
-                    if (!SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).player->demoplayer)
+                    if (!SpriteSystem::Get()
+                             .GetSprite(sortedplayers[j].playernum)
+                             .player->demoplayer)
                     {
                         x = 32 + fragx;
                         y = 61 + j * fragsmenu_player_height + fragy;
@@ -2710,12 +2664,16 @@ void renderinterface(float timeelapsed, float width, float height)
                         if (isteamgame())
                         {
                             // New team based score board
-                            if (SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).player->team == team_alpha)
+                            if (SpriteSystem::Get()
+                                    .GetSprite(sortedplayers[j].playernum)
+                                    .player->team == team_alpha)
                             {
                                 y = 70 + (ids[1] * 15) + teamposstep[1] + fragy;
                                 ids[1] = ids[1] + 1;
                             }
-                            else if (SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).player->team == team_bravo)
+                            else if (SpriteSystem::Get()
+                                         .GetSprite(sortedplayers[j].playernum)
+                                         .player->team == team_bravo)
                             {
                                 y = 70 + teamplayersnum[1] * fragsmenu_player_height +
                                     teamposstep[2] + fragy + (ids[2] * 15);
@@ -2723,8 +2681,9 @@ void renderinterface(float timeelapsed, float width, float height)
                             }
                             // if sv_gamemode.IntValue = GAMESTYLE_TEAMMATCH then
                             // begin
-                            else if (SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).player->team ==
-                                     team_charlie)
+                            else if (SpriteSystem::Get()
+                                         .GetSprite(sortedplayers[j].playernum)
+                                         .player->team == team_charlie)
                             {
                                 y = 70 +
                                     (teamplayersnum[1] + teamplayersnum[2]) *
@@ -2732,7 +2691,9 @@ void renderinterface(float timeelapsed, float width, float height)
                                     teamposstep[3] + fragy + (ids[3] * 15);
                                 ids[3] = ids[3] + 1;
                             }
-                            else if (SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).player->team == team_delta)
+                            else if (SpriteSystem::Get()
+                                         .GetSprite(sortedplayers[j].playernum)
+                                         .player->team == team_delta)
                             {
                                 y = 70 +
                                     (teamplayersnum[1] + teamplayersnum[2] + teamplayersnum[3]) *
@@ -2741,7 +2702,9 @@ void renderinterface(float timeelapsed, float width, float height)
                                 ids[4] = ids[4] + 1;
                             }
                             // end;
-                            else if (SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).player->team == team_none)
+                            else if (SpriteSystem::Get()
+                                         .GetSprite(sortedplayers[j].playernum)
+                                         .player->team == team_none)
                             {
                                 y = 70 +
                                     (teamplayersnum[1] + teamplayersnum[2] + teamplayersnum[3] +
@@ -2750,8 +2713,9 @@ void renderinterface(float timeelapsed, float width, float height)
                                     teamposstep[0] + fragy + (ids[0] * 15);
                                 ids[0] = ids[0] + 1;
                             }
-                            else if (SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).player->team ==
-                                     team_spectator)
+                            else if (SpriteSystem::Get()
+                                         .GetSprite(sortedplayers[j].playernum)
+                                         .player->team == team_spectator)
                             {
                                 y = 70 +
                                     (teamplayersnum[1] + teamplayersnum[2] + teamplayersnum[3] +
@@ -2764,7 +2728,9 @@ void renderinterface(float timeelapsed, float width, float height)
                         y = y - (fragsscrolllev * 20);
 
                         if (SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).deadmeat and
-                            SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).isnotspectator())
+                            SpriteSystem::Get()
+                                .GetSprite(sortedplayers[j].playernum)
+                                .isnotspectator())
                             gfxdrawsprite(t[GFX::INTERFACE_DEADDOT], pixelalignx(x),
                                           pixelaligny(y + 1),
                                           rgba(0xffffff, CVar::ui_status_transparency));
@@ -2779,17 +2745,23 @@ void renderinterface(float timeelapsed, float width, float height)
                         x = 30 + fragx;
 #ifdef STEAM
                         // Steam Friend
-                        if (!SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).player->steamfriend)
+                        if (!SpriteSystem::Get()
+                                 .GetSprite(sortedplayers[j].playernum)
+                                 .player->steamfriend)
                             gfxdrawsprite(t[GFX::interface_friend], pixelalignx(fragx + 240),
                                           pixelaligny(y), color);
 #endif
 
                         // reg star
                         l = 0;
-                        if ((SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).player->jetcolor & 0xff000000) ==
-                            color_transparency_registered)
+                        if ((SpriteSystem::Get()
+                                 .GetSprite(sortedplayers[j].playernum)
+                                 .player->jetcolor &
+                             0xff000000) == color_transparency_registered)
                             l = GFX::INTERFACE_STAR;
-                        else if ((SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).player->jetcolor &
+                        else if ((SpriteSystem::Get()
+                                      .GetSprite(sortedplayers[j].playernum)
+                                      .player->jetcolor &
                                   0xff000000) == color_transparency_special)
                             l = GFX::INTERFACE_PROT;
 
@@ -2800,29 +2772,39 @@ void renderinterface(float timeelapsed, float width, float height)
                                           color);
 
                         // flag icon
-                        if ((SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).player->flags > 0) and
-                            SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).isnotspectator())
+                        if ((SpriteSystem::Get()
+                                 .GetSprite(sortedplayers[j].playernum)
+                                 .player->flags > 0) and
+                            SpriteSystem::Get()
+                                .GetSprite(sortedplayers[j].playernum)
+                                .isnotspectator())
                             gfxdrawsprite(t[GFX::INTERFACE_FLAG], pixelalignx(fragx + 337),
                                           pixelaligny(y - 1), color);
 
                         // mute sign
-                        if (SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).muted or muteall)
+                        if (SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).muted or
+                            muteall)
                             gfxdrawsprite(t[GFX::INTERFACE_MUTE], pixelalignx(fragx + 246),
                                           pixelaligny(y - 1), color);
 
                         // bot icon
-                        if ((SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).player->jetcolor & 0xff000000) ==
-                            color_transparency_bot)
+                        if ((SpriteSystem::Get()
+                                 .GetSprite(sortedplayers[j].playernum)
+                                 .player->jetcolor &
+                             0xff000000) == color_transparency_bot)
                             gfxdrawsprite(t[GFX::INTERFACE_BOT], pixelalignx(fragx + 534),
                                           pixelaligny(y), color);
 
                         gfxdrawsprite(
                             t[GFX::INTERFACE_CONNECTION], pixelalignx(fragx + 520),
                             pixelaligny(y + 2),
-                            rgba((std::uint8_t)(((255 * (100 - SpriteSystem::Get().GetSprite(sortedplayers[j].playernum)
-                                                                   .player->connectionquality)) /
-                                                 100)),
-                                 (std::uint8_t)((255 * SpriteSystem::Get().GetSprite(sortedplayers[j].playernum)
+                            rgba((std::uint8_t)((
+                                     (255 * (100 - SpriteSystem::Get()
+                                                       .GetSprite(sortedplayers[j].playernum)
+                                                       .player->connectionquality)) /
+                                     100)),
+                                 (std::uint8_t)((255 * SpriteSystem::Get()
+                                                           .GetSprite(sortedplayers[j].playernum)
                                                            .player->connectionquality) /
                                                 100),
                                  0, CVar::ui_status_transparency));
@@ -2930,7 +2912,8 @@ void renderinterface(float timeelapsed, float width, float height)
         {
             if (thing[teamflag[1]].holdingsprite > 0)
             {
-                if (SpriteSystem::Get().GetSprite(thing[teamflag[1]].holdingsprite).player->team == team_alpha)
+                if (SpriteSystem::Get().GetSprite(thing[teamflag[1]].holdingsprite).player->team ==
+                    team_alpha)
                 {
                     x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
                     y = pixelaligny((int_.teambox_y + 3) * _iscala.y);
@@ -3046,8 +3029,10 @@ void renderinterface(float timeelapsed, float width, float height)
                  (camerafollowsprite != mysprite))
         {
             i = (std::int32_t)(SpriteSystem::Get().GetSprite(camerafollowsprite).deadmeat);
-            x = (float)((width - rectwidth(gfxtextmetrics((
-                                     "Following " + (SpriteSystem::Get().GetSprite(camerafollowsprite).player->name)))))) /
+            x = (float)((width -
+                         rectwidth(gfxtextmetrics((
+                             "Following " +
+                             (SpriteSystem::Get().GetSprite(camerafollowsprite).player->name)))))) /
                 2;
 
             gfxtextcolor(rgba(205, 205 - i * 105, 205 - i * 105));
@@ -3065,8 +3050,9 @@ void renderinterface(float timeelapsed, float width, float height)
             gfxdrawtext(string("FPS: ") + inttostr(getgamefps()), 460 * x, 10 * y);
 
             if (mysprite > 0)
-                gfxdrawtext(string("Ping: ") + inttostr(SpriteSystem::Get().GetSprite(mysprite).player->realping), 550 * x,
-                            10 * y);
+                gfxdrawtext(string("Ping: ") +
+                                inttostr(SpriteSystem::Get().GetSprite(mysprite).player->realping),
+                            550 * x, 10 * y);
 
             if (demoplayer.active())
             {
@@ -3220,7 +3206,8 @@ void renderinterface(float timeelapsed, float width, float height)
     alfa = mysprite;
     if (alfa < 1)
         alfa = max_players;
-    if (escmenu->active or limbomenu->active or teammenu->active or SpriteSystem::Get().GetSprite(alfa).deadmeat)
+    if (escmenu->active or limbomenu->active or teammenu->active or
+        SpriteSystem::Get().GetSprite(alfa).deadmeat)
     {
         if (!demoplayer.active() or escmenu->active)
         {

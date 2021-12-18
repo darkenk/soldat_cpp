@@ -781,8 +781,10 @@ void Thing<M>::update()
 
                 if (bgstate.backgroundstatus != background_transition)
                 {
-                    bgstate.backgroundstatus = SpriteSystem::Get().GetSprite(holdingsprite).bgstate.backgroundstatus;
-                    bgstate.backgroundpoly = SpriteSystem::Get().GetSprite(holdingsprite).bgstate.backgroundpoly;
+                    bgstate.backgroundstatus =
+                        SpriteSystem::Get().GetSprite(holdingsprite).bgstate.backgroundstatus;
+                    bgstate.backgroundpoly =
+                        SpriteSystem::Get().GetSprite(holdingsprite).bgstate.backgroundpoly;
                 }
             } // HoldingSprite > 0
     }
@@ -842,7 +844,8 @@ void Thing<M>::update()
                         (thing[i].holdingsprite == 0)) // check if flags are close
                         if (distance(skeleton.pos[1], thing[i].skeleton.pos[1]) < touchdown_radius)
                         {
-                            if (SpriteSystem::Get().GetSprite(holdingsprite).player->team == team_alpha)
+                            if (SpriteSystem::Get().GetSprite(holdingsprite).player->team ==
+                                team_alpha)
                             {
 #ifndef SERVER
                                 if (sv_gamemode.intvalue == gamestyle_inf)
@@ -886,22 +889,29 @@ void Thing<M>::update()
 
                                 sortplayers();
 #ifdef SERVER
-                                GetMainConsole().console(SpriteSystem::Get().GetSprite(holdingsprite).player->name + ' ' +
-                                                             "scores for Alpha Team",
-                                                         alpha_message_color);
-                                SpriteSystem::Get().GetSprite(holdingsprite).player->scorespersecond += 1;
+                                GetMainConsole().console(
+                                    SpriteSystem::Get().GetSprite(holdingsprite).player->name +
+                                        ' ' + "scores for Alpha Team",
+                                    alpha_message_color);
+                                SpriteSystem::Get()
+                                    .GetSprite(holdingsprite)
+                                    .player->scorespersecond += 1;
 #else
                                 bigmessage(_("Alpha Team Scores!"), capturectfmessagewait,
                                            alpha_message_color);
                                 GetMainConsole().console(
                                     wideformat(_("{} scores for Alpha Team"),
-                                               set::of(SpriteSystem::Get().GetSprite(holdingsprite).player->name, eos)),
+                                               set::of(SpriteSystem::Get()
+                                                           .GetSprite(holdingsprite)
+                                                           .player->name,
+                                                       eos)),
                                     alpha_message_color);
 #endif
 
                                 serverflaginfo(capturered, holdingsprite);
                             }
-                            if (SpriteSystem::Get().GetSprite(holdingsprite).player->team == team_bravo)
+                            if (SpriteSystem::Get().GetSprite(holdingsprite).player->team ==
+                                team_bravo)
                             {
 #ifndef SERVER
                                 playsound(sfx_ctf);
@@ -919,16 +929,22 @@ void Thing<M>::update()
 
                                 sortplayers();
 #ifdef SERVER
-                                GetMainConsole().console(SpriteSystem::Get().GetSprite(holdingsprite).player->name + ' ' +
-                                                             "scores for Bravo Team",
-                                                         bravo_message_color);
-                                SpriteSystem::Get().GetSprite(holdingsprite).player->scorespersecond += 1;
+                                GetMainConsole().console(
+                                    SpriteSystem::Get().GetSprite(holdingsprite).player->name +
+                                        ' ' + "scores for Bravo Team",
+                                    bravo_message_color);
+                                SpriteSystem::Get()
+                                    .GetSprite(holdingsprite)
+                                    .player->scorespersecond += 1;
 #else
                                 bigmessage(_("Bravo Team Scores!"), capturectfmessagewait,
                                            bravo_message_color);
                                 GetMainConsole().console(
                                     wideformat(_("{} scores for Bravo Team"),
-                                               set::of(SpriteSystem::Get().GetSprite(holdingsprite).player->name, eos)),
+                                               set::of(SpriteSystem::Get()
+                                                           .GetSprite(holdingsprite)
+                                                           .player->name,
+                                                       eos)),
                                     bravo_message_color);
 #endif
                                 serverflaginfo(captureblue, holdingsprite);
@@ -939,11 +955,18 @@ void Thing<M>::update()
 
                             if (CVar::bots_chat)
                             {
-                                if (SpriteSystem::Get().GetSprite(holdingsprite).player->controlmethod == bot)
-                                    if (Random(SpriteSystem::Get().GetSprite(holdingsprite).brain.chatfreq / 3) == 0)
-                                        serversendstringmessage(
-                                            (SpriteSystem::Get().GetSprite(holdingsprite).brain.chatwinning), all_players,
-                                            holdingsprite, msgtype_pub);
+                                if (SpriteSystem::Get()
+                                        .GetSprite(holdingsprite)
+                                        .player->controlmethod == bot)
+                                    if (Random(SpriteSystem::Get()
+                                                   .GetSprite(holdingsprite)
+                                                   .brain.chatfreq /
+                                               3) == 0)
+                                        serversendstringmessage((SpriteSystem::Get()
+                                                                     .GetSprite(holdingsprite)
+                                                                     .brain.chatwinning),
+                                                                all_players, holdingsprite,
+                                                                msgtype_pub);
                             }
 
                             respawn();
@@ -954,28 +977,25 @@ void Thing<M>::update()
 
                                 // Everyone should die in floatistic after cap
                                 // because if nobody is dead the round will not end
-                                for (j = 1; j <= max_sprites; j++)
-                                    if (SpriteSystem::Get().GetSprite(j).active &&
-                                        !SpriteSystem::Get().GetSprite(j).deadmeat)
-                                    {
-                                        SpriteSystem::Get().GetSprite(j).healthhit(
+                                for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                                {
 #ifdef SERVER
-                                            4000
+                                    constexpr auto hit = 4000;
 #else
-                                            150
+                                    constexpr auto hit = 150;
 #endif
-                                            ,
-                                            j, 1, -1,
-                                            SpriteSystem::Get().GetSprite(j).skeleton.pos[12]);
-                                        SpriteSystem::Get().GetSprite(j).player->deaths -= 1;
+                                    if (!sprite.deadmeat)
+                                    {
+                                        sprite.healthhit(hit, sprite.num, 1, -1,
+                                                         sprite.skeleton.pos[12]);
+                                        sprite.player->deaths -= 1;
                                     }
+                                }
                             }
                         }
             }
 #endif
-#ifdef SERVER
     LogTraceG("TThing.Update 3");
-#endif
 
     if (style == object_stationary_gun)
     {
@@ -994,16 +1014,16 @@ void Thing<M>::update()
 
     if (style == object_rambo_bow)
     {
-        for (i = 1; i <= max_sprites; i++)
-            if (SpriteSystem::Get().GetSprite(i).active)
-                if ((SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow].num) ||
-                    (SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow2].num))
-                {
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            if ((sprite.weapon.num == guns[bow].num) || (sprite.weapon.num == guns[bow2].num))
+            {
 #ifndef SERVER
-                    gamethingtarget = 0;
+                gamethingtarget = 0;
 #endif
-                    kill();
-                }
+                kill();
+            }
+        }
     }
 
 #ifndef SERVER
@@ -1437,7 +1457,8 @@ bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
 
             if ((owner > 0) && (owner < max_sprites + 1))
             {
-                teamcol = teamcollides(polytype, SpriteSystem::Get().GetSprite(owner).player->team, false);
+                teamcol = teamcollides(polytype, SpriteSystem::Get().GetSprite(owner).player->team,
+                                       false);
             }
 
             if ((style < object_ussocom) && (polytype > poly_type_lava) &&
@@ -1796,22 +1817,22 @@ std::int32_t Thing<M>::checkspritecollision()
     // iterate through sprites
     closestdist = 9999999;
     closestplayer = -1;
-    for (j = 1; j <= max_sprites; j++)
-        if (SpriteSystem::Get().GetSprite(j).active && !SpriteSystem::Get().GetSprite(j).deadmeat &&
-            SpriteSystem::Get().GetSprite(j).isnotspectator())
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (!sprite.deadmeat && sprite.isnotspectator())
         {
-            colpos = spriteparts.pos[j];
+            colpos = spriteparts.pos[sprite.num];
             norm = vec2subtract(pos, colpos);
             if (vec2length(norm) >= radius)
             {
                 pos = skeleton.pos[1];
-                colpos = spriteparts.pos[j];
+                colpos = spriteparts.pos[sprite.num];
                 norm = vec2subtract(pos, colpos);
 
                 if (vec2length(norm) >= radius)
                 {
                     pos = skeleton.pos[2];
-                    colpos = spriteparts.pos[j];
+                    colpos = spriteparts.pos[sprite.num];
                     norm = vec2subtract(pos, colpos);
                 }
             }
@@ -1820,21 +1841,18 @@ std::int32_t Thing<M>::checkspritecollision()
             if (dist < radius)
                 if (dist < closestdist)
 #ifdef SERVER
-                    if (!((style == object_medical_kit) &&
-                          (SpriteSystem::Get().GetSprite(j).GetHealth() == starthealth)))
+                    if (!((style == object_medical_kit) && (sprite.GetHealth() == starthealth)))
                         if (!((style == object_grenade_kit) &&
-                              (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount ==
-                               CVar::sv_maxgrenades) &&
-                              (SpriteSystem::Get().GetSprite(j).tertiaryweapon.num ==
-                               guns[fraggrenade].num)))
+                              (sprite.tertiaryweapon.ammocount == CVar::sv_maxgrenades) &&
+                              (sprite.tertiaryweapon.num == guns[fraggrenade].num)))
 #endif
-                            if (!((style < object_ussocom) &&
-                                  (SpriteSystem::Get().GetSprite(j).ceasefirecounter > 0)))
+                            if (!((style < object_ussocom) && (sprite.ceasefirecounter > 0)))
                             {
                                 closestdist = dist;
-                                closestplayer = j;
+                                closestplayer = sprite.num;
                             }
         } // for j
+    }
 
     j = closestplayer;
 
@@ -2440,7 +2458,7 @@ template <Config::Module M>
 std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
 #endif
 {
-    std::int32_t i, j, k;
+    std::int32_t k;
     tvector2 pos, norm, colpos;
 
     std::int32_t result;
@@ -2462,56 +2480,57 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
 
     pos = skeleton.pos[1];
 
-    for (i = 1; i <= max_sprites; i++)
-        if (SpriteSystem::Get().GetSprite(i).active && !SpriteSystem::Get().GetSprite(i).deadmeat &&
-            SpriteSystem::Get().GetSprite(i).isnotspectator())
-            if (SpriteSystem::Get().GetSprite(i).stat == num)
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (!sprite.deadmeat && sprite.isnotspectator())
+        {
+            if (sprite.stat == num)
             {
-                colpos = spriteparts.pos[i];
+                colpos = spriteparts.pos[sprite.num];
                 norm = vec2subtract(pos, colpos);
                 if (vec2length(norm) < radius) // collision
                 {
-                    if (SpriteSystem::Get().GetSprite(i).player->controlmethod == bot)
-                        if (SpriteSystem::Get().GetSprite(i).brain.camper > 0)
-                            if (SpriteSystem::Get().GetSprite(i).holdedthing == 0)
+                    if (sprite.player->controlmethod == bot)
+                        if (sprite.brain.camper > 0)
+                            if (sprite.holdedthing == 0)
                             {
-                                SpriteSystem::Get().GetSprite(i).control.right = false;
-                                SpriteSystem::Get().GetSprite(i).control.left = false;
-                                SpriteSystem::Get().GetSprite(i).control.up = false;
-                                SpriteSystem::Get().GetSprite(i).control.down = false;
-                                if (SpriteSystem::Get().GetSprite(i).legsanimation.id == prone.id)
-                                    SpriteSystem::Get().GetSprite(i).control.prone = true;
+                                sprite.control.right = false;
+                                sprite.control.left = false;
+                                sprite.control.up = false;
+                                sprite.control.down = false;
+                                if (sprite.legsanimation.id == prone.id)
+                                    sprite.control.prone = true;
                             }
 
                     statictype = true;
 
-                    pos.x = SpriteSystem::Get().GetSprite(i).control.mouseaimx;
-                    pos.y = SpriteSystem::Get().GetSprite(i).control.mouseaimy;
-                    norm = vec2subtract(pos, SpriteSystem::Get().GetSprite(i).skeleton.pos[15]);
+                    pos.x = sprite.control.mouseaimx;
+                    pos.y = sprite.control.mouseaimy;
+                    norm = vec2subtract(pos, sprite.skeleton.pos[15]);
                     vec2normalize(norm, norm);
                     vec2scale(norm, norm, 3);
                     norm.x = -norm.x;
                     skeleton.oldpos[4] = skeleton.pos[4];
                     skeleton.pos[4] = vec2add(skeleton.pos[1], norm);
 
-                    interest = SpriteSystem::Get().GetSprite(i).usetime;
+                    interest = sprite.usetime;
 
-                    if (SpriteSystem::Get().GetSprite(i).control.fire)
-                        if (SpriteSystem::Get().GetSprite(i).legsanimation.id == stand.id)
+                    if (sprite.control.fire)
+                        if (sprite.legsanimation.id == stand.id)
                             if (maintickcounter % guns[m2].fireinterval == 0)
                             {
-                                if (SpriteSystem::Get().GetSprite(i).usetime > m2gun_overheat)
+                                if (sprite.usetime > m2gun_overheat)
                                 {
 #ifndef SERVER
-                                    playsound(sfx_m2overheat, spriteparts.pos[i]);
+                                    playsound(sfx_m2overheat, spriteparts.pos[sprite.num]);
 #endif
                                     return result;
                                 }
 
                                 k = 0;
-                                if (SpriteSystem::Get().GetSprite(i).usetime > m2gun_overaim)
+                                if (sprite.usetime > m2gun_overaim)
                                 {
-                                    k = (SpriteSystem::Get().GetSprite(i).usetime / 11);
+                                    k = (sprite.usetime / 11);
                                     k = -k + Random(2 * k);
                                 }
 
@@ -2526,89 +2545,93 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                                 pos.x = skeleton.pos[4].x + 4;
                                 pos.y = skeleton.pos[4].y - 10;
 
-                                createbullet(pos, norm, guns[m2].num, i, 255, guns[m2].hitmultiply,
-                                             true, false);
+                                createbullet(pos, norm, guns[m2].num, sprite.num, 255,
+                                             guns[m2].hitmultiply, true, false);
 
 #ifndef SERVER
                                 pos = vec2add(pos, norm);
                                 vec2scale(norm, norm, 0.1);
-                                createspark(pos, norm, 35, i, 15); // smoke
+                                createspark(pos, norm, 35, sprite.num, 15); // smoke
 
                                 colpos = norm;
-                                norm.y = -SpriteSystem::Get().GetSprite(i).direction * norm.x;
-                                norm.x = SpriteSystem::Get().GetSprite(i).direction * colpos.y;
+                                norm.y = -sprite.direction * norm.x;
+                                norm.x = sprite.direction * colpos.y;
                                 vec2scale(norm, norm, 0.2);
                                 pos.x = skeleton.pos[3].x + 18;
                                 pos.y = skeleton.pos[3].y - 20;
-                                createspark(pos, norm, 22, i, 255); // hull
+                                createspark(pos, norm, 22, sprite.num, 255); // hull
 
-                                playsound(sfx_m2fire, spriteparts.pos[i]);
+                                playsound(sfx_m2fire, spriteparts.pos[sprite.num]);
 #endif
 
-                                SpriteSystem::Get().GetSprite(i).usetime += 1;
+                                sprite.usetime += 1;
                             }
                     return result;
                 }
                 else
                 {
-                    SpriteSystem::Get().GetSprite(i).stat = 0;
+                    sprite.stat = 0;
                     statictype = false;
                     return result;
                 }
             }
+        }
+    }
 
-            // iterate through sprites
+    // iterate through sprites
 #ifndef SERVER
     if (clientcheck)
 #endif
         if (!statictype)
-            for (j = 1; j <= max_sprites; j++)
-                if (SpriteSystem::Get().GetSprite(j).active &&
-                    !SpriteSystem::Get().GetSprite(j).deadmeat &&
-                    SpriteSystem::Get().GetSprite(j).isnotspectator())
+        {
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+            {
+                if (!sprite.deadmeat && sprite.isnotspectator())
                 {
-                    colpos = spriteparts.pos[j];
+                    colpos = spriteparts.pos[sprite.num];
                     norm = vec2subtract(pos, colpos);
                     if (vec2length(norm) < radius) // collision
                     {
                         switch (style)
                         {
                         case object_stationary_gun: {
-                            if (SpriteSystem::Get().GetSprite(j).player->controlmethod == bot)
-                                if (SpriteSystem::Get().GetSprite(j).brain.camper > 0)
+                            if (sprite.player->controlmethod == bot)
+                                if (sprite.brain.camper > 0)
                                 {
-                                    SpriteSystem::Get().GetSprite(j).control.right = false;
-                                    SpriteSystem::Get().GetSprite(j).control.left = false;
-                                    SpriteSystem::Get().GetSprite(j).control.up = false;
-                                    SpriteSystem::Get().GetSprite(j).control.down = false;
-                                    SpriteSystem::Get().GetSprite(j).legsapplyanimation(stand, 1);
+                                    sprite.control.right = false;
+                                    sprite.control.left = false;
+                                    sprite.control.up = false;
+                                    sprite.control.down = false;
+                                    sprite.legsapplyanimation(stand, 1);
                                 }
 
-                            if (SpriteSystem::Get().GetSprite(j).legsanimation.id == stand.id)
+                            if (sprite.legsanimation.id == stand.id)
                             {
 #ifndef SERVER
-                                playsound(sfx_m2use, spriteparts.pos[j]);
+                                playsound(sfx_m2use, spriteparts.pos[sprite.num]);
 #endif
 
                                 statictype = true;
-                                SpriteSystem::Get().GetSprite(j).stat = num;
-                                SpriteSystem::Get().GetSprite(j).brain.oneplacecount = 0;
+                                sprite.stat = num;
+                                sprite.brain.oneplacecount = 0;
 #ifdef SERVER
-                                serverthingtaken(num, j);
+                                serverthingtaken(num, sprite.num);
 #endif
                             }
                         }
                         break;
                         }
 
-                        result = j;
+                        result = sprite.num;
                         return result;
                     }
-                    else if (SpriteSystem::Get().GetSprite(j).stat == num)
-                        SpriteSystem::Get().GetSprite(j).stat = 0;
+                    else if (sprite.stat == num)
+                        sprite.stat = 0;
 
                     statictype = false;
                 } // for j
+            }
+        }
     return result;
 }
 

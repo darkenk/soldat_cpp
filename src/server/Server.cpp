@@ -255,207 +255,6 @@ void DaemonizeProgram()
 }
 #endif // MSWINDOWS
 
-#ifdef STEAM
-#ifdef STEAMSTATS
-procedure StoreStats(TSteamID Player);
-{
-    // SteamCallResultDispatcher.Create(1801, @GSStatsStored, SizeOf(GSStatsStored_t),
-    // SteamAPI.GameServerStats.StoreUserStats(Player), k_ECallbackFlagsGameServer);
-}
-
-procedure GSStatsStored(PGSStatsStored Callback_t);
-{
-    Debug(Format("[Steam] GSStatsReceived result %d result steamid %s",
-                 [ Ord(Callback.m_eResult), Callback.m_steamIDUser.GetAsString ]));
-}
-
-procedure GSStatsReceived(PGSStatsReceived Callback_t);
-var Byte j;
-{
-    Debug(Format("[Steam] GSStatsReceived result %d result steamid %s",
-                 [ Ord(Callback.m_eResult), Callback.m_steamIDUser.GetAsString ]));
-    for (j = 1; j < max_sprites; j++)
-        if ((SpriteSystem::Get().GetSprite(j).Active) and
-            (Uint64(SpriteSystem::Get().GetSprite(j).Player.SteamID) =
-                 Uint64(Callback.m_steamIDUser)))
-        {
-            if (Callback.m_eResult = k_EResultOK)
-                SpriteSystem::Get().GetSprite(j).Player.SteamStats =
-                    true else SpriteSystem::Get().GetSprite(j).Player.SteamStats = false;
-        }
-}
-
-procedure RequestUserStats(TSteamID Player);
-{
-    SteamAPI.GameServerStats.RequestUserStats(Player);
-}
-#endif
-
-procedure GetCollectionDetails(PSteamUGCQueryCompleted Callback_t);
-var array CollectionItems of PublishedFileId_t;
-SteamUGCDetails CollectionDetails_t;
-uint ItemState32;
-i, std::int32_t j;
-{
-    Debug(Format("[Steam] SteamUGCQueryCompleted id %d result %d numresults %d totalresults %d "
-                 "cached %s",
-                 [
-                     Callback.m_handle, Ord(Callback.m_eResult), Callback.m_unNumResultsReturned,
-                     Callback.m_unTotalMatchingResults, Callback.m_bCachedData.toString
-                 ]));
-
-  for
-      j = 0 to Callback.m_unNumResultsReturned - 1 do
-      {
-          if SteamAPI
-              .UGC.GetQueryUGCResult(Callback.m_handle, j, @CollectionDetails) then
-              {
-                  SetLength(CollectionItems, CollectionDetails.m_unNumChildren);
-                  if SteamAPI
-                      .UGC.GetQueryUGCChildren(Callback.m_handle, 0, @CollectionItems[0],
-                                               Length(CollectionItems)) then
-                      {
-        for
-            i = 0 to CollectionDetails.m_unNumChildren - 1 do
-            {
-                ItemState = SteamAPI.UGC.GetItemState(CollectionItems[i]);
-                Debug(Format("[Steam] GetItemState id %d state %d",
-                             [ CollectionItems[i], ItemState ]));
-                if (ItemState = 0)
-                    or (Ord(k_EItemStateNeedsUpdate) and ItemState != 0) then
-                    {
-                        Debug("[Steam] Dowloading workshop item id:" +
-                              IntToStr(CollectionItems[i]));
-                        SteamAPI.UGC.DownloadItem(CollectionItems[i], true);
-                    }
-                else if (ItemState = Ord(k_EItemStateInstalled))
-                {
-                    MapsList.Add("workshop/" + IntToStr(CollectionItems[i]));
-                }
-            }
-                      }
-                  else
-                      Debug("[Steam] GetQueryUGCChildren has failed");
-              }
-          else
-              Debug("[Steam] GetQueryUGCResult has failed");
-          SetLength(CollectionItems, 0);
-      }
-  SteamAPI.UGC.ReleaseQueryUGCRequest(Callback.m_handle);
-}
-
-procedure DownloadWorkshopCollection(Uint ItemID64);
-var UGCQueryHandle QueryHandle_t;
-Array Items[0..1] of PublishedFileId_t;
-{
-    Items[0] = ItemID;
-    QueryHandle = SteamAPI.UGC.CreateQueryUGCDetailsRequest(@Items, 1);
-    SteamAPI.UGC.SetReturnChildren(QueryHandle, true);
-    SteamAPI.UGC.SetReturnOnlyIDs(QueryHandle, true);
-    // ApiCall = SteamAPI.UGC.SendQueryUGCRequest(QueryHandle);
-    // SteamCallResultDispatcher.Create(3401, @GetCollectionDetails,
-    // SizeOf(SteamUGCQueryCompleted_t), ApiCall, k_ECallbackFlagsGameServer);
-    // ParseMapName("workshop/1916893159");
-}
-
-function GetWorkshopItemDir(PublishedFileId ItemID_t) AnsiString;
-var uint FileSizeOnDisk64 = 0;
-uint DirSizeOnDisk32 = 0;
-array Path[0..PATH_MAX] of Char;
-Cardinal TimeStamp = 0;
-{
-    Result = "";
-    if (MapChangeItemID = ItemID)
-    {
-        PrepareMapChange("workshop/" + IntToStr(ItemID));
-    }
-    else if SteamAPI
-        .UGC.GetItemInstallInfo(ItemID, @FileSizeOnDisk, @Path, PATH_MAX, @TimeStamp) then
-        {
-            Result = Path;
-        }
-    else
-        Result = "";
-}
-
-procedure DownloadItemResult(PDownloadItemResult Callback_t);
-cdecl;
-{
-    if (Callback.m_unAppID = STEAM_APPID)
-    {
-        if (Callback.m_eResult = k_EResultOK)
-        {
-        }
-        else
-            WriteLn("[Steam] Failed to download workshop item, id:" +
-                    IntToStr(Callback.m_nPublishedFileId) + "  error" +
-                    IntToStr(Ord(Callback.m_eResult)));
-    }
-}
-
-procedure OnSteamServersConnected();
-cdecl;
-{
-    WriteLn("[Steam] Successfully connected to the Steam.");
-    // DownloadItems;
-}
-
-procedure OnSteamServerConnectFailure(PSteamServerConnectFailure Callback_t);
-cdecl;
-{
-    WriteLn("[Steam] Connection to the Steam has  failed" + IntToStr(Ord(Callback.m_eResult)));
-}
-
-procedure OnSteamServersDisconnected(PSteamServersDisconnected Callback_t);
-cdecl;
-{
-    WriteLn("[Steam] Lost connection to the Steam  servers" + IntToStr(Ord(Callback.m_eResult)));
-}
-
-procedure SteamNetConnectionStatusChangedCallback(
-    PSteamNetConnectionStatusChangedCallback Callback_t);
-cdecl;
-{
-    if (Assigned(UDP))
-        UDP.ProcessEvents(Callback);
-}
-
-procedure RunManualCallbacks;
-var CallbackMsg callback_t;
-SteamAPICallCompleted pCallCompleted_t;
-bool bFailed;
-Pointer Data;
-{
-    SteamAPI_ManualDispatch_RunFrame(SteamAPI.SteamPipeHandle);
-    while
-        SteamAPI_ManualDispatch_GetNextCallback(SteamAPI.SteamPipeHandle, @callback) do
-        {
-            if (callback.m_iCallback = 703)
-            {
-                pCallCompleted = PSteamAPICallCompleted_t(callback.m_pubParam) ^ ;
-                GetMem(Data, pCallCompleted.m_cubParam);
-                if SteamAPI_ManualDispatch_GetAPICallResult (SteamAPI.SteamPipeHandle,
-                                                             pCallCompleted.m_hAsyncCall, Data,
-                                                             pCallCompleted.m_cubParam,
-                                                             pCallCompleted.m_iCallback, @bFailed)
-                    then
-                    {
-                    }
-                FreeMem(Data);
-                end else if (callback.m_iCallback = 101)
-                    OnSteamServersConnected() else if (callback.m_iCallback = 102)
-                        OnSteamServerConnectFailure(
-                            callback.m_pubParam) else if (callback.m_iCallback = 103)
-                            OnSteamServersDisconnected(
-                                callback.m_pubParam) else if (callback.m_iCallback = 1221)
-                                SteamNetConnectionStatusChangedCallback(callback.m_pubParam);
-
-                SteamAPI_ManualDispatch_FreeLastCallback(SteamAPI.SteamPipeHandle);
-            }
-        }
-}
-#endif // STEAM
-
 void ActivateServer(int argc, const char *argv[])
 {
     std::int32_t j, i;
@@ -1394,7 +1193,7 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
 
     i = num;
 
-    if ((not SpriteSystem::Get().GetSprite(i).active))
+    if ((not SpriteSystem::Get().GetSprite(i).IsActive()))
         return Result;
 
     if (((why == kick_cheat)) and (CVar::sv_anticheatkick))
@@ -1494,7 +1293,7 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
 
     savetxtlists();
 
-    if (not SpriteSystem::Get().GetSprite(i).active)
+    if (not SpriteSystem::Get().GetSprite(i).IsActive())
         return Result;
 #ifdef SCRIPT
     if (why in[KICK_AC, KICK_CHEAT, KICK_CONSOLE, KICK_PING, KICK_NORESPONSE, KICK_NOCHEATRESPONSE,

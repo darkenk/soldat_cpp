@@ -125,60 +125,52 @@ void apponidle()
             {
                 if (maintickcounter % (second * 6) == 0)
                 {
-                    for (j = 1; j <= max_players; j++)
+                    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
                     {
-                        if ((SpriteSystem::Get().GetSprite(j).active) &&
-                            (SpriteSystem::Get().GetSprite(j).player->controlmethod == human) &&
-                            ((SpriteSystem::Get().GetSprite(j).player->realping >
-                              (CVar::sv_maxping)) ||
-                             ((SpriteSystem::Get().GetSprite(j).player->realping <
-                               CVar::sv_minping) &&
-                              (SpriteSystem::Get().GetSprite(j).player->pingtime > 0))))
+                        if ((sprite.player->controlmethod == human) &&
+                            ((sprite.player->realping > (CVar::sv_maxping)) ||
+                             ((sprite.player->realping < CVar::sv_minping) &&
+                              (sprite.player->pingtime > 0))))
                         {
-                            GetServerMainConsole().console(
-                                SpriteSystem::Get().GetSprite(j).player->name +
-                                    " gets a ping warning",
-                                warning_message_color);
-                            pingwarnings[j] += 1;
-                            if (pingwarnings[j] > CVar::sv_warnings_ping)
-                                kickplayer(j, true, kick_ping, sixty_minutes / 4, "Ping Kick");
+                            GetServerMainConsole().console(sprite.player->name +
+                                                               " gets a ping warning",
+                                                           warning_message_color);
+                            pingwarnings[sprite.num] += 1;
+                            if (pingwarnings[sprite.num] > CVar::sv_warnings_ping)
+                            {
+                                kickplayer(sprite.num, true, kick_ping, sixty_minutes / 4,
+                                           "Ping Kick");
+                            }
                         }
                     }
                 }
             }
 
             // Player Packet Flooding
-            for (j = 1; j <= max_players; j++)
-                if (SpriteSystem::Get().GetSprite(j).active)
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+            {
+                j = sprite.num;
+                if (((CVar::net_lan == LAN) &&
+                     (messagesasecnum[j] > CVar::net_floodingpacketslan)) ||
+                    ((CVar::net_lan == INTERNET) &&
+                     (messagesasecnum[j] > CVar::net_floodingpacketsinternet)))
                 {
-                    if (((CVar::net_lan == LAN) &&
-                         (messagesasecnum[j] > CVar::net_floodingpacketslan)) ||
-                        ((CVar::net_lan == INTERNET) &&
-                         (messagesasecnum[j] > CVar::net_floodingpacketsinternet)))
-                    {
-                        GetServerMainConsole().console(
-                            SpriteSystem::Get().GetSprite(j).player->name +
-                                " is flooding the server",
-                            warning_message_color);
-                        floodwarnings[j] += 1;
-                        if (floodwarnings[j] > CVar::sv_warnings_flood)
-                            kickplayer(j, true, kick_flooding, sixty_minutes / 4, "Flood Kicked");
-                    }
+                    GetServerMainConsole().console(sprite.player->name + " is flooding the server",
+                                                   warning_message_color);
+                    floodwarnings[j] += 1;
+                    if (floodwarnings[j] > CVar::sv_warnings_flood)
+                        kickplayer(j, true, kick_flooding, sixty_minutes / 4, "Flood Kicked");
                 }
+            }
 
             std::fill(std::begin(messagesasecnum), std::end(messagesasecnum), 0);
         }
 
         if (maintickcounter % (second * 10) == 0)
         {
-            j = 0;
-            for (auto &s : SpriteSystem::Get().GetSprites())
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
             {
-                j++;
-                if (s.active)
-                {
-                    GetServerNetwork()->UpdateNetworkStats(j);
-                }
+                GetServerNetwork()->UpdateNetworkStats(sprite.num);
             }
         }
 
@@ -211,10 +203,15 @@ void apponidle()
             if ((maintickcounter % (std::int32_t)round(4 * adjust) == 0) &&
                 (maintickcounter % (std::int32_t)round(30 * adjust) != 0) &&
                 (maintickcounter % (std::int32_t)round(60 * adjust) != 0))
-                for (j = 1; j <= max_sprites; j++)
-                    if (SpriteSystem::Get().GetSprite(j).active &&
-                        (SpriteSystem::Get().GetSprite(j).player->controlmethod == bot))
-                        serverspritedeltas(j);
+            {
+                for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                {
+                    if (sprite.player->controlmethod == bot)
+                    {
+                        serverspritedeltas(sprite.num);
+                    }
+                }
+            }
         }
         else if (CVar::net_lan == INTERNET)
         {
@@ -234,31 +231,35 @@ void apponidle()
             if ((maintickcounter % (std::int32_t)round(CVar::net_t1_delta * adjust) == 0) &&
                 (maintickcounter % (std::int32_t)round(CVar::net_t1_snapshot * adjust) != 0) &&
                 (maintickcounter % (std::int32_t)round(CVar::net_t1_majorsnapshot * adjust) != 0))
-                for (j = 1; j <= max_sprites; j++)
-                    if (SpriteSystem::Get().GetSprite(j).active &&
-                        (SpriteSystem::Get().GetSprite(j).player->controlmethod == bot))
-                        serverspritedeltas(j);
+            {
+                for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                {
+                    if (sprite.player->controlmethod == bot)
+                    {
+                        serverspritedeltas(sprite.num);
+                    }
+                }
+            }
         }
 
-        for (j = 1; j <= max_sprites; j++)
-            if ((SpriteSystem::Get().GetSprite(j).active) &&
-                (SpriteSystem::Get().GetSprite(j).player->controlmethod == human) &&
-                (SpriteSystem::Get().GetSprite(j).player->port > 0))
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            if ((sprite.player->controlmethod == human) && (sprite.player->port > 0))
             {
+                j = sprite.num;
                 // connection problems
                 if (mapchangecounter < 0)
                     noclientupdatetime[j] = noclientupdatetime[j] + 1;
                 if (noclientupdatetime[j] > disconnection_time)
                 {
                     serverplayerdisconnect(j, kick_noresponse);
-                    GetServerMainConsole().console(SpriteSystem::Get().GetSprite(j).player->name +
-                                                       " could not respond",
+                    GetServerMainConsole().console(sprite.player->name + " could not respond",
                                                    warning_message_color);
 #ifdef SCRIPT
                     scrptdispatcher.onleavegame(j, false);
 #endif
-                    SpriteSystem::Get().GetSprite(j).kill();
-                    dobalancebots(1, SpriteSystem::Get().GetSprite(j).player->team);
+                    sprite.kill();
+                    dobalancebots(1, sprite.player->team);
                     continue;
                 }
                 if (noclientupdatetime[j] < 0)
@@ -312,7 +313,7 @@ void apponidle()
                         serverthingsnapshot(j);
                 }
             }
-
+        }
         // UDP.FlushMsg;
     }
 }
@@ -330,31 +331,40 @@ void updateframe()
     {
         {
             ZoneScopedN("OldSpritePos");
-            for (j = 1; j <= max_sprites; j++)
-                if (SpriteSystem::Get().GetSprite(j).active &&
-                    !SpriteSystem::Get().GetSprite(j).deadmeat)
-                    if (SpriteSystem::Get().GetSprite(j).isnotspectator())
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+            {
+                if (!sprite.deadmeat)
+                {
+                    if (sprite.isnotspectator())
                     {
+                        j = sprite.num;
                         for (i = max_oldpos; i >= 1; i--)
+                        {
                             oldspritepos[j][i] = oldspritepos[j][i - 1];
+                        }
 
                         oldspritepos[j][0] = spriteparts.pos[j];
                     }
+                }
+            }
         }
 
         {
             ZoneScopedN("SpriteParts");
-            for (j = 1; j <= max_sprites; j++)
-                if (SpriteSystem::Get().GetSprite(j).active)
-                    if (SpriteSystem::Get().GetSprite(j).isnotspectator())
-                        spriteparts.doeulertimestepfor(j); // integrate sprite particles
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+            {
+                if (sprite.isnotspectator())
+                {
+                    spriteparts.doeulertimestepfor(sprite.num); // integrate sprite particles
+                }
+            }
         }
 
         {
-            ZoneScopedN("Sprites");
-            for (j = 1; j <= max_sprites; j++)
-                if (SpriteSystem::Get().GetSprite(j).active)
-                    SpriteSystem::Get().GetSprite(j).update(); // update sprite
+            ZoneScopedN("UpdateSprites");
+            auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+            std::for_each(std::begin(activeSprites), std::end(activeSprites),
+                          [](auto &sprite) { sprite.update(); });
         }
 
         {
@@ -470,14 +480,16 @@ void updateframe()
 
         // Anti-Hack for Mass-Flag Cheat
         if (maintickcounter % second == 0)
+        {
             if (CVar::sv_antimassflag)
-                for (j = 1; j <= max_sprites; j++)
+            {
+                for (auto &sprite : SpriteSystem::Get().GetSprites())
                 {
-                    if ((SpriteSystem::Get().GetSprite(j).active) &&
-                        (SpriteSystem::Get().GetSprite(j).player->grabspersecond > 0) &&
-                        (SpriteSystem::Get().GetSprite(j).player->scorespersecond > 0) &&
-                        (SpriteSystem::Get().GetSprite(j).player->grabbedinbase))
+
+                    if ((sprite.active) && (sprite.player->grabspersecond > 0) &&
+                        (sprite.player->scorespersecond > 0) && (sprite.player->grabbedinbase))
                     {
+                        j = sprite.num;
                         cheattag[j] = 1;
 #ifdef SCRIPT
                         if (!scrptdispatcher.onvotekickstart(255, j, "Server: Possible cheating"))
@@ -491,32 +503,45 @@ void updateframe()
 #endif
                         GetServerMainConsole().console(
                             string("** Detected possible Mass-Flag cheating from ") +
-                                SpriteSystem::Get().GetSprite(j).player->name,
+                                sprite.player->name,
                             warning_message_color);
                     }
-                    SpriteSystem::Get().GetSprite(j).player->grabspersecond = 0;
-                    SpriteSystem::Get().GetSprite(j).player->scorespersecond = 0;
-                    SpriteSystem::Get().GetSprite(j).player->grabbedinbase = false;
+                    sprite.player->grabspersecond = 0;
+                    sprite.player->scorespersecond = 0;
+                    sprite.player->grabbedinbase = false;
                 }
-
+            }
+        }
         if (CVar::sv_healthcooldown > 0)
+        {
             if (maintickcounter % (CVar::sv_healthcooldown * second) == 0)
-                for (i = 1; i <= max_sprites; i++)
-                    if ((SpriteSystem::Get().GetSprite(i).active) &&
-                        (SpriteSystem::Get().GetSprite(i).haspack))
-                        SpriteSystem::Get().GetSprite(i).haspack = false;
+            {
+                for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                {
+                    if (sprite.haspack)
+                    {
+                        sprite.haspack = false;
+                    }
+                }
+            }
+        }
 
         // Anti-Chat Flood
         if (maintickcounter % second == 0)
-            for (j = 1; j <= max_sprites; j++)
-                if (SpriteSystem::Get().GetSprite(j).active)
+        {
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+            {
+                if (sprite.player->chatwarnings > 5)
                 {
-                    if (SpriteSystem::Get().GetSprite(j).player->chatwarnings > 5)
-                        // 20 Minutes is too harsh
-                        kickplayer(j, true, kick_flooding, five_minutes, "Chat Flood");
-                    if (SpriteSystem::Get().GetSprite(j).player->chatwarnings > 0)
-                        SpriteSystem::Get().GetSprite(j).player->chatwarnings -= 1;
+                    // 20 Minutes is too harsh
+                    kickplayer(sprite.num, true, kick_flooding, five_minutes, "Chat Flood");
                 }
+                if (sprite.player->chatwarnings > 0)
+                {
+                    sprite.player->chatwarnings -= 1;
+                }
+            }
+        }
 
         if (maintickcounter % second == 0)
             if ((lastreqip[0] != "") && (lastreqip[0] == lastreqip[1]) &&
@@ -551,9 +576,11 @@ void updateframe()
         }
 
         if (maintickcounter % minute == 0)
-            for (j = 1; j <= max_sprites; j++)
-                if (SpriteSystem::Get().GetSprite(j).active)
-                    SpriteSystem::Get().GetSprite(j).player->playtime += 1;
+        {
+            auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+            std::for_each(std::begin(activeSprites), std::end(activeSprites),
+                          [](auto &sprite) { sprite.player->playtime += 1; });
+        }
 
         // Leftover from old Ban Timers code
         if (maintickcounter % (second * 10) == 0)
@@ -642,23 +669,26 @@ void updateframe()
         htftime = CVar::sv_htf_pointstime * 60;
 
     if (CVar::sv_gamemode == gamestyle_htf)
+    {
         if (mapchangecounter < 0)
+        {
             if ((playersteamnum[1] > 0) && (playersteamnum[2] > 0))
+            {
                 if (maintickcounter % htftime == 0)
                 {
-                    for (i = 1; i <= max_sprites; i++)
-                        if (SpriteSystem::Get().GetSprite(i).active &&
-                            (SpriteSystem::Get().GetSprite(i).holdedthing > 0))
-                            if (thing[SpriteSystem::Get().GetSprite(i).holdedthing].style ==
-                                object_pointmatch_flag)
+                    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                    {
+                        if ((sprite.holdedthing > 0))
+                        {
+                            if (thing[sprite.holdedthing].style == object_pointmatch_flag)
                             {
-                                teamscore[SpriteSystem::Get().GetSprite(i).player->team] += 1;
+                                teamscore[sprite.player->team] += 1;
 
-                                if (SpriteSystem::Get().GetSprite(i).player->team == team_alpha)
+                                if (sprite.player->team == team_alpha)
                                     htftime = htf_sec_point +
                                               2 * second * (playersteamnum[1] - playersteamnum[2]);
 
-                                if (SpriteSystem::Get().GetSprite(i).player->team == team_bravo)
+                                if (sprite.player->team == team_bravo)
                                     htftime = htf_sec_point +
                                               2 * second * (playersteamnum[2] - playersteamnum[1]);
 
@@ -667,7 +697,12 @@ void updateframe()
 
                                 sortplayers();
                             }
+                        }
+                    }
                 }
+            }
+        }
+    }
 
     // Spawn Rambo bow if nobody has it and not on map
     if (CVar::sv_gamemode == gamestyle_rambo)
@@ -680,11 +715,13 @@ void updateframe()
                     if (thing[j].style == object_rambo_bow)
                         _x = 1;
 
-            for (j = 1; j <= max_players; j++)
-                if (SpriteSystem::Get().GetSprite(j).active)
-                    if ((SpriteSystem::Get().GetSprite(j).weapon.num == guns[bow].num) ||
-                        (SpriteSystem::Get().GetSprite(j).weapon.num == guns[bow2].num))
-                        _x = 1;
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+            {
+                if ((sprite.weapon.num == guns[bow].num) || (sprite.weapon.num == guns[bow2].num))
+                {
+                    _x = 1;
+                }
+            }
 
             if (_x == 0)
             {

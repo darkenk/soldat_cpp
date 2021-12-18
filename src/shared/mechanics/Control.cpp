@@ -256,15 +256,16 @@ void controlsprite(tsprite &spritec)
                                     return;
 
                                 i = 0;
-                                for (j = 1; j <= max_sprites; j++)
-                                    if (SpriteSystem::Get().GetSprite(j).active)
-                                        if (SpriteSystem::Get().GetSprite(j).isnotspectator() and
-                                            (SpriteSystem::Get().GetSprite(j).isinsameteam(SpriteSystem::Get().GetSprite(mysprite)) or
-                                             SpriteSystem::Get().GetSprite(mysprite).isspectator()))
-                                        {
-                                            i = 1;
-                                            break;
-                                        }
+                                for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
+                                {
+                                    if (sprite.isnotspectator() and
+                                        (sprite.isinsameteam(SpriteSystem::Get().GetSprite(mysprite)) or
+                                         SpriteSystem::Get().GetSprite(mysprite).isspectator()))
+                                    {
+                                        i = 1;
+                                        break;
+                                    }
+                                }
 
                                 cameratarget = iif(i == 1, getcameratarget(spritec.control.jetpack),
                                                    (std::uint8_t)0);
@@ -298,32 +299,33 @@ void controlsprite(tsprite &spritec)
                 lookpoint.y = spritec.skeleton.pos[7].y - 2;
                 spritec.visible = 45;
 
-                for (i = 1; i <= max_sprites; i++)
-                    if (SpriteSystem::Get().GetSprite(i).active)
+                for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
+                {
+                    // Following sprites
+                    if ((spritec.num != camerafollowsprite) and
+                        spritec.isnotinsameteam(sprite) && spritec.isnotspectator())
                     {
-                        // Following sprites
-                        if ((spritec.num != camerafollowsprite) and
-                            spritec.isnotinsameteam(SpriteSystem::Get().GetSprite(i)) && spritec.isnotspectator())
+                        if (checkspritelineofsightvisibility(SpriteSystem::Get().GetSprite(camerafollowsprite),
+                                                             sprite))
+                            sprite.visible = 45;
+                    }
+                    else
+                    {
+                        if (spritec.deadmeat or
+                            ((isteamgame() && sprite.isinsameteam(spritec)) or
+                             ((!isteamgame()) && sprite.isnotinsameteam(spritec))))
                         {
-                            if (checkspritelineofsightvisibility(SpriteSystem::Get().GetSprite(camerafollowsprite),
-                                                                 SpriteSystem::Get().GetSprite(i)))
-                                SpriteSystem::Get().GetSprite(i).visible = 45;
+                            sprite.visible = 45;
                         }
                         else
                         {
-                            if (spritec.deadmeat or
-                                ((isteamgame() && SpriteSystem::Get().GetSprite(i).isinsameteam(spritec)) or
-                                 ((!isteamgame()) && SpriteSystem::Get().GetSprite(i).isnotinsameteam(spritec))))
+                            if (checkspritelineofsightvisibility(spritec, sprite))
                             {
-                                SpriteSystem::Get().GetSprite(i).visible = 45;
-                            }
-                            else
-                            {
-                                if (checkspritelineofsightvisibility(spritec, SpriteSystem::Get().GetSprite(i)))
-                                    SpriteSystem::Get().GetSprite(i).visible = 45;
+                                sprite.visible = 45;
                             }
                         }
                     }
+                }
             }
         }
 #endif
@@ -429,13 +431,15 @@ void controlsprite(tsprite &spritec)
                         (spritec.weapon.num != guns[knife].num) &&
                         (spritec.weapon.num != guns[chainsaw].num))
                     {
-                        for (i = 1; i <= max_sprites; i++)
-                            if (SpriteSystem::Get().GetSprite(i).active && !SpriteSystem::Get().GetSprite(i).deadmeat and
-                                (SpriteSystem::Get().GetSprite(i).position == pos_stand) && (i != spritec.num) &&
-                                SpriteSystem::Get().GetSprite(i).isnotspectator())
-                                if (distance(spriteparts.pos[spritec.num], spriteparts.pos[i]) <
+                        for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
+                        {
+                            if (!sprite.deadmeat and
+                                (sprite.position == pos_stand) && (sprite.num != spritec.num) &&
+                                sprite.isnotspectator())
+                                if (distance(spriteparts.pos[spritec.num], spriteparts.pos[sprite.num]) <
                                     melee_dist)
                                     spritec.bodyapplyanimation(melee, 1);
+                        }
                     }
 
         // FIRE!!!!
@@ -1556,13 +1560,15 @@ void controlsprite(tsprite &spritec)
                 }
 
             // raise weapon above teammate when crouching
-            for (j = 1; j <= max_sprites; j++)
-                if (isteamgame())
-                    if (SpriteSystem::Get().GetSprite(j).active && SpriteSystem::Get().GetSprite(j).isinsameteam(spritec) and
-                        (SpriteSystem::Get().GetSprite(j).position == pos_crouch) && (j != spritec.num) &&
+            if (isteamgame())
+            {
+                for(auto& sprite : SpriteSystem::Get().GetActiveSprites())
+                {
+                    if (sprite.isinsameteam(spritec) and
+                        (sprite.position == pos_crouch) && (sprite.num != spritec.num) &&
                         spritec.isnotspectator())
                     {
-                        a = spriteparts.pos[j];
+                        a = spriteparts.pos[sprite.num];
 
                         b = vec2subtract(spritec.skeleton.pos[15], spritec.skeleton.pos[16]);
                         vec2normalize(b, b);
@@ -1588,6 +1594,8 @@ void controlsprite(tsprite &spritec)
                             break;
                         }
                     }
+                }
+            }
         }
 #ifndef SERVER
         if (targetmode && (spritec.num == mysprite))

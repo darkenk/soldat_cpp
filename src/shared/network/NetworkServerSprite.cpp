@@ -24,47 +24,47 @@ std::array<std::int32_t, max_sprites> time_spritesnapshot_mov;
 void serverspritesnapshot(std::uint8_t r)
 {
     tmsg_serverspritesnapshot servermsg;
-    std::int32_t i, j;
     tvector2 b;
 
     // SERVER SPRITES SNAPSHOT
-    for (i = 1; i <= max_sprites; i++)
-        if (SpriteSystem::Get().GetSprite(i).active && !SpriteSystem::Get().GetSprite(i).deadmeat &&
-            SpriteSystem::Get().GetSprite(i).isnotspectator())
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        const auto i = sprite.num;
+        if (!sprite.deadmeat && sprite.isnotspectator())
         { // active player/sprite
             servermsg.header.id = msgid_serverspritesnapshot;
             // assign sprite values to ServerMsg
             servermsg.pos = spriteparts.pos[i];
             servermsg.velocity = spriteparts.velocity[i];
-            servermsg.num = SpriteSystem::Get().GetSprite(i).num;
-            servermsg.health = SpriteSystem::Get().GetSprite(i).GetHealth();
-            servermsg.position = SpriteSystem::Get().GetSprite(i).position;
+            servermsg.num = sprite.num;
+            servermsg.health = sprite.GetHealth();
+            servermsg.position = sprite.position;
             servermsg.serverticks = servertickcounter;
 
-            encodekeys(SpriteSystem::Get().GetSprite(i), servermsg.keys16);
+            encodekeys(sprite, servermsg.keys16);
 
-            servermsg.mouseaimy = SpriteSystem::Get().GetSprite(i).control.mouseaimy;
-            servermsg.mouseaimx = SpriteSystem::Get().GetSprite(i).control.mouseaimx;
+            servermsg.mouseaimy = sprite.control.mouseaimy;
+            servermsg.mouseaimx = sprite.control.mouseaimx;
 
             servermsg.look = 0;
-            if (SpriteSystem::Get().GetSprite(i).wearhelmet == 0)
+            if (sprite.wearhelmet == 0)
                 servermsg.look = servermsg.look | B1;
-            if (SpriteSystem::Get().GetSprite(i).hascigar == 5)
+            if (sprite.hascigar == 5)
                 servermsg.look = servermsg.look | B2;
-            if (SpriteSystem::Get().GetSprite(i).hascigar == 10)
+            if (sprite.hascigar == 10)
                 servermsg.look = servermsg.look | B3;
-            if (SpriteSystem::Get().GetSprite(i).wearhelmet == 2)
+            if (sprite.wearhelmet == 2)
                 servermsg.look = servermsg.look | B4;
 
-            servermsg.weaponnum = SpriteSystem::Get().GetSprite(i).weapon.num;
-            servermsg.secondaryweaponnum = SpriteSystem::Get().GetSprite(i).secondaryweapon.num;
-            servermsg.ammocount = SpriteSystem::Get().GetSprite(i).weapon.ammocount;
-            servermsg.grenadecount = SpriteSystem::Get().GetSprite(i).tertiaryweapon.ammocount;
-            if (SpriteSystem::Get().GetSprite(i).vest < 0)
-                SpriteSystem::Get().GetSprite(i).vest = 0;
-            if (SpriteSystem::Get().GetSprite(i).vest > defaultvest)
-                SpriteSystem::Get().GetSprite(i).vest = defaultvest;
-            servermsg.vest = SpriteSystem::Get().GetSprite(i).vest;
+            servermsg.weaponnum = sprite.weapon.num;
+            servermsg.secondaryweaponnum = sprite.secondaryweapon.num;
+            servermsg.ammocount = sprite.weapon.ammocount;
+            servermsg.grenadecount = sprite.tertiaryweapon.ammocount;
+            if (sprite.vest < 0)
+                sprite.vest = 0;
+            if (sprite.vest > defaultvest)
+                sprite.vest = defaultvest;
+            servermsg.vest = sprite.vest;
 
             b = vec2subtract(servermsg.velocity, oldspritesnapshotmsg[i].velocity);
 
@@ -82,44 +82,47 @@ void serverspritesnapshot(std::uint8_t r)
             {
                 // send to all
                 if (r == netw)
-                    for (j = 1; j <= max_players; j++)
-                        if ((SpriteSystem::Get().GetSprite(j).active) &&
-                            (SpriteSystem::Get().GetSprite(j).player->controlmethod == human))
-                            GetServerNetwork()->senddata(
-                                &servermsg, sizeof(servermsg),
-                                SpriteSystem::Get().GetSprite(j).player->peer,
-                                k_nSteamNetworkingSend_Unreliable);
+                    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                    {
+                        if (sprite.player->controlmethod == human)
+                        {
+                            GetServerNetwork()->senddata(&servermsg, sizeof(servermsg),
+                                                         sprite.player->peer,
+                                                         k_nSteamNetworkingSend_Unreliable);
+                        }
+                    }
             }
             if (r == netw)
                 oldspritesnapshotmsg[i] = servermsg;
-        } // SpriteSystem::Get().GetSprite(i)
+        }
+    }
 }
 
 // SERVER SNAPSHOT MAJOR
 void serverspritesnapshotmajor(std::uint8_t r)
 {
     tmsg_serverspritesnapshot_major servermsg;
-    std::int32_t i, j;
     tvector2 b;
 
     // SERVER SPRITES SNAPSHOT
-    for (i = 1; i <= max_sprites; i++)
-        if (SpriteSystem::Get().GetSprite(i).active && !SpriteSystem::Get().GetSprite(i).deadmeat &&
-            SpriteSystem::Get().GetSprite(i).isnotspectator())
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        const auto i = sprite.num;
+        if (!sprite.deadmeat && sprite.isnotspectator())
         { // active player/sprite
             servermsg.header.id = msgid_serverspritesnapshot_major;
             // assign sprite values to ServerMsg
             servermsg.pos = spriteparts.pos[i];
             servermsg.velocity = spriteparts.velocity[i];
-            servermsg.num = SpriteSystem::Get().GetSprite(i).num;
-            servermsg.health = SpriteSystem::Get().GetSprite(i).GetHealth();
-            servermsg.position = SpriteSystem::Get().GetSprite(i).position;
+            servermsg.num = sprite.num;
+            servermsg.health = sprite.GetHealth();
+            servermsg.position = sprite.position;
             servermsg.serverticks = servertickcounter;
 
-            encodekeys(SpriteSystem::Get().GetSprite(i), servermsg.keys16);
+            encodekeys(sprite, servermsg.keys16);
 
-            servermsg.mouseaimy = SpriteSystem::Get().GetSprite(i).control.mouseaimy;
-            servermsg.mouseaimx = SpriteSystem::Get().GetSprite(i).control.mouseaimx;
+            servermsg.mouseaimy = sprite.control.mouseaimy;
+            servermsg.mouseaimx = sprite.control.mouseaimx;
 
             b = vec2subtract(servermsg.velocity, oldspritesnapshotmsg[i].velocity);
 
@@ -131,13 +134,15 @@ void serverspritesnapshotmajor(std::uint8_t r)
             {
                 // send to all
                 if (r == netw)
-                    for (j = 1; j <= max_players; j++)
-                        if ((SpriteSystem::Get().GetSprite(j).active) &&
-                            (SpriteSystem::Get().GetSprite(j).player->controlmethod == human))
-                            GetServerNetwork()->senddata(
-                                &servermsg, sizeof(servermsg),
-                                SpriteSystem::Get().GetSprite(j).player->peer,
-                                k_nSteamNetworkingSend_Unreliable);
+                {
+                    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                    {
+                        if (sprite.player->controlmethod == human)
+                            GetServerNetwork()->senddata(&servermsg, sizeof(servermsg),
+                                                         sprite.player->peer,
+                                                         k_nSteamNetworkingSend_Unreliable);
+                    }
+                }
             }
 
             if (r == netw)
@@ -147,13 +152,13 @@ void serverspritesnapshotmajor(std::uint8_t r)
                 oldspritesnapshotmsg[i].pos = servermsg.pos;
                 oldspritesnapshotmsg[i].velocity = servermsg.velocity;
             }
-        } // SpriteSystem::Get().GetSprite(i)
+        }
+    }
 }
 
 void serverspritesnapshotmajorfloat(std::uint8_t who, std::uint8_t r)
 {
     tmsg_serverspritesnapshot_major servermsg;
-    std::int32_t i;
 
     servermsg.header.id = msgid_serverspritesnapshot_major;
     // assign sprite values to ServerMsg
@@ -172,14 +177,14 @@ void serverspritesnapshotmajorfloat(std::uint8_t who, std::uint8_t r)
     // send to all
     if (r == netw)
     {
-        for (i = 1; i <= max_players; i++)
-            if ((SpriteSystem::Get().GetSprite(i).active) &&
-                (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            if (sprite.player->controlmethod == human)
             {
-                GetServerNetwork()->senddata(&servermsg, sizeof(servermsg),
-                                             SpriteSystem::Get().GetSprite(i).player->peer,
+                GetServerNetwork()->senddata(&servermsg, sizeof(servermsg), sprite.player->peer,
                                              k_nSteamNetworkingSend_Unreliable);
             }
+        }
     }
 
     if (r == netw)
@@ -195,29 +200,34 @@ void serverspritesnapshotmajorfloat(std::uint8_t who, std::uint8_t r)
 void serverskeletonsnapshot(std::uint8_t r)
 {
     tmsg_serverskeletonsnapshot skeletonmsg;
-    std::int32_t i, j;
 
-    for (i = 1; i <= max_sprites; i++)
-        if (SpriteSystem::Get().GetSprite(i).active && SpriteSystem::Get().GetSprite(i).deadmeat &&
-            SpriteSystem::Get().GetSprite(i).isnotspectator())
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (sprite.deadmeat && sprite.isnotspectator())
         { // active player/sprite
             skeletonmsg.header.id = msgid_serverskeletonsnapshot;
             // assign sprite values to SkeletonMsg
-            skeletonmsg.num = SpriteSystem::Get().GetSprite(i).num;
-            if (SpriteSystem::Get().GetSprite(i).respawncounter > 0)
-                skeletonmsg.respawncounter = SpriteSystem::Get().GetSprite(i).respawncounter;
+            skeletonmsg.num = sprite.num;
+            if (sprite.respawncounter > 0)
+                skeletonmsg.respawncounter = sprite.respawncounter;
             else
                 skeletonmsg.respawncounter = 0;
 
             // send to all
             if (r == netw)
-                for (j = 1; j <= max_players; j++)
-                    if ((SpriteSystem::Get().GetSprite(j).active) &&
-                        (SpriteSystem::Get().GetSprite(j).player->controlmethod == human))
+            {
+                for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                {
+                    if (sprite.player->controlmethod == human)
+                    {
                         GetServerNetwork()->senddata(&skeletonmsg, sizeof(skeletonmsg),
-                                                     SpriteSystem::Get().GetSprite(j).player->peer,
+                                                     sprite.player->peer,
                                                      k_nSteamNetworkingSend_Unreliable);
+                    }
+                }
+            }
         }
+    }
 }
 
 void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulletnum,
@@ -289,12 +299,14 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
     if (!SpriteSystem::Get().GetSprite(who).skeleton.constraints[23].active)
         spritedeathmsg.constraints = spritedeathmsg.constraints | B5;
 
-    for (j = 1; j <= max_players; j++)
-        if ((SpriteSystem::Get().GetSprite(j).active) &&
-            (SpriteSystem::Get().GetSprite(j).player->controlmethod == human))
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (sprite.player->controlmethod == human)
+        {
             GetServerNetwork()->senddata(&spritedeathmsg, sizeof(spritedeathmsg),
-                                         SpriteSystem::Get().GetSprite(j).player->peer,
-                                         k_nSteamNetworkingSend_Unreliable);
+                                         sprite.player->peer, k_nSteamNetworkingSend_Unreliable);
+        }
+    }
 }
 
 // SEND DELTAS OF SPRITE
@@ -349,53 +361,55 @@ void serverspritedeltas(std::uint8_t i)
                 }
             }
 
-    for (j = 1; j <= max_sprites; j++)
-        if (SpriteSystem::Get().GetSprite(j).active &&
-            (SpriteSystem::Get().GetSprite(j).player->controlmethod == human) && (j != i))
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        const auto j = sprite.num;
+        if ((sprite.player->controlmethod == human) && (j != i))
             if ((weaponsmsg.weaponnum != oldweaponsmsg[j][i].weaponnum) ||
                 (weaponsmsg.secondaryweaponnum != oldweaponsmsg[j][i].secondaryweaponnum))
                 if (pointvisible(spriteparts.pos[i].x, spriteparts.pos[i].y,
-                                 SpriteSystem::Get().GetSprite(j).player->camera) or
-                    (SpriteSystem::Get().GetSprite(j).isspectator() &&
-                     (SpriteSystem::Get().GetSprite(j).player->port == 0))) // visible to sprite
+                                 sprite.player->camera) or
+                    (sprite.isspectator() && (sprite.player->port == 0))) // visible to sprite
                 {
                     GetServerNetwork()->senddata(&weaponsmsg, sizeof(weaponsmsg),
-                                                 SpriteSystem::Get().GetSprite(j).player->peer,
+                                                 sprite.player->peer,
                                                  k_nSteamNetworkingSend_Unreliable);
                     oldweaponsmsg[j][i] = weaponsmsg;
                 }
+    }
 
-    for (j = 1; j <= max_sprites; j++)
-        if ((SpriteSystem::Get().GetSprite(j).active) &&
-            (SpriteSystem::Get().GetSprite(j).player->controlmethod == human) && (j != i))
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        const auto j = sprite.num;
+        if ((sprite.player->controlmethod == human) && (j != i))
             if (helmetmsg.wearhelmet != oldhelmetmsg[j][i].wearhelmet)
             {
-                GetServerNetwork()->senddata(&helmetmsg, sizeof(helmetmsg),
-                                             SpriteSystem::Get().GetSprite(j).player->peer,
+                GetServerNetwork()->senddata(&helmetmsg, sizeof(helmetmsg), sprite.player->peer,
                                              k_nSteamNetworkingSend_Unreliable);
                 oldhelmetmsg[j][i] = helmetmsg;
             }
+    }
 }
 
 void serverspritedeltasmouse(std::uint8_t i)
 {
     tmsg_serverspritedelta_mouseaim mouseaimmsg;
-    std::int32_t j;
 
     mouseaimmsg.header.id = msgid_delta_mouseaim;
     mouseaimmsg.num = i;
     mouseaimmsg.mouseaimy = SpriteSystem::Get().GetSprite(i).control.mouseaimy;
     mouseaimmsg.mouseaimx = SpriteSystem::Get().GetSprite(i).control.mouseaimx;
 
-    for (j = 1; j <= max_sprites; j++)
-        if ((SpriteSystem::Get().GetSprite(j).active) &&
-            (SpriteSystem::Get().GetSprite(j).player->controlmethod == human) && (j != i))
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        const auto j = sprite.num;
+        if ((sprite.player->controlmethod == human) && (j != i))
         {
-            GetServerNetwork()->senddata(&mouseaimmsg, sizeof(mouseaimmsg),
-                                         SpriteSystem::Get().GetSprite(j).player->peer,
+            GetServerNetwork()->senddata(&mouseaimmsg, sizeof(mouseaimmsg), sprite.player->peer,
                                          k_nSteamNetworkingSend_Unreliable);
             oldmouseaimmsg[j][i] = mouseaimmsg;
         }
+    }
 }
 
 void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
@@ -411,17 +425,19 @@ void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
     player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
     i = player->spritenum;
 
+    auto &sprite = SpriteSystem::Get().GetSprite(i);
+
     messagesasecnum[i] += 1;
 
-    if (SpriteSystem::Get().GetSprite(i).deadmeat)
+    if (sprite.deadmeat)
         return;
 
-    SpriteSystem::Get().GetSprite(i).player->camera = i;
+    sprite.player->camera = i;
 
 #ifdef SCRIPT
     forceweaponcalled = false;
-    if ((SpriteSystem::Get().GetSprite(i).weapon.num != clientmsg.weaponnum) ||
-        (SpriteSystem::Get().GetSprite(i).secondaryweapon.num != clientmsg.secondaryweaponnum))
+    if ((sprite.weapon.num != clientmsg.weaponnum) ||
+        (sprite.secondaryweapon.num != clientmsg.secondaryweaponnum))
     {
         // event must be before actual weapon apply.
         // script might've called ForceWeapon, which we should check.
@@ -433,36 +449,33 @@ void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
     if (!forceweaponcalled)
     {
 #endif
-        if (SpriteSystem::Get().GetSprite(i).weapon.num != clientmsg->weaponnum)
+        if (sprite.weapon.num != clientmsg->weaponnum)
         {
-            SpriteSystem::Get().GetSprite(i).applyweaponbynum(clientmsg->weaponnum, 1,
-                                                              clientmsg->ammocount);
+            sprite.applyweaponbynum(clientmsg->weaponnum, 1, clientmsg->ammocount);
         }
-        if (SpriteSystem::Get().GetSprite(i).secondaryweapon.num != clientmsg->secondaryweaponnum)
+        if (sprite.secondaryweapon.num != clientmsg->secondaryweaponnum)
         {
-            SpriteSystem::Get().GetSprite(i).applyweaponbynum(clientmsg->secondaryweaponnum, 2,
-                                                              clientmsg->secondaryammocount);
+            sprite.applyweaponbynum(clientmsg->secondaryweaponnum, 2,
+                                    clientmsg->secondaryammocount);
         }
 #ifdef SCRIPT
     }
 #endif
 
-    if (SpriteSystem::Get().GetSprite(i).weapon.num == guns[colt].num)
-        SpriteSystem::Get().GetSprite(i).player->secwep = 0;
-    if (SpriteSystem::Get().GetSprite(i).weapon.num == guns[knife].num)
-        SpriteSystem::Get().GetSprite(i).player->secwep = 1;
-    if (SpriteSystem::Get().GetSprite(i).weapon.num == guns[chainsaw].num)
-        SpriteSystem::Get().GetSprite(i).player->secwep = 2;
-    if (SpriteSystem::Get().GetSprite(i).weapon.num == guns[law].num)
-        SpriteSystem::Get().GetSprite(i).player->secwep = 3;
+    if (sprite.weapon.num == guns[colt].num)
+        sprite.player->secwep = 0;
+    if (sprite.weapon.num == guns[knife].num)
+        sprite.player->secwep = 1;
+    if (sprite.weapon.num == guns[chainsaw].num)
+        sprite.player->secwep = 2;
+    if (sprite.weapon.num == guns[law].num)
+        sprite.player->secwep = 3;
 
-    SpriteSystem::Get().GetSprite(i).weapon.ammocount = clientmsg->ammocount;
-    SpriteSystem::Get().GetSprite(i).secondaryweapon.ammocount = clientmsg->secondaryammocount;
+    sprite.weapon.ammocount = clientmsg->ammocount;
+    sprite.secondaryweapon.ammocount = clientmsg->secondaryammocount;
 
     // Toggle prone if it was activated or deactivated
-    SpriteSystem::Get().GetSprite(i).control.prone =
-        (clientmsg->position == pos_prone) ^
-        (SpriteSystem::Get().GetSprite(i).position == pos_prone);
+    sprite.control.prone = (clientmsg->position == pos_prone) ^ (sprite.position == pos_prone);
 
     if (checkweaponnotallowed(i))
     {
@@ -489,26 +502,28 @@ void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage)
 
     messagesasecnum[i] += 1;
 
-    if (SpriteSystem::Get().GetSprite(i).deadmeat)
+    auto &sprite = SpriteSystem::Get().GetSprite(i);
+
+    if (sprite.deadmeat)
         return;
 
     map.checkoutofbounds(clientmovmsg.pos.x, clientmovmsg.pos.y);
     map.checkoutofbounds(clientmovmsg.velocity.x, clientmovmsg.velocity.y);
 
-    SpriteSystem::Get().GetSprite(i).player->camera = i;
+    sprite.player->camera = i;
 
     spriteparts.pos[i] = clientmovmsg.pos;
     spriteparts.velocity[i] = clientmovmsg.velocity;
 
     map.checkoutofbounds(clientmovmsg.mouseaimx, clientmovmsg.mouseaimy);
 
-    SpriteSystem::Get().GetSprite(i).control.mouseaimx = clientmovmsg.mouseaimx;
-    SpriteSystem::Get().GetSprite(i).control.mouseaimy = clientmovmsg.mouseaimy;
+    sprite.control.mouseaimx = clientmovmsg.mouseaimx;
+    sprite.control.mouseaimy = clientmovmsg.mouseaimy;
 
-    decodekeys(SpriteSystem::Get().GetSprite(i), clientmovmsg.keys16);
+    decodekeys(sprite, clientmovmsg.keys16);
 
-    if (SpriteSystem::Get().GetSprite(i).control.throwweapon == false)
-        SpriteSystem::Get().GetSprite(i).player->knifewarnings = 0;
+    if (sprite.control.throwweapon == false)
+        sprite.player->knifewarnings = 0;
 
     serverspritedeltas(i);
 
@@ -530,10 +545,12 @@ void serverhandleclientspritesnapshot_dead(SteamNetworkingMessage_t *netmessage)
 
     messagesasecnum[i] += 1;
 
-    if (!SpriteSystem::Get().GetSprite(i).deadmeat)
+    auto &sprite = SpriteSystem::Get().GetSprite(i);
+
+    if (!sprite.deadmeat)
         return;
 
     // assign received sprite info to sprite
     if (clientdeadmsg->camerafocus < max_sprites + 1)
-        SpriteSystem::Get().GetSprite(i).player->camera = clientdeadmsg->camerafocus;
+        sprite.player->camera = clientdeadmsg->camerafocus;
 }

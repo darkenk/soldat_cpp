@@ -162,8 +162,6 @@ void hideall()
 
 void gamemenushow(pgamemenu menu, bool show)
 {
-    std::int32_t i;
-
     if (menu == escmenu)
     {
         if (show)
@@ -175,15 +173,12 @@ void gamemenushow(pgamemenu menu, bool show)
             fragsmenushow = false;
             statsmenushow = false;
 
-            for (i = 1; i <= max_players; i++)
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
             {
-                if (SpriteSystem::Get().GetSprite(i).active)
-                {
-                    stopsound(SpriteSystem::Get().GetSprite(i).reloadsoundchannel);
-                    stopsound(SpriteSystem::Get().GetSprite(i).jetssoundchannel);
-                    stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel);
-                    stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel2);
-                }
+                stopsound(sprite.reloadsoundchannel);
+                stopsound(sprite.jetssoundchannel);
+                stopsound(sprite.gattlingsoundchannel);
+                stopsound(sprite.gattlingsoundchannel2);
             }
 
             if (CVar::cl_runs < 3)
@@ -321,7 +316,8 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
             gamemenushow(menu, false);
             selteam = buttonindex;
 
-            if ((mysprite == 0) || (buttonindex != SpriteSystem::Get().GetSprite(mysprite).player->team))
+            if ((mysprite == 0) ||
+                (buttonindex != SpriteSystem::Get().GetSprite(mysprite).player->team))
             {
                 // NOTE this actually sends a change team request
                 clientsendplayerinfo();
@@ -340,8 +336,8 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                 {
                 case 0: { // prev
                     kickmenuindex = ((max_sprites + kickmenuindex - 2) % max_sprites) + 1;
-                    while (
-                        !(SpriteSystem::Get().GetSprite(kickmenuindex).active or SpriteSystem::Get().GetSprite(kickmenuindex).player->demoplayer))
+                    while (!(SpriteSystem::Get().GetSprite(kickmenuindex).IsActive() or
+                             SpriteSystem::Get().GetSprite(kickmenuindex).player->demoplayer))
                         kickmenuindex = ((max_sprites + kickmenuindex - 2) % max_sprites) + 1;
 
                     result = (kickmenuindex != i);
@@ -350,8 +346,8 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
 
                 case 1: { // next
                     kickmenuindex = (kickmenuindex % max_sprites) + 1;
-                    while (
-                        !(SpriteSystem::Get().GetSprite(kickmenuindex).active or SpriteSystem::Get().GetSprite(kickmenuindex).player->demoplayer))
+                    while (!(SpriteSystem::Get().GetSprite(kickmenuindex).IsActive() or
+                             SpriteSystem::Get().GetSprite(kickmenuindex).player->demoplayer))
                         kickmenuindex = (kickmenuindex % max_sprites) + 1;
 
                     result = (kickmenuindex != i);
@@ -430,7 +426,8 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                             SpriteSystem::Get().GetSprite(mysprite).weapon.num != guns[bow].num and
                             SpriteSystem::Get().GetSprite(mysprite).weapon.num != guns[bow2].num)
                         {
-                            SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(SpriteSystem::Get().GetSprite(mysprite).selweapon, 1);
+                            SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
+                                SpriteSystem::Get().GetSprite(mysprite).selweapon, 1);
                             clientspritesnapshot();
                         }
                     }
@@ -448,7 +445,8 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                     if (count == 0)
                     {
                         gamemenushow(limbomenu, false);
-                        SpriteSystem::Get().GetSprite(mysprite).weapon = SpriteSystem::Get().GetSprite(mysprite).secondaryweapon;
+                        SpriteSystem::Get().GetSprite(mysprite).weapon =
+                            SpriteSystem::Get().GetSprite(mysprite).secondaryweapon;
                         SpriteSystem::Get().GetSprite(mysprite).secondaryweapon = guns[noweapon];
                     }
 

@@ -301,13 +301,9 @@ void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targ
     votetimeremaining = default_voting_time;
     votenumvotes = 0;
     votemaxvotes = 0;
-    for (auto &s : SpriteSystem::Get().GetSprites())
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
-        if (!s.active)
-        {
-            continue;
-        }
-        if (s.player->controlmethod == human)
+        if (sprite.player->controlmethod == human)
         {
             votemaxvotes = votemaxvotes + 1;
         }
@@ -404,25 +400,18 @@ void showmapchangescoreboard()
 template <Config::Module M>
 void showmapchangescoreboard(const std::string nextmap)
 {
-#ifndef SERVER
-    std::int32_t i;
-#endif
-
     mapchangename = nextmap;
     mapchangecounter = mapchangetime;
 #ifndef SERVER
     gamemenushow(limbomenu, false);
     fragsmenushow = true;
     statsmenushow = false;
-    for (i = 1; i <= max_players; i++)
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
-        if (SpriteSystem::Get().GetSprite(i).active)
-        {
-            stopsound(SpriteSystem::Get().GetSprite(i).reloadsoundchannel);
-            stopsound(SpriteSystem::Get().GetSprite(i).jetssoundchannel);
-            stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel);
-            stopsound(SpriteSystem::Get().GetSprite(i).gattlingsoundchannel2);
-        }
+        stopsound(sprite.reloadsoundchannel);
+        stopsound(sprite.jetssoundchannel);
+        stopsound(sprite.gattlingsoundchannel);
+        stopsound(sprite.gattlingsoundchannel2);
     }
 #endif
 }
@@ -524,34 +513,32 @@ void changemap()
 #endif
 
     {
-        auto i = 0;
-        for (auto &s : SpriteSystem::Get().GetSprites())
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
         {
-            i++;
-            if (s.active && s.isnotspectator())
+            if (sprite.isnotspectator())
             {
-                randomizestart(spriteparts.pos[i], s.player->team);
-                s.respawn();
-                s.player->kills = 0;
-                s.player->deaths = 0;
-                s.player->flags = 0;
-                s.bonustime = 0;
-                s.bonusstyle = bonus_none;
+                randomizestart(spriteparts.pos[sprite.num], sprite.player->team);
+                sprite.respawn();
+                sprite.player->kills = 0;
+                sprite.player->deaths = 0;
+                sprite.player->flags = 0;
+                sprite.bonustime = 0;
+                sprite.bonusstyle = bonus_none;
 #ifndef SERVER
-                s.selweapon = 0;
+                sprite.selweapon = 0;
 #endif
-                s.freecontrols();
-                s.weapon = guns[noweapon];
+                sprite.freecontrols();
+                sprite.weapon = guns[noweapon];
 
-                secwep = s.player->secwep + 1;
+                secwep = sprite.player->secwep + 1;
 
                 if ((secwep >= 1) && (secwep <= secondary_weapons) &&
                     (weaponactive[primary_weapons + secwep] == 1))
-                    s.secondaryweapon = guns[primary_weapons + secwep];
+                    sprite.secondaryweapon = guns[primary_weapons + secwep];
                 else
-                    s.secondaryweapon = guns[noweapon];
+                    sprite.secondaryweapon = guns[noweapon];
 
-                s.respawncounter = 0;
+                sprite.respawncounter = 0;
             }
         }
     }
@@ -666,7 +653,8 @@ void changemap()
     else
     {
         // If in freecam or the previous followee is gone, then find a new followee
-        if ((camerafollowsprite == 0) or !SpriteSystem::Get().GetSprite(camerafollowsprite).active)
+        if ((camerafollowsprite == 0) or
+            !SpriteSystem::Get().GetSprite(camerafollowsprite).IsActive())
         {
             camerafollowsprite = getcameratarget(0);
             // If no appropriate player found, then just center the camera
@@ -742,44 +730,42 @@ void sortplayers()
     }
 
     {
-        auto i = 0;
-        for (auto &s : SpriteSystem::Get().GetSprites())
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
         {
-            i++;
-            if (s.active && (!s.player->demoplayer))
+            if (!sprite.player->demoplayer)
             {
                 playersnum += 1;
-                if (s.player->controlmethod == bot)
+                if (sprite.player->controlmethod == bot)
                     botsnum += 1;
 
-                if (s.isspectator())
+                if (sprite.isspectator())
                     spectatorsnum += 1;
 
-                if (s.isnotsolo() && s.isnotspectator())
-                    playersteamnum[s.player->team] += 1;
+                if (sprite.isnotsolo() && sprite.isnotspectator())
+                    playersteamnum[sprite.player->team] += 1;
 
-                if (s.isnotspectator())
+                if (sprite.isnotspectator())
                 {
-                    sortedplayers[playersnum].kills = s.player->kills;
-                    sortedplayers[playersnum].deaths = s.player->deaths;
-                    sortedplayers[playersnum].flags = s.player->flags;
-                    sortedplayers[playersnum].playernum = i;
+                    sortedplayers[playersnum].kills = sprite.player->kills;
+                    sortedplayers[playersnum].deaths = sprite.player->deaths;
+                    sortedplayers[playersnum].flags = sprite.player->flags;
+                    sortedplayers[playersnum].playernum = sprite.num;
                 }
                 else
                 {
                     sortedplayers[playersnum].kills = 0;
                     sortedplayers[playersnum].deaths = std::numeric_limits<std::int32_t>::max();
                     sortedplayers[playersnum].flags = 0;
-                    sortedplayers[playersnum].playernum = i;
+                    sortedplayers[playersnum].playernum = sprite.num;
                 }
 
                 // Kill Limit
                 if (mapchangecounter < 1)
                     if (!isteamgame())
-                        if (s.player->kills >= CVar::sv_killlimit)
+                        if (sprite.player->kills >= CVar::sv_killlimit)
                         {
 #ifndef SERVER
-                            camerafollowsprite = i;
+                            camerafollowsprite = sprite.num;
                             if (escmenu->active)
                             {
                                 mx = gamewidthhalf;
@@ -889,17 +875,14 @@ void sortplayers()
     teamalivenum[4] = 0;
 #endif
 
-    for (auto &s : SpriteSystem::Get().GetSprites())
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
-        if (s.active)
-        {
-            if (team_alpha >= s.player->team && s.player->team <= team_delta)
+        if (team_alpha >= sprite.player->team && sprite.player->team <= team_delta)
 #ifdef SERVER
-                teamalivenum[s.player->team] += 1;
+            teamalivenum[sprite.player->team] += 1;
 #else
-                teamplayersnum[s.player->team] += 1;
+            teamplayersnum[sprite.player->team] += 1;
 #endif
-        }
     }
 }
 

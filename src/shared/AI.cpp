@@ -224,7 +224,10 @@ void simpledecision(std::uint8_t snum)
         // move when other player camps
         if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
             if ((SpriteSystem::Get().GetSprite(with.brain.targetnum).brain.currentwaypoint > 0) &&
-                (botpath.waypoint[SpriteSystem::Get().GetSprite(with.brain.targetnum).brain.currentwaypoint].c1 > 0))
+                (botpath
+                     .waypoint
+                         [SpriteSystem::Get().GetSprite(with.brain.targetnum).brain.currentwaypoint]
+                     .c1 > 0))
             {
                 with.control.right = false;
                 with.control.left = false;
@@ -281,9 +284,11 @@ void simpledecision(std::uint8_t snum)
         if (((SpriteSystem::Get().GetSprite(snum).weapon.num == guns[noweapon].num) ||
              (SpriteSystem::Get().GetSprite(snum).weapon.num == guns[knife].num) ||
              (SpriteSystem::Get().GetSprite(snum).weapon.num == guns[chainsaw].num)) &&
-            (((SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num != guns[noweapon].num) &&
+            (((SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num !=
+               guns[noweapon].num) &&
               (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num != guns[knife].num) &&
-              (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num != guns[chainsaw].num)) ||
+              (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num !=
+               guns[chainsaw].num)) ||
              (spriteparts.pos[with.brain.targetnum].y > spriteparts.pos[snum].y)))
         {
             with.control.right = false;
@@ -370,7 +375,8 @@ void simpledecision(std::uint8_t snum)
         }
 
         // Knife Throw
-        if ((SpriteSystem::Get().GetSprite(snum).ceasefirecounter < 30) && (SpriteSystem::Get().GetSprite(snum).weapon.num == guns[knife].num) &&
+        if ((SpriteSystem::Get().GetSprite(snum).ceasefirecounter < 30) &&
+            (SpriteSystem::Get().GetSprite(snum).weapon.num == guns[knife].num) &&
             (SpriteSystem::Get().GetSprite(snum).brain.favweapon == guns[knife].num))
         {
             with.control.fire = false;
@@ -394,15 +400,19 @@ void simpledecision(std::uint8_t snum)
 
         // impossible
         if (CVar::bots_difficulty < 60)
-            if ((SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num == guns[barrett].num) ||
-                (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num == guns[ruger77].num))
+            if ((SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num ==
+                 guns[barrett].num) ||
+                (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num ==
+                 guns[ruger77].num))
             {
                 dist = round(sqrt(sqr(m.x - t.x) + sqr(m.y - t.y)));
                 with.control.mouseaimx = round(t.x);
                 with.control.mouseaimy = round(t.y);
 
                 for (i = 1;
-                     i <= round(((float)(dist) / SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.speed) * 1.0);
+                     i <= round(((float)(dist) /
+                                 SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.speed) *
+                                1.0);
                      i++)
                 {
                     with.control.mouseaimx = with.control.mouseaimx +
@@ -469,7 +479,8 @@ void gotothing(std::uint8_t snum, std::uint8_t tnum)
             with.control.left = true;
 
         if ((thing[tnum].holdingsprite > 0) && (teamflag[with.player->team] > team_none))
-            if ((with.player->team == SpriteSystem::Get().GetSprite(thing[tnum].holdingsprite).player->team) and
+            if ((with.player->team ==
+                 SpriteSystem::Get().GetSprite(thing[tnum].holdingsprite).player->team) and
                 (!thing[tnum].inbase))
             {
                 // X - Distance
@@ -527,18 +538,15 @@ void controlbot(tsprite &spritec)
 
         {
             ZoneScopedN("SearchingForTarget");
-            for (i = 1; i <= max_sprites; i++)
-                if (SpriteSystem::Get().GetSprite(i).active && (i != spritec.num) &&
-                    (SpriteSystem::Get().GetSprite(i).player->name != spritec.brain.friend_) &&
-                    ((SpriteSystem::Get().GetSprite(i).alpha == 255) ||
-                     (SpriteSystem::Get().GetSprite(i).holdedthing > 0)) &&
-                    SpriteSystem::Get().GetSprite(i).isnotspectator())
-                    if (!SpriteSystem::Get().GetSprite(i).deadmeat or
-                        (SpriteSystem::Get().GetSprite(i).deadmeat &&
-                         ((spritec.brain.deadkill == 1) &&
-                          (SpriteSystem::Get().GetSprite(i).deadtime < 180))))
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+            {
+                if ((sprite.num != spritec.num) && (sprite.player->name != spritec.brain.friend_) &&
+                    ((sprite.alpha == 255) || (sprite.holdedthing > 0)) && sprite.isnotspectator())
+                {
+                    if (!sprite.deadmeat or (sprite.deadmeat && ((spritec.brain.deadkill == 1) &&
+                                                                 (sprite.deadtime < 180))))
                     {
-                        startpoint = SpriteSystem::Get().GetSprite(i).skeleton.pos[12];
+                        startpoint = sprite.skeleton.pos[12];
                         // check if ray startpoint is not in map
                         if (map.collisiontest(startpoint, b))
                             startpoint.y = startpoint.y + 6;
@@ -546,27 +554,30 @@ void controlbot(tsprite &spritec)
                         if (!map.raycast(lookpoint, startpoint, d2, 651))
                         {
                             if (CVar::sv_gamemode == gamestyle_rambo)
-                                if ((SpriteSystem::Get().GetSprite(i).weapon.num ==
-                                     guns[bow].num) ||
-                                    (SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow2].num))
+                            {
+                                if ((sprite.weapon.num == guns[bow].num) ||
+                                    (sprite.weapon.num == guns[bow2].num))
                                 {
-                                    spritec.brain.targetnum = i;
+                                    spritec.brain.targetnum = sprite.num;
                                     seeclosest = true;
                                     break;
                                 }
+                            }
 
                             if (d > d2)
                             {
-                                spritec.brain.targetnum = i;
+                                spritec.brain.targetnum = sprite.num;
 
                                 dt = d;
 
-                                if (!SpriteSystem::Get().GetSprite(i).deadmeat)
+                                if (!sprite.deadmeat)
+                                {
                                     d = d2;
+                                }
                                 seeclosest = true;
 
                                 // stop throwing grenades and weapons if it's dead
-                                if (SpriteSystem::Get().GetSprite(i).deadmeat)
+                                if (sprite.deadmeat)
                                 {
                                     spritec.control.thrownade = false;
                                     spritec.control.throwweapon = false;
@@ -579,8 +590,7 @@ void controlbot(tsprite &spritec)
                                     seeclosest = false;
                                     d = dt;
                                 }
-                                if (isteamgame() &&
-                                    spritec.isinsameteam(SpriteSystem::Get().GetSprite(i)))
+                                if (isteamgame() && spritec.isinsameteam(sprite))
                                 {
                                     seeclosest = false;
                                     // D := dt;
@@ -588,12 +598,15 @@ void controlbot(tsprite &spritec)
                             }
                         } // if see
                     }
-            // <see?
+                }
+            }
         }
 
         if (spritec.brain.targetnum > 0)
-            if ((SpriteSystem::Get().GetSprite(spritec.brain.targetnum).weapon.num == guns[bow].num) ||
-                (SpriteSystem::Get().GetSprite(spritec.brain.targetnum).weapon.num == guns[bow2].num))
+            if ((SpriteSystem::Get().GetSprite(spritec.brain.targetnum).weapon.num ==
+                 guns[bow].num) ||
+                (SpriteSystem::Get().GetSprite(spritec.brain.targetnum).weapon.num ==
+                 guns[bow2].num))
                 spritec.brain.pissedoff = 0;
 
         if (spritec.brain.pissedoff == spritec.num)
@@ -601,12 +614,14 @@ void controlbot(tsprite &spritec)
 
         if (spritec.brain.pissedoff > 0)
             if (isteamgame() &&
-                (!CVar::sv_friendlyfire) & SpriteSystem::Get().GetSprite(spritec.brain.pissedoff).isinsameteam(spritec))
+                (!CVar::sv_friendlyfire) &
+                    SpriteSystem::Get().GetSprite(spritec.brain.pissedoff).isinsameteam(spritec))
                 spritec.brain.pissedoff = 0;
 
         if (spritec.brain.targetnum > 0)
             if (isteamgame() and
-                (CVar::sv_friendlyfire) & SpriteSystem::Get().GetSprite(spritec.brain.targetnum).isnotinsameteam(spritec))
+                (CVar::sv_friendlyfire) &
+                    SpriteSystem::Get().GetSprite(spritec.brain.targetnum).isnotinsameteam(spritec))
                 spritec.brain.pissedoff = 0;
 
         if (spritec.brain.pissedoff > 0)
@@ -894,7 +909,9 @@ void controlbot(tsprite &spritec)
 
                 if (Random(790 * spritec.brain.chatfreq) == 0)
                     serversendstringmessage(
-                        std::string("Die ") + (SpriteSystem::Get().GetSprite(spritec.brain.targetnum).player->name) + "!",
+                        std::string("Die ") +
+                            (SpriteSystem::Get().GetSprite(spritec.brain.targetnum).player->name) +
+                            "!",
                         all_players, spritec.num, msgtype_pub);
             }
 

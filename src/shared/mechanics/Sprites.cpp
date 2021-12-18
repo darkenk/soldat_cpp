@@ -71,66 +71,67 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
 
     result = i;
 
+    auto &sprite = SpriteSystem::Get().GetSprite(i);
+
     // replace player object
-    if (SpriteSystem::Get().GetSprite(i).player != nullptr)
+    if (sprite.player != nullptr)
     {
-        SpriteSystem::Get().GetSprite(i).player->spritenum = 0;
-        if (SpriteSystem::Get().GetSprite(i).isplayerobjectowner)
+        sprite.player->spritenum = 0;
+        if (sprite.isplayerobjectowner)
         {
-            delete SpriteSystem::Get().GetSprite(i).player;
-            SpriteSystem::Get().GetSprite(i).player = nullptr;
+            delete sprite.player;
+            sprite.player = nullptr;
         }
     }
 #if SERVER
-    SpriteSystem::Get().GetSprite(i).player = reinterpret_cast<TServerPlayer *>(player);
+    sprite.player = reinterpret_cast<TServerPlayer *>(player);
 #else
-    SpriteSystem::Get().GetSprite(i).player = player;
+    sprite.player = player;
 #endif
-    SpriteSystem::Get().GetSprite(i).player->spritenum = i;
-    SpriteSystem::Get().GetSprite(i).isplayerobjectowner = transferownership;
+    sprite.player->spritenum = i;
+    sprite.isplayerobjectowner = transferownership;
 
-    SpriteSystem::Get().GetSprite(i).active = true;
-    SpriteSystem::Get().GetSprite(i).style = sstyle;
-    SpriteSystem::Get().GetSprite(i).num = i;
-    SpriteSystem::Get().GetSprite(i).deadmeat = false;
-    SpriteSystem::Get().GetSprite(i).respawncounter = 0;
-    SpriteSystem::Get().GetSprite(i).ceasefirecounter = ceasefiretime;
+    sprite.active = true;
+    sprite.style = sstyle;
+    sprite.num = i;
+    sprite.deadmeat = false;
+    sprite.respawncounter = 0;
+    sprite.ceasefirecounter = ceasefiretime;
 
     if (CVar::sv_survivalmode)
-        SpriteSystem::Get().GetSprite(i).ceasefirecounter =
-            SpriteSystem::Get().GetSprite(i).ceasefirecounter * 3;
+        sprite.ceasefirecounter = sprite.ceasefirecounter * 3;
 
-    SpriteSystem::Get().GetSprite(i).alpha = 255;
-    SpriteSystem::Get().GetSprite(i).brain.pissedoff = 0;
-    SpriteSystem::Get().GetSprite(i).vest = 0;
-    SpriteSystem::Get().GetSprite(i).bonusstyle = bonus_none;
-    SpriteSystem::Get().GetSprite(i).bonustime = 0;
-    SpriteSystem::Get().GetSprite(i).multikills = 0;
-    SpriteSystem::Get().GetSprite(i).multikilltime = 0;
-    SpriteSystem::Get().GetSprite(i).tertiaryweapon = guns[fraggrenade];
-    SpriteSystem::Get().GetSprite(i).hascigar = 0;
-    SpriteSystem::Get().GetSprite(i).idletime = default_idletime;
-    SpriteSystem::Get().GetSprite(i).idlerandom = -1;
-    SpriteSystem::Get().GetSprite(i).position = pos_stand;
-    SpriteSystem::Get().GetSprite(i).bodyanimation = stand;
-    SpriteSystem::Get().GetSprite(i).legsanimation = stand;
-    SpriteSystem::Get().GetSprite(i).onfire = 0;
-    SpriteSystem::Get().GetSprite(i).holdedthing = 0;
-    SpriteSystem::Get().GetSprite(i).selweapon = 0;
-    SpriteSystem::Get().GetSprite(i).stat = 0;
+    sprite.alpha = 255;
+    sprite.brain.pissedoff = 0;
+    sprite.vest = 0;
+    sprite.bonusstyle = bonus_none;
+    sprite.bonustime = 0;
+    sprite.multikills = 0;
+    sprite.multikilltime = 0;
+    sprite.tertiaryweapon = guns[fraggrenade];
+    sprite.hascigar = 0;
+    sprite.idletime = default_idletime;
+    sprite.idlerandom = -1;
+    sprite.position = pos_stand;
+    sprite.bodyanimation = stand;
+    sprite.legsanimation = stand;
+    sprite.onfire = 0;
+    sprite.holdedthing = 0;
+    sprite.selweapon = 0;
+    sprite.stat = 0;
 
 #ifndef SERVER
-    SpriteSystem::Get().GetSprite(i).olddeadmeat = false;
-    SpriteSystem::Get().GetSprite(i).halfdead = false;
+    sprite.olddeadmeat = false;
+    sprite.halfdead = false;
 #endif
 
-    SpriteSystem::Get().GetSprite(i).bgstate.backgroundstatus = background_transition;
-    SpriteSystem::Get().GetSprite(i).bgstate.backgroundpoly = background_poly_unknown;
+    sprite.bgstate.backgroundstatus = background_transition;
+    sprite.bgstate.backgroundpoly = background_poly_unknown;
 
     svelocity.x = 0;
     svelocity.y = 0;
 
-    if (SpriteSystem::Get().GetSprite(i).player->team == team_spectator)
+    if (sprite.player->team == team_spectator)
     {
         spos.x = min_sectorz * map.GetSectorsDivision() * 0.8;
         spos.y = min_sectorz * map.GetSectorsDivision() * 0.8;
@@ -140,58 +141,57 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     spriteparts.createpart(spos, svelocity, 1, i);
 
     // create skeleton
-    SpriteSystem::Get().GetSprite(i).skeleton.timestep = 1;
-    SpriteSystem::Get().GetSprite(i).skeleton.gravity = 1.06 * grav;
-    SpriteSystem::Get().GetSprite(i).skeleton = gostekskeleton;
-    SpriteSystem::Get().GetSprite(i).skeleton.vdamping = 0.9945;
+    sprite.skeleton.timestep = 1;
+    sprite.skeleton.gravity = 1.06 * grav;
+    sprite.skeleton = gostekskeleton;
+    sprite.skeleton.vdamping = 0.9945;
 
-    SpriteSystem::Get().GetSprite(i).SetHealth(starthealth);
-    SpriteSystem::Get().GetSprite(i).aimdistcoef = defaultaimdist;
+    sprite.SetHealth(starthealth);
+    sprite.aimdistcoef = defaultaimdist;
 
-    SpriteSystem::Get().GetSprite(i).weapon = guns[noweapon];
+    sprite.weapon = guns[noweapon];
 
-    secwep = SpriteSystem::Get().GetSprite(i).player->secwep + 1;
+    secwep = sprite.player->secwep + 1;
     if ((secwep >= 1) && (secwep <= secondary_weapons) &&
         (weaponactive[primary_weapons + secwep] == 1))
-        SpriteSystem::Get().GetSprite(i).secondaryweapon = guns[primary_weapons + secwep];
+        sprite.secondaryweapon = guns[primary_weapons + secwep];
     else
-        SpriteSystem::Get().GetSprite(i).secondaryweapon = guns[noweapon];
+        sprite.secondaryweapon = guns[noweapon];
 
-    SpriteSystem::Get().GetSprite(i).jetscount = map.startjet;
+    sprite.jetscount = map.startjet;
 #ifndef SERVER
-    SpriteSystem::Get().GetSprite(i).jetscountprev = map.startjet;
+    sprite.jetscountprev = map.startjet;
 #endif
-    SpriteSystem::Get().GetSprite(i).tertiaryweapon.ammocount = CVar::sv_maxgrenades / 2;
+    sprite.tertiaryweapon.ammocount = CVar::sv_maxgrenades / 2;
 
-    SpriteSystem::Get().GetSprite(i).wearhelmet = 1;
-    if (SpriteSystem::Get().GetSprite(i).player->headcap == 0)
-        SpriteSystem::Get().GetSprite(i).wearhelmet = 0;
+    sprite.wearhelmet = 1;
+    if (sprite.player->headcap == 0)
+        sprite.wearhelmet = 0;
 
-    SpriteSystem::Get().GetSprite(i).brain.targetnum = 1;
-    SpriteSystem::Get().GetSprite(i).brain.waypointtimeoutcounter = waypointtimeout;
+    sprite.brain.targetnum = 1;
+    sprite.brain.waypointtimeoutcounter = waypointtimeout;
 
-    SpriteSystem::Get().GetSprite(i).deadcollidecount = 0;
+    sprite.deadcollidecount = 0;
 
 #ifndef SERVER
-    SpriteSystem::Get().GetSprite(i).reloadsoundchannel = i - 1;
-    SpriteSystem::Get().GetSprite(i).jetssoundchannel = 1 * max_sprites + i - 1;
-    SpriteSystem::Get().GetSprite(i).gattlingsoundchannel = 2 * max_sprites + i - 1;
-    SpriteSystem::Get().GetSprite(i).gattlingsoundchannel2 = 3 * max_sprites + i - 1;
-    SpriteSystem::Get().GetSprite(i).moveskeleton(spos.x, spos.y, false);
+    sprite.reloadsoundchannel = i - 1;
+    sprite.jetssoundchannel = 1 * max_sprites + i - 1;
+    sprite.gattlingsoundchannel = 2 * max_sprites + i - 1;
+    sprite.gattlingsoundchannel2 = 3 * max_sprites + i - 1;
+    sprite.moveskeleton(spos.x, spos.y, false);
 #else
-    SpriteSystem::Get().GetSprite(i).moveskeleton(0, 0, false);
+    sprite.moveskeleton(0, 0, false);
 #endif
 
     // clear push wait list
     for (j = 0; j <= max_pushtick; j++)
     {
-        SpriteSystem::Get().GetSprite(i).nextpush[j].x = 0;
-        SpriteSystem::Get().GetSprite(i).nextpush[j].y = 0;
+        sprite.nextpush[j].x = 0;
+        sprite.nextpush[j].y = 0;
     }
 
-    SpriteSystem::Get().GetSprite(i).bulletcount =
-        Random(std::numeric_limits<std::uint16_t>::max()); // FIXME wat?
-    SpriteSystem::Get().GetSprite(i).freecontrols();
+    sprite.bulletcount = Random(std::numeric_limits<std::uint16_t>::max()); // FIXME wat?
+    sprite.freecontrols();
 
     sortplayers(); // sort the players frag list
     return result;
@@ -1189,13 +1189,14 @@ void Sprite<M>::update()
                     {
                         if (respawncounter < 3)
                         {
-                            for (i = 1; i <= max_sprites; i++)
-                                if (SpriteSystem::Get().GetSprite(i).active &&
-                                    !SpriteSystem::Get().GetSprite(i).deadmeat)
+                            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                            {
+                                if (!sprite.deadmeat)
                                 {
-                                    SpriteSystem::Get().GetSprite(i).healthhit(4000, i, 1, -1, p);
-                                    SpriteSystem::Get().GetSprite(i).player->deaths -= 1;
+                                    sprite.healthhit(4000, sprite.num, 1, -1, p);
+                                    sprite.player->deaths -= 1;
                                 }
+                            }
                         }
 
                         if (CVar::sv_gamemode != gamestyle_htf)
@@ -1296,10 +1297,11 @@ void Sprite<M>::kill()
     if (isnotsolo())
     {
         left = false;
-        for (i = 1; i <= max_players; i++)
-            if (SpriteSystem::Get().GetSprite(i).active &&
-                isinsameteam(SpriteSystem::Get().GetSprite(i)) && (i != num))
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            if (isinsameteam(sprite) && (sprite.num != num))
                 left = true;
+        }
 
         if (left == false)
             teamscore[player->team] = team_none;
@@ -1413,13 +1415,14 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             if (goalticks == default_goalticks)
             {
                 k = 0;
-                for (i = 1; i <= max_sprites; i++)
-                    if (SpriteSystem::Get().GetSprite(i).active && (i != who) &&
-                        (!SpriteSystem::Get().GetSprite(i).player->demoplayer) and
-                        SpriteSystem::Get().GetSprite(i).isnotspectator())
-                        if (distance(spriteparts.pos[i], spriteparts.pos[who]) >
+                for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                {
+                    if (sprite.active && (sprite.num != who) && (!sprite.player->demoplayer) and
+                        sprite.isnotspectator())
+                        if (distance(spriteparts.pos[sprite.num], spriteparts.pos[who]) >
                             bullettime_mindistance)
                             k = 1;
+                }
 
                 if (k < 1)
                 {
@@ -1921,31 +1924,32 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             {
                 alivenum = 0;
 
-                for (i = 1; i <= max_sprites; i++)
-                    if (SpriteSystem::Get().GetSprite(i).active &&
-                        !SpriteSystem::Get().GetSprite(i).deadmeat &&
-                        SpriteSystem::Get().GetSprite(i).isnotspectator())
+                for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                {
+                    if (!sprite.deadmeat && sprite.isnotspectator())
                         alivenum += 1;
+                }
 
                 alivenum -= 1;
 
                 if (alivenum < 2)
                 {
-                    for (i = 1; i <= max_sprites; i++)
-                        if (SpriteSystem::Get().GetSprite(i).active)
-                            SpriteSystem::Get().GetSprite(i).respawncounter = survival_respawntime;
+                    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                    {
+                        sprite.respawncounter = survival_respawntime;
+                    }
 
                     survivalendround = true;
 
 #ifndef SERVER
-                    for (i = 1; i <= max_sprites; i++)
-                        if (SpriteSystem::Get().GetSprite(i).active &&
-                            !SpriteSystem::Get().GetSprite(i).deadmeat and
-                            (num != i) && // not the current player
-                            SpriteSystem::Get().GetSprite(i).isnotspectator())
+                    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                    {
+                        if (!sprite.deadmeat and (num != sprite.num) && // not the current player
+                            sprite.isnotspectator())
                         {
-                            playsound(sfx_roar, spriteparts.pos[i]);
+                            playsound(sfx_roar, spriteparts.pos[sprite.num]);
                         }
+                    }
 #endif
                 }
 
@@ -1970,23 +1974,15 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 teamalivenum[3] = 0;
                 teamalivenum[4] = 0;
 
-                for (i = 1; i <= max_sprites; i++)
+                for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
                 {
-                    if (SpriteSystem::Get().GetSprite(i).active &&
-                        !SpriteSystem::Get().GetSprite(i).deadmeat and
-                        (SpriteSystem::Get().GetSprite(i).player->team == team_alpha))
+                    if (!sprite.deadmeat and (sprite.player->team == team_alpha))
                         teamalivenum[team_alpha] += 1;
-                    if (SpriteSystem::Get().GetSprite(i).active &&
-                        !SpriteSystem::Get().GetSprite(i).deadmeat and
-                        (SpriteSystem::Get().GetSprite(i).player->team == team_bravo))
+                    if (!sprite.deadmeat and (sprite.player->team == team_bravo))
                         teamalivenum[team_bravo] += 1;
-                    if (SpriteSystem::Get().GetSprite(i).active &&
-                        !SpriteSystem::Get().GetSprite(i).deadmeat and
-                        (SpriteSystem::Get().GetSprite(i).player->team == team_charlie))
+                    if (!sprite.deadmeat and (sprite.player->team == team_charlie))
                         teamalivenum[team_charlie] += 1;
-                    if (SpriteSystem::Get().GetSprite(i).active &&
-                        !SpriteSystem::Get().GetSprite(i).deadmeat and
-                        (SpriteSystem::Get().GetSprite(i).player->team == team_delta))
+                    if (!sprite.deadmeat and (sprite.player->team == team_delta))
                         teamalivenum[team_delta] += 1;
                 }
 
@@ -2005,9 +2001,10 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                     ((teamalivenum[1] < 1) && (teamalivenum[2] < 1) && (teamalivenum[3] < 1) &&
                      (teamalivenum[4] < 1)))
                 {
-                    for (i = 1; i <= max_sprites; i++)
-                        if (SpriteSystem::Get().GetSprite(i).active)
-                            SpriteSystem::Get().GetSprite(i).respawncounter = survival_respawntime;
+                    auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+                    std::for_each(
+                        std::begin(activeSprites), std::end(activeSprites),
+                        [](auto &sprite) { sprite.respawncounter = survival_respawntime; });
 
                     if (!survivalendround)
                         if (CVar::sv_gamemode == gamestyle_ctf)
@@ -2032,13 +2029,14 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
                     survivalendround = true;
 
-                    for (i = 1; i <= max_sprites; i++)
-                        if (SpriteSystem::Get().GetSprite(i).active &&
-                            !SpriteSystem::Get().GetSprite(i).deadmeat)
+                    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                    {
+                        if (!sprite.deadmeat)
                         {
-                            SpriteSystem::Get().GetSprite(i).idlerandom = 5;
-                            SpriteSystem::Get().GetSprite(i).idletime = 1;
+                            sprite.idlerandom = 5;
+                            sprite.idletime = 1;
                         }
+                    }
                 }
 
 #ifndef SERVER
@@ -3185,11 +3183,15 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
     if (CVar::sv_gamemode == gamestyle_rambo)
         if (num != who)
         {
-            for (j = 1; j <= max_players; j++)
-                if ((SpriteSystem::Get().GetSprite(j).active) && (who != j) && (num != j))
-                    if ((SpriteSystem::Get().GetSprite(j).weapon.num == guns[bow].num) ||
-                        (SpriteSystem::Get().GetSprite(j).weapon.num == guns[bow2].num))
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+            {
+                if ((who != sprite.num) && (num != sprite.num))
+                {
+                    if ((sprite.weapon.num == guns[bow].num) ||
+                        (sprite.weapon.num == guns[bow2].num))
                         return;
+                }
+            }
         }
 
     hm = amount;
@@ -3657,14 +3659,15 @@ void Sprite<M>::respawn()
         if (survivalendround)
         {
             survivalcheckendround = false;
-            for (j = 1; j <= max_sprites; j++)
-                if (SpriteSystem::Get().GetSprite(j).active)
-                    if (SpriteSystem::Get().GetSprite(j).player->team != team_spectator)
-                        if (SpriteSystem::Get().GetSprite(j).deadmeat)
-                        {
-                            survivalcheckendround = true;
-                            break;
-                        }
+            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+            {
+                if (sprite.player->team != team_spectator)
+                    if (sprite.deadmeat)
+                    {
+                        survivalcheckendround = true;
+                        break;
+                    }
+            }
             survivalendround = survivalcheckendround;
         }
     }
@@ -3757,11 +3760,11 @@ void Sprite<M>::changeteam(std::int32_t team)
         for (i = team_none; i <= team_spectator; i++)
             teamscount[i] = 0;
 
-        for (i = 1; i <= max_sprites; i++)
-            if (SpriteSystem::Get().GetSprite(i).active &&
-                SpriteSystem::Get().GetSprite(i).isnotspectator())
-                teamscount[SpriteSystem::Get().GetSprite(i).player->team] =
-                    teamscount[SpriteSystem::Get().GetSprite(i).player->team] + 1;
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            if (sprite.isnotspectator())
+                teamscount[sprite.player->team] = teamscount[sprite.player->team] + 1;
+        }
 
         // Check for uneven teams
         if ((CVar::sv_balanceteams) && (adminchange == false))

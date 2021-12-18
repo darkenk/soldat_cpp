@@ -113,7 +113,6 @@ void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
 void servermapchange(std::uint8_t id)
 {
     tmsg_mapchange mapchangemsg;
-    std::int32_t i;
     tplayer dstplayer;
 
     mapchangemsg.header.id = msgid_mapchange;
@@ -122,13 +121,12 @@ void servermapchange(std::uint8_t id)
     mapchecksum = getmapchecksum(mapchange, gamemodchecksum);
     mapchangemsg.mapchecksum = mapchecksum;
 
-    for (i = 1; i <= max_players; i++)
-        if (SpriteSystem::Get().GetSprite(i).active)
-        {
-            SpriteSystem::Get().GetSprite(i).player->tkwarnings = 0;
-            tklist[i] = "";
-            tklistkills[i] = 0;
-        }
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        sprite.player->tkwarnings = 0;
+        tklist[sprite.num] = "";
+        tklistkills[sprite.num] = 0;
+    }
 
     if (id == 0)
     {
@@ -151,42 +149,41 @@ void servermapchange(std::uint8_t id)
 void serverflaginfo(std::uint8_t style, std::uint8_t who)
 {
     tmsg_serverflaginfo flagmsg;
-    std::int32_t i;
 
     flagmsg.header.id = msgid_flaginfo;
     flagmsg.style = style;
     flagmsg.who = who;
 
-    for (i = 1; i <= max_players; i++)
-        if ((SpriteSystem::Get().GetSprite(i).active) &&
-            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
-            GetServerNetwork()->senddata(&flagmsg, sizeof(flagmsg),
-                                         SpriteSystem::Get().GetSprite(i).player->peer,
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (sprite.player->controlmethod == human)
+            GetServerNetwork()->senddata(&flagmsg, sizeof(flagmsg), sprite.player->peer,
                                          k_nSteamNetworkingSend_Reliable);
+    }
 }
 
 void serveridleanimation(std::uint8_t num, std::int16_t style)
 {
     tmsg_idleanimation idlemsg;
-    std::int32_t i;
 
     idlemsg.header.id = msgid_idleanimation;
     idlemsg.num = num;
     idlemsg.idlerandom = style;
 
-    for (i = 1; i <= max_players; i++)
-        if ((SpriteSystem::Get().GetSprite(i).active) &&
-            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
-            GetServerNetwork()->senddata(&idlemsg, sizeof(idlemsg),
-                                         SpriteSystem::Get().GetSprite(i).player->peer,
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (sprite.player->controlmethod == human)
+        {
+            GetServerNetwork()->senddata(&idlemsg, sizeof(idlemsg), sprite.player->peer,
                                          k_nSteamNetworkingSend_Reliable);
+        }
+    }
 }
 
 void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string targetname,
                       std::string reason)
 {
     tmsg_voteon votemsg;
-    std::int32_t i;
 
     votemsg.header.id = msgid_voteon;
     votemsg.votetype = votestyle;
@@ -195,27 +192,30 @@ void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string ta
     stringtoarray(votemsg.targetname.data(), targetname);
     stringtoarray(votemsg.reason.data(), reason);
 
-    for (i = 1; i <= max_players; i++)
-        if ((SpriteSystem::Get().GetSprite(i).active) &&
-            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
-            GetServerNetwork()->senddata(&votemsg, sizeof(votemsg),
-                                         SpriteSystem::Get().GetSprite(i).player->peer,
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (sprite.player->controlmethod == human)
+        {
+            GetServerNetwork()->senddata(&votemsg, sizeof(votemsg), sprite.player->peer,
                                          k_nSteamNetworkingSend_Reliable);
+        }
+    }
 }
 
 void serversendvoteoff()
 {
     tmsg_voteoff votemsg;
-    std::int32_t i;
 
     votemsg.header.id = msgid_voteoff;
 
-    for (i = 1; i <= max_players; i++)
-        if ((SpriteSystem::Get().GetSprite(i).active) &&
-            (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
-            GetServerNetwork()->senddata(&votemsg, sizeof(votemsg),
-                                         SpriteSystem::Get().GetSprite(i).player->peer,
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (sprite.player->controlmethod == human)
+        {
+            GetServerNetwork()->senddata(&votemsg, sizeof(votemsg), sprite.player->peer,
                                          k_nSteamNetworkingSend_Reliable);
+        }
+    }
 }
 
 void serverhandlevotekick(SteamNetworkingMessage_t *netmessage)
@@ -330,7 +330,6 @@ void serverhandlechangeteam(SteamNetworkingMessage_t *netmessage)
 void serversyncmsg(std::int32_t tonum)
 {
     tmsg_serversyncmsg syncmsg;
-    std::int32_t i;
 
     syncmsg.header.id = msgid_serversyncmsg;
     syncmsg.time = timelimitcounter;
@@ -339,48 +338,15 @@ void serversyncmsg(std::int32_t tonum)
     else
         syncmsg.pause = 0;
 
-    for (i = 1; i <= max_players; i++)
-        if ((tonum == 0) || (i == tonum))
-            if ((SpriteSystem::Get().GetSprite(i).active) &&
-                (SpriteSystem::Get().GetSprite(i).player->controlmethod == human))
-                GetServerNetwork()->senddata(&syncmsg, sizeof(syncmsg),
-                                             SpriteSystem::Get().GetSprite(i).player->peer,
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if ((tonum == 0) || (sprite.num == tonum))
+        {
+            if (sprite.player->controlmethod == human)
+            {
+                GetServerNetwork()->senddata(&syncmsg, sizeof(syncmsg), sprite.player->peer,
                                              k_nSteamNetworkingSend_Reliable);
+            }
+        }
+    }
 }
-
-#ifdef STEAM
-void serverhandlevoicedata(SteamNetworkingMessage_t *netmessage)
-{
-    pmsg_voicedata voicemsg;
-    std::uint8_t i;
-    tplayer player;
-
-    if (!CVar::sv_voicechat)
-        return;
-
-    if (!verifypacketlargerorequal(sizeof(voicemsg), netmessage->m_cbSize, msgid_voicedata))
-        return;
-
-    player = tplayer(netmessage->m_nConnUserData);
-
-    if (player.muted == 1)
-        return;
-
-    voicemsg = pmsg_voicedata(netmessage->m_pData);
-
-    voicemsg.speaker = player.spritenum;
-
-    for (i = 1; i <= max_players; i++)
-        if ((SpriteSystem::Get().GetSprite(i).active) &&
-            (SpriteSystem::Get().GetSprite(i).player.controlmethod == human))
-            if ((player.spritenum != i) &&
-                (uint64(SpriteSystem::Get().GetSprite(i).player.steamid) > 0))
-                if (CVar::sv_voicechat_alltalk or
-                    SpriteSystem::Get()
-                        .GetSprite(player.spritenum)
-                        .isinsameteam(SpriteSystem::Get().GetSprite(i)))
-                    udp->senddata(&voicemsg, netmessage->m_cbSize,
-                                  SpriteSystem::Get().GetSprite(i).player.peer,
-                                  k_nsteamnetworkingsend_nodelay);
-}
-#endif
