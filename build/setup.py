@@ -1,24 +1,50 @@
 #!/usr/bin/python3
 import os
 import subprocess
+from enum import Enum
+from os import path
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__)) + '/'
-THIRD_PARTY_SRC_DIR = BASE_DIR + '../third_party/src/'
-CONFIG_DIR = 'debug/'
-OUT_DIR = BASE_DIR + 'out/'
-PLATFORM_DIR = 'linux_x86/'
-THIRD_PARTY_OUT_DIR = OUT_DIR + PLATFORM_DIR + CONFIG_DIR + 'third_party/'
-
+BASE_DIR = path.dirname(path.abspath(__file__))
+THIRD_PARTY_SRC_DIR = path.join(path.join(path.join(BASE_DIR, '..'), 'third_party'), 'src') + '/'
+OUT_DIR = path.join(BASE_DIR, 'out')
 JOBS = str(os.cpu_count())
+
+class Platform(Enum):
+    LINUX_x64 = 'linux_x64'
+
+class Config(Enum):
+    Release = 'release'
+    Debug = 'debug'
+
+# current configuration
+
+PLATFORM = Platform.LINUX_x64
+CONFIG = Config.Release
+
+# Helpers
+
+def GetThirdPartyOutDir(platform, config):
+    return path.join(path.join(path.join(OUT_DIR, platform.value), config.value), 'third_party') + '/'
+
+def GetSodiumOutDir(platform, config):
+    return path.join(GetThirdPartyOutDir(platform, config), 'libsodium')
+
+def GetProtobufOutDir(platform, config):
+    return path.join(GetThirdPartyOutDir(platform, config), 'protobuf')
+
+def GetCmakeArgBuildType(config):
+    if config == Config.Release:
+        return '-DCMAKE_BUILD_TYPE=Release'
+    else:
+        return '-DCMAKE_BUILD_TYPE=Debug'
 
 print(BASE_DIR)
 
-SODIUM_DIR = THIRD_PARTY_OUT_DIR + 'libsodium'
-PROTOBUF_DIR = THIRD_PARTY_OUT_DIR + 'protobuf'
+# 3rdparty library compilation instructions
 
-def SetupProtobuf():
+def SetupProtobuf(platform, config):
     PTB_SRC = THIRD_PARTY_SRC_DIR + 'protobuf-3.19.1'
-    PTB_DIR = PROTOBUF_DIR
+    PTB_DIR = GetProtobufOutDir(platform, config)
     os.makedirs(PTB_DIR, exist_ok = True)
 
     print("Build protobuf in " + PTB_DIR, flush=True)
@@ -27,9 +53,9 @@ def SetupProtobuf():
     subprocess.check_call(['make', '-j' + JOBS], cwd=PTB_DIR)
     subprocess.check_call(['make', 'install'], cwd=PTB_DIR)
 
-def SetupLibsodium():
+def SetupLibsodium(platform, config):
     SOD_SRC = THIRD_PARTY_SRC_DIR + 'libsodium-1.0.18'
-    SOD_DIR = SODIUM_DIR
+    SOD_DIR = GetSodiumOutDir(platform, config)
     os.makedirs(SOD_DIR, exist_ok = True)
 
     subprocess.check_call([SOD_SRC + '/configure', '--prefix=' + SOD_DIR + '/out'], cwd=SOD_DIR)
@@ -37,96 +63,96 @@ def SetupLibsodium():
     subprocess.check_call(['make', 'check'], cwd=SOD_DIR)
     subprocess.check_call(['make', 'install'], cwd=SOD_DIR)
 
-def SetupGameNetworkingSockets():
+def SetupGameNetworkingSockets(platform, config):
     GNS_SRC = THIRD_PARTY_SRC_DIR + 'GameNetworkingSockets-1.3.0'
-    GNS_DIR = THIRD_PARTY_OUT_DIR + 'gamenetworkingsockets'
+    GNS_DIR = GetThirdPartyOutDir(platform, config) + 'gamenetworkingsockets'
     os.makedirs(GNS_DIR, exist_ok = True)
 
     subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + GNS_DIR + '/out',
-                        '-DCMAKE_BUILD_TYPE=Debug', '-DUSE_CRYPTO=libsodium',
-                           '-DUSE_CRYPTO25519=libsodium', '-DCMAKE_PREFIX_PATH=' + SODIUM_DIR +'/out/;' + PROTOBUF_DIR + '/out/',
+                        GetCmakeArgBuildType(config), '-DUSE_CRYPTO=libsodium',
+                           '-DUSE_CRYPTO25519=libsodium', '-DCMAKE_PREFIX_PATH=' + GetSodiumOutDir(platform, config) +'/out/;' + GetProtobufOutDir(platform, config) + '/out/',
                         GNS_SRC], cwd=GNS_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=GNS_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=GNS_DIR)
 
-def SetupSDL():
+def SetupSDL(platform, config):
     SDL_SRC = THIRD_PARTY_SRC_DIR + 'SDL2-2.0.14'
-    SDL_DIR = THIRD_PARTY_OUT_DIR + 'sdl'
+    SDL_DIR = GetThirdPartyOutDir(platform, config) + 'sdl'
     os.makedirs(SDL_DIR, exist_ok = True)
 
     print("Build sdl in " + SDL_DIR, flush=True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + SDL_DIR + '/out', '-DSDL_SHARED=False', '-DCMAKE_BUILD_TYPE=Debug', SDL_SRC], cwd=SDL_DIR)
+    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + SDL_DIR + '/out', '-DSDL_SHARED=False', GetCmakeArgBuildType(config), SDL_SRC], cwd=SDL_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=SDL_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=SDL_DIR)
 
-def SetupSoLoud():
-    SDL_DIR = THIRD_PARTY_OUT_DIR + 'sdl'
+def SetupSoLoud(platform, config):
+    SDL_DIR = GetThirdPartyOutDir(platform, config) + 'sdl'
     SoLD_SRC = THIRD_PARTY_SRC_DIR + 'soloud-RELEASE_20200207/build_cmake'
-    SoLD_DIR = THIRD_PARTY_OUT_DIR + 'soloud'
+    SoLD_DIR = GetThirdPartyOutDir(platform, config) + 'soloud'
     os.makedirs(SoLD_DIR, exist_ok = True)
 
     print("Build SoLoud in " + SoLD_DIR, flush=True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + SoLD_DIR + '/out', '-DCMAKE_BUILD_TYPE=Debug',
+    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + SoLD_DIR + '/out', GetCmakeArgBuildType(config),
                             '-DCMAKE_PREFIX_PATH=' + SDL_DIR + '/out', SoLD_SRC], cwd=SoLD_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=SoLD_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=SoLD_DIR)
 
-def SetupSpdlog():
+def SetupSpdlog(platform, config):
     SPD_SRC = THIRD_PARTY_SRC_DIR + 'spdlog-1.9.2'
-    SPD_DIR = THIRD_PARTY_OUT_DIR + 'spdlog'
+    SPD_DIR = GetThirdPartyOutDir(platform, config) + 'spdlog'
     os.makedirs(SPD_DIR, exist_ok = True)
 
     print("Build spdlog in " + SPD_DIR, flush=True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + SPD_DIR + '/out', '-DCMAKE_BUILD_TYPE=Debug', SPD_SRC], cwd=SPD_DIR)
+    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + SPD_DIR + '/out', GetCmakeArgBuildType(config), SPD_SRC], cwd=SPD_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=SPD_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=SPD_DIR)
 
-def SetupPhysFS():
+def SetupPhysFS(platform, config):
     PFS_SRC = THIRD_PARTY_SRC_DIR + 'physfs-3.0.2'
-    PFS_DIR = THIRD_PARTY_OUT_DIR + 'physfs'
+    PFS_DIR = GetThirdPartyOutDir(platform, config) + 'physfs'
     os.makedirs(PFS_DIR, exist_ok = True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + PFS_DIR + '/out', '-DPHYSFS_BUILD_SHARED=False', '-DPHYSFS_BUILD_TEST=False', '-DCMAKE_BUILD_TYPE=Debug', PFS_SRC], cwd=PFS_DIR)
+    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + PFS_DIR + '/out', '-DPHYSFS_BUILD_SHARED=False', '-DPHYSFS_BUILD_TEST=False', GetCmakeArgBuildType(config), PFS_SRC], cwd=PFS_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=PFS_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=PFS_DIR)
 
-def SetupGTest():
+def SetupGTest(platform, config):
     GTEST_SRC = THIRD_PARTY_SRC_DIR + 'googletest-release-1.10.0'
-    GTEST_DIR = THIRD_PARTY_OUT_DIR + 'gtest'
+    GTEST_DIR = GetThirdPartyOutDir(platform, config) + 'gtest'
     os.makedirs(GTEST_DIR, exist_ok = True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + GTEST_DIR + '/out', '-DBUILD_GMOCK=ON', '-DCMAKE_BUILD_TYPE=Debug', GTEST_SRC], cwd=GTEST_DIR)
+    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + GTEST_DIR + '/out', '-DBUILD_GMOCK=ON', GetCmakeArgBuildType(config), GTEST_SRC], cwd=GTEST_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=GTEST_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=GTEST_DIR)
 
-def SetupFreetype():
+def SetupFreetype(platform, config):
     FT_SRC = THIRD_PARTY_SRC_DIR + 'freetype-2.10.4'
-    FT_DIR = THIRD_PARTY_OUT_DIR + 'freetype'
+    FT_DIR = GetThirdPartyOutDir(platform, config) + 'freetype'
     os.makedirs(FT_DIR, exist_ok = True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + FT_DIR + '/out', '-DCMAKE_BUILD_TYPE=Debug',
+    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + FT_DIR + '/out', GetCmakeArgBuildType(config),
         "-DDISABLE_PNG=ON", "-DDISABLE_HARFBUZ=ON", "-DDISABLE_ZLIB=ON", FT_SRC], cwd=FT_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=FT_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=FT_DIR)
 
-def SetupTracy():
+def SetupTracy(platform, config):
     TRC_SRC = THIRD_PARTY_SRC_DIR + 'tracy-0.7.8'
-    TRC_DIR = THIRD_PARTY_OUT_DIR + 'tracy'
+    TRC_DIR = GetThirdPartyOutDir(platform, config) + 'tracy'
     os.makedirs(TRC_DIR, exist_ok = True)
 
     subprocess.check_call(['make', '-j8', '--file=' + TRC_SRC + '/profiler/build/unix/Makefile', 'release'], cwd=TRC_SRC + '/profiler/build/unix/');
 
-#SetupTracy()
+#SetupTracy(PLATFORM, CONFIG)
 
-SetupLibsodium()
-SetupProtobuf()
-SetupGameNetworkingSockets()
-SetupSDL()
-SetupSoLoud()
-SetupSpdlog()
-SetupPhysFS()
-SetupGTest()
-SetupFreetype()
+SetupLibsodium(PLATFORM, CONFIG)
+SetupProtobuf(PLATFORM, CONFIG)
+SetupGameNetworkingSockets(PLATFORM, CONFIG)
+SetupSDL(PLATFORM, CONFIG)
+SetupSoLoud(PLATFORM, CONFIG)
+SetupSpdlog(PLATFORM, CONFIG)
+SetupPhysFS(PLATFORM, CONFIG)
+SetupGTest(PLATFORM, CONFIG)
+SetupFreetype(PLATFORM, CONFIG)

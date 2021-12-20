@@ -20,9 +20,10 @@ To test client and server you need [assets](https://github.com/Soldat/base).
 * SoLoud
 * OpenGL
 * SHA1
+* Tracy-0.7.8
 
 # Build
-Currently only linux x86 is supported.
+Currently only linux x64 is supported.
 ## Requirements
 * Clang-12
 * cmake-3.18
