@@ -38,7 +38,7 @@ class particlesystem
     void doeulertimestepfor(std::int32_t i);
     void createpart(tvector2 start, tvector2 vel, float mass, std::int32_t num);
     void makeconstraint(std::int32_t pa, std::int32_t pb, float rest);
-    void clone(particlesystem other);
+    void clone(const particlesystem &other);
     void loadpoobject(const std::string &filename, float scale);
     void stopallparts();
     void destroy();

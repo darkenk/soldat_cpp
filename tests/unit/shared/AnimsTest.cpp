@@ -1,4 +1,4 @@
-#include "Anims.hpp"
+#include "AnimationSystem.hpp"
 #include <gtest/gtest.h>
 
 TEST(AnimsTest, IncludeIntoTestHarness)

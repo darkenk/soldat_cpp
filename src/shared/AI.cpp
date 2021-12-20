@@ -187,7 +187,7 @@ void simpledecision(std::uint8_t snum)
             if (with.brain.camper > 0)
             {
                 if (Random(250) == 0)
-                    if (with.bodyanimation.id != prone.id)
+                    if (with.bodyanimation.id != AnimationType::Prone)
                         with.control.prone = true;
 
                 if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
@@ -208,7 +208,7 @@ void simpledecision(std::uint8_t snum)
             if (with.brain.camper > 0)
             {
                 if (Random(300) == 0)
-                    if (with.bodyanimation.id != prone.id)
+                    if (with.bodyanimation.id != AnimationType::Prone)
                         with.control.prone = true;
 
                 if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
@@ -253,7 +253,7 @@ void simpledecision(std::uint8_t snum)
                         with.control.fire = true;
                 }
 
-                if (with.bodyanimation.id == handsupaim.id)
+                if (with.bodyanimation.id == AnimationType::HandSupAim)
                     if (with.bodyanimation.currframe != 11)
                         with.control.fire = false;
 
@@ -427,16 +427,16 @@ void simpledecision(std::uint8_t snum)
                     with.control.fire = true;
                     with.control.down = true;
 
-                    if ((with.bodyanimation.id != stand.id) &&
-                        (with.bodyanimation.id != recoil.id) &&
-                        (with.bodyanimation.id != prone.id) &&
-                        (with.bodyanimation.id != shotgun.id) &&
-                        (with.bodyanimation.id != barret.id) &&
-                        (with.bodyanimation.id != smallrecoil.id) &&
-                        (with.bodyanimation.id != aimrecoil.id) &&
-                        (with.bodyanimation.id != handsuprecoil.id) &&
-                        (with.bodyanimation.id != aim.id) &&
-                        (with.bodyanimation.id != handsupaim.id))
+                    if ((with.bodyanimation.id != AnimationType::Stand) &&
+                        (with.bodyanimation.id != AnimationType::Recoil) &&
+                        (with.bodyanimation.id != AnimationType::Prone) &&
+                        (with.bodyanimation.id != AnimationType::Shotgun) &&
+                        (with.bodyanimation.id != AnimationType::Barret) &&
+                        (with.bodyanimation.id != AnimationType::SmallRecoil) &&
+                        (with.bodyanimation.id != AnimationType::AimRecoil) &&
+                        (with.bodyanimation.id != AnimationType::HandSupRecoil) &&
+                        (with.bodyanimation.id != AnimationType::Aim) &&
+                        (with.bodyanimation.id != AnimationType::HandSupAim))
                         with.control.fire = false;
                 }
             }
@@ -522,7 +522,7 @@ void controlbot(tsprite &spritec)
 
         spritec.freecontrols();
 
-        if (spritec.bodyanimation.id == throw_.id)
+        if (spritec.bodyanimation.id == AnimationType::Throw)
             spritec.control.thrownade = tempb;
         else
             spritec.control.thrownade = false;
@@ -871,8 +871,8 @@ void controlbot(tsprite &spritec)
 
                         // get up if prone
                         if (Random(150) == 0)
-                            if ((spritec.bodyanimation.id == prone.id) ||
-                                (spritec.bodyanimation.id == pronemove.id))
+                            if ((spritec.bodyanimation.id == AnimationType::Prone) ||
+                                (spritec.bodyanimation.id == AnimationType::ProneMove))
                                 spritec.control.prone = true;
                     } // SpriteC.CurrentWaypoint>0
                 }     // gothing
@@ -1063,7 +1063,8 @@ void controlbot(tsprite &spritec)
                 }
 
         // release grenade
-        if ((spritec.bodyanimation.id == throw_.id) && (spritec.bodyanimation.currframe > 35))
+        if ((spritec.bodyanimation.id == AnimationType::Throw) &&
+            (spritec.bodyanimation.currframe > 35))
             spritec.control.thrownade = false;
 
         spritec.brain.waypointtimeoutcounter -= 1;

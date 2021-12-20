@@ -106,10 +106,10 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
         SpriteSystem::Get().GetSprite(i).wearhelmet = 0;
     if ((spritesnap->look & B4) == B4)
         SpriteSystem::Get().GetSprite(i).wearhelmet = 2;
-    if ((SpriteSystem::Get().GetSprite(i).bodyanimation.id != cigar.id) &&
-        (SpriteSystem::Get().GetSprite(i).bodyanimation.id != smoke.id) &&
+    if ((SpriteSystem::Get().GetSprite(i).bodyanimation.id != AnimationType::Cigar) &&
+        (SpriteSystem::Get().GetSprite(i).bodyanimation.id != AnimationType::Smoke) &&
         !((SpriteSystem::Get().GetSprite(i).idlerandom == 1) &&
-          (SpriteSystem::Get().GetSprite(i).bodyanimation.id == stand.id)))
+          (SpriteSystem::Get().GetSprite(i).bodyanimation.id == AnimationType::Stand)))
     {
         SpriteSystem::Get().GetSprite(i).hascigar = 0;
         if ((spritesnap->look & B2) == B2)
@@ -675,9 +675,9 @@ void clienthandledelta_mouseaim(SteamNetworkingMessage_t *netmessage)
     SpriteSystem::Get().GetSprite(i).control.mouseaimx = deltamouse->mouseaimx;
 
     if (SpriteSystem::Get().GetSprite(i).position == pos_prone)
-        SpriteSystem::Get().GetSprite(i).bodyapplyanimation(prone, 1);
+        SpriteSystem::Get().GetSprite(i).bodyapplyanimation(AnimationType::Prone, 1);
     else
-        SpriteSystem::Get().GetSprite(i).bodyapplyanimation(aim, 1);
+        SpriteSystem::Get().GetSprite(i).bodyapplyanimation(AnimationType::Aim, 1);
 
     SpriteSystem::Get().GetSprite(i).weapon.fireintervalprev = 0;
     SpriteSystem::Get().GetSprite(i).weapon.fireintervalcount = 0;

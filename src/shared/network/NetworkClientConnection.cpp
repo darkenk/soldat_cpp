@@ -240,7 +240,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
                 }
                 moddir = string("mods/") + modname + '/';
                 custommodchecksum = checksum;
-                loadanimobjects(moddir);
+                AnimationSystem::Get().LoadAnimObjects(moddir);
                 loadsounds(moddir);
                 forcegraphicsreload = true;
                 usesservermod = true;
@@ -263,7 +263,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
             if (usesservermod) // reset to original mod
             {
                 moddir = CVar::fs_mod;
-                loadanimobjects(moddir);
+                AnimationSystem::Get().LoadAnimObjects(moddir);
                 loadsounds(moddir);
                 forcegraphicsreload = true;
                 usesservermod = false;

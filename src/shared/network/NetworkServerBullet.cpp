@@ -299,7 +299,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     if (style == bullet_style_thrownknife)
     {
         k = guns[thrownknife].hitmultiply;
-        SpriteSystem::Get().GetSprite(p).bodyapplyanimation(stand, 1);
+        SpriteSystem::Get().GetSprite(p).bodyapplyanimation(AnimationType::Stand, 1);
     }
 
     if (style == bullet_style_m2)

@@ -164,10 +164,9 @@ void particlesystem::makeconstraint(std::int32_t pa, std::int32_t pb, float rest
     }
 }
 
-void particlesystem::clone(particlesystem other)
+void particlesystem::clone(const particlesystem &other)
 {
     std::int32_t i;
-    constraint *otherconstraint;
 
     constraintcount = other.constraintcount;
     partcount = other.partcount;
@@ -180,7 +179,7 @@ void particlesystem::clone(particlesystem other)
 
     for (i = 1; i <= constraintcount; i++)
     {
-        otherconstraint = &other.constraints[i];
+        auto otherconstraint = &other.constraints[i];
         {
             constraint &with = constraints[i];
 

@@ -350,13 +350,13 @@ void controlsprite(tsprite &spritec)
         b.y = 0;
 
         if (spritec.control.jetpack and
-            (((spritec.legsanimation.id == jumpside.id) &&
+            (((spritec.legsanimation.id == AnimationType::JumpSide) &&
               (((spritec.direction == -1) && spritec.control.right) or
                ((spritec.direction == 1) && spritec.control.left) or playerpressedleftright)) or
-             ((spritec.legsanimation.id == rollback.id) && spritec.control.up)))
+             ((spritec.legsanimation.id == AnimationType::RollBack) && spritec.control.up)))
         {
-            spritec.bodyapplyanimation(rollback, 1);
-            spritec.legsapplyanimation(rollback, 1);
+            spritec.bodyapplyanimation(AnimationType::RollBack, 1);
+            spritec.legsapplyanimation(AnimationType::RollBack, 1);
         }
         else if (spritec.control.jetpack && (spritec.jetscount > 0))
         {
@@ -374,9 +374,9 @@ void controlsprite(tsprite &spritec)
                         ((float)(spritec.direction * iif(grav > 0.05, jetspeed, grav * 2)) / 2);
             }
 
-            if ((spritec.legsanimation.id != getup.id) && (spritec.bodyanimation.id != roll.id) &&
-                (spritec.bodyanimation.id != rollback.id))
-                spritec.legsapplyanimation(fall, 1);
+            if ((spritec.legsanimation.id != AnimationType::GetUp) && (spritec.bodyanimation.id != AnimationType::Roll) &&
+                (spritec.bodyanimation.id != AnimationType::RollBack))
+                spritec.legsapplyanimation(AnimationType::Fall, 1);
 #ifndef SERVER
             a.x = spritec.skeleton.pos[1].x - 1;
             a.y = spritec.skeleton.pos[1].y + 3;
@@ -438,7 +438,7 @@ void controlsprite(tsprite &spritec)
                                 sprite.isnotspectator())
                                 if (distance(spriteparts.pos[spritec.num], spriteparts.pos[sprite.num]) <
                                     melee_dist)
-                                    spritec.bodyapplyanimation(melee, 1);
+                                    spritec.bodyapplyanimation(AnimationType::Melee, 1);
                         }
                     }
 
@@ -447,19 +447,19 @@ void controlsprite(tsprite &spritec)
         if (spritec.stat == 0)
         {
             if ((spritec.weapon.num == guns[chainsaw].num) ||
-                ((spritec.bodyanimation.id != roll.id) &&
-                 (spritec.bodyanimation.id != rollback.id) &&
-                 (spritec.bodyanimation.id != melee.id) && (spritec.bodyanimation.id != change.id)))
+                ((spritec.bodyanimation.id != AnimationType::Roll) &&
+                 (spritec.bodyanimation.id != AnimationType::RollBack) &&
+                 (spritec.bodyanimation.id != AnimationType::Melee) && (spritec.bodyanimation.id != AnimationType::Change)))
             {
-                if (((spritec.bodyanimation.id == handsupaim.id) &&
+                if (((spritec.bodyanimation.id == AnimationType::HandSupAim) &&
                      (spritec.bodyanimation.currframe == 11)) ||
-                    (spritec.bodyanimation.id != handsupaim.id))
+                    (spritec.bodyanimation.id != AnimationType::HandSupAim))
                 {
                     if (spritec.control.fire && (spritec.ceasefirecounter < 0))
                     {
                         if ((spritec.weapon.num == guns[noweapon].num) ||
                             (spritec.weapon.num == guns[knife].num))
-                            spritec.bodyapplyanimation(punch, 1);
+                            spritec.bodyapplyanimation(AnimationType::Punch, 1);
                         else
                         {
                             if ((spritec.weapon.fireintervalcount == 0) &&
@@ -493,12 +493,12 @@ void controlsprite(tsprite &spritec)
                                             else if (spritec.weapon.num == guns[law].num)
                                             {
                                                 if (spritec.onground and
-                                                    (((spritec.legsanimation.id == crouch.id) &&
+                                                    (((spritec.legsanimation.id == AnimationType::Crouch) &&
                                                       (spritec.legsanimation.currframe > 13)) ||
-                                                     (spritec.legsanimation.id == crouchrun.id) ||
+                                                     (spritec.legsanimation.id == AnimationType::CrouchRun) ||
                                                      (spritec.legsanimation.id ==
-                                                      crouchrunback.id) ||
-                                                     ((spritec.legsanimation.id == prone.id) &&
+                                                      AnimationType::CrouchRunBack) ||
+                                                     ((spritec.legsanimation.id == AnimationType::Prone) &&
                                                       (spritec.legsanimation.currframe > 23))))
                                                     playsound(sfx_law_start,
                                                               spriteparts.pos[spritec.num],
@@ -508,11 +508,11 @@ void controlsprite(tsprite &spritec)
 #endif
                                         if ((spritec.weapon.num != guns[law].num) ||
                                             ((spritec.onground or spritec.ongroundpermanent) and
-                                             (((spritec.legsanimation.id == crouch.id) &&
+                                             (((spritec.legsanimation.id == AnimationType::Crouch) &&
                                                (spritec.legsanimation.currframe > 13)) ||
-                                              (spritec.legsanimation.id == crouchrun.id) ||
-                                              (spritec.legsanimation.id == crouchrunback.id) ||
-                                              ((spritec.legsanimation.id == prone.id) &&
+                                              (spritec.legsanimation.id == AnimationType::CrouchRun) ||
+                                              (spritec.legsanimation.id == AnimationType::CrouchRunBack) ||
+                                              ((spritec.legsanimation.id == AnimationType::Prone) &&
                                                (spritec.legsanimation.currframe > 23)))))
                                             spritec.weapon.startuptimecount -= 1;
                                     }
@@ -537,11 +537,11 @@ void controlsprite(tsprite &spritec)
                                           spritec.gattlingsoundchannel2);
                             if (spritec.weapon.num == guns[law].num)
                                 if ((spritec.onground) and
-                                    (((spritec.legsanimation.id == crouch.id) &&
+                                    (((spritec.legsanimation.id == AnimationType::Crouch) &&
                                       (spritec.legsanimation.currframe > 13)) ||
-                                     (spritec.legsanimation.id == crouchrun.id) ||
-                                     (spritec.legsanimation.id == crouchrunback.id) ||
-                                     ((spritec.legsanimation.id == prone.id) &&
+                                     (spritec.legsanimation.id == AnimationType::CrouchRun) ||
+                                     (spritec.legsanimation.id == AnimationType::CrouchRunBack) ||
+                                     ((spritec.legsanimation.id == AnimationType::Prone) &&
                                       (spritec.legsanimation.currframe > 23))))
                                     // LAW wind down sound
                                     playsound(sfx_law_end, spriteparts.pos[spritec.num],
@@ -603,11 +603,11 @@ void controlsprite(tsprite &spritec)
         spritec.throwgrenade();
 
         // change weapon animation
-        if ((spritec.bodyanimation.id != roll.id) && (spritec.bodyanimation.id != rollback.id) &&
+        if ((spritec.bodyanimation.id != AnimationType::Roll) && (spritec.bodyanimation.id != AnimationType::RollBack) &&
             (spritec.bonusstyle != bonus_flamegod))
             if (spritec.control.changeweapon)
             {
-                spritec.bodyapplyanimation(change, 1);
+                spritec.bodyapplyanimation(AnimationType::Change, 1);
 #ifndef SERVER
                 setsoundpaused(spritec.reloadsoundchannel, true);
 #endif
@@ -621,12 +621,12 @@ void controlsprite(tsprite &spritec)
 #endif
         // throw weapon animation
         if (spritec.control.throwweapon && !spritec.control.thrownade && !spritec.dontdrop and
-            (spritec.bodyanimation.id != roll.id) && (spritec.bodyanimation.id != rollback.id) &&
-            ((spritec.bodyanimation.id != change.id) || (spritec.bodyanimation.currframe > 25)) &&
+            (spritec.bodyanimation.id != AnimationType::Roll) && (spritec.bodyanimation.id != AnimationType::RollBack) &&
+            ((spritec.bodyanimation.id != AnimationType::Change) || (spritec.bodyanimation.currframe > 25)) &&
             (spritec.bonusstyle != bonus_flamegod) && (spritec.weapon.num != guns[bow].num) &&
             (spritec.weapon.num != guns[bow2].num) && (spritec.weapon.num != guns[noweapon].num))
         {
-            spritec.bodyapplyanimation(throwweapon, 1);
+            spritec.bodyapplyanimation(AnimationType::ThrowWeapon, 1);
 
             if (spritec.weapon.num == guns[knife].num)
                 spritec.bodyanimation.speed = 2;
@@ -638,8 +638,8 @@ void controlsprite(tsprite &spritec)
 
         // reload
         if ((spritec.weapon.num == guns[chainsaw].num) ||
-            ((spritec.bodyanimation.id != roll.id) && (spritec.bodyanimation.id != rollback.id) &&
-             (spritec.bodyanimation.id != change.id)))
+            ((spritec.bodyanimation.id != AnimationType::Roll) && (spritec.bodyanimation.id != AnimationType::RollBack) &&
+             (spritec.bodyanimation.id != AnimationType::Change)))
         {
             if (spritec.control.reload)
             {
@@ -650,7 +650,7 @@ void controlsprite(tsprite &spritec)
                         if (spritec.weapon.ammocount < spritec.weapon.ammo)
                         {
                             if (spritec.weapon.fireintervalcount == 0)
-                                spritec.bodyapplyanimation(reload, 1);
+                                spritec.bodyapplyanimation(AnimationType::Reload, 1);
                             else
                                 spritec.autoreloadwhencanfire = true;
                         }
@@ -667,7 +667,7 @@ void controlsprite(tsprite &spritec)
         }
 
         // reload shotgun / reload spas
-        if ((spritec.bodyanimation.id == reload.id) && (spritec.bodyanimation.currframe == 7))
+        if ((spritec.bodyanimation.id == AnimationType::Reload) && (spritec.bodyanimation.currframe == 7))
         {
 #ifndef SERVER
             playsound(sfx_spas12_reload, spriteparts.pos[spritec.num], spritec.reloadsoundchannel);
@@ -676,7 +676,7 @@ void controlsprite(tsprite &spritec)
         }
 
         if (!spritec.control.fire or (spritec.weapon.ammocount == 0))
-            if ((spritec.bodyanimation.id == reload.id) && (spritec.bodyanimation.currframe == 14))
+            if ((spritec.bodyanimation.id == AnimationType::Reload) && (spritec.bodyanimation.currframe == 14))
             {
                 spritec.weapon.ammocount = spritec.weapon.ammocount + 1;
                 if (spritec.weapon.ammocount < spritec.weapon.ammo)
@@ -685,7 +685,7 @@ void controlsprite(tsprite &spritec)
 
         // Change Weapon
         // sound
-        if ((spritec.bodyanimation.id == change.id) && (spritec.bodyanimation.currframe == 2))
+        if ((spritec.bodyanimation.id == AnimationType::Change) && (spritec.bodyanimation.currframe == 2))
         {
 #ifndef SERVER
             if (spritec.secondaryweapon.num == guns[colt].num)
@@ -700,7 +700,7 @@ void controlsprite(tsprite &spritec)
             spritec.bodyanimation.currframe += 1;
         }
 
-        if ((spritec.bodyanimation.id == change.id) && (spritec.bodyanimation.currframe == 25) &&
+        if ((spritec.bodyanimation.id == AnimationType::Change) && (spritec.bodyanimation.currframe == 25) &&
             (spritec.bonusstyle != bonus_flamegod))
         {
 #ifdef SERVER
@@ -726,11 +726,11 @@ void controlsprite(tsprite &spritec)
             }
         }
 
-        if (((spritec.bodyanimation.id == change.id) &&
-             (spritec.bodyanimation.currframe == change.numframes)) &&
+        if (((spritec.bodyanimation.id == AnimationType::Change) &&
+             (spritec.bodyanimation.currframe == AnimationSystem::Get().GetAnimation(AnimationType::Change).numframes)) &&
             (spritec.bonusstyle != bonus_flamegod) && (spritec.weapon.ammocount == 0))
         {
-            spritec.bodyapplyanimation(stand, 1);
+            spritec.bodyapplyanimation(AnimationType::Stand, 1);
 #ifndef SERVER
             setsoundpaused(spritec.reloadsoundchannel, false);
 #endif
@@ -738,21 +738,21 @@ void controlsprite(tsprite &spritec)
 
         // Throw away weapon
 #ifndef SERVER
-        if ((spritec.bodyanimation.id == throwweapon.id) && (spritec.bodyanimation.currframe == 2))
+        if ((spritec.bodyanimation.id == AnimationType::ThrowWeapon) && (spritec.bodyanimation.currframe == 2))
             playsound(sfx_throwgun, spriteparts.pos[spritec.num]);
 #endif
         if (spritec.weapon.num != guns[knife].num)
-            if ((spritec.bodyanimation.id == throwweapon.id) &&
+            if ((spritec.bodyanimation.id == AnimationType::ThrowWeapon) &&
                 (spritec.bodyanimation.currframe == 19) &&
                 (spritec.weapon.num != guns[noweapon].num))
             {
                 spritec.dropweapon();
-                spritec.bodyapplyanimation(stand, 1);
+                spritec.bodyapplyanimation(AnimationType::Stand, 1);
             }
 
         // Throw knife
         if ((spritec.weapon.num == guns[knife].num) &&
-            (spritec.bodyanimation.id == throwweapon.id) &&
+            (spritec.bodyanimation.id == AnimationType::ThrowWeapon) &&
             (!spritec.control.throwweapon or (spritec.bodyanimation.currframe == 16)))
         {
 #ifdef SERVER
@@ -780,7 +780,7 @@ void controlsprite(tsprite &spritec)
                 createbullet(a, b, guns[thrownknife].num, spritec.num, 255,
                              guns[thrownknife].hitmultiply, true, false);
                 spritec.applyweaponbynum(guns[noweapon].num, 1);
-                spritec.bodyapplyanimation(stand, 1);
+                spritec.bodyapplyanimation(AnimationType::Stand, 1);
 #ifndef SERVER
                 if ((spritec.num == mysprite) && !spritec.deadmeat)
                     clientspritesnapshot();
@@ -790,7 +790,7 @@ void controlsprite(tsprite &spritec)
 
         // Punch!
         if (!spritec.deadmeat)
-            if ((spritec.bodyanimation.id == punch.id) && (spritec.bodyanimation.currframe == 11) &&
+            if ((spritec.bodyanimation.id == AnimationType::Punch) && (spritec.bodyanimation.currframe == 11) &&
                 (spritec.weapon.num != guns[law].num) && (spritec.weapon.num != guns[m79].num))
             {
                 a.x = spritec.skeleton.pos[16].x + 2 * spritec.direction;
@@ -810,7 +810,7 @@ void controlsprite(tsprite &spritec)
 
         // Buttstock!
         if (!spritec.deadmeat)
-            if ((spritec.bodyanimation.id == melee.id) && (spritec.bodyanimation.currframe == 12))
+            if ((spritec.bodyanimation.id == AnimationType::Melee) && (spritec.bodyanimation.currframe == 12))
             {
                 a.x = spritec.skeleton.pos[16].x + 2 * spritec.direction;
                 a.y = spritec.skeleton.pos[16].y + 3;
@@ -824,12 +824,12 @@ void controlsprite(tsprite &spritec)
 #endif
             }
 
-        if (spritec.bodyanimation.id == melee.id)
+        if (spritec.bodyanimation.id == AnimationType::Melee)
             if (spritec.bodyanimation.currframe > 20)
-                spritec.bodyapplyanimation(stand, 1);
+                spritec.bodyapplyanimation(AnimationType::Stand, 1);
 
         // Shotgun luska
-        if ((spritec.bodyanimation.id == shotgun.id) && (spritec.bodyanimation.currframe == 24))
+        if ((spritec.bodyanimation.id == AnimationType::Shotgun) && (spritec.bodyanimation.currframe == 24))
         {
 #ifndef SERVER
             b = spritec.gethandsaimdirection();
@@ -865,18 +865,18 @@ void controlsprite(tsprite &spritec)
         // Prone
         if (spritec.control.prone)
         {
-            if ((spritec.legsanimation.id != getup.id) && (spritec.legsanimation.id != prone.id) &&
-                (spritec.legsanimation.id != pronemove.id))
+            if ((spritec.legsanimation.id != AnimationType::GetUp) && (spritec.legsanimation.id != AnimationType::Prone) &&
+                (spritec.legsanimation.id != AnimationType::ProneMove))
             {
 #ifndef SERVER
                 playsound(sfx_goprone, spriteparts.pos[spritec.num]);
 #endif
 
-                spritec.legsapplyanimation(prone, 1);
-                if ((spritec.bodyanimation.id != reload.id) &&
-                    (spritec.bodyanimation.id != change.id) &&
-                    (spritec.bodyanimation.id != throwweapon.id))
-                    spritec.bodyapplyanimation(prone, 1);
+                spritec.legsapplyanimation(AnimationType::Prone, 1);
+                if ((spritec.bodyanimation.id != AnimationType::Reload) &&
+                    (spritec.bodyanimation.id != AnimationType::Change) &&
+                    (spritec.bodyanimation.id != AnimationType::ThrowWeapon))
+                    spritec.bodyapplyanimation(AnimationType::Prone, 1);
 
                 spritec.olddirection = spritec.direction;
                 spritec.control.prone = false;
@@ -886,61 +886,61 @@ void controlsprite(tsprite &spritec)
         // Get up
         if (spritec.position == pos_prone)
             if (spritec.control.prone or (spritec.direction != spritec.olddirection))
-                if (((spritec.legsanimation.id == prone.id) &&
+                if (((spritec.legsanimation.id == AnimationType::Prone) &&
                      (spritec.legsanimation.currframe > 23)) ||
-                    (spritec.legsanimation.id == pronemove.id))
+                    (spritec.legsanimation.id == AnimationType::ProneMove))
                 {
-                    if (spritec.legsanimation.id != getup.id)
+                    if (spritec.legsanimation.id != AnimationType::GetUp)
                     {
-                        spritec.legsanimation = getup;
+                        spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::GetUp);
                         spritec.legsanimation.currframe = 9;
                         spritec.control.prone = false;
 #ifndef SERVER
                         playsound(sfx_standup, spriteparts.pos[spritec.num]);
 #endif
                     }
-                    if ((spritec.bodyanimation.id != reload.id) &&
-                        (spritec.bodyanimation.id != change.id) &&
-                        (spritec.bodyanimation.id != throwweapon.id))
-                        spritec.bodyapplyanimation(getup, 9);
+                    if ((spritec.bodyanimation.id != AnimationType::Reload) &&
+                        (spritec.bodyanimation.id != AnimationType::Change) &&
+                        (spritec.bodyanimation.id != AnimationType::ThrowWeapon))
+                        spritec.bodyapplyanimation(AnimationType::GetUp, 9);
                 }
 
         unprone = false;
         // Immediately switch from unprone to jump/sidejump, because the end of the unprone
         // animation can be seen as the "wind up" for the jump
-        if ((spritec.legsanimation.id == getup.id) &&
+        if ((spritec.legsanimation.id == AnimationType::GetUp) &&
             (spritec.legsanimation.currframe > 23 - (4 - 1)) && // Possible during the last 4 frames
             spritec.onground && spritec.control.up and
             (spritec.control.right or spritec.control.left))
         {
             // Set sidejump frame 1 to 4 depending on which unprone frame we're in
-            spritec.legsapplyanimation(jumpside, spritec.legsanimation.currframe - (23 - (4 - 1)));
+            spritec.legsapplyanimation(AnimationType::JumpSide, spritec.legsanimation.currframe - (23 - (4 - 1)));
             unprone = true;
         }
-        else if ((spritec.legsanimation.id == getup.id) &&
+        else if ((spritec.legsanimation.id == AnimationType::GetUp) &&
                  (spritec.legsanimation.currframe >
                   23 - (4 - 1)) && // Possible during the last 4 frames
                  spritec.onground and
                  spritec.control.up && !(spritec.control.right or spritec.control.left))
         {
             // Set jump frame 6 to 9 depending on which unprone frame we're in
-            spritec.legsapplyanimation(jump, spritec.legsanimation.currframe - (23 - (9 - 1)));
+            spritec.legsapplyanimation(AnimationType::Jump, spritec.legsanimation.currframe - (23 - (9 - 1)));
             unprone = true;
         }
-        else if ((spritec.legsanimation.id == getup.id) && (spritec.legsanimation.currframe > 23))
+        else if ((spritec.legsanimation.id == AnimationType::GetUp) && (spritec.legsanimation.currframe > 23))
         {
             if (spritec.control.right or spritec.control.left)
             {
                 // Run back or forward depending on facing direction and direction key pressed
                 if ((spritec.direction == 1) ^ spritec.control.left)
-                    spritec.legsapplyanimation(run, 1);
+                    spritec.legsapplyanimation(AnimationType::Run, 1);
                 else
-                    spritec.legsapplyanimation(runback, 1);
+                    spritec.legsapplyanimation(AnimationType::RunBack, 1);
             }
             else if (!spritec.onground && spritec.control.up)
-                spritec.legsapplyanimation(run, 1);
+                spritec.legsapplyanimation(AnimationType::Run, 1);
             else
-                spritec.legsapplyanimation(stand, 1);
+                spritec.legsapplyanimation(AnimationType::Stand, 1);
 
             unprone = true;
         }
@@ -949,10 +949,10 @@ void controlsprite(tsprite &spritec)
         {
             spritec.position = pos_stand;
 
-            if ((spritec.bodyanimation.id != reload.id) &&
-                (spritec.bodyanimation.id != change.id) &&
-                (spritec.bodyanimation.id != throwweapon.id))
-                spritec.bodyapplyanimation(stand, 1);
+            if ((spritec.bodyanimation.id != AnimationType::Reload) &&
+                (spritec.bodyanimation.id != AnimationType::Change) &&
+                (spritec.bodyanimation.id != AnimationType::ThrowWeapon))
+                spritec.bodyapplyanimation(AnimationType::Stand, 1);
         }
 
         // Stat overheat less
@@ -967,15 +967,15 @@ void controlsprite(tsprite &spritec)
 
         // Fondle Barrett?!
         if ((spritec.weapon.num == guns[barrett].num) && (spritec.weapon.fireintervalcount > 0))
-            if ((spritec.bodyanimation.id == stand.id) || (spritec.bodyanimation.id == crouch.id) ||
-                (spritec.bodyanimation.id == prone.id))
-                spritec.bodyapplyanimation(barret, 1);
+            if ((spritec.bodyanimation.id == AnimationType::Stand) || (spritec.bodyanimation.id == AnimationType::Crouch) ||
+                (spritec.bodyanimation.id == AnimationType::Prone))
+                spritec.bodyapplyanimation(AnimationType::Barret, 1);
 
         // IDLE
         if (spritec.stat == 0)
         {
-            if (((spritec.bodyanimation.id == stand.id) &&
-                 (spritec.legsanimation.id == stand.id) and !spritec.deadmeat and
+            if (((spritec.bodyanimation.id == AnimationType::Stand) &&
+                 (spritec.legsanimation.id == AnimationType::Stand) and !spritec.deadmeat and
                  (spritec.idletime > 0)) ||
                 (spritec.idletime > default_idletime))
             {
@@ -1003,14 +1003,14 @@ void controlsprite(tsprite &spritec)
         {
             if (spritec.idletime == 0)
             {
-                spritec.bodyapplyanimation(smoke, 1);
+                spritec.bodyapplyanimation(AnimationType::Smoke, 1);
 #ifdef SERVER
                 serveridleanimation(spritec.num, spritec.idlerandom);
 #endif
                 spritec.idletime = default_idletime;
             }
 
-            if ((spritec.bodyanimation.id == smoke.id) && (spritec.bodyanimation.currframe == 17))
+            if ((spritec.bodyanimation.id == AnimationType::Smoke) && (spritec.bodyanimation.currframe == 17))
             {
 #ifndef SERVER
                 playsound(sfx_stuff, spriteparts.pos[spritec.num]);
@@ -1020,8 +1020,8 @@ void controlsprite(tsprite &spritec)
 
             if (!spritec.deadmeat)
             {
-                if ((spritec.idletime == 1) && (spritec.bodyanimation.id != smoke.id) &&
-                    (spritec.legsanimation.id == stand.id))
+                if ((spritec.idletime == 1) && (spritec.bodyanimation.id != AnimationType::Smoke) &&
+                    (spritec.legsanimation.id == AnimationType::Stand))
                 {
 #ifndef SERVER
                     a = spritec.skeleton.pos[12];
@@ -1043,10 +1043,10 @@ void controlsprite(tsprite &spritec)
                 {
                     if (spritec.hascigar == 0)
                     {
-                        if (spritec.bodyanimation.id == stand.id)
+                        if (spritec.bodyanimation.id == AnimationType::Stand)
                         {
                             // Step 1/8
-                            spritec.bodyapplyanimation(cigar, 1);
+                            spritec.bodyapplyanimation(AnimationType::Cigar, 1);
 #ifdef SERVER
                             serveridleanimation(spritec.num, spritec.idlerandom);
 #endif
@@ -1055,37 +1055,37 @@ void controlsprite(tsprite &spritec)
                     }
                     else if (spritec.hascigar == 5)
                     {
-                        if ((spritec.bodyanimation.id != smoke.id) &&
-                            (spritec.bodyanimation.id != cigar.id))
+                        if ((spritec.bodyanimation.id != AnimationType::Smoke) &&
+                            (spritec.bodyanimation.id != AnimationType::Cigar))
                         {
                             // Step 4.5/8 (only occurrs if interrupted between step 2 and 5, so redo
                             // step 1)
                             spritec.hascigar = 0;
-                            spritec.bodyapplyanimation(cigar, 1);
+                            spritec.bodyapplyanimation(AnimationType::Cigar, 1);
                             spritec.idletime = default_idletime;
                         }
                     }
                     else if (spritec.hascigar == 10)
                     {
-                        if (spritec.bodyanimation.id != smoke.id)
+                        if (spritec.bodyanimation.id != AnimationType::Smoke)
                         {
                             // Step 6/8
-                            spritec.bodyapplyanimation(smoke, 1);
+                            spritec.bodyapplyanimation(AnimationType::Smoke, 1);
                             spritec.idletime = default_idletime;
                         }
                     }
                 }
 
-                if ((spritec.bodyanimation.id == cigar.id) &&
+                if ((spritec.bodyanimation.id == AnimationType::Cigar) &&
                     (spritec.bodyanimation.currframe == 37))
                     if (spritec.hascigar == 5)
                     {
                         // Step 3/8
-                        spritec.bodyapplyanimation(stand, 1);
-                        spritec.bodyapplyanimation(cigar, 1);
+                        spritec.bodyapplyanimation(AnimationType::Stand, 1);
+                        spritec.bodyapplyanimation(AnimationType::Cigar, 1);
                     }
 
-                if ((spritec.bodyanimation.id == cigar.id) &&
+                if ((spritec.bodyanimation.id == AnimationType::Cigar) &&
                     (spritec.bodyanimation.currframe == 9))
                     if (spritec.hascigar == 5)
                     {
@@ -1096,7 +1096,7 @@ void controlsprite(tsprite &spritec)
                         spritec.bodyanimation.currframe += 1;
                     }
 
-                if ((spritec.bodyanimation.id == cigar.id) &&
+                if ((spritec.bodyanimation.id == AnimationType::Cigar) &&
                     (spritec.bodyanimation.currframe == 26))
                 {
                     if (spritec.hascigar == 5)
@@ -1127,7 +1127,7 @@ void controlsprite(tsprite &spritec)
                     }
                 }
 
-                if ((spritec.bodyanimation.id == smoke.id) &&
+                if ((spritec.bodyanimation.id == AnimationType::Smoke) &&
                     ((spritec.bodyanimation.currframe == 17) ||
                      (spritec.bodyanimation.currframe == 37)))
                 {
@@ -1143,7 +1143,7 @@ void controlsprite(tsprite &spritec)
                     spritec.bodyanimation.currframe += 1;
                 }
 
-                if ((spritec.bodyanimation.id == smoke.id) &&
+                if ((spritec.bodyanimation.id == AnimationType::Smoke) &&
                     (spritec.bodyanimation.currframe == 38))
                 {
                     // Step 8/8
@@ -1164,7 +1164,7 @@ void controlsprite(tsprite &spritec)
         {
             if (spritec.idletime == 0)
             {
-                spritec.bodyapplyanimation(wipe, 1);
+                spritec.bodyapplyanimation(AnimationType::Wipe, 1);
 #ifdef SERVER
                 serveridleanimation(spritec.num, spritec.idlerandom);
 #endif
@@ -1176,7 +1176,7 @@ void controlsprite(tsprite &spritec)
         {
             if (spritec.idletime == 0)
             {
-                spritec.bodyapplyanimation(groin, 1);
+                spritec.bodyapplyanimation(AnimationType::Groin, 1);
 #ifdef SERVER
                 serveridleanimation(spritec.num, spritec.idlerandom);
 #endif
@@ -1191,9 +1191,9 @@ void controlsprite(tsprite &spritec)
                 if (spritec.idletime == 0)
                 {
                     if (spritec.wearhelmet == 1)
-                        spritec.bodyapplyanimation(takeoff, 1);
+                        spritec.bodyapplyanimation(AnimationType::TakeOff, 1);
                     if (spritec.wearhelmet == 2)
-                        spritec.bodyapplyanimation(takeoff, 10);
+                        spritec.bodyapplyanimation(AnimationType::TakeOff, 10);
 #ifdef SERVER
                     serveridleanimation(spritec.num, spritec.idlerandom);
 #endif
@@ -1202,7 +1202,7 @@ void controlsprite(tsprite &spritec)
 
                 if (spritec.wearhelmet == 1)
                 {
-                    if ((spritec.bodyanimation.id == takeoff.id) &&
+                    if ((spritec.bodyanimation.id == AnimationType::TakeOff) &&
                         (spritec.bodyanimation.currframe == 15))
                     {
                         spritec.wearhelmet = 2;
@@ -1211,14 +1211,14 @@ void controlsprite(tsprite &spritec)
                 }
                 else if (spritec.wearhelmet == 2)
                 {
-                    if ((spritec.bodyanimation.id == takeoff.id) &&
+                    if ((spritec.bodyanimation.id == AnimationType::TakeOff) &&
                         (spritec.bodyanimation.currframe == 22))
                     {
-                        spritec.bodyapplyanimation(stand, 1);
+                        spritec.bodyapplyanimation(AnimationType::Stand, 1);
                         spritec.idlerandom = -1;
                     }
 
-                    if ((spritec.bodyanimation.id == takeoff.id) &&
+                    if ((spritec.bodyanimation.id == AnimationType::TakeOff) &&
                         (spritec.bodyanimation.currframe == 15))
                     {
                         spritec.wearhelmet = 1;
@@ -1231,7 +1231,7 @@ void controlsprite(tsprite &spritec)
         {
             if (spritec.idletime == 0)
             {
-                spritec.bodyapplyanimation(victory, 1);
+                spritec.bodyapplyanimation(AnimationType::Victory, 1);
 #ifdef SERVER
                 serveridleanimation(spritec.num, spritec.idlerandom);
 #endif
@@ -1247,7 +1247,7 @@ void controlsprite(tsprite &spritec)
         {
             if (spritec.idletime == 0)
             {
-                spritec.bodyapplyanimation(piss, 1);
+                spritec.bodyapplyanimation(AnimationType::Piss, 1);
 #ifdef SERVER
                 serveridleanimation(spritec.num, spritec.idlerandom);
 #endif
@@ -1258,7 +1258,7 @@ void controlsprite(tsprite &spritec)
 #endif
             }
 
-            if (spritec.bodyanimation.id == piss.id)
+            if (spritec.bodyanimation.id == AnimationType::Piss)
             {
                 if ((spritec.bodyanimation.currframe > 8) && (spritec.bodyanimation.currframe < 22))
                 {
@@ -1328,13 +1328,13 @@ void controlsprite(tsprite &spritec)
                         (spritec.weapon.num == guns[barrett].num) ||
                         (spritec.weapon.num == guns[minigun].num))
                     {
-                        spritec.bodyapplyanimation(mercy2, 1);
-                        spritec.legsapplyanimation(mercy2, 1);
+                        spritec.bodyapplyanimation(AnimationType::Mercy2, 1);
+                        spritec.legsapplyanimation(AnimationType::Mercy2, 1);
                     }
                     else if (spritec.weapon.num != guns[minigun].num)
                     {
-                        spritec.bodyapplyanimation(mercy, 1);
-                        spritec.legsapplyanimation(mercy, 1);
+                        spritec.bodyapplyanimation(AnimationType::Mercy, 1);
+                        spritec.legsapplyanimation(AnimationType::Mercy, 1);
                     }
 
 #ifndef SERVER
@@ -1355,7 +1355,7 @@ void controlsprite(tsprite &spritec)
                 }
             }
 
-            if ((spritec.bodyanimation.id == mercy.id) || (spritec.bodyanimation.id == mercy2.id))
+            if ((spritec.bodyanimation.id == AnimationType::Mercy) || (spritec.bodyanimation.id == AnimationType::Mercy2))
             {
                 if (spritec.bodyanimation.currframe == 20)
                 {
@@ -1384,8 +1384,8 @@ void controlsprite(tsprite &spritec)
         {
             if (spritec.idletime == 0)
             {
-                spritec.bodyapplyanimation(own, 1);
-                spritec.legsapplyanimation(own, 1);
+                spritec.bodyapplyanimation(AnimationType::Own, 1);
+                spritec.legsapplyanimation(AnimationType::Own, 1);
 #ifdef SERVER
                 serveridleanimation(spritec.num, spritec.idlerandom);
 #endif
@@ -1397,12 +1397,12 @@ void controlsprite(tsprite &spritec)
         // *CHEAT*
         if (spritec.legsanimation.speed > 1)
         {
-            if ((spritec.legsanimation.id == jump.id) ||
-                (spritec.legsanimation.id == jumpside.id) ||
-                (spritec.legsanimation.id == roll.id) ||
-                (spritec.legsanimation.id == rollback.id) ||
-                (spritec.legsanimation.id == prone.id) || (spritec.legsanimation.id == run.id) ||
-                (spritec.legsanimation.id == runback.id))
+            if ((spritec.legsanimation.id == AnimationType::Jump) ||
+                (spritec.legsanimation.id == AnimationType::JumpSide) ||
+                (spritec.legsanimation.id == AnimationType::Roll) ||
+                (spritec.legsanimation.id == AnimationType::RollBack) ||
+                (spritec.legsanimation.id == AnimationType::Prone) || (spritec.legsanimation.id == AnimationType::Run) ||
+                (spritec.legsanimation.id == AnimationType::RunBack))
             {
                 spriteparts.velocity[spritec.num].x =
                     ((float)(spriteparts.velocity[spritec.num].x) / spritec.legsanimation.speed);
@@ -1411,8 +1411,8 @@ void controlsprite(tsprite &spritec)
             }
 
             if (spritec.legsanimation.speed > 2)
-                if ((spritec.legsanimation.id == pronemove.id) ||
-                    (spritec.legsanimation.id == crouchrun.id))
+                if ((spritec.legsanimation.id == AnimationType::ProneMove) ||
+                    (spritec.legsanimation.id == AnimationType::CrouchRun))
                 {
                     spriteparts.velocity[spritec.num].x =
                         ((float)(spriteparts.velocity[spritec.num].x) /
@@ -1435,7 +1435,7 @@ void controlsprite(tsprite &spritec)
         if (spritec.weapon.num == guns[barrett].num)
         {
             if ((spritec.weapon.fireintervalcount == 0) &&
-                ((spritec.bodyanimation.id == prone.id) || (spritec.bodyanimation.id == aim.id)))
+                ((spritec.bodyanimation.id == AnimationType::Prone) || (spritec.bodyanimation.id == AnimationType::Aim)))
             {
                 if ((fabs(spritec.control.mouseaimx - spriteparts.pos[spritec.num].x) >=
                      640 / 1.035) ||
@@ -1451,7 +1451,7 @@ void controlsprite(tsprite &spritec)
 #endif
                     }
 
-                    if (spritec.bodyanimation.id == prone.id)
+                    if (spritec.bodyanimation.id == AnimationType::Prone)
                         if (spritec.aimdistcoef > sniperaimdist)
                         {
                             spritec.aimdistcoef = spritec.aimdistcoef - aimdistincr;
@@ -1465,7 +1465,7 @@ void controlsprite(tsprite &spritec)
                             }
                         }
 
-                    if (spritec.bodyanimation.id == aim.id)
+                    if (spritec.bodyanimation.id == AnimationType::Aim)
                         if (spritec.aimdistcoef > crouchaimdist)
                         {
                             spritec.aimdistcoef = spritec.aimdistcoef - 2 * aimdistincr;
@@ -1604,9 +1604,9 @@ void controlsprite(tsprite &spritec)
         }
 #endif
         // End any ongoing idle animations if a key is pressed
-        if ((spritec.bodyanimation.id == cigar.id) || (spritec.bodyanimation.id == match.id) ||
-            (spritec.bodyanimation.id == smoke.id) || (spritec.bodyanimation.id == wipe.id) ||
-            (spritec.bodyanimation.id == groin.id))
+        if ((spritec.bodyanimation.id == AnimationType::Cigar) || (spritec.bodyanimation.id == AnimationType::Match) ||
+            (spritec.bodyanimation.id == AnimationType::Smoke) || (spritec.bodyanimation.id == AnimationType::Wipe) ||
+            (spritec.bodyanimation.id == AnimationType::Groin))
         {
             if (spritec.control.left or spritec.control.right or spritec.control.up or
                 spritec.control.down or spritec.control.fire or spritec.control.jetpack or
@@ -1619,20 +1619,20 @@ void controlsprite(tsprite &spritec)
 
         // make anims out of controls
         // rolling
-        if ((spritec.bodyanimation.id != takeoff.id) && (spritec.bodyanimation.id != piss.id) &&
-            (spritec.bodyanimation.id != mercy.id) && (spritec.bodyanimation.id != mercy2.id) &&
-            (spritec.bodyanimation.id != victory.id) && (spritec.bodyanimation.id != own.id))
+        if ((spritec.bodyanimation.id != AnimationType::TakeOff) && (spritec.bodyanimation.id != AnimationType::Piss) &&
+            (spritec.bodyanimation.id != AnimationType::Mercy) && (spritec.bodyanimation.id != AnimationType::Mercy2) &&
+            (spritec.bodyanimation.id != AnimationType::Victory) && (spritec.bodyanimation.id != AnimationType::Own))
         {
-            if ((spritec.bodyanimation.id == roll.id) || (spritec.bodyanimation.id == rollback.id))
+            if ((spritec.bodyanimation.id == AnimationType::Roll) || (spritec.bodyanimation.id == AnimationType::RollBack))
             {
-                if (spritec.legsanimation.id == roll.id)
+                if (spritec.legsanimation.id == AnimationType::Roll)
                 {
                     if (spritec.onground) // if staying on ground
                         spriteparts.forces[spritec.num].x = spritec.direction * rollspeed;
                     else
                         spriteparts.forces[spritec.num].x = spritec.direction * 2 * flyspeed;
                 }
-                else if (spritec.legsanimation.id == rollback.id)
+                else if (spritec.legsanimation.id == AnimationType::RollBack)
                 {
                     if (spritec.onground) // if staying on ground
                         spriteparts.forces[spritec.num].x = -spritec.direction * rollspeed;
@@ -1661,23 +1661,23 @@ void controlsprite(tsprite &spritec)
                 if (spritec.onground) // if staying on ground
                 {
                     // roll to the side
-                    if ((spritec.legsanimation.id == run.id) ||
-                        (spritec.legsanimation.id == runback.id) ||
-                        (spritec.legsanimation.id == fall.id) ||
-                        (spritec.legsanimation.id == pronemove.id) ||
-                        ((spritec.legsanimation.id == prone.id) &&
+                    if ((spritec.legsanimation.id == AnimationType::Run) ||
+                        (spritec.legsanimation.id == AnimationType::RunBack) ||
+                        (spritec.legsanimation.id == AnimationType::Fall) ||
+                        (spritec.legsanimation.id == AnimationType::ProneMove) ||
+                        ((spritec.legsanimation.id == AnimationType::Prone) &&
                          (spritec.legsanimation.currframe >= 24)))
                     {
-                        if ((spritec.legsanimation.id == pronemove.id) ||
-                            ((spritec.legsanimation.id == prone.id) &&
+                        if ((spritec.legsanimation.id == AnimationType::ProneMove) ||
+                            ((spritec.legsanimation.id == AnimationType::Prone) &&
                              (spritec.legsanimation.currframe == spritec.legsanimation.numframes)))
                         {
                             spritec.control.prone = false;
                             spritec.position = pos_stand;
                         }
 #ifndef SERVER
-                        if ((spritec.legsanimation.id != rollback.id) &&
-                            (spritec.legsanimation.id != roll.id))
+                        if ((spritec.legsanimation.id != AnimationType::RollBack) &&
+                            (spritec.legsanimation.id != AnimationType::Roll))
                             playsound(sfx_roll, spriteparts.pos[spritec.num]);
 
                         setsoundpaused(spritec.reloadsoundchannel, true);
@@ -1685,30 +1685,30 @@ void controlsprite(tsprite &spritec)
 
                         if (spritec.direction == 1)
                         {
-                            spritec.bodyapplyanimation(roll, 1);
-                            spritec.legsanimation = roll;
+                            spritec.bodyapplyanimation(AnimationType::Roll, 1);
+                            spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::Roll);
                             spritec.legsanimation.currframe = 1;
                         }
                         else
                         {
-                            spritec.bodyapplyanimation(rollback, 1);
-                            spritec.legsanimation = rollback;
+                            spritec.bodyapplyanimation(AnimationType::RollBack, 1);
+                            spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::RollBack);
                             spritec.legsanimation.currframe = 1;
                         }
                     }
                     else
                     {
                         if (spritec.direction == 1)
-                            spritec.legsapplyanimation(crouchrun, 1);
+                            spritec.legsapplyanimation(AnimationType::CrouchRun, 1);
                         else
-                            spritec.legsapplyanimation(crouchrunback, 1);
+                            spritec.legsapplyanimation(AnimationType::CrouchRunBack, 1);
                     }
 
-                    if ((spritec.legsanimation.id == crouchrun.id) ||
-                        (spritec.legsanimation.id == crouchrunback.id))
+                    if ((spritec.legsanimation.id == AnimationType::CrouchRun) ||
+                        (spritec.legsanimation.id == AnimationType::CrouchRunBack))
                         spriteparts.forces[spritec.num].x = crouchrunspeed;
-                    else if ((spritec.legsanimation.id == roll.id) ||
-                             (spritec.legsanimation.id == rollback.id))
+                    else if ((spritec.legsanimation.id == AnimationType::Roll) ||
+                             (spritec.legsanimation.id == AnimationType::RollBack))
                         spriteparts.forces[spritec.num].x = 2 * crouchrunspeed;
                 }
             }
@@ -1718,23 +1718,23 @@ void controlsprite(tsprite &spritec)
                 if (spritec.onground) // if staying on ground
                 {
                     // roll to the side
-                    if ((spritec.legsanimation.id == run.id) ||
-                        (spritec.legsanimation.id == runback.id) ||
-                        (spritec.legsanimation.id == fall.id) ||
-                        (spritec.legsanimation.id == pronemove.id) ||
-                        ((spritec.legsanimation.id == prone.id) &&
+                    if ((spritec.legsanimation.id == AnimationType::Run) ||
+                        (spritec.legsanimation.id == AnimationType::RunBack) ||
+                        (spritec.legsanimation.id == AnimationType::Fall) ||
+                        (spritec.legsanimation.id == AnimationType::ProneMove) ||
+                        ((spritec.legsanimation.id == AnimationType::Prone) &&
                          (spritec.legsanimation.currframe >= 24)))
                     {
-                        if ((spritec.legsanimation.id == pronemove.id) ||
-                            ((spritec.legsanimation.id == prone.id) &&
+                        if ((spritec.legsanimation.id == AnimationType::ProneMove) ||
+                            ((spritec.legsanimation.id == AnimationType::Prone) &&
                              (spritec.legsanimation.currframe == spritec.legsanimation.numframes)))
                         {
                             spritec.control.prone = false;
                             spritec.position = pos_stand;
                         }
 #ifndef SERVER
-                        if ((spritec.legsanimation.id != rollback.id) &&
-                            (spritec.legsanimation.id != roll.id))
+                        if ((spritec.legsanimation.id != AnimationType::RollBack) &&
+                            (spritec.legsanimation.id != AnimationType::Roll))
                             playsound(sfx_roll, spriteparts.pos[spritec.num]);
 
                         setsoundpaused(spritec.reloadsoundchannel, true);
@@ -1742,44 +1742,44 @@ void controlsprite(tsprite &spritec)
 
                         if (spritec.direction == 1)
                         {
-                            spritec.bodyapplyanimation(rollback, 1);
-                            spritec.legsanimation = rollback;
+                            spritec.bodyapplyanimation(AnimationType::RollBack, 1);
+                            spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::RollBack);
                             spritec.legsanimation.currframe = 1;
                         }
                         else
                         {
-                            spritec.bodyapplyanimation(roll, 1);
-                            spritec.legsanimation = roll;
+                            spritec.bodyapplyanimation(AnimationType::Roll, 1);
+                            spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::Roll);
                             spritec.legsanimation.currframe = 1;
                         }
                     }
                     else
                     {
                         if (spritec.direction == 1)
-                            spritec.legsapplyanimation(crouchrunback, 1);
+                            spritec.legsapplyanimation(AnimationType::CrouchRunBack, 1);
                         else
-                            spritec.legsapplyanimation(crouchrun, 1);
+                            spritec.legsapplyanimation(AnimationType::CrouchRun, 1);
                     }
 
-                    if ((spritec.legsanimation.id == crouchrun.id) ||
-                        (spritec.legsanimation.id == crouchrunback.id))
+                    if ((spritec.legsanimation.id == AnimationType::CrouchRun) ||
+                        (spritec.legsanimation.id == AnimationType::CrouchRunBack))
                         spriteparts.forces[spritec.num].x = -crouchrunspeed;
                 }
             }
             // Proning
             // FIXME(skoskav): The "and Body <> Throw|Punch" check is to keep the grenade tap and
             // punch/stab prone cancel bugs
-            else if ((spritec.legsanimation.id == prone.id) ||
-                     (spritec.legsanimation.id == pronemove.id) ||
-                     ((spritec.legsanimation.id == getup.id) &&
-                      (spritec.bodyanimation.id != throw_.id) &&
-                      (spritec.bodyanimation.id != punch.id)))
+            else if ((spritec.legsanimation.id == AnimationType::Prone) ||
+                     (spritec.legsanimation.id == AnimationType::ProneMove) ||
+                     ((spritec.legsanimation.id == AnimationType::GetUp) &&
+                      (spritec.bodyanimation.id != AnimationType::Throw) &&
+                      (spritec.bodyanimation.id != AnimationType::Punch)))
             {
                 if (spritec.onground)
                 {
-                    if (((spritec.legsanimation.id == prone.id) &&
+                    if (((spritec.legsanimation.id == AnimationType::Prone) &&
                          (spritec.legsanimation.currframe > 25)) ||
-                        (spritec.legsanimation.id == pronemove.id))
+                        (spritec.legsanimation.id == AnimationType::ProneMove))
                     {
                         if (spritec.control.left or spritec.control.right)
                         {
@@ -1788,23 +1788,23 @@ void controlsprite(tsprite &spritec)
                                 spriteparts.forces[spritec.num].x =
                                     iif(spritec.control.left, -pronespeed, pronespeed);
 
-                            spritec.legsapplyanimation(pronemove, 1);
-                            if ((spritec.bodyanimation.id != clipin.id) &&
-                                (spritec.bodyanimation.id != clipout.id) &&
-                                (spritec.bodyanimation.id != slideback.id) &&
-                                (spritec.bodyanimation.id != reload.id) &&
-                                (spritec.bodyanimation.id != change.id) &&
-                                (spritec.bodyanimation.id != throw_.id) &&
-                                (spritec.bodyanimation.id != throwweapon.id))
-                                spritec.bodyapplyanimation(pronemove, 1);
+                            spritec.legsapplyanimation(AnimationType::ProneMove, 1);
+                            if ((spritec.bodyanimation.id != AnimationType::ClipIn) &&
+                                (spritec.bodyanimation.id != AnimationType::ClipOut) &&
+                                (spritec.bodyanimation.id != AnimationType::SlideBack) &&
+                                (spritec.bodyanimation.id != AnimationType::Reload) &&
+                                (spritec.bodyanimation.id != AnimationType::Change) &&
+                                (spritec.bodyanimation.id != AnimationType::Throw) &&
+                                (spritec.bodyanimation.id != AnimationType::ThrowWeapon))
+                                spritec.bodyapplyanimation(AnimationType::ProneMove, 1);
 
-                            if (spritec.legsanimation.id != pronemove.id)
-                                spritec.legsanimation = pronemove;
+                            if (spritec.legsanimation.id != AnimationType::ProneMove)
+                                spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::ProneMove);
                         }
                         else
                         {
-                            if (spritec.legsanimation.id != prone.id)
-                                spritec.legsanimation = prone;
+                            if (spritec.legsanimation.id != AnimationType::Prone)
+                                spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::Prone);
                             spritec.legsanimation.currframe = 26;
                         }
                     }
@@ -1816,40 +1816,40 @@ void controlsprite(tsprite &spritec)
                 if (spritec.onground) // if staying on ground
                 {
                     // jump to the side
-                    if ((spritec.legsanimation.id == run.id) ||
-                        (spritec.legsanimation.id == runback.id) ||
-                        (spritec.legsanimation.id == stand.id) ||
-                        (spritec.legsanimation.id == crouch.id) ||
-                        (spritec.legsanimation.id == crouchrun.id) ||
-                        (spritec.legsanimation.id == crouchrunback.id))
+                    if ((spritec.legsanimation.id == AnimationType::Run) ||
+                        (spritec.legsanimation.id == AnimationType::RunBack) ||
+                        (spritec.legsanimation.id == AnimationType::Stand) ||
+                        (spritec.legsanimation.id == AnimationType::Crouch) ||
+                        (spritec.legsanimation.id == AnimationType::CrouchRun) ||
+                        (spritec.legsanimation.id == AnimationType::CrouchRunBack))
                     {
-                        spritec.legsapplyanimation(jumpside, 1);
+                        spritec.legsapplyanimation(AnimationType::JumpSide, 1);
 #ifndef SERVER
                         playsound(sfx_jump, spriteparts.pos[spritec.num]);
 #endif
                     }
 
                     if (spritec.legsanimation.currframe == spritec.legsanimation.numframes)
-                        spritec.legsapplyanimation(run, 1);
+                        spritec.legsapplyanimation(AnimationType::Run, 1);
                 }
-                else if ((spritec.legsanimation.id == roll.id) ||
-                         (spritec.legsanimation.id == rollback.id))
+                else if ((spritec.legsanimation.id == AnimationType::Roll) ||
+                         (spritec.legsanimation.id == AnimationType::RollBack))
                 {
                     if (spritec.direction == 1)
-                        spritec.legsapplyanimation(run, 1);
+                        spritec.legsapplyanimation(AnimationType::Run, 1);
                     else
-                        spritec.legsapplyanimation(runback, 1);
+                        spritec.legsapplyanimation(AnimationType::RunBack, 1);
                 }
 
-                if (spritec.legsanimation.id == jump.id)
+                if (spritec.legsanimation.id == AnimationType::Jump)
                 {
                     if (spritec.legsanimation.currframe < 10)
                     {
-                        spritec.legsapplyanimation(jumpside, 1);
+                        spritec.legsapplyanimation(AnimationType::JumpSide, 1);
                     }
                 }
 
-                if (spritec.legsanimation.id == jumpside.id)
+                if (spritec.legsanimation.id == AnimationType::JumpSide)
                     // if appropriate frames to move
                     if ((spritec.legsanimation.currframe > 3) &&
                         (spritec.legsanimation.currframe < 11))
@@ -1864,40 +1864,40 @@ void controlsprite(tsprite &spritec)
                 if (spritec.onground) // if staying on ground
                 {
                     // jump to the side
-                    if ((spritec.legsanimation.id == run.id) ||
-                        (spritec.legsanimation.id == runback.id) ||
-                        (spritec.legsanimation.id == stand.id) ||
-                        (spritec.legsanimation.id == crouch.id) ||
-                        (spritec.legsanimation.id == crouchrun.id) ||
-                        (spritec.legsanimation.id == crouchrunback.id))
+                    if ((spritec.legsanimation.id == AnimationType::Run) ||
+                        (spritec.legsanimation.id == AnimationType::RunBack) ||
+                        (spritec.legsanimation.id == AnimationType::Stand) ||
+                        (spritec.legsanimation.id == AnimationType::Crouch) ||
+                        (spritec.legsanimation.id == AnimationType::CrouchRun) ||
+                        (spritec.legsanimation.id == AnimationType::CrouchRunBack))
                     {
-                        spritec.legsapplyanimation(jumpside, 1);
+                        spritec.legsapplyanimation(AnimationType::JumpSide, 1);
 #ifndef SERVER
                         playsound(sfx_jump, spriteparts.pos[spritec.num]);
 #endif
                     }
 
                     if (spritec.legsanimation.currframe == spritec.legsanimation.numframes)
-                        spritec.legsapplyanimation(run, 1);
+                        spritec.legsapplyanimation(AnimationType::Run, 1);
                 }
-                else if ((spritec.legsanimation.id == roll.id) ||
-                         (spritec.legsanimation.id == rollback.id))
+                else if ((spritec.legsanimation.id == AnimationType::Roll) ||
+                         (spritec.legsanimation.id == AnimationType::RollBack))
                 {
                     if (spritec.direction == -1)
-                        spritec.legsapplyanimation(run, 1);
+                        spritec.legsapplyanimation(AnimationType::Run, 1);
                     else
-                        spritec.legsapplyanimation(runback, 1);
+                        spritec.legsapplyanimation(AnimationType::RunBack, 1);
                 }
 
-                if (spritec.legsanimation.id == jump.id)
+                if (spritec.legsanimation.id == AnimationType::Jump)
                 {
                     if (spritec.legsanimation.currframe < 10)
                     {
-                        spritec.legsapplyanimation(jumpside, 1);
+                        spritec.legsapplyanimation(AnimationType::JumpSide, 1);
                     }
                 }
 
-                if (spritec.legsanimation.id == jumpside.id)
+                if (spritec.legsanimation.id == AnimationType::JumpSide)
                     // if appropriate frames to move
                     if ((spritec.legsanimation.currframe > 3) &&
                         (spritec.legsanimation.currframe < 11))
@@ -1911,19 +1911,19 @@ void controlsprite(tsprite &spritec)
             {
                 if (spritec.onground) // if staying on ground
                 {
-                    if (spritec.legsanimation.id != jump.id)
+                    if (spritec.legsanimation.id != AnimationType::Jump)
                     {
-                        spritec.legsapplyanimation(jump, 1);
+                        spritec.legsapplyanimation(AnimationType::Jump, 1);
 #ifndef SERVER
                         playsound(sfx_jump, spriteparts.pos[spritec.num]);
 #endif
                     }
 
                     if (spritec.legsanimation.currframe == spritec.legsanimation.numframes)
-                        spritec.legsapplyanimation(stand, 1);
+                        spritec.legsapplyanimation(AnimationType::Stand, 1);
                 }
 
-                if (spritec.legsanimation.id == jump.id)
+                if (spritec.legsanimation.id == AnimationType::Jump)
                 {
                     // if appropriate frames to move
                     if ((spritec.legsanimation.currframe > 8) &&
@@ -1931,7 +1931,7 @@ void controlsprite(tsprite &spritec)
                         spriteparts.forces[spritec.num].y = -jumpspeed;
 
                     if (spritec.legsanimation.currframe == spritec.legsanimation.numframes)
-                        spritec.legsapplyanimation(fall, 1);
+                        spritec.legsapplyanimation(AnimationType::Fall, 1);
                 }
             }
             // down
@@ -1940,13 +1940,13 @@ void controlsprite(tsprite &spritec)
                 if (spritec.onground) // if staying on ground
                 {
 #ifndef SERVER
-                    if ((spritec.legsanimation.id != crouchrun.id) &&
-                        (spritec.legsanimation.id != crouchrunback.id) &&
-                        (spritec.legsanimation.id != crouch.id))
+                    if ((spritec.legsanimation.id != AnimationType::CrouchRun) &&
+                        (spritec.legsanimation.id != AnimationType::CrouchRunBack) &&
+                        (spritec.legsanimation.id != AnimationType::Crouch))
                         playsound(sfx_crouch, spriteparts.pos[spritec.num]);
 #endif
 
-                    spritec.legsapplyanimation(crouch, 1);
+                    spritec.legsapplyanimation(AnimationType::Crouch, 1);
                 }
             }
             // right
@@ -1955,9 +1955,9 @@ void controlsprite(tsprite &spritec)
                 if (spritec.para == 0)
                 {
                     if (spritec.direction == 1)
-                        spritec.legsapplyanimation(run, 1);
+                        spritec.legsapplyanimation(AnimationType::Run, 1);
                     else
-                        spritec.legsapplyanimation(runback, 1);
+                        spritec.legsapplyanimation(AnimationType::RunBack, 1);
                 }
                 else if (spritec.holdedthing != 0)
                 {
@@ -1982,9 +1982,9 @@ void controlsprite(tsprite &spritec)
                 if (spritec.para == 0)
                 {
                     if (spritec.direction == -1)
-                        spritec.legsapplyanimation(run, 1);
+                        spritec.legsapplyanimation(AnimationType::Run, 1);
                     else
-                        spritec.legsapplyanimation(runback, 1);
+                        spritec.legsapplyanimation(AnimationType::RunBack, 1);
                 }
                 else if (spritec.holdedthing != 0)
                 {
@@ -2010,13 +2010,13 @@ void controlsprite(tsprite &spritec)
                 {
 #ifndef SERVER
                     if (!spritec.deadmeat)
-                        if (spritec.legsanimation.id != stand.id)
+                        if (spritec.legsanimation.id != AnimationType::Stand)
                             playsound(sfx_stop, spriteparts.pos[spritec.num]);
 #endif
-                    spritec.legsapplyanimation(stand, 1);
+                    spritec.legsapplyanimation(AnimationType::Stand, 1);
                 }
                 else
-                    spritec.legsapplyanimation(fall, 1);
+                    spritec.legsapplyanimation(AnimationType::Fall, 1);
             }
         }
 
@@ -2024,27 +2024,27 @@ void controlsprite(tsprite &spritec)
 
         // reloading
         if ((spritec.weapon.reloadtimecount == spritec.weapon.clipouttime) &&
-            (spritec.bodyanimation.id != reload.id) && (spritec.bodyanimation.id != reloadbow.id) &&
-            (spritec.bodyanimation.id != roll.id) && (spritec.bodyanimation.id != rollback.id))
-            spritec.bodyapplyanimation(clipin, 1);
+            (spritec.bodyanimation.id != AnimationType::Reload) && (spritec.bodyanimation.id != AnimationType::ReloadBow) &&
+            (spritec.bodyanimation.id != AnimationType::Roll) && (spritec.bodyanimation.id != AnimationType::RollBack))
+            spritec.bodyapplyanimation(AnimationType::ClipIn, 1);
         if (spritec.weapon.reloadtimecount == spritec.weapon.clipintime)
-            spritec.bodyapplyanimation(slideback, 1);
+            spritec.bodyapplyanimation(AnimationType::SlideBack, 1);
 
         // this piece of code fixes the infamous crouch bug
         // how you ask? well once upon time soldat's code decided that
         // randomly the animation for roll for the body and legs will magically
         // go out of sync, which is causing the crouch bug. so this piece of
         // awesome code simply syncs them when they go out of sync <3
-        if ((spritec.legsanimation.id == roll.id) && (spritec.bodyanimation.id != roll.id))
-            spritec.bodyapplyanimation(roll, 1);
-        if ((spritec.bodyanimation.id == roll.id) && (spritec.legsanimation.id != roll.id))
-            spritec.legsapplyanimation(roll, 1);
-        if ((spritec.legsanimation.id == rollback.id) && (spritec.bodyanimation.id != rollback.id))
-            spritec.bodyapplyanimation(rollback, 1);
-        if ((spritec.bodyanimation.id == rollback.id) && (spritec.legsanimation.id != rollback.id))
-            spritec.legsapplyanimation(rollback, 1);
+        if ((spritec.legsanimation.id == AnimationType::Roll) && (spritec.bodyanimation.id != AnimationType::Roll))
+            spritec.bodyapplyanimation(AnimationType::Roll, 1);
+        if ((spritec.bodyanimation.id == AnimationType::Roll) && (spritec.legsanimation.id != AnimationType::Roll))
+            spritec.legsapplyanimation(AnimationType::Roll, 1);
+        if ((spritec.legsanimation.id == AnimationType::RollBack) && (spritec.bodyanimation.id != AnimationType::RollBack))
+            spritec.bodyapplyanimation(AnimationType::RollBack, 1);
+        if ((spritec.bodyanimation.id == AnimationType::RollBack) && (spritec.legsanimation.id != AnimationType::RollBack))
+            spritec.legsapplyanimation(AnimationType::RollBack, 1);
 
-        if ((spritec.bodyanimation.id == roll.id) || (spritec.bodyanimation.id == rollback.id))
+        if ((spritec.bodyanimation.id == AnimationType::Roll) || (spritec.bodyanimation.id == AnimationType::RollBack))
         {
             if (spritec.legsanimation.currframe != spritec.bodyanimation.currframe)
             {
@@ -2056,7 +2056,7 @@ void controlsprite(tsprite &spritec)
         }
 
         // Gracefully end a roll animation
-        if (((spritec.bodyanimation.id == roll.id) || (spritec.bodyanimation.id == rollback.id)) &&
+        if (((spritec.bodyanimation.id == AnimationType::Roll) || (spritec.bodyanimation.id == AnimationType::RollBack)) &&
             (spritec.bodyanimation.currframe == spritec.bodyanimation.numframes))
         {
             // Was probably a roll
@@ -2066,109 +2066,109 @@ void controlsprite(tsprite &spritec)
                 {
                     if (spritec.control.left or spritec.control.right)
                     {
-                        if (spritec.bodyanimation.id == roll.id)
-                            spritec.legsapplyanimation(crouchrun, 1);
+                        if (spritec.bodyanimation.id == AnimationType::Roll)
+                            spritec.legsapplyanimation(AnimationType::CrouchRun, 1);
                         else
-                            spritec.legsapplyanimation(crouchrunback, 1);
+                            spritec.legsapplyanimation(AnimationType::CrouchRunBack, 1);
                     }
                     else
-                        spritec.legsapplyanimation(crouch, 15);
+                        spritec.legsapplyanimation(AnimationType::Crouch, 15);
                 }
             }
             // Was probably a backflip
-            else if ((spritec.bodyanimation.id == rollback.id) && spritec.control.up)
+            else if ((spritec.bodyanimation.id == AnimationType::RollBack) && spritec.control.up)
             {
                 if (spritec.control.left or spritec.control.right)
                 {
                     // Run back or forward depending on facing direction and direction key pressed
                     if ((spritec.direction == 1) ^ spritec.control.left)
-                        spritec.legsapplyanimation(run, 1);
+                        spritec.legsapplyanimation(AnimationType::Run, 1);
                     else
-                        spritec.legsapplyanimation(runback, 1);
+                        spritec.legsapplyanimation(AnimationType::RunBack, 1);
                 }
                 else
-                    spritec.legsapplyanimation(fall, 1);
+                    spritec.legsapplyanimation(AnimationType::Fall, 1);
             }
             // Was probably a roll (that ended mid-air)
             else if (spritec.control.down)
             {
                 if (spritec.control.left or spritec.control.right)
                 {
-                    if (spritec.bodyanimation.id == roll.id)
-                        spritec.legsapplyanimation(crouchrun, 1);
+                    if (spritec.bodyanimation.id == AnimationType::Roll)
+                        spritec.legsapplyanimation(AnimationType::CrouchRun, 1);
                     else
-                        spritec.legsapplyanimation(crouchrunback, 1);
+                        spritec.legsapplyanimation(AnimationType::CrouchRunBack, 1);
                 }
                 else
-                    spritec.legsapplyanimation(crouch, 15);
+                    spritec.legsapplyanimation(AnimationType::Crouch, 15);
             }
 
-            spritec.bodyapplyanimation(stand, 1);
+            spritec.bodyapplyanimation(AnimationType::Stand, 1);
         }
 
         if (spritec.weapon.ammocount > 0)
-            if ((!spritec.control.thrownade && (spritec.bodyanimation.id != recoil.id) &&
-                 (spritec.bodyanimation.id != smallrecoil.id) &&
-                 (spritec.bodyanimation.id != aimrecoil.id) &&
-                 (spritec.bodyanimation.id != handsuprecoil.id) &&
-                 (spritec.bodyanimation.id != shotgun.id) &&
-                 (spritec.bodyanimation.id != barret.id) &&
-                 (spritec.bodyanimation.id != change.id) &&
-                 (spritec.bodyanimation.id != throwweapon.id) &&
-                 (spritec.bodyanimation.id != weaponnone.id) &&
-                 (spritec.bodyanimation.id != punch.id) && (spritec.bodyanimation.id != roll.id) &&
-                 (spritec.bodyanimation.id != rollback.id) &&
-                 (spritec.bodyanimation.id != reloadbow.id) &&
-                 (spritec.bodyanimation.id != cigar.id) && (spritec.bodyanimation.id != match.id) &&
-                 (spritec.bodyanimation.id != smoke.id) && (spritec.bodyanimation.id != wipe.id) &&
-                 (spritec.bodyanimation.id != takeoff.id) &&
-                 (spritec.bodyanimation.id != groin.id) && (spritec.bodyanimation.id != piss.id) &&
-                 (spritec.bodyanimation.id != mercy.id) &&
-                 (spritec.bodyanimation.id != mercy2.id) &&
-                 (spritec.bodyanimation.id != victory.id) && (spritec.bodyanimation.id != own.id) &&
-                 (spritec.bodyanimation.id != reload.id) &&
-                 (spritec.bodyanimation.id != prone.id) && (spritec.bodyanimation.id != getup.id) &&
-                 (spritec.bodyanimation.id != pronemove.id) &&
-                 (spritec.bodyanimation.id != melee.id)) ||
+            if ((!spritec.control.thrownade && (spritec.bodyanimation.id != AnimationType::Recoil) &&
+                 (spritec.bodyanimation.id != AnimationType::SmallRecoil) &&
+                 (spritec.bodyanimation.id != AnimationType::AimRecoil) &&
+                 (spritec.bodyanimation.id != AnimationType::HandSupRecoil) &&
+                 (spritec.bodyanimation.id != AnimationType::Shotgun) &&
+                 (spritec.bodyanimation.id != AnimationType::Barret) &&
+                 (spritec.bodyanimation.id != AnimationType::Change) &&
+                 (spritec.bodyanimation.id != AnimationType::ThrowWeapon) &&
+                 (spritec.bodyanimation.id != AnimationType::WeaponNone) &&
+                 (spritec.bodyanimation.id != AnimationType::Punch) && (spritec.bodyanimation.id != AnimationType::Roll) &&
+                 (spritec.bodyanimation.id != AnimationType::RollBack) &&
+                 (spritec.bodyanimation.id != AnimationType::ReloadBow) &&
+                 (spritec.bodyanimation.id != AnimationType::Cigar) && (spritec.bodyanimation.id != AnimationType::Match) &&
+                 (spritec.bodyanimation.id != AnimationType::Smoke) && (spritec.bodyanimation.id != AnimationType::Wipe) &&
+                 (spritec.bodyanimation.id != AnimationType::TakeOff) &&
+                 (spritec.bodyanimation.id != AnimationType::Groin) && (spritec.bodyanimation.id != AnimationType::Piss) &&
+                 (spritec.bodyanimation.id != AnimationType::Mercy) &&
+                 (spritec.bodyanimation.id != AnimationType::Mercy2) &&
+                 (spritec.bodyanimation.id != AnimationType::Victory) && (spritec.bodyanimation.id != AnimationType::Own) &&
+                 (spritec.bodyanimation.id != AnimationType::Reload) &&
+                 (spritec.bodyanimation.id != AnimationType::Prone) && (spritec.bodyanimation.id != AnimationType::GetUp) &&
+                 (spritec.bodyanimation.id != AnimationType::ProneMove) &&
+                 (spritec.bodyanimation.id != AnimationType::Melee)) ||
                 ((spritec.bodyanimation.currframe == spritec.bodyanimation.numframes) &&
-                 (spritec.bodyanimation.id != prone.id)) ||
+                 (spritec.bodyanimation.id != AnimationType::Prone)) ||
                 ((spritec.weapon.fireintervalcount == 0) &&
-                 (spritec.bodyanimation.id == barret.id)))
+                 (spritec.bodyanimation.id == AnimationType::Barret)))
             {
                 if (spritec.position != pos_prone)
                 {
                     if (spritec.position == pos_stand)
-                        spritec.bodyapplyanimation(stand, 1);
+                        spritec.bodyapplyanimation(AnimationType::Stand, 1);
 
                     if (spritec.position == pos_crouch)
                     {
                         if (spritec.colliderdistance < 255)
                         {
-                            if (spritec.bodyanimation.id == handsuprecoil.id)
-                                spritec.bodyapplyanimation(handsupaim, 11);
+                            if (spritec.bodyanimation.id == AnimationType::HandSupRecoil)
+                                spritec.bodyapplyanimation(AnimationType::HandSupAim, 11);
                             else
-                                spritec.bodyapplyanimation(handsupaim, 1);
+                                spritec.bodyapplyanimation(AnimationType::HandSupAim, 1);
                         }
                         else
                         {
-                            if (spritec.bodyanimation.id == aimrecoil.id)
-                                spritec.bodyapplyanimation(aim, 6);
+                            if (spritec.bodyanimation.id == AnimationType::AimRecoil)
+                                spritec.bodyapplyanimation(AnimationType::Aim, 6);
                             else
-                                spritec.bodyapplyanimation(aim, 1);
+                                spritec.bodyapplyanimation(AnimationType::Aim, 1);
                         }
                     }
                 }
                 else
-                    spritec.bodyapplyanimation(prone, 26);
+                    spritec.bodyapplyanimation(AnimationType::Prone, 26);
             }
 
-        if ((spritec.legsanimation.id == crouch.id) || (spritec.legsanimation.id == crouchrun.id) ||
-            (spritec.legsanimation.id == crouchrunback.id))
+        if ((spritec.legsanimation.id == AnimationType::Crouch) || (spritec.legsanimation.id == AnimationType::CrouchRun) ||
+            (spritec.legsanimation.id == AnimationType::CrouchRunBack))
             spritec.position = pos_crouch;
         else
             spritec.position = pos_stand;
 
-        if ((spritec.legsanimation.id == prone.id) || (spritec.legsanimation.id == pronemove.id))
+        if ((spritec.legsanimation.id == AnimationType::Prone) || (spritec.legsanimation.id == AnimationType::ProneMove))
             spritec.position = pos_prone;
 
 #ifndef SERVER

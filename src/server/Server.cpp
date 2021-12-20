@@ -458,9 +458,9 @@ void ActivateServer(int argc, const char *argv[])
     for (i = 1; i < main_weapons; i++)
         weaponactive[i] = 1;
 
-    loadanimobjects("");
+    AnimationSystem::Get().LoadAnimObjects("");
     if (length(ModDir) > 0)
-        loadanimobjects(ModDir);
+        AnimationSystem::Get().LoadAnimObjects(ModDir);
 
     // greet!
     WriteLn(" Hit CTRL+C to Exit");

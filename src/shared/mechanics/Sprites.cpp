@@ -113,8 +113,8 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     sprite.idletime = default_idletime;
     sprite.idlerandom = -1;
     sprite.position = pos_stand;
-    sprite.bodyanimation = stand;
-    sprite.legsanimation = stand;
+    sprite.bodyanimation = AnimationSystem::Get().GetAnimation(AnimationType::Stand);
+    sprite.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::Stand);
     sprite.onfire = 0;
     sprite.holdedthing = 0;
     sprite.selweapon = 0;
@@ -298,11 +298,11 @@ void Sprite<M>::update()
     {
         autoreloadwhencanfire = false;
 
-        if ((weapon.num == guns[spas12].num) && (bodyanimation.id != roll.id) &&
-            (bodyanimation.id != rollback.id) && (bodyanimation.id != change.id) &&
-            (weapon.ammocount != weapon.ammo))
+        if ((weapon.num == guns[spas12].num) && (bodyanimation.id != AnimationType::Roll) &&
+            (bodyanimation.id != AnimationType::RollBack) &&
+            (bodyanimation.id != AnimationType::Change) && (weapon.ammocount != weapon.ammo))
         {
-            bodyapplyanimation(reload, 1);
+            bodyapplyanimation(AnimationType::Reload, 1);
         }
     }
 
@@ -350,7 +350,7 @@ void Sprite<M>::update()
         bodyy = 9;
         break;
     case pos_prone: {
-        if (bodyanimation.id == prone.id)
+        if (bodyanimation.id == AnimationType::Prone)
         {
             if (bodyanimation.currframe > 9)
                 bodyy = -2;
@@ -360,13 +360,13 @@ void Sprite<M>::update()
         else
             bodyy = 9;
 
-        if (bodyanimation.id == pronemove.id)
+        if (bodyanimation.id == AnimationType::ProneMove)
             bodyy = 0;
     }
     break;
     }
 
-    if (bodyanimation.id == getup.id)
+    if (bodyanimation.id == AnimationType::GetUp)
     {
         if (bodyanimation.currframe > 18)
             bodyy = 8;
@@ -444,25 +444,35 @@ void Sprite<M>::update()
             skeleton.pos[23].y = skeleton.pos[9].y + direction * rnorm.x;
         }
 
-        if (bodyanimation.id == throw_.id)
+        if (bodyanimation.id == AnimationType::Throw)
             arms = -5;
         else
             arms = -7;
 
         // arm
         i = 15;
-        if ((bodyanimation.id != reload.id) && (bodyanimation.id != reloadbow.id) &&
-            (bodyanimation.id != clipin.id) && (bodyanimation.id != clipout.id) &&
-            (bodyanimation.id != slideback.id) && (bodyanimation.id != change.id) &&
-            (bodyanimation.id != throwweapon.id) && (bodyanimation.id != weaponnone.id) &&
-            (bodyanimation.id != punch.id) && (bodyanimation.id != roll.id) &&
-            (bodyanimation.id != rollback.id) && (bodyanimation.id != cigar.id) &&
-            (bodyanimation.id != match.id) && (bodyanimation.id != smoke.id) &&
-            (bodyanimation.id != wipe.id) && (bodyanimation.id != takeoff.id) &&
-            (bodyanimation.id != groin.id) && (bodyanimation.id != piss.id) &&
-            (bodyanimation.id != mercy.id) && (bodyanimation.id != mercy2.id) &&
-            (bodyanimation.id != victory.id) && (bodyanimation.id != own.id) &&
-            (bodyanimation.id != melee.id))
+        if ((bodyanimation.id != AnimationType::Reload) &&
+            (bodyanimation.id != AnimationType::ReloadBow) &&
+            (bodyanimation.id != AnimationType::ClipIn) &&
+            (bodyanimation.id != AnimationType::ClipOut) &&
+            (bodyanimation.id != AnimationType::SlideBack) &&
+            (bodyanimation.id != AnimationType::Change) &&
+            (bodyanimation.id != AnimationType::ThrowWeapon) &&
+            (bodyanimation.id != AnimationType::WeaponNone) &&
+            (bodyanimation.id != AnimationType::Punch) &&
+            (bodyanimation.id != AnimationType::Roll) &&
+            (bodyanimation.id != AnimationType::RollBack) &&
+            (bodyanimation.id != AnimationType::Cigar) &&
+            (bodyanimation.id != AnimationType::Match) &&
+            (bodyanimation.id != AnimationType::Smoke) &&
+            (bodyanimation.id != AnimationType::Wipe) &&
+            (bodyanimation.id != AnimationType::TakeOff) &&
+            (bodyanimation.id != AnimationType::Groin) &&
+            (bodyanimation.id != AnimationType::Piss) &&
+            (bodyanimation.id != AnimationType::Mercy) &&
+            (bodyanimation.id != AnimationType::Mercy2) &&
+            (bodyanimation.id != AnimationType::Victory) &&
+            (bodyanimation.id != AnimationType::Own) && (bodyanimation.id != AnimationType::Melee))
         {
             p.x = skeleton.pos[i].x;
             p.y = skeleton.pos[i].y;
@@ -478,25 +488,35 @@ void Sprite<M>::update()
             skeleton.pos[i].y = p.y;
         }
 
-        if (bodyanimation.id == throw_.id)
+        if (bodyanimation.id == AnimationType::Throw)
             arms = -6;
         else
             arms = -8;
 
         // arm
         i = 19;
-        if ((bodyanimation.id != reload.id) && (bodyanimation.id != reloadbow.id) &&
-            (bodyanimation.id != clipin.id) && (bodyanimation.id != clipout.id) &&
-            (bodyanimation.id != slideback.id) && (bodyanimation.id != change.id) &&
-            (bodyanimation.id != throwweapon.id) && (bodyanimation.id != weaponnone.id) &&
-            (bodyanimation.id != punch.id) && (bodyanimation.id != roll.id) &&
-            (bodyanimation.id != rollback.id) && (bodyanimation.id != cigar.id) &&
-            (bodyanimation.id != match.id) && (bodyanimation.id != smoke.id) &&
-            (bodyanimation.id != wipe.id) && (bodyanimation.id != takeoff.id) &&
-            (bodyanimation.id != groin.id) && (bodyanimation.id != piss.id) &&
-            (bodyanimation.id != mercy.id) && (bodyanimation.id != mercy2.id) &&
-            (bodyanimation.id != victory.id) && (bodyanimation.id != own.id) &&
-            (bodyanimation.id != melee.id))
+        if ((bodyanimation.id != AnimationType::Reload) &&
+            (bodyanimation.id != AnimationType::ReloadBow) &&
+            (bodyanimation.id != AnimationType::ClipIn) &&
+            (bodyanimation.id != AnimationType::ClipOut) &&
+            (bodyanimation.id != AnimationType::SlideBack) &&
+            (bodyanimation.id != AnimationType::Change) &&
+            (bodyanimation.id != AnimationType::ThrowWeapon) &&
+            (bodyanimation.id != AnimationType::WeaponNone) &&
+            (bodyanimation.id != AnimationType::Punch) &&
+            (bodyanimation.id != AnimationType::Roll) &&
+            (bodyanimation.id != AnimationType::RollBack) &&
+            (bodyanimation.id != AnimationType::Cigar) &&
+            (bodyanimation.id != AnimationType::Match) &&
+            (bodyanimation.id != AnimationType::Smoke) &&
+            (bodyanimation.id != AnimationType::Wipe) &&
+            (bodyanimation.id != AnimationType::TakeOff) &&
+            (bodyanimation.id != AnimationType::Groin) &&
+            (bodyanimation.id != AnimationType::Piss) &&
+            (bodyanimation.id != AnimationType::Mercy) &&
+            (bodyanimation.id != AnimationType::Mercy2) &&
+            (bodyanimation.id != AnimationType::Victory) &&
+            (bodyanimation.id != AnimationType::Own) && (bodyanimation.id != AnimationType::Melee))
         {
             p.x = skeleton.pos[i].x;
             p.y = skeleton.pos[i].y;
@@ -708,38 +728,43 @@ void Sprite<M>::update()
                 canautoreloadspas = true;
 
             // reload
-            if ((weapon.ammocount == 0) &&
-                ((weapon.num == guns[chainsaw].num) ||
-                 ((bodyanimation.id != roll.id) && (bodyanimation.id != rollback.id) &&
-                  (bodyanimation.id != melee.id) && (bodyanimation.id != change.id) &&
-                  (bodyanimation.id != throw_.id) && (bodyanimation.id != throwweapon.id))))
+            if ((weapon.ammocount == 0) && ((weapon.num == guns[chainsaw].num) ||
+                                            ((bodyanimation.id != AnimationType::Roll) &&
+                                             (bodyanimation.id != AnimationType::RollBack) &&
+                                             (bodyanimation.id != AnimationType::Melee) &&
+                                             (bodyanimation.id != AnimationType::Change) &&
+                                             (bodyanimation.id != AnimationType::Throw) &&
+                                             (bodyanimation.id != AnimationType::ThrowWeapon))))
             {
 #ifndef SERVER
                 if (reloadsoundchannel > -2)
                     setsoundpaused(reloadsoundchannel, false);
 #endif
 
-                if (bodyanimation.id != getup.id)
+                if (bodyanimation.id != AnimationType::GetUp)
                 {
                     // spas is unique - it does the fire interval delay AND THEN reloads. all other
                     // weapons do the opposite.
                     if (weapon.num == guns[spas12].num)
                     {
                         if ((weapon.fireintervalcount == 0) && canautoreloadspas)
-                            bodyapplyanimation(reload, 1);
+                            bodyapplyanimation(AnimationType::Reload, 1);
                     }
                     else if ((weapon.num == guns[bow].num) || (weapon.num == guns[bow2].num))
-                        bodyapplyanimation(reloadbow, 1);
-                    else if ((bodyanimation.id != clipin.id) && (bodyanimation.id != slideback.id))
+                        bodyapplyanimation(AnimationType::ReloadBow, 1);
+                    else if ((bodyanimation.id != AnimationType::ClipIn) &&
+                             (bodyanimation.id != AnimationType::SlideBack))
                     {
                         // Don't show reload animation for chainsaw if one of these
                         // animations are already ongoing
                         if ((weapon.num != guns[chainsaw].num) ||
-                            ((bodyanimation.id != roll.id) && (bodyanimation.id != rollback.id) &&
-                             (bodyanimation.id != melee.id) && (bodyanimation.id != change.id) &&
-                             (bodyanimation.id != throw_.id) &&
-                             (bodyanimation.id != throwweapon.id)))
-                            bodyapplyanimation(clipout, 1);
+                            ((bodyanimation.id != AnimationType::Roll) &&
+                             (bodyanimation.id != AnimationType::RollBack) &&
+                             (bodyanimation.id != AnimationType::Melee) &&
+                             (bodyanimation.id != AnimationType::Change) &&
+                             (bodyanimation.id != AnimationType::Throw) &&
+                             (bodyanimation.id != AnimationType::ThrowWeapon)))
+                            bodyapplyanimation(AnimationType::ClipOut, 1);
                     }
 
                     burstcount = 0;
@@ -853,7 +878,7 @@ void Sprite<M>::update()
                     if (weapon.reloadtimecount < 1)
                     {
 #ifdef SERVER
-                        bodyapplyanimation(change, 36);
+                        bodyapplyanimation(AnimationType::Change, 36);
 #endif
                         weapon.reloadtimeprev = weapon.reloadtime;
                         weapon.fireintervalprev = weapon.fireinterval;
@@ -874,7 +899,7 @@ void Sprite<M>::update()
                     if (weapon.num != guns[spas12].num)
                         if (weapon.reloadtimecount < 1)
                         {
-                            bodyapplyanimation(change, 36);
+                            bodyapplyanimation(AnimationType::Change, 36);
                             weapon.reloadtimeprev = weapon.reloadtime;
                             weapon.fireintervalprev = weapon.fireinterval;
                             weapon.reloadtimecount = weapon.reloadtime;
@@ -2306,39 +2331,40 @@ std::int32_t Sprite<M>::dropweapon()
 }
 
 template <Config::Module M>
-void Sprite<M>::legsapplyanimation(const tanimation &anim, std::int32_t curr)
+void Sprite<M>::legsapplyanimation(const AnimationType anim, std::int32_t curr)
 {
     LogTraceG("TSprite.LegsApplyAnimation");
 
-    if ((legsanimation.id == prone.id) || (legsanimation.id == pronemove.id))
+    if ((legsanimation.id == AnimationType::Prone) ||
+        (legsanimation.id == AnimationType::ProneMove))
         return;
 
-    if (anim.id != legsanimation.id)
+    if (anim != legsanimation.id)
     {
-        legsanimation = anim;
+        legsanimation = AnimationSystem::Get().GetAnimation(anim);
         legsanimation.currframe = curr;
     }
 }
 
 template <Config::Module M>
-void Sprite<M>::bodyapplyanimation(const tanimation &anim, std::int32_t curr)
+void Sprite<M>::bodyapplyanimation(const AnimationType anim, std::int32_t curr)
 {
     ZoneScopedN("ApplybodyAnimation");
     LogTraceG("TSprite.BodyApplyAnimation");
 
 #ifndef SERVER
-    if (anim.id == stand.id)
+    if (anim == AnimationType::Stand)
         if (wasreloading)
         {
-            bodyapplyanimation(reload, 1);
+            bodyapplyanimation(AnimationType::Reload, 1);
             wasreloading = false;
             return;
         }
 #endif
 
-    if (anim.id != bodyanimation.id)
+    if (anim != bodyanimation.id)
     {
-        bodyanimation = anim;
+        bodyanimation = AnimationSystem::Get().GetAnimation(anim);
         bodyanimation.currframe = curr;
     }
 }
@@ -2552,7 +2578,8 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 
 #ifndef SERVER
                     // Run
-                    if (((legsanimation.id == run.id) || (legsanimation.id == runback.id)) &&
+                    if (((legsanimation.id == AnimationType::Run) ||
+                         (legsanimation.id == AnimationType::RunBack)) &&
                         ((legsanimation.currframe == 16) || (legsanimation.currframe == 32)))
                     {
                         if (CVar::r_maxsparks > (max_sparks - 10))
@@ -2567,7 +2594,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                         if (CVar::r_maxsparks > (max_sparks - 10))
                             if ((((direction == 1) && (spriteparts.velocity[num].x < 0.01)) ||
                                  ((direction == -1) && (spriteparts.velocity[num].x > 0.01))) &&
-                                (legsanimation.id == run.id))
+                                (legsanimation.id == AnimationType::Run))
                             {
                                 spos.x = (float)(spriteparts.velocity[num].x) / 4;
                                 spos.y = -1.3;
@@ -2585,8 +2612,8 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                     }
 
                     // Crouch
-                    if (((legsanimation.id == crouchrun.id) ||
-                         (legsanimation.id == crouchrunback.id)) &&
+                    if (((legsanimation.id == AnimationType::CrouchRun) ||
+                         (legsanimation.id == AnimationType::CrouchRunBack)) &&
                         ((legsanimation.currframe == 15) || (legsanimation.currframe == 1)) &&
                         (legsanimation.count == 1))
                     {
@@ -2597,14 +2624,15 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                     }
 
                     // Prone
-                    if ((legsanimation.id == pronemove.id) && (legsanimation.currframe == 8) &&
-                        (legsanimation.count == 1))
+                    if ((legsanimation.id == AnimationType::ProneMove) &&
+                        (legsanimation.currframe == 8) && (legsanimation.count == 1))
                     {
                         playsound(sfx_prone_move, spriteparts.pos[num]);
                     }
 
-                    if ((fabs(spriteparts.velocity[num].x) > 2.4) && (legsanimation.id != run.id) &&
-                        (legsanimation.id != runback.id) && (Random(4) == 0))
+                    if ((fabs(spriteparts.velocity[num].x) > 2.4) &&
+                        (legsanimation.id != AnimationType::Run) &&
+                        (legsanimation.id != AnimationType::RunBack) && (Random(4) == 0))
                     {
                         spos.x = (float)(spriteparts.velocity[num].x) / 4;
                         spos.y = -0.9;
@@ -2649,11 +2677,15 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 
                     if (area == 0)
                     {
-                        if ((legsanimation.id == stand.id) || (legsanimation.id == crouch.id) ||
-                            (legsanimation.id == prone.id) || (legsanimation.id == pronemove.id) ||
-                            (legsanimation.id == getup.id) || (legsanimation.id == fall.id) ||
-                            (legsanimation.id == mercy.id) || (legsanimation.id == mercy2.id) ||
-                            (legsanimation.id == own.id))
+                        if ((legsanimation.id == AnimationType::Stand) ||
+                            (legsanimation.id == AnimationType::Crouch) ||
+                            (legsanimation.id == AnimationType::Prone) ||
+                            (legsanimation.id == AnimationType::ProneMove) ||
+                            (legsanimation.id == AnimationType::GetUp) ||
+                            (legsanimation.id == AnimationType::Fall) ||
+                            (legsanimation.id == AnimationType::Mercy) ||
+                            (legsanimation.id == AnimationType::Mercy2) ||
+                            (legsanimation.id == AnimationType::Own))
                         {
                             if ((spriteparts.velocity[num].x < slidelimit) &&
                                 (spriteparts.velocity[num].x > -slidelimit) &&
@@ -2679,9 +2711,9 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                             if ((step.y > slidelimit) && (polytype != poly_type_ice) &&
                                 (polytype != poly_type_bouncy))
                             {
-                                if ((legsanimation.id == stand.id) ||
-                                    (legsanimation.id == fall.id) ||
-                                    (legsanimation.id == crouch.id))
+                                if ((legsanimation.id == AnimationType::Stand) ||
+                                    (legsanimation.id == AnimationType::Fall) ||
+                                    (legsanimation.id == AnimationType::Crouch))
                                 {
                                     spriteparts.velocity[num].x =
                                         spriteparts.velocity[num].x * standsurfacecoefx;
@@ -2690,7 +2722,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                                     spriteparts.forces[num].x =
                                         spriteparts.forces[num].x - spriteparts.velocity[num].x;
                                 }
-                                else if (legsanimation.id == prone.id)
+                                else if (legsanimation.id == AnimationType::Prone)
                                 {
                                     if (legsanimation.currframe > 24)
                                     {
@@ -2712,14 +2744,14 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                                             spriteparts.velocity[num].y * surfacecoefy;
                                     }
                                 }
-                                else if (legsanimation.id == getup.id)
+                                else if (legsanimation.id == AnimationType::GetUp)
                                 {
                                     spriteparts.velocity[num].x =
                                         spriteparts.velocity[num].x * surfacecoefx;
                                     spriteparts.velocity[num].y =
                                         spriteparts.velocity[num].y * surfacecoefy;
                                 }
-                                else if (legsanimation.id == pronemove.id)
+                                else if (legsanimation.id == AnimationType::ProneMove)
                                 {
                                     spriteparts.velocity[num].x =
                                         spriteparts.velocity[num].x * standsurfacecoefx;
@@ -2730,8 +2762,8 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                         }
                         else
                         {
-                            if ((legsanimation.id == crouchrun.id) ||
-                                (legsanimation.id == crouchrunback.id))
+                            if ((legsanimation.id == AnimationType::CrouchRun) ||
+                                (legsanimation.id == AnimationType::CrouchRunBack))
                             {
                                 spriteparts.velocity[num].x =
                                     spriteparts.velocity[num].x * crouchmovesurfacecoefx;
@@ -3474,8 +3506,8 @@ void Sprite<M>::respawn()
     }
 #endif
 
-    bodyanimation = stand;
-    legsanimation = stand;
+    bodyanimation = AnimationSystem::Get().GetAnimation(AnimationType::Stand);
+    legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::Stand);
     position = pos_stand;
     onfire = 0;
     deadcollidecount = 0;
@@ -3664,8 +3696,8 @@ void Sprite<M>::respawn()
 
     freecontrols();
 
-    legsapplyanimation(stand, 1);
-    bodyapplyanimation(stand, 1);
+    legsapplyanimation(AnimationType::Stand, 1);
+    bodyapplyanimation(AnimationType::Stand, 1);
 
     if (canrespawn(deadmeatbeforerespawn))
     {
@@ -3942,8 +3974,8 @@ void Sprite<M>::fire()
 #endif
 
     // Create a normalized directional vector
-    if ((weapon.bulletstyle == bullet_style_knife) || (bodyanimation.id == mercy.id) ||
-        (bodyanimation.id == mercy2.id))
+    if ((weapon.bulletstyle == bullet_style_knife) || (bodyanimation.id == AnimationType::Mercy) ||
+        (bodyanimation.id == AnimationType::Mercy2))
         aimdirection = gethandsaimdirection();
     else
         aimdirection = getcursoraimdirection();
@@ -3974,13 +4006,15 @@ void Sprite<M>::fire()
     {
         if (weapon.bulletspread > 0)
         {
-            if ((legsanimation.id == pronemove.id) ||
-                ((legsanimation.id == prone.id) && (legsanimation.currframe > 23)))
+            if ((legsanimation.id == AnimationType::ProneMove) ||
+                ((legsanimation.id == AnimationType::Prone) && (legsanimation.currframe > 23)))
             {
                 inaccuracy = inaccuracy + weapon.bulletspread / 1.625;
             }
-            else if ((legsanimation.id == crouchrun.id) || (legsanimation.id == crouchrunback.id) ||
-                     ((legsanimation.id == crouch.id) && (legsanimation.currframe > 13)))
+            else if ((legsanimation.id == AnimationType::CrouchRun) ||
+                     (legsanimation.id == AnimationType::CrouchRunBack) ||
+                     ((legsanimation.id == AnimationType::Crouch) &&
+                      (legsanimation.currframe > 13)))
             {
                 inaccuracy = inaccuracy + weapon.bulletspread / 1.3;
             }
@@ -4028,7 +4062,7 @@ void Sprite<M>::fire()
          (weapon.num != guns[flamer].num) && (weapon.num != guns[noweapon].num) &&
          (weapon.num != guns[knife].num) && (weapon.num != guns[chainsaw].num) &&
          (weapon.num != guns[law].num)) ||
-        (bodyanimation.id == mercy.id) || (bodyanimation.id == mercy2.id))
+        (bodyanimation.id == AnimationType::Mercy) || (bodyanimation.id == AnimationType::Mercy2))
     {
         bn = createbullet(a, b, weapon.num, num, 255, weapon.hitmultiply, true, false);
     }
@@ -4130,9 +4164,10 @@ void Sprite<M>::fire()
     if (weapon.num == guns[law].num)
     { // LAW
         if ((onground || ongroundpermanent || ongroundforlaw) &&
-            (((legsanimation.id == crouch.id) && (legsanimation.currframe > 13)) ||
-             (legsanimation.id == crouchrun.id) || (legsanimation.id == crouchrunback.id) ||
-             ((legsanimation.id == prone.id) && (legsanimation.currframe > 23))))
+            (((legsanimation.id == AnimationType::Crouch) && (legsanimation.currframe > 13)) ||
+             (legsanimation.id == AnimationType::CrouchRun) ||
+             (legsanimation.id == AnimationType::CrouchRunBack) ||
+             ((legsanimation.id == AnimationType::Prone) && (legsanimation.currframe > 23))))
         {
             bn = createbullet(a, b, weapon.num, num, 255, weapon.hitmultiply, true, false);
         }
@@ -4143,7 +4178,7 @@ void Sprite<M>::fire()
     }
 
     // Mercy animation
-    if ((bodyanimation.id == mercy.id) || (bodyanimation.id == mercy2.id))
+    if ((bodyanimation.id == AnimationType::Mercy) || (bodyanimation.id == AnimationType::Mercy2))
     {
         if ((bn > 0) && (bn < max_bullets + 1))
             if (bullet[bn].active)
@@ -4202,15 +4237,16 @@ void Sprite<M>::fire()
         if (bonusstyle != bonus_predator)
             playsound(sfx_ak74_fire, spriteparts.pos[num]);
 #endif
-        if ((bodyanimation.id != throw_.id) && (position == pos_stand) &&
-            (bodyanimation.id != getup.id) && (bodyanimation.id != melee.id))
-            bodyapplyanimation(smallrecoil, 1);
+        if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
+            (bodyanimation.id != AnimationType::GetUp) &&
+            (bodyanimation.id != AnimationType::Melee))
+            bodyapplyanimation(AnimationType::SmallRecoil, 1);
         if (position == pos_crouch)
         {
-            if (bodyanimation.id == handsupaim.id)
-                bodyapplyanimation(handsuprecoil, 1);
+            if (bodyanimation.id == AnimationType::HandSupAim)
+                bodyapplyanimation(AnimationType::HandSupRecoil, 1);
             else
-                bodyapplyanimation(aimrecoil, 1);
+                bodyapplyanimation(AnimationType::AimRecoil, 1);
         }
 #ifndef SERVER
         if (!col)
@@ -4223,15 +4259,16 @@ void Sprite<M>::fire()
         if (bonusstyle != bonus_predator)
             playsound(sfx_m249_fire, spriteparts.pos[num]);
 #endif
-        if ((bodyanimation.id != throw_.id) && (position == pos_stand) &&
-            (bodyanimation.id != getup.id) && (bodyanimation.id != melee.id))
-            bodyapplyanimation(smallrecoil, 1);
+        if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
+            (bodyanimation.id != AnimationType::GetUp) &&
+            (bodyanimation.id != AnimationType::Melee))
+            bodyapplyanimation(AnimationType::SmallRecoil, 1);
         if (position == pos_crouch)
         {
-            if (bodyanimation.id == handsupaim.id)
-                bodyapplyanimation(handsuprecoil, 1);
+            if (bodyanimation.id == AnimationType::HandSupAim)
+                bodyapplyanimation(AnimationType::HandSupRecoil, 1);
             else
-                bodyapplyanimation(aimrecoil, 1);
+                bodyapplyanimation(AnimationType::AimRecoil, 1);
         }
 #ifndef SERVER
         if (!col)
@@ -4244,15 +4281,16 @@ void Sprite<M>::fire()
         if (bonusstyle != bonus_predator)
             playsound(sfx_ruger77_fire, spriteparts.pos[num]);
 #endif
-        if ((bodyanimation.id != throw_.id) && (position == pos_stand) &&
-            (bodyanimation.id != getup.id) && (bodyanimation.id != melee.id))
-            bodyapplyanimation(recoil, 1);
+        if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
+            (bodyanimation.id != AnimationType::GetUp) &&
+            (bodyanimation.id != AnimationType::Melee))
+            bodyapplyanimation(AnimationType::Recoil, 1);
         if (position == pos_crouch)
         {
-            if (bodyanimation.id == handsupaim.id)
-                bodyapplyanimation(handsuprecoil, 1);
+            if (bodyanimation.id == AnimationType::HandSupAim)
+                bodyapplyanimation(AnimationType::HandSupRecoil, 1);
             else
-                bodyapplyanimation(aimrecoil, 1);
+                bodyapplyanimation(AnimationType::AimRecoil, 1);
         }
 #ifndef SERVER
         if (!col)
@@ -4267,15 +4305,16 @@ void Sprite<M>::fire()
         a.x = skeleton.pos[15].x + 2 - 0.2 * b.x;
         a.y = skeleton.pos[15].y - 2 - 0.2 * b.y;
 #endif
-        if ((bodyanimation.id != throw_.id) && (position == pos_stand) &&
-            (bodyanimation.id != getup.id) && (bodyanimation.id != melee.id))
-            bodyapplyanimation(smallrecoil, 1);
+        if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
+            (bodyanimation.id != AnimationType::GetUp) &&
+            (bodyanimation.id != AnimationType::Melee))
+            bodyapplyanimation(AnimationType::SmallRecoil, 1);
         if (position == pos_crouch)
         {
-            if (bodyanimation.id == handsupaim.id)
-                bodyapplyanimation(handsuprecoil, 1);
+            if (bodyanimation.id == AnimationType::HandSupAim)
+                bodyapplyanimation(AnimationType::HandSupRecoil, 1);
             else
-                bodyapplyanimation(aimrecoil, 1);
+                bodyapplyanimation(AnimationType::AimRecoil, 1);
         }
 #ifndef SERVER
         if (!col)
@@ -4288,12 +4327,13 @@ void Sprite<M>::fire()
         if (bonusstyle != bonus_predator)
             playsound(sfx_spas12_fire, spriteparts.pos[num]);
 #endif
-        if ((bodyanimation.id != throw_.id) && (position != pos_prone) &&
-            (bodyanimation.id != getup.id) && (bodyanimation.id != melee.id))
-            bodyapplyanimation(shotgun, 1);
+        if ((bodyanimation.id != AnimationType::Throw) && (position != pos_prone) &&
+            (bodyanimation.id != AnimationType::GetUp) &&
+            (bodyanimation.id != AnimationType::Melee))
+            bodyapplyanimation(AnimationType::Shotgun, 1);
 
         // make sure firing interrupts reloading when prone
-        if ((position == pos_prone) && (bodyanimation.id == reload.id))
+        if ((position == pos_prone) && (bodyanimation.id == AnimationType::Reload))
             bodyanimation.currframe = bodyanimation.numframes;
     }
     if (weapon.num == guns[m79].num)
@@ -4302,9 +4342,10 @@ void Sprite<M>::fire()
         if (bonusstyle != bonus_predator)
             playsound(sfx_m79_fire, spriteparts.pos[num]);
 #endif
-        if ((bodyanimation.id != throw_.id) && (position != pos_prone) &&
-            (bodyanimation.id != getup.id) && (bodyanimation.id != melee.id))
-            bodyapplyanimation(smallrecoil, 1);
+        if ((bodyanimation.id != AnimationType::Throw) && (position != pos_prone) &&
+            (bodyanimation.id != AnimationType::GetUp) &&
+            (bodyanimation.id != AnimationType::Melee))
+            bodyapplyanimation(AnimationType::SmallRecoil, 1);
     }
     if (weapon.num == guns[eagle].num)
     {
@@ -4314,15 +4355,16 @@ void Sprite<M>::fire()
         a.x = skeleton.pos[15].x + 3 - 0.17 * b.x;
         a.y = skeleton.pos[15].y - 2 - 0.15 * b.y;
 #endif
-        if ((bodyanimation.id != throw_.id) && (position == pos_stand) &&
-            (bodyanimation.id != getup.id) && (bodyanimation.id != melee.id))
-            bodyapplyanimation(smallrecoil, 1);
+        if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
+            (bodyanimation.id != AnimationType::GetUp) &&
+            (bodyanimation.id != AnimationType::Melee))
+            bodyapplyanimation(AnimationType::SmallRecoil, 1);
         if (position == pos_crouch)
         {
-            if (bodyanimation.id == handsupaim.id)
-                bodyapplyanimation(handsuprecoil, 1);
+            if (bodyanimation.id == AnimationType::HandSupAim)
+                bodyapplyanimation(AnimationType::HandSupRecoil, 1);
             else
-                bodyapplyanimation(aimrecoil, 1);
+                bodyapplyanimation(AimRecoil, 1);
         }
 #ifndef SERVER
         if (!col)
@@ -4347,15 +4389,16 @@ void Sprite<M>::fire()
         if (!col)
             createspark(a, c, 69, num, 255); // shell
 #endif
-        if ((bodyanimation.id != throw_.id) && (position == pos_stand) &&
-            (bodyanimation.id != getup.id) && (bodyanimation.id != melee.id))
-            bodyapplyanimation(smallrecoil, 1);
+        if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
+            (bodyanimation.id != AnimationType::GetUp) &&
+            (bodyanimation.id != AnimationType::Melee))
+            bodyapplyanimation(AnimationType::SmallRecoil, 1);
         if (position == pos_crouch)
         {
-            if (bodyanimation.id == handsupaim.id)
-                bodyapplyanimation(handsuprecoil, 1);
+            if (bodyanimation.id == AnimationType::HandSupAim)
+                bodyapplyanimation(AnimationType::HandSupRecoil, 1);
             else
-                bodyapplyanimation(aimrecoil, 1);
+                bodyapplyanimation(AnimationType::AimRecoil, 1);
         }
     }
     if (weapon.num == guns[barrett].num)
@@ -4364,9 +4407,10 @@ void Sprite<M>::fire()
         if (bonusstyle != bonus_predator)
             playsound(sfx_barretm82_fire, spriteparts.pos[num]);
 #endif
-        if ((bodyanimation.id != throw_.id) && (bodyanimation.id != getup.id) &&
-            (bodyanimation.id != melee.id))
-            bodyapplyanimation(barret, 1);
+        if ((bodyanimation.id != AnimationType::Throw) &&
+            (bodyanimation.id != AnimationType::GetUp) &&
+            (bodyanimation.id != AnimationType::Melee))
+            bodyapplyanimation(AnimationType::Barret, 1);
 #ifndef SERVER
         if (!col)
             createspark(a, c, 71, num, 255); // shell
@@ -4378,9 +4422,10 @@ void Sprite<M>::fire()
         if (bonusstyle != bonus_predator)
             playsound(sfx_minigun_fire, spriteparts.pos[num]);
 #endif
-        if ((bodyanimation.id != throw_.id) && (position == pos_stand) &&
-            (bodyanimation.id != getup.id) && (bodyanimation.id != melee.id))
-            bodyapplyanimation(smallrecoil, 2);
+        if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
+            (bodyanimation.id != AnimationType::GetUp) &&
+            (bodyanimation.id != AnimationType::Melee))
+            bodyapplyanimation(AnimationType::SmallRecoil, 2);
 #ifndef SERVER
         if (!col)
             createspark(a, c, 73, num, 255); // shell
@@ -4396,15 +4441,16 @@ void Sprite<M>::fire()
         if (!col)
             createspark(a, c, 65, num, 255); // shell
 #endif
-        if ((bodyanimation.id != throw_.id) && (position == pos_stand) &&
-            (bodyanimation.id != getup.id) && (bodyanimation.id != melee.id))
-            bodyapplyanimation(smallrecoil, 1);
+        if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
+            (bodyanimation.id != AnimationType::GetUp) &&
+            (bodyanimation.id != AnimationType::Melee))
+            bodyapplyanimation(AnimationType::SmallRecoil, 1);
         if (position == pos_crouch)
         {
-            if (bodyanimation.id == handsupaim.id)
-                bodyapplyanimation(handsuprecoil, 1);
+            if (bodyanimation.id == AnimationType::HandSupAim)
+                bodyapplyanimation(AnimationType::HandSupRecoil, 1);
             else
-                bodyapplyanimation(aimrecoil, 1);
+                bodyapplyanimation(AnimationType::AimRecoil, 1);
         }
     }
     if ((weapon.num == guns[bow].num) || (weapon.num == guns[bow2].num))
@@ -4413,15 +4459,16 @@ void Sprite<M>::fire()
         if (bonusstyle != bonus_predator)
             playsound(sfx_bow_fire, spriteparts.pos[num]);
 #endif
-        if ((bodyanimation.id != throw_.id) && (position == pos_stand) &&
-            (bodyanimation.id != getup.id) && (bodyanimation.id != melee.id))
-            bodyapplyanimation(smallrecoil, 1);
+        if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
+            (bodyanimation.id != AnimationType::GetUp) &&
+            (bodyanimation.id != AnimationType::Melee))
+            bodyapplyanimation(AnimationType::SmallRecoil, 1);
         if (position == pos_crouch)
         {
-            if (bodyanimation.id == handsupaim.id)
-                bodyapplyanimation(handsuprecoil, 1);
+            if (bodyanimation.id == AnimationType::HandSupAim)
+                bodyapplyanimation(AnimationType::HandSupRecoil, 1);
             else
-                bodyapplyanimation(aimrecoil, 1);
+                bodyapplyanimation(AnimationType::AimRecoil, 1);
         }
     }
 #ifndef SERVER
@@ -4449,9 +4496,11 @@ void Sprite<M>::fire()
         // Increase self-bink for next shot
         if (weapon.bink < 0)
         {
-            if ((legsanimation.id == crouch.id) || (legsanimation.id == crouchrun.id) ||
-                (legsanimation.id == crouchrunback.id) || (legsanimation.id == prone.id) ||
-                (legsanimation.id == pronemove.id))
+            if ((legsanimation.id == AnimationType::Crouch) ||
+                (legsanimation.id == AnimationType::CrouchRun) ||
+                (legsanimation.id == AnimationType::CrouchRunBack) ||
+                (legsanimation.id == AnimationType::Prone) ||
+                (legsanimation.id == AnimationType::ProneMove))
                 hitspraycounter = calculatebink(hitspraycounter, round((float)(-weapon.bink) / 2));
             else
             {
@@ -4492,10 +4541,10 @@ void Sprite<M>::fire()
         // less recoil on crouch
         if (onground)
         {
-            if ((legsanimation.id == crouch.id) && (legsanimation.currframe > 13))
+            if ((legsanimation.id == AnimationType::Crouch) && (legsanimation.currframe > 13))
                 rc = (float)(rc) / 2;
 
-            if ((legsanimation.id == prone.id) && (legsanimation.currframe > 23))
+            if ((legsanimation.id == AnimationType::Prone) && (legsanimation.currframe > 23))
                 rc = (float)(rc) / 3;
         }
 
@@ -4523,7 +4572,7 @@ void Sprite<M>::throwflag()
     tvector2 newposdiff;
     tvector2 futurepoint1, futurepoint2, futurepoint3, futurepoint4;
 
-    if ((bodyanimation.id != roll.id) && (bodyanimation.id != rollback.id))
+    if ((bodyanimation.id != AnimationType::Roll) && (bodyanimation.id != AnimationType::RollBack))
     {
         if (control.flagthrow)
         {
@@ -4627,10 +4676,10 @@ void Sprite<M>::throwgrenade()
     if (!control.thrownade)
         grenadecanthrow = true;
 
-    if (grenadecanthrow && control.thrownade && (bodyanimation.id != roll.id) &&
-        (bodyanimation.id != rollback.id))
+    if (grenadecanthrow && control.thrownade && (bodyanimation.id != AnimationType::Roll) &&
+        (bodyanimation.id != AnimationType::RollBack))
     {
-        bodyapplyanimation(throw_, 1);
+        bodyapplyanimation(AnimationType::Throw, 1);
 #ifndef SERVER
         setsoundpaused(reloadsoundchannel, true);
 #endif
@@ -4638,7 +4687,7 @@ void Sprite<M>::throwgrenade()
 
 #ifndef SERVER
     // Pull pin
-    if ((bodyanimation.id == throw_.id) && (bodyanimation.currframe == 15) &&
+    if ((bodyanimation.id == AnimationType::Throw) && (bodyanimation.currframe == 15) &&
         (tertiaryweapon.ammocount > 0) && (ceasefirecounter < 0))
     {
         b = gethandsaimdirection();
@@ -4659,7 +4708,8 @@ void Sprite<M>::throwgrenade()
     }
 #endif
 
-    if ((bodyanimation.id == throw_.id) && (!control.thrownade || (bodyanimation.currframe == 36)))
+    if ((bodyanimation.id == AnimationType::Throw) &&
+        (!control.thrownade || (bodyanimation.currframe == 36)))
     {
         // Grenade throw
         if ((bodyanimation.currframe > 14) && (bodyanimation.currframe < 37) &&
@@ -4716,11 +4766,11 @@ void Sprite<M>::throwgrenade()
         if (weapon.ammocount == 0)
         {
             if (weapon.reloadtimecount > weapon.clipouttime)
-                bodyapplyanimation(clipout, 1);
+                bodyapplyanimation(AnimationType::ClipOut, 1);
             if (weapon.reloadtimecount < weapon.clipouttime)
-                bodyapplyanimation(clipin, 1);
+                bodyapplyanimation(AnimationType::ClipIn, 1);
             if ((weapon.reloadtimecount < weapon.clipintime) && (weapon.reloadtimecount > 0))
-                bodyapplyanimation(slideback, 1);
+                bodyapplyanimation(AnimationType::SlideBack, 1);
 #ifndef SERVER
             setsoundpaused(reloadsoundchannel, false);
 #endif
@@ -4748,18 +4798,22 @@ float Sprite<M>::getmoveacc()
 
     if (moveacc > 0)
     {
-        if ((control.jetpack && (jetscount > 0)) || (legsanimation.id == jump.id) ||
-            (legsanimation.id == jumpside.id) || (legsanimation.id == run.id) ||
-            (legsanimation.id == runback.id) || (legsanimation.id == roll.id) ||
-            (legsanimation.id == rollback.id))
+        if ((control.jetpack && (jetscount > 0)) || (legsanimation.id == AnimationType::Jump) ||
+            (legsanimation.id == AnimationType::JumpSide) ||
+            (legsanimation.id == AnimationType::Run) ||
+            (legsanimation.id == AnimationType::RunBack) ||
+            (legsanimation.id == AnimationType::Roll) ||
+            (legsanimation.id == AnimationType::RollBack))
         {
             result = moveacc * 7;
         }
-        else if ((!ongroundpermanent && (legsanimation.id != prone.id) &&
-                  (legsanimation.id != pronemove.id) && (legsanimation.id != crouch.id) &&
-                  (legsanimation.id != crouchrun.id) && (legsanimation.id != crouchrunback.id)) ||
-                 (legsanimation.id == getup.id) ||
-                 ((legsanimation.id == prone.id) &&
+        else if ((!ongroundpermanent && (legsanimation.id != AnimationType::Prone) &&
+                  (legsanimation.id != AnimationType::ProneMove) &&
+                  (legsanimation.id != AnimationType::Crouch) &&
+                  (legsanimation.id != AnimationType::CrouchRun) &&
+                  (legsanimation.id != AnimationType::CrouchRunBack)) ||
+                 (legsanimation.id == AnimationType::GetUp) ||
+                 ((legsanimation.id == AnimationType::Prone) &&
                   (legsanimation.currframe < legsanimation.numframes)))
         {
             result = moveacc * 3;

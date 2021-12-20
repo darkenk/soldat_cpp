@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Anims.hpp"
+#include "../AnimationSystem.hpp"
 #include "../Constants.hpp"
 #include "../network/Net.hpp"
 #include "common/Parts.hpp"
@@ -183,8 +183,8 @@ class Sprite
     void die(std::int32_t how, std::int32_t who, std::int32_t where, std::int32_t what,
              tvector2 impact);
     std::int32_t dropweapon();
-    void legsapplyanimation(const tanimation &anim, std::int32_t curr);
-    void bodyapplyanimation(const tanimation &anim, std::int32_t curr);
+    void legsapplyanimation(const AnimationType anim, std::int32_t curr);
+    void bodyapplyanimation(const AnimationType anim, std::int32_t curr);
     void moveskeleton(float x1, float y1, bool fromzero);
     bool checkmapcollision(float x, float y, std::int32_t area);
     bool checkradiusmapcollision(float x, float y, bool hascollided);

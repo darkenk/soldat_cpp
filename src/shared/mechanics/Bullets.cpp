@@ -1704,7 +1704,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                         (SpriteSystem::Get().GetSprite(j).weapon.num !=
                                          guns[bow2].num))
                                         SpriteSystem::Get().GetSprite(j).bodyapplyanimation(
-                                            throwweapon, 11);
+                                            AnimationType::ThrowWeapon, 11);
 
                             hitbody = j;
 

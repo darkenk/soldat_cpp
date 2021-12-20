@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include "PortUtilsSoldat.hpp"
 
 template <class T>
 class GlobalSubsystem
@@ -7,6 +8,7 @@ class GlobalSubsystem
   public:
     static void Init()
     {
+        SoldatAssert(Subsystem == nullptr);
         Subsystem = std::unique_ptr<T>(new T{});
     }
 

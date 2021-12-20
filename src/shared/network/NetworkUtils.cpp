@@ -104,9 +104,9 @@ void encodekeys(tsprite &SpriteC, std::uint16_t &Keys16)
     if (Controls.flagthrow)
         Keys16 = Keys16 | B11;
 
-    if (SpriteC.bodyanimation.id == change.id)
+    if (SpriteC.bodyanimation.id == AnimationType::Change)
         Keys16 = Keys16 | B8;
-    if (SpriteC.bodyanimation.id == throwweapon.id)
+    if (SpriteC.bodyanimation.id == AnimationType::ThrowWeapon)
         Keys16 = Keys16 | B9;
 }
 

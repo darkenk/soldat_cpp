@@ -316,7 +316,7 @@ void rendergostek(tsprite &soldier)
     else
         index = GOSTEK_CLUSTER_GRENADE1;
 
-    n = soldier.tertiaryweapon.ammocount - ord(soldier.bodyanimation.id == throw_.id);
+    n = soldier.tertiaryweapon.ammocount - ord(soldier.bodyanimation.id == AnimationType::Throw);
 
     for (i = 0; i <= min(5, n) - 1; i++)
         include(visible, index + i);
@@ -363,7 +363,8 @@ void rendergostek(tsprite &soldier)
     }
     else
     {
-        grabbed = (wipe.id == soldier.bodyanimation.id || takeoff.id == soldier.bodyanimation.id) &&
+        grabbed = (AnimationType::Wipe == soldier.bodyanimation.id ||
+                   AnimationType::TakeOff == soldier.bodyanimation.id) &&
                   (soldier.bodyanimation.currframe > 4);
 
         if (soldier.wearhelmet == 1)
@@ -443,7 +444,7 @@ void rendergostek(tsprite &soldier)
         else
             include(visible, GOSTEK_PRIMARY_BOW_ARROW);
 
-        if (soldier.bodyanimation.id == reloadbow.id)
+        if (soldier.bodyanimation.id == AnimationType::ReloadBow)
         {
             visible.emplace(GOSTEK_PRIMARY_BOW_RELOAD);
             visible.emplace(GOSTEK_PRIMARY_BOW_STRING_RELOAD);

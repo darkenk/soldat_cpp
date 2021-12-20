@@ -647,9 +647,9 @@ void startgame(int argc, const char *argv[])
         s.player = new tplayer();
     }
 
-    loadanimobjects("");
+    AnimationSystem::Get().LoadAnimObjects("");
     if (length(moddir) > 0)
-        loadanimobjects(moddir);
+        AnimationSystem::Get().LoadAnimObjects(moddir);
 
     // greet!
     // GetMainConsole().console(("Welcome to Soldat ") + soldat_version, default_message_color);

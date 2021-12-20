@@ -1857,9 +1857,9 @@ std::int32_t Thing<M>::checkspritecollision()
     if (j > 0) // collision
     {
         if (((((style > object_pointmatch_flag) && (style < object_rambo_bow) &&
-               (SpriteSystem::Get().GetSprite(j).bodyanimation.id != change.id)) ||
+               (SpriteSystem::Get().GetSprite(j).bodyanimation.id != AnimationType::Change)) ||
               ((style > object_parachute) &&
-               (SpriteSystem::Get().GetSprite(j).bodyanimation.id != change.id))) &&
+               (SpriteSystem::Get().GetSprite(j).bodyanimation.id != AnimationType::Change))) &&
              (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num) &&
              (SpriteSystem::Get().GetSprite(j).brain.favweapon != guns[noweapon].num) &&
              (timeout < gunresisttime - 30)) ||
@@ -2150,7 +2150,7 @@ std::int32_t Thing<M>::checkspritecollision()
         case object_minigun:
             if (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num)
                 if (SpriteSystem::Get().GetSprite(j).brain.favweapon != guns[noweapon].num)
-                    if (SpriteSystem::Get().GetSprite(j).bodyanimation.id != change.id)
+                    if (SpriteSystem::Get().GetSprite(j).bodyanimation.id != AnimationType::Change)
                         if (timeout < gunresisttime - 30)
                         {
                             // Objects 1-3 are flags, so we need for WeaponIndex subtract by flags+1
@@ -2188,7 +2188,7 @@ std::int32_t Thing<M>::checkspritecollision()
             break;
         case object_rambo_bow:
             if (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num)
-                if (SpriteSystem::Get().GetSprite(j).bodyanimation.id != change.id)
+                if (SpriteSystem::Get().GetSprite(j).bodyanimation.id != AnimationType::Change)
                     if (timeout < flag_timeout - 100)
                     {
 #ifdef SCRIPT
@@ -2403,7 +2403,7 @@ std::int32_t Thing<M>::checkspritecollision()
         case object_law:
             if (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num)
                 if (SpriteSystem::Get().GetSprite(j).brain.favweapon != guns[noweapon].num)
-                    if (SpriteSystem::Get().GetSprite(j).bodyanimation.id != change.id)
+                    if (SpriteSystem::Get().GetSprite(j).bodyanimation.id != AnimationType::Change)
                         if (timeout < gunresisttime - 30)
                         {
                             // There are in total OBJECT_NUM_NONWEAPON non-weapon objects before the
@@ -2496,7 +2496,7 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                                 sprite.control.left = false;
                                 sprite.control.up = false;
                                 sprite.control.down = false;
-                                if (sprite.legsanimation.id == prone.id)
+                                if (sprite.legsanimation.id == AnimationType::Prone)
                                     sprite.control.prone = true;
                             }
 
@@ -2514,7 +2514,7 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                     interest = sprite.usetime;
 
                     if (sprite.control.fire)
-                        if (sprite.legsanimation.id == stand.id)
+                        if (sprite.legsanimation.id == AnimationType::Stand)
                             if (maintickcounter % guns[m2].fireinterval == 0)
                             {
                                 if (sprite.usetime > m2gun_overheat)
@@ -2600,10 +2600,10 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                                     sprite.control.left = false;
                                     sprite.control.up = false;
                                     sprite.control.down = false;
-                                    sprite.legsapplyanimation(stand, 1);
+                                    sprite.legsapplyanimation(AnimationType::Stand, 1);
                                 }
 
-                            if (sprite.legsanimation.id == stand.id)
+                            if (sprite.legsanimation.id == AnimationType::Stand)
                             {
 #ifndef SERVER
                                 playsound(sfx_m2use, spriteparts.pos[sprite.num]);
