@@ -15,8 +15,6 @@ auto &weaponactive =
     InitGlobalVariable<PascalArray<std::uint8_t, 1, main_weapons>, "weaponactive">();
 auto &userdirectory = InitGlobalVariable<std::string, "userdirectory">();
 
-auto &grav = InitGlobalVariable<float, "grav">();
-
 auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
 auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
 auto &sparkparts = InitGlobalVariable<particlesystem, "sparkparts">();

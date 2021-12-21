@@ -182,8 +182,6 @@ std::string currentconf = "soldat.ini";
 std::string wmname, wmversion;
 std::string lastwepmod;
 
-float grav = 0.06;
-
 std::string ModDir = "";
 
 // DK_TODO replace tservernetwork with tservernetowrk<SERVER>

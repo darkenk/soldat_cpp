@@ -28,6 +28,8 @@ constexpr float min_fov = 1.25;
 constexpr std::int32_t max_big_messages = 255;
 #endif
 
+constexpr float grav = 0.06;
+
 // speeds
 constexpr float runspeed = 0.118;
 constexpr float runspeedup = runspeed / 6;

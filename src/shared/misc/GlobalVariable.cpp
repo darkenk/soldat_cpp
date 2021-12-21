@@ -13,7 +13,6 @@ T &InitGlobalVariable(Args &&...args)
 template <Config::Module M>
 void InitAllGlobalVariables()
 {
-    grav = 0.06;
     goalticks = default_goalticks;
     survivalendround = false;
     weaponscleaned = false;
