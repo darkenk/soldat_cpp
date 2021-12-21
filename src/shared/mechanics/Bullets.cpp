@@ -2941,12 +2941,10 @@ tvector2 Bullet<M>::getspritecollisionpoint(std::int32_t i)
 
     // Ping compensation to get a more accurate collision point
 #ifndef SERVER
-    if (SpriteSystem::Get().GetSprite(i).player->controlmethod != bot)
+    auto &sprite = SpriteSystem::Get().GetSprite(i);
+    if (sprite.player->controlmethod != bot)
     {
-        if (ownerpingtick < max_oldpos)
-            result = oldspritepos[i][ownerpingtick];
-        else
-            result = oldspritepos[i][max_oldpos - 1];
+        result = sprite.GetOldSpritePos(ownerpingtick);
     }
     else
 #endif

@@ -54,10 +54,6 @@ auto &ticktimelast = InitGlobalVariable<std::int32_t, "ticktimelast">();
 auto &goalticks = InitGlobalVariable<std::int32_t, "goalticks">();
 auto &bullettimetimer = InitGlobalVariable<std::int32_t, "bullettimetimer">();
 
-auto &oldspritepos =
-    InitGlobalVariable<PascalArray<PascalArray<tvector2, 0, max_oldpos>, 1, max_sprites>,
-                       "oldspritepos">();
-
 auto &alivenum = InitGlobalVariable<std::uint8_t, "alivenum">();
 auto &teamalivenum = InitGlobalVariable<std::array<std::int8_t, 6>, "teamalivenum">();
 auto &teamplayersnum = InitGlobalVariable<PascalArray<std::int8_t, 0, 4>, "teamplayersnum">();

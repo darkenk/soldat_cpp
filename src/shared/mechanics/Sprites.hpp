@@ -229,8 +229,12 @@ class Sprite
         return active;
     }
 
+    void CopyOldSpritePos();
+    tvector2 GetOldSpritePos(std::int32_t idx);
+
   private:
     float Health;
+    PascalArray<tvector2, 0, max_oldpos> oldspritepos = {};
 };
 
 using tsprite = Sprite<Config::GetModule()>;

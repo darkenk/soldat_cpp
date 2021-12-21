@@ -7,6 +7,7 @@ set(INC_DIRS
     ${ROOT_DIR}/src/shared
     ${ROOT_DIR}/src/
     config
+    ${TRACY_INCLUDE_DIR}
 )
 
 set(LIB_DIRS
@@ -29,7 +30,9 @@ gtest_discover_tests(AnimsTest)
 
 add_executable(SharedTest
     ${ROOT_DIR}/src/common/misc/PortUtils.cpp
-    mechanics/SpriteSystemTest.cpp ${ROOT_DIR}/src/shared/mechanics/SpriteSystem.cpp)
+    mechanics/SpriteSystemTest.cpp ${ROOT_DIR}/src/shared/mechanics/SpriteSystem.cpp
+    #mechanics/SpriteTest.cpp ${ROOT_DIR}/src/shared/mechanics/Sprites.cpp
+    )
 target_include_directories(SharedTest PRIVATE ${INC_DIRS})
 target_link_libraries(SharedTest ${LIB_DIRS})
 gtest_discover_tests(SharedTest)

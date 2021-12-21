@@ -1162,14 +1162,7 @@ void Sprite<M>::update()
             skeleton.doverlettimestepfor(24, 30);
 
 #ifndef SERVER
-            {
-                ZoneScopedN("CopyOldSpritePos");
-                // Ping Impr
-                for (i = max_oldpos; i >= 1; i--)
-                    oldspritepos[num][i] = oldspritepos[num][i - 1];
-
-                oldspritepos[num][0] = spriteparts.pos[num];
-            }
+            CopyOldSpritePos();
 #endif
         }
         break; // 1
@@ -1185,16 +1178,7 @@ void Sprite<M>::update()
 
             spriteparts.pos[num] = skeleton.pos[12];
 
-            {
-                ZoneScopedN("CopyOldSpritePos");
-                // Ping Impr
-                for (i = max_oldpos; i >= 1; i--)
-                {
-                    oldspritepos[num][i] = oldspritepos[num][i - 1];
-                }
-
-                oldspritepos[num][0] = spriteparts.pos[num];
-            }
+            CopyOldSpritePos();
 
             checkskeletonoutofbounds();
 
@@ -4935,4 +4919,26 @@ float Sprite<M>::GetHealth()
     return Health;
 }
 
-template class Sprite<Config::GetModule()>;
+template <Config::Module M>
+void Sprite<M>::CopyOldSpritePos()
+{
+    ZoneScopedN("CopyOldSpritePos");
+    // Ping Impr
+    for (auto i = max_oldpos; i >= 1; i--)
+        oldspritepos[i] = oldspritepos[i - 1];
+
+    oldspritepos[0] = spriteparts.pos[num];
+}
+
+template <Config::Module M>
+tvector2 Sprite<M>::GetOldSpritePos(int32_t idx)
+{
+    tvector2 result;
+    if (idx < max_oldpos)
+        result = oldspritepos[idx];
+    else
+        result = oldspritepos[max_oldpos - 1];
+    return result;
+}
+
+template class Sprite<>;
