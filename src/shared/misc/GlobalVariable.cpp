@@ -32,8 +32,6 @@ void InitAllGlobalVariables()
     votemaxvotes = 0;
     votekickreasontype = false;
 
-    pingticksadd = 2;
-
     notexts = 0;
 }
 

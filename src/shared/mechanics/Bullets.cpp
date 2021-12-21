@@ -135,9 +135,6 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
     if (SpriteSystem::Get().GetSprite(sowner).player->controlmethod == human)
     {
         bullet[i].ownerpingtick = SpriteSystem::Get().GetSprite(sowner).player->pingticksb;
-#ifdef SERVER
-        bullet[i].ownerpingtick += pingticksadd;
-#endif
     }
     else
         bullet[i].ownerpingtick = 0;

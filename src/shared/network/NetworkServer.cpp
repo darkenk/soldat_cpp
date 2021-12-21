@@ -33,8 +33,6 @@ PascalArray<std::int32_t, 1, max_players> bullettime;
 PascalArray<std::int32_t, 1, max_players> grenadetime;
 PascalArray<bool, 1, max_players> knifecan;
 
-std::int32_t pingticksadd = 0;
-
 auto LOG_NET = "network";
 
 namespace

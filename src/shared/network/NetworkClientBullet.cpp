@@ -12,6 +12,8 @@
 #include "shared/misc/GlobalVariableStorage.cpp"
 // clang-format on
 
+constexpr auto pingticksadd = 2;
+
 namespace
 {
 std::array<tmsg_bulletsnapshot, max_sprites> oldbulletsnapshotmsg;

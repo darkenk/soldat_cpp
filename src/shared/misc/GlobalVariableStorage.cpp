@@ -101,8 +101,6 @@ auto &votecooldown =
     InitGlobalVariable<PascalArray<std::int32_t, 1, max_sprites>, "votecooldown">();
 auto &votekickreasontype = InitGlobalVariable<bool, "votekickreasontype">();
 
-auto &pingticksadd = InitGlobalVariable<std::int32_t, "pingticksadd">();
-
 auto &guns = InitGlobalVariable<GunsDescription, "guns">();
 auto &defaultguns = InitGlobalVariable<GunsDescription, "defaultguns">();
 auto &defaultwmchecksum = InitGlobalVariable<std::uint64_t, "defaultwmchecksum">();
