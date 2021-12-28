@@ -361,8 +361,8 @@ void updateframe()
             ZoneScopedN("Things");
             // update Things
             for (j = 1; j <= max_things; j++)
-                if (thing[j].active)
-                    thing[j].update();
+                if (things[j].active)
+                    things[j].update();
         }
 
         // Bonuses spawn
@@ -635,7 +635,7 @@ void updateframe()
 
     if (CVar::sv_gamemode == gamestyle_inf)
         if (mapchangecounter < 0)
-            if (thing[teamflag[2]].inbase)
+            if (things[teamflag[2]].inbase)
                 if ((playersteamnum[1] > 0) && (playersteamnum[2] > 0))
                     /*and(PlayersTeamNum[1] >= PlayersTeamNum[2])*/
                     if (maintickcounter % j == 0)
@@ -660,7 +660,7 @@ void updateframe()
                     {
                         if ((sprite.holdedthing > 0))
                         {
-                            if (thing[sprite.holdedthing].style == object_pointmatch_flag)
+                            if (things[sprite.holdedthing].style == object_pointmatch_flag)
                             {
                                 teamscore[sprite.player->team] += 1;
 
@@ -691,8 +691,8 @@ void updateframe()
             _x = 0;
 
             for (j = 1; j <= max_things; j++)
-                if (thing[j].active)
-                    if (thing[j].style == object_rambo_bow)
+                if (things[j].active)
+                    if (things[j].style == object_rambo_bow)
                         _x = 1;
 
             for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
@@ -718,16 +718,16 @@ void updateframe()
             _x = 0;
 
             for (j = 1; j <= max_things; j++)
-                if (thing[j].active)
-                    if (thing[j].style == object_alpha_flag)
+                if (things[j].active)
+                    if (things[j].style == object_alpha_flag)
                         _x += 1;
 
             if (_x > 1)
                 for (j = max_things; j >= 1; j--)
-                    if (thing[j].active)
-                        if (thing[j].style == object_alpha_flag)
+                    if (things[j].active)
+                        if (things[j].style == object_alpha_flag)
                         {
-                            thing[j].kill();
+                            things[j].kill();
                             break;
                         }
 
@@ -738,16 +738,16 @@ void updateframe()
             _x = 0;
 
             for (j = 1; j <= max_things; j++)
-                if (thing[j].active)
-                    if (thing[j].style == object_bravo_flag)
+                if (things[j].active)
+                    if (things[j].style == object_bravo_flag)
                         _x += 1;
 
             if (_x > 1)
                 for (j = max_things; j >= 1; j--)
-                    if (thing[j].active)
-                        if (thing[j].style == object_bravo_flag)
+                    if (things[j].active)
+                        if (things[j].style == object_bravo_flag)
                         {
-                            thing[j].kill();
+                            things[j].kill();
                             break;
                         }
 
@@ -762,16 +762,16 @@ void updateframe()
             _x = 0;
 
             for (j = 1; j <= max_things; j++)
-                if (thing[j].active)
-                    if (thing[j].style == object_pointmatch_flag)
+                if (things[j].active)
+                    if (things[j].style == object_pointmatch_flag)
                         _x += 1;
 
             if (_x > 1)
                 for (j = max_things; j >= 1; j--)
-                    if (thing[j].active)
-                        if (thing[j].style == object_pointmatch_flag)
+                    if (things[j].active)
+                        if (things[j].style == object_pointmatch_flag)
                         {
-                            thing[j].kill();
+                            things[j].kill();
                             break;
                         }
 

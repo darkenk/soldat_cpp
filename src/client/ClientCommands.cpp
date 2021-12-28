@@ -272,11 +272,11 @@ void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
     {
         for (i = 1; i <= max_things; i++)
         {
-            if (thing[i].style == strtointdef(args[1], 0))
+            if (things[i].style == strtointdef(args[1], 0))
             {
                 camerafollowsprite = 0;
-                camerax = thing[i].skeleton.pos[1].x;
-                cameray = thing[i].skeleton.pos[1].y;
+                camerax = things[i].skeleton.pos[1].x;
+                cameray = things[i].skeleton.pos[1].y;
             }
         }
     }

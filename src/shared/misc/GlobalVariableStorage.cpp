@@ -86,7 +86,7 @@ auto &mapindex = InitGlobalVariable<std::int32_t, "mapindex">();
 auto &sortedplayers = InitGlobalVariable<PascalArray<tkillsort, 1, max_sprites>, "sortedplayers">();
 
 auto &bullet = InitGlobalVariable<PascalArray<tbullet, 1, max_bullets>, "bullet">();
-auto &thing = InitGlobalVariable<PascalArray<tthing, 1, max_things>, "thing">();
+auto &things = InitGlobalVariable<PascalArray<tthing, 1, max_things>, "things">();
 
 auto &voteactive = InitGlobalVariable<bool, "voteactive">();
 auto &votetype = InitGlobalVariable<std::uint8_t, "votetype">();

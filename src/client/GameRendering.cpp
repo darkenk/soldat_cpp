@@ -763,16 +763,16 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
         ZoneScopedN("Things");
         for (i = 1; i <= max_things; i++)
         {
-            if (thing[i].active)
+            if (things[i].active)
             {
-                sk = &thing[i].skeleton;
+                sk = &things[i].skeleton;
                 std::memcpy(&s.thingpos[i][1], &sk->pos[1],
                             sizeof(tvector2) * length(s.thingpos[i]));
 
                 for (j = low(s.thingpos[i]); j <= high(s.thingpos[i]); j++)
                     sk->pos[j] = lerp(sk->oldpos[j], sk->pos[j], p);
 
-                if (kit_styles.contains(thing[i].style))
+                if (kit_styles.contains(things[i].style))
                     sk->satisfyconstraints();
             }
         }
@@ -813,9 +813,9 @@ void restorestate(tinterpolationstate &s)
 
     for (i = 1; i <= max_things; i++)
     {
-        if (thing[i].active)
+        if (things[i].active)
         {
-            std::memcpy(&thing[i].skeleton.pos[1], &s.thingpos[i][1],
+            std::memcpy(&things[i].skeleton.pos[1], &s.thingpos[i][1],
                         sizeof(tvector2) * length(s.thingpos[i]));
         }
     }
@@ -943,8 +943,8 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
             {
                 ZoneScopedN("RenderThings");
                 for (i = 1; i <= max_things; i++)
-                    if (thing[i].active)
-                        thing[i].render(timeelapsed);
+                    if (things[i].active)
+                        things[i].render(timeelapsed);
             }
 
             {
@@ -960,8 +960,8 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
         gfxbegin();
 
         for (i = 1; i <= max_things; i++)
-            if (thing[i].active)
-                thing[i].polygonsrender();
+            if (things[i].active)
+                things[i].polygonsrender();
 
         gfxend();
         gfxsetmipmapbias(0);

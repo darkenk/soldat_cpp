@@ -480,7 +480,7 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
                                 .player->name)),
                 alpha_message_color);
             if (teamflag[1] > 0)
-                thing[teamflag[1]].respawn();
+                things[teamflag[1]].respawn();
         }
     if (pmsg_serverflaginfo(netmessage->m_pData)->style == returnblue)
         if (CVar::sv_gamemode == gamestyle_ctf)
@@ -495,7 +495,7 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
                                 .player->name)),
                 bravo_message_color);
             if (teamflag[2] > 0)
-                thing[teamflag[2]].respawn();
+                things[teamflag[2]].respawn();
         }
     if (pmsg_serverflaginfo(netmessage->m_pData)->style == capturered)
     {
@@ -514,8 +514,8 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
             // flame it
             for (j = 1; j <= 10; j++)
             {
-                a.x = thing[teamflag[1]].skeleton.pos[2].x - 10 + Random(20);
-                a.y = thing[teamflag[1]].skeleton.pos[2].y - 10 + Random(20);
+                a.x = things[teamflag[1]].skeleton.pos[2].x - 10 + Random(20);
+                a.y = things[teamflag[1]].skeleton.pos[2].y - 10 + Random(20);
                 b.x = 0;
                 b.y = 0;
                 createspark(a, b, 36, 0, 35);
@@ -526,10 +526,10 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
         else
             playsound(sfx_ctf);
         if (teamflag[2] > 0)
-            thing[teamflag[2]].respawn();
+            things[teamflag[2]].respawn();
 
         // cap spark
-        createspark(thing[teamflag[1]].skeleton.pos[2], b, 61,
+        createspark(things[teamflag[1]].skeleton.pos[2], b, 61,
                     pmsg_serverflaginfo(netmessage->m_pData)->who, 18);
 
         if (CVar::sv_survivalmode)
@@ -546,10 +546,10 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
             bravo_message_color);
         playsound(sfx_ctf);
         if (teamflag[1] > 0)
-            thing[teamflag[1]].respawn();
+            things[teamflag[1]].respawn();
 
         // cap spark
-        createspark(thing[teamflag[2]].skeleton.pos[2], b, 61,
+        createspark(things[teamflag[2]].skeleton.pos[2], b, 61,
                     pmsg_serverflaginfo(netmessage->m_pData)->who, 18);
 
         if (CVar::sv_survivalmode)

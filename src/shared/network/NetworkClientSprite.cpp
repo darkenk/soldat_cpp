@@ -95,10 +95,10 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
     if ((SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow].num) ||
         (SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow2].num))
         for (j = 1; j <= max_things; j++)
-            if ((thing[j].active) && (thing[j].style == object_rambo_bow))
+            if ((things[j].active) && (things[j].style == object_rambo_bow))
             {
                 gamethingtarget = 0;
-                thing[j].kill();
+                things[j].kill();
             }
 
     SpriteSystem::Get().GetSprite(i).wearhelmet = 1;
@@ -200,10 +200,10 @@ void clienthandleserverspritesnapshot_major(SteamNetworkingMessage_t *netmessage
     if ((SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow].num) ||
         (SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow2].num))
         for (j = 1; j <= max_things; j++)
-            if ((thing[j].active) & (thing[j].style == object_rambo_bow))
+            if ((things[j].active) & (things[j].style == object_rambo_bow))
             {
                 gamethingtarget = 0;
-                thing[j].kill();
+                things[j].kill();
             }
 
     SpriteSystem::Get().GetSprite(i).SetHealth(spritesnapmajor->health);

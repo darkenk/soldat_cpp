@@ -50,8 +50,8 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
     // Remove flag if a new one is created
     if (sstyle < object_ussocom)
         for (k = 1; k <= max_things; k++)
-            if ((thing[k].active) && (thing[k].style == sstyle))
-                thing[k].kill();
+            if ((things[k].active) && (things[k].style == sstyle))
+                things[k].kill();
 
     if (n == 255)
     {
@@ -69,7 +69,7 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
                 result = -1;
                 return result;
             }
-            if (!thing[i].active)
+            if (!things[i].active)
                 break;
         }
     }
@@ -79,26 +79,26 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
     // assert((i != 0), "thing id must not be 0");
 
     // activate sprite
-    thing[i].active = true;
-    thing[i].style = sstyle;
-    thing[i].num = i;
-    thing[i].holdingsprite = 0;
-    thing[i].owner = owner;
-    thing[i].timeout = 0;
-    thing[i].skeleton.destroy();
-    thing[i].skeleton.timestep = 1;
-    thing[i].statictype = false;
-    thing[i].inbase = false;
+    things[i].active = true;
+    things[i].style = sstyle;
+    things[i].num = i;
+    things[i].holdingsprite = 0;
+    things[i].owner = owner;
+    things[i].timeout = 0;
+    things[i].skeleton.destroy();
+    things[i].skeleton.timestep = 1;
+    things[i].statictype = false;
+    things[i].inbase = false;
 #ifndef SERVER
-    thing[i].tex1 = 0;
-    thing[i].tex2 = 0;
+    things[i].tex1 = 0;
+    things[i].tex2 = 0;
 #endif
 
-    thing[i].bgstate.backgroundstatus = background_transition;
-    thing[i].bgstate.backgroundpoly = background_poly_unknown;
+    things[i].bgstate.backgroundstatus = background_transition;
+    things[i].bgstate.backgroundpoly = background_poly_unknown;
 
     for (k = 1; k <= 4; k++)
-        thing[i].collidecount[k] = 0;
+        things[i].collidecount[k] = 0;
 
     if (owner != 255)
     {
@@ -116,397 +116,397 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
     case object_bravo_flag:
     case object_pointmatch_flag: // Flag
     {
-        thing[i].skeleton.vdamping = 0.991;
-        thing[i].skeleton.gravity = 1.0 * grav;
-        thing[i].skeleton.clone(flagskeleton);
+        things[i].skeleton.vdamping = 0.991;
+        things[i].skeleton.gravity = 1.0 * grav;
+        things[i].skeleton.clone(flagskeleton);
         // A and B flags face eachother.
         if (sstyle == object_alpha_flag)
         {
-            thing[i].skeleton.pos[3].x = 12;
-            thing[i].skeleton.pos[4].x = 12;
-            thing[i].skeleton.oldpos[3].x = 12;
-            thing[i].skeleton.oldpos[4].x = 12;
+            things[i].skeleton.pos[3].x = 12;
+            things[i].skeleton.pos[4].x = 12;
+            things[i].skeleton.oldpos[3].x = 12;
+            things[i].skeleton.oldpos[4].x = 12;
         }
-        thing[i].radius = 19;
+        things[i].radius = 19;
         if (sstyle != object_pointmatch_flag)
-            thing[i].inbase = true;
+            things[i].inbase = true;
 
 #ifndef SERVER
         if (CVar::sv_gamemode == gamestyle_inf)
-            thing[i].texture = GFX::OBJECTS_INFFLAG;
+            things[i].texture = GFX::OBJECTS_INFFLAG;
         else
-            thing[i].texture = GFX::OBJECTS_FLAG;
+            things[i].texture = GFX::OBJECTS_FLAG;
 #endif
 
-        thing[i].timeout = flag_timeout;
-        thing[i].interest = flag_interest_time;
+        things[i].timeout = flag_timeout;
+        things[i].interest = flag_interest_time;
 
-        thing[i].collidewithbullets = true;
+        things[i].collidewithbullets = true;
 
         if ((CVar::sv_gamemode == gamestyle_inf) && (sstyle == object_alpha_flag))
-            thing[i].collidewithbullets = false;
+            things[i].collidewithbullets = false;
     }
     break; // Flag
 
     case object_ussocom: // Socom
     {
-        thing[i].skeleton.vdamping = 0.994;
-        thing[i].skeleton.gravity = 1.05 * grav;
-        thing[i].skeleton.clone(rifleskeleton10);
+        things[i].skeleton.vdamping = 0.994;
+        things[i].skeleton.gravity = 1.05 * grav;
+        things[i].skeleton.clone(rifleskeleton10);
 #ifndef SERVER
-        thing[i].tex1 = GFX::WEAPONS_N_SOCOM + k;
+        things[i].tex1 = GFX::WEAPONS_N_SOCOM + k;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_desert_eagle: // Deagle
     {
-        thing[i].skeleton.vdamping = 0.996;
-        thing[i].skeleton.gravity = 1.09 * grav;
-        thing[i].skeleton.clone(rifleskeleton11);
+        things[i].skeleton.vdamping = 0.996;
+        things[i].skeleton.gravity = 1.09 * grav;
+        things[i].skeleton.clone(rifleskeleton11);
 #ifndef SERVER
-        thing[i].tex1 = GFX::WEAPONS_N_DEAGLES + k;
+        things[i].tex1 = GFX::WEAPONS_N_DEAGLES + k;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_hk_mp5: // Mp5
     {
-        thing[i].skeleton.vdamping = 0.995;
-        thing[i].skeleton.gravity = 1.11 * grav;
-        thing[i].skeleton.clone(rifleskeleton22);
+        things[i].skeleton.vdamping = 0.995;
+        things[i].skeleton.gravity = 1.11 * grav;
+        things[i].skeleton.clone(rifleskeleton22);
 #ifndef SERVER
-        thing[i].tex1 = guns[mp5].texturenum + k;
-        thing[i].tex2 = guns[mp5].cliptexturenum + k;
+        things[i].tex1 = guns[mp5].texturenum + k;
+        things[i].tex2 = guns[mp5].cliptexturenum + k;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_ak74: // Ak74
     {
-        thing[i].skeleton.vdamping = 0.994;
-        thing[i].skeleton.gravity = 1.16 * grav;
-        thing[i].skeleton.clone(rifleskeleton37);
+        things[i].skeleton.vdamping = 0.994;
+        things[i].skeleton.gravity = 1.16 * grav;
+        things[i].skeleton.clone(rifleskeleton37);
 #ifndef SERVER
-        thing[i].tex1 = guns[ak74].texturenum + k;
-        thing[i].tex2 = guns[ak74].cliptexturenum + k;
+        things[i].tex1 = guns[ak74].texturenum + k;
+        things[i].tex2 = guns[ak74].cliptexturenum + k;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_steyr_aug: // SteyrAug
     {
-        thing[i].skeleton.vdamping = 0.994;
-        thing[i].skeleton.gravity = 1.16 * grav;
-        thing[i].skeleton.clone(rifleskeleton37);
+        things[i].skeleton.vdamping = 0.994;
+        things[i].skeleton.gravity = 1.16 * grav;
+        things[i].skeleton.clone(rifleskeleton37);
 #ifndef SERVER
-        thing[i].tex1 = guns[steyraug].texturenum + k;
-        thing[i].tex2 = guns[steyraug].cliptexturenum + k;
+        things[i].tex1 = guns[steyraug].texturenum + k;
+        things[i].tex2 = guns[steyraug].cliptexturenum + k;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_spas12: // Spas
     {
-        thing[i].skeleton.vdamping = 0.993;
-        thing[i].skeleton.gravity = 1.15 * grav;
-        thing[i].skeleton.clone(rifleskeleton36);
+        things[i].skeleton.vdamping = 0.993;
+        things[i].skeleton.gravity = 1.15 * grav;
+        things[i].skeleton.clone(rifleskeleton36);
 #ifndef SERVER
-        thing[i].tex1 = guns[spas12].texturenum + k;
+        things[i].tex1 = guns[spas12].texturenum + k;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_ruger77: // Ruger
     {
-        thing[i].skeleton.vdamping = 0.993;
-        thing[i].skeleton.gravity = 1.13 * grav;
-        thing[i].skeleton.clone(rifleskeleton36);
+        things[i].skeleton.vdamping = 0.993;
+        things[i].skeleton.gravity = 1.13 * grav;
+        things[i].skeleton.clone(rifleskeleton36);
 #ifndef SERVER
-        thing[i].tex1 = guns[ruger77].texturenum + k;
+        things[i].tex1 = guns[ruger77].texturenum + k;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_m79: // M79
     {
-        thing[i].skeleton.vdamping = 0.994;
-        thing[i].skeleton.gravity = 1.15 * grav;
-        thing[i].skeleton.clone(rifleskeleton28);
+        things[i].skeleton.vdamping = 0.994;
+        things[i].skeleton.gravity = 1.15 * grav;
+        things[i].skeleton.clone(rifleskeleton28);
         // FIXME (helloer): Check why Tex1 is different
 #ifndef SERVER
-        thing[i].tex1 = guns[m79].texturenum + k;
+        things[i].tex1 = guns[m79].texturenum + k;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_barret_m82a1: // Barrett
     {
-        thing[i].skeleton.vdamping = 0.993;
-        thing[i].skeleton.gravity = 1.18 * grav;
-        thing[i].skeleton.clone(rifleskeleton43);
+        things[i].skeleton.vdamping = 0.993;
+        things[i].skeleton.gravity = 1.18 * grav;
+        things[i].skeleton.clone(rifleskeleton43);
 #ifndef SERVER
-        thing[i].tex1 = guns[barrett].texturenum + k;
-        thing[i].tex2 = guns[barrett].cliptexturenum + k;
+        things[i].tex1 = guns[barrett].texturenum + k;
+        things[i].tex2 = guns[barrett].cliptexturenum + k;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_minimi: // M249
     {
-        thing[i].skeleton.vdamping = 0.993;
-        thing[i].skeleton.gravity = 1.2 * grav;
-        thing[i].skeleton.clone(rifleskeleton39);
+        things[i].skeleton.vdamping = 0.993;
+        things[i].skeleton.gravity = 1.2 * grav;
+        things[i].skeleton.clone(rifleskeleton39);
 #ifndef SERVER
-        thing[i].tex1 = guns[m249].texturenum + k;
-        thing[i].tex2 = guns[m249].cliptexturenum + k;
+        things[i].tex1 = guns[m249].texturenum + k;
+        things[i].tex2 = guns[m249].cliptexturenum + k;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_minigun: // Minigun
     {
-        thing[i].skeleton.vdamping = 0.991;
-        thing[i].skeleton.gravity = 1.4 * grav;
-        thing[i].skeleton.clone(rifleskeleton55);
+        things[i].skeleton.vdamping = 0.991;
+        things[i].skeleton.gravity = 1.4 * grav;
+        things[i].skeleton.clone(rifleskeleton55);
 #ifndef SERVER
-        thing[i].tex1 = guns[minigun].texturenum + k;
+        things[i].tex1 = guns[minigun].texturenum + k;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_rambo_bow: // Bow
     {
-        thing[i].skeleton.vdamping = 0.996;
-        thing[i].skeleton.gravity = 0.65 * grav;
-        thing[i].skeleton.clone(rifleskeleton50);
+        things[i].skeleton.vdamping = 0.996;
+        things[i].skeleton.gravity = 0.65 * grav;
+        things[i].skeleton.clone(rifleskeleton50);
 #ifndef SERVER
-        thing[i].tex1 = GFX::WEAPONS_N_BOW + k;
+        things[i].tex1 = GFX::WEAPONS_N_BOW + k;
 #endif
-        thing[i].radius = bow_radius;
-        thing[i].timeout = flag_timeout;
-        thing[i].interest = bow_interest_time;
-        thing[i].collidewithbullets = true;
+        things[i].radius = bow_radius;
+        things[i].timeout = flag_timeout;
+        things[i].interest = bow_interest_time;
+        things[i].collidewithbullets = true;
     }
     break;
     case object_medical_kit: // medikit
     {
-        thing[i].skeleton = boxskeleton;
-        thing[i].skeleton.vdamping = 0.989;
-        thing[i].skeleton.gravity = 1.05 * grav;
-        thing[i].radius = kit_radius;
-        thing[i].timeout = CVar::sv_respawntime * gunresisttime;
-        thing[i].interest = default_interest_time;
-        thing[i].collidewithbullets = CVar::sv_kits_collide;
+        things[i].skeleton = boxskeleton;
+        things[i].skeleton.vdamping = 0.989;
+        things[i].skeleton.gravity = 1.05 * grav;
+        things[i].radius = kit_radius;
+        things[i].timeout = CVar::sv_respawntime * gunresisttime;
+        things[i].interest = default_interest_time;
+        things[i].collidewithbullets = CVar::sv_kits_collide;
 #ifndef SERVER
-        thing[i].texture = GFX::OBJECTS_MEDIKIT;
+        things[i].texture = GFX::OBJECTS_MEDIKIT;
 #endif
     }
     break;
     case object_grenade_kit: // grenadekit
     {
-        thing[i].skeleton = boxskeleton;
-        thing[i].skeleton.vdamping = 0.989;
-        thing[i].skeleton.gravity = 1.07 * grav;
-        thing[i].radius = kit_radius;
-        thing[i].timeout = flag_timeout;
-        thing[i].interest = default_interest_time;
-        thing[i].collidewithbullets = CVar::sv_kits_collide;
+        things[i].skeleton = boxskeleton;
+        things[i].skeleton.vdamping = 0.989;
+        things[i].skeleton.gravity = 1.07 * grav;
+        things[i].radius = kit_radius;
+        things[i].timeout = flag_timeout;
+        things[i].interest = default_interest_time;
+        things[i].collidewithbullets = CVar::sv_kits_collide;
 #ifndef SERVER
-        thing[i].texture = GFX::OBJECTS_GRENADEKIT;
+        things[i].texture = GFX::OBJECTS_GRENADEKIT;
 #endif
     }
     break;
     case object_flamer_kit: // flamerkit
     {
-        thing[i].skeleton = boxskeleton;
-        thing[i].skeleton.vdamping = 0.989;
-        thing[i].skeleton.gravity = 1.17 * grav;
-        thing[i].radius = kit_radius;
-        thing[i].timeout = flag_timeout;
-        thing[i].interest = default_interest_time;
-        thing[i].collidewithbullets = CVar::sv_kits_collide;
+        things[i].skeleton = boxskeleton;
+        things[i].skeleton.vdamping = 0.989;
+        things[i].skeleton.gravity = 1.17 * grav;
+        things[i].radius = kit_radius;
+        things[i].timeout = flag_timeout;
+        things[i].interest = default_interest_time;
+        things[i].collidewithbullets = CVar::sv_kits_collide;
 #ifndef SERVER
-        thing[i].texture = GFX::OBJECTS_FLAMERKIT;
+        things[i].texture = GFX::OBJECTS_FLAMERKIT;
 #endif
     }
     break;
     case object_predator_kit: // predatorkit
     {
-        thing[i].skeleton = boxskeleton;
-        thing[i].skeleton.vdamping = 0.989;
-        thing[i].skeleton.gravity = 1.17 * grav;
-        thing[i].radius = kit_radius;
-        thing[i].timeout = flag_timeout;
-        thing[i].interest = default_interest_time;
-        thing[i].collidewithbullets = CVar::sv_kits_collide;
+        things[i].skeleton = boxskeleton;
+        things[i].skeleton.vdamping = 0.989;
+        things[i].skeleton.gravity = 1.17 * grav;
+        things[i].radius = kit_radius;
+        things[i].timeout = flag_timeout;
+        things[i].interest = default_interest_time;
+        things[i].collidewithbullets = CVar::sv_kits_collide;
 #ifndef SERVER
-        thing[i].texture = GFX::OBJECTS_PREDATORKIT;
+        things[i].texture = GFX::OBJECTS_PREDATORKIT;
 #endif
     }
     break;
     case object_vest_kit: // vestkit
     {
-        thing[i].skeleton = boxskeleton;
-        thing[i].skeleton.vdamping = 0.989;
-        thing[i].skeleton.gravity = 1.17 * grav;
-        thing[i].radius = kit_radius;
-        thing[i].timeout = flag_timeout;
-        thing[i].interest = default_interest_time;
-        thing[i].collidewithbullets = CVar::sv_kits_collide;
+        things[i].skeleton = boxskeleton;
+        things[i].skeleton.vdamping = 0.989;
+        things[i].skeleton.gravity = 1.17 * grav;
+        things[i].radius = kit_radius;
+        things[i].timeout = flag_timeout;
+        things[i].interest = default_interest_time;
+        things[i].collidewithbullets = CVar::sv_kits_collide;
 #ifndef SERVER
-        thing[i].texture = GFX::OBJECTS_VESTKIT;
+        things[i].texture = GFX::OBJECTS_VESTKIT;
 #endif
     }
     break;
     case object_berserk_kit: // berserkerkit
     {
-        thing[i].skeleton = boxskeleton;
-        thing[i].skeleton.vdamping = 0.989;
-        thing[i].skeleton.gravity = 1.17 * grav;
-        thing[i].radius = kit_radius;
-        thing[i].timeout = flag_timeout;
-        thing[i].interest = default_interest_time;
-        thing[i].collidewithbullets = CVar::sv_kits_collide;
+        things[i].skeleton = boxskeleton;
+        things[i].skeleton.vdamping = 0.989;
+        things[i].skeleton.gravity = 1.17 * grav;
+        things[i].radius = kit_radius;
+        things[i].timeout = flag_timeout;
+        things[i].interest = default_interest_time;
+        things[i].collidewithbullets = CVar::sv_kits_collide;
 #ifndef SERVER
-        thing[i].texture = GFX::OBJECTS_BERSERKERKIT;
+        things[i].texture = GFX::OBJECTS_BERSERKERKIT;
 #endif
     }
     break;
     case object_cluster_kit: // clusterkit
     {
-        thing[i].skeleton = boxskeleton;
-        thing[i].skeleton.vdamping = 0.989;
-        thing[i].skeleton.gravity = 1.07 * grav;
-        thing[i].radius = kit_radius;
-        thing[i].timeout = flag_timeout;
-        thing[i].interest = default_interest_time;
-        thing[i].collidewithbullets = CVar::sv_kits_collide;
+        things[i].skeleton = boxskeleton;
+        things[i].skeleton.vdamping = 0.989;
+        things[i].skeleton.gravity = 1.07 * grav;
+        things[i].radius = kit_radius;
+        things[i].timeout = flag_timeout;
+        things[i].interest = default_interest_time;
+        things[i].collidewithbullets = CVar::sv_kits_collide;
 #ifndef SERVER
-        thing[i].texture = GFX::OBJECTS_CLUSTERKIT;
+        things[i].texture = GFX::OBJECTS_CLUSTERKIT;
 #endif
     }
     break;
     case object_parachute: // para
     {
-        thing[i].skeleton.vdamping = 0.993;
-        thing[i].skeleton.gravity = 1.15 * grav;
-        thing[i].skeleton.clone(paraskeleton);
+        things[i].skeleton.vdamping = 0.993;
+        things[i].skeleton.gravity = 1.15 * grav;
+        things[i].skeleton.clone(paraskeleton);
 #ifndef SERVER
-        thing[i].tex1 = GFX::GOSTEK_PARA_ROPE;
-        thing[i].tex2 = GFX::GOSTEK_PARA;
+        things[i].tex1 = GFX::GOSTEK_PARA_ROPE;
+        things[i].tex2 = GFX::GOSTEK_PARA;
 #endif
-        thing[i].timeout = 3600;
+        things[i].timeout = 3600;
     }
     break;
     case object_combat_knife: // Knife
     {
-        thing[i].skeleton.vdamping = 0.994;
-        thing[i].skeleton.gravity = 1.15 * grav;
-        thing[i].skeleton.clone(rifleskeleton18);
+        things[i].skeleton.vdamping = 0.994;
+        things[i].skeleton.gravity = 1.15 * grav;
+        things[i].skeleton.clone(rifleskeleton18);
 
-        a = thing[i].skeleton.pos[2];
-        thing[i].skeleton.pos[2] = thing[i].skeleton.pos[1];
-        thing[i].skeleton.oldpos[2] = thing[i].skeleton.pos[1];
+        a = things[i].skeleton.pos[2];
+        things[i].skeleton.pos[2] = things[i].skeleton.pos[1];
+        things[i].skeleton.oldpos[2] = things[i].skeleton.pos[1];
 
-        thing[i].skeleton.pos[1] = a;
-        thing[i].skeleton.oldpos[1] = a;
+        things[i].skeleton.pos[1] = a;
+        things[i].skeleton.oldpos[1] = a;
 
-        thing[i].skeleton.pos[1].x = thing[i].skeleton.pos[1].x + (float)(Random(100)) / 100;
-        thing[i].skeleton.pos[2].x = thing[i].skeleton.pos[2].x - (float)(Random(100)) / 100;
+        things[i].skeleton.pos[1].x = things[i].skeleton.pos[1].x + (float)(Random(100)) / 100;
+        things[i].skeleton.pos[2].x = things[i].skeleton.pos[2].x - (float)(Random(100)) / 100;
 
 #ifndef SERVER
-        thing[i].tex1 = guns[knife].texturenum + k;
-        thing[i].tex2 = 0;
+        things[i].tex1 = guns[knife].texturenum + k;
+        things[i].tex2 = 0;
 #endif
-        thing[i].radius = gun_radius * 1.5;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius * 1.5;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_chainsaw: // Chainsaw
     {
-        thing[i].skeleton.vdamping = 0.994;
-        thing[i].skeleton.gravity = 1.15 * grav;
-        thing[i].skeleton.clone(rifleskeleton28);
+        things[i].skeleton.vdamping = 0.994;
+        things[i].skeleton.gravity = 1.15 * grav;
+        things[i].skeleton.clone(rifleskeleton28);
 #ifndef SERVER
-        thing[i].tex1 = guns[chainsaw].texturenum + k;
-        thing[i].tex2 = 0;
+        things[i].tex1 = guns[chainsaw].texturenum + k;
+        things[i].tex2 = 0;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_law: // LAW
     {
-        thing[i].skeleton.vdamping = 0.994;
-        thing[i].skeleton.gravity = 1.15 * grav;
-        thing[i].skeleton.clone(rifleskeleton28);
+        things[i].skeleton.vdamping = 0.994;
+        things[i].skeleton.gravity = 1.15 * grav;
+        things[i].skeleton.clone(rifleskeleton28);
 #ifndef SERVER
-        thing[i].tex1 = guns[law].texturenum + k;
+        things[i].tex1 = guns[law].texturenum + k;
 #endif
-        thing[i].radius = gun_radius;
-        thing[i].timeout = gunresisttime;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = CVar::sv_guns_collide;
+        things[i].radius = gun_radius;
+        things[i].timeout = gunresisttime;
+        things[i].interest = 0;
+        things[i].collidewithbullets = CVar::sv_guns_collide;
     }
     break;
     case object_stationary_gun: // stationary gun
     {
-        thing[i].skeleton.vdamping = 0.99;
-        thing[i].skeleton.gravity = 0.2 * grav;
-        thing[i].skeleton.clone(statskeleton);
+        things[i].skeleton.vdamping = 0.99;
+        things[i].skeleton.gravity = 0.2 * grav;
+        things[i].skeleton.clone(statskeleton);
 #ifndef SERVER
-        thing[i].tex1 = 0;
-        thing[i].tex2 = 0;
+        things[i].tex1 = 0;
+        things[i].tex2 = 0;
 #endif
-        thing[i].timeout = 60;
-        thing[i].radius = stat_radius;
-        thing[i].statictype = false;
-        thing[i].interest = 0;
-        thing[i].collidewithbullets = false;
+        things[i].timeout = 60;
+        things[i].radius = stat_radius;
+        things[i].statictype = false;
+        things[i].interest = 0;
+        things[i].collidewithbullets = false;
     }
     break;
     } // case
 
-    thing[i].owner = owner;
-    thing[i].moveskeleton(spos.x, spos.y, false);
+    things[i].owner = owner;
+    things[i].moveskeleton(spos.x, spos.y, false);
 
 #ifdef SERVER
     // Throw weapon
@@ -515,10 +515,10 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
         if ((owner > 0) && (owner < max_sprites + 1))
         {
             // Add player velocity
-            thing[i].skeleton.pos[1] =
-                vec2add(thing[i].skeleton.pos[1], spriteparts.velocity[owner]);
-            thing[i].skeleton.pos[2] =
-                vec2add(thing[i].skeleton.pos[2], spriteparts.velocity[owner]);
+            things[i].skeleton.pos[1] =
+                vec2add(things[i].skeleton.pos[1], spriteparts.velocity[owner]);
+            things[i].skeleton.pos[2] =
+                vec2add(things[i].skeleton.pos[2], spriteparts.velocity[owner]);
 
             // Add throw velocity
             b = SpriteSystem::Get().GetSprite(owner).getcursoraimdirection();
@@ -535,9 +535,9 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
             }
 
             vec2scale(weaponthrowvelocity, b, weaponthrowspeedpos1);
-            thing[i].skeleton.pos[1] = vec2add(thing[i].skeleton.pos[1], weaponthrowvelocity);
+            things[i].skeleton.pos[1] = vec2add(things[i].skeleton.pos[1], weaponthrowvelocity);
             vec2scale(weaponthrowvelocity, b, weaponthrowspeedpos2);
-            thing[i].skeleton.pos[2] = vec2add(thing[i].skeleton.pos[2], weaponthrowvelocity);
+            things[i].skeleton.pos[2] = vec2add(things[i].skeleton.pos[2], weaponthrowvelocity);
         }
 
     // send net info
@@ -584,7 +584,7 @@ bool spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num)
         {
             if (map.spawnpoints[i].team == team)
             {
-                if (thing[num].lastspawn != i)
+                if (things[num].lastspawn != i)
                 {
                     spawnscount += 1;
                     spawns[spawnscount] = i;
@@ -619,7 +619,7 @@ bool spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num)
         i = Random(spawnscount) + 1;
         start.x = map.spawnpoints[spawns[i]].x - 4 + Random(8);
         start.y = map.spawnpoints[spawns[i]].y - 4 + Random(4);
-        thing[num].lastspawn = spawns[i];
+        things[num].lastspawn = spawns[i];
     }
     return result;
 }
@@ -840,9 +840,9 @@ void Thing<M>::update()
             if (SpriteSystem::Get().GetSprite(holdingsprite).player->team != style)
             { // check if other flag is inbase
                 for (i = 1; i <= max_things; i++)
-                    if ((thing[i].active) && (thing[i].inbase) && (i != num) &&
-                        (thing[i].holdingsprite == 0)) // check if flags are close
-                        if (distance(skeleton.pos[1], thing[i].skeleton.pos[1]) < touchdown_radius)
+                    if ((things[i].active) && (things[i].inbase) && (i != num) &&
+                        (things[i].holdingsprite == 0)) // check if flags are close
+                        if (distance(skeleton.pos[1], things[i].skeleton.pos[1]) < touchdown_radius)
                         {
                             if (SpriteSystem::Get().GetSprite(holdingsprite).player->team ==
                                 team_alpha)
@@ -873,8 +873,8 @@ void Thing<M>::update()
                                     // flame it
                                     for (j = 1; j <= 10; j++)
                                     {
-                                        a.x = thing[i].skeleton.pos[2].x - 10 + Random(20);
-                                        a.y = thing[i].skeleton.pos[2].y - 10 + Random(20);
+                                        a.x = things[i].skeleton.pos[2].x - 10 + Random(20);
+                                        a.y = things[i].skeleton.pos[2].y - 10 + Random(20);
                                         createspark(a, b, 36, 0, 35);
                                         if (Random(2) == 0)
                                             createspark(a, b, 37, 0, 75);
@@ -884,7 +884,7 @@ void Thing<M>::update()
 
 #ifndef SERVER
                                 // cap spark
-                                createspark(thing[i].skeleton.pos[2], b, 61, holdingsprite, 18);
+                                createspark(things[i].skeleton.pos[2], b, 61, holdingsprite, 18);
 #endif
 
                                 sortplayers();
@@ -924,7 +924,7 @@ void Thing<M>::update()
                                 // cap spark
                                 b.x = 0;
                                 b.y = 0;
-                                createspark(thing[i].skeleton.pos[2], b, 61, holdingsprite, 15);
+                                createspark(things[i].skeleton.pos[2], b, 61, holdingsprite, 15);
 #endif
 
                                 sortplayers();
@@ -1598,7 +1598,7 @@ void Thing<M>::kill()
 
     if (num <= 0) // skip uninited Things
         return;
-    thing[num].skeleton.destroy();
+    things[num].skeleton.destroy();
     active = false;
 #ifndef SERVER
     texture = 0;
@@ -1737,17 +1737,17 @@ void Thing<M>::respawn()
     }
 
     creatething(a, 255, style, num);
-    thing[num].timeout = flag_timeout;
-    thing[num].interest = default_interest_time;
-    thing[num].statictype = false;
+    things[num].timeout = flag_timeout;
+    things[num].interest = default_interest_time;
+    things[num].statictype = false;
 
     for (i = 1; i <= 4; i++)
-        thing[num].collidecount[i] = 0;
+        things[num].collidecount[i] = 0;
 
     if (style == object_rambo_bow)
-        thing[num].interest = bow_interest_time;
+        things[num].interest = bow_interest_time;
     if (style < object_ussocom)
-        thing[num].interest = flag_interest_time;
+        things[num].interest = flag_interest_time;
 
         // send net info
 #ifdef SERVER
@@ -1990,7 +1990,7 @@ std::int32_t Thing<M>::checkspritecollision()
                         if (CVar::sv_gamemode == gamestyle_htf)
                         {
                             SpriteSystem::Get().GetSprite(j).player->grabbedinbase =
-                                thing[2].inbase;
+                                things[2].inbase;
                             SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
                         }
 #else
@@ -2044,7 +2044,7 @@ std::int32_t Thing<M>::checkspritecollision()
                                 smallcaptextstr = SpriteSystem::Get().GetSprite(j).player->name +
                                                   " captured the Blue Flag";
                                 SpriteSystem::Get().GetSprite(j).player->grabbedinbase =
-                                    thing[2].inbase;
+                                    things[2].inbase;
                                 SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
 #else
                                 bigcaptext = iif(j == mysprite, _("You got the Blue Flag!"),
@@ -2058,7 +2058,7 @@ std::int32_t Thing<M>::checkspritecollision()
                                 smallcaptextstr = SpriteSystem::Get().GetSprite(j).player->name +
                                                   " captured the Red Flag";
                                 SpriteSystem::Get().GetSprite(j).player->grabbedinbase =
-                                    thing[1].inbase;
+                                    things[1].inbase;
                                 SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
 #else
                                 bigcaptext = iif(j == mysprite, _("You got the Red Flag!"),
@@ -2083,7 +2083,7 @@ std::int32_t Thing<M>::checkspritecollision()
                                 smallcaptextstr = SpriteSystem::Get().GetSprite(j).player->name +
                                                   " returned the Objective";
                                 SpriteSystem::Get().GetSprite(j).player->grabbedinbase =
-                                    thing[2].inbase;
+                                    things[2].inbase;
                                 SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
 #else
                                 bigcaptext = iif(j == mysprite, _("You returned the Objective!"),
@@ -2104,7 +2104,7 @@ std::int32_t Thing<M>::checkspritecollision()
                                 smallcaptextstr = SpriteSystem::Get().GetSprite(j).player->name +
                                                   " captured the Objective";
                                 SpriteSystem::Get().GetSprite(j).player->grabbedinbase =
-                                    thing[2].inbase;
+                                    things[2].inbase;
                                 SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
 #else
                                 bigcaptext = iif(j == mysprite, _("You got the Objective!"),

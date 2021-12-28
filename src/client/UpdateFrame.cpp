@@ -104,8 +104,8 @@ void update_frame()
             ZoneScopedN("Things");
             // update Things
             for (j = 1; j <= max_things; j++)
-                if (thing[j].active)
-                    thing[j].update();
+                if (things[j].active)
+                    things[j].update();
         }
 
         if (maintickcounter % second == 0)

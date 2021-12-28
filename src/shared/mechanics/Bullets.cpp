@@ -2022,11 +2022,11 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
     // iterate through Things
     if (style != bullet_style_fragnade)
         for (j = 1; j <= max_things; j++)
-            if (thing[j].active && (timeout < bullet_timeout - 1) && thing[j].collidewithbullets and
-                (owner != thing[j].holdingsprite) &&
-                (((CVar::sv_gamemode == gamestyle_inf) && (thing[j].style == object_bravo_flag)) ||
+            if (things[j].active && (timeout < bullet_timeout - 1) && things[j].collidewithbullets and
+                (owner != things[j].holdingsprite) &&
+                (((CVar::sv_gamemode == gamestyle_inf) && (things[j].style == object_bravo_flag)) ||
                  (CVar::sv_gamemode != gamestyle_inf)) &&
-                (thing[j].style != object_stationary_gun))
+                (things[j].style != object_stationary_gun))
             {
                 startpoint = bulletparts.pos[num];
                 endpoint = vec2add(startpoint, bulletparts.velocity[num]);
@@ -2035,7 +2035,7 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
 
                 for (i = 1; i <= 2; i++)
                 {
-                    colpos = thing[j].skeleton.pos[i];
+                    colpos = things[j].skeleton.pos[i];
 
                     if (linecirclecollision(startpoint, endpoint, colpos, flag_part_radius, pos))
                     {
@@ -2060,7 +2060,7 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
 
                     for (i = 0; i <= high(thingcollisions); i++)
                     {
-                        if (thingcollisions[i].thingnum == thing[j].num)
+                        if (thingcollisions[i].thingnum == things[j].num)
                         {
                             if (maintickcounter < thingcollisions[i].cooldownend)
                             {
@@ -2077,21 +2077,21 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
                     newindex = length(thingcollisions);
                     setlength(thingcollisions, newindex + 1);
                     thingcollisions[newindex] =
-                        thingcollision(thing[j].num, maintickcounter + thing_collision_cooldown);
+                        thingcollision(things[j].num, maintickcounter + thing_collision_cooldown);
 
                     // collision respond
                     thingvel =
-                        vec2subtract(thing[j].skeleton.pos[where], thing[j].skeleton.oldpos[where]);
+                        vec2subtract(things[j].skeleton.pos[where], things[j].skeleton.oldpos[where]);
                     veldiff = vec2subtract(bulletparts.velocity[num], thingvel);
 
                     vec2scale(bulletpush, veldiff,
                               guns[getweaponindex()].push * thing_push_multiplier);
 
-                    thing[j].skeleton.pos[where] =
-                        vec2add(thing[j].skeleton.pos[where], bulletpush);
+                    things[j].skeleton.pos[where] =
+                        vec2add(things[j].skeleton.pos[where], bulletpush);
 
                     result = pos;
-                    thing[j].statictype = false;
+                    things[j].statictype = false;
 
                     switch (style)
                     {
@@ -2673,21 +2673,21 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
     // check explosion collision with things
     for (i = 1; i <= max_things; i++)
     {
-        if (!thing[i].active or !thing[i].collidewithbullets)
+        if (!things[i].active or !things[i].collidewithbullets)
             continue;
 
         for (j = 1; j <= 4; j++)
         {
-            a = vec2subtract(bulletparts.pos[num], thing[i].skeleton.pos[j]);
+            a = vec2subtract(bulletparts.pos[num], things[i].skeleton.pos[j]);
             s = vec2length2(a);
 
             if (s < explosionradius2)
             {
                 s = sqrt(s);
                 vec2scale(a, a, 0.5 * ((float)(1) / (s + 1)) * explosion_impact_multiply);
-                thing[i].skeleton.oldpos[j].x += a.x;
-                thing[i].skeleton.oldpos[j].y += a.y;
-                thing[i].statictype = false;
+                things[i].skeleton.oldpos[j].x += a.x;
+                things[i].skeleton.oldpos[j].y += a.y;
+                things[i].statictype = false;
             }
         }
     } // for Thing[i]

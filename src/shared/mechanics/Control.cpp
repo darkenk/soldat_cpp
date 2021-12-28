@@ -1427,7 +1427,7 @@ void controlsprite(tsprite &spritec)
         if (spritec.control.up or spritec.control.jetpack)
             if (spritec.stat > 0)
             {
-                thing[spritec.stat].statictype = false;
+                things[spritec.stat].statictype = false;
                 spritec.stat = 0;
             }
 
@@ -1962,10 +1962,10 @@ void controlsprite(tsprite &spritec)
                 else if (spritec.holdedthing != 0)
                 {
                     // parachute bend
-                    thing[spritec.holdedthing].skeleton.forces[3].y =
-                        thing[spritec.holdedthing].skeleton.forces[3].y - 0.5;
-                    thing[spritec.holdedthing].skeleton.forces[2].y =
-                        thing[spritec.holdedthing].skeleton.forces[2].y + 0.5;
+                    things[spritec.holdedthing].skeleton.forces[3].y =
+                        things[spritec.holdedthing].skeleton.forces[3].y - 0.5;
+                    things[spritec.holdedthing].skeleton.forces[2].y =
+                        things[spritec.holdedthing].skeleton.forces[2].y + 0.5;
                 }
 
                 if (spritec.onground) // if staying on ground
@@ -1989,10 +1989,10 @@ void controlsprite(tsprite &spritec)
                 else if (spritec.holdedthing != 0)
                 {
                     // parachute bend
-                    thing[spritec.holdedthing].skeleton.forces[2].y =
-                        thing[spritec.holdedthing].skeleton.forces[2].y - 0.5;
-                    thing[spritec.holdedthing].skeleton.forces[3].y =
-                        thing[spritec.holdedthing].skeleton.forces[3].y + 0.5;
+                    things[spritec.holdedthing].skeleton.forces[2].y =
+                        things[spritec.holdedthing].skeleton.forces[2].y - 0.5;
+                    things[spritec.holdedthing].skeleton.forces[3].y =
+                        things[spritec.holdedthing].skeleton.forces[3].y + 0.5;
                 }
 
                 if (spritec.onground) // if staying on ground

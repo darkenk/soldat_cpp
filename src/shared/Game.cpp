@@ -501,7 +501,7 @@ void changemap()
     {
         b.kill();
     }
-    for (auto &t : thing)
+    for (auto &t : things)
     {
         t.kill();
     }

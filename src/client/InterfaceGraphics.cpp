@@ -1852,7 +1852,7 @@ void renderplayername(float width, float height, std::int32_t i, bool onlyoffscr
         alpha = min(255.0, 50 + round(100000 / (dx + (float)(dy) / 2)));
 
         if ((SpriteSystem::Get().GetSprite(i).holdedthing > 0) &&
-            (thing[SpriteSystem::Get().GetSprite(i).holdedthing].style < 4))
+            (things[SpriteSystem::Get().GetSprite(i).holdedthing].style < 4))
             gfxtextcolor(rgba(outofscreenflag_message_color, alpha));
         else if (SpriteSystem::Get().GetSprite(i).deadmeat)
             gfxtextcolor(rgba(outofscreendead_message_color, alpha));
@@ -2446,29 +2446,29 @@ void renderinterface(float timeelapsed, float width, float height)
         if ((f1 > 0) && (f2 > 0) &&
             ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf)))
         {
-            if ((thing[f1].inbase) && (thing[f1].holdingsprite == 0))
+            if ((things[f1].inbase) && (things[f1].holdingsprite == 0))
             {
-                p = tominimap(thing[f1].skeleton.pos[1]);
+                p = tominimap(things[f1].skeleton.pos[1]);
                 gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xff0000, alfa));
             }
 
-            if ((thing[f2].inbase) && (thing[f2].holdingsprite == 0))
+            if ((things[f2].inbase) && (things[f2].holdingsprite == 0))
             {
-                p = tominimap(thing[f2].skeleton.pos[1]);
+                p = tominimap(things[f2].skeleton.pos[1]);
                 gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0x1313ff, alfa));
             }
         }
 
-        if ((f1 > 0) && (CVar::sv_gamemode == gamestyle_htf) && (thing[f1].holdingsprite == 0))
+        if ((f1 > 0) && (CVar::sv_gamemode == gamestyle_htf) && (things[f1].holdingsprite == 0))
         {
-            p = tominimap(thing[f1].skeleton.pos[1]);
+            p = tominimap(things[f1].skeleton.pos[1]);
             gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xffff00, alfa));
         }
 
         if ((gamethingtarget > 0) && (CVar::sv_gamemode == gamestyle_rambo) &&
-            (thing[gamethingtarget].holdingsprite == 0))
+            (things[gamethingtarget].holdingsprite == 0))
         {
-            p = tominimap(thing[gamethingtarget].skeleton.pos[1]);
+            p = tominimap(things[gamethingtarget].skeleton.pos[1]);
             gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xffffff, alfa));
         }
 
@@ -2480,7 +2480,7 @@ void renderinterface(float timeelapsed, float width, float height)
                     (spriteme->isnotspectator() && !spriteme->isinsameteam(sprite)))
                     continue;
 
-                if ((sprite.holdedthing > 0) && (thing[sprite.holdedthing].style < 4))
+                if ((sprite.holdedthing > 0) && (things[sprite.holdedthing].style < 4))
                 {
                     p = tominimap(sprite.skeleton.pos[7]);
                     gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xffff00, alfa));
@@ -2888,18 +2888,18 @@ void renderinterface(float timeelapsed, float width, float height)
                 x = pixelalignx((int_.teambox_x + 4) * _iscala.x);
                 y = pixelaligny((int_.teambox_y + 5) * _iscala.y);
 
-                if (!thing[teamflag[1]].inbase)
+                if (!things[teamflag[1]].inbase)
                     gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y,
                                   rgba(0xff0000, round(int_.alpha)));
 
                 x = pixelalignx(x + 31);
 
-                if (!thing[teamflag[2]].inbase)
+                if (!things[teamflag[2]].inbase)
                     gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff, round(int_.alpha)));
             }
             else if (CVar::sv_gamemode == gamestyle_inf)
             {
-                if (!thing[teamflag[2]].inbase)
+                if (!things[teamflag[2]].inbase)
                 {
                     x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
                     y = pixelaligny((int_.teambox_y + 3) * _iscala.y);
@@ -2910,9 +2910,9 @@ void renderinterface(float timeelapsed, float width, float height)
         }
         else if ((teamflag[1] > 0) && (CVar::sv_gamemode == gamestyle_htf))
         {
-            if (thing[teamflag[1]].holdingsprite > 0)
+            if (things[teamflag[1]].holdingsprite > 0)
             {
-                if (SpriteSystem::Get().GetSprite(thing[teamflag[1]].holdingsprite).player->team ==
+                if (SpriteSystem::Get().GetSprite(things[teamflag[1]].holdingsprite).player->team ==
                     team_alpha)
                 {
                     x = pixelalignx((int_.teambox_x + 19) * _iscala.x);

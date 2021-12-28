@@ -211,14 +211,14 @@ void tadminserver::processcommands()
 
         if (teamflag[team_alpha] > 0)
         {
-            refreshmsgx.redflagx = thing[teamflag[team_alpha]].skeleton.pos[1].x;
-            refreshmsgx.redflagy = thing[teamflag[team_alpha]].skeleton.pos[1].y;
+            refreshmsgx.redflagx = things[teamflag[team_alpha]].skeleton.pos[1].x;
+            refreshmsgx.redflagy = things[teamflag[team_alpha]].skeleton.pos[1].y;
         }
 
         if (teamflag[team_bravo] > 0)
         {
-            refreshmsgx.blueflagx = thing[teamflag[team_bravo]].skeleton.pos[1].x;
-            refreshmsgx.blueflagy = thing[teamflag[team_bravo]].skeleton.pos[1].y;
+            refreshmsgx.blueflagx = things[teamflag[team_bravo]].skeleton.pos[1].x;
+            refreshmsgx.blueflagy = things[teamflag[team_bravo]].skeleton.pos[1].y;
         }
 
         refreshmsgx.mapname = map.name;

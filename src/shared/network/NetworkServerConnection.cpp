@@ -377,15 +377,15 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     // FIXME english
     // TODO do a good bit of these things in CreateSprite instead?
     if (SpriteSystem::Get().GetSprite(player->spritenum).holdedthing > 0)
-        if (thing[SpriteSystem::Get().GetSprite(player->spritenum).holdedthing].style <
+        if (things[SpriteSystem::Get().GetSprite(player->spritenum).holdedthing].style <
             object_ussocom)
         {
-            thing[SpriteSystem::Get().GetSprite(player->spritenum).holdedthing].respawn();
+            things[SpriteSystem::Get().GetSprite(player->spritenum).holdedthing].respawn();
             SpriteSystem::Get().GetSprite(player->spritenum).holdedthing = 0;
         }
     for (i = 1; i <= max_things; i++)
-        if (thing[player->spritenum].holdingsprite == player->spritenum)
-            thing[player->spritenum].respawn();
+        if (things[player->spritenum].holdingsprite == player->spritenum)
+            things[player->spritenum].respawn();
     SpriteSystem::Get().GetSprite(player->spritenum).haspack = false;
     SpriteSystem::Get().GetSprite(player->spritenum).respawn(); // FIXME do this later?
 

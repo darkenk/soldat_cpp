@@ -153,11 +153,11 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     {
         onstatgun = false;
         for (i = 0; i <= max_things; i++)
-            if ((thing[i].style == object_stationary_gun) /*Stat Gun*/ && (onstatgun == false))
+            if ((things[i].style == object_stationary_gun) /*Stat Gun*/ && (onstatgun == false))
                 if (distance(SpriteSystem::Get().GetSprite(p).skeleton.pos[1].x,
                              SpriteSystem::Get().GetSprite(p).skeleton.pos[1].y,
-                             thing[i].skeleton.pos[1].x,
-                             thing[i].skeleton.pos[1].y) < stat_radius * 2)
+                             things[i].skeleton.pos[1].x,
+                             things[i].skeleton.pos[1].y) < stat_radius * 2)
                     onstatgun = true;
         if (!onstatgun)
         {

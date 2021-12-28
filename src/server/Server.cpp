@@ -1148,7 +1148,7 @@ void spawnthings(std::int8_t Style, std::int8_t Amount)
             }
         }
 
-        thing[max_things - 1].team = team;
+        things[max_things - 1].team = team;
 
         if (team == 0)
         {
@@ -1167,7 +1167,7 @@ void spawnthings(std::int8_t Style, std::int8_t Amount)
 
         if ((l > 0) and (l < max_things + 1))
         {
-            thing[l].team = team;
+            things[l].team = team;
         }
     }
 }

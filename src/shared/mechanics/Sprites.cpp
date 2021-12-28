@@ -1132,7 +1132,7 @@ void Sprite<M>::update()
             // parachuter
             para = 0;
             if ((holdedthing > 0) && (holdedthing < max_things + 1))
-                if (thing[holdedthing].style == object_parachute)
+                if (things[holdedthing].style == object_parachute)
                     para = 1;
 
             if (para == 1)
@@ -1147,9 +1147,9 @@ void Sprite<M>::update()
                     if (onground || control.jetpack)
                         if ((holdedthing > 0) && (holdedthing < max_things + 1))
                         {
-                            thing[holdedthing].holdingsprite = 0;
-                            thing[holdedthing].skeleton.constraintcount -= 1;
-                            thing[holdedthing].timeout = 3 * 60;
+                            things[holdedthing].holdingsprite = 0;
+                            things[holdedthing].skeleton.constraintcount -= 1;
+                            things[holdedthing].timeout = 3 * 60;
                             holdedthing = 0;
                         }
             }
@@ -1226,13 +1226,13 @@ void Sprite<M>::update()
                         {
                             if ((teamflag[1] > 0) && (teamflag[2] > 0))
                             {
-                                if (!thing[teamflag[1]].inbase)
+                                if (!things[teamflag[1]].inbase)
                                 {
-                                    thing[teamflag[1]].respawn();
+                                    things[teamflag[1]].respawn();
                                 }
-                                if (!thing[teamflag[2]].inbase)
+                                if (!things[teamflag[2]].inbase)
                                 {
-                                    thing[teamflag[2]].respawn();
+                                    things[teamflag[2]].respawn();
                                 }
                             }
                         }
@@ -1244,7 +1244,7 @@ void Sprite<M>::update()
             // parachuter
             para = 0;
             if ((holdedthing > 0) && (holdedthing < max_things + 1))
-                if (thing[holdedthing].style == object_parachute)
+                if (things[holdedthing].style == object_parachute)
                     para = 1;
 
             if (para == 1)
@@ -1253,9 +1253,9 @@ void Sprite<M>::update()
                 if (onground)
                     if ((holdedthing > 0) && (holdedthing < max_things + 1))
                     {
-                        thing[holdedthing].holdingsprite = 0;
-                        thing[holdedthing].skeleton.constraintcount -= 1;
-                        thing[holdedthing].timeout = 3 * 60;
+                        things[holdedthing].holdingsprite = 0;
+                        things[holdedthing].skeleton.constraintcount -= 1;
+                        things[holdedthing].timeout = 3 * 60;
                         holdedthing = 0;
                     }
             }
@@ -1305,15 +1305,15 @@ void Sprite<M>::kill()
     }
 
     if ((holdedthing > 0) && (holdedthing < max_things + 1))
-        if (thing[holdedthing].style < object_ussocom)
+        if (things[holdedthing].style < object_ussocom)
         {
-            thing[holdedthing].holdingsprite = 0;
+            things[holdedthing].holdingsprite = 0;
             holdedthing = 0;
         }
 
     if (stat > 0)
     {
-        thing[stat].statictype = false;
+        things[stat].statictype = false;
         stat = 0;
     }
 
@@ -1533,7 +1533,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 // add another point for holding the flag
                 if ((SpriteSystem::Get().GetSprite(who).holdedthing > 0) &&
                     (SpriteSystem::Get().GetSprite(who).holdedthing < max_things + 1))
-                    if (thing[SpriteSystem::Get().GetSprite(who).holdedthing].style ==
+                    if (things[SpriteSystem::Get().GetSprite(who).holdedthing].style ==
                         object_pointmatch_flag)
                         i = i * 2;
 
@@ -1780,7 +1780,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
             if ((i > 0) && (weapon.num != guns[flamer].num) && (weapon.num != guns[noweapon].num))
             {
-                thing[i].skeleton.forces[2] = impact;
+                things[i].skeleton.forces[2] = impact;
             }
 
             freecontrols();
@@ -2103,13 +2103,13 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
     for (i = 1; i <= max_things; i++)
     {
-        if (thing[i].holdingsprite == num)
-            if (thing[i].style < object_ussocom)
+        if (things[i].holdingsprite == num)
+            if (things[i].style < object_ussocom)
             {
-                thing[i].holdingsprite = 0;
+                things[i].holdingsprite = 0;
                 holdedthing = 0;
 #ifndef SERVER
-                if ((thing[i].style == object_alpha_flag) || (thing[i].style == object_bravo_flag))
+                if ((things[i].style == object_alpha_flag) || (things[i].style == object_bravo_flag))
                 {
                     GetMainConsole().console(
                         wideformat(_("{} dropped the {} Flag"), player->name,
@@ -2118,10 +2118,10 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
                     if (isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
                     {
-                        if (thing[i].style == object_alpha_flag) // Alpha
+                        if (things[i].style == object_alpha_flag) // Alpha
                             bigmessage(wideformat(_("{} Flag dropped!"), _("Red")),
                                        capturemessagewait, capture_message_color);
-                        else if (thing[i].style == object_bravo_flag) // Bravo
+                        else if (things[i].style == object_bravo_flag) // Bravo
                             bigmessage(wideformat(_("{} Flag dropped!"), _("Blue")),
                                        capturemessagewait, capture_message_color);
 
@@ -2130,17 +2130,17 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 }
 #endif
 #ifdef SCRIPT
-                scrptdispatcher.onflagdrop(num, thing[i].style, false);
+                scrptdispatcher.onflagdrop(num, things[i].style, false);
 #endif
             }
 
-        if (thing[i].owner == num)
-            thing[i].owner = 255;
+        if (things[i].owner == num)
+            things[i].owner = 255;
 
         if (stat == num)
         {
             stat = 0;
-            thing[i].statictype = true;
+            things[i].statictype = true;
         }
     }
 
@@ -2291,7 +2291,7 @@ std::int32_t Sprite<M>::dropweapon()
     }
 
     if (result > 0)
-        thing[result].ammocount = weapon.ammocount;
+        things[result].ammocount = weapon.ammocount;
 
         // This should be called before weapon is actually applied
         // so that sprite still holds old values
@@ -3031,7 +3031,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
     }
     break;
     case poly_type_hurts_flaggers: {
-        if (!deadmeat && (holdedthing > 0) && (thing[holdedthing].style < object_ussocom))
+        if (!deadmeat && (holdedthing > 0) && (things[holdedthing].style < object_ussocom))
             if (Random(10) == 0)
             {
 #ifdef SERVER
@@ -3420,11 +3420,11 @@ void Sprite<M>::respawn()
         {
             for (j = 1; j <= max_things; j++)
             {
-                if (thing[j].active &&
-                    ((isInRange((std::int32_t)thing[j].style, object_ussocom, object_minigun)) ||
-                     (isInRange((std::int32_t)thing[j].style, object_combat_knife, object_law))))
+                if (things[j].active &&
+                    ((isInRange((std::int32_t)things[j].style, object_ussocom, object_minigun)) ||
+                     (isInRange((std::int32_t)things[j].style, object_combat_knife, object_law))))
                 {
-                    thing[j].kill();
+                    things[j].kill();
                 }
             }
             weaponscleaned = true;
@@ -3513,10 +3513,10 @@ void Sprite<M>::respawn()
 
     if ((holdedthing > 0) && (holdedthing < max_things + 1))
     {
-        if (thing[holdedthing].style != object_parachute)
-            thing[holdedthing].respawn();
+        if (things[holdedthing].style != object_parachute)
+            things[holdedthing].respawn();
         else
-            thing[holdedthing].kill();
+            things[holdedthing].kill();
     }
 
     holdedthing = 0;
@@ -3731,10 +3731,10 @@ void Sprite<M>::parachute(tvector2 &a)
 
     for (i = 1; i <= max_things; i++)
     {
-        if (thing[i].holdingsprite == num)
+        if (things[i].holdingsprite == num)
         {
-            thing[i].holdingsprite = 0;
-            thing[i].kill();
+            things[i].holdingsprite = 0;
+            things[i].kill();
         }
     }
 
@@ -3745,9 +3745,9 @@ void Sprite<M>::parachute(tvector2 &a)
         {
             a.y = a.y + 70;
             n = creatething(a, num, object_parachute, 255);
-            thing[n].holdingsprite = num;
+            things[n].holdingsprite = num;
 #ifndef SERVER
-            thing[n].color = player->shirtcolor;
+            things[n].color = player->shirtcolor;
 #endif
             holdedthing = n;
         }
@@ -3826,16 +3826,16 @@ void Sprite<M>::changeteam(std::int32_t team)
         num = createsprite(a, b, 1, num, player, isplayerobjectowner);
 
         if (holdedthing > 0)
-            if (thing[holdedthing].style < object_ussocom)
+            if (things[holdedthing].style < object_ussocom)
             {
-                thing[holdedthing].respawn();
+                things[holdedthing].respawn();
                 holdedthing = 0;
             }
 
         for (i = 1; i <= max_things; i++)
         {
-            if (thing[i].holdingsprite == num)
-                thing[i].respawn();
+            if (things[i].holdingsprite == num)
+                things[i].respawn();
         }
         respawn();
 
@@ -4564,9 +4564,9 @@ void Sprite<M>::throwflag()
             {
                 for (i = 1; i <= max_things; i++)
                 {
-                    if (thing[i].holdingsprite == num)
+                    if (things[i].holdingsprite == num)
                     {
-                        if (thing[i].style < 4)
+                        if (things[i].style < 4)
                         {
                             // Create start velocity vector
                             cursordirection = getcursoraimdirection();
@@ -4581,16 +4581,16 @@ void Sprite<M>::throwflag()
 
                             // Don't throw if the flag would collide in the upcoming frame
                             newposdiff = vec2add(boffset, b);
-                            lookpoint1 = vec2add(thing[i].skeleton.pos[1], newposdiff);
+                            lookpoint1 = vec2add(things[i].skeleton.pos[1], newposdiff);
 
                             futurepoint1 = vec2add(lookpoint1, vector2(-10, -8));
                             futurepoint2 = vec2add(lookpoint1, vector2(10, -8));
                             futurepoint3 = vec2add(lookpoint1, vector2(-10, 8));
                             futurepoint4 = vec2add(lookpoint1, vector2(10, 8));
 
-                            lookpoint1 = vec2add(thing[i].skeleton.pos[2], newposdiff);
-                            lookpoint2 = vec2add(thing[i].skeleton.pos[3], newposdiff);
-                            lookpoint3 = vec2add(thing[i].skeleton.pos[4], newposdiff);
+                            lookpoint1 = vec2add(things[i].skeleton.pos[2], newposdiff);
+                            lookpoint2 = vec2add(things[i].skeleton.pos[3], newposdiff);
+                            lookpoint3 = vec2add(things[i].skeleton.pos[4], newposdiff);
 
                             if (!map.raycast(skeleton.pos[15], lookpoint1, d, 200, false, true,
                                              false) and
@@ -4606,36 +4606,36 @@ void Sprite<M>::throwflag()
                                 for (j = 1; j <= 4; j++)
                                 {
                                     // Apply offset from flagger
-                                    thing[i].skeleton.pos[j] =
-                                        vec2add(thing[i].skeleton.pos[j], boffset);
+                                    things[i].skeleton.pos[j] =
+                                        vec2add(things[i].skeleton.pos[j], boffset);
 
                                     // Apply velocities
-                                    thing[i].skeleton.pos[j] = vec2add(thing[i].skeleton.pos[j], b);
-                                    thing[i].skeleton.oldpos[j] =
-                                        vec2subtract(thing[i].skeleton.pos[j], b);
+                                    things[i].skeleton.pos[j] = vec2add(things[i].skeleton.pos[j], b);
+                                    things[i].skeleton.oldpos[j] =
+                                        vec2subtract(things[i].skeleton.pos[j], b);
                                 }
 
                                 // Add some spin for visual effect
                                 bperp = vector2(-b.y, b.x);
                                 vec2normalize(bperp, bperp);
                                 vec2scale(bperp, bperp, direction);
-                                thing[i].skeleton.pos[1] =
-                                    vec2subtract(thing[i].skeleton.pos[1], bperp);
-                                thing[i].skeleton.pos[2] = vec2add(thing[i].skeleton.pos[2], bperp);
+                                things[i].skeleton.pos[1] =
+                                    vec2subtract(things[i].skeleton.pos[1], bperp);
+                                things[i].skeleton.pos[2] = vec2add(things[i].skeleton.pos[2], bperp);
 
                                 // Release the flag
-                                thing[i].holdingsprite = 0;
+                                things[i].holdingsprite = 0;
                                 holdedthing = 0;
                                 flaggrabcooldown = second / 4;
 
 #ifdef SCRIPT
-                                scrptdispatcher.onflagdrop(num, thing[i].style, true);
+                                scrptdispatcher.onflagdrop(num, things[i].style, true);
 #endif
 
-                                thing[i].bgstate.backgroundstatus = background_transition;
-                                thing[i].bgstate.backgroundpoly = background_poly_unknown;
+                                things[i].bgstate.backgroundstatus = background_transition;
+                                things[i].bgstate.backgroundpoly = background_poly_unknown;
 
-                                thing[i].statictype = false;
+                                things[i].statictype = false;
 #ifdef SERVER
                                 serverthingmustsnapshot(i);
 #endif

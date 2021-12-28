@@ -178,8 +178,8 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     if (!bulletsnap->forced)
         if (style == bullet_style_m2)
             for (i = 1; i <= max_things; i++)
-                if ((thing[i].active) && (thing[i].style == object_stationary_gun))
-                    thing[i].checkstationaryguncollision(true);
+                if ((things[i].active) && (things[i].style == object_stationary_gun))
+                    things[i].checkstationaryguncollision(true);
 
     oldbulletsnapshotmsg[bulletsnap->owner] = *bulletsnap;
 }
