@@ -453,24 +453,21 @@ void gotothing(std::uint8_t snum, std::uint8_t tnum)
 
     {
         auto &with = SpriteSystem::Get().GetSprite(snum);
+        auto &thing = things[tnum];
 
         m = spriteparts.pos[snum];
-        t = things[tnum].skeleton.pos[2];
+        t = thing.skeleton.pos[2];
 
-        if ((things[tnum].skeleton.pos[2].x > things[tnum].skeleton.pos[1].x) &&
-            (m.x < things[tnum].skeleton.pos[2].x))
-            t = things[tnum].skeleton.pos[2];
-        if ((things[tnum].skeleton.pos[2].x > things[tnum].skeleton.pos[1].x) &&
-            (m.x > things[tnum].skeleton.pos[1].x))
-            t = things[tnum].skeleton.pos[1];
-        if ((things[tnum].skeleton.pos[2].x < things[tnum].skeleton.pos[1].x) &&
-            (m.x < things[tnum].skeleton.pos[1].x))
-            t = things[tnum].skeleton.pos[1];
-        if ((things[tnum].skeleton.pos[2].x < things[tnum].skeleton.pos[1].x) &&
-            (m.x > things[tnum].skeleton.pos[2].x))
-            t = things[tnum].skeleton.pos[2];
+        if ((thing.skeleton.pos[2].x > thing.skeleton.pos[1].x) && (m.x < thing.skeleton.pos[2].x))
+            t = thing.skeleton.pos[2];
+        if ((thing.skeleton.pos[2].x > thing.skeleton.pos[1].x) && (m.x > thing.skeleton.pos[1].x))
+            t = thing.skeleton.pos[1];
+        if ((thing.skeleton.pos[2].x < thing.skeleton.pos[1].x) && (m.x < thing.skeleton.pos[1].x))
+            t = thing.skeleton.pos[1];
+        if ((thing.skeleton.pos[2].x < thing.skeleton.pos[1].x) && (m.x > thing.skeleton.pos[2].x))
+            t = thing.skeleton.pos[2];
 
-        if (things[tnum].holdingsprite > 0)
+        if (thing.holdingsprite > 0)
             t.y = t.y + 5;
 
         if (t.x >= m.x)
@@ -478,10 +475,10 @@ void gotothing(std::uint8_t snum, std::uint8_t tnum)
         if (t.x < m.x)
             with.control.left = true;
 
-        if ((things[tnum].holdingsprite > 0) && (teamflag[with.player->team] > team_none))
+        if ((thing.holdingsprite > 0) && (teamflag[with.player->team] > team_none))
             if ((with.player->team ==
-                 SpriteSystem::Get().GetSprite(things[tnum].holdingsprite).player->team) and
-                (!things[tnum].inbase))
+                 SpriteSystem::Get().GetSprite(thing.holdingsprite).player->team) and
+                (!thing.inbase))
             {
                 // X - Distance
                 disttotargetx = checkdistance(m.x, t.x);
@@ -493,7 +490,7 @@ void gotothing(std::uint8_t snum, std::uint8_t tnum)
                     with.control.down = true;
                 }
 
-                if (SpriteSystem::Get().GetSprite(things[tnum].holdingsprite).control.jetpack)
+                if (SpriteSystem::Get().GetSprite(thing.holdingsprite).control.jetpack)
                     with.control.jetpack = true;
                 else
                     with.control.jetpack = false;
