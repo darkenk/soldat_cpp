@@ -41,10 +41,21 @@ poly_type_background_transition = 25
 
 struct PolyMapSector
 {
+    struct Vertex
+    {
+        Vertex(const tmapvertex& v): x{v.x}, y{v.y} {}
+        float x;
+        float y;
+    };
+
     struct Poly
     {
-        std::uint16_t Index;
-        PolygonType Type;
+        Poly(std::uint16_t idx, PolygonType type, const tmapvertex& a,const tmapvertex& b, const tmapvertex& c)
+            : Index{idx}, Type{type}, Vertices{a,b,c}
+        {}
+        const std::uint16_t Index;
+        const PolygonType Type;
+        const std::array<Vertex, 3> Vertices;
     };
     using TPolys = std::vector<Poly>;
     TPolys Polys;
@@ -122,7 +133,7 @@ class Polymap
                  std::uint32_t bgcolorbtm);
     bool pointinpolyedges(float x, float y, std::int32_t i);
     bool pointinpoly(const tvector2 &p, const tmappolygon &poly);
-    bool lineinpoly(const tvector2 &a, const tvector2 &b, const tmappolygon &poly, tvector2 &v);
+    bool PointInPoly(const tvector2 &p, const PolyMapSector::Poly &poly);
     tvector2 closestperpendicular(std::int32_t j, const tvector2& pos, float &d, std::int32_t &n);
     bool collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag = false);
     bool collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::int32_t c);
@@ -146,8 +157,8 @@ class Polymap
     void loaddata(const tmapfile &mapfile);
     twaypoints &botpath;
     bool RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, float maxdist,
-                 bool player = false, bool flag = false, bool bullet = true,
-                 bool checkcollider = false, std::uint8_t team = 0);
+                    bool player = false, bool flag = false, bool bullet = true,
+                    bool checkcollider = false, std::uint8_t team = 0);
 
     struct SectorCoord {
         std::int32_t x; std::int32_t y;

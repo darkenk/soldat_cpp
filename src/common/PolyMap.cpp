@@ -160,7 +160,10 @@ void Polymap::loaddata(const tmapfile &mapfile)
         auto &poly = Sectors.emplace_back().Polys;
         for (const auto &p : s.Polys)
         {
-            poly.push_back({p, SerializePolygonType(polys[p].polytype)});
+            const tmapvertex &a = polys[p].vertices[0];
+            const tmapvertex &b = polys[p].vertices[1];
+            const tmapvertex &c = polys[p].vertices[2];
+            poly.emplace_back(p, SerializePolygonType(polys[p].polytype), a, b, c);
         }
     }
 
@@ -249,14 +252,15 @@ bool Polymap::loadmap(const tmapinfo &map, bool bgforce, std::uint32_t bgcolorto
     return result;
 }
 
-bool LineInPolyOpt(const tvector2 &a, const tvector2 &b, const tmappolygon &poly, tvector2 &v,
-                   const float ak)
+static bool LineInPoly(const tvector2 &a, const tvector2 &b, const PolyMapSector::Poly &poly,
+                       tvector2 &v, const float ak)
 {
-    ZoneScopedN("LineInPolyOpt");
+    ZoneScopedN("LineInPoly");
 
-    auto calc = [&](const tmapvertex &p, const tmapvertex &q, const float bk) {
+    auto calc = [&](const PolyMapSector::Vertex &p, const PolyMapSector::Vertex &q) {
         if (b.x != a.x && q.x != p.x)
         {
+            float bk = ((q.y - p.y)) / (q.x - p.x);
             if (ak != bk)
             {
                 float am = a.y - ak * a.x;
@@ -273,6 +277,7 @@ bool LineInPolyOpt(const tvector2 &a, const tvector2 &b, const tmappolygon &poly
         }
         else if (b.x == a.x && q.x != p.x)
         {
+            float bk = ((q.y - p.y)) / (q.x - p.x);
             float bm = p.y - bk * p.x;
             v.x = a.x;
             v.y = bk * v.x + bm;
@@ -298,83 +303,10 @@ bool LineInPolyOpt(const tvector2 &a, const tvector2 &b, const tmappolygon &poly
         return false;
     };
 
-    const auto &v1 = poly.vertices[0];
-    const auto &v2 = poly.vertices[1];
-    const auto &v3 = poly.vertices[2];
-    return calc(v1, v2, poly.bk[0]) or calc(v2, v3, poly.bk[1]) or calc(v3, v1, poly.bk[2]);
-}
-
-bool Polymap::lineinpoly(const tvector2 &a, const tvector2 &b, const tmappolygon &poly, tvector2 &v)
-{
-    ZoneScopedN("LineInPoly");
-    std::int32_t i, j;
-    float ak, am, bk, bm;
-
-    bool result = false;
-
-    for (i = 0; i <= 2; i++)
-    {
-        if (i == 2)
-            j = 0;
-        else
-            j = i + 1;
-
-        const tmapvertex &p = poly.vertices[i];
-        const tmapvertex &q = poly.vertices[j];
-
-        if ((b.x != a.x) || (q.x != p.x))
-        {
-            if (b.x == a.x)
-            {
-                bk = ((q.y - p.y)) / (q.x - p.x);
-                bm = p.y - bk * p.x;
-                v.x = a.x;
-                v.y = bk * v.x + bm;
-
-                if ((v.x > std::min(p.x, q.x)) && (v.x < std::max(p.x, q.x)) &&
-                    (v.y > std::min(a.y, b.y)) && (v.y < std::max(a.y, b.y)))
-                {
-                    result = true;
-                    return result;
-                }
-            }
-            else if (q.x == p.x)
-            {
-                ak = ((b.y - a.y)) / (b.x - a.x);
-                am = a.y - ak * a.x;
-                v.x = p.x;
-                v.y = ak * v.x + am;
-
-                if ((v.y > std::min(p.y, q.y)) && (v.y < std::max(p.y, q.y)) &&
-                    (v.x > std::min(a.x, b.x)) && (v.x < std::max(a.x, b.x)))
-                {
-                    result = true;
-                    return result;
-                }
-            }
-            else
-            {
-                ak = ((b.y - a.y)) / (b.x - a.x);
-                bk = ((q.y - p.y)) / (q.x - p.x);
-
-                if (ak != bk)
-                {
-                    am = a.y - ak * a.x;
-                    bm = p.y - bk * p.x;
-                    v.x = ((bm - am)) / (ak - bk);
-                    v.y = ak * v.x + am;
-
-                    if ((v.x > std::min(p.x, q.x)) && (v.x < std::max(p.x, q.x)) &&
-                        (v.x > std::min(a.x, b.x)) && (v.x < std::max(a.x, b.x)))
-                    {
-                        result = true;
-                        return result;
-                    }
-                }
-            }
-        }
-    }
-    return result;
+    const auto &v1 = poly.Vertices[0];
+    const auto &v2 = poly.Vertices[1];
+    const auto &v3 = poly.Vertices[2];
+    return calc(v1, v2) or calc(v2, v3) or calc(v3, v1);
 }
 
 bool Polymap::pointinpolyedges(float x, float y, std::int32_t i)
@@ -416,27 +348,70 @@ bool Polymap::pointinpolyedges(float x, float y, std::int32_t i)
 
 bool Polymap::pointinpoly(const tvector2 &p, const tmappolygon &poly)
 {
+    ZoneScopedN("pointinpoly");
+
+    /*
+      FIXME(skoskav): Explain what is going on here. Description from StackOverflow:
+
+    Is the point p to the left of or to the right of both the lines AB and AC?
+        If true, it can't be inside. If false, it is at least inside the "cones"
+        that satisfy the condition. Now since we know that a point inside a trigon
+        (triangle) must be to the same side of AB as BC (and also CA), we check if
+                                                       they differ. If they do, p can't possibly be
+        inside, otherwise p must be inside.
+
+            Some keywords in the calculations are line half-planes and the determinant
+                (2x2 cross product).
+                Perhaps a more pedagogical way is probably to think of it as a point being
+                    inside iff it's to the same side (left or right) to each of the lines AB,
+                BC and CA.
+                    */
+    const auto &a = poly.vertices[0];
+    const auto &b = poly.vertices[1];
+    const auto &c = poly.vertices[2];
+
+    float ap_x = p.x - a.x;
+    float ap_y = p.y - a.y;
+
+    bool p_ab = (b.x - a.x) * ap_y - (b.y - a.y) * ap_x > 0;
+    bool p_ac = (c.x - a.x) * ap_y - (c.y - a.y) * ap_x > 0;
+
+    if (p_ac == p_ab)
+    {
+        return false;
+    }
+
+    // p_bc <> p_ab
+    if (((c.x - b.x) * (p.y - b.y) - (c.y - b.y) * (p.x - b.x) > 0) != p_ab)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool Polymap::PointInPoly(const tvector2 &p, const PolyMapSector::Poly &poly)
+{
     ZoneScopedN("PointInPoly");
 
     /*
       FIXME(skoskav): Explain what is going on here. Description from StackOverflow:
 
-      Is the point p to the left of or to the right of both the lines AB and AC?
-      If true, it can't be inside. If false, it is at least inside the "cones"
-      that satisfy the condition. Now since we know that a point inside a trigon
-      (triangle) must be to the same side of AB as BC (and also CA), we check if
-      they differ. If they do, p can't possibly be inside, otherwise p must be
-      inside.
+    Is the point p to the left of or to the right of both the lines AB and AC?
+        If true, it can't be inside. If false, it is at least inside the "cones"
+        that satisfy the condition. Now since we know that a point inside a trigon
+        (triangle) must be to the same side of AB as BC (and also CA), we check if
+                                                       they differ. If they do, p can't possibly be
+    inside, otherwise p must be inside.
 
-      Some keywords in the calculations are line half-planes and the determinant
-      (2x2 cross product).
-      Perhaps a more pedagogical way is probably to think of it as a point being
-      inside iff it's to the same side (left or right) to each of the lines AB,
-      BC and CA.
-    */
-    const tmapvertex &a = poly.vertices[0];
-    const tmapvertex &b = poly.vertices[1];
-    const tmapvertex &c = poly.vertices[2];
+            Some keywords in the calculations are line half-planes and the determinant
+                (2x2 cross product).
+                Perhaps a more pedagogical way is probably to think of it as a point being
+                    inside iff it's to the same side (left or right) to each of the lines AB,
+                BC and CA.
+                    */
+    const auto &a = poly.Vertices[0];
+    const auto &b = poly.Vertices[1];
+    const auto &c = poly.Vertices[2];
 
     float ap_x = p.x - a.x;
     float ap_y = p.y - a.y;
@@ -562,7 +537,7 @@ bool Polymap::collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag)
     {
         if (!(has(excluded1, w.Type)) && (isflag || !(has(excluded2, w.Type))))
         {
-            if (pointinpoly(pos, polys[w.Index]))
+            if (PointInPoly(pos, w))
             {
                 perpvec = closestperpendicular(w.Index, pos, d, b);
                 vec2scale(perpvec, perpvec, 1.5 * d);
@@ -590,7 +565,7 @@ bool Polymap::collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::i
     {
         if ((w.Index != c) && !(has(excluded, w.Type)))
         {
-            if (pointinpoly(pos, polys[w.Index]))
+            if (PointInPoly(pos, w))
             {
                 perpvec = closestperpendicular(w.Index, pos, d, b);
                 vec2scale(perpvec, perpvec, 1.5 * d);
@@ -734,8 +709,7 @@ bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
                 ZoneScopedN("CheckPolygon");
                 if (ShouldTestPolygonWithRay(w.Type, npcol, nbcol, flag, team))
                 {
-                    auto &polygon = polys[w.Index];
-                    if (pointinpoly(a, polygon))
+                    if (PointInPoly(a, w))
                     {
                         distance = 0.f;
                         return true;
@@ -744,7 +718,7 @@ bool Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
                     {
                         ak = ((b.y - a.y)) / (b.x - a.x);
                     }
-                    if (LineInPolyOpt(a, b, polygon, d, ak))
+                    if (LineInPoly(a, b, w, d, ak))
                     {
                         distance = vec2length(vec2subtract(d, a));
                         return true;
@@ -790,9 +764,9 @@ bool Polymap::raycast(const tvector2 &a, const tvector2 &b, float &distance, flo
     auto retOpt = RayCastOpt(a, b, distance, maxdist, player, flag, bullet, checkcollider, team);
 #if 0
     float dOld;
-    auto retOld = RayCastOld(a, b, dOld, maxdist, player, flag, bullet, checkcollider, team);
-    Assert(retOpt == retOld);
-    Assert(std::abs(dOld - distance) < 0.001f);
+    auto retOld = RayCast(a, b, dOld, maxdist, player, flag, bullet, checkcollider, team);
+    SoldatAssert(retOpt == retOld);
+    SoldatAssert(std::abs(dOld - distance) < 0.001f);
 #endif
     return retOpt;
 }

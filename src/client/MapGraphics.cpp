@@ -715,10 +715,10 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
     {
         for (j = 0; j < 3; j++)
         {
-            bounds.left = min(mapfile.polygons[i].vertices[j].x, bounds.left);
-            bounds.right = max(mapfile.polygons[i].vertices[j].x, bounds.right);
-            bounds.top = min(mapfile.polygons[i].vertices[j].y, bounds.top);
-            bounds.bottom = max(mapfile.polygons[i].vertices[j].y, bounds.bottom);
+            bounds.left = min<float>(mapfile.polygons[i].vertices[j].x, bounds.left);
+            bounds.right = max<float>(mapfile.polygons[i].vertices[j].x, bounds.right);
+            bounds.top = min<float>(mapfile.polygons[i].vertices[j].y, bounds.top);
+            bounds.bottom = max<float>(mapfile.polygons[i].vertices[j].y, bounds.bottom);
         }
     }
 

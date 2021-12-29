@@ -2109,7 +2109,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 things[i].holdingsprite = 0;
                 holdedthing = 0;
 #ifndef SERVER
-                if ((things[i].style == object_alpha_flag) || (things[i].style == object_bravo_flag))
+                if ((things[i].style == object_alpha_flag) ||
+                    (things[i].style == object_bravo_flag))
                 {
                     GetMainConsole().console(
                         wideformat(_("{} dropped the {} Flag"), player->name,
@@ -2525,7 +2526,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                 ((holdedthing != 0) && (polytype == poly_type_only_flaggers)) ||
                 ((holdedthing == 0) && (polytype == poly_type_not_flaggers)))
             {
-                if (map.pointinpoly(pos, map.polys[w.Index]))
+                if (map.PointInPoly(pos, w))
                 {
                     if (bgstate.backgroundtest(w))
                         continue;
@@ -4610,7 +4611,8 @@ void Sprite<M>::throwflag()
                                         vec2add(things[i].skeleton.pos[j], boffset);
 
                                     // Apply velocities
-                                    things[i].skeleton.pos[j] = vec2add(things[i].skeleton.pos[j], b);
+                                    things[i].skeleton.pos[j] =
+                                        vec2add(things[i].skeleton.pos[j], b);
                                     things[i].skeleton.oldpos[j] =
                                         vec2subtract(things[i].skeleton.pos[j], b);
                                 }
@@ -4621,7 +4623,8 @@ void Sprite<M>::throwflag()
                                 vec2scale(bperp, bperp, direction);
                                 things[i].skeleton.pos[1] =
                                     vec2subtract(things[i].skeleton.pos[1], bperp);
-                                things[i].skeleton.pos[2] = vec2add(things[i].skeleton.pos[2], bperp);
+                                things[i].skeleton.pos[2] =
+                                    vec2add(things[i].skeleton.pos[2], bperp);
 
                                 // Release the flag
                                 things[i].holdingsprite = 0;
