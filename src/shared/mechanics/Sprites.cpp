@@ -3588,16 +3588,16 @@ void Sprite<M>::respawn()
         if ((brain.favweapon != guns[noweapon].num) && (brain.favweapon != guns[knife].num) &&
             (brain.favweapon != guns[chainsaw].num) && (brain.favweapon != guns[law].num) && !dummy)
         {
-            if (((weaponSystem.IsActive(1)) && (weaponsel[num][1] == 1)) ||
-                ((weaponSystem.IsActive(2)) && (weaponsel[num][2] == 1)) ||
-                ((weaponSystem.IsActive(3)) && (weaponsel[num][3] == 1)) ||
-                ((weaponSystem.IsActive(4)) && (weaponsel[num][4] == 1)) ||
-                ((weaponSystem.IsActive(5)) && (weaponsel[num][5] == 1)) ||
-                ((weaponSystem.IsActive(6)) && (weaponsel[num][6] == 1)) ||
-                ((weaponSystem.IsActive(7)) && (weaponsel[num][7] == 1)) ||
-                ((weaponSystem.IsActive(8)) && (weaponsel[num][8] == 1)) ||
-                ((weaponSystem.IsActive(9)) && (weaponsel[num][9] == 1)) ||
-                ((weaponSystem.IsActive(10)) && (weaponsel[num][10] == 1)))
+            if (((weaponSystem.IsEnabled(1)) && (weaponsel[num][1] == 1)) ||
+                ((weaponSystem.IsEnabled(2)) && (weaponsel[num][2] == 1)) ||
+                ((weaponSystem.IsEnabled(3)) && (weaponsel[num][3] == 1)) ||
+                ((weaponSystem.IsEnabled(4)) && (weaponsel[num][4] == 1)) ||
+                ((weaponSystem.IsEnabled(5)) && (weaponsel[num][5] == 1)) ||
+                ((weaponSystem.IsEnabled(6)) && (weaponsel[num][6] == 1)) ||
+                ((weaponSystem.IsEnabled(7)) && (weaponsel[num][7] == 1)) ||
+                ((weaponSystem.IsEnabled(8)) && (weaponsel[num][8] == 1)) ||
+                ((weaponSystem.IsEnabled(9)) && (weaponsel[num][9] == 1)) ||
+                ((weaponSystem.IsEnabled(10)) && (weaponsel[num][10] == 1)))
             {
                 do
                 {
@@ -3609,8 +3609,8 @@ void Sprite<M>::respawn()
                         weapon = guns[k];
                     }
 
-                    if ((weaponsingame < 6) && (weaponSystem.IsActive(minigun)) &&
-                        (weaponsel[num][minigun] == 1))
+                    if ((weaponSystem.GetWeaponsInGame() < 6) &&
+                        (weaponSystem.IsEnabled(minigun)) && (weaponsel[num][minigun] == 1))
                         weapon = guns[minigun];
 
                     if (CVar::sv_advancemode)
@@ -3620,15 +3620,15 @@ void Sprite<M>::respawn()
                                 break;
                         applyweaponbynum(j, 1);
                     }
-                } while (!((!weaponSystem.IsActive(weapon.num)) or (CVar::sv_advancemode)));
+                } while (!((!weaponSystem.IsEnabled(weapon.num)) or (CVar::sv_advancemode)));
             }
         }
 
-        if ((!weaponSystem.IsActive(1)) && (!weaponSystem.IsActive(2)) &&
-            (!weaponSystem.IsActive(3)) && (!weaponSystem.IsActive(4)) &&
-            (!weaponSystem.IsActive(5)) && (!weaponSystem.IsActive(6)) &&
-            (!weaponSystem.IsActive(7)) && (!weaponSystem.IsActive(8)) &&
-            (!weaponSystem.IsActive(9)) && (!weaponSystem.IsActive(10)) &&
+        if ((!weaponSystem.IsEnabled(1)) && (!weaponSystem.IsEnabled(2)) &&
+            (!weaponSystem.IsEnabled(3)) && (!weaponSystem.IsEnabled(4)) &&
+            (!weaponSystem.IsEnabled(5)) && (!weaponSystem.IsEnabled(6)) &&
+            (!weaponSystem.IsEnabled(7)) && (!weaponSystem.IsEnabled(8)) &&
+            (!weaponSystem.IsEnabled(9)) && (!weaponSystem.IsEnabled(10)) &&
             (weaponsel[num][1] == 0) && (weaponsel[num][2] == 0) && (weaponsel[num][3] == 0) &&
             (weaponsel[num][4] == 0) && (weaponsel[num][5] == 0) && (weaponsel[num][6] == 0) &&
             (weaponsel[num][7] == 0) && (weaponsel[num][8] == 0) && (weaponsel[num][9] == 0) &&
@@ -3659,12 +3659,12 @@ void Sprite<M>::respawn()
         // Disarm bot if the primary weapon isn't allowed and selectable
         weaponindex = weapon.num;
         if ((weaponindex >= 1) && (weaponindex <= primary_weapons))
-            if ((!weaponSystem.IsActive(weaponindex)) || (weaponsel[num][weaponindex] == 0))
+            if ((!weaponSystem.IsEnabled(weaponindex)) || (weaponsel[num][weaponindex] == 0))
                 weapon = guns[noweapon];
     }
 #endif
 
-    if (weaponsingame == 0)
+    if (weaponSystem.GetWeaponsInGame() == 0)
         weapon = guns[noweapon];
 
     parachute(spriteparts.pos[num]);

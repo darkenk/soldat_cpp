@@ -525,9 +525,6 @@ void ActivateServer(int argc, const char *argv[])
     for (i = 1; i < max_floodips; i++)
         floodnum[i] = 0;
 
-    weaponsingame =
-        weaponSystem.CountEnabledPrimaryWeapons() + weaponSystem.CountEnabledSecondaryWeapons();
-
 #ifdef RCON
     if sv_adminpassword
         != "" then AdminServer = TAdminServer.Create(sv_adminpassword, "Welcome") else
@@ -864,8 +861,6 @@ void startserver()
 
     // Weapons
     auto &weaponSystem = GS::GetWeaponSystem();
-    weaponsingame =
-        weaponSystem.CountEnabledPrimaryWeapons() + weaponSystem.CountEnabledSecondaryWeapons();
 
     for (j = 1; j < max_sprites; j++)
     {

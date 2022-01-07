@@ -39,8 +39,6 @@ auto &shotdistance = InitGlobalVariable<float, "shotdistance">();
 auto &shotlife = InitGlobalVariable<float, "shotlife">();
 auto &shotricochet = InitGlobalVariable<std::int32_t, "shotricochet">();
 
-auto &weaponsingame = InitGlobalVariable<std::int32_t, "weaponsingame">();
-
 auto &botpath = InitGlobalVariable<twaypoints, "botpath">();
 
 auto &ticks = InitGlobalVariable<std::int32_t, "ticks">();

@@ -248,7 +248,7 @@ void gamemenushow(pgamemenu menu, bool show)
 
         if (!show)
             limbowasactive = false;
-        else if (weaponsingame == 0)
+        else if (GS::GetWeaponSystem().GetWeaponsInGame() == 0)
             menu = nullptr;
     }
 

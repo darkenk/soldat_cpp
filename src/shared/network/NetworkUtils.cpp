@@ -321,7 +321,7 @@ bool checkweaponnotallowed(std::uint8_t i)
 
     auto &weaponSystem = GS::GetWeaponSystem();
     WeaponIndex = weaponnumtoindex(SpriteSystem::Get().GetSprite(i).weapon.num, guns);
-    if (ismainweaponindex(WeaponIndex) and (!weaponSystem.IsActive(WeaponIndex)))
+    if (ismainweaponindex(WeaponIndex) and (!weaponSystem.IsEnabled(WeaponIndex)))
     {
         return Result;
     }

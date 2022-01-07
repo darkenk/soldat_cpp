@@ -12,6 +12,7 @@ void WeaponSystem::EnableAllWeapons()
     {
         WeaponActive[i] = 1;
     }
+    WeaponsInGame = main_weapons;
 }
 
 uint32_t WeaponSystem::CountEnabledPrimaryWeapons() const

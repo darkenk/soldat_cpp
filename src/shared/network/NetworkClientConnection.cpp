@@ -618,8 +618,6 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
         weaponSystem.EnableWeapon(i, varsmsg->weaponactive[i - 1] == 1);
         limbomenu->button[i - 1].active = weaponSystem.IsEnabled(i);
     }
-    weaponsingame =
-        weaponSystem.CountEnabledPrimaryWeapons() + weaponSystem.CountEnabledSecondaryWeapons();
 
     if (mysprite > 0)
     {

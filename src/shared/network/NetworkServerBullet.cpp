@@ -146,7 +146,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
 
     auto &weaponSystem = GS::GetWeaponSystem();
 
-    if ((style == bullet_style_thrownknife) && (!weaponSystem.IsActive(knife)))
+    if ((style == bullet_style_thrownknife) && (!weaponSystem.IsEnabled(knife)))
     {
         if (kickplayer(p, true, kick_cheat, day, "Knife-Spawn Cheat"))
             return;

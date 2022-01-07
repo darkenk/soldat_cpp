@@ -26,3 +26,17 @@ TEST(WeaponSystemTest, EnableWeaponTests)
     ws.EnableWeapon(m79, false);
     EXPECT_FALSE(ws.IsEnabled(m79));
 }
+
+TEST(WeaponSystemTest, CountWeaponInGame)
+{
+    WeaponSystem ws;
+    EXPECT_EQ(0, ws.GetWeaponsInGame());
+    ws.EnableAllWeapons();
+    EXPECT_EQ(14, ws.GetWeaponsInGame());
+    ws.EnableWeapon(m79, false);
+    EXPECT_EQ(13, ws.GetWeaponsInGame());
+    ws.EnableWeapon(m79, false);
+    EXPECT_EQ(13, ws.GetWeaponsInGame());
+    ws.EnableWeapon(minigun, true);
+    EXPECT_EQ(13, ws.GetWeaponsInGame());
+}
