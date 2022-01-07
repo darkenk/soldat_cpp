@@ -17,6 +17,7 @@
 #include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <physfs.h>
 #include <shared/Cvar.hpp>
 
@@ -610,15 +611,15 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
 
     clientvarsrecieved = true;
 
-    weaponsingame = 0;
+    auto &weaponSystem = GS::GetWeaponSystem();
 
     for (i = 1; i <= main_weapons; i++)
     {
-        weaponactive[i] = varsmsg->weaponactive[i - 1];
-        limbomenu->button[i - 1].active = (bool)(weaponactive[i]);
-        if (weaponactive[i] == 1)
-            weaponsingame += 1;
+        weaponSystem.EnableWeapon(i, varsmsg->weaponactive[i - 1] == 1);
+        limbomenu->button[i - 1].active = weaponSystem.IsEnabled(i);
     }
+    weaponsingame =
+        weaponSystem.CountEnabledPrimaryWeapons() + weaponSystem.CountEnabledSecondaryWeapons();
 
     if (mysprite > 0)
     {

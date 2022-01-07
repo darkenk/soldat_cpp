@@ -18,6 +18,7 @@ set(SRC
     Vector.cpp
     Waypoints.cpp
     Weapons.cpp
+    WeaponSystem.cpp
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

@@ -11,8 +11,6 @@
 
 namespace
 {
-auto &weaponactive =
-    InitGlobalVariable<PascalArray<std::uint8_t, 1, main_weapons>, "weaponactive">();
 auto &userdirectory = InitGlobalVariable<std::string, "userdirectory">();
 
 auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();

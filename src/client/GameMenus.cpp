@@ -10,6 +10,7 @@
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientGame.hpp"
@@ -259,7 +260,7 @@ void gamemenushow(pgamemenu menu, bool show)
 
 bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
 {
-    std::int32_t i, count;
+    std::int32_t i;
 
     bool result = false;
 
@@ -411,13 +412,16 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
         {
             result = true;
             i = buttonindex + 1;
+            auto &weaponSystem = GS::GetWeaponSystem();
 
-            if ((weaponactive[i] == 1) && (weaponsel[mysprite][i] == 1))
+            if (weaponSystem.IsEnabled(i) && (weaponsel[mysprite][i] == 1))
             {
                 if (i <= 10)
                 {
-                    if ((weaponactive[i] == 1) && (weaponsel[mysprite][i] == 1))
+                    if (weaponSystem.IsEnabled(i) && (weaponsel[mysprite][i] == 1))
+                    {
                         SpriteSystem::Get().GetSprite(mysprite).selweapon = guns[i].num;
+                    }
 
                     if (SpriteSystem::Get().GetSprite(mysprite).selweapon > 0)
                     {
@@ -438,9 +442,7 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                     SpriteSystem::Get().GetSprite(mysprite).player->secwep = i - 11;
                     SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(guns[i].num, 2);
 
-                    count = 0;
-                    for (i = 1; i <= primary_weapons; i++)
-                        count += weaponactive[i];
+                    auto count = weaponSystem.CountEnabledPrimaryWeapons();
 
                     if (count == 0)
                     {

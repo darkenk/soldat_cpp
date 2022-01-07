@@ -11,6 +11,7 @@
 #include "NetworkUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <physfs.h>
 
 // clang-format off
@@ -120,14 +121,19 @@ void clienthandleweaponactivemessage(SteamNetworkingMessage_t *netmessage)
         return;
 
     wactivemessage = pmsg_weaponactivemessage(netmessage->m_pData);
+    auto &weaponSystem = GS::GetWeaponSystem();
 
     if ((wactivemessage->weapon > 0) && (wactivemessage->weapon <= main_weapons))
     {
         weaponsel[mysprite][wactivemessage->weapon] = wactivemessage->active;
 
         for (i = 1; i <= main_weapons; i++)
-            if (weaponactive[i] == 1)
+        {
+            if (weaponSystem.IsEnabled(i))
+            {
                 limbomenu->button[i - 1].active = (bool)(weaponsel[mysprite][i]);
+            }
+        }
     }
 }
 

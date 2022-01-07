@@ -1,19 +1,22 @@
 #include "GlobalSystems.hpp"
 #include "shared/AnimationSystem.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include <memory>
 
 template <Config::Module M>
-void GlobalSystems<M>::Init()
+GlobalSystems<M>::GlobalSystems()
 {
     SpriteSystem::Init();
     AnimationSystem::Init();
+    WeaponSystemObject = std::make_unique<WeaponSystem>();
 }
 
 template <Config::Module M>
-void GlobalSystems<M>::Deinit()
+GlobalSystems<M>::~GlobalSystems()
 {
-    SpriteSystem::Deinit();
+    WeaponSystemObject.release();
     AnimationSystem::Deinit();
+    SpriteSystem::Deinit();
 }
 
-template struct GlobalSystems<>;
+template class GlobalSystems<>;

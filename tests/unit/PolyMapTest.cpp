@@ -65,34 +65,34 @@ TEST(PolyMapTest, GetSectorCoordInitialTest)
     mapfile.sectorsnum = 2;
     mapfile.sectorsdivision = 58;
     auto amountOfSectors = std::pow(2 * mapfile.sectorsnum + 1, 2);
-    for (auto s = 0; s < amountOfSectors; s++)
+    for (auto s = 1; s <= amountOfSectors; s++)
     {
         mapfile.sectors.emplace_back().Polys.emplace_back(s);
     }
     p.loadmap(mapfile);
 
     {
-        EXPECT_EQ(4, p.GetSector({-100.f, 100.f}).GetPolys()[0]);
+        EXPECT_EQ(5, p.GetSector({-100.f, 100.f}).GetPolys()[0].Index);
     }
 
     {
-        EXPECT_EQ(8, p.GetSector({-58.f, 58.f}).GetPolys()[0]);
+        EXPECT_EQ(9, p.GetSector({-58.f, 58.f}).GetPolys()[0].Index);
     }
 
     {
-        EXPECT_EQ(12, p.GetSector({-28.f, 28.f}).GetPolys()[0]);
+        EXPECT_EQ(13, p.GetSector({-28.f, 28.f}).GetPolys()[0].Index);
     }
 
     {
-        EXPECT_EQ(8, p.GetSector({-29.f, 29.f}).GetPolys()[0]);
+        EXPECT_EQ(9, p.GetSector({-29.f, 29.f}).GetPolys()[0].Index);
     }
 
     {
-        EXPECT_EQ(8, p.GetSector({-28.f - 58.f, 28.f + 58.f}).GetPolys()[0]);
+        EXPECT_EQ(9, p.GetSector({-28.f - 58.f, 28.f + 58.f}).GetPolys()[0].Index);
     }
 
     {
-        EXPECT_EQ(4, p.GetSector({-29.f - 58.f, 29.f + 58.f}).GetPolys()[0]);
+        EXPECT_EQ(5, p.GetSector({-29.f - 58.f, 29.f + 58.f}).GetPolys()[0].Index);
     }
 }
 
@@ -104,7 +104,7 @@ TEST(PolyMapTest, GetSectorPolygons)
     mapfile.sectorsnum = 2;
     mapfile.sectorsdivision = 10;
     auto amountOfSectors = std::pow(2 * mapfile.sectorsnum + 1, 2);
-    for (auto s = 0; s < amountOfSectors; s++)
+    for (auto s = 1; s <= amountOfSectors; s++)
     {
         mapfile.sectors.emplace_back().Polys.emplace_back(s);
     }
@@ -117,13 +117,13 @@ TEST(PolyMapTest, GetSectorPolygons)
 
     {
         const auto sector = p.GetSector({-15.0f, -15.0f});
-        EXPECT_EQ(true, sector.IsValid());
-        EXPECT_EQ(0, sector.GetPolys()[0]);
+        ASSERT_EQ(true, sector.IsValid());
+        EXPECT_EQ(1, sector.GetPolys()[0].Index);
     }
 
     {
         const auto sector = p.GetSector({15.0f, 15.0f});
-        EXPECT_EQ(true, sector.IsValid());
-        EXPECT_EQ(24, sector.GetPolys()[0]);
+        ASSERT_EQ(true, sector.IsValid());
+        EXPECT_EQ(25, sector.GetPolys()[0].Index);
     }
 }

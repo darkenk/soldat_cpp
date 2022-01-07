@@ -23,6 +23,7 @@ class GlobalSubsystem
     }
   protected:
     GlobalSubsystem() {};
+    GlobalSubsystem(const GlobalSubsystem&) = delete;
 
   private:
     static std::unique_ptr<T> Subsystem;

@@ -18,6 +18,7 @@
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <filesystem>
 #include <physfs.h>
 #include <set>
@@ -2834,9 +2835,11 @@ void renderinterface(float timeelapsed, float width, float height)
         x = pixelalignx(55);
         y = 157;
 
+        auto &weaponSystem = GS::GetWeaponSystem();
+
         for (k = 1; k <= primary_weapons; k++)
         {
-            if (weaponactive[k] == 1)
+            if (weaponSystem.IsEnabled(k))
             {
                 spr = t[GFX::INTERFACE_GUNS_DEAGLES + k - 1];
                 dy = (float)(max(0.f, 18 - spr->height * spr->scale)) / 2;
@@ -2847,7 +2850,7 @@ void renderinterface(float timeelapsed, float width, float height)
 
         for (k = primary_weapons + 1; k <= main_weapons; k++)
         {
-            if (weaponactive[k] == 1)
+            if (weaponSystem.IsEnabled(k))
             {
                 i = k - primary_weapons - 1;
                 spr = t[GFX::INTERFACE_GUNS_SOCOM + i];

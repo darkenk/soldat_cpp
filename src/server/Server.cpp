@@ -20,6 +20,7 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/misc/SignalUtils.hpp"
 #include "shared/network/NetworkServer.hpp"
 #include "shared/network/NetworkServerConnection.hpp"
@@ -452,9 +453,9 @@ void ActivateServer(int argc, const char *argv[])
     CVar::sc_enable = 0;
 #endif
 
-    // Implement TODO enabled weapons in cvar system
-    for (i = 1; i < main_weapons; i++)
-        weaponactive[i] = 1;
+    auto &weaponSystem = GS::GetWeaponSystem();
+
+    weaponSystem.EnableAllWeapons();
 
     AnimationSystem::Get().LoadAnimObjects("");
     if (length(ModDir) > 0)
@@ -524,10 +525,8 @@ void ActivateServer(int argc, const char *argv[])
     for (i = 1; i < max_floodips; i++)
         floodnum[i] = 0;
 
-    weaponsingame = 0;
-    for (j = 1; j < main_weapons; j++)
-        if (weaponactive[j] == 1)
-            weaponsingame++;
+    weaponsingame =
+        weaponSystem.CountEnabledPrimaryWeapons() + weaponSystem.CountEnabledSecondaryWeapons();
 
 #ifdef RCON
     if sv_adminpassword
@@ -864,23 +863,27 @@ void startserver()
     }
 
     // Weapons
-    weaponsingame = 0;
-    for (i = 1; i < 15; i++)
-    {
-        if (weaponactive[i] == 1)
-            weaponsingame++;
-    }
+    auto &weaponSystem = GS::GetWeaponSystem();
+    weaponsingame =
+        weaponSystem.CountEnabledPrimaryWeapons() + weaponSystem.CountEnabledSecondaryWeapons();
 
     for (j = 1; j < max_sprites; j++)
-        for (i = 1; i < 11; i++)
-            weaponsel[j][i] = weaponactive[i];
+    {
+        for (i = 1; i <= primary_weapons; i++)
+        {
+            weaponsel[j][i] = weaponSystem.IsEnabled(i);
+        }
+    }
 
     if (CVar::sv_advancemode)
     {
         for (j = 1; j < max_sprites; j++)
-            for (i = 1; i < 11; i++)
+        {
+            for (i = 1; i < primary_weapons; i++)
+            {
                 weaponsel[j][i] = 1;
-
+            }
+        }
         GetServerMainConsole().console("Advance Mode ON", mode_message_color);
     }
 

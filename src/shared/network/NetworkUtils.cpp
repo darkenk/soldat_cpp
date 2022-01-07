@@ -7,6 +7,7 @@
 #include "common/Logging.hpp"
 #include "common/Weapons.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <algorithm>
 #include <cstring>
 #include <string>
@@ -287,10 +288,11 @@ void newplayerweapon()
             weaponsel[i][j] = 0;
         }
     }
+    auto &weaponSystem = GS::GetWeaponSystem();
 
     for (j = 1; j < main_weapons; j++)
     {
-        if (weaponactive[j] == 1)
+        if (weaponSystem.IsEnabled(j))
         {
             limbomenu->button[j - 1].active = bool(weaponsel[i][j]);
         }
@@ -299,7 +301,7 @@ void newplayerweapon()
     SecWep = SpriteSystem::Get().GetSprite(i).player->secwep + 1;
 
     if ((SecWep >= 1) and (SecWep <= secondary_weapons) and
-        (weaponactive[primary_weapons + SecWep] == 1))
+        (weaponSystem.IsEnabled(primary_weapons + SecWep)))
     {
         SpriteSystem::Get().GetSprite(i).secondaryweapon = guns[primary_weapons + SecWep];
     }
@@ -317,8 +319,9 @@ bool checkweaponnotallowed(std::uint8_t i)
 
     auto Result = true;
 
+    auto &weaponSystem = GS::GetWeaponSystem();
     WeaponIndex = weaponnumtoindex(SpriteSystem::Get().GetSprite(i).weapon.num, guns);
-    if (ismainweaponindex(WeaponIndex) and (weaponactive[WeaponIndex] == 0))
+    if (ismainweaponindex(WeaponIndex) and (!weaponSystem.IsActive(WeaponIndex)))
     {
         return Result;
     }

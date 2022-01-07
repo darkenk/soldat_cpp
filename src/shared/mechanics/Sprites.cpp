@@ -25,6 +25,7 @@
 #include "common/Logging.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>
 #include <client/ClientGame.hpp>
 #include <numbers>
@@ -152,11 +153,16 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     sprite.weapon = guns[noweapon];
 
     secwep = sprite.player->secwep + 1;
+    auto &weaponSystem = GS::GetWeaponSystem();
     if ((secwep >= 1) && (secwep <= secondary_weapons) &&
-        (weaponactive[primary_weapons + secwep] == 1))
+        (weaponSystem.IsEnabled(primary_weapons + secwep)))
+    {
         sprite.secondaryweapon = guns[primary_weapons + secwep];
+    }
     else
+    {
         sprite.secondaryweapon = guns[noweapon];
+    }
 
     sprite.jetscount = map.startjet;
 #ifndef SERVER
@@ -1350,16 +1356,15 @@ void selectdefaultweapons(std::uint8_t mysprite)
 {
     std::int32_t i, j, k;
 
-    i = 0;
-    for (j = 1; j <= primary_weapons; j++)
-        if (weaponactive[j] == 1)
-            i += 1;
+    auto &weaponSystem = GS::GetWeaponSystem();
+
+    i = weaponSystem.CountEnabledPrimaryWeapons();
 
     if (i == 1)
     {
         for (j = 1; j <= primary_weapons; j++)
         {
-            if (weaponactive[j] == 1)
+            if (weaponSystem.IsEnabled(j))
             {
                 weaponsel[mysprite][j] = 1;
                 limbomenu->button[j - 1].active = true;
@@ -1376,16 +1381,13 @@ void selectdefaultweapons(std::uint8_t mysprite)
         }
     }
 
-    k = 0;
-    for (j = 1; j <= secondary_weapons; j++)
-        if (weaponactive[j + primary_weapons] == 1)
-            k += 1;
+    k = weaponSystem.CountEnabledSecondaryWeapons();
 
     if (k == 1)
     {
         for (j = primary_weapons + 1; j <= main_weapons; j++)
         {
-            if (weaponactive[j] == 1)
+            if (weaponSystem.IsEnabled(j))
             {
                 weaponsel[mysprite][j] = 1;
                 limbomenu->button[j - 1].active = true;
@@ -2160,9 +2162,13 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     // BREAD
 #ifdef SERVER
     if (!CVar::sv_advancemode)
+    {
+        auto &weaponSystem = GS::GetWeaponSystem();
         if (!deadmeat && (num != who))
 #else
     if (CVar::sv_advancemode)
+    {
+        auto &weaponSystem = GS::GetWeaponSystem();
         if (!deadmeat)
 #endif
         {
@@ -2176,7 +2182,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 {
                     j = 0;
                     for (i = 1; i <= primary_weapons; i++)
-                        if ((weaponsel[who][i] == 0) && (weaponactive[i] == 1))
+                        if ((weaponsel[who][i] == 0) && (weaponSystem.IsEnabled((i))))
                             j = 1;
 
                     if (j == 1)
@@ -2184,7 +2190,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                         do
                         {
                             j = Random(primary_weapons) + 1;
-                        } while (!((weaponsel[who][j] == 0) && (weaponactive[j] == 1)));
+                        } while (!((weaponsel[who][j] == 0) && (weaponSystem.IsEnabled(j))));
                         weaponsel[who][j] = 1;
                     }
                 }
@@ -2212,10 +2218,13 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifndef SERVER
             if ((num == mysprite) || (who == mysprite))
                 for (i = 1; i <= primary_weapons; i++)
-                    if (weaponactive[i] == 1)
+                {
+                    if (weaponSystem.IsEnabled(i))
                         limbomenu->button[i - 1].active = (bool)(weaponsel[mysprite][i]);
+                }
 #endif
         }
+    }
 
     deadmeat = true;
 #ifdef SERVER
@@ -3529,10 +3538,11 @@ void Sprite<M>::respawn()
 #endif
 
     weapon = guns[noweapon];
+    auto &weaponSystem = GS::GetWeaponSystem();
 
     if (selweapon > 0)
 #ifndef SERVER
-        if ((weaponactive[selweapon] == 1) && (weaponsel[num][selweapon] == 1))
+        if ((weaponSystem.IsEnabled(selweapon)) && (weaponsel[num][selweapon] == 1))
         {
 #endif
             applyweaponbynum(selweapon, 1);
@@ -3545,7 +3555,7 @@ void Sprite<M>::respawn()
     secwep = player->secwep + 1;
 
     if ((secwep >= 1) && (secwep <= secondary_weapons) &&
-        (weaponactive[primary_weapons + secwep] == 1) &&
+        (weaponSystem.IsEnabled(primary_weapons + secwep)) &&
         (weaponsel[num][primary_weapons + secwep] == 1))
         secondaryweapon = guns[primary_weapons + secwep];
     else
@@ -3554,7 +3564,8 @@ void Sprite<M>::respawn()
 #ifdef SERVER
     if (CVar::sv_advancemode)
 #endif
-        if ((selweapon > 0) && ((weaponactive[selweapon] == 0) || (weaponsel[num][selweapon] == 0)))
+        if ((selweapon > 0) &&
+            (!weaponSystem.IsEnabled(selweapon) || (weaponsel[num][selweapon] == 0)))
         {
             weapon = secondaryweapon;
             secondaryweapon = guns[noweapon];
@@ -3577,16 +3588,16 @@ void Sprite<M>::respawn()
         if ((brain.favweapon != guns[noweapon].num) && (brain.favweapon != guns[knife].num) &&
             (brain.favweapon != guns[chainsaw].num) && (brain.favweapon != guns[law].num) && !dummy)
         {
-            if (((weaponactive[1] == 1) && (weaponsel[num][1] == 1)) ||
-                ((weaponactive[2] == 1) && (weaponsel[num][2] == 1)) ||
-                ((weaponactive[3] == 1) && (weaponsel[num][3] == 1)) ||
-                ((weaponactive[4] == 1) && (weaponsel[num][4] == 1)) ||
-                ((weaponactive[5] == 1) && (weaponsel[num][5] == 1)) ||
-                ((weaponactive[6] == 1) && (weaponsel[num][6] == 1)) ||
-                ((weaponactive[7] == 1) && (weaponsel[num][7] == 1)) ||
-                ((weaponactive[8] == 1) && (weaponsel[num][8] == 1)) ||
-                ((weaponactive[9] == 1) && (weaponsel[num][9] == 1)) ||
-                ((weaponactive[10] == 1) && (weaponsel[num][10] == 1)))
+            if (((weaponSystem.IsActive(1)) && (weaponsel[num][1] == 1)) ||
+                ((weaponSystem.IsActive(2)) && (weaponsel[num][2] == 1)) ||
+                ((weaponSystem.IsActive(3)) && (weaponsel[num][3] == 1)) ||
+                ((weaponSystem.IsActive(4)) && (weaponsel[num][4] == 1)) ||
+                ((weaponSystem.IsActive(5)) && (weaponsel[num][5] == 1)) ||
+                ((weaponSystem.IsActive(6)) && (weaponsel[num][6] == 1)) ||
+                ((weaponSystem.IsActive(7)) && (weaponsel[num][7] == 1)) ||
+                ((weaponSystem.IsActive(8)) && (weaponsel[num][8] == 1)) ||
+                ((weaponSystem.IsActive(9)) && (weaponsel[num][9] == 1)) ||
+                ((weaponSystem.IsActive(10)) && (weaponsel[num][10] == 1)))
             {
                 do
                 {
@@ -3598,7 +3609,7 @@ void Sprite<M>::respawn()
                         weapon = guns[k];
                     }
 
-                    if ((weaponsingame < 6) && (weaponactive[minigun] == 1) &&
+                    if ((weaponsingame < 6) && (weaponSystem.IsActive(minigun)) &&
                         (weaponsel[num][minigun] == 1))
                         weapon = guns[minigun];
 
@@ -3609,17 +3620,19 @@ void Sprite<M>::respawn()
                                 break;
                         applyweaponbynum(j, 1);
                     }
-                } while (!((weaponactive[weapon.num] == 1) or (CVar::sv_advancemode)));
+                } while (!((!weaponSystem.IsActive(weapon.num)) or (CVar::sv_advancemode)));
             }
         }
 
-        if ((weaponactive[1] == 0) && (weaponactive[2] == 0) && (weaponactive[3] == 0) &&
-            (weaponactive[4] == 0) && (weaponactive[5] == 0) && (weaponactive[6] == 0) &&
-            (weaponactive[7] == 0) && (weaponactive[8] == 0) && (weaponactive[9] == 0) &&
-            (weaponactive[10] == 0) && (weaponsel[num][1] == 0) && (weaponsel[num][2] == 0) &&
-            (weaponsel[num][3] == 0) && (weaponsel[num][4] == 0) && (weaponsel[num][5] == 0) &&
-            (weaponsel[num][6] == 0) && (weaponsel[num][7] == 0) && (weaponsel[num][8] == 0) &&
-            (weaponsel[num][9] == 0) && (weaponsel[num][10] == 0))
+        if ((!weaponSystem.IsActive(1)) && (!weaponSystem.IsActive(2)) &&
+            (!weaponSystem.IsActive(3)) && (!weaponSystem.IsActive(4)) &&
+            (!weaponSystem.IsActive(5)) && (!weaponSystem.IsActive(6)) &&
+            (!weaponSystem.IsActive(7)) && (!weaponSystem.IsActive(8)) &&
+            (!weaponSystem.IsActive(9)) && (!weaponSystem.IsActive(10)) &&
+            (weaponsel[num][1] == 0) && (weaponsel[num][2] == 0) && (weaponsel[num][3] == 0) &&
+            (weaponsel[num][4] == 0) && (weaponsel[num][5] == 0) && (weaponsel[num][6] == 0) &&
+            (weaponsel[num][7] == 0) && (weaponsel[num][8] == 0) && (weaponsel[num][9] == 0) &&
+            (weaponsel[num][10] == 0))
             weapon = guns[noweapon];
 
         favweaponindex = weaponnumtoindex(brain.favweapon, guns);
@@ -3646,7 +3659,7 @@ void Sprite<M>::respawn()
         // Disarm bot if the primary weapon isn't allowed and selectable
         weaponindex = weapon.num;
         if ((weaponindex >= 1) && (weaponindex <= primary_weapons))
-            if ((weaponactive[weaponindex] == 0) || (weaponsel[num][weaponindex] == 0))
+            if ((!weaponSystem.IsActive(weaponindex)) || (weaponsel[num][weaponindex] == 0))
                 weapon = guns[noweapon];
     }
 #endif

@@ -41,6 +41,7 @@ add_executable(UnitTests
     unit/TMemoryStreamTest.cpp ../src/common/misc/TMemoryStream.cpp
     unit/SharedConfigTest.cpp ../src/shared/SharedConfig.cpp ../src/common/Weapons.cpp
     unit/PolyMapTest.cpp ../src/common/PolyMap.cpp ../src/common/MapFile.cpp ../src/common/PhysFSExt.cpp
+    unit/common/WeaponSystemTest.cpp ../src/common/WeaponSystem.cpp
 )
 gtest_discover_tests(UnitTests)
 

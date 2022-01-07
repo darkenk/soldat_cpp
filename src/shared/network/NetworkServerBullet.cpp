@@ -7,6 +7,7 @@
 #include "NetworkUtils.hpp"
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 //clang-format off
 #include "../misc/GlobalVariableStorage.cpp"
@@ -143,7 +144,9 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
         Exit
       end;*/
 
-    if ((style == bullet_style_thrownknife) && (weaponactive[knife] == 0))
+    auto &weaponSystem = GS::GetWeaponSystem();
+
+    if ((style == bullet_style_thrownknife) && (!weaponSystem.IsActive(knife)))
     {
         if (kickplayer(p, true, kick_cheat, day, "Knife-Spawn Cheat"))
             return;

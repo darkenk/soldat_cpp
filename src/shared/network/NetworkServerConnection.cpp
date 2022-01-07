@@ -16,6 +16,7 @@
 #include "common/Logging.hpp"
 #include "common/gfx.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 //clang-format off
 #include "../misc/GlobalVariableStorage.cpp"
@@ -879,9 +880,12 @@ void servervars(std::uint8_t tonum)
     std::int32_t weaponindex;
 
     varsmsg.header.id = msgid_servervars;
+    auto &weaponSystem = GS::GetWeaponSystem();
 
     for (i = 1; i <= main_weapons; i++)
-        varsmsg.weaponactive[i - 1] = weaponactive[i];
+    {
+        varsmsg.weaponactive[i - 1] = weaponSystem.IsEnabled(i);
+    }
 
     for (weaponindex = 1; weaponindex <= original_weapons; weaponindex++)
     {

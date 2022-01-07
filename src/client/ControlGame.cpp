@@ -15,6 +15,7 @@
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkClientBullet.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientGame.hpp"
@@ -243,7 +244,6 @@ bool keydown(SDL_KeyboardEvent &keyevent)
     SDL_Scancode keycode;
     pbind bind;
     taction action;
-    std::int32_t pricount, seccount, prinum, secnum;
 
     bool result;
     result = true;
@@ -563,8 +563,8 @@ bool keydown(SDL_KeyboardEvent &keyevent)
                 chattext = firechattext;
 
             // force spectator chat to teamchat in survival mode when Round hasn't ended
-            if ((CVar::sv_survivalmode)&SpriteSystem::Get().GetSprite(mysprite).isspectator() && !survivalendround &&
-                (CVar::sv_survivalmode_antispy))
+            if ((CVar::sv_survivalmode)&SpriteSystem::Get().GetSprite(mysprite).isspectator() &&
+                !survivalendround && (CVar::sv_survivalmode_antispy))
                 chattype = msgtype_team;
 
             cursorposition = length(chattext);
@@ -572,7 +572,8 @@ bool keydown(SDL_KeyboardEvent &keyevent)
     }
     else if (action == taction::teamchat)
     {
-        if ((chattext == "") && (mysprite > 0) && (SpriteSystem::Get().GetSprite(mysprite).isspectator() || isteamgame()))
+        if ((chattext == "") && (mysprite > 0) &&
+            (SpriteSystem::Get().GetSprite(mysprite).isspectator() || isteamgame()))
         {
             SDL_StartTextInput();
             chattext = ' ';
@@ -613,16 +614,11 @@ bool keydown(SDL_KeyboardEvent &keyevent)
             }
             else
             {
-                pricount = 0;
-                seccount = 0;
-                prinum = SpriteSystem::Get().GetSprite(mysprite).weapon.num;
-                secnum = SpriteSystem::Get().GetSprite(mysprite).secondaryweapon.num;
-
-                for (i = 1; i <= primary_weapons; i++)
-                    pricount += weaponactive[i];
-
-                for (i = 1; i <= secondary_weapons; i++)
-                    seccount += weaponactive[i + primary_weapons];
+                auto &weaponSystem = GS::GetWeaponSystem();
+                auto pricount = weaponSystem.CountEnabledPrimaryWeapons();
+                auto seccount = weaponSystem.CountEnabledSecondaryWeapons();
+                auto prinum = SpriteSystem::Get().GetSprite(mysprite).weapon.num;
+                auto secnum = SpriteSystem::Get().GetSprite(mysprite).secondaryweapon.num;
 
                 if (!limbomenu->active or (((prinum != guns[noweapon].num) || (pricount == 0)) &&
                                            ((secnum != guns[noweapon].num) || (seccount == 0))))

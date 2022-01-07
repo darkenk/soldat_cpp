@@ -1,10 +1,26 @@
 #pragma once
 #include "SoldatConfig.hpp"
 #include "common/misc/PortUtils.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/misc/GlobalSubsystem.hpp"
 
 template<Config::Module M = Config::GetModule()>
-struct GlobalSystems
+class GlobalSystems final : public GlobalSubsystem<GlobalSystems<M>>
 {
-    static void Init();
-    static void Deinit();
+  public:
+    static WeaponSystem& GetWeaponSystem()
+    {
+        return *GlobalSystems::Get().WeaponSystemObject;
+    }
+
+  protected:
+    GlobalSystems();
+    ~GlobalSystems();
+
+  private:
+    friend std::default_delete<GlobalSystems>;
+    friend GlobalSubsystem<GlobalSystems<M>>;
+    std::unique_ptr<WeaponSystem> WeaponSystemObject;
 };
+
+using GS = GlobalSystems<>;

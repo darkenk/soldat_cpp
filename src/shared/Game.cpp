@@ -22,6 +22,7 @@
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <chrono>
 
 //clang-format off
@@ -532,8 +533,9 @@ void changemap()
 
                 secwep = sprite.player->secwep + 1;
 
+                auto &weaponSystem = GS::GetWeaponSystem();
                 if ((secwep >= 1) && (secwep <= secondary_weapons) &&
-                    (weaponactive[primary_weapons + secwep] == 1))
+                    (weaponSystem.IsEnabled(primary_weapons + secwep)))
                     sprite.secondaryweapon = guns[primary_weapons + secwep];
                 else
                     sprite.secondaryweapon = guns[noweapon];
