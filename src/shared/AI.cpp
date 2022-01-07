@@ -924,25 +924,21 @@ void controlbot(tsprite &spritec)
             ZoneScopedN("LookingForFlagOrBow");
             for (i = 1; i <= max_things; i++)
             {
-                if (!seething && things[i].active && (things[i].holdingsprite != spritec.num) &&
-                    ((things[i].style == object_alpha_flag) ||
-                     (things[i].style == object_bravo_flag) ||
-                     (things[i].style == object_pointmatch_flag) ||
-                     (things[i].style == object_rambo_bow) ||
-                     (things[i].style == object_flamer_kit) ||
-                     (things[i].style == object_predator_kit) ||
-                     (things[i].style == object_vest_kit) ||
-                     (things[i].style == object_berserk_kit) ||
-                     (things[i].style == object_combat_knife) ||
-                     ((things[i].style == object_medical_kit) &&
-                      (spritec.GetHealth() < starthealth)) ||
-                     ((things[i].style == object_grenade_kit) &&
+                auto &thing = things[i];
+                if (!seething && thing.active && (thing.holdingsprite != spritec.num) &&
+                    ((thing.style == object_alpha_flag) || (thing.style == object_bravo_flag) ||
+                     (thing.style == object_pointmatch_flag) || (thing.style == object_rambo_bow) ||
+                     (thing.style == object_flamer_kit) || (thing.style == object_predator_kit) ||
+                     (thing.style == object_vest_kit) || (thing.style == object_berserk_kit) ||
+                     (thing.style == object_combat_knife) ||
+                     ((thing.style == object_medical_kit) && (spritec.GetHealth() < starthealth)) ||
+                     ((thing.style == object_grenade_kit) &&
                       (spritec.tertiaryweapon.ammocount < CVar::sv_maxgrenades) &&
                       ((spritec.tertiaryweapon.num != guns[clustergrenade].num) ||
                        (spritec.tertiaryweapon.ammocount == 0)))))
                 {
-                    startpoint.x = things[i].skeleton.pos[2].x;
-                    startpoint.y = things[i].skeleton.pos[2].y - 5;
+                    startpoint.x = thing.skeleton.pos[2].x;
+                    startpoint.y = thing.skeleton.pos[2].y - 5;
 
                     if (!map.raycast(lookpoint, startpoint, d2, 651))
                         if (d2 < dist_far)
@@ -952,7 +948,7 @@ void controlbot(tsprite &spritec)
                             // dont take it if is my flag in base
                             if (((CVar::sv_gamemode == gamestyle_ctf) ||
                                  (CVar::sv_gamemode == gamestyle_inf)) &&
-                                (things[i].style == spritec.player->team) && things[i].inbase)
+                                (thing.style == spritec.player->team) && thing.inbase)
                             {
                                 seething = false;
                                 if ((spritec.holdedthing > 0) && (i != spritec.holdedthing))
@@ -962,50 +958,49 @@ void controlbot(tsprite &spritec)
                             // dont follow this flag if my flag is not inbase
                             if (((CVar::sv_gamemode == gamestyle_ctf) ||
                                  (CVar::sv_gamemode == gamestyle_inf)) &&
-                                (things[i].style != spritec.player->team) and
+                                (thing.style != spritec.player->team) and
                                 !things[teamflag[spritec.player->team]].inbase)
                                 seething = false;
                             // dont take it if is flag in base
                             if (((CVar::sv_gamemode == gamestyle_ctf) ||
                                  (CVar::sv_gamemode == gamestyle_inf)) &&
-                                (things[i].style != spritec.player->team) &&
-                                (things[i].style < object_ussocom) && things[i].inbase &&
-                                (d2 > dist_close))
+                                (thing.style != spritec.player->team) &&
+                                (thing.style < object_ussocom) && thing.inbase && (d2 > dist_close))
                                 seething = false;
                             // or better take it if hurt and medikit is close
-                            if ((things[i].style == object_medical_kit) &&
+                            if ((thing.style == object_medical_kit) &&
                                 (spritec.GetHealth() < hurt_health) && (d2 < dist_very_close))
                                 seething = true;
                             // dont take it when running away with flag
-                            if (((things[i].style == object_medical_kit) ||
-                                 (things[i].style == object_grenade_kit) ||
-                                 (things[i].style == object_flamer_kit) ||
-                                 (things[i].style == object_predator_kit) ||
-                                 (things[i].style == object_berserk_kit)) &&
+                            if (((thing.style == object_medical_kit) ||
+                                 (thing.style == object_grenade_kit) ||
+                                 (thing.style == object_flamer_kit) ||
+                                 (thing.style == object_predator_kit) ||
+                                 (thing.style == object_berserk_kit)) &&
                                 runaway)
                                 seething = false;
-                            if (((things[i].style == object_flamer_kit) ||
-                                 (things[i].style == object_predator_kit) ||
-                                 (things[i].style == object_berserk_kit)) &&
+                            if (((thing.style == object_flamer_kit) ||
+                                 (thing.style == object_predator_kit) ||
+                                 (thing.style == object_berserk_kit)) &&
                                 (spritec.bonusstyle > bonus_none))
                                 seething = false;
-                            if (things[i].style == object_combat_knife)
+                            if (thing.style == object_combat_knife)
                                 seething = true;
 
                             // throw away weapon
-                            if ((d2 < 30) && (things[i].style == object_rambo_bow))
+                            if ((d2 < 30) && (thing.style == object_rambo_bow))
                                 spritec.control.throwweapon = true;
 
                             if (seething)
                             {
-                                if (things[i].holdingsprite == 0)
-                                    things[i].interest -= 1;
+                                if (thing.holdingsprite == 0)
+                                    thing.interest -= 1;
 
-                                if (things[i].interest > 0)
+                                if (thing.interest > 0)
                                 {
                                     if (CVar::bots_chat)
                                     {
-                                        if (things[i].style < object_pointmatch_flag)
+                                        if (thing.style < object_pointmatch_flag)
                                             if (Random(400 * spritec.brain.chatfreq) == 0)
                                                 serversendstringmessage("Flag!", all_players,
                                                                         spritec.num, msgtype_pub);
@@ -1018,7 +1013,7 @@ void controlbot(tsprite &spritec)
                                     spritec.brain.gothing = false;
 
                                 // Pickup knife!
-                                if ((things[i].style == object_combat_knife) &&
+                                if ((thing.style == object_combat_knife) &&
                                     (spritec.weapon.num == guns[noweapon].num) &&
                                     (spritec.brain.favweapon == guns[knife].num))
                                 {
