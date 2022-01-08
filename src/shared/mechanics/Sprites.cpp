@@ -4578,9 +4578,10 @@ void Sprite<M>::throwflag()
             {
                 for (i = 1; i <= max_things; i++)
                 {
-                    if (things[i].holdingsprite == num)
+                    auto &thing = things[i];
+                    if (thing.holdingsprite == num)
                     {
-                        if (things[i].style < 4)
+                        if (thing.style < 4)
                         {
                             // Create start velocity vector
                             cursordirection = getcursoraimdirection();
@@ -4595,16 +4596,16 @@ void Sprite<M>::throwflag()
 
                             // Don't throw if the flag would collide in the upcoming frame
                             newposdiff = vec2add(boffset, b);
-                            lookpoint1 = vec2add(things[i].skeleton.pos[1], newposdiff);
+                            lookpoint1 = vec2add(thing.skeleton.pos[1], newposdiff);
 
                             futurepoint1 = vec2add(lookpoint1, vector2(-10, -8));
                             futurepoint2 = vec2add(lookpoint1, vector2(10, -8));
                             futurepoint3 = vec2add(lookpoint1, vector2(-10, 8));
                             futurepoint4 = vec2add(lookpoint1, vector2(10, 8));
 
-                            lookpoint1 = vec2add(things[i].skeleton.pos[2], newposdiff);
-                            lookpoint2 = vec2add(things[i].skeleton.pos[3], newposdiff);
-                            lookpoint3 = vec2add(things[i].skeleton.pos[4], newposdiff);
+                            lookpoint1 = vec2add(thing.skeleton.pos[2], newposdiff);
+                            lookpoint2 = vec2add(thing.skeleton.pos[3], newposdiff);
+                            lookpoint3 = vec2add(thing.skeleton.pos[4], newposdiff);
 
                             if (!map.raycast(skeleton.pos[15], lookpoint1, d, 200, false, true,
                                              false) and
@@ -4620,38 +4621,34 @@ void Sprite<M>::throwflag()
                                 for (j = 1; j <= 4; j++)
                                 {
                                     // Apply offset from flagger
-                                    things[i].skeleton.pos[j] =
-                                        vec2add(things[i].skeleton.pos[j], boffset);
+                                    thing.skeleton.pos[j] = vec2add(thing.skeleton.pos[j], boffset);
 
                                     // Apply velocities
-                                    things[i].skeleton.pos[j] =
-                                        vec2add(things[i].skeleton.pos[j], b);
-                                    things[i].skeleton.oldpos[j] =
-                                        vec2subtract(things[i].skeleton.pos[j], b);
+                                    thing.skeleton.pos[j] = vec2add(thing.skeleton.pos[j], b);
+                                    thing.skeleton.oldpos[j] =
+                                        vec2subtract(thing.skeleton.pos[j], b);
                                 }
 
                                 // Add some spin for visual effect
                                 bperp = vector2(-b.y, b.x);
                                 vec2normalize(bperp, bperp);
                                 vec2scale(bperp, bperp, direction);
-                                things[i].skeleton.pos[1] =
-                                    vec2subtract(things[i].skeleton.pos[1], bperp);
-                                things[i].skeleton.pos[2] =
-                                    vec2add(things[i].skeleton.pos[2], bperp);
+                                thing.skeleton.pos[1] = vec2subtract(thing.skeleton.pos[1], bperp);
+                                thing.skeleton.pos[2] = vec2add(thing.skeleton.pos[2], bperp);
 
                                 // Release the flag
-                                things[i].holdingsprite = 0;
+                                thing.holdingsprite = 0;
                                 holdedthing = 0;
                                 flaggrabcooldown = second / 4;
 
 #ifdef SCRIPT
-                                scrptdispatcher.onflagdrop(num, things[i].style, true);
+                                scrptdispatcher.onflagdrop(num, thing.style, true);
 #endif
 
-                                things[i].bgstate.backgroundstatus = background_transition;
-                                things[i].bgstate.backgroundpoly = background_poly_unknown;
+                                thing.bgstate.backgroundstatus = background_transition;
+                                thing.bgstate.backgroundpoly = background_poly_unknown;
 
-                                things[i].statictype = false;
+                                thing.statictype = false;
 #ifdef SERVER
                                 serverthingmustsnapshot(i);
 #endif

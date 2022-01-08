@@ -19,11 +19,13 @@ void serverthingsnapshot(std::uint8_t tonum)
     bool send;
 
     for (i = 1; i <= max_things; i++)
-        if ((things[i].active) && (things[i].style != object_parachute) &&
-            ((!things[i].statictype) or
-             ((things[i].style < object_ussocom) || (things[i].style == object_stationary_gun))) &&
-            ((pointvisible(things[i].skeleton.pos[1].x, things[i].skeleton.pos[1].y, tonum)) or
-             (things[i].style < object_ussocom)))
+    {
+        auto &thing = things[i];
+        if ((thing.active) && (thing.style != object_parachute) &&
+            ((!thing.statictype) or
+             ((thing.style < object_ussocom) || (thing.style == object_stationary_gun))) &&
+            ((pointvisible(thing.skeleton.pos[1].x, thing.skeleton.pos[1].y, tonum)) or
+             (thing.style < object_ussocom)))
         {
             thingmsg.header.id = msgid_serverthingsnapshot;
             // assign thing values to ThingMsg
@@ -31,15 +33,15 @@ void serverthingsnapshot(std::uint8_t tonum)
             for (j = 1; j <= 4; j++)
             {
                 [[deprecated("indexing")]] auto jminus1 = j - 1;
-                thingmsg.pos[jminus1].x = things[i].skeleton.pos[j].x;
-                thingmsg.pos[jminus1].y = things[i].skeleton.pos[j].y;
-                thingmsg.oldpos[jminus1].x = things[i].skeleton.oldpos[j].x;
-                thingmsg.oldpos[jminus1].y = things[i].skeleton.oldpos[j].y;
+                thingmsg.pos[jminus1].x = thing.skeleton.pos[j].x;
+                thingmsg.pos[jminus1].y = thing.skeleton.pos[j].y;
+                thingmsg.oldpos[jminus1].x = thing.skeleton.oldpos[j].x;
+                thingmsg.oldpos[jminus1].y = thing.skeleton.oldpos[j].y;
             }
 
-            thingmsg.owner = things[i].owner;
-            thingmsg.style = things[i].style;
-            thingmsg.holdingsprite = things[i].holdingsprite;
+            thingmsg.owner = thing.owner;
+            thingmsg.style = thing.style;
+            thingmsg.holdingsprite = thing.holdingsprite;
 
             // send only if moving
             send = false;
@@ -51,9 +53,9 @@ void serverthingsnapshot(std::uint8_t tonum)
 
             if (maintickcounter % 2 == 0)
             {
-                if (things[i].style < object_ussocom)
+                if (thing.style < object_ussocom)
                     send = true;
-                if (things[i].style == object_rambo_bow)
+                if (thing.style == object_rambo_bow)
                     send = true;
             }
 
@@ -64,14 +66,17 @@ void serverthingsnapshot(std::uint8_t tonum)
                                              k_nSteamNetworkingSend_Unreliable);
             }
         }
+    }
 }
 
-void serverthingmustsnapshot(std::uint8_t i)
+void serverthingmustsnapshot(const std::uint8_t i)
 {
     tmsg_serverthingmustsnapshot thingmsg;
     std::int32_t j;
 
-    if (things[i].style == object_parachute)
+    auto &thing = things[i];
+
+    if (thing.style == object_parachute)
         return;
 
     thingmsg.header.id = msgid_serverthingmustsnapshot;
@@ -79,17 +84,17 @@ void serverthingmustsnapshot(std::uint8_t i)
     thingmsg.num = i;
     for (j = 1; j <= 4; j++)
     {
-        thingmsg.pos[j - 1].x = things[i].skeleton.pos[j].x;
-        thingmsg.pos[j - 1].y = things[i].skeleton.pos[j].y;
-        thingmsg.oldpos[j - 1].x = things[i].skeleton.oldpos[j].x;
-        thingmsg.oldpos[j - 1].y = things[i].skeleton.oldpos[j].y;
+        thingmsg.pos[j - 1].x = thing.skeleton.pos[j].x;
+        thingmsg.pos[j - 1].y = thing.skeleton.pos[j].y;
+        thingmsg.oldpos[j - 1].x = thing.skeleton.oldpos[j].x;
+        thingmsg.oldpos[j - 1].y = thing.skeleton.oldpos[j].y;
     }
-    thingmsg.timeout = things[i].timeout;
-    if (things[i].timeout < 1)
+    thingmsg.timeout = thing.timeout;
+    if (thing.timeout < 1)
         thingmsg.timeout = 1;
-    thingmsg.owner = things[i].owner;
-    thingmsg.style = things[i].style;
-    thingmsg.holdingsprite = things[i].holdingsprite;
+    thingmsg.owner = thing.owner;
+    thingmsg.style = thing.style;
+    thingmsg.holdingsprite = thing.holdingsprite;
 
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
@@ -102,32 +107,34 @@ void serverthingmustsnapshot(std::uint8_t i)
 }
 #endif
 
-void serverthingmustsnapshotonconnect(std::uint8_t tonum)
+void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
 {
     tmsg_serverthingmustsnapshot thingmsg;
     std::int32_t i, j;
 
     for (i = 1; i <= max_things; i++)
-        if (things[i].active)
-            if (((things[i].style < object_ussocom) || (things[i].style > object_minigun)) &&
-                (things[i].style != object_parachute))
+    {
+        auto &thing = things[i];
+        if (thing.active)
+            if (((thing.style < object_ussocom) || (thing.style > object_minigun)) &&
+                (thing.style != object_parachute))
             {
                 thingmsg.header.id = msgid_serverthingmustsnapshot;
                 // assign thing values to ThingMsg
                 thingmsg.num = i;
                 for (j = 1; j <= 4; j++)
                 {
-                    thingmsg.pos[j - 1].x = things[i].skeleton.pos[j].x;
-                    thingmsg.pos[j - 1].y = things[i].skeleton.pos[j].y;
-                    thingmsg.oldpos[j - 1].x = things[i].skeleton.oldpos[j].x;
-                    thingmsg.oldpos[j - 1].y = things[i].skeleton.oldpos[j].y;
+                    thingmsg.pos[j - 1].x = thing.skeleton.pos[j].x;
+                    thingmsg.pos[j - 1].y = thing.skeleton.pos[j].y;
+                    thingmsg.oldpos[j - 1].x = thing.skeleton.oldpos[j].x;
+                    thingmsg.oldpos[j - 1].y = thing.skeleton.oldpos[j].y;
                 }
-                thingmsg.timeout = std::int16_t(things[i].timeout);
-                if (things[i].timeout < 1)
+                thingmsg.timeout = std::int16_t(thing.timeout);
+                if (thing.timeout < 1)
                     thingmsg.timeout = 1;
-                thingmsg.owner = things[i].owner;
-                thingmsg.style = things[i].style;
-                thingmsg.holdingsprite = things[i].holdingsprite;
+                thingmsg.owner = thing.owner;
+                thingmsg.style = thing.style;
+                thingmsg.holdingsprite = thing.holdingsprite;
 
 #ifdef SERVER
                 GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
@@ -137,15 +144,18 @@ void serverthingmustsnapshotonconnect(std::uint8_t tonum)
                 demorecorder.saverecord(thingmsg, sizeof(thingmsg));
 #endif
             }
+    }
 }
 
 #ifdef SERVER
-void serverthingmustsnapshotonconnectto(std::uint8_t i, std::uint8_t tonum)
+void serverthingmustsnapshotonconnectto(const std::uint8_t i, const std::uint8_t tonum)
 {
     tmsg_serverthingmustsnapshot thingmsg;
     std::int32_t j;
 
-    if (things[i].style == object_parachute)
+    auto &thing = things[i];
+
+    if (thing.style == object_parachute)
         return;
 
     thingmsg.header.id = msgid_serverthingmustsnapshot;
@@ -153,33 +163,35 @@ void serverthingmustsnapshotonconnectto(std::uint8_t i, std::uint8_t tonum)
     thingmsg.num = i;
     for (j = 1; j <= 4; j++)
     {
-        thingmsg.pos[j].x = things[i].skeleton.pos[j].x;
-        thingmsg.pos[j].y = things[i].skeleton.pos[j].y;
-        thingmsg.oldpos[j].x = things[i].skeleton.oldpos[j].x;
-        thingmsg.oldpos[j].y = things[i].skeleton.oldpos[j].y;
+        thingmsg.pos[j].x = thing.skeleton.pos[j].x;
+        thingmsg.pos[j].y = thing.skeleton.pos[j].y;
+        thingmsg.oldpos[j].x = thing.skeleton.oldpos[j].x;
+        thingmsg.oldpos[j].y = thing.skeleton.oldpos[j].y;
     }
-    thingmsg.timeout = things[i].timeout;
-    if (things[i].timeout < 1)
+    thingmsg.timeout = thing.timeout;
+    if (thing.timeout < 1)
         thingmsg.timeout = 1;
-    thingmsg.owner = things[i].owner;
-    thingmsg.style = things[i].style;
-    thingmsg.holdingsprite = things[i].holdingsprite;
+    thingmsg.owner = thing.owner;
+    thingmsg.style = thing.style;
+    thingmsg.holdingsprite = thing.holdingsprite;
 
     GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
                                  SpriteSystem::Get().GetSprite(tonum).player->peer,
                                  k_nSteamNetworkingSend_Unreliable);
 }
 
-void serverthingtaken(std::uint8_t i, std::uint8_t w)
+void serverthingtaken(const std::uint8_t i, const std::uint8_t w)
 {
     tmsg_serverthingtaken thingmsg;
 
+    auto &thing = things[i];
+
     thingmsg.header.id = msgid_thingtaken;
-    thingmsg.num = things[i].num;
+    thingmsg.num = thing.num;
     thingmsg.who = w;
 
-    thingmsg.style = things[i].style;
-    thingmsg.ammocount = things[i].ammocount;
+    thingmsg.style = thing.style;
+    thingmsg.ammocount = thing.ammocount;
 
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
