@@ -79,7 +79,7 @@ void commandmap(std::vector<std::string> &args, std::uint8_t sender)
     if (length(args[1]) < 1)
         return;
 
-    if (getmapinfo(args[1], userdirectory, status))
+    if (getmapinfo(args[1], GS::GetGame().GetUserDirectory(), status))
     {
         preparemapchange(args[1]);
     }
@@ -484,9 +484,9 @@ void commandloadlist(std::vector<std::string> &args, std::uint8_t sender)
     else
         name = args[1];
 
-    if (fileexists(userdirectory + name + ".txt"))
+    if (fileexists(GS::GetGame().GetUserDirectory() + name + ".txt"))
     {
-        mapslist.loadfromfile(userdirectory + name + ".txt");
+        mapslist.loadfromfile(GS::GetGame().GetUserDirectory() + name + ".txt");
         i = 1;
         mapslist.erase(std::remove(mapslist.begin(), mapslist.end(), ""), mapslist.end());
         CVar::sv_maplist = name + ".txt";
@@ -1033,7 +1033,7 @@ void commandrecord(std::vector<std::string> &args, std::uint8_t sender)
     }
 
     demorecorder.stoprecord();
-    demorecorder.startrecord(userdirectory + "demos/" + str1 + ".sdm");
+    demorecorder.startrecord(GS::GetGame().GetUserDirectory() + "demos/" + str1 + ".sdm");
 }
 
 void commandstop(std::vector<std::string> &args, std::uint8_t sender)

@@ -13,6 +13,7 @@
 #include "common/Logging.hpp"
 #include "common/misc/Config.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <filesystem>
 #include <fstream>
 #include <map>
@@ -517,7 +518,7 @@ bool loadconfig(const std::string &configname)
     std::string line;
 
     bool result = false;
-    path = userdirectory + "configs/" + configname;
+    path = GS::GetGame().GetUserDirectory() + "configs/" + configname;
     if (!std::filesystem::exists(path))
     {
         GetMainConsole().console(std::string("No such config file: ") + configname,

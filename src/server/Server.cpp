@@ -321,8 +321,10 @@ void ActivateServer(int argc, const char *argv[])
     }
     if (CVar::fs_userpath == "")
     {
-        userdirectory = ExtractFilePath(ParamStr(0));
+        GS::GetGame().SetUserDirectory(ParamStr(0));
     }
+
+    const auto &userdirectory = GS::GetGame().GetUserDirectory();
 
     LogDebugG("[FS]  userdirectory {}", userdirectory);
     LogDebugG("[FS]  basedirectory {}", basedirectory);
@@ -385,7 +387,7 @@ void ActivateServer(int argc, const char *argv[])
     CvarsInitialized = true;
 #endif
 
-    newlogfiles();
+    newlogfiles(userdirectory);
 
     LogDebugG("ActivateServer");
 
@@ -629,7 +631,8 @@ void loadweapons(std::string Filename)
     DefaultWMChecksum = CreateWMChecksum();
 #endif
     {
-        TIniFile ini{ReadAsFileStream(userdirectory + "configs/" + Filename + ".ini")};
+        TIniFile ini{
+            ReadAsFileStream(GS::GetGame().GetUserDirectory() + "configs/" + Filename + ".ini")};
         if (loadweaponsconfig(ini, wmname, wmversion, guns))
         {
             buildweapons(guns);
@@ -685,7 +688,8 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
     Result = p;
 
     {
-        TIniFile ini(ReadAsFileStream(userdirectory + "configs/bots/" + name + ".bot"));
+        TIniFile ini(
+            ReadAsFileStream(GS::GetGame().GetUserDirectory() + "configs/bots/" + name + ".bot"));
 
         if (not loadbotconfig(ini, SpriteSystem::Get().GetSprite(p), guns))
         {
@@ -823,7 +827,7 @@ void startserver()
 #endif
     */
 
-    if (getmapinfo(mapslist[mapindex], userdirectory, StartMap))
+    if (getmapinfo(mapslist[mapindex], GS::GetGame().GetUserDirectory(), StartMap))
     {
         if (not map.loadmap(StartMap))
         {
@@ -1059,7 +1063,7 @@ bool preparemapchange(std::string Name)
 {
     tmapinfo Status;
     bool Result = false;
-    if (getmapinfo(Name, userdirectory, Status))
+    if (getmapinfo(Name, GS::GetGame().GetUserDirectory(), Status))
     {
         mapchange = Status;
         mapchangecounter = mapchangetime;

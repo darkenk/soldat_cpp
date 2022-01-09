@@ -82,6 +82,8 @@ class Game : public GlobalSubsystem<Game<M>>
     bool CanVote(std::int32_t spriteId) const { return VoteCooldown[spriteId] < 0; }
     void TickVote();
 
+    void SetUserDirectory(const std::string& userDirectory) { UserDirectory = userDirectory; }
+    const std::string& GetUserDirectory() const { return UserDirectory; }
 
   private:
     bool VoteActive = false;
@@ -94,6 +96,7 @@ class Game : public GlobalSubsystem<Game<M>>
     std::uint8_t VoteMaxVotes = 0;
     PascalArray<bool, 1, max_sprites> VoteHasVoted;
     PascalArray<bool, 1, max_sprites> VoteCooldown;
+    std::string UserDirectory;
 
     friend GlobalSubsystem<Game<M>>;
 };

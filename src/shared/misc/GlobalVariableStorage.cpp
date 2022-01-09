@@ -11,8 +11,6 @@
 
 namespace
 {
-auto &userdirectory = InitGlobalVariable<std::string, "userdirectory">();
-
 auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
 auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
 auto &sparkparts = InitGlobalVariable<particlesystem, "sparkparts">();
@@ -90,9 +88,6 @@ auto &defaultwmchecksum = InitGlobalVariable<std::uint64_t, "defaultwmchecksum">
 auto &loadedwmchecksum = InitGlobalVariable<std::uint64_t, "loadedwmchecksum">();
 
 auto &demorecorder = InitGlobalVariable<tdemorecorder<>, "demorecorder">();
-auto &rsize = InitGlobalVariable<std::uint64_t, "rsize">();
-auto &freecam = InitGlobalVariable<std::uint8_t, "freecam">();
-auto &notexts = InitGlobalVariable<std::uint8_t, "notexts">();
 
 auto &gamelog = InitGlobalVariable<tstringlist *, "gamelog">();
 auto &consolelogfilename = InitGlobalVariable<std::string, "consolelogfilename">();

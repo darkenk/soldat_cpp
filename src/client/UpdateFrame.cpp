@@ -221,7 +221,7 @@ void update_frame()
             if (CVar::log_enable)
             {
                 if (checkfilesize(consolelogfilename) > max_logfilesize)
-                    newlogfiles();
+                    newlogfiles(GS::GetGame().GetUserDirectory());
 
                 writelogfile(gamelog, consolelogfilename);
             }
@@ -443,7 +443,7 @@ void update_frame()
 #endif
             NotImplemented(NITag::OTHER, "No now() function");
 #if 0
-            screenfile = userdirectory + "screens/" +
+            screenfile = GS::GetGame().GetUserDirectory() + "screens/" +
                          formatdatetime("yyyy-mm-dd_hh-nn-ss_", now()) + map.name + "_endgame.png";
 #endif
             takescreenshot(screenfile);
@@ -453,7 +453,7 @@ void update_frame()
     {
         NotImplemented(NITag::OTHER, "No now() function");
 #if 0
-        demorecorder.startrecord(userdirectory + "demos/" +
+        demorecorder.startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
                                  formatdatetime("yyyy-mm-dd_hh-nn-ss_", now()) + map.name + ".sdm");
 #endif
     }

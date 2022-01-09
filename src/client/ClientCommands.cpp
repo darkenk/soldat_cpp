@@ -11,6 +11,7 @@
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkClientMessages.hpp"
 #include <regex>
 
@@ -142,7 +143,7 @@ void commandrecord(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 
     demorecorder.stoprecord();
-    demorecorder.startrecord(userdirectory + "demos/" + str1 + ".sdm");
+    demorecorder.startrecord(GS::GetGame().GetUserDirectory() + "demos/" + str1 + ".sdm");
 }
 
 void commandmute(std::vector<std::string> &args, std::uint8_t sender)

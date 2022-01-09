@@ -18,6 +18,7 @@
 #include "shared/Game.hpp"
 #include "shared/Version.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <filesystem>
 
 //clang-format off
@@ -37,6 +38,8 @@ std::string extractfilename(const std::string &filepath)
 {
     return std::filesystem::path(filepath).stem();
 }
+
+std::uint64_t rsize;
 
 } // namespace
 
@@ -117,7 +120,7 @@ void tdemorecorder<M>::stoprecord()
     fdemofile.writebuffer(&fdemoheader, sizeof(fdemoheader));
 
     //  try
-    fdemofile.savetofile(userdirectory + "demos/" + fname);
+    fdemofile.savetofile(GS::GetGame().GetUserDirectory() + "demos/" + fname);
     //  except
     //    on e: Exception do
     //      GetMainConsole().Console('Failed to save demo file: ' + WideString(E.Message),

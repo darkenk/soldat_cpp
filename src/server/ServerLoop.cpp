@@ -455,7 +455,7 @@ void updateframe()
 
                 if ((checkfilesize(GetKillLogFilename()) > max_logfilesize) ||
                     (checkfilesize(consolelogfilename) > max_logfilesize))
-                    newlogfiles();
+                    newlogfiles(GS::GetGame().GetUserDirectory());
             }
         }
 
@@ -784,7 +784,7 @@ void updateframe()
     {
         NotImplemented(NITag::OTHER);
 #if 0
-        demorecorder.startrecord(userdirectory + "demos/" +
+        demorecorder.startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
                                  formatdatetime("yyyy-mm-dd_hh-nn-ss_", now(0)) + map.name +
                                  ".sdm");
 #endif

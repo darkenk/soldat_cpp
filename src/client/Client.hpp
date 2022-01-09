@@ -96,6 +96,8 @@ extern std::uint8_t radiocooldown;
 extern tvector2 cameraprev;
 extern float camerax, cameray;          // camera x and y within world
 extern std::uint8_t camerafollowsprite; // Tag number of object to follow
+extern std::uint8_t notexts;
+extern std::uint8_t freecam;
 
 // extern tdownloadthread downloadthread;
 #ifdef STEAM

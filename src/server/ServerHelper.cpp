@@ -10,6 +10,7 @@
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkServerMessages.hpp"
 #include <filesystem>
 
@@ -202,15 +203,16 @@ void savetxtlists()
     LogTraceG("SaveTxtLists");
 
     // save ban files
-    savebannedlist(userdirectory + "configs/banned.txt");
-    savebannedlisthw(userdirectory + "configs/bannedhw.txt");
+    savebannedlist(GS::GetGame().GetUserDirectory() + "configs/banned.txt");
+    savebannedlisthw(GS::GetGame().GetUserDirectory() + "configs/bannedhw.txt");
 
-    remoteips.savetofile(userdirectory + "configs/remote.txt");
+    remoteips.savetofile(GS::GetGame().GetUserDirectory() + "configs/remote.txt");
 }
 
 void savemaplist()
 {
-    mapslist.savetofile(userdirectory + "configs/" + std::string(CVar::sv_maplist));
+    mapslist.savetofile(GS::GetGame().GetUserDirectory() + "configs/" +
+                        std::string(CVar::sv_maplist));
 }
 
 void writepid()
@@ -272,7 +274,7 @@ std::string randombot()
 
     std::string randombot_result;
     botlist = tstringlist.create;
-    if (findfirst(userdirectory + "configs/bots/*.bot", faanyfile, searchresult) == 0)
+    if (findfirst(GS::GetGame().GetUserDirectory() + "configs/bots/*.bot", faanyfile, searchresult) == 0)
     {
         do
         {

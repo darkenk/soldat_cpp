@@ -18,7 +18,7 @@ template <Config::Module M = Config::GetModule()>
 void addlinetologfile(tstringlist *f, const std::string &s, const std::string &name,
                       bool withdate = true);
 template <Config::Module M = Config::GetModule()>
-void newlogfiles();
+void newlogfiles(const std::string& userdirectory);
 
 constexpr tstringlist &GetKillLog() requires(Config::IsServer())
 {

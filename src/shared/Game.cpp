@@ -159,7 +159,7 @@ void Game<M>::updategamestats()
         s.add(joinip + ':' + joinport);
 #endif
 
-        s.savetofile(userdirectory + "logs/gamestat.txt");
+        s.savetofile(UserDirectory + "logs/gamestat.txt");
         //    finally
         //      FreeAndNil(S);
         //    end;
@@ -478,7 +478,7 @@ void Game<M>::changemap()
     mapchanged = true;
     demorecorder.stoprecord();
 
-    if (getmapinfo(mapchangename, userdirectory, mapchangestatus) &&
+    if (getmapinfo(mapchangename, UserDirectory, mapchangestatus) &&
         verifymapchecksum(mapchangestatus, mapchangechecksum, gamemodchecksum))
     {
         if (!map.loadmap(mapchangestatus, CVar::r_forcebg, CVar::r_forcebg_color1,

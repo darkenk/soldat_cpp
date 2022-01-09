@@ -162,7 +162,7 @@ void writelogfile(tstringlist *f, const std::string &name)
 }
 
 template <Config::Module M>
-void newlogfiles()
+void newlogfiles(const std::string &userdirectory)
 {
     std::int32_t j;
     std::string s2;
@@ -221,4 +221,4 @@ template void newlogfile(tstringlist *f, const std::string &name);
 template void writelogfile(tstringlist *f, const std::string &name);
 template void addlinetologfile(tstringlist *f, const std::string &s, const std::string &name,
                                bool withdate);
-template void newlogfiles();
+template void newlogfiles(const std::string &userdirectory);

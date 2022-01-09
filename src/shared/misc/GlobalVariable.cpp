@@ -21,7 +21,6 @@ void InitAllGlobalVariables()
     timelimitcounter = 3600;
     starthealth = 150;
     sinuscounter = 0;
-    notexts = 0;
 }
 
 template void InitAllGlobalVariables<Config::GetModule()>();

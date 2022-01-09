@@ -489,7 +489,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
                 demorecorder.stoprecord();
                 NotImplemented(NITag::OTHER);
 #if 0
-                demorecorder.startrecord(userdirectory + "demos/" +
+                demorecorder.startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
                                          sniperline_client_hppformatdatetime("yyyy-mm-dd_hh-nn-ss_", now(0)) + map.name +
                                          ".sdm");
 #endif
@@ -502,7 +502,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
             {
                 NotImplemented(NITag::OTHER);
 #if 0
-                demorecorder.startrecord(userdirectory + "demos/" +
+                demorecorder.startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
                                          formatdatetime("yyyy-mm-dd_hh-nn-ss_", now(0)) + map.name +
                                          ".sdm");
 #endif

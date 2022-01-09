@@ -30,6 +30,7 @@
 #include "shared/LogFile.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include <Tracy.hpp>
@@ -127,6 +128,9 @@ std::uint8_t radiocooldown = 3;
 tvector2 cameraprev;
 float camerax, cameray;          // camera x and y within world
 std::uint8_t camerafollowsprite; // Tag number of object to follow
+
+std::uint8_t notexts = 0;
+std::uint8_t freecam = 0;
 
 // End Client.cpp variables
 
@@ -339,14 +343,14 @@ void startgame(int argc, const char *argv[])
 
     if (CVar::fs_portable)
     {
-        userdirectory = basepathsdl;
+        GS::GetGame().SetUserDirectory(basepathsdl);
         basedirectory = basepathsdl;
         LogDebugG("[FS] Portable mode enabled.");
     }
     else
     {
         if (CVar::fs_userpath == "")
-            userdirectory = userpathsdl;
+            GS::GetGame().SetUserDirectory(basepathsdl);
         if (CVar::fs_basepath == "")
             basedirectory = basepathsdl;
     }
@@ -354,6 +358,8 @@ void startgame(int argc, const char *argv[])
     SDL_free(userpathsdl);
     basepathsdl = nullptr;
     userpathsdl = nullptr;
+
+    const auto &userdirectory = GS::GetGame().GetUserDirectory();
 
     LogDebugG("[FS] userdirectory: {}", userdirectory);
     LogDebugG("[FS] basedirectory: {}", basedirectory);
@@ -367,7 +373,7 @@ void startgame(int argc, const char *argv[])
     createdirifmissing(userdirectory + "/maps");
     createdirifmissing(userdirectory + "/mods");
 
-    newlogfiles();
+    newlogfiles(userdirectory);
 
     GetMainConsole().countmax = round(15 * _rscala.y);
     GetMainConsole().scrolltickmax = 150;
@@ -794,7 +800,7 @@ void joinserver()
     // DEMO
     if (joinport == "0")
     {
-        demoplayer.opendemo(userdirectory + "demos/" + joinip + ".sdm");
+        demoplayer.opendemo(GS::GetGame().GetUserDirectory() + "demos/" + joinip + ".sdm");
         demoplayer.processdemo();
         progready = true;
         gamelooprun = true;

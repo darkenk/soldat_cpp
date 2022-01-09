@@ -230,11 +230,12 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     {
         if (modname != "")
         {
-            checksum = sha1file(userdirectory + "mods/" + modname + ".smod");
+            checksum = sha1file(GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod");
             if (playerslistmsg->modchecksum == checksum)
             {
-                if (!PHYSFS_mount((pchar)(userdirectory + "mods/" + modname + ".smod"),
-                                  (pchar)(string("mods/") + modname + '/'), false))
+                if (!PHYSFS_mount(
+                        (pchar)(GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod"),
+                        (pchar)(string("mods/") + modname + '/'), false))
                 {
                     showmessage(_(string("Could not load mod archive (") + modname + ")."));
                     return;
@@ -253,7 +254,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
                 NotImplemented(NITag::NETWORK, "no download thread");
 #if 0
                 downloadthread = tdownloadthread.create(downloadurl + "mods/" + modname + ".smod",
-                                                        userdirectory + "mods/" + modname + ".smod",
+                                                        GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod",
                                                         tsha1digest(playerslistmsg->modchecksum));
                 return;
 #endif
@@ -274,7 +275,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
 
     // Initialize Map
 
-    if (getmapinfo(mapname, userdirectory, mapstatus) /*&&
+    if (getmapinfo(mapname, GS::GetGame().GetUserDirectory(), mapstatus) /*&&
         verifymapchecksum(mapstatus, playerslistmsg->mapchecksum)*/)
     {
         if (!map.loadmap(mapstatus, CVar::r_forcebg, CVar::r_forcebg_color1,
@@ -302,7 +303,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
             NotImplemented(NITag::NETWORK, "no download thread");
 #if 0
             downloadthread = tdownloadthread.create(downloadurl + "maps/" + mapname + ".smap",
-                                                    userdirectory + "maps/" + mapname + ".smap",
+                                                    GS::GetGame().GetUserDirectory() + "maps/" + mapname + ".smap",
                                                     playerslistmsg->mapchecksum);
 #endif
             return;
