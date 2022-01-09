@@ -61,7 +61,7 @@ using string = std::string;
 
 // Timing routine
 template <Config::Module M>
-void number27timing()
+void Game<M>::number27timing()
 {
     using namespace std::literals;
     timeinmillast = timeinmil;
@@ -93,7 +93,7 @@ void number27timing()
 }
 
 template <Config::Module M>
-void updategamestats()
+void Game<M>::updategamestats()
 {
     std::int32_t i;
     tstringlist s;
@@ -167,7 +167,7 @@ void updategamestats()
 }
 
 template <Config::Module M>
-void togglebullettime(bool turnon, std::int32_t duration)
+void Game<M>::togglebullettime(bool turnon, std::int32_t duration)
 {
 #ifdef SERVER
     LogTraceG("ToggleBulletTime");
@@ -185,7 +185,7 @@ void togglebullettime(bool turnon, std::int32_t duration)
 }
 
 template <Config::Module M>
-bool pointvisible(float x, float y, std::int32_t i)
+bool Game<M>::pointvisible(float x, float y, std::int32_t i)
 {
 #ifdef SERVER
     // TODO: check why numbers differ on server and client
@@ -222,7 +222,7 @@ bool pointvisible(float x, float y, std::int32_t i)
 }
 
 template <Config::Module M>
-bool pointvisible2(float x, float y, std::int32_t i)
+bool Game<M>::pointvisible2(float x, float y, std::int32_t i)
 {
 // TODO: check why numbers differ on server and client
 #ifdef SERVER
@@ -250,7 +250,8 @@ bool pointvisible2(float x, float y, std::int32_t i)
 }
 
 #ifndef SERVER
-bool ispointonscreen(tvector2 point)
+template <Config::Module M>
+bool Game<M>::ispointonscreen(const tvector2 &point)
 {
     float p1, p2;
 
@@ -266,29 +267,27 @@ bool ispointonscreen(tvector2 point)
 }
 #endif
 
-template <Config::Module>
-void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targetvote,
-               std::string reasonvote)
+template <Config::Module M>
+void Game<M>::startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targetvote,
+                        std::string reasonvote)
 {
-    std::uint8_t i;
-
-    voteactive = true;
+    VoteActive = true;
     if ((startervote < 1) || (startervote > max_players))
-        votestarter = "Server";
+        VoteStarter = "Server";
     else
     {
-        votestarter = SpriteSystem::Get().GetSprite(startervote).player->name;
-        votecooldown[startervote] = default_vote_time;
+        VoteStarter = SpriteSystem::Get().GetSprite(startervote).player->name;
+        VoteCooldown[startervote] = default_vote_time;
 #ifndef SERVER
         if (startervote == mysprite)
-            if (votetype == vote_kick)
+            if (VoteType == vote_kick)
             {
                 GetMainConsole().console(
                     ("You have voted to kick ") +
                         (SpriteSystem::Get().GetSprite(kickmenuindex).player->name) +
                         (" from the game"),
                     vote_message_color);
-                voteactive = false;
+                VoteActive = false;
                 NotImplemented(NITag::NETWORK, "No clientvotekick");
 #if 0
                 clientvotekick(strtoint(targetvote), true, "");
@@ -296,48 +295,48 @@ void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targ
             }
 #endif
     }
-    votetype = typevote;
-    votetarget = targetvote;
-    votereason = reasonvote;
-    votetimeremaining = default_voting_time;
-    votenumvotes = 0;
-    votemaxvotes = 0;
+    VoteType = typevote;
+    VoteTarget = targetvote;
+    VoteReason = reasonvote;
+    VoteTimeRemaining = default_voting_time;
+    VoteNumVotes = 0;
+    VoteMaxVotes = 0;
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
         if (sprite.player->controlmethod == human)
         {
-            votemaxvotes = votemaxvotes + 1;
+            VoteMaxVotes = VoteMaxVotes + 1;
         }
     }
 }
 
-template <Config::Module>
-void stopvote()
+template <Config::Module M>
+void Game<M>::stopvote()
 {
-    voteactive = false;
-    votenumvotes = 0;
-    votemaxvotes = 0;
-    votetype = 0;
-    votetarget = "";
-    votestarter = "";
-    votereason = "";
-    votetimeremaining = -1;
-    std::fill(std::begin(votehasvoted), std::end(votehasvoted), false);
+    VoteActive = false;
+    VoteNumVotes = 0;
+    VoteMaxVotes = 0;
+    VoteType = 0;
+    VoteTarget = "";
+    VoteStarter = "";
+    VoteReason = "";
+    VoteTimeRemaining = -1;
+    std::fill(std::begin(VoteHasVoted), std::end(VoteHasVoted), false);
 }
 
-template <Config::Module>
-void timervote()
+template <Config::Module M>
+void Game<M>::timervote()
 {
 #ifdef SERVER
-    if (voteactive)
+    if (VoteActive)
     {
 #endif
-        if (votetimeremaining > -1)
-            votetimeremaining = votetimeremaining - 1;
+        if (VoteTimeRemaining > -1)
+            VoteTimeRemaining = VoteTimeRemaining - 1;
 
-        if (votetimeremaining == 0)
+        if (VoteTimeRemaining == 0)
         {
-            if (votetype == vote_map)
+            if (VoteType == vote_map)
                 GetMainConsole().console(
 #ifdef SERVER
                     "No map has been voted",
@@ -353,22 +352,23 @@ void timervote()
 }
 
 #ifdef SERVER
-void countvote(std::uint8_t voter)
+template <Config::Module M>
+void Game<M>::countvote(std::uint8_t voter)
 {
     std::int32_t i;
     float edge;
     // Status: TMapInfo;
 
-    if (voteactive && !votehasvoted[voter])
+    if (VoteActive && !VoteHasVoted[voter])
     {
-        votenumvotes = votenumvotes + 1;
-        votehasvoted[voter] = true;
-        edge = (float)(votenumvotes) / votemaxvotes;
+        VoteNumVotes = VoteNumVotes + 1;
+        VoteHasVoted[voter] = true;
+        edge = (float)(VoteNumVotes) / VoteMaxVotes;
         if (edge >= ((float)(CVar::sv_votepercent) / 100))
         {
-            if (votetype == vote_kick)
+            if (VoteType == vote_kick)
             {
-                i = strtoint(votetarget);
+                i = strtoint(VoteTarget);
                 // There should be no permanent bans by votes. Reduced to 1 day.
                 if (cheattag[i] == 0)
                     kickplayer(i, true, kick_voted, hour, "Vote Kicked");
@@ -376,11 +376,11 @@ void countvote(std::uint8_t voter)
                     kickplayer(i, true, kick_voted, day, "Vote Kicked by Server");
                 dobalancebots(1, SpriteSystem::Get().GetSprite(i).player->team);
             }
-            else if (votetype == vote_map)
+            else if (VoteType == vote_map)
             {
-                if (!preparemapchange(votetarget))
+                if (!preparemapchange(VoteTarget))
                 {
-                    GetMainConsole().console(string("Map not found (") + votetarget + ')',
+                    GetMainConsole().console(string("Map not found (") + VoteTarget + ')',
                                              warning_message_color);
                     GetMainConsole().console("No map has been voted", vote_message_color);
                 }
@@ -393,13 +393,13 @@ void countvote(std::uint8_t voter)
 #endif
 
 template <Config::Module M>
-void showmapchangescoreboard()
+void Game<M>::showmapchangescoreboard()
 {
     showmapchangescoreboard("EXIT*!*");
 }
 
 template <Config::Module M>
-void showmapchangescoreboard(const std::string nextmap)
+void Game<M>::showmapchangescoreboard(const std::string nextmap)
 {
     mapchangename = nextmap;
     mapchangecounter = mapchangetime;
@@ -418,7 +418,7 @@ void showmapchangescoreboard(const std::string nextmap)
 }
 
 template <Config::Module M>
-bool isteamgame()
+bool Game<M>::isteamgame()
 {
     bool isteamgame_result;
     switch (CVar::sv_gamemode)
@@ -436,7 +436,7 @@ bool isteamgame()
 }
 
 template <Config::Module M>
-void changemap()
+void Game<M>::changemap()
 {
 #ifdef SERVER
     tvector2 a;
@@ -713,7 +713,7 @@ void changemap()
 }
 
 template <Config::Module M>
-void sortplayers()
+void Game<M>::sortplayers()
 {
     std::int32_t j;
     tkillsort temp;
@@ -888,18 +888,16 @@ void sortplayers()
     }
 }
 
-template void number27timing<Config::GetModule()>();
-template void togglebullettime<Config::GetModule()>(bool turnon, std::int32_t duration);
-template void updategamestats<Config::GetModule()>();
-template bool pointvisible<Config::GetModule()>(float x, float y, std::int32_t i);
-template bool pointvisible2<Config::GetModule()>(float x, float y, std::int32_t i);
-template void startvote<Config::GetModule()>(std::uint8_t startervote, std::uint8_t typevote,
-                                             std::string targetvote, std::string reasonvote);
+template <Config::Module M>
+void Game<M>::TickVote()
+{
+    for (auto j = 1; j <= max_sprites; j++)
+    {
+        if (VoteCooldown[j] > -1)
+        {
+            VoteCooldown[j] = VoteCooldown[j] - 1;
+        }
+    }
+}
 
-template void stopvote<Config::GetModule()>();
-template void timervote<Config::GetModule()>();
-template void showmapchangescoreboard<Config::GetModule()>();
-template void showmapchangescoreboard<Config::GetModule()>(const std::string nextmap);
-template bool isteamgame<Config::GetModule()>();
-template void changemap<Config::GetModule()>();
-template void sortplayers<Config::GetModule()>();
+template class Game<>;

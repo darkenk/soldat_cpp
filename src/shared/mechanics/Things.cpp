@@ -22,6 +22,7 @@
 #include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 #include <numbers>
 
@@ -886,7 +887,7 @@ void Thing<M>::update()
                                 createspark(thing.skeleton.pos[2], b, 61, holdingsprite, 18);
 #endif
 
-                                sortplayers();
+                                GS::GetGame().sortplayers();
 #ifdef SERVER
                                 GetMainConsole().console(
                                     SpriteSystem::Get().GetSprite(holdingsprite).player->name +
@@ -926,7 +927,7 @@ void Thing<M>::update()
                                 createspark(thing.skeleton.pos[2], b, 61, holdingsprite, 15);
 #endif
 
-                                sortplayers();
+                                GS::GetGame().sortplayers();
 #ifdef SERVER
                                 GetMainConsole().console(
                                     SpriteSystem::Get().GetSprite(holdingsprite).player->name +

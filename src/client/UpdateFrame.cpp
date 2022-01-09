@@ -16,6 +16,7 @@
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/misc/GlobalVariable.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include <Tracy.hpp>
@@ -174,7 +175,7 @@ void update_frame()
                              spriteparts.pos[j].x, spriteparts.pos[j].y) < cursorsprite_distance)
                 {
                     cursortext = sprite.player->name;
-                    if (isteamgame())
+                    if (GS::GetGame().isteamgame())
                         if (sprite.isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
                         {
                             cursortext =
@@ -197,7 +198,7 @@ void update_frame()
 
     if (bullettimetimer == 0)
     {
-        togglebullettime(false);
+        GS::GetGame().togglebullettime(false);
         bullettimetimer = -1;
     }
     else if (bullettimetimer < 1)
@@ -209,7 +210,7 @@ void update_frame()
         {
             if (mapchangename != "EXIT*!*")
             {
-                changemap();
+                GS::GetGame().changemap();
                 resetweaponstats();
             }
         }
@@ -319,7 +320,7 @@ void update_frame()
         }
 
         // Map voting timer
-        timervote();
+        GS::GetGame().timervote();
 
         // Chat Update
         for (j = 1; j <= max_sprites; j++)

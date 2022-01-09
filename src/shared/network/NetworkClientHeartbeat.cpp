@@ -10,6 +10,7 @@
 #include "NetworkClientConnection.hpp"
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -94,5 +95,5 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
 
     heartbeattime = maintickcounter;
 
-    sortplayers();
+    GS::GetGame().sortplayers();
 }

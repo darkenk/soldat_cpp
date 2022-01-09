@@ -483,7 +483,7 @@ void ActivateServer(int argc, const char *argv[])
         WriteLn("");
         WriteLn("  No maps list found (adding default). Please add maps in configs/mapslist.txt");
         WriteLn("");
-        if (not isteamgame())
+        if (not GS::GetGame().isteamgame())
             mapslist.add("Arena");
         else
             mapslist.add("ctf_Ash");
@@ -538,7 +538,7 @@ void ActivateServer(int argc, const char *argv[])
 #endif
 
     WriteLn(" Server  name" + std::string(CVar::sv_hostname));
-    updategamestats();
+    GS::GetGame().updategamestats();
     writelogfile(&GetKillLog(), GetKillLogFilename());
     writelogfile(gamelog, consolelogfilename);
 
@@ -598,7 +598,7 @@ void ShutDown()
 
     addlinetologfile(gamelog, "   End of Log.", consolelogfilename);
     LogDebugG("Updating gamestats");
-    updategamestats();
+    GS::GetGame().updategamestats();
     LogDebugG("Saving killlog");
     writelogfile(&GetKillLog(), GetKillLogFilename());
     LogDebugG("Saving gamelog");
@@ -737,7 +737,7 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
                                    SpriteSystem::Get().GetSprite(p).SecondaryWeapon.AmmoCount);
 #endif
 
-    sortplayers();
+    GS::GetGame().sortplayers();
     return Result;
 }
 
@@ -752,7 +752,7 @@ void startserver()
         ScrptDispatcher.Launch();
 #endif
 
-    if (not isteamgame())
+    if (not GS::GetGame().isteamgame())
     {
         k = CVar::bots_random_noteam;
     }
@@ -985,7 +985,7 @@ void startserver()
     }
 
     // sort the players frag list
-    sortplayers();
+    GS::GetGame().sortplayers();
 
     mapchangecounter = -60;
 
@@ -1052,7 +1052,7 @@ void startserver()
     for (k = 0; k < CVar::bots_random_delta; k++)
         addbotplayer(randombot(), 4);
 
-    updategamestats();
+    GS::GetGame().updategamestats();
 }
 
 bool preparemapchange(std::string Name)

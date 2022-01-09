@@ -6,6 +6,7 @@
 #include "NetworkUtils.hpp"
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -24,7 +25,8 @@ void serverthingsnapshot(std::uint8_t tonum)
         if ((thing.active) && (thing.style != object_parachute) &&
             ((!thing.statictype) or
              ((thing.style < object_ussocom) || (thing.style == object_stationary_gun))) &&
-            ((pointvisible(thing.skeleton.pos[1].x, thing.skeleton.pos[1].y, tonum)) or
+            ((GS::GetGame().pointvisible(thing.skeleton.pos[1].x, thing.skeleton.pos[1].y,
+                                         tonum)) or
              (thing.style < object_ussocom)))
         {
             thingmsg.header.id = msgid_serverthingsnapshot;

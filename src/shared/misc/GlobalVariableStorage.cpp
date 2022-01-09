@@ -84,19 +84,6 @@ auto &sortedplayers = InitGlobalVariable<PascalArray<tkillsort, 1, max_sprites>,
 auto &bullet = InitGlobalVariable<PascalArray<tbullet, 1, max_bullets>, "bullet">();
 auto &things = InitGlobalVariable<PascalArray<tthing, 1, max_things>, "things">();
 
-auto &voteactive = InitGlobalVariable<bool, "voteactive">();
-auto &votetype = InitGlobalVariable<std::uint8_t, "votetype">();
-auto &votetarget = InitGlobalVariable<std::string, "votetarget">();
-auto &votestarter = InitGlobalVariable<std::string, "votestarter">();
-auto &votereason = InitGlobalVariable<std::string, "votereason">();
-auto &votetimeremaining = InitGlobalVariable<std::int32_t, "votetimeremaining">();
-auto &votenumvotes = InitGlobalVariable<std::uint8_t, "votenumvotes">();
-auto &votemaxvotes = InitGlobalVariable<std::uint8_t, "votemaxvotes">();
-auto &votehasvoted = InitGlobalVariable<PascalArray<bool, 1, max_sprites>, "votehasvoted">();
-auto &votecooldown =
-    InitGlobalVariable<PascalArray<std::int32_t, 1, max_sprites>, "votecooldown">();
-auto &votekickreasontype = InitGlobalVariable<bool, "votekickreasontype">();
-
 auto &guns = InitGlobalVariable<GunsDescription, "guns">();
 auto &defaultguns = InitGlobalVariable<GunsDescription, "defaultguns">();
 auto &defaultwmchecksum = InitGlobalVariable<std::uint64_t, "defaultwmchecksum">();

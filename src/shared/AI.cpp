@@ -12,6 +12,7 @@
 #include "network/NetworkServer.hpp"
 #include "network/NetworkServerMessages.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>
 
 // clang-format off
@@ -587,7 +588,7 @@ void controlbot(tsprite &spritec)
                                     seeclosest = false;
                                     d = dt;
                                 }
-                                if (isteamgame() && spritec.isinsameteam(sprite))
+                                if (GS::GetGame().isteamgame() && spritec.isinsameteam(sprite))
                                 {
                                     seeclosest = false;
                                     // D := dt;
@@ -610,13 +611,13 @@ void controlbot(tsprite &spritec)
             spritec.brain.pissedoff = 0;
 
         if (spritec.brain.pissedoff > 0)
-            if (isteamgame() &&
+            if (GS::GetGame().isteamgame() &&
                 (!CVar::sv_friendlyfire) &
                     SpriteSystem::Get().GetSprite(spritec.brain.pissedoff).isinsameteam(spritec))
                 spritec.brain.pissedoff = 0;
 
         if (spritec.brain.targetnum > 0)
-            if (isteamgame() and
+            if (GS::GetGame().isteamgame() and
                 (CVar::sv_friendlyfire) &
                     SpriteSystem::Get().GetSprite(spritec.brain.targetnum).isnotinsameteam(spritec))
                 spritec.brain.pissedoff = 0;

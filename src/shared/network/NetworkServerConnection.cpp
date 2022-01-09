@@ -409,7 +409,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     knifecan[player->spritenum] = true;
     bulletwarningcount[player->spritenum] = 0;
     cheattag[player->spritenum] = 0;
-    votecooldown[player->spritenum] = default_vote_time;
+    GS::GetGame().ResetVoteCooldown(player->spritenum);
     lastplayer = player->spritenum; // for /kicklast command
 
     serversendnewplayerinfo(player->spritenum, join_normal);

@@ -21,6 +21,7 @@
 #include "../Game.hpp"
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <SDL2/SDL.h>
 #include <Tracy.hpp>
 
@@ -312,8 +313,8 @@ void controlsprite(tsprite &spritec)
                     else
                     {
                         if (spritec.deadmeat or
-                            ((isteamgame() && sprite.isinsameteam(spritec)) or
-                             ((!isteamgame()) && sprite.isnotinsameteam(spritec))))
+                            ((GS::GetGame().isteamgame() && sprite.isinsameteam(spritec)) or
+                             ((!GS::GetGame().isteamgame()) && sprite.isnotinsameteam(spritec))))
                         {
                             sprite.visible = 45;
                         }
@@ -1560,7 +1561,7 @@ void controlsprite(tsprite &spritec)
                 }
 
             // raise weapon above teammate when crouching
-            if (isteamgame())
+            if (GS::GetGame().isteamgame())
             {
                 for(auto& sprite : SpriteSystem::Get().GetActiveSprites())
                 {

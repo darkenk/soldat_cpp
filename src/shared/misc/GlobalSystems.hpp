@@ -3,6 +3,7 @@
 #include "common/misc/PortUtils.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/misc/GlobalSubsystem.hpp"
+#include "shared/Game.hpp"
 
 template<Config::Module M = Config::GetModule()>
 class GlobalSystems final : public GlobalSubsystem<GlobalSystems<M>>
@@ -11,6 +12,11 @@ class GlobalSystems final : public GlobalSubsystem<GlobalSystems<M>>
     static WeaponSystem& GetWeaponSystem()
     {
         return *GlobalSystems::Get().WeaponSystemObject;
+    }
+
+    static Game<M>& GetGame()
+    {
+        return Game<M>::Get();
     }
 
   protected:

@@ -11,6 +11,7 @@
 #include <vector>
 #ifdef SERVER
 #include "../../server/Server.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #endif
 
 #ifdef SERVER
@@ -18,7 +19,7 @@ TPlayers players;
 
 void TServerPlayer::applyshirtcolorfromteam()
 {
-    if ((CVar::sv_teamcolors) and isteamgame())
+    if ((CVar::sv_teamcolors) and GS::GetGame().isteamgame())
     {
         switch (team)
         {

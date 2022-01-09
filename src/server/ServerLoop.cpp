@@ -11,6 +11,7 @@
 #include "shared/Game.hpp"
 #include "shared/LogFile.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkServer.hpp"
 #include "shared/network/NetworkServerConnection.hpp"
 #include "shared/network/NetworkServerGame.hpp"
@@ -34,7 +35,7 @@ void apponidle()
     float adjust;
 
     // LogTraceG("AppOnIdle");
-    number27timing(); // makes the program go and do the timing calculations
+    GS::GetGame().number27timing(); // makes the program go and do the timing calculations
 
     // NET RECEIVE
     GetServerNetwork()->ProcessLoop();
@@ -431,7 +432,7 @@ void updateframe()
 
     if (bullettimetimer == 0)
     {
-        togglebullettime(false);
+        GS::GetGame().togglebullettime(false);
         bullettimetimer = -1;
     }
     else if (bullettimetimer < 1)
@@ -440,14 +441,14 @@ void updateframe()
         if ((mapchangecounter > -60) && (mapchangecounter < 99999999))
             mapchangecounter = mapchangecounter - 1;
         if ((mapchangecounter < 0) && (mapchangecounter > -59))
-            changemap();
+            GS::GetGame().changemap();
 
         // Game Stats save
         if (maintickcounter % CVar::log_filesupdate == 0)
         {
             if (CVar::log_enable)
             {
-                updategamestats();
+                GS::GetGame().updategamestats();
 
                 writelogfile(&GetKillLog(), GetKillLogFilename());
                 writelogfile(gamelog, consolelogfilename);
@@ -475,8 +476,9 @@ void updateframe()
                         if (!scrptdispatcher.onvotekickstart(255, j, "Server: Possible cheating"))
                         {
 #endif
-                            startvote(255, vote_kick, inttostr(j), "Server: Possible cheating");
-                            serversendvoteon(votetype, 255, inttostr(j),
+                            GS::GetGame().startvote(255, vote_kick, inttostr(j),
+                                                    "Server: Possible cheating");
+                            serversendvoteon(GS::GetGame().GetVoteType(), 255, inttostr(j),
                                              "Server: Possible cheating");
 #ifdef SCRIPT
                         }
@@ -575,9 +577,7 @@ void updateframe()
         if (waverespawncounter < 1)
             waverespawncounter = waverespawntime;
 
-        for (j = 1; j <= max_sprites; j++)
-            if (votecooldown[j] > -1)
-                votecooldown[j] = votecooldown[j] - 1;
+        GS::GetGame().TickVote();
 
         // Time Limit decrease
         if (mapchangecounter < 99999999)
@@ -610,7 +610,7 @@ void updateframe()
         LogTraceG("UpdateFrame 2");
 
         // voting timer
-        timervote();
+        GS::GetGame().timervote();
 
         // Consoles Update
         GetServerMainConsole().scrolltick = GetServerMainConsole().scrolltick + 1;
@@ -641,7 +641,7 @@ void updateframe()
                     if (maintickcounter % j == 0)
                     {
                         teamscore[2] += 1;
-                        sortplayers();
+                        GS::GetGame().sortplayers();
                     }
 
     // HTF mode team score point
@@ -675,7 +675,7 @@ void updateframe()
                                 if (htftime < htf_sec_point)
                                     htftime = htf_sec_point;
 
-                                sortplayers();
+                                GS::GetGame().sortplayers();
                             }
                         }
                     }

@@ -32,12 +32,13 @@ void clienthandlevoteon(SteamNetworkingMessage_t *netmessage)
 
     statsmenushow = false;
 
-    startvote(i, voteonmsg->votetype, voteonmsg->targetname.data(), voteonmsg->reason.data());
+    GS::GetGame().startvote(i, voteonmsg->votetype, voteonmsg->targetname.data(),
+                            voteonmsg->reason.data());
 }
 
 void clienthandlevoteoff()
 {
-    stopvote();
+    GS::GetGame().stopvote();
 }
 
 void clienthandleserversyncmsg(SteamNetworkingMessage_t *netmessage)

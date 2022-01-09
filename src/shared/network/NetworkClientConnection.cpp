@@ -412,8 +412,8 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     gamemenushow(escmenu, false);
     limbolock = false;
 
-    if (voteactive)
-        stopvote();
+    if (GS::GetGame().IsVoteActive())
+        GS::GetGame().stopvote();
 
     resetweaponstats();
 
@@ -568,7 +568,7 @@ void clienthandleserverdisconnect(SteamNetworkingMessage_t *netmessage)
     if (!verifypacket(sizeof(tmsg_serverdisconnect), netmessage->m_cbSize, msgid_serverdisconnect))
         return;
 
-    showmapchangescoreboard(0);
+    GS::GetGame().showmapchangescoreboard(0);
 
     if (!demoplayer.active())
         GetMainConsole().console(_("Server disconnected"), server_message_color);

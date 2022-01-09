@@ -9,6 +9,7 @@
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkServer.hpp"
 #include "shared/network/NetworkServerConnection.hpp"
 #include "shared/network/NetworkServerFunctions.hpp"
@@ -946,36 +947,36 @@ void commandvotemap(std::vector<std::string> &args, std::uint8_t sender)
 
     mapname = args[1];
 
-    if (voteactive)
+    if (GS::GetGame().IsVoteActive())
     {
         // check if the vote target is actually the target
-        if (votetarget != string(mapname))
+        if (GS::GetGame().GetVoteTarget() != string(mapname))
             return;
 
         // check if he already voted
-        if (votehasvoted[sender])
+        if (GS::GetGame().HasVoted(sender))
             return;
 
 #ifdef SCRIPT
         scrptdispatcher.onvotemap(sender, mapname);
 #endif
-        countvote(sender);
+        GS::GetGame().countvote(sender);
     }
     else
     {
         if (std::find(mapslist.begin(), mapslist.end(), mapname) !=
             mapslist.end()) /*and (MapExists(MapName, userdirectory))*/
         {
-            if (votecooldown[sender] < 0)
+            if (GS::GetGame().CanVote(sender))
             {
-                if (!voteactive)
+                if (!GS::GetGame().IsVoteActive())
                 {
 #ifdef SCRIPT
                     if (scrptdispatcher.onvotemapstart(sender, mapname))
                         return;
 #endif
-                    startvote(sender, vote_map, mapname, "---");
-                    serversendvoteon(votetype, sender, mapname, "---");
+                    GS::GetGame().startvote(sender, vote_map, mapname, "---");
+                    serversendvoteon(GS::GetGame().GetVoteType(), sender, mapname, "---");
                 }
             }
             else

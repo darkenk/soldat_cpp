@@ -6,6 +6,7 @@
 #include "../Game.hpp"
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <steam/isteamnetworkingmessages.h>
 
 // clang-format off
@@ -343,8 +344,8 @@ void serverspritedeltas(std::uint8_t i)
     for (j = 1; j <= max_sprites; j++)
         if (SpriteSystem::Get().GetSprite(j).active &&
             (SpriteSystem::Get().GetSprite(j).player->controlmethod == human) && (j != i))
-            if (pointvisible(spriteparts.pos[i].x, spriteparts.pos[i].y,
-                             SpriteSystem::Get().GetSprite(j).player->camera) or
+            if (GS::GetGame().pointvisible(spriteparts.pos[i].x, spriteparts.pos[i].y,
+                                           SpriteSystem::Get().GetSprite(j).player->camera) or
                 (SpriteSystem::Get().GetSprite(j).isspectator() &&
                  (SpriteSystem::Get().GetSprite(j).player->port == 0))) // visible to sprite
             {
@@ -367,8 +368,8 @@ void serverspritedeltas(std::uint8_t i)
         if ((sprite.player->controlmethod == human) && (j != i))
             if ((weaponsmsg.weaponnum != oldweaponsmsg[j][i].weaponnum) ||
                 (weaponsmsg.secondaryweaponnum != oldweaponsmsg[j][i].secondaryweaponnum))
-                if (pointvisible(spriteparts.pos[i].x, spriteparts.pos[i].y,
-                                 sprite.player->camera) or
+                if (GS::GetGame().pointvisible(spriteparts.pos[i].x, spriteparts.pos[i].y,
+                                               sprite.player->camera) or
                     (sprite.isspectator() && (sprite.player->port == 0))) // visible to sprite
                 {
                     GetServerNetwork()->senddata(&weaponsmsg, sizeof(weaponsmsg),

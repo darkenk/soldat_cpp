@@ -3,6 +3,7 @@
 
 #include "Client.hpp"
 #include "ClientGame.hpp"
+#include "ControlGame.hpp"
 #include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
 #include "common/misc/PortUtils.hpp"
@@ -294,7 +295,7 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                     mapchangecounter = -60;
                     selteam = 0;
                 }
-                else if ((mysprite == 0) && isteamgame())
+                else if ((mysprite == 0) && GS::GetGame().isteamgame())
                 {
                     result = true;
                     gamemenushow(teammenu);

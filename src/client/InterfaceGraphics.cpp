@@ -2,6 +2,7 @@
 
 #include "Client.hpp"
 #include "ClientGame.hpp"
+#include "ControlGame.hpp"
 #include "GameMenus.hpp"
 #include "GameRendering.hpp"
 #include "Gfx.hpp"
@@ -1061,7 +1062,7 @@ void renderendgametexts(float fragmenubottom)
 
     i = sortedplayers[1].playernum;
 
-    if (isteamgame())
+    if (GS::GetGame().isteamgame())
     {
         gfxtextverticalalign(gfx_bottom);
 
@@ -1181,7 +1182,7 @@ void renderfragsmenutexts(float fragmenubottom)
     y = fragy - (fragsscrolllev * 20);
 
     // team lines
-    if (isteamgame())
+    if (GS::GetGame().isteamgame())
     {
         nextitemstep = 0;
         k = 0;
@@ -1283,7 +1284,7 @@ void renderfragsmenutexts(float fragmenubottom)
     gfxtextcolor(rgba(200, 190, 180, 240));
     gfxdrawtext(("Players"), x + 330, y + 15);
 
-    if (isteamgame())
+    if (GS::GetGame().isteamgame())
     {
         j = iif(CVar::sv_gamemode == gamestyle_teammatch, 4, 2);
 
@@ -1331,7 +1332,7 @@ void renderfragsmenutexts(float fragmenubottom)
 
         if (SpriteSystem::Get().GetSprite(i).isspectator())
             k = 5;
-        else if (isteamgame())
+        else if (GS::GetGame().isteamgame())
             k = SpriteSystem::Get().GetSprite(i).player->team;
 
         if (k == 5)
@@ -1367,7 +1368,7 @@ void renderfragsmenutexts(float fragmenubottom)
     }
 
     // team captions
-    if (isteamgame())
+    if (GS::GetGame().isteamgame())
     {
         for (j = 1; j <= 6; j++)
         {
@@ -1695,7 +1696,7 @@ void renderrespawnandsurvivaltexts()
         {
             gfxtextcolor(rgba(115, 255, 100));
 
-            if (!isteamgame())
+            if (!GS::GetGame().isteamgame())
                 str1 = (inttostr(alivenum)) + ' ' + ("players left");
             else
                 str1 = (inttostr(teamalivenum[me->player->team])) + ' ' + ("team players left");
@@ -1782,22 +1783,22 @@ void rendervotemenutexts()
     float x, y;
     std::array<std::string, 2> str1;
 
-    if (voteactive)
+    if (GS::GetGame().IsVoteActive())
     {
         setfontstyle(font_weapons_menu);
 
         x = 45 * _iscala.x;
         y = 400 * _iscala.y;
-        if (votetype == vote_kick)
+        if (GS::GetGame().GetVoteType() == vote_kick)
             str1[0] = ("Kick");
         else
             str1[0] = ("Map");
 
-        str1[1] = (votetarget);
+        str1[1] = (GS::GetGame().GetVoteTarget());
 
-        if (votetype == vote_kick)
+        if (GS::GetGame().GetVoteType() == vote_kick)
         {
-            i = strtoint(votetarget);
+            i = strtoint(GS::GetGame().GetVoteTarget());
 
             if ((i > 0) && (i <= max_sprites))
                 str1[1] = (SpriteSystem::Get().GetSprite(i).player->name);
@@ -1810,8 +1811,8 @@ void rendervotemenutexts()
         gfxdrawtext(str1[1], x + 65, y);
 
         gfxtextcolor(rgba(224, 218, 244, 205));
-        gfxdrawtext(("Voter: ") + (votestarter), x + 10, y + 11);
-        gfxdrawtext(("Reason: ") + (votereason), x + 10, y + 20);
+        gfxdrawtext(("Voter: ") + (GS::GetGame().GetVoteStarter()), x + 10, y + 11);
+        gfxdrawtext(("Reason: ") + (GS::GetGame().GetVoteReason()), x + 10, y + 20);
 
         gfxtextcolor(rgba(234, 234, 114, 205));
         gfxdrawtext(("F12 - Yes   F11 - No"), x + 50, y + 31);
@@ -2662,7 +2663,7 @@ void renderinterface(float timeelapsed, float width, float height)
                             SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).isspectator())
                             continue;
 
-                        if (isteamgame())
+                        if (GS::GetGame().isteamgame())
                         {
                             // New team based score board
                             if (SpriteSystem::Get()
@@ -2799,11 +2800,11 @@ void renderinterface(float timeelapsed, float width, float height)
                         gfxdrawsprite(
                             t[GFX::INTERFACE_CONNECTION], pixelalignx(fragx + 520),
                             pixelaligny(y + 2),
-                            rgba((std::uint8_t)((
-                                     (255 * (100 - SpriteSystem::Get()
-                                                       .GetSprite(sortedplayers[j].playernum)
-                                                       .player->connectionquality)) /
-                                     100)),
+                            rgba((std::uint8_t)(
+                                     ((255 * (100 - SpriteSystem::Get()
+                                                        .GetSprite(sortedplayers[j].playernum)
+                                                        .player->connectionquality)) /
+                                      100)),
                                  (std::uint8_t)((255 * SpriteSystem::Get()
                                                            .GetSprite(sortedplayers[j].playernum)
                                                            .player->connectionquality) /
@@ -2867,7 +2868,7 @@ void renderinterface(float timeelapsed, float width, float height)
     }
 
     // vote on
-    if (voteactive)
+    if (GS::GetGame().IsVoteActive())
     {
         gfxdrawsprite(t[GFX::INTERFACE_BACK], 45 * _iscala.x, 400 * _iscala.y,
                       (float)(252) / background_width, (float)(40) / background_width,
@@ -2875,7 +2876,7 @@ void renderinterface(float timeelapsed, float width, float height)
     }
 
     // Team Box
-    if (int_.team && !demoplayer.active() && isteamgame())
+    if (int_.team && !demoplayer.active() && GS::GetGame().isteamgame())
     {
         x = int_.teambox_x * _iscala.x;
         y = int_.teambox_y * _iscala.y;

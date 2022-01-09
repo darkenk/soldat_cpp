@@ -15,6 +15,7 @@
 #include "common/gfx.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <limits>
 
 // clang-format off
@@ -337,59 +338,59 @@ void clienthandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
             client_message_color);
         break;
     }
-    if (voteactive)
+    if (GS::GetGame().IsVoteActive())
         switch (playermsg->why)
         {
         case kick_noresponse:
-            if (votetarget == inttostr(playermsg->num))
-                stopvote();
+            if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+                GS::GetGame().stopvote();
             break;
         case kick_nocheatresponse:
-            if (votetarget == inttostr(playermsg->num))
-                stopvote();
+            if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+                GS::GetGame().stopvote();
             break;
         case kick_ping:
-            if (votetarget == inttostr(playermsg->num))
-                stopvote();
+            if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+                GS::GetGame().stopvote();
             break;
         case kick_flooding:
-            if (votetarget == inttostr(playermsg->num))
-                stopvote();
+            if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+                GS::GetGame().stopvote();
             break;
         case kick_console:
-            if (votetarget == inttostr(playermsg->num))
-                stopvote();
+            if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+                GS::GetGame().stopvote();
             break;
         case kick_connectcheat:
-            if (votetarget == inttostr(playermsg->num))
-                stopvote();
+            if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+                GS::GetGame().stopvote();
             break;
         case kick_cheat:
-            if (votetarget == inttostr(playermsg->num))
-                stopvote();
+            if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+                GS::GetGame().stopvote();
             break;
         case kick_voted:
-            if (votetarget == inttostr(playermsg->num))
-                stopvote();
+            if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+                GS::GetGame().stopvote();
             break;
         case kick_ac:
-            if (votetarget == inttostr(playermsg->num))
-                stopvote();
+            if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+                GS::GetGame().stopvote();
             break;
         case kick_silent:
-            if (votetarget == inttostr(playermsg->num))
-                stopvote();
+            if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+                GS::GetGame().stopvote();
             break;
         }
 
     if (playermsg->why != kick_changeteam)
         SpriteSystem::Get().GetSprite(playermsg->num).kill();
 
-    sortplayers();
+    GS::GetGame().sortplayers();
 
     if ((playermsg->num == mysprite) && (mapchangecounter < 1))
     {
-        showmapchangescoreboard();
+        GS::GetGame().showmapchangescoreboard();
         gamemenushow(teammenu, false);
     }
 
@@ -433,7 +434,7 @@ void clienthandlemapchange(SteamNetworkingMessage_t *netmessage)
 
     if (demoplayer.active())
     {
-        showmapchangescoreboard(0);
+        GS::GetGame().showmapchangescoreboard(0);
 
         demoplayer.stopdemo();
         return;

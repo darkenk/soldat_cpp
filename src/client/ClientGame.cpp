@@ -12,6 +12,7 @@
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientSprite.hpp"
 #include <SDL2/SDL.h>
@@ -332,7 +333,7 @@ void gameloop()
 
             if (noheartbeattime == disconnection_time)
             {
-                showmapchangescoreboard();
+                GS::GetGame().showmapchangescoreboard();
 
                 gamemenushow(teammenu, false);
 

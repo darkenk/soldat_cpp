@@ -13,6 +13,7 @@
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>
 #include <numbers>
 #include <set>
@@ -39,7 +40,7 @@ std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
     {
         if (camerafollowsprite == mysprite)
         {
-            if (!pointvisible(spos.x, spos.y, camerafollowsprite) && (sstyle != 38))
+            if (!GS::GetGame().pointvisible(spos.x, spos.y, camerafollowsprite) && (sstyle != 38))
             {
                 result = 0;
                 return result;
@@ -47,7 +48,7 @@ std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
         }
 
         if (camerafollowsprite != mysprite)
-            if (!pointvisible2(spos.x, spos.y, camerafollowsprite) && (sstyle != 38))
+            if (!GS::GetGame().pointvisible2(spos.x, spos.y, camerafollowsprite) && (sstyle != 38))
             {
                 result = 0;
                 return result;
@@ -119,7 +120,8 @@ void tspark::update()
     // wobble the screen when explosion
     if ((mysprite > 0) && (camerafollowsprite > 0) && (!demoplayer.active()))
         if ((style == 17) || (style == 12) || (style == 14) || (style == 15) || (style == 28))
-            if (pointvisible(sparkparts.pos[num].x, sparkparts.pos[num].y, camerafollowsprite))
+            if (GS::GetGame().pointvisible(sparkparts.pos[num].x, sparkparts.pos[num].y,
+                                           camerafollowsprite))
                 if (life > explosion_anims * 2.3)
                 // if ((Style = 17) and (Life > EXPLOSION_ANIMS * 2.5)) or
                 // ((Style <> 17) and (Life > EXPLOSION_ANIMS * 2.4)) then

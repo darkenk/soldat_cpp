@@ -27,6 +27,8 @@
 #include "shared/misc/GlobalVariableStorage.cpp"
 // clang-format on
 
+bool votekickreasontype = false;
+
 void clearchattext()
 {
     lastchattext = chattext;
@@ -245,8 +247,8 @@ bool keydown(SDL_KeyboardEvent &keyevent)
     pbind bind;
     taction action;
 
-    bool result;
-    result = true;
+    bool result = true;
+    auto &game = GS::GetGame();
     keycode = keyevent.keysym.scancode;
 
     keymods = (ord(0 != (keyevent.keysym.mod & KMOD_ALT)) << 0) |
@@ -283,27 +285,29 @@ bool keydown(SDL_KeyboardEvent &keyevent)
         break;
 
         case SDL_SCANCODE_F11: {
-            result = voteactive;
-            voteactive = false;
+            result = game.IsVoteActive();
+            game.SetVoteActive(false);
         }
         break;
 
         case SDL_SCANCODE_F12: {
-            result = voteactive;
+            result = game.IsVoteActive();
 
-            if (voteactive)
+            if (game.IsVoteActive())
             {
-                voteactive = false;
+                game.SetVoteActive(false);
 
-                if (votetype == vote_map)
+                if (game.GetVoteType() == vote_map)
                 {
-                    clientsendstringmessage(std::string("votemap ") + (votetarget), msgtype_cmd);
-                    GetMainConsole().console(wideformat(_("You have voted on " + votetarget)),
-                                             vote_message_color);
+                    clientsendstringmessage(std::string("votemap ") + (game.GetVoteTarget()),
+                                            msgtype_cmd);
+                    GetMainConsole().console(
+                        wideformat(_("You have voted on " + game.GetVoteTarget())),
+                        vote_message_color);
                 }
-                else if (votetype == vote_kick)
+                else if (game.GetVoteType() == vote_kick)
                 {
-                    i = strtoint(votetarget);
+                    i = strtoint(game.GetVoteTarget());
                     clientvotekick(i, true, "");
                     GetMainConsole().console(
                         wideformat(_("You have voted to kick " +
@@ -573,7 +577,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
     else if (action == taction::teamchat)
     {
         if ((chattext == "") && (mysprite > 0) &&
-            (SpriteSystem::Get().GetSprite(mysprite).isspectator() || isteamgame()))
+            (SpriteSystem::Get().GetSprite(mysprite).isspectator() || GS::GetGame().isteamgame()))
         {
             SDL_StartTextInput();
             chattext = ' ';

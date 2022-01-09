@@ -8,6 +8,7 @@
 #include "NetworkUtils.hpp"
 #include "common/Util.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 #include <string>
 
@@ -38,11 +39,11 @@ void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
 
     messagesasecnum[playermsg->num] += 1;
 
-    if ((voteactive) && (votetype == vote_kick))
-        if (strtoint(votetarget) == i)
+    if ((GS::GetGame().IsVoteActive()) && (GS::GetGame().GetVoteType() == vote_kick))
+        if (strtoint(GS::GetGame().GetVoteTarget()) == i)
         {
             kickplayer(i, true, kick_voted, five_minutes, "Vote Kicked (Left game)");
-            stopvote();
+            GS::GetGame().stopvote();
             return;
         }
 
@@ -187,7 +188,7 @@ void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string ta
 
     votemsg.header.id = msgid_voteon;
     votemsg.votetype = votestyle;
-    votemsg.timer = votetimeremaining;
+    votemsg.timer = GS::GetGame().GetVoteTimeRemaining();
     votemsg.who = voter;
     stringtoarray(votemsg.targetname.data(), targetname);
     stringtoarray(votemsg.reason.data(), reason);
@@ -231,13 +232,13 @@ void serverhandlevotekick(SteamNetworkingMessage_t *netmessage)
     player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
     i = player->spritenum;
 
-    if (voteactive)
+    if (GS::GetGame().IsVoteActive())
     {
         // if a vote against a player is in progress,
         // don't allow that player to vote against himself.
-        if (votetype != vote_kick)
+        if (GS::GetGame().GetVoteType() != vote_kick)
             return;
-        if (strtoint(votetarget) == i)
+        if (strtoint(GS::GetGame().GetVoteTarget()) == i)
         {
             serversendstringmessage("A vote has been cast against you. You can not vote.", i, 255,
                                     msgtype_pub);
@@ -245,21 +246,21 @@ void serverhandlevotekick(SteamNetworkingMessage_t *netmessage)
         }
 
         // check if he already voted
-        if (votehasvoted[i])
+        if (GS::GetGame().HasVoted(i))
             return;
 
         // check if the vote target is actually the target
-        if (votetarget != inttostr(votekickmsg->num))
+        if (GS::GetGame().GetVoteTarget() != inttostr(votekickmsg->num))
             return;
 
 #ifdef SCRIPT
         scrptdispatcher.onvotekick(i, votekickmsg.num);
 #endif
-        countvote(i);
+        GS::GetGame().countvote(i);
     }
     else
     {
-        if (votecooldown[i] < 0)
+        if (GS::GetGame().IsVoteActive())
         {
             // only allow valid votes
             if ((votekickmsg->num < 1) || (votekickmsg->num > max_players))
@@ -275,8 +276,10 @@ void serverhandlevotekick(SteamNetworkingMessage_t *netmessage)
                 return;
 #endif
 
-            startvote(i, vote_kick, inttostr(votekickmsg->num), votekickmsg->reason.data());
-            serversendvoteon(votetype, i, inttostr(votekickmsg->num), votekickmsg->reason.data());
+            GS::GetGame().startvote(i, vote_kick, inttostr(votekickmsg->num),
+                                    votekickmsg->reason.data());
+            serversendvoteon(GS::GetGame().GetVoteType(), i, inttostr(votekickmsg->num),
+                             votekickmsg->reason.data());
             // Show started votekick in admin console
             GetServerMainConsole().console(
                 SpriteSystem::Get().GetSprite(i).player->name + " started votekick against " +

@@ -199,7 +199,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     sprite.bulletcount = Random(std::numeric_limits<std::uint16_t>::max()); // FIXME wat?
     sprite.freecontrols();
 
-    sortplayers(); // sort the players frag list
+    GS::GetGame().sortplayers(); // sort the players frag list
     return result;
 }
 
@@ -720,7 +720,8 @@ void Sprite<M>::update()
             // WEAPON HANDLING
 #ifndef SERVER
             if ((num == mysprite) || (weapon.fireinterval <= fireinterval_net) or
-                !pointvisible(spriteparts.pos[num].x, spriteparts.pos[num].y, camerafollowsprite))
+                !GS::GetGame().pointvisible(spriteparts.pos[num].x, spriteparts.pos[num].y,
+                                            camerafollowsprite))
 #endif
                 if ((weapon.fireintervalcount > 0) &&
                     ((weapon.ammocount > 0) || (weapon.num == guns[spas12].num)))
@@ -1347,7 +1348,7 @@ void Sprite<M>::kill()
 #endif
 
     // sort the players frag list
-    sortplayers();
+    GS::GetGame().sortplayers();
 }
 
 #ifndef SERVER
@@ -1451,7 +1452,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
                 if (k < 1)
                 {
-                    togglebullettime(true);
+                    GS::GetGame().togglebullettime(true);
                 }
             }
 
@@ -1791,7 +1792,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
 #ifndef SERVER
         if (((who == mysprite) || (num == mysprite)) && (what > 0) &&
-            ispointonscreen(skeleton.pos[9]))
+            GS::GetGame().ispointonscreen(skeleton.pos[9]))
         {
             if ((who == mysprite) && (num == mysprite))
                 ;
@@ -2244,7 +2245,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     SpriteSystem::Get().GetSprite(who).brain.pissedoff = 0;
 
     // sort the players frag list
-    sortplayers();
+    GS::GetGame().sortplayers();
 }
 
 template <Config::Module M>
@@ -3860,7 +3861,7 @@ void Sprite<M>::changeteam(std::int32_t team)
 
         if (!player->demoplayer)
             serversendnewplayerinfo(num, jointype);
-        sortplayers();
+        GS::GetGame().sortplayers();
         LogDebugG("Player switched teams");
 #endif
 
@@ -4513,7 +4514,8 @@ void Sprite<M>::fire()
     {
         if (weapon.num != guns[chainsaw].num)
         {
-            if (pointvisible(spriteparts.pos[num].x, spriteparts.pos[num].y, camerafollowsprite))
+            if (GS::GetGame().pointvisible(spriteparts.pos[num].x, spriteparts.pos[num].y,
+                                           camerafollowsprite))
             {
                 if ((weapon.num == guns[m249].num) || (weapon.num == guns[spas12].num) ||
                     (weapon.num == guns[barrett].num) || (weapon.num == guns[minigun].num))
