@@ -506,6 +506,7 @@ void serversendplaylist(HSteamNetConnection peer)
 
     stringtoarray(playerslist.modname.data(), CVar::fs_mod);
     playerslist.modchecksum = custommodchecksum;
+    auto &map = GS::GetGame().GetMap();
 
     stringtoarray(playerslist.mapname.data(), map.name);
     playerslist.mapchecksum = mapchecksum;

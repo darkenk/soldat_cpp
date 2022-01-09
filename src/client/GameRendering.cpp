@@ -22,6 +22,7 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 #include <SDL2/SDL.h>
 #include <Tracy.hpp>
@@ -564,6 +565,8 @@ bool initgamegraphics()
     loadmaintextures();
     loadinterface();
     loadfonts();
+
+    auto &map = GS::GetGame().GetMap();
 
     map.loadgraphics = &loadmapgraphics;
     if (!gfxframebuffersupported())

@@ -779,7 +779,7 @@ void updateframe()
                 if (randomizestart(m, 14))
                     teamflag[1] = creatething(m, 255, object_pointmatch_flag, 255);
         }
-
+    auto &map = GS::GetGame().GetMap();
     if ((CVar::demo_autorecord) && (demorecorder.active() == false) && (map.name != ""))
     {
         NotImplemented(NITag::OTHER);

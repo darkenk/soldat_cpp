@@ -72,6 +72,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     tvector2 bstraight;
     tvector2 bnorm;
     float bulletspread;
+    auto &map = GS::GetGame().GetMap();
 
     if (!verifypacket(sizeof(tmsg_clientbulletsnapshot), netmessage->m_cbSize,
                       msgid_bulletsnapshot))

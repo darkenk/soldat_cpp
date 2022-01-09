@@ -87,7 +87,7 @@ void twaypoints::savetofile(const std::string &filename)
 }
 
 std::int32_t twaypoints::findclosest(float x, float y, std::int32_t radius,
-                                     std::int32_t currwaypoint)
+                                     std::int32_t currwaypoint) const
 
 {
     ZoneScopedN("TWaypoints::FindClosest");

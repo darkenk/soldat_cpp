@@ -7,6 +7,7 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <steam/isteamnetworkingmessages.h>
 
 // clang-format off
@@ -47,7 +48,7 @@ void serverheartbeat()
         [[deprecated("indexing")]] auto jminus1 = j - 1;
         heartbeatmsg.teamscore[jminus1] = teamscore[j];
     }
-
+    auto &map = GS::GetGame().GetMap();
     heartbeatmsg.mapid = map.mapid;
     if (mapchangecounter > 0)
         heartbeatmsg.mapid = 0;

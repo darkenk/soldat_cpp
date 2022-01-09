@@ -578,6 +578,8 @@ bool spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num)
     spawnscount = 0;
     previousspawn = 0;
 
+    auto &map = GS::GetGame().GetMap();
+
     for (i = 1; i <= 255; i++)
     {
         if (map.spawnpoints[i].active)
@@ -638,6 +640,8 @@ bool randomizestart(tvector2 &start, std::uint8_t team)
 
     start.x = 0;
     start.y = 0;
+
+    auto &map = GS::GetGame().GetMap();
 
     for (i = 1; i <= max_spawnpoints; i++)
         spawns[i] = -1;
@@ -792,6 +796,7 @@ void Thing<M>::update()
 #ifdef SERVER
     LogTraceG("TThing.Update 1");
 #endif
+    auto &map = GS::GetGame().GetMap();
 
     // check if flag is in base
     switch (style)
@@ -1442,6 +1447,8 @@ bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
     pos.x = x;
     pos.y = y - 0.5;
 
+    auto &map = GS::GetGame().GetMap();
+
     // iterate through map polygons
     const auto sector = map.GetSector(pos);
     if (sector.IsValid())
@@ -1615,6 +1622,7 @@ void Thing<M>::checkoutofbounds()
 #ifdef SERVER
     LogTraceG("TThing.CheckOutOfBounds");
 #endif
+    auto &map = GS::GetGame().GetMap();
 
     bound = map.sectorsnum * map.GetSectorsDivision() - 10;
 

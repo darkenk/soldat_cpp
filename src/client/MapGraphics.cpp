@@ -8,6 +8,7 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <array>
 #include <cmath>
 #include <physfs.h>
@@ -413,6 +414,8 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
     // calculate edge count
 
     edgecount = 0;
+
+    auto &map = GS::GetGame().GetMap();
 
     if (CVar::r_smoothedges)
     {

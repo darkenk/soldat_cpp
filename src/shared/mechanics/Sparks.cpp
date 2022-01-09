@@ -97,7 +97,6 @@ std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
     return result;
 }
 
-// TSPARK
 void tspark::update()
 {
     static const std::set<std::int32_t> noneuler_style = {12, 13, 14, 15, 17, 24, 25, 28,
@@ -168,6 +167,7 @@ void tspark::render()
     float grenvel = 0.0;
     float l;
     std::int32_t i;
+    auto &map = GS::GetGame().GetMap();
 
     tgfxspritearray &t = textures;
     if (CVar::sv_realisticmode)
@@ -542,6 +542,7 @@ bool tspark::checkmapcollision(float x, float y)
 
     pos.x = x - 8;
     pos.y = y - 1;
+    auto &map = GS::GetGame().GetMap();
 
     /*iterate through maps sector polygons*/
     auto const sector = map.GetSector(pos);
@@ -706,6 +707,7 @@ void tspark::checkoutofbounds()
 {
     std::int32_t bound;
     tvector2 *sparkpartspos;
+    auto &map = GS::GetGame().GetMap();
 
     bound = map.sectorsnum * map.GetSectorsDivision() - 10;
     sparkpartspos = &sparkparts.pos[num];

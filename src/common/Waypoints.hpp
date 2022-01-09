@@ -28,7 +28,7 @@ class twaypoints
 
     void loadfromfile(const std::string &filename);
     void savetofile(const std::string &filename);
-    std::int32_t findclosest(float x, float y, std::int32_t radius, std::int32_t currwaypoint);
+    std::int32_t findclosest(float x, float y, std::int32_t radius, std::int32_t currwaypoint) const;
     std::int32_t createwaypoint(std::int32_t sx, std::int32_t sy, std::int32_t spath);
 };
 

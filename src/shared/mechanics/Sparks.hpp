@@ -2,6 +2,8 @@
 #include "common/Vector.hpp"
 #include <cstdint>
 
+class Polymap;
+
 class tspark
 {
   public:

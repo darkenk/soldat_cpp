@@ -802,6 +802,8 @@ void startserver()
     mapindex = 0;
     // StartMap = MapsList[MapIndex];
 
+    auto &map = GS::GetGame().GetMap();
+
     // Load Map
     NotImplemented(NITag::NETWORK, "Is it really commented in reference version");
     /*

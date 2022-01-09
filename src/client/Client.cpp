@@ -147,6 +147,8 @@ void restartgraph()
 
     dotextureloading(true);
 
+    auto &map = GS::GetGame().GetMap();
+
     // Load Map
     map.loadmap(mapchange, CVar::r_forcebg, CVar::r_forcebg_color1, CVar::r_forcebg_color2);
 
@@ -254,6 +256,8 @@ void exittomenu()
     }
 
     stopsound(channel_weather);
+
+    auto &map = GS::GetGame().GetMap();
 
     map.name = "";
 

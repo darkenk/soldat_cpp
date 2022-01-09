@@ -12,6 +12,7 @@
 #include "common/Logging.hpp"
 #include "common/gfx.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -322,6 +323,8 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
     tvector2 b;
     std::uint32_t col, col2;
     float hm = 0.0;
+
+    auto &map = GS::GetGame().GetMap();
 
     if (!verifypacket(sizeof(tmsg_spritedeath), netmessage->m_cbSize, msgid_spritedeath))
         return;

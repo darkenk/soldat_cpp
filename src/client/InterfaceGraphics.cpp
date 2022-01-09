@@ -865,6 +865,8 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
 
     me = &SpriteSystem::Get().GetSprite(playerindex);
 
+    auto &map = GS::GetGame().GetMap();
+
     if (!me->deadmeat)
     {
         setfontstyle(font_menu);
@@ -1976,6 +1978,8 @@ void renderinterface(float timeelapsed, float width, float height)
     gfxdrawtext(soldat_version_long, 565 * _iscala.x, 465 * _iscala.y);
 #endif
     /*#include "fend.pas"*/
+
+    auto &map = GS::GetGame().GetMap();
 
     if (mysprite > 0)
         spriteme = &SpriteSystem::Get().GetSprite(mysprite);

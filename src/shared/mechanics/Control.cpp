@@ -53,6 +53,7 @@ bool checkspritelineofsightvisibility(tsprite &looksprite, tsprite &spritetochec
     lookpoint.y = looksprite.control.mouseaimy - (looksprite.skeleton.pos[7].y - 2);
     vec2normalize(startpoint, startpoint);
     vec2normalize(lookpoint, lookpoint);
+    auto &map = GS::GetGame().GetMap();
     if (vec2dot(startpoint, lookpoint) > 0.0) // 0.5 = 90 fov, 0.0 = 180 fov, -0.5 = 270 fov
     {
         lookpoint.x = looksprite.skeleton.pos[7].x;
@@ -90,6 +91,8 @@ void controlsprite(tsprite &spritec)
     tvector2 playervelocity;
     bool playerpressedleftright = false;
     bool unprone;
+
+    auto &map = GS::GetGame().GetMap();
 
     switch (spritec.style)
     {
@@ -331,7 +334,7 @@ void controlsprite(tsprite &spritec)
         }
 #endif
 #ifdef SERVER
-        controlbot(spritec);
+        controlbot(spritec, GS::GetGame().GetBotPath());
 #endif
 
         if (spritec.deadmeat)

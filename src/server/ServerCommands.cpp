@@ -126,6 +126,7 @@ void commandunpause(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandrestart(std::vector<std::string> &args, std::uint8_t sender)
 {
+    auto &map = GS::GetGame().GetMap();
     mapchangename = map.name;
     mapchangecounter = mapchangetime;
     servermapchange(all_players); // Inform clients of Map Change

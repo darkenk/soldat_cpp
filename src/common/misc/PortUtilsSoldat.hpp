@@ -85,6 +85,17 @@ struct PascalArray
         return m_data.end();
     }
 
+
+    auto begin() const noexcept
+    {
+        return m_data.begin();
+    }
+
+    auto end() const noexcept
+    {
+        return m_data.end();
+    }
+
   private:
     std::array<Tp, EndIndex - StartIndex + 1> m_data;
 };

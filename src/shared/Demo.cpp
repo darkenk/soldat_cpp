@@ -81,7 +81,7 @@ bool tdemorecorder<M>::startrecord(const string &filename)
     fdemoheader.version = demo_version;
 
     fillchar(fdemoheader.mapname.data(), sizeof(fdemoheader.mapname), '\0');
-    stringtoarray(fdemoheader.mapname, map.name);
+    stringtoarray(fdemoheader.mapname, GS::GetGame().GetMap().name);
 
     fdemofile.writebuffer(&fdemoheader, sizeof(fdemoheader));
 
@@ -115,7 +115,7 @@ void tdemorecorder<M>::stoprecord()
     fdemoheader.ticksnum = ticksnum();
 
     fillchar(fdemoheader.mapname.data(), sizeof(fdemoheader.mapname), '\0');
-    stringtoarray(fdemoheader.mapname, map.name);
+    stringtoarray(fdemoheader.mapname, GS::GetGame().GetMap().name);
 
     fdemofile.writebuffer(&fdemoheader, sizeof(fdemoheader));
 
@@ -162,6 +162,7 @@ std::int32_t tdemorecorder<M>::createdemoplayer()
 #ifdef SERVER
     player.peer = std::numeric_limits<std::uint32_t>::max();
 #endif
+    auto &map = GS::GetGame().GetMap();
 
     a.x = min_sectorz * map.GetSectorsDivision() * 0.7;
     a.y = min_sectorz * map.GetSectorsDivision() * 0.7;

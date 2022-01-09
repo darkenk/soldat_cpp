@@ -274,7 +274,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     }
 
     // Initialize Map
-
+    auto &map = GS::GetGame().GetMap();
     if (getmapinfo(mapname, GS::GetGame().GetUserDirectory(), mapstatus) /*&&
         verifymapchecksum(mapstatus, playerslistmsg->mapchecksum)*/)
     {

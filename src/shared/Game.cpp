@@ -452,9 +452,9 @@ void Game<M>::changemap()
     LogDebugG("ChangeMap");
     mapslist.clear();
 
-    if (fileexists(userdirectory + std::string(CVar::sv_maplist)))
+    if (fileexists(UserDirectory + std::string(CVar::sv_maplist)))
     {
-        mapslist.loadfromfile(userdirectory + std::string(CVar::sv_maplist));
+        mapslist.loadfromfile(UserDirectory + std::string(CVar::sv_maplist));
         auto it = std::remove(mapslist.begin(), mapslist.end(), "");
         mapslist.erase(it, mapslist.end());
     }
@@ -898,6 +898,11 @@ void Game<M>::TickVote()
             VoteCooldown[j] = VoteCooldown[j] - 1;
         }
     }
+}
+
+template <Config::Module M>
+Game<M>::Game() : map(botpath)
+{
 }
 
 template class Game<>;

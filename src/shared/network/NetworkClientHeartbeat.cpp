@@ -26,6 +26,8 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
 
     heartbeat = pmsg_heartbeat(netmessage->m_pData);
 
+    auto &map = GS::GetGame().GetMap();
+
     auto c = 0;
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {

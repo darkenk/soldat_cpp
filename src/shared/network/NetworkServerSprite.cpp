@@ -427,6 +427,7 @@ void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
     i = player->spritenum;
 
     auto &sprite = SpriteSystem::Get().GetSprite(i);
+    auto &map = GS::GetGame().GetMap();
 
     messagesasecnum[i] += 1;
 
@@ -508,6 +509,7 @@ void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage)
     if (sprite.deadmeat)
         return;
 
+    auto &map = GS::GetGame().GetMap();
     map.checkoutofbounds(clientmovmsg.pos.x, clientmovmsg.pos.y);
     map.checkoutofbounds(clientmovmsg.velocity.x, clientmovmsg.velocity.y);
 

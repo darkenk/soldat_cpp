@@ -52,7 +52,7 @@ std::int32_t checkdistance(float posa, float posb)
     return result;
 }
 
-void simpledecision(std::uint8_t snum)
+void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 {
     tvector2 m, t, tv;
     std::int32_t disttotargetx, disttotargety, dist;
@@ -504,7 +504,7 @@ void gotothing(std::uint8_t snum, std::uint8_t tnum)
     }
 }
 
-void controlbot(tsprite &spritec)
+void controlbot(tsprite &spritec, const twaypoints &botpath)
 {
     ZoneScopedN("ControlBot");
     tvector2 b, lookpoint, startpoint;
@@ -512,6 +512,8 @@ void controlbot(tsprite &spritec)
     bool seeclosest, seething, runaway;
     float d, d2, dt;
     bool tempb;
+
+    auto &map = GS::GetGame().GetMap();
 
     if ((spritec.player->controlmethod == bot) && !spritec.deadmeat && !spritec.dummy)
     // if (MainTickCounter mod (SECOND * 2) = 0) then
@@ -881,7 +883,7 @@ void controlbot(tsprite &spritec)
                 (botpath.waypoint[spritec.brain.currentwaypoint].c1 == 0))
                 spritec.brain.currentwaypoint = 0;
 
-            simpledecision(spritec.num);
+            simpledecision(spritec.num, botpath);
 
             // Camp
             if ((spritec.brain.currentwaypoint > 0) &&

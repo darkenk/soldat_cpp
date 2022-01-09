@@ -45,6 +45,8 @@ void update_frame()
     mouseprev.x = mx;
     mouseprev.y = my;
 
+    auto &map = GS::GetGame().GetMap();
+
     if (mapchangecounter < 0)
     {
         ZoneScopedN("Update1");

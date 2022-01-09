@@ -22,6 +22,7 @@
 #include "common/Util.hpp"
 #include "common/gfx.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>
 #include <limits>
 #include <numbers>
@@ -774,6 +775,8 @@ void Bullet<M>::render(double timeelapsed)
     tgfxspritearray &t = textures;
     bulletpos = bulletparts.pos[num];
 
+    auto &map = GS::GetGame().GetMap();
+
     if (CVar::sv_realisticmode)
         if ((owner > 0) && (owner < max_sprites + 1))
             if (SpriteSystem::Get().GetSprite(owner).IsActive())
@@ -1122,6 +1125,7 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
 #ifdef SERVER
     LogTraceG("TBullet.CheckMapCollision");
 #endif
+    auto &map = GS::GetGame().GetMap();
 
     result = pos;
 
@@ -2022,8 +2026,8 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
     // iterate through Things
     if (style != bullet_style_fragnade)
         for (j = 1; j <= max_things; j++)
-            if (things[j].active && (timeout < bullet_timeout - 1) && things[j].collidewithbullets and
-                (owner != things[j].holdingsprite) &&
+            if (things[j].active && (timeout < bullet_timeout - 1) &&
+                things[j].collidewithbullets and (owner != things[j].holdingsprite) &&
                 (((CVar::sv_gamemode == gamestyle_inf) && (things[j].style == object_bravo_flag)) ||
                  (CVar::sv_gamemode != gamestyle_inf)) &&
                 (things[j].style != object_stationary_gun))
@@ -2080,8 +2084,8 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
                         thingcollision(things[j].num, maintickcounter + thing_collision_cooldown);
 
                     // collision respond
-                    thingvel =
-                        vec2subtract(things[j].skeleton.pos[where], things[j].skeleton.oldpos[where]);
+                    thingvel = vec2subtract(things[j].skeleton.pos[where],
+                                            things[j].skeleton.oldpos[where]);
                     veldiff = vec2subtract(bulletparts.velocity[num], thingvel);
 
                     vec2scale(bulletpush, veldiff,
@@ -2123,6 +2127,8 @@ tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
     LogTraceG("TBullet.CheckColliderCollision");
 
     tvector2 result;
+
+    auto &map = GS::GetGame().GetMap();
 
     pos.x = 0;
     result = pos;
@@ -2840,6 +2846,7 @@ void Bullet<M>::checkoutofbounds()
 #ifdef SERVER
     LogTraceG("TBullet.CheckOutOfBounds");
 #endif
+    auto &map = GS::GetGame().GetMap();
 
     bound = map.sectorsnum * map.GetSectorsDivision() - 10;
     bulletpartspos = &bulletparts.pos[num];

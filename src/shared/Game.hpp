@@ -85,6 +85,12 @@ class Game : public GlobalSubsystem<Game<M>>
     void SetUserDirectory(const std::string& userDirectory) { UserDirectory = userDirectory; }
     const std::string& GetUserDirectory() const { return UserDirectory; }
 
+
+    Polymap& GetMap() { return map; }
+    twaypoints& GetBotPath() { return botpath; }
+  protected:
+    Game();
+
   private:
     bool VoteActive = false;
     std::uint8_t VoteType = vote_map;
@@ -97,6 +103,8 @@ class Game : public GlobalSubsystem<Game<M>>
     PascalArray<bool, 1, max_sprites> VoteHasVoted;
     PascalArray<bool, 1, max_sprites> VoteCooldown;
     std::string UserDirectory;
+    twaypoints botpath;
+    Polymap map;
 
     friend GlobalSubsystem<Game<M>>;
 };

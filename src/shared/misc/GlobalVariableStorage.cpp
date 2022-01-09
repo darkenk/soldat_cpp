@@ -37,8 +37,6 @@ auto &shotdistance = InitGlobalVariable<float, "shotdistance">();
 auto &shotlife = InitGlobalVariable<float, "shotlife">();
 auto &shotricochet = InitGlobalVariable<std::int32_t, "shotricochet">();
 
-auto &botpath = InitGlobalVariable<twaypoints, "botpath">();
-
 auto &ticks = InitGlobalVariable<std::int32_t, "ticks">();
 auto &tickspersecond = InitGlobalVariable<std::int32_t, "tickspersecond">();
 auto &frames = InitGlobalVariable<std::int32_t, "frames">();
@@ -72,7 +70,6 @@ auto &weaponsel =
 auto &teamscore = InitGlobalVariable<std::array<std::int32_t, 5>, "teamscore">();
 auto &teamflag = InitGlobalVariable<std::array<std::int32_t, 4>, "teamflag">();
 auto &sinuscounter = InitGlobalVariable<float, "sinuscounter">();
-auto &map = InitGlobalVariable<tpolymap, "map">(botpath);
 auto &custommodchecksum = InitGlobalVariable<tsha1digest, "custommodchecksum">();
 auto &gamemodchecksum = InitGlobalVariable<tsha1digest, "gamemodchecksum">();
 auto &mapchecksum = InitGlobalVariable<tsha1digest, "mapchecksum">();

@@ -50,6 +50,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     std::int32_t secwep;
 
     std::int32_t result;
+    auto &map = GS::GetGame().GetMap();
     LogDebug(LOG, "CreateSprite");
 
     if (n == 255)
@@ -274,6 +275,8 @@ void Sprite<M>::update()
     tvector2 rnorm, legvector;
     float bodyy, arms;
     float legdistance = 0.0;
+
+    auto &map = GS::GetGame().GetMap();
 
 #ifdef SERVER
     LogTraceG("TSprite.Update");
@@ -2402,6 +2405,7 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
     bool teamcol;
 
     LogTraceG("TSprite.CheckRadiusMapCollision");
+    auto &map = GS::GetGame().GetMap();
 
     bool result = false;
     spos.x = x;
@@ -2510,6 +2514,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
     bool checkmapcollision_result;
     LogTraceG("TSprite.CheckMapCollision");
 #endif
+    auto &map = GS::GetGame().GetMap();
 
     bool result = false;
     spos.x = x;
@@ -2795,6 +2800,7 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
     bool checkmapverticescollision_result;
     LogTraceG("TSprite.CheckMapVerticesCollision");
 #endif
+    auto &map = GS::GetGame().GetMap();
 
     bool result = false;
     pos.x = x;
@@ -2859,6 +2865,7 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
     bool checkskeletonmapcollision_result;
     LogTraceG("TSprite.CheckSkeletonMapCollision");
 #endif
+    auto &map = GS::GetGame().GetMap();
 
     bool result = false;
     pos.x = x - 1;
@@ -3090,6 +3097,7 @@ bool BackgroundState<M>::backgroundtest(const PolyMapSector::Poly &poly)
 template <Config::Module M>
 void BackgroundState<M>::backgroundtestbigpolycenter(const tvector2 &pos)
 {
+    auto &map = GS::GetGame().GetMap();
     if (backgroundstatus == background_transition)
     {
         if (backgroundpoly == background_poly_unknown)
@@ -3109,6 +3117,7 @@ void BackgroundState<M>::backgroundtestbigpolycenter(const tvector2 &pos)
 template <Config::Module M>
 std::int16_t BackgroundState<M>::backgroundfindcurrentpoly(const tvector2 &pos)
 {
+    auto &map = GS::GetGame().GetMap();
     std::int32_t i;
 
     std::int16_t result;
@@ -3365,6 +3374,7 @@ void Sprite<M>::checkoutofbounds()
 #ifdef SERVER
     LogTraceG("TSprite.CheckOutOfBounds");
 #endif
+    auto &map = GS::GetGame().GetMap();
 
     if (survivalendround)
         return;
@@ -3391,6 +3401,7 @@ void Sprite<M>::checkskeletonoutofbounds()
 #ifdef SERVER
     LogTraceG("TSprite.CheckSkeletonOutOfBounds");
 #endif
+    auto &map = GS::GetGame().GetMap();
 
     if (survivalendround)
         return;
@@ -3424,6 +3435,7 @@ void Sprite<M>::respawn()
     std::int32_t secwep;
     bool deadmeatbeforerespawn;
     bool survivalcheckendround;
+    auto &map = GS::GetGame().GetMap();
 
     LogTraceG("TSprite.Respawn");
     if (CVar::sv_survivalmode_clearweapons)
@@ -3621,7 +3633,7 @@ void Sprite<M>::respawn()
                                 break;
                         applyweaponbynum(j, 1);
                     }
-                } while (!((!weaponSystem.IsEnabled(weapon.num)) or (CVar::sv_advancemode)));
+                } while (!((weaponSystem.IsEnabled(weapon.num)) or (CVar::sv_advancemode)));
             }
         }
 
@@ -3737,6 +3749,7 @@ void Sprite<M>::parachute(tvector2 &a)
     tvector2 b;
     std::int32_t n, i;
     float d = 0.0;
+    auto &map = GS::GetGame().GetMap();
 
     LogTraceG("Parachute");
     if (holdedthing > 0)
@@ -3965,6 +3978,7 @@ void Sprite<M>::fire()
     float rc;
     bool col;
 #endif
+    auto &map = GS::GetGame().GetMap();
 
     bn = 0;
     inaccuracy = 0;
@@ -4571,6 +4585,7 @@ void Sprite<M>::throwflag()
     tvector2 lookpoint1, lookpoint2, lookpoint3;
     tvector2 newposdiff;
     tvector2 futurepoint1, futurepoint2, futurepoint3, futurepoint4;
+    auto &map = GS::GetGame().GetMap();
 
     if ((bodyanimation.id != AnimationType::Roll) && (bodyanimation.id != AnimationType::RollBack))
     {
@@ -4670,6 +4685,7 @@ void Sprite<M>::throwgrenade()
     float f = 0.0;
     float grenadearcsize, grenadearcx, grenadearcy;
     tvector2 playervelocity;
+    auto &map = GS::GetGame().GetMap();
 
     // Start throw animation
     if (!control.thrownade)
