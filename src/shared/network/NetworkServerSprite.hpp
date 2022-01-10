@@ -8,9 +8,9 @@
 
 void serverspritesnapshot(std::uint8_t r);
 void serverspritesnapshotmajor(std::uint8_t r);
-void serverspritesnapshotmajorfloat(std::uint8_t who, std::uint8_t r);
+void serverspritesnapshotmajorfloat(const uint8_t who, std::uint8_t r);
 void serverskeletonsnapshot(std::uint8_t r);
-void serverspritedeltas(std::uint8_t i);
+void serverspritedeltas(const uint8_t i);
 void serverspritedeltasmouse(std::uint8_t i);
 void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulletnum,
                        std::int32_t where);

@@ -511,14 +511,16 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
     thing.moveskeleton(spos.x, spos.y, false);
 
 #ifdef SERVER
+
     // Throw weapon
     if (((sstyle > object_pointmatch_flag) && (sstyle < object_medical_kit)) ||
         (sstyle == object_law) || (sstyle == object_chainsaw))
         if ((owner > 0) && (owner < max_sprites + 1))
         {
+            auto &spriteVelocity = SpriteSystem::Get().GetVelocity(owner);
             // Add player velocity
-            thing.skeleton.pos[1] = vec2add(thing.skeleton.pos[1], spriteparts.velocity[owner]);
-            thing.skeleton.pos[2] = vec2add(thing.skeleton.pos[2], spriteparts.velocity[owner]);
+            thing.skeleton.pos[1] = vec2add(thing.skeleton.pos[1], spriteVelocity);
+            thing.skeleton.pos[2] = vec2add(thing.skeleton.pos[2], spriteVelocity);
 
             // Add throw velocity
             b = SpriteSystem::Get().GetSprite(owner).getcursoraimdirection();
@@ -1044,8 +1046,9 @@ void Thing<M>::update()
     {
         if ((holdingsprite > 0) && (holdingsprite < max_sprites + 1))
         {
+            auto &spriteVelocity = SpriteSystem::Get().GetVelocity(holdingsprite);
             skeleton.pos[4] = SpriteSystem::Get().GetSprite(holdingsprite).skeleton.pos[12];
-            skeleton.forces[1].y = -spriteparts.velocity[holdingsprite].y;
+            skeleton.forces[1].y = -spriteVelocity.y;
             SpriteSystem::Get().GetSprite(holdingsprite).holdedthing = num;
 
             if (skeleton.pos[3].x < skeleton.pos[4].x)
@@ -1055,7 +1058,8 @@ void Thing<M>::update()
                 skeleton.oldpos[4] = skeleton.pos[3];
                 skeleton.pos[3] = a;
                 skeleton.oldpos[3] = a;
-                spriteparts.forces[holdingsprite].y = grav;
+                auto &spriteForces = SpriteSystem::Get().GetForces(holdingsprite);
+                spriteForces.y = grav;
             }
         }
         else
@@ -1827,18 +1831,19 @@ std::int32_t Thing<M>::checkspritecollision()
     {
         if (!sprite.deadmeat && sprite.isnotspectator())
         {
-            colpos = spriteparts.pos[sprite.num];
+            auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(sprite.num);
+            colpos = spritePartsPos;
             norm = vec2subtract(pos, colpos);
             if (vec2length(norm) >= radius)
             {
                 pos = skeleton.pos[1];
-                colpos = spriteparts.pos[sprite.num];
+                colpos = spritePartsPos;
                 norm = vec2subtract(pos, colpos);
 
                 if (vec2length(norm) >= radius)
                 {
                     pos = skeleton.pos[2];
-                    colpos = spriteparts.pos[sprite.num];
+                    colpos = spritePartsPos;
                     norm = vec2subtract(pos, colpos);
                 }
             }
@@ -1902,25 +1907,27 @@ std::int32_t Thing<M>::checkspritecollision()
                  ))
         {
 #ifndef SERVER
+            auto &spritePartsPos =
+                SpriteSystem::Get().GetSpritePartsPos(SpriteSystem::Get().GetSprite(j).num);
             if (((style > object_pointmatch_flag) && (style < object_rambo_bow)) ||
                 (style > object_parachute)) // take sound
-                playsound(sfx_takegun, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
+                playsound(sfx_takegun, spritePartsPos);
             else if (style == object_rambo_bow) // rambo sound
-                playsound(sfx_takebow, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
+                playsound(sfx_takebow, spritePartsPos);
             else if (style == object_medical_kit) // take medikit sound
-                playsound(sfx_takemedikit, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
+                playsound(sfx_takemedikit, spritePartsPos);
             else if (style == object_grenade_kit) // take grenade kit sound
-                playsound(sfx_pickupgun, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
+                playsound(sfx_pickupgun, spritePartsPos);
             else if (style == object_flamer_kit) // take flamer kit sound
-                playsound(sfx_godflame, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
+                playsound(sfx_godflame, spritePartsPos);
             else if (style == object_predator_kit) // take predator kit sound
-                playsound(sfx_predator, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
+                playsound(sfx_predator, spritePartsPos);
             else if (style == object_vest_kit) // take vest kit sound
-                playsound(sfx_vesttake, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
+                playsound(sfx_vesttake, spritePartsPos);
             else if (style == object_berserk_kit) // take berserker kit sound
-                playsound(sfx_berserker, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
+                playsound(sfx_berserker, spritePartsPos);
             else if (style == object_cluster_kit) // take cluster kit sound
-                playsound(sfx_pickupgun, spriteparts.pos[SpriteSystem::Get().GetSprite(j).num]);
+                playsound(sfx_pickupgun, spritePartsPos);
 #endif
 
 #ifdef SERVER
@@ -2492,7 +2499,8 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
         {
             if (sprite.stat == num)
             {
-                colpos = spriteparts.pos[sprite.num];
+                auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(sprite.num);
+                colpos = spritePartsPos;
                 norm = vec2subtract(pos, colpos);
                 if (vec2length(norm) < radius) // collision
                 {
@@ -2528,7 +2536,7 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                                 if (sprite.usetime > m2gun_overheat)
                                 {
 #ifndef SERVER
-                                    playsound(sfx_m2overheat, spriteparts.pos[sprite.num]);
+                                    playsound(sfx_m2overheat, spritePartsPos);
 #endif
                                     return result;
                                 }
@@ -2567,7 +2575,7 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                                 pos.y = skeleton.pos[3].y - 20;
                                 createspark(pos, norm, 22, sprite.num, 255); // hull
 
-                                playsound(sfx_m2fire, spriteparts.pos[sprite.num]);
+                                playsound(sfx_m2fire, spritePartsPos);
 #endif
 
                                 sprite.usetime += 1;
@@ -2594,7 +2602,8 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
             {
                 if (!sprite.deadmeat && sprite.isnotspectator())
                 {
-                    colpos = spriteparts.pos[sprite.num];
+                    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(sprite.num);
+                    colpos = spritePartsPos;
                     norm = vec2subtract(pos, colpos);
                     if (vec2length(norm) < radius) // collision
                     {
@@ -2614,7 +2623,7 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                             if (sprite.legsanimation.id == AnimationType::Stand)
                             {
 #ifndef SERVER
-                                playsound(sfx_m2use, spriteparts.pos[sprite.num]);
+                                playsound(sfx_m2use, spritePartsPos);
 #endif
 
                                 statictype = true;

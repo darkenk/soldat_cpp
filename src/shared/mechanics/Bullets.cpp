@@ -390,7 +390,7 @@ std::int32_t servercreatebullet(tvector2 spos, tvector2 svelocity, std::uint8_t 
 #endif
 
 template <Config::Module M>
-bool bulletcansend(float x, float y, std::int32_t i, float vx)
+bool bulletcansend(float x, float y, const std::int32_t i, float vx)
 {
     float sx, sy;
 
@@ -407,10 +407,12 @@ bool bulletcansend(float x, float y, std::int32_t i, float vx)
         return result;
     }
 
-    sx = spriteparts.pos[i].x -
-         ((float)((spriteparts.pos[i].x - SpriteSystem::Get().GetSprite(i).control.mouseaimx)) / 2);
-    sy = spriteparts.pos[i].y -
-         ((float)((spriteparts.pos[i].y - SpriteSystem::Get().GetSprite(i).control.mouseaimy)) / 2);
+    const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
+
+    sx = spritePartsPos.x -
+         ((float)((spritePartsPos.x - SpriteSystem::Get().GetSprite(i).control.mouseaimx)) / 2);
+    sy = spritePartsPos.y -
+         ((float)((spritePartsPos.y - SpriteSystem::Get().GetSprite(i).control.mouseaimy)) / 2);
 #ifdef SERVER
     if ((x > (sx - max_game_width)) && (x < (sx + max_game_width)) && (y > (sy - 480)) &&
         (y < (sy + 480)))
@@ -714,14 +716,18 @@ void Bullet<M>::update()
     if (!whizzed)
         if (style != bullet_style_punch)
             if (camerafollowsprite > 0)
-                if ((bulletparts.pos[num].x > spriteparts.pos[camerafollowsprite].x - 200) &&
-                    (bulletparts.pos[num].x < spriteparts.pos[camerafollowsprite].x + 200) &&
-                    (bulletparts.pos[num].y > spriteparts.pos[camerafollowsprite].y - 350) &&
-                    (bulletparts.pos[num].y < spriteparts.pos[camerafollowsprite].y + 100))
+            {
+                const auto &spritePartsPos =
+                    SpriteSystem::Get().GetSpritePartsPos(camerafollowsprite);
+                if ((bulletparts.pos[num].x > spritePartsPos.x - 200) &&
+                    (bulletparts.pos[num].x < spritePartsPos.x + 200) &&
+                    (bulletparts.pos[num].y > spritePartsPos.y - 350) &&
+                    (bulletparts.pos[num].y < spritePartsPos.y + 100))
                 {
                     playsound(sfx_bulletby2 + Random(4), bulletparts.pos[num]);
                     whizzed = true;
                 }
+            }
 
     // fire for flaming arrow
     if (style == bullet_style_flamearrow)
@@ -1269,7 +1275,11 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                             // bounce sound
                             if (style == bullet_style_fragnade)
                                 if (vec2length(bulletparts.velocity[num]) > 1.5)
-                                    playsound(sfx_grenade_bounce, spriteparts.pos[num]);
+                                {
+                                    const auto &spritePartsPos =
+                                        SpriteSystem::Get().GetSpritePartsPos(num);
+                                    playsound(sfx_grenade_bounce, spritePartsPos);
+                                }
 #endif
 
                             perp =
@@ -1500,9 +1510,8 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                  bodypartpriorityindex++)
             {
                 bodypartid = bodypartspriority[bodypartpriorityindex];
-
-                bodypartoffset =
-                    vec2subtract(candidateskeleton->pos[bodypartid], spriteparts.pos[j]);
+                const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(j);
+                bodypartoffset = vec2subtract(candidateskeleton->pos[bodypartid], spritePartsPos);
                 colpos = vec2add(col, bodypartoffset);
 
                 // FIXME(skoskav): Offset player sprite 2px to the left because sprites are glitchy
@@ -1839,10 +1848,11 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                         case bullet_style_flame:
                             if (owner != j)
                             {
+                                const auto &spriteVelocity = SpriteSystem::Get().GetVelocity(j);
                                 bulletparts.pos[num] =
                                     SpriteSystem::Get().GetSprite(j).skeleton.pos[where];
                                 if (!SpriteSystem::Get().GetSprite(j).deadmeat)
-                                    bulletparts.velocity[num] = spriteparts.velocity[j];
+                                    bulletparts.velocity[num] = spriteVelocity;
                                 else
                                 {
                                     bulletparts.velocity[num].x = 0;
@@ -1859,8 +1869,8 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                     {
                                         timeout = flamer_timeout - 1;
                                         ricochetcount += 1;
-                                        a.x = -spriteparts.velocity[j].x;
-                                        a.y = -spriteparts.velocity[j].y;
+                                        a.x = -spriteVelocity.x;
+                                        a.y = -spriteVelocity.y;
                                         createbullet(
                                             SpriteSystem::Get().GetSprite(j).skeleton.pos[where], a,
                                             guns[flamer].num, owner, 255,
@@ -2558,6 +2568,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
         {
             col = getspritecollisionpoint(sprite.num);
             hitboxmodifier = 1.0;
+            const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(sprite.num);
 
             // if hitpoint is not given find closest one
             w = where;
@@ -2566,10 +2577,8 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
                 s = std::numeric_limits<float>::max();
                 for (j = low(bodyparts); j <= high(bodyparts); j++)
                 {
-                    a.x = col.x +
-                          (sprite.skeleton.pos[bodyparts[j]].x - spriteparts.pos[sprite.num].x);
-                    a.y = col.y +
-                          (sprite.skeleton.pos[bodyparts[j]].y - spriteparts.pos[sprite.num].y);
+                    a.x = col.x + (sprite.skeleton.pos[bodyparts[j]].x - spritePartsPos.x);
+                    a.y = col.y + (sprite.skeleton.pos[bodyparts[j]].y - spritePartsPos.y);
                     a = vec2subtract(bulletparts.pos[num], a);
                     s2 = vec2length2(a);
 
@@ -2588,8 +2597,8 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
             else
                 hitboxmodifier = guns[igun].modifierhead;
 
-            col.x = col.x + (sprite.skeleton.pos[w].x - spriteparts.pos[sprite.num].x);
-            col.y = col.y + (sprite.skeleton.pos[w].y - spriteparts.pos[sprite.num].y);
+            col.x = col.x + (sprite.skeleton.pos[w].x - spritePartsPos.x);
+            col.y = col.y + (sprite.skeleton.pos[w].y - spritePartsPos.y);
 
             a = vec2subtract(bulletparts.pos[num], col);
             s = vec2length2(a);
@@ -2599,8 +2608,8 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
                 s = sqrt(s);
 
 #ifndef SERVER
-                createspark(spriteparts.pos[sprite.num], vector2(0, -0.01), 5, owner, 80);
-                playsound(sfx_explosion_erg, spriteparts.pos[sprite.num]);
+                createspark(spritePartsPos, vector2(0, -0.01), 5, owner, 80);
+                playsound(sfx_explosion_erg, spritePartsPos);
 #endif
 
                 // collision respond
@@ -2738,9 +2747,10 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
     {
         if (mysprite > 0)
         {
+            const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
             if (SpriteSystem::Get().GetSprite(mysprite).GetHealth() > -50)
             {
-                if (distance(bulletparts.pos[num], spriteparts.pos[mysprite]) < grenadeeffect_dist)
+                if (distance(bulletparts.pos[num], spritePartsPos) < grenadeeffect_dist)
                 {
                     grenadeeffecttimer = 320;
                     playsound(sfx_hum);
@@ -2935,11 +2945,11 @@ tvector2 Bullet<M>::getspritecollisionpoint(std::int32_t i)
 {
     // Why is this an exception to the usual rule??
     tvector2 result;
+    const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
 #ifndef SERVER
     if ((style == bullet_style_flame) && (timeout > flamer_timeout - 2))
     {
-        result = spriteparts.pos[i];
-        return result;
+        return spritePartsPos;
     }
 #endif
 
@@ -2952,7 +2962,7 @@ tvector2 Bullet<M>::getspritecollisionpoint(std::int32_t i)
     }
     else
 #endif
-        result = spriteparts.pos[i];
+        result = spritePartsPos;
     return result;
 }
 

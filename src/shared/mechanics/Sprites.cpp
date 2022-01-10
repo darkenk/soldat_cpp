@@ -140,7 +140,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     }
 
     // activate sprite part
-    spriteparts.createpart(spos, svelocity, 1, i);
+    SpriteSystem::Get().CreateSpritePart(spos, svelocity, 1, i);
 
     // create skeleton
     sprite.skeleton.timestep = 1;
@@ -290,7 +290,10 @@ void Sprite<M>::update()
 
     bodyy = 0;
 
-    spriteparts.velocity[num] = vec2add(spriteparts.velocity[num], nextpush[0]);
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
+
+    spriteVelocity = vec2add(spriteVelocity, nextpush[0]);
 #ifndef SERVER
     {
         ZoneScopedN("NextPushCopy");
@@ -345,9 +348,9 @@ void Sprite<M>::update()
     if (!deadmeat)
     {
         NotImplemented(NITag::OTHER, "This code has no effect");
-        vec2add(skeleton.pos[21], spriteparts.velocity[num]);
-        vec2add(skeleton.pos[23], spriteparts.velocity[num]);
-        vec2add(skeleton.pos[25], spriteparts.velocity[num]);
+        vec2add(skeleton.pos[21], spriteVelocity);
+        vec2add(skeleton.pos[23], spriteVelocity);
+        vec2add(skeleton.pos[25], spriteVelocity);
     }
 
     switch (position)
@@ -390,7 +393,7 @@ void Sprite<M>::update()
     if (deadmeat)
         bgstate.backgroundtestprepare();
 
-    if (control.mouseaimx >= spriteparts.pos[num].x)
+    if (control.mouseaimx >= spritePartsPos.x)
         direction = 1;
     else
         direction = -1;
@@ -407,10 +410,10 @@ void Sprite<M>::update()
                     (i == 17) || (i == 18))
                 {
                     skeleton.pos[i].x =
-                        spriteparts.pos[num].x +
+                        spritePartsPos.x +
                         direction * legsanimation.frames[legsanimation.currframe].pos[i].x;
-                    skeleton.pos[i].y = spriteparts.pos[num].y +
-                                        legsanimation.frames[legsanimation.currframe].pos[i].y;
+                    skeleton.pos[i].y =
+                        spritePartsPos.y + legsanimation.frames[legsanimation.currframe].pos[i].y;
                 }
 
             // body
@@ -418,14 +421,14 @@ void Sprite<M>::update()
                 (i == 13) || (i == 14) || (i == 15) || (i == 16) || (i == 19) || (i == 20))
             {
                 skeleton.pos[i].x =
-                    spriteparts.pos[num].x +
+                    spritePartsPos.x +
                     direction * bodyanimation.frames[bodyanimation.currframe].pos[i].x;
                 if (!halfdead)
-                    skeleton.pos[i].y = (skeleton.pos[6].y - (spriteparts.pos[num].y - bodyy)) +
-                                        spriteparts.pos[num].y +
+                    skeleton.pos[i].y = (skeleton.pos[6].y - (spritePartsPos.y - bodyy)) +
+                                        spritePartsPos.y +
                                         bodyanimation.frames[bodyanimation.currframe].pos[i].y;
                 else
-                    skeleton.pos[i].y = 9 + spriteparts.pos[num].y +
+                    skeleton.pos[i].y = 9 + spritePartsPos.y +
                                         bodyanimation.frames[bodyanimation.currframe].pos[i].y;
             }
         }
@@ -616,9 +619,9 @@ void Sprite<M>::update()
                             {
                                 createspark(m4, m3, 36, num, 35);
                                 if (Random(8) == 0)
-                                    playsound(sfx_onfire, spriteparts.pos[num]);
+                                    playsound(sfx_onfire, spritePartsPos);
                                 if (Random(2) == 0)
-                                    playsound(sfx_firecrack, spriteparts.pos[num]);
+                                    playsound(sfx_firecrack, spritePartsPos);
                             }
                             else if (Random(rnd / 3) == 0)
                                 createspark(m4, m3, 37, num, 75);
@@ -662,9 +665,9 @@ void Sprite<M>::update()
             bgstate.backgroundtestprepare();
 
             // head
-            checkmapcollision(spriteparts.pos[num].x - 3.5, spriteparts.pos[num].y - 12, 1);
+            checkmapcollision(spritePartsPos.x - 3.5, spritePartsPos.y - 12, 1);
 
-            checkmapcollision(spriteparts.pos[num].x + 3.5, spriteparts.pos[num].y - 12, 1);
+            checkmapcollision(spritePartsPos.x + 3.5, spritePartsPos.y - 12, 1);
 
             bodyy = 0;
             arms = 0;
@@ -683,30 +686,29 @@ void Sprite<M>::update()
             // BodyY, this is there to not lose contact to ground on slope polygons
             if (bodyy == 0)
             {
-                legvector = vector2(spriteparts.pos[num].x + 2, spriteparts.pos[num].y + 1.9);
+                legvector = vector2(spritePartsPos.x + 2, spritePartsPos.y + 1.9);
                 if (map.raycast(legvector, legvector, legdistance, 10))
                     bodyy = 0.25;
             }
             if (arms == 0)
             {
-                legvector = vector2(spriteparts.pos[num].x - 2, spriteparts.pos[num].y + 1.9);
+                legvector = vector2(spritePartsPos.x - 2, spritePartsPos.y + 1.9);
                 if (map.raycast(legvector, legvector, legdistance, 10))
                     arms = 0.25;
             }
 
             // Legs collison check. If collided then don't check the other side as a possible double
             // CheckMapCollision collision would result in too much of a ground repelling force.
-            onground = checkmapcollision(spriteparts.pos[num].x + 2,
-                                         spriteparts.pos[num].y + 2 - bodyy, 0);
+            onground = checkmapcollision(spritePartsPos.x + 2, spritePartsPos.y + 2 - bodyy, 0);
 
-            onground = onground || checkmapcollision(spriteparts.pos[num].x - 2,
-                                                     spriteparts.pos[num].y + 2 - arms, 0);
+            onground =
+                onground || checkmapcollision(spritePartsPos.x - 2, spritePartsPos.y + 2 - arms, 0);
 
             // radius collison check
-            ongroundforlaw = checkradiusmapcollision(spriteparts.pos[num].x,
-                                                     spriteparts.pos[num].y - 1, onground);
+            ongroundforlaw =
+                checkradiusmapcollision(spritePartsPos.x, spritePartsPos.y - 1, onground);
 
-            onground = checkmapverticescollision(spriteparts.pos[num].x, spriteparts.pos[num].y, 3,
+            onground = checkmapverticescollision(spritePartsPos.x, spritePartsPos.y, 3,
                                                  onground || ongroundforlaw) ||
                        onground;
 
@@ -723,8 +725,7 @@ void Sprite<M>::update()
             // WEAPON HANDLING
 #ifndef SERVER
             if ((num == mysprite) || (weapon.fireinterval <= fireinterval_net) or
-                !GS::GetGame().pointvisible(spriteparts.pos[num].x, spriteparts.pos[num].y,
-                                            camerafollowsprite))
+                !GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y, camerafollowsprite))
 #endif
                 if ((weapon.fireintervalcount > 0) &&
                     ((weapon.ammocount > 0) || (weapon.num == guns[spas12].num)))
@@ -809,13 +810,13 @@ void Sprite<M>::update()
                         weaponreloadsound = -1;
 
                     if (weaponreloadsound != -1)
-                        playsound(weaponreloadsound, spriteparts.pos[num], reloadsoundchannel);
+                        playsound(weaponreloadsound, spritePartsPos, reloadsoundchannel);
                 }
 
                 m3.x = skeleton.pos[15].x;
                 m3.y = skeleton.pos[15].y + 6;
-                m4.x = spriteparts.velocity[num].x;
-                m4.y = spriteparts.velocity[num].y - 0.001;
+                m4.x = spriteVelocity.x;
+                m4.y = spriteVelocity.y - 0.001;
                 if (weapon.reloadtimecount == weapon.clipouttime)
                 {
                     if (weapon.num == guns[eagle].num)
@@ -823,8 +824,8 @@ void Sprite<M>::update()
                         createspark(m3, m4, 18, num, 255);
                         m3.x = skeleton.pos[15].x - 2;
                         m3.y = skeleton.pos[15].y + 7;
-                        m4.x = spriteparts.velocity[num].x + 0.3;
-                        m4.y = spriteparts.velocity[num].y - 0.003;
+                        m4.x = spriteVelocity.x + 0.3;
+                        m4.y = spriteVelocity.y - 0.003;
                         createspark(m3, m4, 18, num, 255);
                     }
                     else if (weapon.num == guns[mp5].num)
@@ -936,16 +937,16 @@ void Sprite<M>::update()
                         m4.y = -0.25;
                         createspark(m3, m4, 1, num, 20);
                         if (weapon.ammocount == 0)
-                            playsound(sfx_chainsaw_o, spriteparts.pos[num], gattlingsoundchannel);
+                            playsound(sfx_chainsaw_o, spritePartsPos, gattlingsoundchannel);
                         else
-                            playsound(sfx_chainsaw_m, spriteparts.pos[num], defaultchannel);
+                            playsound(sfx_chainsaw_m, spritePartsPos, defaultchannel);
                     }
                 }
 
                 if (control.fire)
                 {
                     if (weapon.ammocount > 0)
-                        playsound(sfx_chainsaw_r, spriteparts.pos[num], gattlingsoundchannel);
+                        playsound(sfx_chainsaw_r, spritePartsPos, gattlingsoundchannel);
                 }
             }
 
@@ -1109,7 +1110,7 @@ void Sprite<M>::update()
                             m4.x = 0;
                             m4.y = -0.69;
                             createspark(m3, m4, 31, num, 55);
-                            playsound(sfx_smoke, spriteparts.pos[num]);
+                            playsound(sfx_smoke, spritePartsPos);
                             if (Random(2) == 0)
                             {
                                 m3 = skeleton.pos[9];
@@ -1147,7 +1148,8 @@ void Sprite<M>::update()
 
             if (para == 1)
             {
-                spriteparts.forces[num].y = para_speed;
+                auto &spriteForces = SpriteSystem::Get().GetForces(num);
+                spriteForces.y = para_speed;
 #ifdef SERVER
                 if (ceasefirecounter < 1)
 #else
@@ -1185,8 +1187,7 @@ void Sprite<M>::update()
         {
             // physically integrate skeleton particles
             skeleton.doverlettimestep();
-
-            spriteparts.pos[num] = skeleton.pos[12];
+            spritePartsPos = skeleton.pos[12];
 
             CopyOldSpritePos();
 
@@ -1275,20 +1276,19 @@ void Sprite<M>::update()
     } // DeadMeat
 
     // Safety
-    if (spriteparts.velocity[num].x > max_velocity)
-        spriteparts.velocity[num].x = max_velocity;
-    if (spriteparts.velocity[num].x < -max_velocity)
-        spriteparts.velocity[num].x = -max_velocity;
-    if (spriteparts.velocity[num].y > max_velocity)
-        spriteparts.velocity[num].y = max_velocity;
-    if (spriteparts.velocity[num].y < -max_velocity)
-        spriteparts.velocity[num].y = -max_velocity;
+    if (spriteVelocity.x > max_velocity)
+        spriteVelocity.x = max_velocity;
+    if (spriteVelocity.x < -max_velocity)
+        spriteVelocity.x = -max_velocity;
+    if (spriteVelocity.y > max_velocity)
+        spriteVelocity.y = max_velocity;
+    if (spriteVelocity.y < -max_velocity)
+        spriteVelocity.y = -max_velocity;
 }
 
 template <Config::Module M>
 void Sprite<M>::kill()
 {
-    std::int32_t i;
     bool left;
 
 #ifdef SERVER
@@ -1311,7 +1311,7 @@ void Sprite<M>::kill()
     if (num > 0)
     {
         skeleton.destroy();
-        spriteparts.active[num] = false;
+        SpriteSystem::Get().DestroySpritePart(num);
     }
 
     if ((holdedthing > 0) && (holdedthing < max_things + 1))
@@ -1446,10 +1446,11 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 k = 0;
                 for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
                 {
+                    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(sprite.num);
+                    auto &spritePartsPosWho = SpriteSystem::Get().GetSpritePartsPos(who);
                     if (sprite.active && (sprite.num != who) && (!sprite.player->demoplayer) and
                         sprite.isnotspectator())
-                        if (distance(spriteparts.pos[sprite.num], spriteparts.pos[who]) >
-                            bullettime_mindistance)
+                        if (distance(spritePartsPos, spritePartsPosWho) > bullettime_mindistance)
                             k = 1;
                 }
 
@@ -1834,9 +1835,10 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     {
     case normal_death: {
 #ifndef SERVER
+        auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
         // the sound of death...
         if (!deadmeat)
-            playsound(sfx_death + Random(3), spriteparts.pos[num]);
+            playsound(sfx_death + Random(3), spritePartsPos);
 #endif
     }
     break;
@@ -1976,7 +1978,9 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                         if (!sprite.deadmeat and (num != sprite.num) && // not the current player
                             sprite.isnotspectator())
                         {
-                            playsound(sfx_roar, spriteparts.pos[sprite.num]);
+                            auto &spritePartsPos =
+                                SpriteSystem::Get().GetSpritePartsPos(sprite.num);
+                            playsound(sfx_roar, spritePartsPos);
                         }
                     }
 #endif
@@ -2243,8 +2247,10 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     else
         deadtime = 0;
 
-    spriteparts.velocity[num].x = 0;
-    spriteparts.velocity[num].y = 0;
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
+
+    spriteVelocity.x = 0;
+    spriteVelocity.y = 0;
     SpriteSystem::Get().GetSprite(who).brain.pissedoff = 0;
 
     // sort the players frag list
@@ -2411,11 +2417,14 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
     spos.x = x;
     spos.y = y - 3;
 
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
+    auto &spriteForces = SpriteSystem::Get().GetForces(num);
+
     // make step
-    detacc = trunc(vec2length(spriteparts.velocity[num]));
+    detacc = trunc(vec2length(spriteVelocity));
     if (detacc == 0)
         detacc = 1;
-    vec2scale(step, spriteparts.velocity[num], (float)(1) / detacc);
+    vec2scale(step, spriteVelocity, (float)(1) / detacc);
 
     // make steps for accurate collision detection
     for (z = 0; z <= detacc - 1; z++)
@@ -2487,8 +2496,9 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
                             d = pointlinedistance(p1, p2, p3);
                             vec2scale(perp, perp, d);
 
-                            spriteparts.pos[num] = spriteparts.oldpos[num];
-                            spriteparts.velocity[num] = vec2subtract(spriteparts.forces[num], perp);
+                            auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
+                            spritePartsPos = SpriteSystem::Get().GetSpritePartsOldPos(num);
+                            spriteVelocity = vec2subtract(spriteForces, perp);
 
                             result = true;
                             return result;
@@ -2520,8 +2530,12 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
     spos.x = x;
     spos.y = y;
 
-    pos.x = spos.x + spriteparts.velocity[num].x;
-    pos.y = spos.y + spriteparts.velocity[num].y;
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
+    auto &spriteForces = SpriteSystem::Get().GetForces(num);
+
+    pos.x = spos.x + spriteVelocity.x;
+    pos.y = spos.y + spriteVelocity.y;
 
     // iterate through maps sector polygons
     const auto sector = map.GetSector(pos);
@@ -2553,25 +2567,24 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                     handlespecialpolytypes(polytype, pos);
 
 #ifndef SERVER
-                    if ((fabs(spriteparts.velocity[num].y) > 2.2) &&
-                        (fabs(spriteparts.velocity[num].y) < 3.4) && (polytype != poly_type_bouncy))
-                        playsound(sfx_fall, spriteparts.pos[num]);
+                    if ((fabs(spriteVelocity.y) > 2.2) && (fabs(spriteVelocity.y) < 3.4) &&
+                        (polytype != poly_type_bouncy))
+                        playsound(sfx_fall, spritePartsPos);
 #endif
 
-                    if (fabs(spriteparts.velocity[num].y) > 3.5)
+                    if (fabs(spriteVelocity.y) > 3.5)
                     {
 #ifndef SERVER
-                        playsound(sfx_fall_hard, spriteparts.pos[num]);
+                        playsound(sfx_fall_hard, spritePartsPos);
 #endif
 
                         // Hit ground
                         if (CVar::sv_realisticmode)
-                            if ((spriteparts.velocity[num].y > 3.5) &&
-                                (polytype != poly_type_bouncy))
+                            if ((spriteVelocity.y > 3.5) && (polytype != poly_type_bouncy))
                             {
-                                healthhit(spriteparts.velocity[num].y * 5, num, 12, -1, spos);
+                                healthhit(spriteVelocity.y * 5, num, 12, -1, spos);
 #ifndef SERVER
-                                playsound(sfx_fall, spriteparts.pos[num]);
+                                playsound(sfx_fall, spritePartsPos);
 #endif
                             }
                     }
@@ -2583,32 +2596,32 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                         ((legsanimation.currframe == 16) || (legsanimation.currframe == 32)))
                     {
                         if (CVar::r_maxsparks > (max_sparks - 10))
-                            if (fabs(spriteparts.velocity[num].x) > 1.0)
+                            if (fabs(spriteVelocity.x) > 1.0)
                             {
-                                spos.x = (float)(spriteparts.velocity[num].x) / 4;
+                                spos.x = (float)(spriteVelocity.x) / 4;
                                 spos.y = -0.8;
                                 vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
                                 createspark(pos, spos, 1, num, 70);
                             }
 
                         if (CVar::r_maxsparks > (max_sparks - 10))
-                            if ((((direction == 1) && (spriteparts.velocity[num].x < 0.01)) ||
-                                 ((direction == -1) && (spriteparts.velocity[num].x > 0.01))) &&
+                            if ((((direction == 1) && (spriteVelocity.x < 0.01)) ||
+                                 ((direction == -1) && (spriteVelocity.x > 0.01))) &&
                                 (legsanimation.id == AnimationType::Run))
                             {
-                                spos.x = (float)(spriteparts.velocity[num].x) / 4;
+                                spos.x = (float)(spriteVelocity.x) / 4;
                                 spos.y = -1.3;
                                 vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
                                 createspark(pos, spos, 1, num, 70);
                             }
 
                         if (map.steps == 0)
-                            playsound(sfx_step + Random(4), spriteparts.pos[num]);
+                            playsound(sfx_step + Random(4), spritePartsPos);
                         if (map.steps == 1)
-                            playsound(sfx_step5 + Random(4), spriteparts.pos[num]);
+                            playsound(sfx_step5 + Random(4), spritePartsPos);
 
                         if (map.weather == 1)
-                            playsound(sfx_water_step, spriteparts.pos[num]);
+                            playsound(sfx_water_step, spritePartsPos);
                     }
 
                     // Crouch
@@ -2618,23 +2631,23 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                         (legsanimation.count == 1))
                     {
                         if (Random(2) == 0)
-                            playsound(sfx_crouch_move, spriteparts.pos[num]);
+                            playsound(sfx_crouch_move, spritePartsPos);
                         else if (Random(2) == 0)
-                            playsound(sfx_crouch_movel, spriteparts.pos[num]);
+                            playsound(sfx_crouch_movel, spritePartsPos);
                     }
 
                     // Prone
                     if ((legsanimation.id == AnimationType::ProneMove) &&
                         (legsanimation.currframe == 8) && (legsanimation.count == 1))
                     {
-                        playsound(sfx_prone_move, spriteparts.pos[num]);
+                        playsound(sfx_prone_move, spritePartsPos);
                     }
 
-                    if ((fabs(spriteparts.velocity[num].x) > 2.4) &&
+                    if ((fabs(spriteVelocity.x) > 2.4) &&
                         (legsanimation.id != AnimationType::Run) &&
                         (legsanimation.id != AnimationType::RunBack) && (Random(4) == 0))
                     {
-                        spos.x = (float)(spriteparts.velocity[num].x) / 4;
+                        spos.x = (float)(spriteVelocity.x) / 4;
                         spos.y = -0.9;
                         vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
                         createspark(pos, spos, 1, num, 70);
@@ -2647,20 +2660,19 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                     vec2normalize(perp, perp);
                     vec2scale(perp, perp, d);
 
-                    d = vec2length(spriteparts.velocity[num]);
+                    d = vec2length(spriteVelocity);
                     if (vec2length(perp) > d)
                     {
                         vec2normalize(perp, perp);
                         vec2scale(perp, perp, d);
                     }
 
-                    if ((area == 0) ||
-                        ((area == 1) && ((spriteparts.velocity[num].y < 0) ||
-                                         (spriteparts.velocity[num].x > slidelimit) ||
-                                         (spriteparts.velocity[num].x < -slidelimit))))
+                    if ((area == 0) || ((area == 1) && ((spriteVelocity.y < 0) ||
+                                                        (spriteVelocity.x > slidelimit) ||
+                                                        (spriteVelocity.x < -slidelimit))))
                     {
-                        spriteparts.oldpos[num] = spriteparts.pos[num];
-                        spriteparts.pos[num] = vec2subtract(spriteparts.pos[num], perp);
+                        SpriteSystem::Get().SetSpritePartsOldPos(num, spritePartsPos);
+                        spritePartsPos = vec2subtract(spritePartsPos, perp);
                         if (polytype == poly_type_bouncy) // bouncy polygon
                         {
                             vec2normalize(perp, perp);
@@ -2668,11 +2680,11 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 #ifndef SERVER
                             if (vec2length(perp) > 1)
                             {
-                                playsound(sfx_bounce, spriteparts.pos[num]);
+                                playsound(sfx_bounce, spritePartsPos);
                             }
 #endif
                         }
-                        spriteparts.velocity[num] = vec2subtract(spriteparts.velocity[num], perp);
+                        spriteVelocity = vec2subtract(spriteVelocity, perp);
                     }
 
                     if (area == 0)
@@ -2687,12 +2699,13 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                             (legsanimation.id == AnimationType::Mercy2) ||
                             (legsanimation.id == AnimationType::Own))
                         {
-                            if ((spriteparts.velocity[num].x < slidelimit) &&
-                                (spriteparts.velocity[num].x > -slidelimit) &&
-                                (step.y > slidelimit))
+                            if ((spriteVelocity.x < slidelimit) &&
+                                (spriteVelocity.x > -slidelimit) && (step.y > slidelimit))
                             {
-                                spriteparts.pos[num] = spriteparts.oldpos[num];
-                                spriteparts.forces[num].y = spriteparts.forces[num].y - grav;
+                                const auto &spritePartsOldPos =
+                                    SpriteSystem::Get().GetSpritePartsOldPos(num);
+                                spritePartsPos = spritePartsOldPos;
+                                spriteForces.y = spriteForces.y - grav;
                             }
                             else
                             {
@@ -2700,8 +2713,8 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                                 if (CVar::r_maxsparks > (max_sparks - 10))
                                     if (Random(15) == 0)
                                     {
-                                        spos.x = spriteparts.velocity[num].x * 3;
-                                        spos.y = -spriteparts.velocity[num].y * 2;
+                                        spos.x = spriteVelocity.x * 3;
+                                        spos.y = -spriteVelocity.y * 2;
                                         vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
                                         createspark(pos, spos, 1, num, 70);
                                     }
@@ -2715,12 +2728,9 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                                     (legsanimation.id == AnimationType::Fall) ||
                                     (legsanimation.id == AnimationType::Crouch))
                                 {
-                                    spriteparts.velocity[num].x =
-                                        spriteparts.velocity[num].x * standsurfacecoefx;
-                                    spriteparts.velocity[num].y =
-                                        spriteparts.velocity[num].y * standsurfacecoefy;
-                                    spriteparts.forces[num].x =
-                                        spriteparts.forces[num].x - spriteparts.velocity[num].x;
+                                    spriteVelocity.x = spriteVelocity.x * standsurfacecoefx;
+                                    spriteVelocity.y = spriteVelocity.y * standsurfacecoefy;
+                                    spriteForces.x = spriteForces.x - spriteVelocity.x;
                                 }
                                 else if (legsanimation.id == AnimationType::Prone)
                                 {
@@ -2728,35 +2738,26 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                                     {
                                         if (!(control.down && (control.left || control.right)))
                                         {
-                                            spriteparts.velocity[num].x =
-                                                spriteparts.velocity[num].x * standsurfacecoefx;
-                                            spriteparts.velocity[num].y =
-                                                spriteparts.velocity[num].y * standsurfacecoefy;
-                                            spriteparts.forces[num].x = spriteparts.forces[num].x -
-                                                                        spriteparts.velocity[num].x;
+                                            spriteVelocity.x = spriteVelocity.x * standsurfacecoefx;
+                                            spriteVelocity.y = spriteVelocity.y * standsurfacecoefy;
+                                            spriteForces.x = spriteForces.x - spriteVelocity.x;
                                         }
                                     }
                                     else
                                     {
-                                        spriteparts.velocity[num].x =
-                                            spriteparts.velocity[num].x * surfacecoefx;
-                                        spriteparts.velocity[num].y =
-                                            spriteparts.velocity[num].y * surfacecoefy;
+                                        spriteVelocity.x = spriteVelocity.x * surfacecoefx;
+                                        spriteVelocity.y = spriteVelocity.y * surfacecoefy;
                                     }
                                 }
                                 else if (legsanimation.id == AnimationType::GetUp)
                                 {
-                                    spriteparts.velocity[num].x =
-                                        spriteparts.velocity[num].x * surfacecoefx;
-                                    spriteparts.velocity[num].y =
-                                        spriteparts.velocity[num].y * surfacecoefy;
+                                    spriteVelocity.x = spriteVelocity.x * surfacecoefx;
+                                    spriteVelocity.y = spriteVelocity.y * surfacecoefy;
                                 }
                                 else if (legsanimation.id == AnimationType::ProneMove)
                                 {
-                                    spriteparts.velocity[num].x =
-                                        spriteparts.velocity[num].x * standsurfacecoefx;
-                                    spriteparts.velocity[num].y =
-                                        spriteparts.velocity[num].y * standsurfacecoefy;
+                                    spriteVelocity.x = spriteVelocity.x * standsurfacecoefx;
+                                    spriteVelocity.y = spriteVelocity.y * standsurfacecoefy;
                                 }
                             }
                         }
@@ -2765,17 +2766,13 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                             if ((legsanimation.id == AnimationType::CrouchRun) ||
                                 (legsanimation.id == AnimationType::CrouchRunBack))
                             {
-                                spriteparts.velocity[num].x =
-                                    spriteparts.velocity[num].x * crouchmovesurfacecoefx;
-                                spriteparts.velocity[num].y =
-                                    spriteparts.velocity[num].y * crouchmovesurfacecoefy;
+                                spriteVelocity.x = spriteVelocity.x * crouchmovesurfacecoefx;
+                                spriteVelocity.y = spriteVelocity.y * crouchmovesurfacecoefy;
                             }
                             else
                             {
-                                spriteparts.velocity[num].x =
-                                    spriteparts.velocity[num].x * surfacecoefx;
-                                spriteparts.velocity[num].y =
-                                    spriteparts.velocity[num].y * surfacecoefy;
+                                spriteVelocity.x = spriteVelocity.x * surfacecoefx;
+                                spriteVelocity.y = spriteVelocity.y * surfacecoefy;
                             }
                         }
                     }
@@ -2837,7 +2834,8 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
 
                         dir = vec2subtract(pos, vert);
                         vec2normalize(dir, dir);
-                        spriteparts.pos[num] = vec2add(spriteparts.pos[num], dir);
+                        auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
+                        spritePartsPos = vec2add(spritePartsPos, dir);
 
                         result = true;
                         return result;
@@ -2962,18 +2960,20 @@ template <Config::Module M>
 void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &pos)
 {
     tvector2 a, b;
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
 
     switch (polytype)
     {
     case poly_type_deadly: {
 #ifdef SERVER
-        healthhit(50 + GetHealth(), num, 12, -1, spriteparts.velocity[num]);
+        healthhit(50 + GetHealth(), num, 12, -1, spriteVelocity);
 #endif
     }
     break;
     case poly_type_bloody_deadly: {
 #ifdef SERVER
-        healthhit(450 + GetHealth(), num, 12, -1, spriteparts.velocity[num]);
+        healthhit(450 + GetHealth(), num, 12, -1, spriteVelocity);
 #endif
     }
     break;
@@ -2987,15 +2987,16 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 #ifdef SERVER
                 Health = Health - 5;
 #else
+
                 if (polytype == poly_type_hurts)
-                    playsound(sfx_arg, spriteparts.pos[num]);
+                    playsound(sfx_arg, spritePartsPos);
                 else if (polytype == poly_type_lava)
-                    playsound(sfx_lava, spriteparts.pos[num]);
+                    playsound(sfx_lava, spritePartsPos);
 #endif
             }
 #ifdef SERVER
             if (GetHealth() < 1)
-                healthhit(10, num, 12, -1, spriteparts.velocity[num]);
+                healthhit(10, num, 12, -1, spriteVelocity);
 #endif
         }
 
@@ -3011,8 +3012,8 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 
                 if (Random(3) == 0)
                 {
-                    b.x = -spriteparts.velocity[num].x;
-                    b.y = -spriteparts.velocity[num].y;
+                    b.x = -spriteVelocity.x;
+                    b.y = -spriteVelocity.y;
                     createbullet(a, b, guns[flamer].num, num, 255, guns[flamer].hitmultiply, false,
                                  true);
                 }
@@ -3024,9 +3025,9 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
             if (maintickcounter % 12 == 0)
             {
 #ifdef SERVER
-                healthhit(-2, num, 12, -1, spriteparts.velocity[num]);
+                healthhit(-2, num, 12, -1, spriteVelocity);
 #else
-                playsound(sfx_regenerate, spriteparts.pos[num]);
+                playsound(sfx_regenerate, spritePartsPos);
 #endif
             }
     }
@@ -3042,7 +3043,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
             createspark(a, vector2(0, -1.3), 36, num, 40);
 #else
             servercreatebullet(a, b, guns[m79].num, num, 255, guns[m79].hitmultiply, true);
-            healthhit(4000, num, 12, -1, spriteparts.velocity[num]);
+            healthhit(4000, num, 12, -1, spriteVelocity);
             Health = -600;
 #endif
         }
@@ -3055,12 +3056,12 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 #ifdef SERVER
                 Health = Health - 10;
 #else
-                playsound(sfx_arg, spriteparts.pos[num]);
+                playsound(sfx_arg, spritePartsPos);
 #endif
             }
 #ifdef SERVER
         if (Health < 1)
-            healthhit(10, num, 12, -1, spriteparts.velocity[num]);
+            healthhit(10, num, 12, -1, spriteVelocity);
 #endif
     }
     break;
@@ -3309,7 +3310,8 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
     {
         wearhelmet = 0;
 #ifndef SERVER
-        createspark(skeleton.pos[12], spriteparts.velocity[num], 6, num, 198);
+        auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
+        createspark(skeleton.pos[12], spriteVelocity, 6, num, 198);
         playsound(sfx_headchop, skeleton.pos[where]);
 #endif
     }
@@ -3380,12 +3382,12 @@ void Sprite<M>::checkoutofbounds()
         return;
 
     bound = map.sectorsnum * map.GetSectorsDivision() - 50;
-    tvector2 &spritepartspos = spriteparts.pos[num];
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
 
-    if ((fabs(spritepartspos.x) > bound) || (fabs(spritepartspos.y) > bound))
+    if ((fabs(spritePartsPos.x) > bound) || (fabs(spritePartsPos.y) > bound))
     {
 #ifndef SERVER
-        randomizestart(spriteparts.pos[num], player->team);
+        randomizestart(spritePartsPos, player->team);
 #endif
         respawn();
     }
@@ -3407,6 +3409,7 @@ void Sprite<M>::checkskeletonoutofbounds()
         return;
 
     bound = map.sectorsnum * map.GetSectorsDivision() - 50;
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
 
     for (i = 1; i <= 20; i++)
     {
@@ -3415,7 +3418,7 @@ void Sprite<M>::checkskeletonoutofbounds()
         if ((fabs(skeletonpos->x) > bound) || (fabs(skeletonpos->y) > bound))
         {
 #ifndef SERVER
-            randomizestart(spriteparts.pos[num], player->team);
+            randomizestart(spritePartsPos, player->team);
 #endif
             respawn();
             break;
@@ -3456,20 +3459,23 @@ void Sprite<M>::respawn()
     if (isspectator())
         return;
 
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
+    auto &spriteForces = SpriteSystem::Get().GetForces(num);
+
 #ifndef SERVER
     if ((player->name == "") or (player->demoplayer))
         return;
 
     if (num == mysprite)
-        playsound(sfx_wermusic, spriteparts.pos[num]);
+        playsound(sfx_wermusic, spritePartsPos);
 #endif
 
 #ifdef SERVER
-    randomizestart(spriteparts.pos[num], player->team);
+    randomizestart(spritePartsPos, player->team);
 #endif
 
 #ifdef SCRIPT
-    spriteparts.pos[num] = scrptdispatcher.onbeforeplayerrespawn(num);
+    spritePartsPos = scrptdispatcher.onbeforeplayerrespawn(num);
 #endif
 
     deadmeatbeforerespawn = deadmeat;
@@ -3481,10 +3487,11 @@ void Sprite<M>::respawn()
     if (player->headcap == 0)
         wearhelmet = 0;
     skeleton.constraints = gostekskeleton.constraints;
-    spriteparts.velocity[num].x = 0;
-    spriteparts.velocity[num].y = 0;
-    spriteparts.forces[num].x = 0;
-    spriteparts.forces[num].y = 0;
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
+    spriteVelocity.x = 0;
+    spriteVelocity.y = 0;
+    spriteForces.x = 0;
+    spriteForces.y = 0;
     jetscount = map.startjet;
     jetscountprev = map.startjet;
     ceasefirecounter = ceasefiretime;
@@ -3680,7 +3687,7 @@ void Sprite<M>::respawn()
     if (weaponSystem.GetWeaponsInGame() == 0)
         weapon = guns[noweapon];
 
-    parachute(spriteparts.pos[num]);
+    parachute(spritePartsPos);
 
 #ifdef SCRIPT
     scrptdispatcher.onafterplayerrespawn(num);
@@ -3699,10 +3706,10 @@ void Sprite<M>::respawn()
 #ifndef SERVER
     // Spawn sound
     if (num != mysprite)
-        playsound(sfx_spawn, spriteparts.pos[num]);
+        playsound(sfx_spawn, spritePartsPos);
 
     // spawn spark
-    createspark(spriteparts.pos[num], spriteparts.velocity[num], 25, num, 33);
+    createspark(spritePartsPos, spriteVelocity, 25, num, 33);
 #endif
 
     freecontrols();
@@ -3733,8 +3740,8 @@ void Sprite<M>::respawn()
         // Respawn if this is not done
         for (j = 1; j <= 20; j++)
         {
-            skeleton.pos[j].x = spriteparts.pos[num].x;
-            skeleton.pos[j].y = spriteparts.pos[num].y;
+            skeleton.pos[j].x = spritePartsPos.x;
+            skeleton.pos[j].y = spritePartsPos.y;
             skeleton.oldpos[j] = skeleton.pos[j];
         }
         // TODO: Fix this shouldn't change wepstats
@@ -4060,8 +4067,11 @@ void Sprite<M>::fire()
     // Multiply with the weapon speed
     vec2scale(b, b, weapon.speed);
 
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
+
     // Add some of the player's velocity to the bullet
-    vec2scale(m, spriteparts.velocity[num], weapon.inheritedvelocity);
+    vec2scale(m, spriteVelocity, weapon.inheritedvelocity);
     b = vec2add(b, m);
 
     // Check for immediate collision (could just be head in polygon), if so then
@@ -4129,7 +4139,7 @@ void Sprite<M>::fire()
 
         d.x = b.x * 0.0412;
         d.y = b.y * 0.041;
-        spriteparts.velocity[num] = vec2subtract(spriteparts.velocity[num], d);
+        spriteVelocity = vec2subtract(spriteVelocity, d);
     }
 
     LogTraceG("SpriteFire 11");
@@ -4154,7 +4164,7 @@ void Sprite<M>::fire()
         }
         d.x = d.x * 0.6;
 
-        spriteparts.velocity[num] = vec2subtract(spriteparts.velocity[num], d);
+        spriteVelocity = vec2subtract(spriteVelocity, d);
     }
 
     if (weapon.num == guns[flamer].num) // Flamer
@@ -4163,7 +4173,7 @@ void Sprite<M>::fire()
         a.y = a.y + b.y * 2;
         bn = createbullet(a, b, weapon.num, num, 255, weapon.hitmultiply, true, false);
 #ifndef SERVER
-        playsound(sfx_flamer, spriteparts.pos[num], gattlingsoundchannel);
+        playsound(sfx_flamer, spritePartsPos, gattlingsoundchannel);
 #endif
     }
 
@@ -4227,8 +4237,8 @@ void Sprite<M>::fire()
 
 #ifndef SERVER
     // Spent bullet shell vectors
-    c.x = spriteparts.velocity[num].x + direction * aimdirection.y * (Random(0) * 0.5 + 0.8);
-    c.y = spriteparts.velocity[num].y - direction * aimdirection.x * (Random(0) * 0.5 + 0.8);
+    c.x = spriteVelocity.x + direction * aimdirection.y * (Random(0) * 0.5 + 0.8);
+    c.y = spriteVelocity.y - direction * aimdirection.x * (Random(0) * 0.5 + 0.8);
     a.x = skeleton.pos[15].x + 2 - direction * 0.015 * b.x;
     a.y = skeleton.pos[15].y - 2 - direction * 0.015 * b.y;
 
@@ -4248,7 +4258,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_ak74_fire, spriteparts.pos[num]);
+            playsound(sfx_ak74_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4270,7 +4280,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_m249_fire, spriteparts.pos[num]);
+            playsound(sfx_m249_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4292,7 +4302,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_ruger77_fire, spriteparts.pos[num]);
+            playsound(sfx_ruger77_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4314,7 +4324,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_mp5_fire, spriteparts.pos[num]);
+            playsound(sfx_mp5_fire, spritePartsPos);
         a.x = skeleton.pos[15].x + 2 - 0.2 * b.x;
         a.y = skeleton.pos[15].y - 2 - 0.2 * b.y;
 #endif
@@ -4338,7 +4348,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_spas12_fire, spriteparts.pos[num]);
+            playsound(sfx_spas12_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position != pos_prone) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4353,7 +4363,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_m79_fire, spriteparts.pos[num]);
+            playsound(sfx_m79_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position != pos_prone) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4364,7 +4374,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_deserteagle_fire, spriteparts.pos[num]);
+            playsound(sfx_deserteagle_fire, spritePartsPos);
         a.x = skeleton.pos[15].x + 3 - 0.17 * b.x;
         a.y = skeleton.pos[15].y - 2 - 0.15 * b.y;
 #endif
@@ -4386,10 +4396,8 @@ void Sprite<M>::fire()
         {
             a.x = skeleton.pos[15].x - 3 - 0.25 * b.x;
             a.y = skeleton.pos[15].y - 3 - 0.3 * b.y;
-            c.x =
-                spriteparts.velocity[num].x + direction * aimdirection.y * (Random(0) * 0.5 + 0.8);
-            c.y =
-                spriteparts.velocity[num].y - direction * aimdirection.x * (Random(0) * 0.5 + 0.8);
+            c.x = spriteVelocity.x + direction * aimdirection.y * (Random(0) * 0.5 + 0.8);
+            c.y = spriteVelocity.y - direction * aimdirection.x * (Random(0) * 0.5 + 0.8);
             createspark(a, c, 66, num, 255); // shell
         }
 #endif
@@ -4398,7 +4406,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_steyraug_fire, spriteparts.pos[num]);
+            playsound(sfx_steyraug_fire, spritePartsPos);
         if (!col)
             createspark(a, c, 69, num, 255); // shell
 #endif
@@ -4418,7 +4426,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_barretm82_fire, spriteparts.pos[num]);
+            playsound(sfx_barretm82_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4433,7 +4441,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_minigun_fire, spriteparts.pos[num]);
+            playsound(sfx_minigun_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4448,7 +4456,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_colt1911_fire, spriteparts.pos[num]);
+            playsound(sfx_colt1911_fire, spritePartsPos);
         a.x = skeleton.pos[15].x + 2 - 0.2 * b.x;
         a.y = skeleton.pos[15].y - 2 - 0.2 * b.y;
         if (!col)
@@ -4470,7 +4478,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_bow_fire, spriteparts.pos[num]);
+            playsound(sfx_bow_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4488,7 +4496,7 @@ void Sprite<M>::fire()
     if (weapon.num == guns[law].num)
     {
         if (bonusstyle != bonus_predator)
-            playsound(sfx_law, spriteparts.pos[num]);
+            playsound(sfx_law, spritePartsPos);
     }
 
     // smoke from muzzle
@@ -4528,8 +4536,7 @@ void Sprite<M>::fire()
     {
         if (weapon.num != guns[chainsaw].num)
         {
-            if (GS::GetGame().pointvisible(spriteparts.pos[num].x, spriteparts.pos[num].y,
-                                           camerafollowsprite))
+            if (GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y, camerafollowsprite))
             {
                 if ((weapon.num == guns[m249].num) || (weapon.num == guns[spas12].num) ||
                     (weapon.num == guns[barrett].num) || (weapon.num == guns[minigun].num))
@@ -4566,9 +4573,8 @@ void Sprite<M>::fire()
         {
             rc = sin(degtorad(((float)(weapon.speed * weapon.fireinterval) / 364) * rc));
 
-            calculaterecoil(gamewidthhalf - camerax + spriteparts.pos[num].x,
-                            gameheighthalf - cameray + spriteparts.pos[num].y, mx, my,
-                            -(pi / 1) * rc);
+            calculaterecoil(gamewidthhalf - camerax + spritePartsPos.x,
+                            gameheighthalf - cameray + spritePartsPos.y, mx, my, -(pi / 1) * rc);
         }
     }
 #endif
@@ -4586,6 +4592,7 @@ void Sprite<M>::throwflag()
     tvector2 newposdiff;
     tvector2 futurepoint1, futurepoint2, futurepoint3, futurepoint4;
     auto &map = GS::GetGame().GetMap();
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
 
     if ((bodyanimation.id != AnimationType::Roll) && (bodyanimation.id != AnimationType::RollBack))
     {
@@ -4609,7 +4616,7 @@ void Sprite<M>::throwflag()
                             vec2scale(boffset, cursordirection, 5);
 
                             // Add velocity
-                            b = vec2add(cursordirection, spriteparts.velocity[num]);
+                            b = vec2add(cursordirection, spriteVelocity);
 
                             // Don't throw if the flag would collide in the upcoming frame
                             newposdiff = vec2add(boffset, b);
@@ -4686,6 +4693,7 @@ void Sprite<M>::throwgrenade()
     float grenadearcsize, grenadearcx, grenadearcy;
     tvector2 playervelocity;
     auto &map = GS::GetGame().GetMap();
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
 
     // Start throw animation
     if (!control.thrownade)
@@ -4709,7 +4717,7 @@ void Sprite<M>::throwgrenade()
         vec2scale(b, b, (float)(bodyanimation.currframe) / guns[fraggrenade].speed);
         if (bodyanimation.currframe < 24)
             vec2scale(b, b, 0.65);
-        b = vec2add(b, spriteparts.velocity[num]);
+        b = vec2add(b, spriteVelocity);
         a.x = skeleton.pos[15].x + b.x * 3;
         a.y = skeleton.pos[15].y - 2 + b.y * 3;
         if (!map.collisiontest(a, c))
@@ -4722,6 +4730,8 @@ void Sprite<M>::throwgrenade()
         }
     }
 #endif
+
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
 
     if ((bodyanimation.id == AnimationType::Throw) &&
         (!control.thrownade || (bodyanimation.currframe == 36)))
@@ -4744,14 +4754,13 @@ void Sprite<M>::throwgrenade()
             if (bodyanimation.currframe < 24)
                 vec2scale(b, b, 0.65);
 
-            vec2scale(playervelocity, spriteparts.velocity[num],
-                      guns[fraggrenade].inheritedvelocity);
+            vec2scale(playervelocity, spriteVelocity, guns[fraggrenade].inheritedvelocity);
 
             b = vec2add(b, playervelocity);
             a.x = skeleton.pos[15].x + b.x * 3;
             a.y = skeleton.pos[15].y - 2 + (b.y * 3);
-            e.x = spriteparts.pos[num].x;
-            e.y = spriteparts.pos[num].y - 12;
+            e.x = spritePartsPos.x;
+            e.y = spritePartsPos.y - 12;
             if (!map.collisiontest(a, c) and
                 !map.raycast(e, a, f, 50, false, false, true, false, player->team))
             {
@@ -4958,7 +4967,9 @@ void Sprite<M>::CopyOldSpritePos()
     for (auto i = max_oldpos; i >= 1; i--)
         oldspritepos[i] = oldspritepos[i - 1];
 
-    oldspritepos[0] = spriteparts.pos[num];
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
+
+    oldspritepos[0] = spritePartsPos;
 }
 
 template <Config::Module M>

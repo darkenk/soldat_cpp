@@ -11,7 +11,6 @@
 
 namespace
 {
-auto &spriteparts = InitGlobalVariable<particlesystem, "spriteparts">();
 auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
 auto &sparkparts = InitGlobalVariable<particlesystem, "sparkparts">();
 auto &gostekskeleton = InitGlobalVariable<particlesystem, "gostekskeleton">();

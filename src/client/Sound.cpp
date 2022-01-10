@@ -9,6 +9,7 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include <SDL2/SDL.h>
 #include <array>
 #include <soloud.h>
@@ -269,8 +270,9 @@ class SoundEngine
 
         if (camerafollowsprite > 0)
         {
-            listenerx = spriteparts.pos[camerafollowsprite].x;
-            listenery = spriteparts.pos[camerafollowsprite].y;
+            const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(camerafollowsprite);
+            listenerx = spritePartsPos.x;
+            listenery = spritePartsPos.y;
         }
 
         dist = sqrt(sqr(emitterx - listenerx) + sqr(emittery - listenery)) / sound_maxdist;
@@ -505,12 +507,12 @@ void playsound(std::int32_t sample, std::int32_t channel)
     fplaysound(sample, camerax, cameray, camerax, cameray, channel);
 }
 
-void playsound(std::int32_t sample, tvector2 &emitter)
+void playsound(std::int32_t sample, const tvector2 &emitter)
 {
     fplaysound(sample, camerax, cameray, emitter.x, emitter.y, defaultchannel);
 }
 
-void playsound(std::int32_t sample, tvector2 &emitter, int32_t channel)
+void playsound(std::int32_t sample, const tvector2 &emitter, int32_t channel)
 {
     fplaysound(sample, camerax, cameray, emitter.x, emitter.y, channel);
 }

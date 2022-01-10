@@ -37,8 +37,8 @@ void fplaysound(std::int32_t samplenum, float listenerx, float listenery, float 
                 float emittery, std::int32_t chan);
 void playsound(std::int32_t sample);
 void playsound(std::int32_t sample, std::int32_t channel);
-void playsound(std::int32_t sample, tvector2 &emitter);
-void playsound(std::int32_t sample, tvector2 &emitter, int32_t channel);
+void playsound(std::int32_t sample, const tvector2 &emitter);
+void playsound(std::int32_t sample, const tvector2 &emitter, int32_t channel);
 bool stopsound(std::int32_t channel);
 
 bool setsoundpaused(std::int32_t channel, bool paused);

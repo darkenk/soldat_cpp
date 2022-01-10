@@ -46,15 +46,19 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
     clienttickcount = spritesnap->serverticks;
     lastheartbeatcounter = spritesnap->serverticks;
 
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
+
     // CLIENT RESPAWN
     if (SpriteSystem::Get().GetSprite(i).deadmeat)
     {
-        spriteparts.oldpos[i] = spriteparts.pos[i];
-        spriteparts.pos[i] = spritesnap->pos;
-        spriteparts.velocity[i] = spritesnap->velocity;
+        SpriteSystem::Get().SetSpritePartsOldPos(i, spritePartsPos);
+        spritePartsPos = spritesnap->pos;
+
+        spriteVelocity = spritesnap->velocity;
         SpriteSystem::Get().GetSprite(i).respawn();
         SpriteSystem::Get().GetSprite(i).olddeadmeat = SpriteSystem::Get().GetSprite(i).deadmeat;
-        spriteparts.pos[i] = spritesnap->pos;
+        spritePartsPos = spritesnap->pos;
     }
 
     SpriteSystem::Get().GetSprite(i).deadmeat = false;
@@ -63,9 +67,9 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
     {
         if (SpriteSystem::Get().GetSprite(i).GetHealth() == spritesnap->health)
         {
-            spriteparts.oldpos[i] = spriteparts.pos[i];
-            spriteparts.pos[i] = spritesnap->pos;
-            spriteparts.velocity[i] = spritesnap->velocity;
+            SpriteSystem::Get().SetSpritePartsOldPos(i, spritePartsPos);
+            spritePartsPos = spritesnap->pos;
+            spriteVelocity = spritesnap->velocity;
         }
 
         SpriteSystem::Get().GetSprite(i).control.mouseaimy = spritesnap->mouseaimy;
@@ -164,15 +168,18 @@ void clienthandleserverspritesnapshot_major(SteamNetworkingMessage_t *netmessage
     clienttickcount = spritesnapmajor->serverticks;
     lastheartbeatcounter = spritesnapmajor->serverticks;
 
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
+
     // CLIENT RESPAWN
     if (SpriteSystem::Get().GetSprite(i).deadmeat)
     {
-        spriteparts.oldpos[i] = spriteparts.pos[i];
-        spriteparts.pos[i] = spritesnapmajor->pos;
-        spriteparts.velocity[i] = spritesnapmajor->velocity;
+        SpriteSystem::Get().SetSpritePartsOldPos(i, spritePartsPos);
+        spritePartsPos = spritesnapmajor->pos;
+        spriteVelocity = spritesnapmajor->velocity;
         SpriteSystem::Get().GetSprite(i).respawn();
         SpriteSystem::Get().GetSprite(i).olddeadmeat = SpriteSystem::Get().GetSprite(i).deadmeat;
-        spriteparts.pos[i] = spritesnapmajor->pos;
+        spritePartsPos = spritesnapmajor->pos;
     }
 
     SpriteSystem::Get().GetSprite(i).deadmeat = false;
@@ -181,9 +188,9 @@ void clienthandleserverspritesnapshot_major(SteamNetworkingMessage_t *netmessage
     {
         if (SpriteSystem::Get().GetSprite(i).GetHealth() == spritesnapmajor->health)
         {
-            spriteparts.oldpos[i] = spriteparts.pos[i];
-            spriteparts.pos[i] = spritesnapmajor->pos;
-            spriteparts.velocity[i] = spritesnapmajor->velocity;
+            SpriteSystem::Get().SetSpritePartsOldPos(i, spritePartsPos);
+            spritePartsPos = spritesnapmajor->pos;
+            spriteVelocity = spritesnapmajor->velocity;
         }
 
         SpriteSystem::Get().GetSprite(i).control.mouseaimy = spritesnapmajor->mouseaimy;
@@ -275,8 +282,11 @@ void clientspritesnapshotmov()
 
     clientmsg.header.id = msgid_clientspritesnapshot_mov;
 
-    clientmsg.pos = spriteparts.pos[mysprite];
-    clientmsg.velocity = spriteparts.velocity[mysprite];
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(mysprite);
+
+    clientmsg.pos = spritePartsPos;
+    clientmsg.velocity = spriteVelocity;
     clientmsg.mouseaimx = SpriteSystem::Get().GetSprite(mysprite).control.mouseaimx;
     clientmsg.mouseaimy = SpriteSystem::Get().GetSprite(mysprite).control.mouseaimy;
 
@@ -605,6 +615,7 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
                 break;
             }
 
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
     if (deathsnap->killbullet == 222) /*grenade*/
         for (j = max_bullets; j >= 1; j--)
             if ((bullet[j].active) && (bullet[j].owner == deathsnap->killer) &&
@@ -614,8 +625,8 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
                             hm, 351);
                 if (hm < after_explosion_radius)
                 {
-                    bulletparts.oldpos[j] = spriteparts.pos[i];
-                    bulletparts.pos[j] = spriteparts.pos[i];
+                    bulletparts.oldpos[j] = spritePartsPos;
+                    bulletparts.pos[j] = spritePartsPos;
                     bullet[j].hit(4);
                     bullet[j].kill();
                 }
@@ -646,10 +657,10 @@ void clienthandledelta_movement(SteamNetworkingMessage_t *netmessage)
     if (!SpriteSystem::Get().GetSprite(i).active)
         return;
 
-    // a := Vec2Subtract(SpriteParts.Pos[i], DeltaMov.Pos);
-
-    spriteparts.pos[i] = deltamov->pos;
-    spriteparts.velocity[i] = deltamov->velocity;
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
+    spritePartsPos = deltamov->pos;
+    spriteVelocity = deltamov->velocity;
 
     SpriteSystem::Get().GetSprite(i).control.mouseaimy = deltamov->mouseaimy;
     SpriteSystem::Get().GetSprite(i).control.mouseaimx = deltamov->mouseaimx;
@@ -730,11 +741,12 @@ void clienthandledelta_helmet(SteamNetworkingMessage_t *netmessage)
     if (!SpriteSystem::Get().GetSprite(i).active)
         return;
 
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
+
     // helmet chop
     if (deltahelmet->wearhelmet == 0)
     {
-        createspark(SpriteSystem::Get().GetSprite(i).skeleton.pos[12], spriteparts.velocity[i], 6,
-                    i, 198);
+        createspark(SpriteSystem::Get().GetSprite(i).skeleton.pos[12], spriteVelocity, 6, i, 198);
         playsound(sfx_headchop, SpriteSystem::Get().GetSprite(i).skeleton.pos[12]);
     }
 

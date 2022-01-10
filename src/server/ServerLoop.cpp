@@ -332,13 +332,7 @@ void updateframe()
     {
         {
             ZoneScopedN("SpriteParts");
-            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-            {
-                if (sprite.isnotspectator())
-                {
-                    spriteparts.doeulertimestepfor(sprite.num); // integrate sprite particles
-                }
-            }
+            SpriteSystem::Get().UpdateSpriteParts();
         }
 
         {

@@ -184,7 +184,8 @@ std::int32_t tdemorecorder<M>::createdemoplayer()
         serversendnewplayerinfo(p, join_normal);
         serverthingmustsnapshotonconnect(p);
         SpriteSystem::Get().GetSprite(p).player.demoplayer = true;
-        spriteparts.pos[p] = vector2(0, 0);
+        auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(p);
+        spritePartsPos = vector2(0, 0);
         createdemoplayer_result = p;
 #endif
     }
@@ -227,9 +228,11 @@ void tdemorecorder<M>::saveposition()
 
     movementmsg.header.id = msgid_delta_movement;
 
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(mysprite);
     movementmsg.num = mysprite;
-    movementmsg.velocity = spriteparts.velocity[mysprite];
-    movementmsg.pos = spriteparts.pos[mysprite];
+    movementmsg.velocity = spriteVelocity;
+    movementmsg.pos = spritePartsPos;
     movementmsg.servertick = maintickcounter;
 
     encodekeys(SpriteSystem::Get().GetSprite(mysprite), movementmsg.keys16);

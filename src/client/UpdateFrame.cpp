@@ -55,15 +55,9 @@ void update_frame()
 
         {
             ZoneScopedN("SpriteParts");
-            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+            if (clientstopmovingcounter > 0)
             {
-                if (sprite.isnotspectator())
-                {
-                    if (clientstopmovingcounter > 0)
-                    {
-                        spriteparts.doeulertimestepfor(sprite.num); // integrate sprite particles
-                    }
-                }
+                SpriteSystem::Get().UpdateSpriteParts();
             }
         }
 
@@ -173,8 +167,9 @@ void update_frame()
                  SpriteSystem::Get().GetSprite(mysprite).deadmeat or sprite.deadmeat) and
                 ((sprite.visible > 40) or (!CVar::sv_realisticmode)))
             {
+                const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(j);
                 if (distance(-gamewidthhalf + camerax + mx, -gameheighthalf + cameray + my,
-                             spriteparts.pos[j].x, spriteparts.pos[j].y) < cursorsprite_distance)
+                             spritePartsPos.x, spritePartsPos.y) < cursorsprite_distance)
                 {
                     cursortext = sprite.player->name;
                     if (GS::GetGame().isteamgame())
@@ -386,8 +381,9 @@ void update_frame()
                                      SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef);
             camv.x = camerax;
             camv.y = cameray;
-            p.x = spriteparts.pos[camerafollowsprite].x;
-            p.y = spriteparts.pos[camerafollowsprite].y;
+            auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(camerafollowsprite);
+            p.x = spritePartsPos.x;
+            p.y = spritePartsPos.y;
             norm = vec2subtract(p, camv);
             vec2scale(s, norm, camspeed);
             camv = vec2add(camv, s);

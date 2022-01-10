@@ -374,7 +374,9 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
 
             createsprite(pos, b, 1, iplus1, newplayer, false);
 
-            spriteparts.velocity[SpriteSystem::Get().GetSprite(iplus1).num] = vel;
+            auto &spriteVelocity =
+                SpriteSystem::Get().GetVelocity(SpriteSystem::Get().GetSprite(iplus1).num);
+            spriteVelocity = vel;
 
             SpriteSystem::Get().GetSprite(iplus1).ceasefirecounter = 0;
             if (playerslistmsg->predduration[i] > 0)

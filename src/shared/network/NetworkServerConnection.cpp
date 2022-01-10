@@ -559,8 +559,10 @@ void serversendplaylist(HSteamNetConnection peer)
             if (s.player->chain == 2)
                 playerslist.look[i] = playerslist.look[i] | B8;
 
-            playerslist.pos[i] = spriteparts.pos[s.num];
-            playerslist.vel[i] = spriteparts.velocity[s.num];
+            const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(s.num);
+            const auto &spriteVelocity = SpriteSystem::Get().GetVelocity(s.num);
+            playerslist.pos[i] = spritePartsPos;
+            playerslist.vel[i] = spriteVelocity;
             playerslist.steamid[i] = 0;
         }
         else
@@ -681,7 +683,7 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
     newplayer.haircolor = SpriteSystem::Get().GetSprite(num).player->haircolor & 0xffffff;
     newplayer.jetcolor = SpriteSystem::Get().GetSprite(num).player->jetcolor;
     newplayer.team = SpriteSystem::Get().GetSprite(num).player->team;
-    newplayer.pos = spriteparts.pos[num];
+    newplayer.pos = SpriteSystem::Get().GetSpritePartsPos(num);
     //  NewPlayer.SteamID := {$IFDEF
     //  STEAM}UInt64(SpriteSystem::Get().GetSprite(Num).Player.SteamID){$ELSE}0{$ENDIF};
 

@@ -86,4 +86,4 @@ void calculaterecoil(float px, float py, float &cx, float &cy, float da);
 void hitspray();
 #endif
 template <Config::Module M = Config::GetModule()>
-bool bulletcansend(float x, float y, std::int32_t i, float vx);
+bool bulletcansend(float x, float y, const std::int32_t i, float vx);

@@ -88,21 +88,22 @@ void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, 
 #endif
 }
 
-void moveplayer(std::uint8_t id, float x, float y)
+void moveplayer(const std::uint8_t id, float x, float y)
 {
     tmsg_forceposition movemsg;
-    std::uint8_t i;
 
     if (!SpriteSystem::Get().GetSprite(id).active)
         return;
 
-    spriteparts.pos[id].x = x;
-    spriteparts.pos[id].y = y;
-    spriteparts.oldpos[id] = spriteparts.pos[id];
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(id);
+
+    spritePartsPos.x = x;
+    spritePartsPos.y = y;
+    SpriteSystem::Get().SetSpritePartsOldPos(id, spritePartsPos);
 
     movemsg.header.id = msgid_forceposition;
 
-    movemsg.pos = spriteparts.pos[id];
+    movemsg.pos = spritePartsPos;
     movemsg.playerid = id;
 
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
@@ -113,19 +114,21 @@ void moveplayer(std::uint8_t id, float x, float y)
     }
 }
 
-void modifyplayervelocity(std::uint8_t id, float velx, float vely)
+void modifyplayervelocity(const std::uint8_t id, float velx, float vely)
 {
     tmsg_forcevelocity velmsg;
 
     if (!SpriteSystem::Get().GetSprite(id).active)
         return;
 
-    spriteparts.velocity[id].x = velx;
-    spriteparts.velocity[id].y = vely;
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(id);
+
+    spriteVelocity.x = velx;
+    spriteVelocity.y = vely;
 
     velmsg.header.id = msgid_forcevelocity;
 
-    velmsg.vel = spriteparts.velocity[id];
+    velmsg.vel = spriteVelocity;
     velmsg.playerid = id;
 
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())

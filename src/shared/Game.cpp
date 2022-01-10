@@ -185,7 +185,7 @@ void Game<M>::togglebullettime(bool turnon, std::int32_t duration)
 }
 
 template <Config::Module M>
-bool Game<M>::pointvisible(float x, float y, std::int32_t i)
+bool Game<M>::pointvisible(float x, float y, const std::int32_t i)
 {
 #ifdef SERVER
     // TODO: check why numbers differ on server and client
@@ -210,10 +210,12 @@ bool Game<M>::pointvisible(float x, float y, std::int32_t i)
     if ((i > max_players) || (i < 1))
         return result;
 
-    sx = spriteparts.pos[i].x -
-         ((float)((spriteparts.pos[i].x - SpriteSystem::Get().GetSprite(i).control.mouseaimx)) / 2);
-    sy = spriteparts.pos[i].y -
-         ((float)((spriteparts.pos[i].y - SpriteSystem::Get().GetSprite(i).control.mouseaimy)) / 2);
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
+
+    sx = spritePartsPos.x -
+         ((float)((spritePartsPos.x - SpriteSystem::Get().GetSprite(i).control.mouseaimx)) / 2);
+    sy = spritePartsPos.y -
+         ((float)((spritePartsPos.y - SpriteSystem::Get().GetSprite(i).control.mouseaimy)) / 2);
 
     if ((x > (sx - game_width)) && (x < (sx + game_width)) && (y > (sy - game_height)) &&
         (y < (sy + game_height)))
@@ -222,7 +224,7 @@ bool Game<M>::pointvisible(float x, float y, std::int32_t i)
 }
 
 template <Config::Module M>
-bool Game<M>::pointvisible2(float x, float y, std::int32_t i)
+bool Game<M>::pointvisible2(float x, float y, const std::int32_t i)
 {
 // TODO: check why numbers differ on server and client
 #ifdef SERVER
@@ -240,8 +242,10 @@ bool Game<M>::pointvisible2(float x, float y, std::int32_t i)
 
     bool result = false;
 
-    sx = spriteparts.pos[i].x;
-    sy = spriteparts.pos[i].y;
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
+
+    sx = spritePartsPos.x;
+    sy = spritePartsPos.y;
 
     if ((x > (sx - game_width)) && (x < (sx + game_width)) && (y > (sy - game_height)) &&
         (y < (sy + game_height)))
@@ -518,7 +522,8 @@ void Game<M>::changemap()
         {
             if (sprite.isnotspectator())
             {
-                randomizestart(spriteparts.pos[sprite.num], sprite.player->team);
+                auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(sprite.num);
+                randomizestart(spritePartsPos, sprite.player->team);
                 sprite.respawn();
                 sprite.player->kills = 0;
                 sprite.player->deaths = 0;
@@ -678,7 +683,10 @@ void Game<M>::changemap()
 
     // Spawn sound
     if (mysprite > 0)
-        playsound(sfx_spawn, spriteparts.pos[mysprite]);
+    {
+        auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
+        playsound(sfx_spawn, spritePartsPos);
+    }
 
 #endif
     // DEMO

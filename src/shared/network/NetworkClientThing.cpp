@@ -93,7 +93,9 @@ void clienthandleserverthingsnapshot(SteamNetworkingMessage_t *netmessage)
             }
 
     if ((thing.holdingsprite > 0) && (thing.style != object_parachute))
-        if (distance(thing.skeleton.pos[1], spriteparts.pos[thing.holdingsprite]) > 330)
+    {
+        auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(thing.holdingsprite);
+        if (distance(thing.skeleton.pos[1], spritePartsPos) > 330)
             for (d = 1; d <= 4; d++)
             {
                 [[deprecated("maybe change d scope from 1 to 0?")]] auto dminus1 = d - 1;
@@ -102,6 +104,7 @@ void clienthandleserverthingsnapshot(SteamNetworkingMessage_t *netmessage)
                 thing.skeleton.oldpos[d].x = thingsnap->oldpos[dminus1].x;
                 thing.skeleton.oldpos[d].y = thingsnap->oldpos[dminus1].y;
             }
+    }
 
     thing.statictype = false;
 
@@ -542,7 +545,8 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     case object_stationary_gun: {
         thing.statictype = true;
         SpriteSystem::Get().GetSprite(thingtakensnap->who).stat = i;
-        playsound(sfx_m2use, spriteparts.pos[thingtakensnap->who]);
+        const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(thingtakensnap->who);
+        playsound(sfx_m2use, spritePartsPos);
     }
     break;
     }

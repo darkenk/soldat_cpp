@@ -35,8 +35,10 @@ void serverspritesnapshot(std::uint8_t r)
         { // active player/sprite
             servermsg.header.id = msgid_serverspritesnapshot;
             // assign sprite values to ServerMsg
-            servermsg.pos = spriteparts.pos[i];
-            servermsg.velocity = spriteparts.velocity[i];
+            auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
+            auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
+            servermsg.pos = spritePartsPos;
+            servermsg.velocity = spriteVelocity;
             servermsg.num = sprite.num;
             servermsg.health = sprite.GetHealth();
             servermsg.position = sprite.position;
@@ -113,8 +115,10 @@ void serverspritesnapshotmajor(std::uint8_t r)
         { // active player/sprite
             servermsg.header.id = msgid_serverspritesnapshot_major;
             // assign sprite values to ServerMsg
-            servermsg.pos = spriteparts.pos[i];
-            servermsg.velocity = spriteparts.velocity[i];
+            auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
+            auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
+            servermsg.pos = spritePartsPos;
+            servermsg.velocity = spriteVelocity;
             servermsg.num = sprite.num;
             servermsg.health = sprite.GetHealth();
             servermsg.position = sprite.position;
@@ -157,14 +161,18 @@ void serverspritesnapshotmajor(std::uint8_t r)
     }
 }
 
-void serverspritesnapshotmajorfloat(std::uint8_t who, std::uint8_t r)
+void serverspritesnapshotmajorfloat(const std::uint8_t who, std::uint8_t r)
 {
     tmsg_serverspritesnapshot_major servermsg;
 
     servermsg.header.id = msgid_serverspritesnapshot_major;
+
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(who);
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(who);
+
     // assign sprite values to ServerMsg
-    servermsg.pos = spriteparts.pos[who];
-    servermsg.velocity = spriteparts.velocity[who];
+    servermsg.pos = spritePartsPos;
+    servermsg.velocity = spriteVelocity;
     servermsg.num = SpriteSystem::Get().GetSprite(who).num;
     servermsg.health = SpriteSystem::Get().GetSprite(who).GetHealth();
     servermsg.position = SpriteSystem::Get().GetSprite(who).position;
@@ -311,13 +319,16 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
 }
 
 // SEND DELTAS OF SPRITE
-void serverspritedeltas(std::uint8_t i)
+void serverspritedeltas(const std::uint8_t i)
 {
     tmsg_serverspritedelta_movement movementmsg;
     tmsg_serverspritedelta_weapons weaponsmsg;
     tmsg_serverspritedelta_helmet helmetmsg;
     std::int32_t j;
     tvector2 a, b;
+
+    const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
 
     helmetmsg.header.id = msgid_delta_helmet;
     helmetmsg.num = i;
@@ -326,8 +337,8 @@ void serverspritedeltas(std::uint8_t i)
     movementmsg.header.id = msgid_delta_movement;
     movementmsg.num = i;
 
-    movementmsg.velocity = spriteparts.velocity[i];
-    movementmsg.pos = spriteparts.pos[i];
+    movementmsg.velocity = spriteVelocity;
+    movementmsg.pos = spritePartsPos;
     movementmsg.servertick = servertickcounter;
 
     encodekeys(SpriteSystem::Get().GetSprite(i), movementmsg.keys16);
@@ -342,9 +353,10 @@ void serverspritedeltas(std::uint8_t i)
     weaponsmsg.ammocount = SpriteSystem::Get().GetSprite(i).weapon.ammocount;
 
     for (j = 1; j <= max_sprites; j++)
+    {
         if (SpriteSystem::Get().GetSprite(j).active &&
             (SpriteSystem::Get().GetSprite(j).player->controlmethod == human) && (j != i))
-            if (GS::GetGame().pointvisible(spriteparts.pos[i].x, spriteparts.pos[i].y,
+            if (GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y,
                                            SpriteSystem::Get().GetSprite(j).player->camera) or
                 (SpriteSystem::Get().GetSprite(j).isspectator() &&
                  (SpriteSystem::Get().GetSprite(j).player->port == 0))) // visible to sprite
@@ -361,6 +373,7 @@ void serverspritedeltas(std::uint8_t i)
                     oldmovementmsg[j][i] = movementmsg;
                 }
             }
+    }
 
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
@@ -368,7 +381,7 @@ void serverspritedeltas(std::uint8_t i)
         if ((sprite.player->controlmethod == human) && (j != i))
             if ((weaponsmsg.weaponnum != oldweaponsmsg[j][i].weaponnum) ||
                 (weaponsmsg.secondaryweaponnum != oldweaponsmsg[j][i].secondaryweaponnum))
-                if (GS::GetGame().pointvisible(spriteparts.pos[i].x, spriteparts.pos[i].y,
+                if (GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y,
                                                sprite.player->camera) or
                     (sprite.isspectator() && (sprite.player->port == 0))) // visible to sprite
                 {
@@ -515,8 +528,11 @@ void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage)
 
     sprite.player->camera = i;
 
-    spriteparts.pos[i] = clientmovmsg.pos;
-    spriteparts.velocity[i] = clientmovmsg.velocity;
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
+
+    spritePartsPos = clientmovmsg.pos;
+    spriteVelocity = clientmovmsg.velocity;
 
     map.checkoutofbounds(clientmovmsg.mouseaimx, clientmovmsg.mouseaimy);
 

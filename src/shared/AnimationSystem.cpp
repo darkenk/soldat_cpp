@@ -5,6 +5,7 @@
 #include "LogFile.hpp"
 #include "common/Parts.hpp"
 
+#include "mechanics/SpriteSystem.hpp"
 #include "physfs.h"
 
 // clang-format off
@@ -85,10 +86,8 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 
     addlinetologfile(gamelog, "Loading objects.", consolelogfilename);
 
-    spriteparts.destroy();
-    spriteparts.timestep = 1;
-    spriteparts.gravity = grav;
-    spriteparts.edamping = 0.99;
+    SpriteSystem::Get().ResetSpriteParts();
+
     gostekskeleton.destroy();
     gostekskeleton.loadpoobject("objects/gostek.po", scale);
     gostekskeleton.timestep = 1;

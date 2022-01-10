@@ -44,8 +44,8 @@ class Game : public GlobalSubsystem<Game<M>>
     void number27timing();
     void togglebullettime(bool turnon, std::int32_t duration = 30);
     void updategamestats();
-    bool pointvisible(float x, float y, std::int32_t i);
-    bool pointvisible2(float x, float y, std::int32_t i);
+    bool pointvisible(float x, float y, const int32_t i);
+    bool pointvisible2(float x, float y, const int32_t i);
     void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targetvote,
                std::string reasonvote);
 

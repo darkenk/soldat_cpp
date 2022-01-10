@@ -76,8 +76,10 @@ void clienthandleforceposition(SteamNetworkingMessage_t *netmessage)
 
     forceposition = pmsg_forceposition(netmessage->m_pData);
 
-    spriteparts.pos[forceposition->playerid] = forceposition->pos;
-    spriteparts.oldpos[forceposition->playerid] = spriteparts.pos[forceposition->playerid];
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(forceposition->playerid);
+
+    spritePartsPos = forceposition->pos;
+    SpriteSystem::Get().SetSpritePartsOldPos(forceposition->playerid, spritePartsPos);
 }
 
 void clienthandleforcevelocity(SteamNetworkingMessage_t *netmessage)
@@ -89,7 +91,8 @@ void clienthandleforcevelocity(SteamNetworkingMessage_t *netmessage)
 
     forcevelocity = pmsg_forcevelocity(netmessage->m_pData);
 
-    spriteparts.velocity[forcevelocity->playerid] = forcevelocity->vel;
+    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(forcevelocity->playerid);
+    spriteVelocity = forcevelocity->vel;
 }
 
 void clienthandleforceweapon(SteamNetworkingMessage_t *netmessage)
@@ -225,10 +228,11 @@ void clienthandleplaysound(SteamNetworkingMessage_t *netmessage)
                                             scriptsamp[i].samp);
         }
 #endif
+        auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
         if (playsoundmsg->emitter.x == 0)
-            playsoundmsg->emitter.x = spriteparts.pos[mysprite].x;
+            playsoundmsg->emitter.x = spritePartsPos.x;
         if (playsoundmsg->emitter.y == 0)
-            playsoundmsg->emitter.y = spriteparts.pos[mysprite].y;
+            playsoundmsg->emitter.y = spritePartsPos.y;
         playsound(i, playsoundmsg->emitter);
     }
 }

@@ -125,8 +125,10 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
         statsmenushow = false;
     }
 
-    spriteparts.oldpos[i] = newplayermsg->pos;
-    spriteparts.pos[i] = newplayermsg->pos;
+    SpriteSystem::Get().SetSpritePartsOldPos(i, newplayermsg->pos);
+
+    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
+    spritePartsPos = newplayermsg->pos;
 
     SpriteSystem::Get().GetSprite(i).respawn();
 

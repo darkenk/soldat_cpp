@@ -93,6 +93,11 @@ void controlsprite(tsprite &spritec)
     bool unprone;
 
     auto &map = GS::GetGame().GetMap();
+    auto& spriteSystem = SpriteSystem::Get();
+    const auto &spritePartsPos = spriteSystem.GetSpritePartsPos(spritec.num);
+    auto &spriteVelocity = spriteSystem.GetVelocity(spritec.num);
+    auto &spriteForces = spriteSystem.GetForces(spritec.num);
+
 
     switch (spritec.style)
     {
@@ -345,9 +350,9 @@ void controlsprite(tsprite &spritec)
         spritec.fired = 0;
 
         spritec.control.mouseaimx =
-            round(spritec.control.mouseaimx + spriteparts.velocity[spritec.num].x);
+            round(spritec.control.mouseaimx + spriteVelocity.x);
         spritec.control.mouseaimy =
-            round(spritec.control.mouseaimy + spriteparts.velocity[spritec.num].y);
+            round(spritec.control.mouseaimy + spriteVelocity.y);
 
         // use weapons
         b.x = 0;
@@ -365,16 +370,17 @@ void controlsprite(tsprite &spritec)
         else if (spritec.control.jetpack && (spritec.jetscount > 0))
         {
             if (spritec.onground)
-                spriteparts.forces[spritec.num].y = -2.5 * iif(grav > 0.05, jetspeed, grav * 2);
-
-            if (!spritec.onground)
+            {
+                spriteForces.y = -2.5 * iif(grav > 0.05, jetspeed, grav * 2);
+            }
+            else
             {
                 if (spritec.position != pos_prone)
-                    spriteparts.forces[spritec.num].y =
-                        spriteparts.forces[spritec.num].y - iif(grav > 0.05, jetspeed, grav * 2);
+                    spriteForces.y =
+                        spriteForces.y - iif(grav > 0.05, jetspeed, grav * 2);
                 else
-                    spriteparts.forces[spritec.num].x =
-                        spriteparts.forces[spritec.num].x +
+                    spriteForces.x =
+                        spriteForces.x +
                         ((float)(spritec.direction * iif(grav > 0.05, jetspeed, grav * 2)) / 2);
             }
 
@@ -391,7 +397,7 @@ void controlsprite(tsprite &spritec)
 
             // smoke
             if (Random(8) == 0)
-                createspark(a, spriteparts.velocity[spritec.num], 1, spritec.num, 75);
+                createspark(a, spriteVelocity, 1, spritec.num, 75);
             // sparks
             if (Random(7) == 0)
                 createspark(a, b, 62, spritec.num, 40);
@@ -404,7 +410,7 @@ void controlsprite(tsprite &spritec)
 
             // smoke
             if (Random(8) == 0)
-                createspark(a, spriteparts.velocity[spritec.num], 1, spritec.num, 75);
+                createspark(a, spriteVelocity, 1, spritec.num, 75);
             // sparks
             if (Random(7) == 0)
                 createspark(a, b, 62, spritec.num, 40);
@@ -416,7 +422,7 @@ void controlsprite(tsprite &spritec)
                 spritec.jetscount = 0;
 
             // play rockets sound
-            playsound(sfx_rocketz, spriteparts.pos[spritec.num], spritec.jetssoundchannel);
+            playsound(sfx_rocketz, spritePartsPos, spritec.jetssoundchannel);
 #endif
         }
         else
@@ -440,9 +446,12 @@ void controlsprite(tsprite &spritec)
                             if (!sprite.deadmeat and
                                 (sprite.position == pos_stand) && (sprite.num != spritec.num) &&
                                 sprite.isnotspectator())
-                                if (distance(spriteparts.pos[spritec.num], spriteparts.pos[sprite.num]) <
+                            {
+                                auto &secSpritePartsPos = SpriteSystem::Get().GetSpritePartsPos(sprite.num);
+                                if (distance(spritePartsPos, secSpritePartsPos) <
                                     melee_dist)
                                     spritec.bodyapplyanimation(AnimationType::Melee, 1);
+                            }
                         }
                     }
 
@@ -484,13 +493,13 @@ void controlsprite(tsprite &spritec)
                                             // Barrett wind up
                                             if (spritec.weapon.num == guns[barrett].num)
                                                 playsound(sfx_law_start,
-                                                          spriteparts.pos[spritec.num],
+                                                          spritePartsPos,
                                                           spritec.gattlingsoundchannel);
 
                                             // Minigun wind up
                                             else if (spritec.weapon.num == guns[minigun].num)
                                                 playsound(sfx_minigun_start,
-                                                          spriteparts.pos[spritec.num],
+                                                          spritePartsPos,
                                                           spritec.gattlingsoundchannel);
 
                                             // LAW wind up
@@ -505,7 +514,7 @@ void controlsprite(tsprite &spritec)
                                                      ((spritec.legsanimation.id == AnimationType::Prone) &&
                                                       (spritec.legsanimation.currframe > 23))))
                                                     playsound(sfx_law_start,
-                                                              spriteparts.pos[spritec.num],
+                                                              spritePartsPos,
                                                               spritec.gattlingsoundchannel);
                                             }
                                         }
@@ -537,7 +546,7 @@ void controlsprite(tsprite &spritec)
                         {
                             if (spritec.weapon.num == guns[minigun].num)
                                 // gattling end sound
-                                playsound(sfx_minigun_end, spriteparts.pos[spritec.num],
+                                playsound(sfx_minigun_end, spritePartsPos,
                                           spritec.gattlingsoundchannel2);
                             if (spritec.weapon.num == guns[law].num)
                                 if ((spritec.onground) and
@@ -548,7 +557,7 @@ void controlsprite(tsprite &spritec)
                                      ((spritec.legsanimation.id == AnimationType::Prone) &&
                                       (spritec.legsanimation.currframe > 23))))
                                     // LAW wind down sound
-                                    playsound(sfx_law_end, spriteparts.pos[spritec.num],
+                                    playsound(sfx_law_end, spritePartsPos,
                                               spritec.gattlingsoundchannel2);
                         }
 
@@ -674,7 +683,7 @@ void controlsprite(tsprite &spritec)
         if ((spritec.bodyanimation.id == AnimationType::Reload) && (spritec.bodyanimation.currframe == 7))
         {
 #ifndef SERVER
-            playsound(sfx_spas12_reload, spriteparts.pos[spritec.num], spritec.reloadsoundchannel);
+            playsound(sfx_spas12_reload, spritePartsPos, spritec.reloadsoundchannel);
 #endif
             spritec.bodyanimation.currframe += 1;
         }
@@ -693,13 +702,13 @@ void controlsprite(tsprite &spritec)
         {
 #ifndef SERVER
             if (spritec.secondaryweapon.num == guns[colt].num)
-                playsound(sfx_changespin, spriteparts.pos[spritec.num]);
+                playsound(sfx_changespin, spritePartsPos);
             else if (spritec.secondaryweapon.num == guns[knife].num)
-                playsound(sfx_knife, spriteparts.pos[spritec.num]);
+                playsound(sfx_knife, spritePartsPos);
             else if (spritec.secondaryweapon.num == guns[chainsaw].num)
-                playsound(sfx_chainsaw_d, spriteparts.pos[spritec.num]);
+                playsound(sfx_chainsaw_d, spritePartsPos);
             else
-                playsound(sfx_changeweapon, spriteparts.pos[spritec.num]);
+                playsound(sfx_changeweapon, spritePartsPos);
 #endif
             spritec.bodyanimation.currframe += 1;
         }
@@ -743,7 +752,7 @@ void controlsprite(tsprite &spritec)
         // Throw away weapon
 #ifndef SERVER
         if ((spritec.bodyanimation.id == AnimationType::ThrowWeapon) && (spritec.bodyanimation.currframe == 2))
-            playsound(sfx_throwgun, spriteparts.pos[spritec.num]);
+            playsound(sfx_throwgun, spritePartsPos);
 #endif
         if (spritec.weapon.num != guns[knife].num)
             if ((spritec.bodyanimation.id == AnimationType::ThrowWeapon) &&
@@ -774,7 +783,7 @@ void controlsprite(tsprite &spritec)
                 lastforceclientspritesnapshotmovtick = maintickcounter;
 #endif
                 b = spritec.getcursoraimdirection();
-                vec2scale(playervelocity, spriteparts.velocity[spritec.num],
+                vec2scale(playervelocity, spriteVelocity,
                           guns[thrownknife].inheritedvelocity);
 
                 d = (float)(min(max(spritec.bodyanimation.currframe, 8), 16)) / 16;
@@ -806,7 +815,7 @@ void controlsprite(tsprite &spritec)
 
 #ifndef SERVER
                 if (spritec.weapon.num == guns[knife].num)
-                    playsound(sfx_slash, spriteparts.pos[spritec.num]);
+                    playsound(sfx_slash, spritePartsPos);
 #endif
 
                 spritec.bodyanimation.currframe += 1;
@@ -824,7 +833,7 @@ void controlsprite(tsprite &spritec)
                              true, true);
 
 #ifndef SERVER
-                playsound(sfx_slash, spriteparts.pos[spritec.num]);
+                playsound(sfx_slash, spritePartsPos);
 #endif
             }
 
@@ -838,8 +847,8 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
             b = spritec.gethandsaimdirection();
             vec2scale(b, b, spritec.weapon.speed);
-            b.x = spritec.direction * 0.025 * b.y + spriteparts.velocity[spritec.num].x;
-            b.y = -spritec.direction * 0.025 * b.x + spriteparts.velocity[spritec.num].y;
+            b.x = spritec.direction * 0.025 * b.y + spriteVelocity.x;
+            b.y = -spritec.direction * 0.025 * b.x + spriteVelocity.y;
             a.x = spritec.skeleton.pos[15].x + 2 - spritec.direction * 0.015 * b.x;
             a.y = spritec.skeleton.pos[15].y - 2 - spritec.direction * 0.015 * b.y;
 
@@ -855,8 +864,8 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
             b = spritec.gethandsaimdirection();
             vec2scale(b, b, spritec.weapon.speed);
-            b.x = spritec.direction * 0.08 * b.y + spriteparts.velocity[spritec.num].x;
-            b.y = -spritec.direction * 0.08 * b.x + spriteparts.velocity[spritec.num].y;
+            b.x = spritec.direction * 0.08 * b.y + spriteVelocity.x;
+            b.y = -spritec.direction * 0.08 * b.x + spriteVelocity.y;
             a.x = spritec.skeleton.pos[15].x + 2 - spritec.direction * 0.015 * b.x;
             a.y = spritec.skeleton.pos[15].y - 2 - spritec.direction * 0.015 * b.y;
 
@@ -873,7 +882,7 @@ void controlsprite(tsprite &spritec)
                 (spritec.legsanimation.id != AnimationType::ProneMove))
             {
 #ifndef SERVER
-                playsound(sfx_goprone, spriteparts.pos[spritec.num]);
+                playsound(sfx_goprone, spritePartsPos);
 #endif
 
                 spritec.legsapplyanimation(AnimationType::Prone, 1);
@@ -900,7 +909,7 @@ void controlsprite(tsprite &spritec)
                         spritec.legsanimation.currframe = 9;
                         spritec.control.prone = false;
 #ifndef SERVER
-                        playsound(sfx_standup, spriteparts.pos[spritec.num]);
+                        playsound(sfx_standup, spritePartsPos);
 #endif
                     }
                     if ((spritec.bodyanimation.id != AnimationType::Reload) &&
@@ -1017,7 +1026,7 @@ void controlsprite(tsprite &spritec)
             if ((spritec.bodyanimation.id == AnimationType::Smoke) && (spritec.bodyanimation.currframe == 17))
             {
 #ifndef SERVER
-                playsound(sfx_stuff, spriteparts.pos[spritec.num]);
+                playsound(sfx_stuff, spritePartsPos);
 #endif
                 spritec.bodyanimation.currframe += 1;
             }
@@ -1032,7 +1041,7 @@ void controlsprite(tsprite &spritec)
                     b = spritec.gethandsaimdirection();
                     vec2scale(b, b, 2);
                     createspark(a, b, 32, spritec.num, 245);
-                    playsound(sfx_spit, spriteparts.pos[spritec.num]);
+                    playsound(sfx_spit, spritePartsPos);
 #endif
                     spritec.idletime = default_idletime;
                     spritec.idlerandom = -1;
@@ -1095,7 +1104,7 @@ void controlsprite(tsprite &spritec)
                     {
                         // Step 4/8
 #ifndef SERVER
-                        playsound(sfx_match, spriteparts.pos[spritec.num]);
+                        playsound(sfx_match, spritePartsPos);
 #endif
                         spritec.bodyanimation.currframe += 1;
                     }
@@ -1113,7 +1122,7 @@ void controlsprite(tsprite &spritec)
                         b.x = 0;
                         b.y = -0.7;
                         createspark(a, b, 31, spritec.num, 65);
-                        playsound(sfx_smoke, spriteparts.pos[spritec.num]);
+                        playsound(sfx_smoke, spritePartsPos);
 
                         a = spritec.skeleton.pos[15];
                         b.x = (float)(spritec.direction) / 2;
@@ -1142,7 +1151,7 @@ void controlsprite(tsprite &spritec)
                     b.x = 0;
                     b.y = -0.7;
                     createspark(a, b, 31, spritec.num, 65);
-                    playsound(sfx_smoke, spriteparts.pos[spritec.num]);
+                    playsound(sfx_smoke, spritePartsPos);
 #endif
                     spritec.bodyanimation.currframe += 1;
                 }
@@ -1243,7 +1252,7 @@ void controlsprite(tsprite &spritec)
                 spritec.idlerandom = -1;
 
 #ifndef SERVER
-                playsound(sfx_roar, spriteparts.pos[spritec.num]);
+                playsound(sfx_roar, spritePartsPos);
 #endif
             }
         }
@@ -1258,7 +1267,7 @@ void controlsprite(tsprite &spritec)
                 spritec.idletime = default_idletime;
 
 #ifndef SERVER
-                playsound(sfx_piss, spriteparts.pos[spritec.num]);
+                playsound(sfx_piss, spritePartsPos);
 #endif
             }
 
@@ -1342,9 +1351,9 @@ void controlsprite(tsprite &spritec)
                     }
 
 #ifndef SERVER
-                    playsound(sfx_mercy, spriteparts.pos[spritec.num]);
+                    playsound(sfx_mercy, spritePartsPos);
                     if (spritec.weapon.num == guns[minigun].num)
-                        playsound(sfx_minigun_start, spriteparts.pos[spritec.num]);
+                        playsound(sfx_minigun_start, spritePartsPos);
 #else
                     serveridleanimation(spritec.num, spritec.idlerandom);
 #endif
@@ -1366,13 +1375,13 @@ void controlsprite(tsprite &spritec)
                     spritec.fire();
 #ifndef SERVER
                     if (spritec.weapon.num == guns[knife].num)
-                        playsound(sfx_slash, spriteparts.pos[spritec.num],
+                        playsound(sfx_slash, spritePartsPos,
                                   SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
                     if (spritec.weapon.num == guns[chainsaw].num)
-                        playsound(sfx_chainsaw_r, spriteparts.pos[spritec.num],
+                        playsound(sfx_chainsaw_r, spritePartsPos,
                                   SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
                     if (spritec.weapon.num == guns[noweapon].num)
-                        playsound(sfx_dead_hit, spriteparts.pos[spritec.num],
+                        playsound(sfx_dead_hit, spritePartsPos,
                                   SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
 
                     if (spritec.num == mysprite)
@@ -1408,21 +1417,22 @@ void controlsprite(tsprite &spritec)
                 (spritec.legsanimation.id == AnimationType::Prone) || (spritec.legsanimation.id == AnimationType::Run) ||
                 (spritec.legsanimation.id == AnimationType::RunBack))
             {
-                spriteparts.velocity[spritec.num].x =
-                    ((float)(spriteparts.velocity[spritec.num].x) / spritec.legsanimation.speed);
-                spriteparts.velocity[spritec.num].y =
-                    ((float)(spriteparts.velocity[spritec.num].y) / spritec.legsanimation.speed);
+
+                spriteVelocity.x =
+                    ((float)(spriteVelocity.x) / spritec.legsanimation.speed);
+                spriteVelocity.y =
+                    ((float)(spriteVelocity.y) / spritec.legsanimation.speed);
             }
 
             if (spritec.legsanimation.speed > 2)
                 if ((spritec.legsanimation.id == AnimationType::ProneMove) ||
                     (spritec.legsanimation.id == AnimationType::CrouchRun))
                 {
-                    spriteparts.velocity[spritec.num].x =
-                        ((float)(spriteparts.velocity[spritec.num].x) /
+                    spriteVelocity.x =
+                        ((float)(spriteVelocity.x) /
                          spritec.legsanimation.speed);
-                    spriteparts.velocity[spritec.num].y =
-                        ((float)(spriteparts.velocity[spritec.num].y) /
+                    spriteVelocity.y =
+                        ((float)(spriteVelocity.y) /
                          spritec.legsanimation.speed);
                 }
         }
@@ -1441,15 +1451,15 @@ void controlsprite(tsprite &spritec)
             if ((spritec.weapon.fireintervalcount == 0) &&
                 ((spritec.bodyanimation.id == AnimationType::Prone) || (spritec.bodyanimation.id == AnimationType::Aim)))
             {
-                if ((fabs(spritec.control.mouseaimx - spriteparts.pos[spritec.num].x) >=
+                if ((fabs(spritec.control.mouseaimx - spritePartsPos.x) >=
                      640 / 1.035) ||
-                    (fabs(spritec.control.mouseaimy - spriteparts.pos[spritec.num].y) >=
+                    (fabs(spritec.control.mouseaimy - spritePartsPos.y) >=
                      480 / 1.035))
                 {
                     if (spritec.aimdistcoef == defaultaimdist)
                     {
 #ifndef SERVER
-                        playsound(sfx_scope, spriteparts.pos[spritec.num]);
+                        playsound(sfx_scope, spritePartsPos);
 #else
                         serverspritedeltasmouse(spritec.num);
 #endif
@@ -1462,7 +1472,7 @@ void controlsprite(tsprite &spritec)
                             if (maintickcounter % 27 == 0)
                             {
 #ifndef SERVER
-                                playsound(sfx_scoperun, spriteparts.pos[spritec.num]);
+                                playsound(sfx_scoperun, spritePartsPos);
 #else
                                 serverspritedeltasmouse(spritec.num);
 #endif
@@ -1476,7 +1486,7 @@ void controlsprite(tsprite &spritec)
                             if (maintickcounter % 27 == 0)
                             {
 #ifndef SERVER
-                                playsound(sfx_scoperun, spriteparts.pos[spritec.num]);
+                                playsound(sfx_scoperun, spritePartsPos);
 #else
                                 serverspritedeltasmouse(spritec.num);
 #endif
@@ -1484,21 +1494,21 @@ void controlsprite(tsprite &spritec)
                         }
                 }
 
-                if ((fabs(spritec.control.mouseaimx - spriteparts.pos[spritec.num].x) <
+                if ((fabs(spritec.control.mouseaimx - spritePartsPos.x) <
                      640 / 1.5) &&
-                    (fabs(spritec.control.mouseaimy - spriteparts.pos[spritec.num].y) < 480 / 1.5))
+                    (fabs(spritec.control.mouseaimy - spritePartsPos.y) < 480 / 1.5))
                 {
                     if (spritec.aimdistcoef < defaultaimdist)
                     {
                         spritec.aimdistcoef = spritec.aimdistcoef + aimdistincr;
 #ifndef SERVER
                         if (spritec.aimdistcoef == defaultaimdist)
-                            playsound(sfx_scope, spriteparts.pos[spritec.num]);
+                            playsound(sfx_scope, spritePartsPos);
 #endif
                         if (maintickcounter % 27 == 0)
                         {
 #ifndef SERVER
-                            playsound(sfx_scoperun, spriteparts.pos[spritec.num]);
+                            playsound(sfx_scoperun, spritePartsPos);
 #else
                             serverspritedeltasmouse(spritec.num);
 #endif
@@ -1511,7 +1521,7 @@ void controlsprite(tsprite &spritec)
                 if (spritec.aimdistcoef != defaultaimdist)
                 {
 #ifndef SERVER
-                    playsound(sfx_scopeback, spriteparts.pos[spritec.num]);
+                    playsound(sfx_scopeback, spritePartsPos);
 #else
                     serverspritedeltasmouse(spritec.num);
 #endif
@@ -1572,7 +1582,8 @@ void controlsprite(tsprite &spritec)
                         (sprite.position == pos_crouch) && (sprite.num != spritec.num) &&
                         spritec.isnotspectator())
                     {
-                        a = spriteparts.pos[sprite.num];
+                        auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(sprite.num);
+                        a = spritePartsPos;
 
                         b = vec2subtract(spritec.skeleton.pos[15], spritec.skeleton.pos[16]);
                         vec2normalize(b, b);
@@ -1632,16 +1643,16 @@ void controlsprite(tsprite &spritec)
                 if (spritec.legsanimation.id == AnimationType::Roll)
                 {
                     if (spritec.onground) // if staying on ground
-                        spriteparts.forces[spritec.num].x = spritec.direction * rollspeed;
+                        spriteForces.x = spritec.direction * rollspeed;
                     else
-                        spriteparts.forces[spritec.num].x = spritec.direction * 2 * flyspeed;
+                        spriteForces.x = spritec.direction * 2 * flyspeed;
                 }
                 else if (spritec.legsanimation.id == AnimationType::RollBack)
                 {
                     if (spritec.onground) // if staying on ground
-                        spriteparts.forces[spritec.num].x = -spritec.direction * rollspeed;
+                        spriteForces.x = -spritec.direction * rollspeed;
                     else
-                        spriteparts.forces[spritec.num].x = -spritec.direction * 2 * flyspeed;
+                        spriteForces.x = -spritec.direction * 2 * flyspeed;
 
                     // if appropriate frames to move
                     if ((spritec.legsanimation.currframe > 1) &&
@@ -1649,12 +1660,12 @@ void controlsprite(tsprite &spritec)
                     {
                         if (spritec.control.up)
                         {
-                            spriteparts.forces[spritec.num].y =
-                                spriteparts.forces[spritec.num].y - jumpdirspeed * 1.5;
-                            spriteparts.forces[spritec.num].x =
-                                spriteparts.forces[spritec.num].x * 0.5;
-                            spriteparts.velocity[spritec.num].x =
-                                spriteparts.velocity[spritec.num].x * 0.8;
+                            spriteForces.y =
+                                spriteForces.y - jumpdirspeed * 1.5;
+                            spriteForces.x =
+                                spriteForces.x * 0.5;
+                            spriteVelocity.x =
+                                spriteVelocity.x * 0.8;
                         }
                     }
                 }
@@ -1682,7 +1693,7 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
                         if ((spritec.legsanimation.id != AnimationType::RollBack) &&
                             (spritec.legsanimation.id != AnimationType::Roll))
-                            playsound(sfx_roll, spriteparts.pos[spritec.num]);
+                            playsound(sfx_roll, spritePartsPos);
 
                         setsoundpaused(spritec.reloadsoundchannel, true);
 #endif
@@ -1710,10 +1721,10 @@ void controlsprite(tsprite &spritec)
 
                     if ((spritec.legsanimation.id == AnimationType::CrouchRun) ||
                         (spritec.legsanimation.id == AnimationType::CrouchRunBack))
-                        spriteparts.forces[spritec.num].x = crouchrunspeed;
+                        spriteForces.x = crouchrunspeed;
                     else if ((spritec.legsanimation.id == AnimationType::Roll) ||
                              (spritec.legsanimation.id == AnimationType::RollBack))
-                        spriteparts.forces[spritec.num].x = 2 * crouchrunspeed;
+                        spriteForces.x = 2 * crouchrunspeed;
                 }
             }
             // downleft
@@ -1739,7 +1750,7 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
                         if ((spritec.legsanimation.id != AnimationType::RollBack) &&
                             (spritec.legsanimation.id != AnimationType::Roll))
-                            playsound(sfx_roll, spriteparts.pos[spritec.num]);
+                            playsound(sfx_roll, spritePartsPos);
 
                         setsoundpaused(spritec.reloadsoundchannel, true);
 #endif
@@ -1767,7 +1778,7 @@ void controlsprite(tsprite &spritec)
 
                     if ((spritec.legsanimation.id == AnimationType::CrouchRun) ||
                         (spritec.legsanimation.id == AnimationType::CrouchRunBack))
-                        spriteparts.forces[spritec.num].x = -crouchrunspeed;
+                        spriteForces.x = -crouchrunspeed;
                 }
             }
             // Proning
@@ -1789,7 +1800,7 @@ void controlsprite(tsprite &spritec)
                         {
                             if ((spritec.legsanimation.currframe < 4) ||
                                 (spritec.legsanimation.currframe > 14))
-                                spriteparts.forces[spritec.num].x =
+                                spriteForces.x =
                                     iif(spritec.control.left, -pronespeed, pronespeed);
 
                             spritec.legsapplyanimation(AnimationType::ProneMove, 1);
@@ -1829,7 +1840,7 @@ void controlsprite(tsprite &spritec)
                     {
                         spritec.legsapplyanimation(AnimationType::JumpSide, 1);
 #ifndef SERVER
-                        playsound(sfx_jump, spriteparts.pos[spritec.num]);
+                        playsound(sfx_jump, spritePartsPos);
 #endif
                     }
 
@@ -1858,8 +1869,8 @@ void controlsprite(tsprite &spritec)
                     if ((spritec.legsanimation.currframe > 3) &&
                         (spritec.legsanimation.currframe < 11))
                     {
-                        spriteparts.forces[spritec.num].x = jumpdirspeed;
-                        spriteparts.forces[spritec.num].y = -jumpdirspeed / 1.2;
+                        spriteForces.x = jumpdirspeed;
+                        spriteForces.y = -jumpdirspeed / 1.2;
                     }
             }
             // upleft
@@ -1877,7 +1888,7 @@ void controlsprite(tsprite &spritec)
                     {
                         spritec.legsapplyanimation(AnimationType::JumpSide, 1);
 #ifndef SERVER
-                        playsound(sfx_jump, spriteparts.pos[spritec.num]);
+                        playsound(sfx_jump, spritePartsPos);
 #endif
                     }
 
@@ -1906,8 +1917,8 @@ void controlsprite(tsprite &spritec)
                     if ((spritec.legsanimation.currframe > 3) &&
                         (spritec.legsanimation.currframe < 11))
                     {
-                        spriteparts.forces[spritec.num].x = -jumpdirspeed;
-                        spriteparts.forces[spritec.num].y = -jumpdirspeed / 1.2;
+                        spriteForces.x = -jumpdirspeed;
+                        spriteForces.y = -jumpdirspeed / 1.2;
                     }
             }
             // up
@@ -1919,7 +1930,7 @@ void controlsprite(tsprite &spritec)
                     {
                         spritec.legsapplyanimation(AnimationType::Jump, 1);
 #ifndef SERVER
-                        playsound(sfx_jump, spriteparts.pos[spritec.num]);
+                        playsound(sfx_jump, spritePartsPos);
 #endif
                     }
 
@@ -1932,7 +1943,7 @@ void controlsprite(tsprite &spritec)
                     // if appropriate frames to move
                     if ((spritec.legsanimation.currframe > 8) &&
                         (spritec.legsanimation.currframe < 15))
-                        spriteparts.forces[spritec.num].y = -jumpspeed;
+                        spriteForces.y = -jumpspeed;
 
                     if (spritec.legsanimation.currframe == spritec.legsanimation.numframes)
                         spritec.legsapplyanimation(AnimationType::Fall, 1);
@@ -1947,7 +1958,7 @@ void controlsprite(tsprite &spritec)
                     if ((spritec.legsanimation.id != AnimationType::CrouchRun) &&
                         (spritec.legsanimation.id != AnimationType::CrouchRunBack) &&
                         (spritec.legsanimation.id != AnimationType::Crouch))
-                        playsound(sfx_crouch, spriteparts.pos[spritec.num]);
+                        playsound(sfx_crouch, spritePartsPos);
 #endif
 
                     spritec.legsapplyanimation(AnimationType::Crouch, 1);
@@ -1974,11 +1985,11 @@ void controlsprite(tsprite &spritec)
 
                 if (spritec.onground) // if staying on ground
                 {
-                    spriteparts.forces[spritec.num].x = runspeed;
-                    spriteparts.forces[spritec.num].y = -runspeedup;
+                    spriteForces.x = runspeed;
+                    spriteForces.y = -runspeedup;
                 }
                 else
-                    spriteparts.forces[spritec.num].x = flyspeed;
+                    spriteForces.x = flyspeed;
             }
             // left
             else if (spritec.control.left)
@@ -2001,11 +2012,11 @@ void controlsprite(tsprite &spritec)
 
                 if (spritec.onground) // if staying on ground
                 {
-                    spriteparts.forces[spritec.num].x = -runspeed;
-                    spriteparts.forces[spritec.num].y = -runspeedup;
+                    spriteForces.x = -runspeed;
+                    spriteForces.y = -runspeedup;
                 }
                 else
-                    spriteparts.forces[spritec.num].x = -flyspeed;
+                    spriteForces.x = -flyspeed;
             }
             // else all keys not pressed
             else
@@ -2015,7 +2026,7 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
                     if (!spritec.deadmeat)
                         if (spritec.legsanimation.id != AnimationType::Stand)
-                            playsound(sfx_stop, spriteparts.pos[spritec.num]);
+                            playsound(sfx_stop, spritePartsPos);
 #endif
                     spritec.legsapplyanimation(AnimationType::Stand, 1);
                 }

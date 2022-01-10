@@ -43,34 +43,35 @@ void playradiosound(std::uint8_t RadioID)
         return;
 
     radiocooldown = 3;
+    const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
     switch (RadioID)
     {
     case 11:
-        playsound(Constants::SFX_RADIO_EFCUP, spriteparts.pos[mysprite]);
+        playsound(Constants::SFX_RADIO_EFCUP, spritePartsPos);
         break;
     case 12:
-        playsound(Constants::SFX_RADIO_EFCMID, spriteparts.pos[mysprite]);
+        playsound(Constants::SFX_RADIO_EFCMID, spritePartsPos);
         break;
     case 13:
-        playsound(Constants::SFX_RADIO_EFCDOWN, spriteparts.pos[mysprite]);
+        playsound(Constants::SFX_RADIO_EFCDOWN, spritePartsPos);
         break;
     case 21:
-        playsound(Constants::SFX_RADIO_FFCUP, spriteparts.pos[mysprite]);
+        playsound(Constants::SFX_RADIO_FFCUP, spritePartsPos);
         break;
     case 22:
-        playsound(Constants::SFX_RADIO_FFCMID, spriteparts.pos[mysprite]);
+        playsound(Constants::SFX_RADIO_FFCMID, spritePartsPos);
         break;
     case 23:
-        playsound(Constants::SFX_RADIO_FFCDOWN, spriteparts.pos[mysprite]);
+        playsound(Constants::SFX_RADIO_FFCDOWN, spritePartsPos);
         break;
     case 31:
-        playsound(Constants::SFX_RADIO_ESUP, spriteparts.pos[mysprite]);
+        playsound(Constants::SFX_RADIO_ESUP, spritePartsPos);
         break;
     case 32:
-        playsound(Constants::SFX_RADIO_ESMID, spriteparts.pos[mysprite]);
+        playsound(Constants::SFX_RADIO_ESMID, spritePartsPos);
         break;
     case 33:
-        playsound(Constants::SFX_RADIO_ESDOWN, spriteparts.pos[mysprite]);
+        playsound(Constants::SFX_RADIO_ESDOWN, spritePartsPos);
         break;
     }
 }

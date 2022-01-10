@@ -54,15 +54,16 @@ std::int32_t checkdistance(float posa, float posb)
 
 void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 {
-    tvector2 m, t, tv;
+    tvector2 tv;
     std::int32_t disttotargetx, disttotargety, dist;
     std::int32_t gr, i;
 
     {
         auto &with = SpriteSystem::Get().GetSprite(snum);
+        auto &targetVelocity = SpriteSystem::Get().GetVelocity(with.brain.targetnum);
 
-        m = spriteparts.pos[snum];
-        t = spriteparts.pos[with.brain.targetnum];
+        const auto &m = SpriteSystem::Get().GetSpritePartsPos(snum);
+        const auto &t = SpriteSystem::Get().GetSpritePartsPos(with.brain.targetnum);
 
         if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
         {
@@ -290,7 +291,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
               (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num != guns[knife].num) &&
               (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num !=
                guns[chainsaw].num)) ||
-             (spriteparts.pos[with.brain.targetnum].y > spriteparts.pos[snum].y)))
+             (t.y > m.y)))
         {
             with.control.right = false;
             with.control.left = false;
@@ -384,7 +385,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
             with.control.throwweapon = true;
         }
 
-        vec2scale(tv, spriteparts.velocity[with.brain.targetnum], 10);
+        vec2scale(tv, targetVelocity, 10);
         vec2add(t, tv);
 
         with.control.mouseaimx = round(t.x);
@@ -416,10 +417,8 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
                                 1.0);
                      i++)
                 {
-                    with.control.mouseaimx = with.control.mouseaimx +
-                                             round(spriteparts.velocity[with.brain.targetnum].x);
-                    with.control.mouseaimy = with.control.mouseaimy +
-                                             round(spriteparts.velocity[with.brain.targetnum].y);
+                    with.control.mouseaimx = with.control.mouseaimx + round(targetVelocity.x);
+                    with.control.mouseaimy = with.control.mouseaimy + round(targetVelocity.y);
                 }
 
                 if (with.weapon.fireintervalcount < 3)
@@ -449,15 +448,14 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 
 void gotothing(std::uint8_t snum, std::uint8_t tnum)
 {
-    tvector2 m, t;
     std::int32_t disttotargetx, disttotargety;
 
     {
         auto &with = SpriteSystem::Get().GetSprite(snum);
         auto &thing = things[tnum];
 
-        m = spriteparts.pos[snum];
-        t = thing.skeleton.pos[2];
+        const auto &m = SpriteSystem::Get().GetSpritePartsPos(snum);
+        auto t = thing.skeleton.pos[2];
 
         if ((thing.skeleton.pos[2].x > thing.skeleton.pos[1].x) && (m.x < thing.skeleton.pos[2].x))
             t = thing.skeleton.pos[2];
@@ -661,8 +659,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
                     else
                         i = waypointseekradius; // Radius of waypoint seeking
 
-                    k = botpath.findclosest(spriteparts.pos[spritec.num].x,
-                                            spriteparts.pos[spritec.num].y, i,
+                    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(spritec.num);
+                    k = botpath.findclosest(spritePartsPos.x, spritePartsPos.y, i,
                                             spritec.brain.currentwaypoint);
 
                     spritec.brain.oldwaypoint = spritec.brain.currentwaypoint;
@@ -808,11 +806,11 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
                         if (runaway)
                             if (spritec.brain.pissedoff > 0)
                             {
-                                spritec.control.mouseaimx =
-                                    round(spriteparts.pos[spritec.brain.pissedoff].x);
+                                auto &spritePartsPos =
+                                    SpriteSystem::Get().GetSpritePartsPos(spritec.brain.pissedoff);
+                                spritec.control.mouseaimx = round(spritePartsPos.x);
                                 spritec.control.mouseaimy =
-                                    round(spriteparts.pos[spritec.brain.pissedoff].y -
-                                          (1.75 * 100 / spritec.weapon.speed) -
+                                    round(spritePartsPos.y - (1.75 * 100 / spritec.weapon.speed) -
                                           spritec.brain.accuracy + Random(spritec.brain.accuracy));
                                 spritec.control.fire = true;
                             }
@@ -831,8 +829,11 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
                                 if ((spritec.control.left or spritec.control.right) and
                                     !spritec.control.down)
                                 {
-                                    if (distance(spriteparts.pos[spritec.num],
-                                                 spriteparts.oldpos[spritec.num]) < 3)
+                                    auto &spritePartsPos =
+                                        SpriteSystem::Get().GetSpritePartsPos(spritec.num);
+                                    auto &spritePartsOldPos =
+                                        SpriteSystem::Get().GetSpritePartsOldPos(spritec.num);
+                                    if (distance(spritePartsPos, spritePartsOldPos) < 3)
                                     {
                                         spritec.brain.oneplacecount += 1;
                                     }
@@ -1037,15 +1038,15 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
         if (!seething)
             spritec.brain.gothing = false;
 
+        auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(spritec.num);
         // Runaway from grenade!
         if (CVar::bots_difficulty < 201)
             for (i = 1; i <= max_bullets; i++)
                 if (bullet[i].active && (bullet[i].style == bullet_style_fragnade) &&
-                    (distance(bulletparts.pos[i].x, bulletparts.pos[i].y,
-                              spriteparts.pos[spritec.num].x, spriteparts.pos[spritec.num].y) <
-                     (fraggrenade_explosion_radius * 1.4)))
+                    (distance(bulletparts.pos[i].x, bulletparts.pos[i].y, spritePartsPos.x,
+                              spritePartsPos.y) < (fraggrenade_explosion_radius * 1.4)))
                 {
-                    if (bulletparts.pos[i].x > spriteparts.pos[spritec.num].x)
+                    if (bulletparts.pos[i].x > spritePartsPos.x)
                     {
                         spritec.control.left = true;
                         spritec.control.right = false;
@@ -1081,7 +1082,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
         }
 
         // fall damage save
-        d = spriteparts.velocity[spritec.num].y;
+        auto &spriteVelocity = SpriteSystem::Get().GetVelocity(spritec.num);
+        d = spriteVelocity.y;
         if (d > 3.35)
             spritec.brain.fallsave = 1;
         if (d < 1.35)
