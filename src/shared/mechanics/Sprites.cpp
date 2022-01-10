@@ -145,7 +145,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     // create skeleton
     sprite.skeleton.timestep = 1;
     sprite.skeleton.gravity = 1.06 * grav;
-    sprite.skeleton = gostekskeleton;
+    sprite.skeleton = AnimationSystem::Get().GetSkeleton(Gostek);
     sprite.skeleton.vdamping = 0.9945;
 
     sprite.SetHealth(starthealth);
@@ -3486,7 +3486,7 @@ void Sprite<M>::respawn()
 
     if (player->headcap == 0)
         wearhelmet = 0;
-    skeleton.constraints = gostekskeleton.constraints;
+    skeleton.constraints = AnimationSystem::Get().GetSkeleton(Gostek).constraints;
     auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
     spriteVelocity.x = 0;
     spriteVelocity.y = 0;

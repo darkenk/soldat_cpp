@@ -17,6 +17,7 @@
 template <Config::Module M>
 void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 {
+    Animations.clear();
     addlinetologfile(gamelog, std::string("Loading Animations. ") + moddir, consolelogfilename);
     struct AnimData
     {
@@ -88,15 +89,52 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 
     SpriteSystem::Get().ResetSpriteParts();
 
-    gostekskeleton.destroy();
-    gostekskeleton.loadpoobject("objects/gostek.po", scale);
-    gostekskeleton.timestep = 1;
-    gostekskeleton.gravity = 1.06 * grav;
-    gostekskeleton.vdamping = 0.997;
+    Skeletons.clear();
 
-    boxskeleton.destroy();
-    boxskeleton.loadpoobject("objects/kit.po", 2.15);
-    boxskeleton.timestep = 1;
+    // Gostek
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/gostek.po", scale);
+    Skeletons.back().timestep = 1;
+    Skeletons.back().gravity = 1.06 * grav;
+    Skeletons.back().vdamping = 0.997;
+
+    // Box
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/kit.po", 2.15);
+    Skeletons.back().timestep = 1;
+
+    // Flag
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/flag.po", 4.0);
+
+    // Para
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/para.po", 5.0);
+    // Stat
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/stat.po", 4.0);
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/karabin.po", 1.0);
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/karabin.po", 1.1);
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/karabin.po", 1.8);
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/karabin.po", 2.2);
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/karabin.po", 2.8);
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/karabin.po", 3.6);
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/karabin.po", 3.7);
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/karabin.po", 3.9);
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/karabin.po", 4.3);
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/karabin.po", 5.0);
+    Skeletons.emplace_back();
+    Skeletons.back().loadpoobject("objects/karabin.po", 5.5);
 
     bulletparts.destroy();
     bulletparts.timestep = 1;
@@ -107,27 +145,18 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
     sparkparts.timestep = 1;
     sparkparts.gravity = grav / 1.4;
     sparkparts.edamping = 0.998;
-
-    flagskeleton.loadpoobject("objects/flag.po", 4.0);
-    paraskeleton.loadpoobject("objects/para.po", 5.0);
-    statskeleton.loadpoobject("objects/stat.po", 4.0);
-    rifleskeleton10.loadpoobject("objects/karabin.po", 1.0);
-    rifleskeleton11.loadpoobject("objects/karabin.po", 1.1);
-    rifleskeleton18.loadpoobject("objects/karabin.po", 1.8);
-    rifleskeleton22.loadpoobject("objects/karabin.po", 2.2);
-    rifleskeleton28.loadpoobject("objects/karabin.po", 2.8);
-    rifleskeleton36.loadpoobject("objects/karabin.po", 3.6);
-    rifleskeleton37.loadpoobject("objects/karabin.po", 3.7);
-    rifleskeleton39.loadpoobject("objects/karabin.po", 3.9);
-    rifleskeleton43.loadpoobject("objects/karabin.po", 4.3);
-    rifleskeleton50.loadpoobject("objects/karabin.po", 5.0);
-    rifleskeleton55.loadpoobject("objects/karabin.po", 5.5);
 }
 
 template <Config::Module M>
 tanimation &TAnimationSystem<M>::GetAnimation(AnimationType type)
 {
     return Animations[type];
+}
+
+template <Config::Module M>
+const particlesystem &TAnimationSystem<M>::GetSkeleton(const SkeletonType type) const
+{
+    return Skeletons[type];
 }
 
 template class TAnimationSystem<>;
