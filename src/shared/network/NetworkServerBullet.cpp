@@ -313,7 +313,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
 
     bulletspread = guns[weaponindex].bulletspread;
 
-    if (bulletsnap->weaponnum == guns[eagle].num) // Desert Eagle pellets
+    if (bulletsnap->weaponnum == eagle_num) // Desert Eagle pellets
     {
         // Undo the bullet spread used on the first pellet that was sent in order to
         // get the "straight" bullet vector. Then re-apply the the same randomness

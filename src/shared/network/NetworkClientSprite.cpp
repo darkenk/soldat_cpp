@@ -83,11 +83,11 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
             SpriteSystem::Get().GetSprite(i).applyweaponbynum(spritesnap->secondaryweaponnum, 2);
         SpriteSystem::Get().GetSprite(i).weapon.ammocount = spritesnap->ammocount;
 
-        if (SpriteSystem::Get().GetSprite(i).weapon.num == guns[knife].num)
+        if (SpriteSystem::Get().GetSprite(i).weapon.num == knife_num)
             SpriteSystem::Get().GetSprite(i).player->secwep = 1;
-        if (SpriteSystem::Get().GetSprite(i).weapon.num == guns[chainsaw].num)
+        if (SpriteSystem::Get().GetSprite(i).weapon.num == chainsaw_num)
             SpriteSystem::Get().GetSprite(i).player->secwep = 2;
-        if (SpriteSystem::Get().GetSprite(i).weapon.num == guns[law].num)
+        if (SpriteSystem::Get().GetSprite(i).weapon.num == law_num)
             SpriteSystem::Get().GetSprite(i).player->secwep = 3;
 
         // Toggle prone if it was activated or deactivated
@@ -97,8 +97,8 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
     }
 
     // kill the bow
-    if ((SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow].num) ||
-        (SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow2].num))
+    if ((SpriteSystem::Get().GetSprite(i).weapon.num == bow_num) ||
+        (SpriteSystem::Get().GetSprite(i).weapon.num == bow2_num))
         for (j = 1; j <= max_things; j++)
             if ((things[j].active) && (things[j].style == object_rambo_bow))
             {
@@ -205,8 +205,8 @@ void clienthandleserverspritesnapshot_major(SteamNetworkingMessage_t *netmessage
     }
 
     // kill the bow
-    if ((SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow].num) ||
-        (SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow2].num))
+    if ((SpriteSystem::Get().GetSprite(i).weapon.num == bow_num) ||
+        (SpriteSystem::Get().GetSprite(i).weapon.num == bow2_num))
         for (j = 1; j <= max_things; j++)
             if ((things[j].active) & (things[j].style == object_rambo_bow))
             {
@@ -247,7 +247,7 @@ void clienthandleserverskeletonsnapshot(SteamNetworkingMessage_t *netmessage)
 
     SpriteSystem::Get().GetSprite(i).deadmeat = true;
     SpriteSystem::Get().GetSprite(i).respawncounter = skeletonsnap->respawncounter;
-    SpriteSystem::Get().GetSprite(i).weapon = guns[noweapon];
+    SpriteSystem::Get().GetSprite(i).SetFirstWeapon(guns[noweapon]);
 }
 
 void clientspritesnapshot()
@@ -432,7 +432,7 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
     if ((deathsnap->constraints & B5) == B5)
         SpriteSystem::Get().GetSprite(i).skeleton.constraints[23].active = false;
 
-    SpriteSystem::Get().GetSprite(i).weapon = guns[noweapon];
+    SpriteSystem::Get().GetSprite(i).SetFirstWeapon(guns[noweapon]);
     SpriteSystem::Get().GetSprite(i).respawncounter = deathsnap->respawncounter;
     SpriteSystem::Get().GetSprite(i).onfire = deathsnap->onfire;
 

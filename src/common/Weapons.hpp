@@ -7,10 +7,14 @@
 
 struct tgun
 {
+    tgun();
+    tgun(const std::uint8_t _num);
+    tgun(const tgun&) = default;
+    tgun& operator=(const tgun&) = default;
     // Scrambled 1.6, to piss off gamehackers.
     std::uint8_t ammo;
     std::uint8_t ammocount;
-    std::uint8_t num;
+    const std::uint8_t num;
     float movementacc;
     std::int16_t bink;
     std::uint32_t recoil;

@@ -428,8 +428,8 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                     {
                         gamemenushow(limbomenu, false);
                         if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat and
-                            SpriteSystem::Get().GetSprite(mysprite).weapon.num != guns[bow].num and
-                            SpriteSystem::Get().GetSprite(mysprite).weapon.num != guns[bow2].num)
+                            SpriteSystem::Get().GetSprite(mysprite).weapon.num != bow_num and
+                            SpriteSystem::Get().GetSprite(mysprite).weapon.num != bow2_num)
                         {
                             SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
                                 SpriteSystem::Get().GetSprite(mysprite).selweapon, 1);
@@ -448,9 +448,9 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                     if (count == 0)
                     {
                         gamemenushow(limbomenu, false);
-                        SpriteSystem::Get().GetSprite(mysprite).weapon =
-                            SpriteSystem::Get().GetSprite(mysprite).secondaryweapon;
-                        SpriteSystem::Get().GetSprite(mysprite).secondaryweapon = guns[noweapon];
+                        SpriteSystem::Get().GetSprite(mysprite).SetFirstWeapon(
+                            SpriteSystem::Get().GetSprite(mysprite).secondaryweapon);
+                        SpriteSystem::Get().GetSprite(mysprite).SetSecondWeapon(guns[noweapon]);
                     }
 
                     if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)

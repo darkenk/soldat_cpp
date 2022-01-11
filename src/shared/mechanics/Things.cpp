@@ -1024,7 +1024,7 @@ void Thing<M>::update()
     {
         for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
         {
-            if ((sprite.weapon.num == guns[bow].num) || (sprite.weapon.num == guns[bow2].num))
+            if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
             {
 #ifndef SERVER
                 gamethingtarget = 0;
@@ -1856,7 +1856,7 @@ std::int32_t Thing<M>::checkspritecollision()
                     if (!((style == object_medical_kit) && (sprite.GetHealth() == starthealth)))
                         if (!((style == object_grenade_kit) &&
                               (sprite.tertiaryweapon.ammocount == CVar::sv_maxgrenades) &&
-                              (sprite.tertiaryweapon.num == guns[fraggrenade].num)))
+                              (sprite.tertiaryweapon.num == fraggrenade_num)))
 #endif
                             if (!((style < object_ussocom) && (sprite.ceasefirecounter > 0)))
                             {
@@ -1874,10 +1874,10 @@ std::int32_t Thing<M>::checkspritecollision()
                (SpriteSystem::Get().GetSprite(j).bodyanimation.id != AnimationType::Change)) ||
               ((style > object_parachute) &&
                (SpriteSystem::Get().GetSprite(j).bodyanimation.id != AnimationType::Change))) &&
-             (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num) &&
-             (SpriteSystem::Get().GetSprite(j).brain.favweapon != guns[noweapon].num) &&
+             (SpriteSystem::Get().GetSprite(j).weapon.num == noweapon_num) &&
+             (SpriteSystem::Get().GetSprite(j).brain.favweapon != noweapon_num) &&
              (timeout < gunresisttime - 30)) ||
-            ((style == 15) && (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num) &&
+            ((style == 15) && (SpriteSystem::Get().GetSprite(j).weapon.num == noweapon_num) &&
              (timeout < (CVar::sv_respawntime * flag_timeout - 100))) ||
             (((style == object_medical_kit) &&
               (SpriteSystem::Get().GetSprite(j).GetHealth() < starthealth)
@@ -1887,11 +1887,11 @@ std::int32_t Thing<M>::checkspritecollision()
                   ) ||
              ((style == object_grenade_kit) &&
               (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount < CVar::sv_maxgrenades) &&
-              ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num != guns[clustergrenade].num) ||
+              ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num != clustergrenade_num) ||
                (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount == 0)))) ||
             ((((style == object_flamer_kit) &&
-               (SpriteSystem::Get().GetSprite(j).weapon.num != guns[bow].num) &&
-               (SpriteSystem::Get().GetSprite(j).weapon.num != guns[bow2].num)) ||
+               (SpriteSystem::Get().GetSprite(j).weapon.num != bow_num) &&
+               (SpriteSystem::Get().GetSprite(j).weapon.num != bow2_num)) ||
               (style == object_predator_kit) || (style == object_berserk_kit)) &&
              (SpriteSystem::Get().GetSprite(j).bonusstyle == bonus_none) &&
              (SpriteSystem::Get().GetSprite(j).ceasefirecounter < 1)) ||
@@ -1902,7 +1902,7 @@ std::int32_t Thing<M>::checkspritecollision()
                  ) ||
             ((style == object_cluster_kit)
 #ifdef SERVER
-             && ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num == guns[fraggrenade].num) ||
+             && ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num == fraggrenade_num) ||
                  (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount == 0))
 #endif
                  ))
@@ -2164,8 +2164,8 @@ std::int32_t Thing<M>::checkspritecollision()
         case object_barret_m82a1:
         case object_minimi:
         case object_minigun:
-            if (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num)
-                if (SpriteSystem::Get().GetSprite(j).brain.favweapon != guns[noweapon].num)
+            if (SpriteSystem::Get().GetSprite(j).weapon.num == noweapon_num)
+                if (SpriteSystem::Get().GetSprite(j).brain.favweapon != noweapon_num)
                     if (SpriteSystem::Get().GetSprite(j).bodyanimation.id != AnimationType::Change)
                         if (timeout < gunresisttime - 30)
                         {
@@ -2203,7 +2203,7 @@ std::int32_t Thing<M>::checkspritecollision()
                         }
             break;
         case object_rambo_bow:
-            if (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num)
+            if (SpriteSystem::Get().GetSprite(j).weapon.num == noweapon_num)
                 if (SpriteSystem::Get().GetSprite(j).bodyanimation.id != AnimationType::Change)
                     if (timeout < flag_timeout - 100)
                     {
@@ -2213,13 +2213,13 @@ std::int32_t Thing<M>::checkspritecollision()
                         // if it did, we don't apply snapshot weapon's as they were already applied
                         // by force weapon.
                         forceweaponcalled = false;
-                        scrptdispatcher.onweaponchange(j, guns[bow].num, guns[bow2].num, 1, 1);
+                        scrptdispatcher.onweaponchange(j, bow_num, bow2_num, 1, 1);
 
                         if (!forceweaponcalled)
                         {
 #endif
-                            SpriteSystem::Get().GetSprite(j).applyweaponbynum(guns[bow].num, 1);
-                            SpriteSystem::Get().GetSprite(j).applyweaponbynum(guns[bow2].num, 2);
+                            SpriteSystem::Get().GetSprite(j).applyweaponbynum(bow_num, 1);
+                            SpriteSystem::Get().GetSprite(j).applyweaponbynum(bow2_num, 2);
                             // BUG: shouldn't this be Guns[BOW].Ammo? Somebody might've set more
                             // than one
                             SpriteSystem::Get().GetSprite(j).weapon.ammocount = 1;
@@ -2280,11 +2280,11 @@ std::int32_t Thing<M>::checkspritecollision()
             if ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount <
                  CVar::sv_maxgrenades) &&
                 ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num !=
-                  guns[clustergrenade].num) ||
+                  clustergrenade_num) ||
                  (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount == 0)))
             {
                 team = SpriteSystem::Get().GetSprite(j).player->team;
-                SpriteSystem::Get().GetSprite(j).tertiaryweapon = guns[fraggrenade];
+                SpriteSystem::Get().GetSprite(j).SetThirdWeapon(guns[fraggrenade]);
                 SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount = CVar::sv_maxgrenades;
                 respawn();
 
@@ -2298,8 +2298,8 @@ std::int32_t Thing<M>::checkspritecollision()
             if ((SpriteSystem::Get().GetSprite(j).bonusstyle == bonus_none) &&
                 (SpriteSystem::Get().GetSprite(j).ceasefirecounter < 1))
             {
-                if ((SpriteSystem::Get().GetSprite(j).weapon.num != guns[bow].num) &&
-                    (SpriteSystem::Get().GetSprite(j).weapon.num != guns[bow2].num))
+                if ((SpriteSystem::Get().GetSprite(j).weapon.num != bow_num) &&
+                    (SpriteSystem::Get().GetSprite(j).weapon.num != bow2_num))
                 {
 #ifdef SCRIPT
                     // event must be before actual weapon apply.
@@ -2308,7 +2308,7 @@ std::int32_t Thing<M>::checkspritecollision()
                     // by force weapon.
                     forceweaponcalled = false;
                     scrptdispatcher.onweaponchange(
-                        j, guns[flamer].num, SpriteSystem::Get().GetSprite(j).secondaryweapon.num,
+                        j, flamer_num, SpriteSystem::Get().GetSprite(j).secondaryweapon.num,
                         ammocount, SpriteSystem::Get().GetSprite(j).secondaryweapon.ammocount);
                     scrptdispatcher.onkitpickup(j, num);
 
@@ -2323,7 +2323,7 @@ std::int32_t Thing<M>::checkspritecollision()
                             -1, true
 #endif
                         );
-                        SpriteSystem::Get().GetSprite(j).applyweaponbynum(guns[flamer].num, 1);
+                        SpriteSystem::Get().GetSprite(j).applyweaponbynum(flamer_num, 1);
                         SpriteSystem::Get().GetSprite(j).bonustime = flamerbonustime;
                         SpriteSystem::Get().GetSprite(j).bonusstyle = bonus_flamegod;
 
@@ -2397,11 +2397,11 @@ std::int32_t Thing<M>::checkspritecollision()
             break;
         case object_cluster_kit:
 #ifdef SERVER
-            if ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num == guns[fraggrenade].num) ||
+            if ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num == fraggrenade_num) ||
                 (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount == 0))
 #endif
             {
-                SpriteSystem::Get().GetSprite(j).tertiaryweapon = guns[clustergrenade];
+                SpriteSystem::Get().GetSprite(j).SetThirdWeapon(guns[clustergrenade]);
                 SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount = cluster_grenades;
 
 #ifndef SERVER
@@ -2417,8 +2417,8 @@ std::int32_t Thing<M>::checkspritecollision()
         case object_combat_knife:
         case object_chainsaw:
         case object_law:
-            if (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num)
-                if (SpriteSystem::Get().GetSprite(j).brain.favweapon != guns[noweapon].num)
+            if (SpriteSystem::Get().GetSprite(j).weapon.num == noweapon_num)
+                if (SpriteSystem::Get().GetSprite(j).brain.favweapon != noweapon_num)
                     if (SpriteSystem::Get().GetSprite(j).bodyanimation.id != AnimationType::Change)
                         if (timeout < gunresisttime - 30)
                         {

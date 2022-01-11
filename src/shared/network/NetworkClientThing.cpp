@@ -302,7 +302,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     thing.style = thingtakensnap->style;
 
     j = thingtakensnap->who;
-    if (SpriteSystem::Get().GetSprite(j).weapon.num == guns[noweapon].num)
+    if (SpriteSystem::Get().GetSprite(j).weapon.num == noweapon_num)
         n = 1;
     else
         n = 2;
@@ -441,8 +441,8 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     break;
     case object_rambo_bow: {
         playsound(sfx_takebow, thing.skeleton.pos[1]);
-        SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(guns[bow].num, 1, 1);
-        SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(guns[bow2].num, 2, 1);
+        SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(bow_num, 1, 1);
+        SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(bow2_num, 2, 1);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.ammocount = 1;
         SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.fireinterval = 10;
         SpriteSystem::Get().GetSprite(thingtakensnap->who).wearhelmet = 1;
@@ -468,7 +468,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     break;
     case object_grenade_kit: {
         playsound(sfx_pickupgun, thing.skeleton.pos[1]);
-        SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon = guns[fraggrenade];
+        SpriteSystem::Get().GetSprite(thingtakensnap->who).SetThirdWeapon(guns[fraggrenade]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon.ammocount =
             CVar::sv_maxgrenades;
         thing.kill();
@@ -482,7 +482,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
             .GetSprite(thingtakensnap->who)
             .applyweaponbynum(SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.num, 2, -1,
                               true);
-        SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(guns[flamer].num, 1);
+        SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(flamer_num, 1);
         if (thingtakensnap->who == mysprite)
         {
             bigmessage(_("Flame God Mode!"), capturemessagewait, bonus_message_color);
@@ -521,7 +521,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     break;
     case object_cluster_kit: {
         playsound(sfx_pickupgun, thing.skeleton.pos[1]);
-        SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon = guns[clustergrenade];
+        SpriteSystem::Get().GetSprite(thingtakensnap->who).SetThirdWeapon(guns[clustergrenade]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon.ammocount =
             cluster_grenades;
         if (thingtakensnap->who == mysprite)

@@ -229,6 +229,10 @@ class Sprite
         return active;
     }
 
+    void SetFirstWeapon(const tgun& gun);
+    void SetSecondWeapon(const tgun& gun);
+    void SetThirdWeapon(const tgun& gun);
+
     void CopyOldSpritePos();
     tvector2 GetOldSpritePos(std::int32_t idx);
 

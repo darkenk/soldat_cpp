@@ -183,7 +183,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
         else if (disttotargetx == dist_very_far)
         {
             with.control.up = true;
-            if ((Random(2) == 0) || (with.weapon.num == guns[minigun].num))
+            if ((Random(2) == 0) || (with.weapon.num == minigun_num))
                 with.control.fire = true;
 
             if (with.brain.camper > 0)
@@ -204,7 +204,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 
         else if (disttotargetx == dist_too_far)
         {
-            if ((Random(4) == 0) || (with.weapon.num == guns[minigun].num))
+            if ((Random(4) == 0) || (with.weapon.num == minigun_num))
                 with.control.fire = true;
 
             if (with.brain.camper > 0)
@@ -251,7 +251,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
                     with.control.right = false;
 
                     // shoot!
-                    if ((Random(4) == 0) || (with.weapon.num == guns[minigun].num))
+                    if ((Random(4) == 0) || (with.weapon.num == minigun_num))
                         with.control.fire = true;
                 }
 
@@ -283,14 +283,14 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 
         // go prone
         // Fists!
-        if (((SpriteSystem::Get().GetSprite(snum).weapon.num == guns[noweapon].num) ||
-             (SpriteSystem::Get().GetSprite(snum).weapon.num == guns[knife].num) ||
-             (SpriteSystem::Get().GetSprite(snum).weapon.num == guns[chainsaw].num)) &&
+        if (((SpriteSystem::Get().GetSprite(snum).weapon.num == noweapon_num) ||
+             (SpriteSystem::Get().GetSprite(snum).weapon.num == knife_num) ||
+             (SpriteSystem::Get().GetSprite(snum).weapon.num == chainsaw_num)) &&
             (((SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num !=
-               guns[noweapon].num) &&
-              (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num != guns[knife].num) &&
+               noweapon_num) &&
+              (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num != knife_num) &&
               (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num !=
-               guns[chainsaw].num)) ||
+               chainsaw_num)) ||
              (t.y > m.y)))
         {
             with.control.right = false;
@@ -331,7 +331,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
         // Realistic Mode - Burst Fire
         if (CVar::sv_realisticmode)
         {
-            if (with.weapon.num != guns[minigun].num)
+            if (with.weapon.num != minigun_num)
                 if (with.burstcount > 3)
                 {
                     with.control.fire = false;
@@ -339,7 +339,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
                         with.burstcount = 0;
                 }
 
-            if (with.weapon.num == guns[minigun].num)
+            if (with.weapon.num == minigun_num)
                 if (with.burstcount > 30)
                 {
                     with.control.fire = false;
@@ -378,8 +378,8 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 
         // Knife Throw
         if ((SpriteSystem::Get().GetSprite(snum).ceasefirecounter < 30) &&
-            (SpriteSystem::Get().GetSprite(snum).weapon.num == guns[knife].num) &&
-            (SpriteSystem::Get().GetSprite(snum).brain.favweapon == guns[knife].num))
+            (SpriteSystem::Get().GetSprite(snum).weapon.num == knife_num) &&
+            (SpriteSystem::Get().GetSprite(snum).brain.favweapon == knife_num))
         {
             with.control.fire = false;
             with.control.throwweapon = true;
@@ -403,9 +403,9 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
         // impossible
         if (CVar::bots_difficulty < 60)
             if ((SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num ==
-                 guns[barrett].num) ||
+                 barrett_num) ||
                 (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num ==
-                 guns[ruger77].num))
+                 ruger77_num))
             {
                 dist = round(sqrt(sqr(m.x - t.x) + sqr(m.y - t.y)));
                 with.control.mouseaimx = round(t.x);
@@ -553,8 +553,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
                         {
                             if (CVar::sv_gamemode == gamestyle_rambo)
                             {
-                                if ((sprite.weapon.num == guns[bow].num) ||
-                                    (sprite.weapon.num == guns[bow2].num))
+                                if ((sprite.weapon.num == bow_num) ||
+                                    (sprite.weapon.num == bow2_num))
                                 {
                                     spritec.brain.targetnum = sprite.num;
                                     seeclosest = true;
@@ -582,8 +582,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
                                 }
 
                                 if ((CVar::sv_gamemode == gamestyle_rambo) &&
-                                    (spritec.weapon.num != guns[bow].num) &&
-                                    (spritec.weapon.num != guns[bow2].num))
+                                    (spritec.weapon.num != bow_num) &&
+                                    (spritec.weapon.num != bow2_num))
                                 {
                                     seeclosest = false;
                                     d = dt;
@@ -602,9 +602,9 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
 
         if (spritec.brain.targetnum > 0)
             if ((SpriteSystem::Get().GetSprite(spritec.brain.targetnum).weapon.num ==
-                 guns[bow].num) ||
+                 bow_num) ||
                 (SpriteSystem::Get().GetSprite(spritec.brain.targetnum).weapon.num ==
-                 guns[bow2].num))
+                 bow2_num))
                 spritec.brain.pissedoff = 0;
 
         if (spritec.brain.pissedoff == spritec.num)
@@ -857,12 +857,12 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
 
                         // change weapon back
                         if (CVar::bots_difficulty < 201)
-                            if (((spritec.weapon.num == guns[colt].num) ||
-                                 (spritec.weapon.num == guns[noweapon].num) ||
-                                 (spritec.weapon.num == guns[knife].num) ||
-                                 (spritec.weapon.num == guns[chainsaw].num) ||
-                                 (spritec.weapon.num == guns[law].num)) &&
-                                (spritec.secondaryweapon.num != guns[noweapon].num))
+                            if (((spritec.weapon.num == colt_num) ||
+                                 (spritec.weapon.num == noweapon_num) ||
+                                 (spritec.weapon.num == knife_num) ||
+                                 (spritec.weapon.num == chainsaw_num) ||
+                                 (spritec.weapon.num == law_num)) &&
+                                (spritec.secondaryweapon.num != noweapon_num))
                                 spritec.control.changeweapon = true;
 
                         // reload if low ammo
@@ -938,7 +938,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
                      ((thing.style == object_medical_kit) && (spritec.GetHealth() < starthealth)) ||
                      ((thing.style == object_grenade_kit) &&
                       (spritec.tertiaryweapon.ammocount < CVar::sv_maxgrenades) &&
-                      ((spritec.tertiaryweapon.num != guns[clustergrenade].num) ||
+                      ((spritec.tertiaryweapon.num != clustergrenade_num) ||
                        (spritec.tertiaryweapon.ammocount == 0)))))
                 {
                     startpoint.x = thing.skeleton.pos[2].x;
@@ -1018,8 +1018,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
 
                                 // Pickup knife!
                                 if ((thing.style == object_combat_knife) &&
-                                    (spritec.weapon.num == guns[noweapon].num) &&
-                                    (spritec.brain.favweapon == guns[knife].num))
+                                    (spritec.weapon.num == noweapon_num) &&
+                                    (spritec.brain.favweapon == knife_num))
                                 {
                                     spritec.control.fire = false;
                                     spritec.brain.targetnum = 0;
@@ -1125,7 +1125,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
 
         // destroy weapon if fav weapon hands
         /*if NoWeapon.Name = SpriteC.Brain.FavWeapon then
-            if SpriteC.Weapon.Num <> Guns[NOWEAPON].Num then
+            if SpriteC.Weapon.Num <> noweapon_num then
               SpriteC.Weapon := Guns[NOWEAPON];*/
     } // Bot
 }

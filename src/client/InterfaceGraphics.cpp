@@ -884,7 +884,7 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
 
         // weapon reload
         if (int_.ammo && (int_.ammobar_pos == textstyle) && (me->weapon.ammocount == 0) &&
-            (me->weapon.num != guns[spas12].num))
+            (me->weapon.num != spas12_num))
         {
             x = relinfo.ammobar_rel_x * _iscala.x + (int_.ammobar_x - relinfo.ammobar_rel_x);
             y = relinfo.ammobar_rel_y * _iscala.y + (int_.ammobar_y - relinfo.ammobar_rel_y);
@@ -2129,7 +2129,7 @@ void renderinterface(float timeelapsed, float width, float height)
                 gfxdrawsprite(t[GFX::INTERFACE_AMMO], x, y, 0, 0, degtorad(int_.ammoico_rotate),
                               color);
 
-                if ((weapon->ammocount == 0) && (weapon->num != guns[spas12].num))
+                if ((weapon->ammocount == 0) && (weapon->num != spas12_num))
                 {
                     renderbar(GFX::INTERFACE_RELOAD_BAR, int_.ammobar_pos, int_.ammobar_x,
                               relinfo.ammobar_rel_x, int_.ammobar_y, relinfo.ammobar_rel_y,
@@ -2186,9 +2186,9 @@ void renderinterface(float timeelapsed, float width, float height)
             {
                 i = 0;
 
-                if (spriteme->tertiaryweapon.num == guns[fraggrenade].num)
+                if (spriteme->tertiaryweapon.num == fraggrenade_num)
                     i = GFX::INTERFACE_NADE;
-                else if (spriteme->tertiaryweapon.num == guns[clustergrenade].num)
+                else if (spriteme->tertiaryweapon.num == clustergrenade_num)
                     i = GFX::INTERFACE_CLUSTER_NADE;
 
                 if (i != 0)

@@ -110,7 +110,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     sprite.bonustime = 0;
     sprite.multikills = 0;
     sprite.multikilltime = 0;
-    sprite.tertiaryweapon = guns[fraggrenade];
+    sprite.SetThirdWeapon(guns[fraggrenade]);
     sprite.hascigar = 0;
     sprite.idletime = default_idletime;
     sprite.idlerandom = -1;
@@ -151,18 +151,18 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     sprite.SetHealth(starthealth);
     sprite.aimdistcoef = defaultaimdist;
 
-    sprite.weapon = guns[noweapon];
+    sprite.SetFirstWeapon(guns[noweapon]);
 
     secwep = sprite.player->secwep + 1;
     auto &weaponSystem = GS::GetWeaponSystem();
     if ((secwep >= 1) && (secwep <= secondary_weapons) &&
         (weaponSystem.IsEnabled(primary_weapons + secwep)))
     {
-        sprite.secondaryweapon = guns[primary_weapons + secwep];
+        sprite.SetSecondWeapon(guns[primary_weapons + secwep]);
     }
     else
     {
-        sprite.secondaryweapon = guns[noweapon];
+        sprite.SetSecondWeapon(guns[noweapon]);
     }
 
     sprite.jetscount = map.startjet;
@@ -305,12 +305,11 @@ void Sprite<M>::update()
     nextpush[max_pushtick].y = 0;
 
     // reload spas after shooting delay is over
-    if (autoreloadwhencanfire &&
-        ((weapon.num != guns[spas12].num) || (weapon.fireintervalcount == 0)))
+    if (autoreloadwhencanfire && ((weapon.num != spas12_num) || (weapon.fireintervalcount == 0)))
     {
         autoreloadwhencanfire = false;
 
-        if ((weapon.num == guns[spas12].num) && (bodyanimation.id != AnimationType::Roll) &&
+        if ((weapon.num == spas12_num) && (bodyanimation.id != AnimationType::Roll) &&
             (bodyanimation.id != AnimationType::RollBack) &&
             (bodyanimation.id != AnimationType::Change) && (weapon.ammocount != weapon.ammo))
         {
@@ -728,7 +727,7 @@ void Sprite<M>::update()
                 !GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y, camerafollowsprite))
 #endif
                 if ((weapon.fireintervalcount > 0) &&
-                    ((weapon.ammocount > 0) || (weapon.num == guns[spas12].num)))
+                    ((weapon.ammocount > 0) || (weapon.num == spas12_num)))
                 {
                     weapon.fireintervalprev = weapon.fireintervalcount;
                     weapon.fireintervalcount -= 1;
@@ -739,7 +738,7 @@ void Sprite<M>::update()
                 canautoreloadspas = true;
 
             // reload
-            if ((weapon.ammocount == 0) && ((weapon.num == guns[chainsaw].num) ||
+            if ((weapon.ammocount == 0) && ((weapon.num == chainsaw_num) ||
                                             ((bodyanimation.id != AnimationType::Roll) &&
                                              (bodyanimation.id != AnimationType::RollBack) &&
                                              (bodyanimation.id != AnimationType::Melee) &&
@@ -756,19 +755,19 @@ void Sprite<M>::update()
                 {
                     // spas is unique - it does the fire interval delay AND THEN reloads. all other
                     // weapons do the opposite.
-                    if (weapon.num == guns[spas12].num)
+                    if (weapon.num == spas12_num)
                     {
                         if ((weapon.fireintervalcount == 0) && canautoreloadspas)
                             bodyapplyanimation(AnimationType::Reload, 1);
                     }
-                    else if ((weapon.num == guns[bow].num) || (weapon.num == guns[bow2].num))
+                    else if ((weapon.num == bow_num) || (weapon.num == bow2_num))
                         bodyapplyanimation(AnimationType::ReloadBow, 1);
                     else if ((bodyanimation.id != AnimationType::ClipIn) &&
                              (bodyanimation.id != AnimationType::SlideBack))
                     {
                         // Don't show reload animation for chainsaw if one of these
                         // animations are already ongoing
-                        if ((weapon.num != guns[chainsaw].num) ||
+                        if ((weapon.num != chainsaw_num) ||
                             ((bodyanimation.id != AnimationType::Roll) &&
                              (bodyanimation.id != AnimationType::RollBack) &&
                              (bodyanimation.id != AnimationType::Melee) &&
@@ -786,25 +785,25 @@ void Sprite<M>::update()
                 if (weapon.reloadtimecount == weapon.reloadtime)
                 {
 
-                    if (weapon.num == guns[eagle].num)
+                    if (weapon.num == eagle_num)
                         weaponreloadsound = sfx_deserteagle_reload;
-                    else if (weapon.num == guns[mp5].num)
+                    else if (weapon.num == mp5_num)
                         weaponreloadsound = sfx_mp5_reload;
-                    else if (weapon.num == guns[ak74].num)
+                    else if (weapon.num == ak74_num)
                         weaponreloadsound = sfx_ak74_reload;
-                    else if (weapon.num == guns[steyraug].num)
+                    else if (weapon.num == steyraug_num)
                         weaponreloadsound = sfx_steyraug_reload;
-                    else if (weapon.num == guns[ruger77].num)
+                    else if (weapon.num == ruger77_num)
                         weaponreloadsound = sfx_ruger77_reload;
-                    else if (weapon.num == guns[m79].num)
+                    else if (weapon.num == m79_num)
                         weaponreloadsound = sfx_m79_reload;
-                    else if (weapon.num == guns[barrett].num)
+                    else if (weapon.num == barrett_num)
                         weaponreloadsound = sfx_barretm82_reload;
-                    else if (weapon.num == guns[m249].num)
+                    else if (weapon.num == m249_num)
                         weaponreloadsound = sfx_m249_reload;
-                    else if (weapon.num == guns[minigun].num)
+                    else if (weapon.num == minigun_num)
                         weaponreloadsound = sfx_minigun_reload;
-                    else if (weapon.num == guns[colt].num)
+                    else if (weapon.num == colt_num)
                         weaponreloadsound = sfx_colt1911_reload;
                     else
                         weaponreloadsound = -1;
@@ -819,7 +818,7 @@ void Sprite<M>::update()
                 m4.y = spriteVelocity.y - 0.001;
                 if (weapon.reloadtimecount == weapon.clipouttime)
                 {
-                    if (weapon.num == guns[eagle].num)
+                    if (weapon.num == eagle_num)
                     {
                         createspark(m3, m4, 18, num, 255);
                         m3.x = skeleton.pos[15].x - 2;
@@ -828,22 +827,22 @@ void Sprite<M>::update()
                         m4.y = spriteVelocity.y - 0.003;
                         createspark(m3, m4, 18, num, 255);
                     }
-                    else if (weapon.num == guns[mp5].num)
+                    else if (weapon.num == mp5_num)
                         createspark(m3, m4, 11, num, 255);
-                    else if (weapon.num == guns[ak74].num)
+                    else if (weapon.num == ak74_num)
                         createspark(m3, m4, 9, num, 255);
-                    else if (weapon.num == guns[steyraug].num)
+                    else if (weapon.num == steyraug_num)
                         createspark(m3, m4, 19, num, 255);
-                    else if (weapon.num == guns[barrett].num)
+                    else if (weapon.num == barrett_num)
                         createspark(m3, m4, 20, num, 255);
-                    else if (weapon.num == guns[m249].num)
+                    else if (weapon.num == m249_num)
                         createspark(m3, m4, 10, num, 255);
-                    else if (weapon.num == guns[colt].num)
+                    else if (weapon.num == colt_num)
                         createspark(m3, m4, 23, num, 255);
                 }
 #endif
 
-                if (weapon.num != guns[spas12].num)
+                if (weapon.num != spas12_num)
                 {
                     // Spas doesn't use the reload time.
                     // If it ever does, be sure to put this back outside.
@@ -884,7 +883,7 @@ void Sprite<M>::update()
                     weapon.reloadtimecount = weapon.reloadtime;
 #endif
 
-                if (weapon.num != guns[spas12].num)
+                if (weapon.num != spas12_num)
                 {
                     if (weapon.reloadtimecount < 1)
                     {
@@ -907,7 +906,7 @@ void Sprite<M>::update()
                     }
 
                     // didn't we just do this right above? :S
-                    if (weapon.num != guns[spas12].num)
+                    if (weapon.num != spas12_num)
                         if (weapon.reloadtimecount < 1)
                         {
                             bodyapplyanimation(AnimationType::Change, 36);
@@ -924,7 +923,7 @@ void Sprite<M>::update()
 
 #ifndef SERVER
             // chainsaw smoke
-            if ((weapon.num == guns[chainsaw].num) && (stat == 0))
+            if ((weapon.num == chainsaw_num) && (stat == 0))
             {
                 if (CVar::r_maxsparks > (max_sparks - 10))
                 {
@@ -951,7 +950,7 @@ void Sprite<M>::update()
             }
 
             // LAW, chansaw smoke
-            if ((weapon.num == guns[law].num) || (weapon.num == guns[chainsaw].num))
+            if ((weapon.num == law_num) || (weapon.num == chainsaw_num))
             {
                 if (weapon.ammocount == 0)
                     if (CVar::r_maxsparks > (max_sparks - 10))
@@ -967,7 +966,7 @@ void Sprite<M>::update()
             }
 
             // flame arrow on fire
-            if (weapon.num == guns[bow2].num)
+            if (weapon.num == bow2_num)
                 if (Random(10) == 0)
                 {
                     m3.x = skeleton.pos[15].x + direction * 6;
@@ -1086,8 +1085,7 @@ void Sprite<M>::update()
 
             // gain health from bow
             if ((maintickcounter % 3 == 0) &&
-                ((weapon.num == guns[bow].num) || (weapon.num == guns[bow2].num)) &&
-                (Health < (starthealth)))
+                ((weapon.num == bow_num) || (weapon.num == bow2_num)) && (Health < (starthealth)))
                 Health = Health + 1;
 
 #ifndef SERVER
@@ -1624,9 +1622,9 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                     i = bullet[what].ownerweapon;
                 else
                     i = -1;
-                if ((i == guns[bow].num) ||                                   // Shooter is Rambo
-                    (i == guns[bow2].num) || (weapon.num == guns[bow].num) || // Shootee is Rambo
-                    (weapon.num == guns[bow2].num))
+                if ((i == bow_num) ||                             // Shooter is Rambo
+                    (i == bow2_num) || (weapon.num == bow_num) || // Shootee is Rambo
+                    (weapon.num == bow2_num))
                 {
                     SpriteSystem::Get().GetSprite(who).player->kills += 1;
 #ifdef SERVER
@@ -1639,8 +1637,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 {
                     // Punish for killing non-Rambos when someone is Rambo
                     for (i = 1; i <= max_players; i++)
-                        if ((SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow].num) ||
-                            (SpriteSystem::Get().GetSprite(i).weapon.num == guns[bow2].num))
+                        if ((SpriteSystem::Get().GetSprite(i).weapon.num == bow_num) ||
+                            (SpriteSystem::Get().GetSprite(i).weapon.num == bow2_num))
                             if (SpriteSystem::Get().GetSprite(who).player->kills > 0)
                             {
                                 SpriteSystem::Get().GetSprite(who).player->kills -= 1;
@@ -1652,7 +1650,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
         if (idlerandom == 7)
         {
-            if (weapon.num == guns[noweapon].num)
+            if (weapon.num == noweapon_num)
                 how = brutal_death;
         }
 
@@ -1674,7 +1672,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 s = guns[noweapon].name;
             if (bullet[what].style == bullet_style_m2)
                 s = "Stationary gun";
-                // if Bullet[What].OwnerWeapon = Guns[NOWEAPON].Num then S := 'Selfkill';
+                // if Bullet[What].OwnerWeapon = noweapon_num then S := 'Selfkill';
 #else
             s = weaponnamebynum(what, guns);
             if (what == 222)
@@ -1785,7 +1783,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             i = dropweapon();
             weapon.hitmultiply = k;
 
-            if ((i > 0) && (weapon.num != guns[flamer].num) && (weapon.num != guns[noweapon].num))
+            if ((i > 0) && (weapon.num != flamer_num) && (weapon.num != noweapon_num))
             {
                 things[i].skeleton.forces[2] = impact;
             }
@@ -1828,7 +1826,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
 #ifndef SERVER
     if (what > 0)
-        if ((where == 12) && ((bullet[what].ownerweapon == guns[ruger77].num)))
+        if ((where == 12) && ((bullet[what].ownerweapon == ruger77_num)))
             how = headchop_death;
 #endif
     switch (how)
@@ -1859,8 +1857,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifndef SERVER
         if (what > 0)
             if (!deadmeat && (where == 12) &&
-                ((bullet[what].ownerweapon == guns[barrett].num) ||
-                 (bullet[what].ownerweapon == guns[ruger77].num)))
+                ((bullet[what].ownerweapon == barrett_num) ||
+                 (bullet[what].ownerweapon == ruger77_num)))
             {
                 Randomize();
                 if (Random(100) > 50)
@@ -1879,7 +1877,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                     }
                 }
 
-                if (bullet[what].ownerweapon == guns[barrett].num)
+                if (bullet[what].ownerweapon == barrett_num)
                     // corpse explode
                     playsound(sfx_bryzg, skeleton.pos[12]);
 
@@ -1934,7 +1932,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
 #ifndef SERVER
     if (!deadmeat && (what > 0))
-        if (bullet[what].ownerweapon == guns[flamer].num)
+        if (bullet[what].ownerweapon == flamer_num)
             playsound(sfx_burn, skeleton.pos[12]);
 #endif
 
@@ -2270,38 +2268,38 @@ std::int32_t Sprite<M>::dropweapon()
     weaponscleaned = false;
     // drop weapon
 #ifdef SERVER
-    if (weapon.num == guns[colt].num)
+    if (weapon.num == colt_num)
         result = creatething(skeleton.pos[16], num, object_ussocom, 255);
-    else if (weapon.num == guns[eagle].num)
+    else if (weapon.num == eagle_num)
         result = creatething(skeleton.pos[16], num, object_desert_eagle, 255);
-    else if (weapon.num == guns[mp5].num)
+    else if (weapon.num == mp5_num)
         result = creatething(skeleton.pos[16], num, object_hk_mp5, 255);
-    else if (weapon.num == guns[ak74].num)
+    else if (weapon.num == ak74_num)
         result = creatething(skeleton.pos[16], num, object_ak74, 255);
-    else if (weapon.num == guns[steyraug].num)
+    else if (weapon.num == steyraug_num)
         result = creatething(skeleton.pos[16], num, object_steyr_aug, 255);
-    else if (weapon.num == guns[spas12].num)
+    else if (weapon.num == spas12_num)
         result = creatething(skeleton.pos[16], num, object_spas12, 255);
-    else if (weapon.num == guns[ruger77].num)
+    else if (weapon.num == ruger77_num)
         result = creatething(skeleton.pos[16], num, object_ruger77, 255);
-    else if (weapon.num == guns[m79].num)
+    else if (weapon.num == m79_num)
         result = creatething(skeleton.pos[16], num, object_m79, 255);
-    else if (weapon.num == guns[barrett].num)
+    else if (weapon.num == barrett_num)
         result = creatething(skeleton.pos[16], num, object_barret_m82a1, 255);
-    else if (weapon.num == guns[m249].num)
+    else if (weapon.num == m249_num)
         result = creatething(skeleton.pos[16], num, object_minimi, 255);
-    else if (weapon.num == guns[minigun].num)
+    else if (weapon.num == minigun_num)
         result = creatething(skeleton.pos[16], num, object_minigun, 255);
-    else if (weapon.num == guns[knife].num)
+    else if (weapon.num == knife_num)
         result = creatething(skeleton.pos[16], num, object_combat_knife, 255);
-    else if (weapon.num == guns[chainsaw].num)
+    else if (weapon.num == chainsaw_num)
         result = creatething(skeleton.pos[16], num, object_chainsaw, 255);
-    else if (weapon.num == guns[law].num)
+    else if (weapon.num == law_num)
         result = creatething(skeleton.pos[16], num, object_law, 255);
 
     if (CVar::sv_gamemode == gamestyle_rambo)
     {
-        if ((weapon.num == guns[bow].num) || (weapon.num == guns[bow2].num))
+        if ((weapon.num == bow_num) || (weapon.num == bow2_num))
         {
             result = creatething(skeleton.pos[16], num, object_rambo_bow, 255);
 #ifndef SERVER
@@ -2323,13 +2321,13 @@ std::int32_t Sprite<M>::dropweapon()
         // if it did, we don't apply snapshot weapon's as they were already applied
         // by force weapon.
         forceweaponcalled = false;
-        scrptdispatcher.onweaponchange(num, guns[noweapon].num, secondaryweapon.num,
+        scrptdispatcher.onweaponchange(num, noweapon_num, secondaryweapon.num,
                                        guns[noweapon].ammocount, secondaryweapon.ammocount);
     }
 
     if (!forceweaponcalled)
 #endif
-        applyweaponbynum(guns[noweapon].num, 1);
+        applyweaponbynum(noweapon_num, 1);
 #endif
     return result;
 }
@@ -3014,8 +3012,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
                 {
                     b.x = -spriteVelocity.x;
                     b.y = -spriteVelocity.y;
-                    createbullet(a, b, guns[flamer].num, num, 255, guns[flamer].hitmultiply, false,
-                                 true);
+                    createbullet(a, b, flamer_num, num, 255, guns[flamer].hitmultiply, false, true);
                 }
             }
     }
@@ -3042,7 +3039,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 #ifndef SERVER
             createspark(a, vector2(0, -1.3), 36, num, 40);
 #else
-            servercreatebullet(a, b, guns[m79].num, num, 255, guns[m79].hitmultiply, true);
+            servercreatebullet(a, b, m79_num, num, 255, guns[m79].hitmultiply, true);
             healthhit(4000, num, 12, -1, spriteVelocity);
             Health = -600;
 #endif
@@ -3165,15 +3162,19 @@ void Sprite<M>::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32
 
     if (restoreprimarystate && (gun == 2))
     {
-        secondaryweapon = weapon;
+        SetSecondWeapon(weapon);
     }
     else
     {
         weaponindex = weaponnumtoindex(wnum, guns);
         if (gun == 1)
-            weapon = guns[weaponindex];
+        {
+            SetFirstWeapon(guns[weaponindex]);
+        }
         else
-            secondaryweapon = guns[weaponindex];
+        {
+            SetSecondWeapon(guns[weaponindex]);
+        }
     }
 
     if (ammo > -1)
@@ -3184,11 +3185,11 @@ void Sprite<M>::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32
 #endif
 
 #ifdef SERVER
-    if (weapon.num == guns[knife].num)
+    if (weapon.num == knife_num)
         knifecan[num] = true;
 #endif
 
-    if (wnum != guns[noweapon].num)
+    if (wnum != noweapon_num)
     {
         lastweaponhm = weapon.hitmultiply;
         lastweaponstyle = weapon.bulletstyle;
@@ -3238,8 +3239,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
             {
                 if ((who != sprite.num) && (num != sprite.num))
                 {
-                    if ((sprite.weapon.num == guns[bow].num) ||
-                        (sprite.weapon.num == guns[bow2].num))
+                    if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
                         return;
                 }
             }
@@ -3306,7 +3306,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
 
     // helmet fall off
     if ((Health < helmetfallhealth) && (wearhelmet == 1) && (where == 12) &&
-        (weapon.num != guns[bow].num) && (weapon.num != guns[bow2].num) && (player->headcap > 0))
+        (weapon.num != bow_num) && (weapon.num != bow2_num) && (player->headcap > 0))
     {
         wearhelmet = 0;
 #ifndef SERVER
@@ -3504,7 +3504,7 @@ void Sprite<M>::respawn()
     bonustime = 0;
     multikills = 0;
     multikilltime = 0;
-    tertiaryweapon = guns[fraggrenade];
+    SetThirdWeapon(guns[fraggrenade]);
     tertiaryweapon.ammocount = CVar::sv_maxgrenades / 2;
     hascigar = 0;
     canmercy = true;
@@ -3557,7 +3557,7 @@ void Sprite<M>::respawn()
             selweapon = 0;
 #endif
 
-    weapon = guns[noweapon];
+    SetFirstWeapon(guns[noweapon]);
     auto &weaponSystem = GS::GetWeaponSystem();
 
     if (selweapon > 0)
@@ -3577,9 +3577,9 @@ void Sprite<M>::respawn()
     if ((secwep >= 1) && (secwep <= secondary_weapons) &&
         (weaponSystem.IsEnabled(primary_weapons + secwep)) &&
         (weaponsel[num][primary_weapons + secwep] == 1))
-        secondaryweapon = guns[primary_weapons + secwep];
+        SetSecondWeapon(guns[primary_weapons + secwep]);
     else
-        secondaryweapon = guns[noweapon];
+        SetSecondWeapon(guns[noweapon]);
 
 #ifdef SERVER
     if (CVar::sv_advancemode)
@@ -3587,8 +3587,8 @@ void Sprite<M>::respawn()
         if ((selweapon > 0) &&
             (!weaponSystem.IsEnabled(selweapon) || (weaponsel[num][selweapon] == 0)))
         {
-            weapon = secondaryweapon;
-            secondaryweapon = guns[noweapon];
+            SetFirstWeapon(secondaryweapon);
+            SetSecondWeapon(guns[noweapon]);
         }
 
 #ifdef SERVER
@@ -3605,8 +3605,8 @@ void Sprite<M>::respawn()
 #endif
 
         // randomize bot weapon
-        if ((brain.favweapon != guns[noweapon].num) && (brain.favweapon != guns[knife].num) &&
-            (brain.favweapon != guns[chainsaw].num) && (brain.favweapon != guns[law].num) && !dummy)
+        if ((brain.favweapon != noweapon_num) && (brain.favweapon != knife_num) &&
+            (brain.favweapon != chainsaw_num) && (brain.favweapon != law_num) && !dummy)
         {
             if (((weaponSystem.IsEnabled(1)) && (weaponsel[num][1] == 1)) ||
                 ((weaponSystem.IsEnabled(2)) && (weaponsel[num][2] == 1)) ||
@@ -3626,12 +3626,12 @@ void Sprite<M>::respawn()
                     else
                     {
                         k = Random(9) + 1;
-                        weapon = guns[k];
+                        SetFirstWeapon(guns[k]);
                     }
 
                     if ((weaponSystem.GetWeaponsInGame() < 6) &&
                         (weaponSystem.IsEnabled(minigun)) && (weaponsel[num][minigun] == 1))
-                        weapon = guns[minigun];
+                        SetFirstWeapon(guns[minigun]);
 
                     if (CVar::sv_advancemode)
                     {
@@ -3653,13 +3653,15 @@ void Sprite<M>::respawn()
             (weaponsel[num][4] == 0) && (weaponsel[num][5] == 0) && (weaponsel[num][6] == 0) &&
             (weaponsel[num][7] == 0) && (weaponsel[num][8] == 0) && (weaponsel[num][9] == 0) &&
             (weaponsel[num][10] == 0))
-            weapon = guns[noweapon];
+        {
+            SetFirstWeapon(guns[noweapon]);
+        }
 
         favweaponindex = weaponnumtoindex(brain.favweapon, guns);
         if ((brain.favweapon == noweapon_num) or issecondaryweaponindex(favweaponindex) or dummy)
         {
-            weapon = guns[favweaponindex];
-            secondaryweapon = guns[noweapon];
+            SetFirstWeapon(guns[favweaponindex]);
+            SetSecondWeapon(guns[noweapon]);
         }
 
         if (brain.use != 255)
@@ -3680,12 +3682,16 @@ void Sprite<M>::respawn()
         weaponindex = weapon.num;
         if ((weaponindex >= 1) && (weaponindex <= primary_weapons))
             if ((!weaponSystem.IsEnabled(weaponindex)) || (weaponsel[num][weaponindex] == 0))
-                weapon = guns[noweapon];
+            {
+                SetFirstWeapon(guns[noweapon]);
+            }
     }
 #endif
 
     if (weaponSystem.GetWeaponsInGame() == 0)
-        weapon = guns[noweapon];
+    {
+        SetFirstWeapon(guns[noweapon]);
+    }
 
     parachute(spritePartsPos);
 
@@ -4021,7 +4027,7 @@ void Sprite<M>::fire()
     inaccuracy = inaccuracy + getmoveacc();
 
     // Bullet spread
-    if ((weapon.num != guns[eagle].num) && (weapon.num != guns[spas12].num) &&
+    if ((weapon.num != eagle_num) && (weapon.num != spas12_num) &&
         (weapon.bulletstyle != bullet_style_shotgun))
     {
         if (weapon.bulletspread > 0)
@@ -4081,10 +4087,9 @@ void Sprite<M>::fire()
         a.y = a.y + 2.5;
     }
 
-    if (((weapon.num != guns[eagle].num) && (weapon.num != guns[spas12].num) &&
-         (weapon.num != guns[flamer].num) && (weapon.num != guns[noweapon].num) &&
-         (weapon.num != guns[knife].num) && (weapon.num != guns[chainsaw].num) &&
-         (weapon.num != guns[law].num)) ||
+    if (((weapon.num != eagle_num) && (weapon.num != spas12_num) && (weapon.num != flamer_num) &&
+         (weapon.num != noweapon_num) && (weapon.num != knife_num) &&
+         (weapon.num != chainsaw_num) && (weapon.num != law_num)) ||
         (bodyanimation.id == AnimationType::Mercy) || (bodyanimation.id == AnimationType::Mercy2))
     {
         bn = createbullet(a, b, weapon.num, num, 255, weapon.hitmultiply, true, false);
@@ -4094,7 +4099,7 @@ void Sprite<M>::fire()
     LogTraceG("SpriteFire 10");
 #endif
 
-    if (weapon.num == guns[eagle].num) // Eagles
+    if (weapon.num == eagle_num) // Eagles
     {
         bulletcount += 1;
         NotImplemented(NITag::OTHER);
@@ -4144,7 +4149,7 @@ void Sprite<M>::fire()
 
     LogTraceG("SpriteFire 11");
 
-    if (weapon.num == guns[minigun].num) // Minigun
+    if (weapon.num == minigun_num) // Minigun
     {
         if (control.jetpack && (jetscount > 0))
         {
@@ -4167,7 +4172,7 @@ void Sprite<M>::fire()
         spriteVelocity = vec2subtract(spriteVelocity, d);
     }
 
-    if (weapon.num == guns[flamer].num) // Flamer
+    if (weapon.num == flamer_num) // Flamer
     {
         a.x = a.x + b.x * 2;
         a.y = a.y + b.y * 2;
@@ -4177,14 +4182,14 @@ void Sprite<M>::fire()
 #endif
     }
 
-    if (weapon.num == guns[chainsaw].num) // Chainsaw
+    if (weapon.num == chainsaw_num) // Chainsaw
     {
         a.x = a.x + b.x * 2;
         a.y = a.y + b.y * 2;
         bn = createbullet(a, b, weapon.num, num, 255, weapon.hitmultiply, true, false);
     }
 
-    if (weapon.num == guns[law].num)
+    if (weapon.num == law_num)
     { // LAW
         if ((onground || ongroundpermanent || ongroundforlaw) &&
             (((legsanimation.id == AnimationType::Crouch) && (legsanimation.currframe > 13)) ||
@@ -4227,7 +4232,7 @@ void Sprite<M>::fire()
         weapon.ammocount -= 1;
 #endif
 
-    if (weapon.num == guns[spas12].num)
+    if (weapon.num == spas12_num)
         canautoreloadspas = false;
 
     weapon.fireintervalprev = weapon.fireinterval;
@@ -4254,7 +4259,7 @@ void Sprite<M>::fire()
 #endif
 
     // play fire sound
-    if (weapon.num == guns[ak74].num)
+    if (weapon.num == ak74_num)
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
@@ -4276,7 +4281,7 @@ void Sprite<M>::fire()
             createspark(a, c, 68, num, 255); // shell
 #endif
     }
-    if (weapon.num == guns[m249].num)
+    if (weapon.num == m249_num)
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
@@ -4298,7 +4303,7 @@ void Sprite<M>::fire()
             createspark(a, c, 72, num, 255); // shell
 #endif
     }
-    if (weapon.num == guns[ruger77].num)
+    if (weapon.num == ruger77_num)
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
@@ -4320,7 +4325,7 @@ void Sprite<M>::fire()
             createspark(a, c, 70, num, 255); // shell
 #endif
     }
-    if (weapon.num == guns[mp5].num)
+    if (weapon.num == mp5_num)
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
@@ -4344,7 +4349,7 @@ void Sprite<M>::fire()
             createspark(a, c, 67, num, 255); // shell
 #endif
     }
-    if (weapon.num == guns[spas12].num)
+    if (weapon.num == spas12_num)
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
@@ -4359,7 +4364,7 @@ void Sprite<M>::fire()
         if ((position == pos_prone) && (bodyanimation.id == AnimationType::Reload))
             bodyanimation.currframe = bodyanimation.numframes;
     }
-    if (weapon.num == guns[m79].num)
+    if (weapon.num == m79_num)
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
@@ -4370,7 +4375,7 @@ void Sprite<M>::fire()
             (bodyanimation.id != AnimationType::Melee))
             bodyapplyanimation(AnimationType::SmallRecoil, 1);
     }
-    if (weapon.num == guns[eagle].num)
+    if (weapon.num == eagle_num)
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
@@ -4402,7 +4407,7 @@ void Sprite<M>::fire()
         }
 #endif
     }
-    if (weapon.num == guns[steyraug].num)
+    if (weapon.num == steyraug_num)
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
@@ -4422,7 +4427,7 @@ void Sprite<M>::fire()
                 bodyapplyanimation(AnimationType::AimRecoil, 1);
         }
     }
-    if (weapon.num == guns[barrett].num)
+    if (weapon.num == barrett_num)
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
@@ -4437,7 +4442,7 @@ void Sprite<M>::fire()
             createspark(a, c, 71, num, 255); // shell
 #endif
     }
-    if (weapon.num == guns[minigun].num)
+    if (weapon.num == minigun_num)
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
@@ -4452,7 +4457,7 @@ void Sprite<M>::fire()
             createspark(a, c, 73, num, 255); // shell
 #endif
     }
-    if (weapon.num == guns[colt].num)
+    if (weapon.num == colt_num)
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
@@ -4474,7 +4479,7 @@ void Sprite<M>::fire()
                 bodyapplyanimation(AnimationType::AimRecoil, 1);
         }
     }
-    if ((weapon.num == guns[bow].num) || (weapon.num == guns[bow2].num))
+    if ((weapon.num == bow_num) || (weapon.num == bow2_num))
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
@@ -4493,7 +4498,7 @@ void Sprite<M>::fire()
         }
     }
 #ifndef SERVER
-    if (weapon.num == guns[law].num)
+    if (weapon.num == law_num)
     {
         if (bonusstyle != bonus_predator)
             playsound(sfx_law, spritePartsPos);
@@ -4534,12 +4539,12 @@ void Sprite<M>::fire()
     if (((mysprite > 0) && (camerafollowsprite != 0)) and
         (!((num != mysprite) && !CVar::cl_screenshake)))
     {
-        if (weapon.num != guns[chainsaw].num)
+        if (weapon.num != chainsaw_num)
         {
             if (GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y, camerafollowsprite))
             {
-                if ((weapon.num == guns[m249].num) || (weapon.num == guns[spas12].num) ||
-                    (weapon.num == guns[barrett].num) || (weapon.num == guns[minigun].num))
+                if ((weapon.num == m249_num) || (weapon.num == spas12_num) ||
+                    (weapon.num == barrett_num) || (weapon.num == minigun_num))
                 {
                     camerax = camerax - 3 + Random(7);
                     cameray = cameray - 3 + Random(7);
@@ -4957,6 +4962,24 @@ float Sprite<M>::GetHealth()
 {
     // LogDebugG("Health {}", Health);
     return Health;
+}
+
+template <Config::Module M>
+void Sprite<M>::SetFirstWeapon(const tgun &gun)
+{
+    new (&weapon) tgun(gun);
+}
+
+template <Config::Module M>
+void Sprite<M>::SetSecondWeapon(const tgun &gun)
+{
+    new (&secondaryweapon) tgun(gun);
+}
+
+template <Config::Module M>
+void Sprite<M>::SetThirdWeapon(const tgun &gun)
+{
+    new (&tertiaryweapon) tgun(gun);
 }
 
 template <Config::Module M>

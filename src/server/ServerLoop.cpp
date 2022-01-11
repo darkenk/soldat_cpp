@@ -691,7 +691,7 @@ void updateframe()
 
             for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
             {
-                if ((sprite.weapon.num == guns[bow].num) || (sprite.weapon.num == guns[bow2].num))
+                if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
                 {
                     _x = 1;
                 }

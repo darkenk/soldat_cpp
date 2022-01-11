@@ -61,9 +61,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Desert Eagle
     gun = &guns[eagle];
+    new (gun) tgun(eagle_num);
     gun->name = "Desert Eagles";
     gun->ininame = gun->name;
-    gun->num = eagle_num;
     gun->texturenum = GFX::WEAPONS_DEAGLES;
     gun->cliptexturenum = GFX::WEAPONS_DEAGLES_CLIP;
     gun->clipreload = true;
@@ -73,9 +73,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // MP5
     gun = &guns[mp5];
+    new (gun) tgun(mp5_num);
     gun->name = "HK MP5";
     gun->ininame = gun->name;
-    gun->num = mp5_num;
     gun->texturenum = GFX::WEAPONS_MP5;
     gun->cliptexturenum = GFX::WEAPONS_MP5_CLIP;
     gun->clipreload = true;
@@ -85,9 +85,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // AK-74
     gun = &guns[ak74];
+    new (gun) tgun(ak74_num);
     gun->name = "Ak-74";
     gun->ininame = gun->name;
-    gun->num = ak74_num;
     gun->texturenum = GFX::WEAPONS_AK74;
     gun->cliptexturenum = GFX::WEAPONS_AK74_CLIP;
     gun->clipreload = true;
@@ -97,9 +97,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Steyr AUG
     gun = &guns[steyraug];
+    new (gun) tgun(steyraug_num);
     gun->name = "Steyr AUG";
     gun->ininame = gun->name;
-    gun->num = steyraug_num;
     gun->texturenum = GFX::WEAPONS_STEYR;
     gun->cliptexturenum = GFX::WEAPONS_STEYR_CLIP;
     gun->clipreload = true;
@@ -109,9 +109,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // SPAS-12
     gun = &guns[spas12];
+    new (gun) tgun(spas12_num);
     gun->name = "Spas-12";
     gun->ininame = gun->name;
-    gun->num = spas12_num;
     gun->texturenum = GFX::WEAPONS_SPAS;
     gun->cliptexturenum = 0;
     gun->clipreload = false;
@@ -121,9 +121,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Ruger 77
     gun = &guns[ruger77];
+    new (gun) tgun(ruger77_num);
     gun->name = "Ruger 77";
     gun->ininame = gun->name;
-    gun->num = ruger77_num;
     gun->texturenum = GFX::WEAPONS_RUGER;
     gun->cliptexturenum = 0;
     gun->clipreload = false;
@@ -133,9 +133,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // M79 grenade launcher
     gun = &guns[m79];
+    new (gun) tgun(m79_num);
     gun->name = "M79";
     gun->ininame = gun->name;
-    gun->num = m79_num;
     gun->texturenum = GFX::WEAPONS_M79;
     gun->cliptexturenum = GFX::WEAPONS_M79_CLIP;
     gun->clipreload = true;
@@ -145,9 +145,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Barrett M82A1
     gun = &guns[barrett];
+    new (gun) tgun(barrett_num);
     gun->name = "Barrett M82A1";
     gun->ininame = "Barret M82A1";
-    gun->num = barrett_num;
     gun->texturenum = GFX::WEAPONS_BARRETT;
     gun->cliptexturenum = GFX::WEAPONS_BARRETT_CLIP;
     gun->clipreload = true;
@@ -157,9 +157,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // M249
     gun = &guns[m249];
+    new (gun) tgun(m249_num);
     gun->name = "FN Minimi";
     gun->ininame = gun->name;
-    gun->num = m249_num;
     gun->texturenum = GFX::WEAPONS_MINIMI;
     gun->cliptexturenum = GFX::WEAPONS_MINIMI_CLIP;
     gun->clipreload = true;
@@ -169,9 +169,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Minigun
     gun = &guns[minigun];
+    new (gun) tgun(minigun_num);
     gun->name = "XM214 Minigun";
     gun->ininame = gun->name;
-    gun->num = minigun_num;
     gun->texturenum = GFX::WEAPONS_MINIGUN;
     gun->cliptexturenum = 0;
     gun->clipreload = false;
@@ -181,9 +181,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Colt 1911
     gun = &guns[colt];
+    new (gun) tgun(colt_num);
     gun->name = "USSOCOM";
     gun->ininame = gun->name;
-    gun->num = colt_num;
     gun->texturenum = GFX::WEAPONS_SOCOM;
     gun->cliptexturenum = GFX::WEAPONS_SOCOM_CLIP;
     gun->clipreload = true;
@@ -193,9 +193,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Knife
     gun = &guns[knife];
+    new (gun) tgun(knife_num);
     gun->name = "Combat Knife";
     gun->ininame = gun->name;
-    gun->num = knife_num;
     gun->texturenum = GFX::WEAPONS_KNIFE;
     gun->cliptexturenum = 0;
     gun->clipreload = false;
@@ -205,9 +205,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Chainsaw
     gun = &guns[chainsaw];
+    new (gun) tgun(chainsaw_num);
     gun->name = "Chainsaw";
     gun->ininame = gun->name;
-    gun->num = chainsaw_num;
     gun->texturenum = GFX::WEAPONS_CHAINSAW;
     gun->cliptexturenum = 0;
     gun->clipreload = false;
@@ -217,9 +217,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // M72 LAW
     gun = &guns[law];
+    new (gun) tgun(law_num);
     gun->name = "LAW";
     gun->ininame = "M72 LAW";
-    gun->num = law_num;
     gun->texturenum = GFX::WEAPONS_LAW;
     gun->cliptexturenum = 0;
     gun->clipreload = true;
@@ -229,9 +229,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Rambo Bow with flame
     gun = &guns[bow2];
+    new (gun) tgun(bow2_num);
     gun->name = "Flame Bow";
     gun->ininame = "Flamed Arrows";
-    gun->num = bow2_num;
     gun->texturenum = GFX::WEAPONS_BOW;
     gun->cliptexturenum = GFX::WEAPONS_BOW_S;
     gun->clipreload = false;
@@ -241,9 +241,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Rambo Bow
     gun = &guns[bow];
+    new (gun) tgun(bow_num);
     gun->name = "Bow";
     gun->ininame = "Rambo Bow";
-    gun->num = bow_num;
     gun->texturenum = GFX::WEAPONS_BOW;
     gun->cliptexturenum = GFX::WEAPONS_BOW_S;
     gun->clipreload = false;
@@ -253,9 +253,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Flamethrower
     gun = &guns[flamer];
+    new (gun) tgun(flamer_num);
     gun->name = "Flamer";
     gun->ininame = gun->name;
-    gun->num = flamer_num;
     gun->texturenum = GFX::WEAPONS_FLAMER;
     gun->cliptexturenum = GFX::WEAPONS_FLAMER;
     gun->clipreload = false;
@@ -265,9 +265,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // M2
     gun = &guns[m2];
+    new (gun) tgun(m2_num);
     gun->name = "M2 MG";
     gun->ininame = "Stationary Gun";
-    gun->num = m2_num;
     gun->texturenum = GFX::WEAPONS_MINIGUN;
     gun->cliptexturenum = 0;
     gun->clipreload = false;
@@ -277,9 +277,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // No weapon
     gun = &guns[noweapon];
+    new (gun) tgun(noweapon_num);
     gun->name = "Hands";
     gun->ininame = "Punch";
-    gun->num = noweapon_num;
     gun->texturenum = 0;
     gun->cliptexturenum = 0;
     gun->clipreload = false;
@@ -289,9 +289,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Frag grenade
     gun = &guns[fraggrenade];
+    new (gun) tgun(fraggrenade_num);
     gun->name = "Frag Grenade";
     gun->ininame = "Grenade";
-    gun->num = fraggrenade_num;
     gun->texturenum = GFX::WEAPONS_FRAG_GRENADE;
     gun->cliptexturenum = GFX::WEAPONS_FRAG_GRENADE;
     gun->clipreload = false;
@@ -302,9 +302,9 @@ void createweaponsbase(GunsDescription &guns)
     // TODO(skoskav): Add a proper entry for cluster nade and thrown knife
     // Cluster grenade
     gun = &guns[clustergrenade];
+    new (gun) tgun(clustergrenade_num);
     gun->name = "Frag Grenade";
     gun->ininame = "";
-    gun->num = clustergrenade_num;
     gun->texturenum = GFX::WEAPONS_FRAG_GRENADE;
     gun->cliptexturenum = GFX::WEAPONS_FRAG_GRENADE;
     gun->clipreload = false;
@@ -314,9 +314,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Cluster
     gun = &guns[cluster];
+    new (gun) tgun(cluster_num);
     gun->name = "Frag Grenade";
     gun->ininame = "";
-    gun->num = cluster_num;
     gun->texturenum = GFX::WEAPONS_FRAG_GRENADE;
     gun->cliptexturenum = GFX::WEAPONS_FRAG_GRENADE;
     gun->clipreload = false;
@@ -326,9 +326,9 @@ void createweaponsbase(GunsDescription &guns)
 
     // Thrown knife
     gun = &guns[thrownknife];
+    new (gun) tgun(thrownknife_num);
     gun->name = "Combat Knife";
     gun->ininame = "";
-    gun->num = thrownknife_num;
     gun->texturenum = GFX::WEAPONS_KNIFE;
     gun->cliptexturenum = 0;
     gun->clipreload = false;
@@ -1474,4 +1474,12 @@ std::uint32_t calculatebink(std::uint32_t accumulated, std::uint32_t bink)
     result = accumulated + bink -
              round(accumulated * ((float)(accumulated) / ((10 * bink) + accumulated)));
     return result;
+}
+
+tgun::tgun() : num(noweapon_num)
+{
+}
+
+tgun::tgun(const uint8_t _num) : num(_num)
+{
 }

@@ -624,8 +624,8 @@ bool keydown(SDL_KeyboardEvent &keyevent)
                 auto prinum = SpriteSystem::Get().GetSprite(mysprite).weapon.num;
                 auto secnum = SpriteSystem::Get().GetSprite(mysprite).secondaryweapon.num;
 
-                if (!limbomenu->active or (((prinum != guns[noweapon].num) || (pricount == 0)) &&
-                                           ((secnum != guns[noweapon].num) || (seccount == 0))))
+                if (!limbomenu->active or (((prinum != noweapon_num) || (pricount == 0)) &&
+                                           ((secnum != noweapon_num) || (seccount == 0))))
                 {
                     gamemenushow(limbomenu, false);
                     limbolock = !limbolock;

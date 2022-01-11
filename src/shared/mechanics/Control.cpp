@@ -437,9 +437,9 @@ void controlsprite(tsprite &spritec)
         if (spritec.stat == 0)
             if (spritec.position == pos_stand)
                 if ((spritec.control.fire) && (spritec.ceasefirecounter < 0))
-                    if ((spritec.weapon.num != guns[noweapon].num) &&
-                        (spritec.weapon.num != guns[knife].num) &&
-                        (spritec.weapon.num != guns[chainsaw].num))
+                    if ((spritec.weapon.num != noweapon_num) &&
+                        (spritec.weapon.num != knife_num) &&
+                        (spritec.weapon.num != chainsaw_num))
                     {
                         for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
                         {
@@ -459,7 +459,7 @@ void controlsprite(tsprite &spritec)
         // (not TargetMode or (SpriteC.Num <> MySprite))
         if (spritec.stat == 0)
         {
-            if ((spritec.weapon.num == guns[chainsaw].num) ||
+            if ((spritec.weapon.num == chainsaw_num) ||
                 ((spritec.bodyanimation.id != AnimationType::Roll) &&
                  (spritec.bodyanimation.id != AnimationType::RollBack) &&
                  (spritec.bodyanimation.id != AnimationType::Melee) && (spritec.bodyanimation.id != AnimationType::Change)))
@@ -470,8 +470,8 @@ void controlsprite(tsprite &spritec)
                 {
                     if (spritec.control.fire && (spritec.ceasefirecounter < 0))
                     {
-                        if ((spritec.weapon.num == guns[noweapon].num) ||
-                            (spritec.weapon.num == guns[knife].num))
+                        if ((spritec.weapon.num == noweapon_num) ||
+                            (spritec.weapon.num == knife_num))
                             spritec.bodyapplyanimation(AnimationType::Punch, 1);
                         else
                         {
@@ -491,19 +491,19 @@ void controlsprite(tsprite &spritec)
                                             spritec.weapon.startuptime)
                                         {
                                             // Barrett wind up
-                                            if (spritec.weapon.num == guns[barrett].num)
+                                            if (spritec.weapon.num == barrett_num)
                                                 playsound(sfx_law_start,
                                                           spritePartsPos,
                                                           spritec.gattlingsoundchannel);
 
                                             // Minigun wind up
-                                            else if (spritec.weapon.num == guns[minigun].num)
+                                            else if (spritec.weapon.num == minigun_num)
                                                 playsound(sfx_minigun_start,
                                                           spritePartsPos,
                                                           spritec.gattlingsoundchannel);
 
                                             // LAW wind up
-                                            else if (spritec.weapon.num == guns[law].num)
+                                            else if (spritec.weapon.num == law_num)
                                             {
                                                 if (spritec.onground and
                                                     (((spritec.legsanimation.id == AnimationType::Crouch) &&
@@ -519,7 +519,7 @@ void controlsprite(tsprite &spritec)
                                             }
                                         }
 #endif
-                                        if ((spritec.weapon.num != guns[law].num) ||
+                                        if ((spritec.weapon.num != law_num) ||
                                             ((spritec.onground or spritec.ongroundpermanent) and
                                              (((spritec.legsanimation.id == AnimationType::Crouch) &&
                                                (spritec.legsanimation.currframe > 13)) ||
@@ -544,11 +544,11 @@ void controlsprite(tsprite &spritec)
 
                         if (spritec.weapon.startuptimecount < spritec.weapon.startuptime)
                         {
-                            if (spritec.weapon.num == guns[minigun].num)
+                            if (spritec.weapon.num == minigun_num)
                                 // gattling end sound
                                 playsound(sfx_minigun_end, spritePartsPos,
                                           spritec.gattlingsoundchannel2);
-                            if (spritec.weapon.num == guns[law].num)
+                            if (spritec.weapon.num == law_num)
                                 if ((spritec.onground) and
                                     (((spritec.legsanimation.id == AnimationType::Crouch) &&
                                       (spritec.legsanimation.currframe > 13)) ||
@@ -629,19 +629,19 @@ void controlsprite(tsprite &spritec)
             // clear dont drop flag if needed
 #ifndef SERVER
         if (spritec.dontdrop)
-            if (!spritec.control.throwweapon or (spritec.weapon.num == guns[knife].num))
+            if (!spritec.control.throwweapon or (spritec.weapon.num == knife_num))
                 spritec.dontdrop = false;
 #endif
         // throw weapon animation
         if (spritec.control.throwweapon && !spritec.control.thrownade && !spritec.dontdrop and
             (spritec.bodyanimation.id != AnimationType::Roll) && (spritec.bodyanimation.id != AnimationType::RollBack) &&
             ((spritec.bodyanimation.id != AnimationType::Change) || (spritec.bodyanimation.currframe > 25)) &&
-            (spritec.bonusstyle != bonus_flamegod) && (spritec.weapon.num != guns[bow].num) &&
-            (spritec.weapon.num != guns[bow2].num) && (spritec.weapon.num != guns[noweapon].num))
+            (spritec.bonusstyle != bonus_flamegod) && (spritec.weapon.num != bow_num) &&
+            (spritec.weapon.num != bow2_num) && (spritec.weapon.num != noweapon_num))
         {
             spritec.bodyapplyanimation(AnimationType::ThrowWeapon, 1);
 
-            if (spritec.weapon.num == guns[knife].num)
+            if (spritec.weapon.num == knife_num)
                 spritec.bodyanimation.speed = 2;
 
 #ifndef SERVER
@@ -650,7 +650,7 @@ void controlsprite(tsprite &spritec)
         }
 
         // reload
-        if ((spritec.weapon.num == guns[chainsaw].num) ||
+        if ((spritec.weapon.num == chainsaw_num) ||
             ((spritec.bodyanimation.id != AnimationType::Roll) && (spritec.bodyanimation.id != AnimationType::RollBack) &&
              (spritec.bodyanimation.id != AnimationType::Change)))
         {
@@ -658,7 +658,7 @@ void controlsprite(tsprite &spritec)
             {
                 if (spritec.weapon.ammocount != spritec.weapon.ammo)
                 {
-                    if (spritec.weapon.num == guns[spas12].num)
+                    if (spritec.weapon.num == spas12_num)
                     {
                         if (spritec.weapon.ammocount < spritec.weapon.ammo)
                         {
@@ -701,11 +701,11 @@ void controlsprite(tsprite &spritec)
         if ((spritec.bodyanimation.id == AnimationType::Change) && (spritec.bodyanimation.currframe == 2))
         {
 #ifndef SERVER
-            if (spritec.secondaryweapon.num == guns[colt].num)
+            if (spritec.secondaryweapon.num == colt_num)
                 playsound(sfx_changespin, spritePartsPos);
-            else if (spritec.secondaryweapon.num == guns[knife].num)
+            else if (spritec.secondaryweapon.num == knife_num)
                 playsound(sfx_knife, spritePartsPos);
-            else if (spritec.secondaryweapon.num == guns[chainsaw].num)
+            else if (spritec.secondaryweapon.num == chainsaw_num)
                 playsound(sfx_chainsaw_d, spritePartsPos);
             else
                 playsound(sfx_changeweapon, spritePartsPos);
@@ -722,9 +722,9 @@ void controlsprite(tsprite &spritec)
             if ((spritec.num == mysprite) || (spritec.player->controlmethod == bot))
 #endif
             {
-                tempgun = spritec.weapon;
-                spritec.weapon = spritec.secondaryweapon;
-                spritec.secondaryweapon = tempgun;
+                new (&tempgun) tgun(spritec.weapon);
+                spritec.SetFirstWeapon(spritec.secondaryweapon);
+                spritec.SetSecondWeapon(tempgun);
 
                 spritec.lastweaponhm = spritec.weapon.hitmultiply;
                 spritec.lastweaponstyle = spritec.weapon.bulletstyle;
@@ -754,17 +754,17 @@ void controlsprite(tsprite &spritec)
         if ((spritec.bodyanimation.id == AnimationType::ThrowWeapon) && (spritec.bodyanimation.currframe == 2))
             playsound(sfx_throwgun, spritePartsPos);
 #endif
-        if (spritec.weapon.num != guns[knife].num)
+        if (spritec.weapon.num != knife_num)
             if ((spritec.bodyanimation.id == AnimationType::ThrowWeapon) &&
                 (spritec.bodyanimation.currframe == 19) &&
-                (spritec.weapon.num != guns[noweapon].num))
+                (spritec.weapon.num != noweapon_num))
             {
                 spritec.dropweapon();
                 spritec.bodyapplyanimation(AnimationType::Stand, 1);
             }
 
         // Throw knife
-        if ((spritec.weapon.num == guns[knife].num) &&
+        if ((spritec.weapon.num == knife_num) &&
             (spritec.bodyanimation.id == AnimationType::ThrowWeapon) &&
             (!spritec.control.throwweapon or (spritec.bodyanimation.currframe == 16)))
         {
@@ -792,7 +792,7 @@ void controlsprite(tsprite &spritec)
                 a = spritec.skeleton.pos[16];
                 createbullet(a, b, guns[thrownknife].num, spritec.num, 255,
                              guns[thrownknife].hitmultiply, true, false);
-                spritec.applyweaponbynum(guns[noweapon].num, 1);
+                spritec.applyweaponbynum(noweapon_num, 1);
                 spritec.bodyapplyanimation(AnimationType::Stand, 1);
 #ifndef SERVER
                 if ((spritec.num == mysprite) && !spritec.deadmeat)
@@ -804,7 +804,7 @@ void controlsprite(tsprite &spritec)
         // Punch!
         if (!spritec.deadmeat)
             if ((spritec.bodyanimation.id == AnimationType::Punch) && (spritec.bodyanimation.currframe == 11) &&
-                (spritec.weapon.num != guns[law].num) && (spritec.weapon.num != guns[m79].num))
+                (spritec.weapon.num != law_num) && (spritec.weapon.num != m79_num))
             {
                 a.x = spritec.skeleton.pos[16].x + 2 * spritec.direction;
                 a.y = spritec.skeleton.pos[16].y + 3;
@@ -814,7 +814,7 @@ void controlsprite(tsprite &spritec)
                              true, false);
 
 #ifndef SERVER
-                if (spritec.weapon.num == guns[knife].num)
+                if (spritec.weapon.num == knife_num)
                     playsound(sfx_slash, spritePartsPos);
 #endif
 
@@ -829,7 +829,7 @@ void controlsprite(tsprite &spritec)
                 a.y = spritec.skeleton.pos[16].y + 3;
                 b.x = spritec.direction * 0.1;
                 b.y = 0;
-                createbullet(a, b, guns[noweapon].num, spritec.num, 255, guns[noweapon].hitmultiply,
+                createbullet(a, b, noweapon_num, spritec.num, 255, guns[noweapon].hitmultiply,
                              true, true);
 
 #ifndef SERVER
@@ -858,7 +858,7 @@ void controlsprite(tsprite &spritec)
         }
 
         // M79 luska
-        if ((spritec.weapon.num == guns[m79].num) &&
+        if ((spritec.weapon.num == m79_num) &&
             (spritec.weapon.reloadtimecount == spritec.weapon.clipouttime))
         {
 #ifndef SERVER
@@ -979,7 +979,7 @@ void controlsprite(tsprite &spritec)
         }
 
         // Fondle Barrett?!
-        if ((spritec.weapon.num == guns[barrett].num) && (spritec.weapon.fireintervalcount > 0))
+        if ((spritec.weapon.num == barrett_num) && (spritec.weapon.fireintervalcount > 0))
             if ((spritec.bodyanimation.id == AnimationType::Stand) || (spritec.bodyanimation.id == AnimationType::Crouch) ||
                 (spritec.bodyanimation.id == AnimationType::Prone))
                 spritec.bodyapplyanimation(AnimationType::Barret, 1);
@@ -1199,7 +1199,7 @@ void controlsprite(tsprite &spritec)
         }
         else if (spritec.idlerandom == 4) // TAKE OFF HELMET
         {
-            if ((spritec.weapon.num != guns[bow].num) && (spritec.weapon.num != guns[bow2].num))
+            if ((spritec.weapon.num != bow_num) && (spritec.weapon.num != bow2_num))
             {
                 if (spritec.idletime == 0)
                 {
@@ -1333,18 +1333,18 @@ void controlsprite(tsprite &spritec)
             {
                 if (spritec.canmercy)
                 {
-                    if ((spritec.weapon.num == guns[m79].num) ||
-                        (spritec.weapon.num == guns[m249].num) ||
-                        (spritec.weapon.num == guns[spas12].num) ||
-                        (spritec.weapon.num == guns[law].num) ||
-                        (spritec.weapon.num == guns[chainsaw].num) ||
-                        (spritec.weapon.num == guns[barrett].num) ||
-                        (spritec.weapon.num == guns[minigun].num))
+                    if ((spritec.weapon.num == m79_num) ||
+                        (spritec.weapon.num == m249_num) ||
+                        (spritec.weapon.num == spas12_num) ||
+                        (spritec.weapon.num == law_num) ||
+                        (spritec.weapon.num == chainsaw_num) ||
+                        (spritec.weapon.num == barrett_num) ||
+                        (spritec.weapon.num == minigun_num))
                     {
                         spritec.bodyapplyanimation(AnimationType::Mercy2, 1);
                         spritec.legsapplyanimation(AnimationType::Mercy2, 1);
                     }
-                    else if (spritec.weapon.num != guns[minigun].num)
+                    else if (spritec.weapon.num != minigun_num)
                     {
                         spritec.bodyapplyanimation(AnimationType::Mercy, 1);
                         spritec.legsapplyanimation(AnimationType::Mercy, 1);
@@ -1352,7 +1352,7 @@ void controlsprite(tsprite &spritec)
 
 #ifndef SERVER
                     playsound(sfx_mercy, spritePartsPos);
-                    if (spritec.weapon.num == guns[minigun].num)
+                    if (spritec.weapon.num == minigun_num)
                         playsound(sfx_minigun_start, spritePartsPos);
 #else
                     serveridleanimation(spritec.num, spritec.idlerandom);
@@ -1374,13 +1374,13 @@ void controlsprite(tsprite &spritec)
                 {
                     spritec.fire();
 #ifndef SERVER
-                    if (spritec.weapon.num == guns[knife].num)
+                    if (spritec.weapon.num == knife_num)
                         playsound(sfx_slash, spritePartsPos,
                                   SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
-                    if (spritec.weapon.num == guns[chainsaw].num)
+                    if (spritec.weapon.num == chainsaw_num)
                         playsound(sfx_chainsaw_r, spritePartsPos,
                                   SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
-                    if (spritec.weapon.num == guns[noweapon].num)
+                    if (spritec.weapon.num == noweapon_num)
                         playsound(sfx_dead_hit, spritePartsPos,
                                   SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
 
@@ -1446,7 +1446,7 @@ void controlsprite(tsprite &spritec)
             }
 
         // AimDistCoef (Sniper view)
-        if (spritec.weapon.num == guns[barrett].num)
+        if (spritec.weapon.num == barrett_num)
         {
             if ((spritec.weapon.fireintervalcount == 0) &&
                 ((spritec.bodyanimation.id == AnimationType::Prone) || (spritec.bodyanimation.id == AnimationType::Aim)))

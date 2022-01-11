@@ -311,7 +311,7 @@ void rendergostek(tsprite &soldier)
         include(visible, GOSTEK_VEST);
 
     // grenades
-    if (soldier.tertiaryweapon.num == guns[fraggrenade].num)
+    if (soldier.tertiaryweapon.num == fraggrenade_num)
         index = GOSTEK_FRAG_GRENADE1;
     else
         index = GOSTEK_CLUSTER_GRENADE1;
@@ -357,7 +357,7 @@ void rendergostek(tsprite &soldier)
         visible.emplace(GOSTEK_HEAD_DEAD_DMG);
     }
 
-    if (soldier.weapon.num == guns[bow].num || guns[bow2].num == soldier.weapon.num)
+    if (soldier.weapon.num == bow_num || bow2_num == soldier.weapon.num)
     {
         include(visible, GOSTEK_RAMBO_BADGE);
     }
@@ -424,7 +424,7 @@ void rendergostek(tsprite &soldier)
 
     // primary weapon
 
-    if (soldier.weapon.num == guns[minigun].num)
+    if (soldier.weapon.num == minigun_num)
     {
         include(visible, GOSTEK_PRIMARY_MINIGUN);
 
@@ -437,7 +437,7 @@ void rendergostek(tsprite &soldier)
         if (soldier.fired > 0)
             include(visible, GOSTEK_PRIMARY_MINIGUN_FIRE);
     }
-    else if (soldier.weapon.num == guns[bow].num || guns[bow2].num == soldier.weapon.num)
+    else if (soldier.weapon.num == bow_num || bow2_num == soldier.weapon.num)
     {
         if (soldier.weapon.ammocount == 0)
             include(visible, GOSTEK_PRIMARY_BOW_ARROW_RELOAD);

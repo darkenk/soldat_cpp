@@ -266,7 +266,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
         else
         {
             j = SpriteSystem::Get().GetSprite(mysprite).weapon.num;
-            if (j == guns[noweapon].num)
+            if (j == noweapon_num)
                 j = 17;
 
             if (wepstats[j].shots == 0)
@@ -664,8 +664,8 @@ void Bullet<M>::update()
     // lose power on distance
     if (timeout % 6 == 0)
     {
-        if ((ownerweapon != guns[barrett].num) && (ownerweapon != guns[m79].num) &&
-            (ownerweapon != guns[knife].num) && (ownerweapon != guns[law].num))
+        if ((ownerweapon != barrett_num) && (ownerweapon != m79_num) &&
+            (ownerweapon != knife_num) && (ownerweapon != law_num))
         {
             a = vec2subtract(initial, bulletparts.pos[num]);
             dist = vec2length(a);
@@ -1622,7 +1622,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                             }
 
                             // Shake screen
-                            if ((owner == mysprite) && (ownerweapon == guns[chainsaw].num))
+                            if ((owner == mysprite) && (ownerweapon == chainsaw_num))
                             {
                                 camerax = camerax - 3 + Random(7);
                                 cameray = cameray - 3 + Random(7);
@@ -1710,9 +1710,9 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                      SpriteSystem::Get().GetSprite(j).isnotinsameteam(
                                          SpriteSystem::Get().GetSprite(owner))))
                                     if ((SpriteSystem::Get().GetSprite(j).weapon.num !=
-                                         guns[bow].num) &&
+                                         bow_num) &&
                                         (SpriteSystem::Get().GetSprite(j).weapon.num !=
-                                         guns[bow2].num))
+                                         bow2_num))
                                         SpriteSystem::Get().GetSprite(j).bodyapplyanimation(
                                             AnimationType::ThrowWeapon, 11);
 
@@ -1873,7 +1873,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                         a.y = -spriteVelocity.y;
                                         createbullet(
                                             SpriteSystem::Get().GetSprite(j).skeleton.pos[where], a,
-                                            guns[flamer].num, owner, 255,
+                                            flamer_num, owner, 255,
                                             (float)(2 * hitmultiply) / 3,
                                             //                        False, {$IFDEF
                                             //                        SERVER}False{$ELSE}True{$ENDIF});
@@ -2408,7 +2408,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
             vec2scale(b, b, -0.75);
             b.x = -b.x - 2.5 + ((float)(Random(50)) / 10.0f);
             b.y = b.y - 2.5 + ((float)(Random(25)) / 10.0f);
-            createbullet(a, b, guns[cluster].num, owner, 255,
+            createbullet(a, b, cluster_num, owner, 255,
                          (float)(guns[fraggrenade].hitmultiply) / 2.0f, true, false);
         }
     }

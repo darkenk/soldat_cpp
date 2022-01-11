@@ -276,9 +276,9 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
             spritedeathmsg.killbullet = 208;
         if (bullet[bulletnum].style == 6)
             spritedeathmsg.killbullet = 206;
-        if (bullet[bulletnum].ownerweapon == guns[knife].num)
+        if (bullet[bulletnum].ownerweapon == knife_num)
             spritedeathmsg.killbullet = 211;
-        if (bullet[bulletnum].ownerweapon == guns[chainsaw].num)
+        if (bullet[bulletnum].ownerweapon == chainsaw_num)
             spritedeathmsg.killbullet = 212;
         if (bullet[bulletnum].style == 12)
             spritedeathmsg.killbullet = 224;
@@ -477,13 +477,13 @@ void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
     }
 #endif
 
-    if (sprite.weapon.num == guns[colt].num)
+    if (sprite.weapon.num == colt_num)
         sprite.player->secwep = 0;
-    if (sprite.weapon.num == guns[knife].num)
+    if (sprite.weapon.num == knife_num)
         sprite.player->secwep = 1;
-    if (sprite.weapon.num == guns[chainsaw].num)
+    if (sprite.weapon.num == chainsaw_num)
         sprite.player->secwep = 2;
-    if (sprite.weapon.num == guns[law].num)
+    if (sprite.weapon.num == law_num)
         sprite.player->secwep = 3;
 
     sprite.weapon.ammocount = clientmsg->ammocount;
