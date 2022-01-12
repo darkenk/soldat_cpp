@@ -21,6 +21,10 @@ std::array<tmsg_serverspritesnapshot, max_sprites> oldspritesnapshotmsg;
 std::array<std::int32_t, max_sprites> time_spritesnapshot;
 std::array<std::int32_t, max_sprites> time_spritesnapshot_mov;
 
+float shotdistanceServer;
+float shotlifeServer;
+float shotricochetServer;
+
 // SERVER SNAPSHOT
 void serverspritesnapshot(std::uint8_t r)
 {
@@ -253,9 +257,9 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
     spritedeathmsg.respawncounter = SpriteSystem::Get().GetSprite(who).respawncounter;
     spritedeathmsg.health = SpriteSystem::Get().GetSprite(who).GetHealth();
     spritedeathmsg.onfire = SpriteSystem::Get().GetSprite(who).onfire;
-    spritedeathmsg.shotdistance = shotdistance;
-    spritedeathmsg.shotlife = shotlife;
-    spritedeathmsg.shotricochet = shotricochet;
+    spritedeathmsg.shotdistance = shotdistanceServer;
+    spritedeathmsg.shotlife = shotlifeServer;
+    spritedeathmsg.shotricochet = shotricochetServer;
 
     if (bulletnum == -1)
         spritedeathmsg.killbullet = 250;

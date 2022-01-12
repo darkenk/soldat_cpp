@@ -1810,14 +1810,17 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifdef SERVER
     if (what > 0)
     {
+        extern float shotdistanceServer;
+        extern float shotlifeServer;
+        extern float shotricochetServer;
         if (((what == 1) && (where == 1)) || (bullet[what].style == bullet_style_flame) || deadmeat)
             ;
         else
         {
             a = vec2subtract(bulletparts.pos[what], bullet[what].initial);
-            shotdistance = (float)(vec2length(a)) / 14;
-            shotricochet = bullet[what].ricochetcount;
-            shotlife = (float)((maintickcounter - bullet[what].startuptime)) / 60;
+            shotdistanceServer = (float)(vec2length(a)) / 14;
+            shotricochetServer = bullet[what].ricochetcount;
+            shotlifeServer = (float)((maintickcounter - bullet[what].startuptime)) / 60;
         }
     }
 

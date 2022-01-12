@@ -14,12 +14,6 @@ namespace
 auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
 auto &sparkparts = InitGlobalVariable<particlesystem, "sparkparts">();
 
-// bullet shot stats
-auto &shotdistanceshow = InitGlobalVariable<std::int32_t, "shotdistanceshow">();
-auto &shotdistance = InitGlobalVariable<float, "shotdistance">();
-auto &shotlife = InitGlobalVariable<float, "shotlife">();
-auto &shotricochet = InitGlobalVariable<std::int32_t, "shotricochet">();
-
 auto &ticks = InitGlobalVariable<std::int32_t, "ticks">();
 auto &tickspersecond = InitGlobalVariable<std::int32_t, "tickspersecond">();
 auto &frames = InitGlobalVariable<std::int32_t, "frames">();

@@ -132,6 +132,12 @@ std::uint8_t camerafollowsprite; // Tag number of object to follow
 std::uint8_t notexts = 0;
 std::uint8_t freecam = 0;
 
+// bullet shot stats
+std::int32_t shotdistanceshow;
+float shotdistance;
+float shotlife;
+std::int32_t shotricochet;
+
 // End Client.cpp variables
 
 /*#include "IniFiles.h"*/

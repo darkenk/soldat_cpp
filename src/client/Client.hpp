@@ -98,12 +98,7 @@ extern float camerax, cameray;          // camera x and y within world
 extern std::uint8_t camerafollowsprite; // Tag number of object to follow
 extern std::uint8_t notexts;
 extern std::uint8_t freecam;
-
-// extern tdownloadthread downloadthread;
-#ifdef STEAM
-extern tsteam steamapi;
-// SteamCallbacks: TSteamCallbacks;
-extern bool voicespeakingnow;
-extern bool forcereconnect;
-
-#endif
+extern std::int32_t shotdistanceshow;
+extern float shotdistance;
+extern float shotlife;
+extern std::int32_t shotricochet;
