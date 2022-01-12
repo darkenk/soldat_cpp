@@ -1,8 +1,10 @@
 #pragma once
 #include "common/Vector.hpp"
 #include <cstdint>
+#include "shared/misc/SoldatConfig.hpp"
 
 class Polymap;
+class particlesystem;
 
 class tspark
 {
@@ -25,3 +27,6 @@ std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
                          std::uint8_t sowner, std::int32_t life);
 
 extern std::int32_t sparkscount;
+
+template <Config::Module M = Config::GetModule()>
+particlesystem &GetSparkParts();

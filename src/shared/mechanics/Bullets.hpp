@@ -74,6 +74,9 @@ constexpr std::int32_t hit_type_bodyhit = 9;
 constexpr std::int32_t hit_type_ricochet = 10;
 
 template <Config::Module M = Config::GetModule()>
+particlesystem &GetBulletParts();
+
+template <Config::Module M = Config::GetModule()>
 std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int32_t sowner,
                           std::uint8_t n, float hitm, bool net, bool mustcreate,
                           std::uint16_t seed = -1); // Seed -1

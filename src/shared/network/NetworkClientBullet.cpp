@@ -25,8 +25,8 @@ void clientsendbullet(std::uint8_t i)
 
     bulletmsg.header.id = msgid_bulletsnapshot;
     bulletmsg.weaponnum = bullet[i].ownerweapon;
-    bulletmsg.pos = bulletparts.pos[i];
-    bulletmsg.velocity = bulletparts.velocity[i];
+    bulletmsg.pos = GetBulletParts().pos[i];
+    bulletmsg.velocity = GetBulletParts().velocity[i];
     bulletmsg.clientticks = clienttickcount;
     bulletmsg.seed = bullet[i].seed;
 
@@ -118,7 +118,7 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
                 for (c = 1; c <= pa; c++)
                     if (bullet[k].active)
                     {
-                        bulletparts.doeulertimestepfor(k);
+                        GetBulletParts().doeulertimestepfor(k);
                         bullet[k].update();
                         if (!bullet[k].active)
                             break;
@@ -147,7 +147,7 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
                     for (c = 1; c <= pa; c++)
                         if (bullet[k].active)
                         {
-                            bulletparts.doeulertimestepfor(k);
+                            GetBulletParts().doeulertimestepfor(k);
                             bullet[k].update();
                             if (!bullet[k].active)
                                 break;
@@ -168,7 +168,7 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
         if ((mysprite > 0) && (bulletsnap->owner > 0))
             for (c = 1; c <= pa; c++)
             {
-                bulletparts.doeulertimestepfor(i);
+                GetBulletParts().doeulertimestepfor(i);
                 bullet[i].update();
                 if (!bullet[i].active)
                     break;

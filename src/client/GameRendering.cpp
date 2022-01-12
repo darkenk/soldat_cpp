@@ -736,12 +736,12 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
             {
                 j = bullet[i].num;
 
-                s.bulletpos[i] = bulletparts.pos[j];
-                s.bulletvel[i] = bulletparts.velocity[j];
+                s.bulletpos[i] = GetBulletParts().pos[j];
+                s.bulletvel[i] = GetBulletParts().velocity[j];
                 s.bullethitmul[i] = bullet[i].hitmultiply;
 
-                bulletparts.pos[j] = lerp(bulletparts.oldpos[j], bulletparts.pos[j], p);
-                bulletparts.velocity[j] = lerp(bullet[i].velocityprev, bulletparts.velocity[j], p);
+                GetBulletParts().pos[j] = lerp(GetBulletParts().oldpos[j], GetBulletParts().pos[j], p);
+                GetBulletParts().velocity[j] = lerp(bullet[i].velocityprev, GetBulletParts().velocity[j], p);
                 bullet[i].hitmultiply = lerp(bullet[i].hitmultiplyprev, bullet[i].hitmultiply, p);
                 bullet[i].timeoutfloat = lerp(bullet[i].timeoutprev, bullet[i].timeout, p);
             }
@@ -755,8 +755,8 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
             if (spark[i].active)
             {
                 j = spark[i].num;
-                s.sparkpos[i] = sparkparts.pos[j];
-                sparkparts.pos[j] = lerp(sparkparts.oldpos[j], sparkparts.pos[j], p);
+                s.sparkpos[i] = GetSparkParts().pos[j];
+                GetSparkParts().pos[j] = lerp(GetSparkParts().oldpos[j], GetSparkParts().pos[j], p);
                 spark[i].lifefloat = lerp(spark[i].lifeprev, spark[i].life, p);
             }
         }
@@ -802,8 +802,8 @@ void restorestate(tinterpolationstate &s)
     {
         if (bullet[i].active or (bullet[i].pingadd > 0))
         {
-            bulletparts.pos[bullet[i].num] = s.bulletpos[i];
-            bulletparts.velocity[bullet[i].num] = s.bulletvel[i];
+            GetBulletParts().pos[bullet[i].num] = s.bulletpos[i];
+            GetBulletParts().velocity[bullet[i].num] = s.bulletvel[i];
             bullet[i].hitmultiply = s.bullethitmul[i];
         }
     }
@@ -811,7 +811,7 @@ void restorestate(tinterpolationstate &s)
     for (i = 1; i <= max_sparks; i++)
     {
         if (spark[i].active)
-            sparkparts.pos[spark[i].num] = s.sparkpos[i];
+            GetSparkParts().pos[spark[i].num] = s.sparkpos[i];
     }
 
     for (i = 1; i <= max_things; i++)

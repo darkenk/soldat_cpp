@@ -596,8 +596,8 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
             if ((bullet[j].active) && (bullet[j].owner == deathsnap->killer) &&
                 (bullet[j].style == guns[m79].bulletstyle))
             {
-                bulletparts.oldpos[j] = SpriteSystem::Get().GetSprite(i).skeleton.pos[8];
-                bulletparts.pos[j] = SpriteSystem::Get().GetSprite(i).skeleton.pos[8];
+                GetBulletParts().oldpos[j] = SpriteSystem::Get().GetSprite(i).skeleton.pos[8];
+                GetBulletParts().pos[j] = SpriteSystem::Get().GetSprite(i).skeleton.pos[8];
                 bullet[j].hit(3);
                 bullet[j].kill();
                 break;
@@ -608,8 +608,8 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
             if ((bullet[j].active) && (bullet[j].owner == deathsnap->killer) &&
                 (bullet[j].style == guns[law].bulletstyle))
             {
-                bulletparts.oldpos[j] = SpriteSystem::Get().GetSprite(i).skeleton.pos[8];
-                bulletparts.pos[j] = SpriteSystem::Get().GetSprite(i).skeleton.pos[8];
+                GetBulletParts().oldpos[j] = SpriteSystem::Get().GetSprite(i).skeleton.pos[8];
+                GetBulletParts().pos[j] = SpriteSystem::Get().GetSprite(i).skeleton.pos[8];
                 bullet[j].hit(3);
                 bullet[j].kill();
                 break;
@@ -621,12 +621,12 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
             if ((bullet[j].active) && (bullet[j].owner == deathsnap->killer) &&
                 (bullet[j].style == guns[fraggrenade].bulletstyle))
             {
-                map.raycast(bulletparts.pos[j], SpriteSystem::Get().GetSprite(i).skeleton.pos[8],
+                map.raycast(GetBulletParts().pos[j], SpriteSystem::Get().GetSprite(i).skeleton.pos[8],
                             hm, 351);
                 if (hm < after_explosion_radius)
                 {
-                    bulletparts.oldpos[j] = spritePartsPos;
-                    bulletparts.pos[j] = spritePartsPos;
+                    GetBulletParts().oldpos[j] = spritePartsPos;
+                    GetBulletParts().pos[j] = spritePartsPos;
                     bullet[j].hit(4);
                     bullet[j].kill();
                 }

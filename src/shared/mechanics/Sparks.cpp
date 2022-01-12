@@ -22,6 +22,15 @@
 #include "shared/misc/GlobalVariableStorage.cpp"
 // clang-format on
 
+template <Config::Module M>
+particlesystem &GetSparkParts()
+{
+    static particlesystem b;
+    return b;
+}
+
+template particlesystem &GetSparkParts();
+
 std::int32_t sparkscount;
 
 using std::numbers::pi;
@@ -71,7 +80,7 @@ std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
             result = Random(CVar::r_maxsparks / 3) + 1;
             break;
         }
-        if (!spark[i].active && (spark[i].style == 0) && !sparkparts.active[i])
+        if (!spark[i].active && (spark[i].style == 0) && !GetSparkParts().active[i])
         {
             result = i;
             break;
@@ -91,7 +100,7 @@ std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
     m = 1;
 
     // activate sprite part
-    sparkparts.createpart(spos, svelocity, m, i);
+    GetSparkParts().createpart(spos, svelocity, m, i);
 
     result = i;
     return result;
@@ -108,18 +117,18 @@ void tspark::update()
     std::int32_t wobble, wobblex, wobbley;
 
     if (!(noneuler_style.contains(style)))
-        sparkparts.doeulertimestepfor(num);
+        GetSparkParts().doeulertimestepfor(num);
 
     checkoutofbounds();
 
     // check collision with map
     if (collidable_style.contains(style))
-        checkmapcollision(sparkparts.pos[num].x, sparkparts.pos[num].y);
+        checkmapcollision(GetSparkParts().pos[num].x, GetSparkParts().pos[num].y);
 
     // wobble the screen when explosion
     if ((mysprite > 0) && (camerafollowsprite > 0) && (!demoplayer.active()))
         if ((style == 17) || (style == 12) || (style == 14) || (style == 15) || (style == 28))
-            if (GS::GetGame().pointvisible(sparkparts.pos[num].x, sparkparts.pos[num].y,
+            if (GS::GetGame().pointvisible(GetSparkParts().pos[num].x, GetSparkParts().pos[num].y,
                                            camerafollowsprite))
                 if (life > explosion_anims * 2.3)
                 // if ((Style = 17) and (Life > EXPLOSION_ANIMS * 2.5)) or
@@ -135,24 +144,24 @@ void tspark::update()
     // smoke luska
     if ((CVar::r_maxsparks > (max_sparks - 10)) && (style > 64) && (life > 235) &&
         (Random(32) == 0))
-        createspark(sparkparts.pos[num], sparkparts.velocity[num], 31, owner, 40);
+        createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 31, owner, 40);
 
     // smoke m79 luska
     if ((CVar::r_maxsparks > (max_sparks - 10)) && (style == 52))
     {
         if ((life > 235) && (Random(6) == 0))
-            createspark(sparkparts.pos[num], sparkparts.velocity[num], 31, owner, 40);
+            createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 31, owner, 40);
 
         if ((life > 85) && (life < 235) && (Random(15) == 0))
-            createspark(sparkparts.pos[num], sparkparts.velocity[num], 31, owner, 35);
+            createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 31, owner, 35);
 
         if ((life < 85) && (Random(24) == 0))
-            createspark(sparkparts.pos[num], sparkparts.velocity[num], 31, owner, 30);
+            createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 31, owner, 30);
     }
 
     // iskry
     if ((CVar::r_maxsparks > (max_sparks - 10)) && (style == 2) && (Random(8) == 0))
-        createspark(sparkparts.pos[num], vector2(0, 0), 26, owner, 35);
+        createspark(GetSparkParts().pos[num], vector2(0, 0), 26, owner, 35);
 
     lifeprev = life;
     life = life - 1;
@@ -174,14 +183,14 @@ void tspark::render()
         if ((owner > 0) && (owner < max_sprites + 1))
             if (SpriteSystem::Get().GetSprite(owner).active)
                 if (SpriteSystem::Get().GetSprite(owner).visible == 0)
-                    if (map.raycast(sparkparts.pos[num],
+                    if (map.raycast(GetSparkParts().pos[num],
                                     SpriteSystem::Get().GetSprite(mysprite).skeleton.pos[9],
                                     grenvel, gamewidth, true) or
                         (SpriteSystem::Get().GetSprite(owner).visible == 0))
                         return;
 
-    _p.x = sparkparts.pos[num].x;
-    _p.y = sparkparts.pos[num].y;
+    _p.x = GetSparkParts().pos[num].x;
+    _p.y = GetSparkParts().pos[num].y;
     l = lifefloat;
 
     switch (style)
@@ -571,9 +580,10 @@ bool tspark::checkmapcollision(float x, float y)
                         vec2normalize(perp, perp);
                         vec2scale(perp, perp, d);
 
-                        sparkparts.velocity[num] = vec2subtract(sparkparts.velocity[num], perp);
+                        GetSparkParts().velocity[num] =
+                            vec2subtract(GetSparkParts().velocity[num], perp);
 
-                        vec2scale(sparkparts.velocity[num], sparkparts.velocity[num],
+                        vec2scale(GetSparkParts().velocity[num], GetSparkParts().velocity[num],
                                   spark_surfacecoef);
 
                         switch (style)
@@ -590,7 +600,7 @@ bool tspark::checkmapcollision(float x, float y)
                                 else
                                     createspark(pos, perp, 27, owner, 35);
 
-                                playsound(sfx_ts, sparkparts.pos[num]);
+                                playsound(sfx_ts, GetSparkParts().pos[num]);
                             }
                         }
                         break;
@@ -611,8 +621,8 @@ bool tspark::checkmapcollision(float x, float y)
                         case 4:
                         case 5: {
                             if (style == 5)
-                                createspark(sparkparts.pos[num], sparkparts.velocity[num], 55,
-                                            owner, 30);
+                                createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num],
+                                            55, owner, 30);
 
                             if (collidecount > 1)
                                 kill();
@@ -620,7 +630,7 @@ bool tspark::checkmapcollision(float x, float y)
                         break;
                         case 6: {
                             if ((collidecount == 0) || (collidecount == 2) || (collidecount == 4))
-                                playsound(sfx_clipfall, sparkparts.pos[num]);
+                                playsound(sfx_clipfall, GetSparkParts().pos[num]);
 
                             if (collidecount > 4)
                                 kill();
@@ -642,13 +652,13 @@ bool tspark::checkmapcollision(float x, float y)
                         case 72:
                         case 73: {
                             if ((collidecount == 0) || (collidecount == 2) || (collidecount == 4))
-                                playsound(sfx_shell + Random(2), sparkparts.pos[num]);
+                                playsound(sfx_shell + Random(2), GetSparkParts().pos[num]);
                             if (collidecount > 4)
                                 kill();
                         }
                         break;
                         case 51: {
-                            playsound(sfx_gaugeshell, sparkparts.pos[num]);
+                            playsound(sfx_gaugeshell, GetSparkParts().pos[num]);
                             if (collidecount > 4)
                                 kill();
                         }
@@ -668,7 +678,7 @@ bool tspark::checkmapcollision(float x, float y)
                         case 20:
                         case 23: {
                             if ((collidecount == 0) || (collidecount == 4))
-                                playsound(sfx_clipfall, sparkparts.pos[num]);
+                                playsound(sfx_clipfall, GetSparkParts().pos[num]);
 
                             if (collidecount > 4)
                                 kill();
@@ -700,7 +710,7 @@ void tspark::kill()
     active = false;
     style = 0;
     if (num > 0)
-        sparkparts.active[num] = false;
+        GetSparkParts().active[num] = false;
 }
 
 void tspark::checkoutofbounds()
@@ -710,7 +720,7 @@ void tspark::checkoutofbounds()
     auto &map = GS::GetGame().GetMap();
 
     bound = map.sectorsnum * map.GetSectorsDivision() - 10;
-    sparkpartspos = &sparkparts.pos[num];
+    sparkpartspos = &GetSparkParts().pos[num];
 
     if ((fabs(sparkpartspos->x) > bound) || (fabs(sparkpartspos->y) > bound))
         kill();

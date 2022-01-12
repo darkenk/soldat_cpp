@@ -10,7 +10,6 @@ struct tgun
     tgun();
     tgun(const std::uint8_t _num);
     tgun(const tgun&) = default;
-    tgun& operator=(const tgun&) = default;
     // Scrambled 1.6, to piss off gamehackers.
     std::uint8_t ammo;
     std::uint8_t ammocount;

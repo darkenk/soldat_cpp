@@ -18,7 +18,8 @@ template <Config::Module M>
 void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 {
     Animations.clear();
-    addlinetologfile(GetGameLog(), std::string("Loading Animations. ") + moddir, GetGameLogFilename());
+    addlinetologfile(GetGameLog(), std::string("Loading Animations. ") + moddir,
+                     GetGameLogFilename());
     struct AnimData
     {
         AnimationType AnimType;
@@ -136,15 +137,18 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
     Skeletons.emplace_back();
     Skeletons.back().loadpoobject("objects/karabin.po", 5.5);
 
-    bulletparts.destroy();
-    bulletparts.timestep = 1;
-    bulletparts.gravity = grav * 2.25;
-    bulletparts.edamping = 0.99;
+    GetBulletParts().destroy();
+    GetBulletParts().timestep = 1;
+    GetBulletParts().gravity = grav * 2.25;
+    GetBulletParts().edamping = 0.99;
 
-    sparkparts.destroy();
-    sparkparts.timestep = 1;
-    sparkparts.gravity = grav / 1.4;
-    sparkparts.edamping = 0.998;
+    if constexpr (Config::GetModule() == Config::CLIENT_MODULE)
+    {
+        GetSparkParts().destroy();
+        GetSparkParts().timestep = 1;
+        GetSparkParts().gravity = grav / 1.4;
+        GetSparkParts().edamping = 0.998;
+    }
 }
 
 template <Config::Module M>

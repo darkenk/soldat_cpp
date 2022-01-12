@@ -1817,7 +1817,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             ;
         else
         {
-            a = vec2subtract(bulletparts.pos[what], bullet[what].initial);
+            a = vec2subtract(GetBulletParts().pos[what], bullet[what].initial);
             shotdistanceServer = (float)(vec2length(a)) / 14;
             shotricochetServer = bullet[what].ricochetcount;
             shotlifeServer = (float)((maintickcounter - bullet[what].startuptime)) / 60;
@@ -4214,9 +4214,9 @@ void Sprite<M>::fire()
         if ((bn > 0) && (bn < max_bullets + 1))
             if (bullet[bn].active)
             {
-                a = bulletparts.velocity[bn];
-                vec2normalize(bulletparts.velocity[bn], bulletparts.velocity[bn]);
-                vec2scale(bulletparts.velocity[bn], bulletparts.velocity[bn], 70);
+                a = GetBulletParts().velocity[bn];
+                vec2normalize(GetBulletParts().velocity[bn], GetBulletParts().velocity[bn]);
+                vec2scale(GetBulletParts().velocity[bn], GetBulletParts().velocity[bn], 70);
                 bullet[bn].hit(2);
                 bullet[bn].hit(9);
                 // couple more - not sure why
@@ -4225,7 +4225,7 @@ void Sprite<M>::fire()
                 bullet[bn].hit(2);
                 bullet[bn].hit(9);
                 bullet[bn].hitbody = bullet[bn].owner;
-                bulletparts.velocity[bn] = a;
+                GetBulletParts().velocity[bn] = a;
             }
     }
 

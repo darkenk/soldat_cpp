@@ -83,7 +83,7 @@ void update_frame()
 
         {
             ZoneScopedN("BulletParts");
-            bulletparts.doeulertimestep();
+            GetBulletParts().doeulertimestep();
         }
 
         {

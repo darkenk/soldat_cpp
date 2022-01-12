@@ -26,8 +26,8 @@ void serverbulletsnapshot(std::uint8_t i, std::uint8_t tonum, bool forced)
     bulletmsg.header.id = msgid_bulletsnapshot;
     bulletmsg.owner = bullet[i].owner;
     bulletmsg.weaponnum = bullet[i].ownerweapon;
-    bulletmsg.pos = bulletparts.pos[i];
-    bulletmsg.velocity = bulletparts.velocity[i];
+    bulletmsg.pos = GetBulletParts().pos[i];
+    bulletmsg.velocity = GetBulletParts().velocity[i];
     bulletmsg.seed = bullet[i].seed;
     bulletmsg.forced = forced;
 
@@ -43,8 +43,8 @@ void serverbulletsnapshot(std::uint8_t i, std::uint8_t tonum, bool forced)
     {
         if ((sprite.player->controlmethod == human) && (sprite.num != bullet[i].owner))
             if ((tonum == 0) || (sprite.num == tonum))
-                if (bulletcansend(bulletparts.pos[i].x, bulletparts.pos[i].y, sprite.player->camera,
-                                  bulletparts.velocity[i].x) or
+                if (bulletcansend(GetBulletParts().pos[i].x, GetBulletParts().pos[i].y,
+                                  sprite.player->camera, GetBulletParts().velocity[i].x) or
                     forced)
                 {
                     GetServerNetwork()->senddata(&bulletmsg, sizeof(bulletmsg), sprite.player->peer,

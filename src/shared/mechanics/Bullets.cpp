@@ -34,6 +34,15 @@
 using std::numbers::pi;
 
 template <Config::Module M>
+particlesystem &GetBulletParts()
+{
+    static particlesystem b;
+    return b;
+}
+
+template particlesystem &GetBulletParts();
+
+template <Config::Module M>
 std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int32_t sowner,
                           std::uint8_t n, float hitm, bool net, bool mustcreate,
                           std::uint16_t seed) // Seed = -1
@@ -192,7 +201,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
     LogTraceG("CreateBullet 5");
 #endif
     // activate sprite part
-    bulletparts.createpart(spos, svelocity, mass, i);
+    GetBulletParts().createpart(spos, svelocity, mass, i);
 
 #ifndef SERVER
 
@@ -556,11 +565,11 @@ void Bullet<M>::update()
 
     timeoutprev = timeout;
     hitmultiplyprev = hitmultiply;
-    velocityprev = bulletparts.velocity[num];
+    velocityprev = GetBulletParts().velocity[num];
 
-    oldv = bulletparts.velocity[num];
-    oldp = bulletparts.pos[num];
-    oldop = bulletparts.oldpos[num];
+    oldv = GetBulletParts().velocity[num];
+    oldp = GetBulletParts().pos[num];
+    oldop = GetBulletParts().oldpos[num];
     dist = -1;
     hitp2.x = 0;
     hitp3.x = 0;
@@ -569,11 +578,11 @@ void Bullet<M>::update()
 
     // check collision with map
     if (style != bullet_style_fragnade)
-        hitp = checkmapcollision(bulletparts.pos[num].x, bulletparts.pos[num].y);
+        hitp = checkmapcollision(GetBulletParts().pos[num].x, GetBulletParts().pos[num].y);
     else
     {
-        hitp = checkmapcollision(bulletparts.pos[num].x, bulletparts.pos[num].y - 2);
-        hitp = checkmapcollision(bulletparts.pos[num].x, bulletparts.pos[num].y);
+        hitp = checkmapcollision(GetBulletParts().pos[num].x, GetBulletParts().pos[num].y - 2);
+        hitp = checkmapcollision(GetBulletParts().pos[num].x, GetBulletParts().pos[num].y);
     }
 
     if (!active)
@@ -581,10 +590,10 @@ void Bullet<M>::update()
         a = vec2subtract(hitp, oldop);
         dist = vec2length(a);
 
-        bulletparts.velocity[num] = oldv;
+        GetBulletParts().velocity[num] = oldv;
         ricochetcount -= 1;
-        bulletparts.pos[num] = oldp;
-        bulletparts.oldpos[num] = oldop;
+        GetBulletParts().pos[num] = oldp;
+        GetBulletParts().oldpos[num] = oldop;
     }
 
     // check if hit collider
@@ -598,9 +607,9 @@ void Bullet<M>::update()
             a = vec2subtract(hitp2, oldop);
 
         dist = vec2length(a);
-        bulletparts.velocity[num] = oldv;
-        bulletparts.pos[num] = oldp;
-        bulletparts.oldpos[num] = oldop;
+        GetBulletParts().velocity[num] = oldv;
+        GetBulletParts().pos[num] = oldp;
+        GetBulletParts().oldpos[num] = oldop;
     }
 
     // check if hit sprites
@@ -667,7 +676,7 @@ void Bullet<M>::update()
         if ((ownerweapon != barrett_num) && (ownerweapon != m79_num) &&
             (ownerweapon != knife_num) && (ownerweapon != law_num))
         {
-            a = vec2subtract(initial, bulletparts.pos[num]);
+            a = vec2subtract(initial, GetBulletParts().pos[num]);
             dist = vec2length(a);
 
             if (degradecount == 0)
@@ -699,8 +708,8 @@ void Bullet<M>::update()
     {
         if (SpriteSystem::Get().GetSprite(owner).position != pos_stand)
         {
-            camerax = bulletparts.pos[num].x + 5 * bulletparts.velocity[num].x;
-            cameray = bulletparts.pos[num].y + 5 * bulletparts.velocity[num].y;
+            camerax = GetBulletParts().pos[num].x + 5 * GetBulletParts().velocity[num].x;
+            cameray = GetBulletParts().pos[num].y + 5 * GetBulletParts().velocity[num].y;
         }
         else
         {
@@ -710,7 +719,7 @@ void Bullet<M>::update()
 
     // his sound
     if ((timeout == bullet_timeout - 25) && (style != bullet_style_shotgun))
-        playsound(sfx_bulletby, bulletparts.pos[num]);
+        playsound(sfx_bulletby, GetBulletParts().pos[num]);
 
     // whiizz above head
     if (!whizzed)
@@ -719,12 +728,12 @@ void Bullet<M>::update()
             {
                 const auto &spritePartsPos =
                     SpriteSystem::Get().GetSpritePartsPos(camerafollowsprite);
-                if ((bulletparts.pos[num].x > spritePartsPos.x - 200) &&
-                    (bulletparts.pos[num].x < spritePartsPos.x + 200) &&
-                    (bulletparts.pos[num].y > spritePartsPos.y - 350) &&
-                    (bulletparts.pos[num].y < spritePartsPos.y + 100))
+                if ((GetBulletParts().pos[num].x > spritePartsPos.x - 200) &&
+                    (GetBulletParts().pos[num].x < spritePartsPos.x + 200) &&
+                    (GetBulletParts().pos[num].y > spritePartsPos.y - 350) &&
+                    (GetBulletParts().pos[num].y < spritePartsPos.y + 100))
                 {
-                    playsound(sfx_bulletby2 + Random(4), bulletparts.pos[num]);
+                    playsound(sfx_bulletby2 + Random(4), GetBulletParts().pos[num]);
                     whizzed = true;
                 }
             }
@@ -734,35 +743,35 @@ void Bullet<M>::update()
     {
         // smoke
         if (Random(2) == 0)
-            createspark(bulletparts.pos[num], vector2(0, -0.5), 37, num, 40);
+            createspark(GetBulletParts().pos[num], vector2(0, -0.5), 37, num, 40);
 
         if (Random(2) == 0)
-            createspark(bulletparts.pos[num], vector2(0, -0.5), 36, num, 40);
+            createspark(GetBulletParts().pos[num], vector2(0, -0.5), 36, num, 40);
     }
 
     // law missile smoke
     if (style == bullet_style_law)
     {
         // smoke
-        createspark(bulletparts.pos[num], vector2(0, -1.5), 59, num, 50);
+        createspark(GetBulletParts().pos[num], vector2(0, -1.5), 59, num, 50);
         if (Random(2) == 0)
-            createspark(bulletparts.pos[num], bulletparts.velocity[num], 2, num, 5);
+            createspark(GetBulletParts().pos[num], GetBulletParts().velocity[num], 2, num, 5);
     }
 #endif
 
     // flame
     if (style == bullet_style_flame)
-        bulletparts.forces[num].y = bulletparts.forces[num].y - 0.15;
+        GetBulletParts().forces[num].y = GetBulletParts().forces[num].y - 0.15;
 
 #ifndef SERVER
     // bleed
     if (hitbody > 0)
         if (Random(5) == 0)
         {
-            createspark(
-                bulletparts.pos[num],
-                vector2(bulletparts.velocity[num].x * 0.5, bulletparts.velocity[num].y * 0.5), 4,
-                owner, 90);
+            createspark(GetBulletParts().pos[num],
+                        vector2(GetBulletParts().velocity[num].x * 0.5,
+                                GetBulletParts().velocity[num].y * 0.5),
+                        4, owner, 90);
         }
 #endif
 }
@@ -779,7 +788,7 @@ void Bullet<M>::render(double timeelapsed)
     float sinusvar;
 
     tgfxspritearray &t = textures;
-    bulletpos = bulletparts.pos[num];
+    bulletpos = GetBulletParts().pos[num];
 
     auto &map = GS::GetGame().GetMap();
 
@@ -792,7 +801,7 @@ void Bullet<M>::render(double timeelapsed)
                                     grenvel, gamewidth, true))
                         return;
 
-    bulletvel = bulletparts.velocity[num];
+    bulletvel = GetBulletParts().velocity[num];
     sinusvar = sin(timeoutfloat + 5.1 * timeelapsed);
 
     switch (style)
@@ -904,8 +913,8 @@ void Bullet<M>::render(double timeelapsed)
 
         _p.x = bulletpos.x - 1;
         _p.y = bulletpos.y - 4;
-        _p2.x = bulletparts.oldpos[num].x - 1;
-        _p2.y = bulletparts.oldpos[num].y - 4;
+        _p2.x = GetBulletParts().oldpos[num].x - 1;
+        _p2.y = GetBulletParts().oldpos[num].y - 4;
         gfxdrawsprite(t[GFX::WEAPONS_FRAG_GRENADE], _p.x, _p.y);
     }
     break;
@@ -1110,7 +1119,7 @@ void Bullet<M>::kill()
 
     active = false;
     if (num > 0)
-        bulletparts.active[num] = false;
+        GetBulletParts().active[num] = false;
     setlength(thingcollisions, 0);
 }
 
@@ -1137,13 +1146,13 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
 
     // make step
     largestvelocitycomponent =
-        max(fabs(bulletparts.velocity[num].x), fabs(bulletparts.velocity[num].y));
+        max(fabs(GetBulletParts().velocity[num].x), fabs(GetBulletParts().velocity[num].y));
 
     detacc = trunc(largestvelocitycomponent / 2.5);
 
     if (detacc == 0)
         detacc = 1;
-    vec2scale(step, bulletparts.velocity[num], (float)(1) / detacc);
+    vec2scale(step, GetBulletParts().velocity[num], (float)(1) / detacc);
 
     // make steps for accurate collision detection
     for (b = 0; b <= detacc - 1; b++)
@@ -1178,37 +1187,38 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                         case bullet_style_punch:
                         case bullet_style_knife:
                         case bullet_style_m2: {
-                            bulletparts.oldpos[num] = bulletparts.pos[num];
-                            bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
-                            temp = bulletparts.pos[num];
-                            temp2 = bulletparts.velocity[num];
+                            GetBulletParts().oldpos[num] = GetBulletParts().pos[num];
+                            GetBulletParts().pos[num] =
+                                vec2subtract(pos, GetBulletParts().velocity[num]);
+                            temp = GetBulletParts().pos[num];
+                            temp2 = GetBulletParts().velocity[num];
 
-                            perp = vec2subtract(bulletparts.pos[num], hitspot);
+                            perp = vec2subtract(GetBulletParts().pos[num], hitspot);
                             d = vec2length(perp);
                             // ricochet!
                             if (d > 50.0)
                             {
                                 ricochetcount += 1;
-                                perp = map.closestperpendicular(w.Index, bulletparts.pos[num], d,
-                                                                tempint);
-                                d = vec2length(bulletparts.velocity[num]);
+                                perp = map.closestperpendicular(w.Index, GetBulletParts().pos[num],
+                                                                d, tempint);
+                                d = vec2length(GetBulletParts().velocity[num]);
                                 vec2normalize(perp, perp);
                                 vec2scale(perp, perp, -d);
 
-                                bulletparts.velocity[num].x =
-                                    bulletparts.velocity[num].x * ((float)(25) / 35) +
+                                GetBulletParts().velocity[num].x =
+                                    GetBulletParts().velocity[num].x * ((float)(25) / 35) +
                                     perp.x * ((float)(10) / 35);
-                                bulletparts.velocity[num].y =
-                                    bulletparts.velocity[num].y * ((float)(25) / 35) +
+                                GetBulletParts().velocity[num].y =
+                                    GetBulletParts().velocity[num].y * ((float)(25) / 35) +
                                     perp.y * ((float)(10) / 35);
-                                bulletparts.pos[num] = pos;
-                                hitspot = bulletparts.pos[num];
+                                GetBulletParts().pos[num] = pos;
+                                hitspot = GetBulletParts().pos[num];
 
-                                vec2normalize(perp, bulletparts.velocity[num]);
+                                vec2normalize(perp, GetBulletParts().velocity[num]);
                                 vec2scale(perp, perp, (float)(d) / 6);
-                                bulletparts.oldpos[num] = bulletparts.pos[num];
-                                pos.x = bulletparts.pos[num].x + perp.x;
-                                pos.y = bulletparts.pos[num].y + perp.y;
+                                GetBulletParts().oldpos[num] = GetBulletParts().pos[num];
+                                pos.x = GetBulletParts().pos[num].x + perp.x;
+                                pos.y = GetBulletParts().pos[num].y + perp.y;
                                 const auto sector = map.GetSector(pos);
                                 if (sector.IsValid())
                                 {
@@ -1240,33 +1250,34 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
 
                             if (active)
                             {
-                                bulletparts.pos[num] = temp;
-                                perp = bulletparts.velocity[num];
-                                bulletparts.velocity[num] = temp2;
+                                GetBulletParts().pos[num] = temp;
+                                perp = GetBulletParts().velocity[num];
+                                GetBulletParts().velocity[num] = temp2;
                                 hit(hit_type_ricochet);
-                                bulletparts.pos[num] = hitspot;
-                                bulletparts.velocity[num] = perp;
+                                GetBulletParts().pos[num] = hitspot;
+                                GetBulletParts().velocity[num] = perp;
                             }
                             else
                             {
-                                bulletparts.pos[num] = temp;
-                                perp = bulletparts.velocity[num];
-                                bulletparts.velocity[num] = temp2;
+                                GetBulletParts().pos[num] = temp;
+                                perp = GetBulletParts().velocity[num];
+                                GetBulletParts().velocity[num] = temp2;
                                 hit(hit_type_wall);
-                                bulletparts.pos[num] = hitspot;
-                                bulletparts.velocity[num] = perp;
+                                GetBulletParts().pos[num] = hitspot;
+                                GetBulletParts().velocity[num] = perp;
                             }
                         }
                         break;
                         case bullet_style_arrow: {
-                            bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
-                            bulletparts.forces[num].y =
-                                bulletparts.forces[num].y - bulletparts.gravity;
+                            GetBulletParts().pos[num] =
+                                vec2subtract(pos, GetBulletParts().velocity[num]);
+                            GetBulletParts().forces[num].y =
+                                GetBulletParts().forces[num].y - GetBulletParts().gravity;
                             if (timeout > arrow_resist)
                                 timeout = arrow_resist;
                             if (timeout < 20)
-                                bulletparts.forces[num].y =
-                                    bulletparts.forces[num].y + bulletparts.gravity;
+                                GetBulletParts().forces[num].y =
+                                    GetBulletParts().forces[num].y + GetBulletParts().gravity;
                         }
                         break;
                         case bullet_style_fragnade:
@@ -1274,7 +1285,7 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
 #ifndef SERVER
                             // bounce sound
                             if (style == bullet_style_fragnade)
-                                if (vec2length(bulletparts.velocity[num]) > 1.5)
+                                if (vec2length(GetBulletParts().velocity[num]) > 1.5)
                                 {
                                     const auto &spritePartsPos =
                                         SpriteSystem::Get().GetSpritePartsPos(num);
@@ -1282,18 +1293,18 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                                 }
 #endif
 
-                            perp =
-                                map.closestperpendicular(w.Index, bulletparts.pos[num], d, tempint);
+                            perp = map.closestperpendicular(w.Index, GetBulletParts().pos[num], d,
+                                                            tempint);
 
                             vec2normalize(perp, perp);
                             vec2scale(perp, perp, d);
 
-                            bulletparts.pos[num] = pos;
-                            bulletparts.velocity[num] =
-                                vec2subtract(bulletparts.velocity[num], perp);
+                            GetBulletParts().pos[num] = pos;
+                            GetBulletParts().velocity[num] =
+                                vec2subtract(GetBulletParts().velocity[num], perp);
 
-                            vec2scale(bulletparts.velocity[num], bulletparts.velocity[num],
-                                      grenade_surfacecoef);
+                            vec2scale(GetBulletParts().velocity[num],
+                                      GetBulletParts().velocity[num], grenade_surfacecoef);
 
                             if (style == bullet_style_flame)
                                 if (timeout > 16)
@@ -1303,37 +1314,38 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                         case bullet_style_m79:
                         case bullet_style_flamearrow:
                         case bullet_style_law: {
-                            bulletparts.oldpos[num] = bulletparts.pos[num];
-                            bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
-                            temp = bulletparts.pos[num];
-                            temp2 = bulletparts.velocity[num];
+                            GetBulletParts().oldpos[num] = GetBulletParts().pos[num];
+                            GetBulletParts().pos[num] =
+                                vec2subtract(pos, GetBulletParts().velocity[num]);
+                            temp = GetBulletParts().pos[num];
+                            temp2 = GetBulletParts().velocity[num];
 
-                            perp = vec2subtract(bulletparts.pos[num], hitspot);
+                            perp = vec2subtract(GetBulletParts().pos[num], hitspot);
                             d = vec2length(perp);
                             // ricochet!
                             if (d > 50.0)
                             {
                                 ricochetcount += 1;
-                                perp = map.closestperpendicular(w.Index, bulletparts.pos[num], d,
-                                                                tempint);
-                                d = vec2length(bulletparts.velocity[num]);
+                                perp = map.closestperpendicular(w.Index, GetBulletParts().pos[num],
+                                                                d, tempint);
+                                d = vec2length(GetBulletParts().velocity[num]);
                                 vec2normalize(perp, perp);
                                 vec2scale(perp, perp, -d);
 
-                                bulletparts.velocity[num].x =
-                                    bulletparts.velocity[num].x * ((float)(25) / 35) +
+                                GetBulletParts().velocity[num].x =
+                                    GetBulletParts().velocity[num].x * ((float)(25) / 35) +
                                     perp.x * ((float)(10) / 35);
-                                bulletparts.velocity[num].y =
-                                    bulletparts.velocity[num].y * ((float)(25) / 35) +
+                                GetBulletParts().velocity[num].y =
+                                    GetBulletParts().velocity[num].y * ((float)(25) / 35) +
                                     perp.y * ((float)(10) / 35);
-                                bulletparts.pos[num] = pos;
-                                hitspot = bulletparts.pos[num];
+                                GetBulletParts().pos[num] = pos;
+                                hitspot = GetBulletParts().pos[num];
 
-                                vec2normalize(perp, bulletparts.velocity[num]);
+                                vec2normalize(perp, GetBulletParts().velocity[num]);
                                 vec2scale(perp, perp, (float)(d) / 6);
 
-                                pos.x = bulletparts.pos[num].x + perp.x;
-                                pos.y = bulletparts.pos[num].y + perp.y;
+                                pos.x = GetBulletParts().pos[num].x + perp.x;
+                                pos.y = GetBulletParts().pos[num].y + perp.y;
                                 const auto sector = map.GetSector(pos);
                                 if (sector.IsValid())
                                 {
@@ -1365,21 +1377,21 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
 
                             if (active)
                             {
-                                bulletparts.pos[num] = temp;
-                                perp = bulletparts.velocity[num];
-                                bulletparts.velocity[num] = temp2;
+                                GetBulletParts().pos[num] = temp;
+                                perp = GetBulletParts().velocity[num];
+                                GetBulletParts().velocity[num] = temp2;
                                 hit(hit_type_ricochet);
-                                bulletparts.pos[num] = hitspot;
-                                bulletparts.velocity[num] = perp;
+                                GetBulletParts().pos[num] = hitspot;
+                                GetBulletParts().velocity[num] = perp;
                             }
                             else
                             {
-                                bulletparts.pos[num] = temp;
-                                perp = bulletparts.velocity[num];
-                                bulletparts.velocity[num] = temp2;
+                                GetBulletParts().pos[num] = temp;
+                                perp = GetBulletParts().velocity[num];
+                                GetBulletParts().velocity[num] = temp2;
                                 hit(hit_type_explode);
-                                bulletparts.pos[num] = hitspot;
-                                bulletparts.velocity[num] = perp;
+                                GetBulletParts().pos[num] = hitspot;
+                                GetBulletParts().velocity[num] = perp;
                             }
                         }
                         break;
@@ -1394,11 +1406,12 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                         }
                         break;
                         case bullet_style_thrownknife: {
-                            bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
+                            GetBulletParts().pos[num] =
+                                vec2subtract(pos, GetBulletParts().velocity[num]);
 
                             // create knife thing
 #ifdef SERVER
-                            creatething(bulletparts.pos[num], owner, object_combat_knife, 255);
+                            creatething(GetBulletParts().pos[num], owner, object_combat_knife, 255);
 #endif
 
                             hit(hit_type_wall);
@@ -1456,7 +1469,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
     pos.x = 0;
     result = pos;
 
-    bulletvelocity = bulletparts.velocity[num];
+    bulletvelocity = GetBulletParts().velocity[num];
 
     LogTraceG("TBullet.CheckSpriteCollision 2");
     // Iterate through sprites
@@ -1487,7 +1500,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
             // Pre-calculate some points if it's a melee weapon
             if ((style == bullet_style_punch) || (style == bullet_style_knife))
             {
-                pos = bulletparts.pos[num];
+                pos = GetBulletParts().pos[num];
 
                 buttstockpositionoffset =
                     SpriteSystem::Get().GetSprite(owner).gethandsaimdirection();
@@ -1499,7 +1512,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
             }
             else
             {
-                startpoint = bulletparts.pos[num];
+                startpoint = GetBulletParts().pos[num];
                 endpoint = vec2add(startpoint, bulletvelocity);
             }
 
@@ -1543,7 +1556,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                     // order collision
                     if (lasthitdist > -1)
                     {
-                        a = vec2subtract(pos, bulletparts.oldpos[num]);
+                        a = vec2subtract(pos, GetBulletParts().oldpos[num]);
                         dist = vec2length(a);
 
                         if (dist > lasthitdist)
@@ -1608,7 +1621,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                         case bullet_style_punch:
                         case bullet_style_knife:
                         case bullet_style_m2: {
-                            bulletparts.pos[num] = pos;
+                            GetBulletParts().pos[num] = pos;
 
 #ifndef SERVER
                             // Blood spark
@@ -1631,7 +1644,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                             // Puff
                             vec2normalize(a, bulletvelocity);
                             vec2scale(a, a, 3);
-                            a = vec2add(bulletparts.pos[num], a);
+                            a = vec2add(GetBulletParts().pos[num], a);
                             if (CVar::r_maxsparks > (max_sparks - 10))
                                 createspark(a, a, 50, j, 31);
 
@@ -1663,12 +1676,12 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                             if (SpriteSystem::Get().GetSprite(j).vest < 1)
                             {
                                 if (!SpriteSystem::Get().GetSprite(j).deadmeat)
-                                    playsound(sfx_hit_arg + Random(3), bulletparts.pos[num]);
+                                    playsound(sfx_hit_arg + Random(3), GetBulletParts().pos[num]);
                                 else
-                                    playsound(sfx_dead_hit, bulletparts.pos[num]);
+                                    playsound(sfx_dead_hit, GetBulletParts().pos[num]);
                             }
                             else
-                                playsound(sfx_vesthit, bulletparts.pos[num]);
+                                playsound(sfx_vesthit, GetBulletParts().pos[num]);
 #endif
 
                             // Head, torso or leg hitbox modifier
@@ -1709,10 +1722,8 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                     (SpriteSystem::Get().GetSprite(j).isnotsolo() and
                                      SpriteSystem::Get().GetSprite(j).isnotinsameteam(
                                          SpriteSystem::Get().GetSprite(owner))))
-                                    if ((SpriteSystem::Get().GetSprite(j).weapon.num !=
-                                         bow_num) &&
-                                        (SpriteSystem::Get().GetSprite(j).weapon.num !=
-                                         bow2_num))
+                                    if ((SpriteSystem::Get().GetSprite(j).weapon.num != bow_num) &&
+                                        (SpriteSystem::Get().GetSprite(j).weapon.num != bow2_num))
                                         SpriteSystem::Get().GetSprite(j).bodyapplyanimation(
                                             AnimationType::ThrowWeapon, 11);
 
@@ -1721,24 +1732,24 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                             // Pierce check and break to next sprite
                             if (wasdead)
                             {
-                                vec2scale(bulletparts.velocity[num], bulletvelocity, 0.9);
-                                bulletvelocity = bulletparts.velocity[num];
+                                vec2scale(GetBulletParts().velocity[num], bulletvelocity, 0.9);
+                                bulletvelocity = GetBulletParts().velocity[num];
                                 hit(hit_type_bodyhit);
                                 continue;
                             }
 
                             if (SpriteSystem::Get().GetSprite(j).deadmeat or (speed > 23))
                             {
-                                vec2scale(bulletparts.velocity[num], bulletvelocity, 0.75);
-                                bulletvelocity = bulletparts.velocity[num];
+                                vec2scale(GetBulletParts().velocity[num], bulletvelocity, 0.75);
+                                bulletvelocity = GetBulletParts().velocity[num];
                                 hit(hit_type_bodyhit);
                                 continue;
                             }
 
                             if ((speed > 5) && ((float)(speed) / guns[weaponindex].speed >= 0.9))
                             {
-                                vec2scale(bulletparts.velocity[num], bulletvelocity, 0.66);
-                                bulletvelocity = bulletparts.velocity[num];
+                                vec2scale(GetBulletParts().velocity[num], bulletvelocity, 0.66);
+                                bulletvelocity = GetBulletParts().velocity[num];
                                 hit(hit_type_bodyhit);
                                 continue;
                             }
@@ -1760,9 +1771,10 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                         case bullet_style_arrow:
                             if (timeout > arrow_resist)
                             {
-                                bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
-                                bulletparts.forces[num].y =
-                                    bulletparts.forces[num].y - bulletparts.gravity;
+                                GetBulletParts().pos[num] =
+                                    vec2subtract(pos, GetBulletParts().velocity[num]);
+                                GetBulletParts().forces[num].y =
+                                    GetBulletParts().forces[num].y - GetBulletParts().gravity;
                                 if (((CVar::sv_friendlyfire)&SpriteSystem::Get()
                                          .GetSprite(owner)
                                          .isnotsolo() and
@@ -1781,12 +1793,13 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                 if (SpriteSystem::Get().GetSprite(j).vest < 1)
                                 {
                                     if (!SpriteSystem::Get().GetSprite(j).deadmeat)
-                                        playsound(sfx_hit_arg + Random(3), bulletparts.pos[num]);
+                                        playsound(sfx_hit_arg + Random(3),
+                                                  GetBulletParts().pos[num]);
                                     else
-                                        playsound(sfx_dead_hit, bulletparts.pos[num]);
+                                        playsound(sfx_dead_hit, GetBulletParts().pos[num]);
                                 }
                                 else
-                                    playsound(sfx_vesthit, bulletparts.pos[num]);
+                                    playsound(sfx_vesthit, GetBulletParts().pos[num]);
 #endif
 
 #ifdef SERVER
@@ -1804,7 +1817,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                     hitboxmodifier =
                                         guns[weaponnumtoindex(ownerweapon, guns)].modifierhead;
 
-                                speed = vec2length(bulletparts.velocity[num]);
+                                speed = vec2length(GetBulletParts().velocity[num]);
 
                                 SpriteSystem::Get().GetSprite(j).healthhit(
 #ifndef SERVER
@@ -1826,14 +1839,14 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                             if (!SpriteSystem::Get().GetSprite(j).deadmeat)
                             {
                                 hit(hit_type_explode, j, where);
-                                bulletparts.pos[num] = pos;
+                                GetBulletParts().pos[num] = pos;
                                 kill();
 
                                 SpriteSystem::Get().GetSprite(j).healthhit(
 #ifndef SERVER
                                     srv *
 #endif
-                                        vec2length(bulletparts.velocity[num]) * hitmultiply,
+                                        vec2length(GetBulletParts().velocity[num]) * hitmultiply,
                                     owner, where, num, norm);
 
 #ifdef SERVER
@@ -1849,14 +1862,14 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                             if (owner != j)
                             {
                                 const auto &spriteVelocity = SpriteSystem::Get().GetVelocity(j);
-                                bulletparts.pos[num] =
+                                GetBulletParts().pos[num] =
                                     SpriteSystem::Get().GetSprite(j).skeleton.pos[where];
                                 if (!SpriteSystem::Get().GetSprite(j).deadmeat)
-                                    bulletparts.velocity[num] = spriteVelocity;
+                                    GetBulletParts().velocity[num] = spriteVelocity;
                                 else
                                 {
-                                    bulletparts.velocity[num].x = 0;
-                                    bulletparts.velocity[num].y = 0;
+                                    GetBulletParts().velocity[num].x = 0;
+                                    GetBulletParts().velocity[num].y = 0;
                                 }
 
 #ifdef SERVER
@@ -1873,8 +1886,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                         a.y = -spriteVelocity.y;
                                         createbullet(
                                             SpriteSystem::Get().GetSprite(j).skeleton.pos[where], a,
-                                            flamer_num, owner, 255,
-                                            (float)(2 * hitmultiply) / 3,
+                                            flamer_num, owner, 255, (float)(2 * hitmultiply) / 3,
                                             //                        False, {$IFDEF
                                             //                        SERVER}False{$ELSE}True{$ENDIF});
                                             false, true);
@@ -1918,9 +1930,9 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                             }
 
                             // Puff
-                            vec2normalize(a, bulletparts.velocity[num]);
+                            vec2normalize(a, GetBulletParts().velocity[num]);
                             vec2scale(a, a, 3);
-                            a = vec2add(bulletparts.pos[num], a);
+                            a = vec2add(GetBulletParts().pos[num], a);
                             if (CVar::r_maxsparks > (max_sparks - 10))
                                 createspark(a, a, 50, j, 31);
 
@@ -1961,12 +1973,13 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                 if (SpriteSystem::Get().GetSprite(j).vest < 1)
                                 {
                                     if (!SpriteSystem::Get().GetSprite(j).deadmeat)
-                                        playsound(sfx_hit_arg + Random(3), bulletparts.pos[num]);
+                                        playsound(sfx_hit_arg + Random(3),
+                                                  GetBulletParts().pos[num]);
                                     else
-                                        playsound(sfx_dead_hit, bulletparts.pos[num]);
+                                        playsound(sfx_dead_hit, GetBulletParts().pos[num]);
                                 }
                                 else
-                                    playsound(sfx_vesthit, bulletparts.pos[num]);
+                                    playsound(sfx_vesthit, GetBulletParts().pos[num]);
                             }
 #endif
 
@@ -1980,7 +1993,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 #ifndef SERVER
                                 srv *
 #endif
-                                    vec2length(bulletparts.velocity[num]) * hitmultiply * 0.01,
+                                    vec2length(GetBulletParts().velocity[num]) * hitmultiply * 0.01,
                                 owner, where, num, norm);
 
                             if (!SpriteSystem::Get().GetSprite(j).deadmeat)
@@ -1990,7 +2003,8 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                             {
 #ifdef SERVER
                                 // create knife thing
-                                creatething(bulletparts.pos[num], owner, object_combat_knife, 255);
+                                creatething(GetBulletParts().pos[num], owner, object_combat_knife,
+                                            255);
 #endif
                                 kill();
                             }
@@ -2042,8 +2056,8 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
                  (CVar::sv_gamemode != gamestyle_inf)) &&
                 (things[j].style != object_stationary_gun))
             {
-                startpoint = bulletparts.pos[num];
-                endpoint = vec2add(startpoint, bulletparts.velocity[num]);
+                startpoint = GetBulletParts().pos[num];
+                endpoint = vec2add(startpoint, GetBulletParts().velocity[num]);
 
                 where = 0;
 
@@ -2063,7 +2077,7 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
                     // order collision
                     if (lasthitdist > -1)
                     {
-                        a = vec2subtract(pos, bulletparts.oldpos[num]);
+                        a = vec2subtract(pos, GetBulletParts().oldpos[num]);
                         dist = vec2length(a);
                         if (dist > lasthitdist)
                             break;
@@ -2096,7 +2110,7 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
                     // collision respond
                     thingvel = vec2subtract(things[j].skeleton.pos[where],
                                             things[j].skeleton.oldpos[where]);
-                    veldiff = vec2subtract(bulletparts.velocity[num], thingvel);
+                    veldiff = vec2subtract(GetBulletParts().velocity[num], thingvel);
 
                     vec2scale(bulletpush, veldiff,
                               guns[getweaponindex()].push * thing_push_multiplier);
@@ -2147,8 +2161,8 @@ tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
     for (j = 1; j <= 128; j++)
         if (map.collider[j].active)
         {
-            startpoint = bulletparts.pos[num];
-            endpoint = vec2add(startpoint, bulletparts.velocity[num]);
+            startpoint = GetBulletParts().pos[num];
+            endpoint = vec2add(startpoint, GetBulletParts().velocity[num]);
             // make steps for accurate collision detection
 
             colpos.x = map.collider[j].x;
@@ -2160,7 +2174,7 @@ tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
                 // order collision
                 if (lasthitdist > -1)
                 {
-                    a = vec2subtract(pos, bulletparts.oldpos[num]);
+                    a = vec2subtract(pos, GetBulletParts().oldpos[num]);
                     dist = vec2length(a);
                     if (dist > lasthitdist)
                     {
@@ -2176,7 +2190,7 @@ tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
                 case bullet_style_knife:
                 case bullet_style_thrownknife:
                 case bullet_style_m2: {
-                    bulletparts.pos[num] = vec2subtract(pos, bulletparts.velocity[num]);
+                    GetBulletParts().pos[num] = vec2subtract(pos, GetBulletParts().velocity[num]);
 
 #ifndef SERVER
                     // dirt
@@ -2193,11 +2207,11 @@ tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
                             // create knife thing
 #ifdef SERVER
                     if (style == bullet_style_thrownknife)
-                        creatething(bulletparts.pos[num], owner, object_combat_knife, 255);
+                        creatething(GetBulletParts().pos[num], owner, object_combat_knife, 255);
 #endif
 
 #ifndef SERVER
-                    playsound(sfx_colliderhit, bulletparts.pos[num]);
+                    playsound(sfx_colliderhit, GetBulletParts().pos[num]);
 #endif
 
                     hit(hit_type_wall);
@@ -2218,7 +2232,8 @@ tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
                 case bullet_style_arrow:
                     if (timeout > arrow_resist)
                     {
-                        bulletparts.forces[num].y = bulletparts.forces[num].y - bulletparts.gravity;
+                        GetBulletParts().forces[num].y =
+                            GetBulletParts().forces[num].y - GetBulletParts().gravity;
                         hit(hit_type_wall);
 
                         kill();
@@ -2265,8 +2280,8 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     case hit_type_wall: // wall hit
     {
 #ifndef SERVER
-        b = bulletparts.velocity[num];
-        a = vec2add(bulletparts.pos[num], bulletparts.velocity[num]);
+        b = GetBulletParts().velocity[num];
+        a = vec2add(GetBulletParts().pos[num], GetBulletParts().velocity[num]);
         vec2scale(b, b, -0.06);
         b.y = b.y - 1.0;
 
@@ -2292,7 +2307,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 
         if (timeout < bullet_timeout - 5)
         {
-            playsound(sfx_ric + Random(4), bulletparts.pos[num]);
+            playsound(sfx_ric + Random(4), GetBulletParts().pos[num]);
         }
 #endif
     }
@@ -2301,8 +2316,8 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     case hit_type_blood: // body hit -blood
     {
 #ifndef SERVER
-        b = bulletparts.velocity[num];
-        a = bulletparts.pos[num];
+        b = GetBulletParts().velocity[num];
+        a = GetBulletParts().pos[num];
         vec2scale(b, b, 0.025);
         // Vec3Normalize(b, b);
         b.x = b.x * 1.2;
@@ -2347,13 +2362,13 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
         a = vector2(0.0, 0.0);
 
         if (CVar::r_maxsparks > (max_sparks - 10))
-            createspark(bulletparts.pos[num], a, 60, owner, 255);
+            createspark(GetBulletParts().pos[num], a, 60, owner, 255);
 
         if (CVar::r_maxsparks > (max_sparks - 10))
-            createspark(bulletparts.pos[num], a, 54, owner, smoke_anims * 4 + 10);
+            createspark(GetBulletParts().pos[num], a, 54, owner, smoke_anims * 4 + 10);
 
-        createspark(bulletparts.pos[num], a, 12, owner, explosion_anims * 3);
-        playsound(sfx_m79_explosion, bulletparts.pos[num]);
+        createspark(GetBulletParts().pos[num], a, 12, owner, explosion_anims * 3);
+        playsound(sfx_m79_explosion, GetBulletParts().pos[num]);
 #endif
 
         explosionhit(hit_type_explode, spritehit, where);
@@ -2365,13 +2380,13 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
         a = vector2(0.0, 0.0);
 
         if (CVar::r_maxsparks > (max_sparks - 10))
-            createspark(bulletparts.pos[num], a, 60, owner, 190);
+            createspark(GetBulletParts().pos[num], a, 60, owner, 190);
 
         if (CVar::r_maxsparks > (max_sparks - 10))
-            createspark(bulletparts.pos[num], a, 54, owner, smoke_anims * 4 + 10);
+            createspark(GetBulletParts().pos[num], a, 54, owner, smoke_anims * 4 + 10);
 
-        createspark(bulletparts.pos[num], a, 17, owner, explosion_anims * 3);
-        playsound(sfx_grenade_explosion, bulletparts.pos[num]);
+        createspark(GetBulletParts().pos[num], a, 17, owner, explosion_anims * 3);
+        playsound(sfx_grenade_explosion, GetBulletParts().pos[num]);
 #endif
 
         explosionhit(hit_type_fragnade, spritehit, where);
@@ -2380,13 +2395,13 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 
     case hit_type_thing: {
 #ifndef SERVER
-        b = bulletparts.velocity[num];
-        a = vec2add(bulletparts.pos[num], bulletparts.velocity[num]);
+        b = GetBulletParts().velocity[num];
+        a = vec2add(GetBulletParts().pos[num], GetBulletParts().velocity[num]);
         vec2scale(b, b, -0.02);
         vec2scale(b, b, 0.4 + (float)(Random(4)) / 10);
         createspark(a, b, 1, owner, 70);
 
-        playsound(sfx_bodyfall, bulletparts.pos[num]);
+        playsound(sfx_bodyfall, GetBulletParts().pos[num]);
 #endif
     }
     break;
@@ -2395,16 +2410,16 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 #ifndef SERVER
         b.x = 0;
         b.y = 0;
-        createspark(bulletparts.pos[num], b, 29, owner, 55);
+        createspark(GetBulletParts().pos[num], b, 29, owner, 55);
 
-        playsound(sfx_clustergrenade, bulletparts.pos[num]);
+        playsound(sfx_clustergrenade, GetBulletParts().pos[num]);
 #endif
 
-        a = vec2subtract(bulletparts.pos[num], bulletparts.velocity[num]);
+        a = vec2subtract(GetBulletParts().pos[num], GetBulletParts().velocity[num]);
 
         for (i = 1; i <= 5; i++)
         {
-            b = bulletparts.velocity[num];
+            b = GetBulletParts().velocity[num];
             vec2scale(b, b, -0.75);
             b.x = -b.x - 2.5 + ((float)(Random(50)) / 10.0f);
             b.y = b.y - 2.5 + ((float)(Random(25)) / 10.0f);
@@ -2417,8 +2432,8 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     case hit_type_cluster: {
 #ifndef SERVER
         a = vector2(0.0, 0.0);
-        createspark(bulletparts.pos[num], a, 28, owner, explosion_anims * 3);
-        playsound(sfx_cluster_explosion, bulletparts.pos[num]);
+        createspark(GetBulletParts().pos[num], a, 28, owner, explosion_anims * 3);
+        playsound(sfx_cluster_explosion, GetBulletParts().pos[num]);
 #endif
 
         explosionhit(hit_type_cluster, spritehit, where);
@@ -2428,8 +2443,8 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     case hit_type_flak: {
 #ifndef SERVER
         a = vector2(0.0, 0.0);
-        createspark(bulletparts.pos[num], a, 29, owner, 55);
-        playsound(sfx_m2explode, bulletparts.pos[num]);
+        createspark(GetBulletParts().pos[num], a, 29, owner, 55);
+        playsound(sfx_m2explode, GetBulletParts().pos[num]);
 #endif
 
         explosionhit(hit_type_flak, spritehit, where);
@@ -2441,8 +2456,8 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
         if (CVar::r_maxsparks < (max_sparks - 10))
             return;
 
-        b = bulletparts.velocity[num];
-        a = bulletparts.pos[num];
+        b = GetBulletParts().velocity[num];
+        a = GetBulletParts().pos[num];
         vec2scale(b, b, 0.075);
 
         b.x = b.x * 1.2;
@@ -2472,7 +2487,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 
     case hit_type_ricochet: // ricochet hit
     {
-        a = vec2add(bulletparts.pos[num], bulletparts.velocity[num]);
+        a = vec2add(GetBulletParts().pos[num], GetBulletParts().velocity[num]);
 
         b.x = (-2.0 + (float)(Random(40)) / 10.0);
         b.y = (-2.0 + (float)(Random(40)) / 10.0);
@@ -2493,7 +2508,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
         b.y = (-3.0 + (float)(Random(60)) / 10.0);
         createspark(a, b, 27, owner, 35);
 
-        playsound(sfx_ric5 + Random(3), bulletparts.pos[num]);
+        playsound(sfx_ric5 + Random(3), GetBulletParts().pos[num]);
     }
     break;
 #endif
@@ -2579,7 +2594,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
                 {
                     a.x = col.x + (sprite.skeleton.pos[bodyparts[j]].x - spritePartsPos.x);
                     a.y = col.y + (sprite.skeleton.pos[bodyparts[j]].y - spritePartsPos.y);
-                    a = vec2subtract(bulletparts.pos[num], a);
+                    a = vec2subtract(GetBulletParts().pos[num], a);
                     s2 = vec2length2(a);
 
                     if (s2 < s)
@@ -2600,7 +2615,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
             col.x = col.x + (sprite.skeleton.pos[w].x - spritePartsPos.x);
             col.y = col.y + (sprite.skeleton.pos[w].y - spritePartsPos.y);
 
-            a = vec2subtract(bulletparts.pos[num], col);
+            a = vec2subtract(GetBulletParts().pos[num], col);
             s = vec2length2(a);
 
             if (s < explosionradius2)
@@ -2650,7 +2665,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
             for (j = 1; j <= 16; j++)
             {
-                a = vec2subtract(bulletparts.pos[num], sprite.skeleton.pos[j]);
+                a = vec2subtract(GetBulletParts().pos[num], sprite.skeleton.pos[j]);
                 s = vec2length2(a);
 
                 if (s < explosionradius2)
@@ -2693,7 +2708,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
         for (j = 1; j <= 4; j++)
         {
-            a = vec2subtract(bulletparts.pos[num], things[i].skeleton.pos[j]);
+            a = vec2subtract(GetBulletParts().pos[num], things[i].skeleton.pos[j]);
             s = vec2length2(a);
 
             if (s < explosionradius2)
@@ -2718,7 +2733,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
             ((bullet[i].style == bullet_style_fragnade) || (bullet[i].style == bullet_style_m79) ||
              (bullet[i].style == bullet_style_law)))
         {
-            a = vec2subtract(bulletparts.pos[num], bulletparts.pos[i]);
+            a = vec2subtract(GetBulletParts().pos[num], GetBulletParts().pos[i]);
             s = vec2length2(a);
 
             if (s < after_explosion_radius2)
@@ -2750,7 +2765,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
             const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
             if (SpriteSystem::Get().GetSprite(mysprite).GetHealth() > -50)
             {
-                if (distance(bulletparts.pos[num], spritePartsPos) < grenadeeffect_dist)
+                if (distance(GetBulletParts().pos[num], spritePartsPos) < grenadeeffect_dist)
                 {
                     grenadeeffecttimer = 320;
                     playsound(sfx_hum);
@@ -2759,7 +2774,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
         }
     }
 
-    a = vec2subtract(bulletparts.pos[num], bulletparts.velocity[num]);
+    a = vec2subtract(GetBulletParts().pos[num], GetBulletParts().velocity[num]);
 
     // dirt fly
     if (CVar::r_maxsparks > (max_sparks - 10))
@@ -2769,7 +2784,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
         for (i = 1; i <= n; i++)
         {
-            vec2scale(b, bulletparts.velocity[num], s);
+            vec2scale(b, GetBulletParts().velocity[num], s);
             b.x = -b.x - 3.5 + ((float)(Random(70)) / 10.0);
             b.y = b.y - 3.5 + ((float)(Random(65)) / 10.0);
             if (Random(4) == 0)
@@ -2792,7 +2807,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
         for (i = 1; i <= n; i++)
         {
-            vec2scale(b, bulletparts.velocity[num], s);
+            vec2scale(b, GetBulletParts().velocity[num], s);
             b.x = -b.x - 3.5 + ((float)(Random(70)) / 10.0);
             b.y = b.y - 3.5 + ((float)(Random(65)) / 10.0);
             if (Random(rnd) == 0)
@@ -2814,7 +2829,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
         for (i = 1; i <= n; i++)
         {
-            vec2scale(b, bulletparts.velocity[num], -0.3);
+            vec2scale(b, GetBulletParts().velocity[num], -0.3);
             b.x = -b.x - 3.5 + ((float)(Random(70)) / 10.0);
             b.y = b.y - 3.5 + ((float)(Random(65)) / 10.0);
             if (Random(rnd) == 0)
@@ -2838,7 +2853,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
         {
             a.x = a.x - j + Random(rnd);
             a.y = a.y - j + Random(rnd);
-            vec2scale(b, bulletparts.velocity[num], s);
+            vec2scale(b, GetBulletParts().velocity[num], s);
             b.x = -b.x - 3.5 + ((float)(Random(70)) / 10);
             b.y = b.y - 3.5 + ((float)(Random(65)) / 10);
             createspark(a, b, 64, owner, 35);
@@ -2859,7 +2874,7 @@ void Bullet<M>::checkoutofbounds()
     auto &map = GS::GetGame().GetMap();
 
     bound = map.sectorsnum * map.GetSectorsDivision() - 10;
-    bulletpartspos = &bulletparts.pos[num];
+    bulletpartspos = &GetBulletParts().pos[num];
 
     if ((fabs(bulletpartspos->x) > bound) || (fabs(bulletpartspos->y) > bound))
         kill();
@@ -2932,7 +2947,7 @@ float Bullet<M>::getcomparablespritedistance(std::int32_t i)
 
     float result;
     spritecol = getspritecollisionpoint(i);
-    distance = vec2subtract(bulletparts.pos[num], spritecol);
+    distance = vec2subtract(GetBulletParts().pos[num], spritecol);
 
     // Faster Euclidean distance calc used for comparisons.
     // Sqrt can be skipped because if "Sqrt[a] < Sqrt[b]" then "a < b"

@@ -349,7 +349,7 @@ void updateframe()
                 if (bullet[j].active)
                     bullet[j].update();
 
-            bulletparts.doeulertimestep();
+            GetBulletParts().doeulertimestep();
         }
 
         {

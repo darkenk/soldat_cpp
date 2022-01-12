@@ -11,9 +11,6 @@
 
 namespace
 {
-auto &bulletparts = InitGlobalVariable<particlesystem, "bulletparts">();
-auto &sparkparts = InitGlobalVariable<particlesystem, "sparkparts">();
-
 auto &ticks = InitGlobalVariable<std::int32_t, "ticks">();
 auto &tickspersecond = InitGlobalVariable<std::int32_t, "tickspersecond">();
 auto &frames = InitGlobalVariable<std::int32_t, "frames">();

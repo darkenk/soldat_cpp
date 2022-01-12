@@ -1043,10 +1043,10 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
         if (CVar::bots_difficulty < 201)
             for (i = 1; i <= max_bullets; i++)
                 if (bullet[i].active && (bullet[i].style == bullet_style_fragnade) &&
-                    (distance(bulletparts.pos[i].x, bulletparts.pos[i].y, spritePartsPos.x,
+                    (distance(GetBulletParts().pos[i].x, GetBulletParts().pos[i].y, spritePartsPos.x,
                               spritePartsPos.y) < (fraggrenade_explosion_radius * 1.4)))
                 {
-                    if (bulletparts.pos[i].x > spritePartsPos.x)
+                    if (GetBulletParts().pos[i].x > spritePartsPos.x)
                     {
                         spritec.control.left = true;
                         spritec.control.right = false;
