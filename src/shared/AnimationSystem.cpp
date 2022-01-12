@@ -18,7 +18,7 @@ template <Config::Module M>
 void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 {
     Animations.clear();
-    addlinetologfile(gamelog, std::string("Loading Animations. ") + moddir, consolelogfilename);
+    addlinetologfile(GetGameLog(), std::string("Loading Animations. ") + moddir, GetGameLogFilename());
     struct AnimData
     {
         AnimationType AnimType;
@@ -85,7 +85,7 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
         a.speed = anim.Speed;
     }
 
-    addlinetologfile(gamelog, "Loading objects.", consolelogfilename);
+    addlinetologfile(GetGameLog(), "Loading objects.", GetGameLogFilename());
 
     SpriteSystem::Get().ResetSpriteParts();
 

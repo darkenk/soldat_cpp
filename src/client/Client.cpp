@@ -615,11 +615,11 @@ void startgame(int argc, const char *argv[])
     else
         LogDebugG("Game captions not found");
 
-    addlinetologfile(gamelog, "Initializing Sound Library.", consolelogfilename);
+    addlinetologfile(GetGameLog(), "Initializing Sound Library.", GetGameLogFilename());
     // Init Sound Library
     if (!initsound())
     {
-        addlinetologfile(gamelog, "Failed to initialize Sound Library.", consolelogfilename);
+        addlinetologfile(GetGameLog(), "Failed to initialize Sound Library.", GetGameLogFilename());
         // Let the player know that he has no sound (no popup window)
     }
 
@@ -627,7 +627,7 @@ void startgame(int argc, const char *argv[])
     if (length(moddir) > 0)
         loadsounds(moddir.c_str());
 
-    addlinetologfile(gamelog, "Creating network interface.", consolelogfilename);
+    addlinetologfile(GetGameLog(), "Creating network interface.", GetGameLogFilename());
 
     // Create Consoles
     GetMainConsole().countmax = round(CVar::ui_console_length * _rscala.y);
@@ -696,7 +696,7 @@ void startgame(int argc, const char *argv[])
     if (CVar::r_compatibility)
         CVar::cl_actionsnap = false;
 
-    writelogfile(gamelog, consolelogfilename);
+    writelogfile(GetGameLog(), GetGameLogFilename());
     rundeferredcommands();
 }
 
@@ -712,7 +712,7 @@ void shutdown()
     if (abnormalterminate)
         return;
 
-    addlinetologfile(gamelog, "Freeing sprites.", consolelogfilename);
+    addlinetologfile(GetGameLog(), "Freeing sprites.", GetGameLogFilename());
 
     // Free GFX
     destroygamegraphics();
@@ -721,18 +721,18 @@ void shutdown()
 
     deinittranslation();
 
-    addlinetologfile(gamelog, "UDP closing.", consolelogfilename);
+    addlinetologfile(GetGameLog(), "UDP closing.", GetGameLogFilename());
 
     NotImplemented(NITag::NETWORK);
 #if 0
     freeandnullptr(udp);
 #endif
 
-    addlinetologfile(gamelog, "Sound closing.", consolelogfilename);
+    addlinetologfile(GetGameLog(), "Sound closing.", GetGameLogFilename());
 
     closesound();
 
-    addlinetologfile(gamelog, "PhysFS closing.", consolelogfilename);
+    addlinetologfile(GetGameLog(), "PhysFS closing.", GetGameLogFilename());
 
     PHYSFS_deinit();
 
@@ -743,9 +743,9 @@ void shutdown()
     steamapi_shutdown(0);
 #endif
 
-    addlinetologfile(gamelog, "   End of Log.", consolelogfilename);
+    addlinetologfile(GetGameLog(), "   End of Log.", GetGameLogFilename());
 
-    writelogfile(gamelog, consolelogfilename);
+    writelogfile(GetGameLog(), GetGameLogFilename());
 
     gamelooprun = false;
 }

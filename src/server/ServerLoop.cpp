@@ -445,10 +445,10 @@ void updateframe()
                 GS::GetGame().updategamestats();
 
                 writelogfile(&GetKillLog(), GetKillLogFilename());
-                writelogfile(gamelog, consolelogfilename);
+                writelogfile(GetGameLog(), GetGameLogFilename());
 
                 if ((checkfilesize(GetKillLogFilename()) > max_logfilesize) ||
-                    (checkfilesize(consolelogfilename) > max_logfilesize))
+                    (checkfilesize(GetGameLogFilename()) > max_logfilesize))
                     newlogfiles(GS::GetGame().GetUserDirectory());
             }
         }

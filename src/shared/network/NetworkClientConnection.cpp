@@ -155,10 +155,10 @@ void clientdisconnect()
 
         GetNetwork()->senddata(&playermsg, sizeof(playermsg), k_nSteamNetworkingSend_Reliable);
 
-        addlinetologfile(gamelog,
+        addlinetologfile(GetGameLog(),
                          string("Client Disconnect from ") +
                              GetNetwork()->GetStringAddress(&GetNetwork()->Address(), true),
-                         consolelogfilename);
+                         GetGameLogFilename());
         GetNetwork()->processloop();
         GetNetwork()->disconnect(false);
     }
@@ -519,7 +519,7 @@ void clienthandleunaccepted(SteamNetworkingMessage_t *netmessage)
     else
         text = "";
 
-    addlinetologfile(gamelog, string("*UA ") + inttostr(unacceptedmsg->state), consolelogfilename);
+    addlinetologfile(GetGameLog(), string("*UA ") + inttostr(unacceptedmsg->state), GetGameLogFilename());
 
     switch (unacceptedmsg->state)
     {

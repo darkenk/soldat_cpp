@@ -196,8 +196,10 @@ void newlogfiles(const std::string &userdirectory)
         consolelogfilename = userdirectory + "logs/consolelog.txt";
     }
 
-    newlogfile(gamelog, consolelogfilename);
-    addlinetologfile(gamelog, "   Console Log Started", consolelogfilename);
+    GetGameLogFilename() = consolelogfilename;
+
+    newlogfile(GetGameLog(), consolelogfilename);
+    addlinetologfile(GetGameLog(), "   Console Log Started", consolelogfilename);
 
 // TODO error logging once mainconsole is ready
 #ifdef SERVER
@@ -217,8 +219,25 @@ void newlogfiles(const std::string &userdirectory)
 #endif
 }
 
+template <Config::Module M>
+tstringlist *&GetGameLog()
+{
+    static tstringlist *gamelog = nullptr;
+    return gamelog;
+}
+
+template <Config::Module M>
+std::string &GetGameLogFilename()
+{
+    static std::string filename;
+    return filename;
+}
+
 template void newlogfile(tstringlist *f, const std::string &name);
 template void writelogfile(tstringlist *f, const std::string &name);
 template void addlinetologfile(tstringlist *f, const std::string &s, const std::string &name,
                                bool withdate);
 template void newlogfiles(const std::string &userdirectory);
+
+template tstringlist *&GetGameLog();
+template std::string &GetGameLogFilename();

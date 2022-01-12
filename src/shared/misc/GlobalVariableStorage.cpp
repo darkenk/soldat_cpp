@@ -69,9 +69,6 @@ auto &loadedwmchecksum = InitGlobalVariable<std::uint64_t, "loadedwmchecksum">()
 
 auto &demorecorder = InitGlobalVariable<tdemorecorder<>, "demorecorder">();
 
-auto &gamelog = InitGlobalVariable<tstringlist *, "gamelog">();
-auto &consolelogfilename = InitGlobalVariable<std::string, "consolelogfilename">();
-
 auto &maintickcounter = InitGlobalVariable<std::int32_t, "maintickcounter">();
 auto &playersnum = InitGlobalVariable<std::int32_t, "playersnum">();
 auto &botsnum = InitGlobalVariable<std::int32_t, "botsnum">();

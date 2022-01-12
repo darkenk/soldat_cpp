@@ -471,7 +471,7 @@ void ActivateServer(int argc, const char *argv[])
 
     sinuscounter = 0;
 
-    addlinetologfile(gamelog, "Loading Maps List", consolelogfilename);
+    addlinetologfile(GetGameLog(), "Loading Maps List", GetGameLogFilename());
 
     if (fileexists(userdirectory + "configs/" + std::string(CVar::sv_maplist)))
     {
@@ -542,7 +542,7 @@ void ActivateServer(int argc, const char *argv[])
     WriteLn(" Server  name" + std::string(CVar::sv_hostname));
     GS::GetGame().updategamestats();
     writelogfile(&GetKillLog(), GetKillLogFilename());
-    writelogfile(gamelog, consolelogfilename);
+    writelogfile(GetGameLog(), GetGameLogFilename());
 
     NotImplemented(NITag::OTHER, "mixing commands between server and client");
     // rundeferredcommands();
@@ -598,16 +598,16 @@ void ShutDown()
     GameNetworkingSockets_Kill();
 #endif
 
-    addlinetologfile(gamelog, "   End of Log.", consolelogfilename);
+    addlinetologfile(GetGameLog(), "   End of Log.", GetGameLogFilename());
     LogDebugG("Updating gamestats");
     GS::GetGame().updategamestats();
     LogDebugG("Saving killlog");
     writelogfile(&GetKillLog(), GetKillLogFilename());
     LogDebugG("Saving gamelog");
-    writelogfile(gamelog, consolelogfilename);
+    writelogfile(GetGameLog(), GetGameLogFilename());
     LogDebugG("Freeing gamelog");
-    delete gamelog;
-    gamelog = nullptr;
+    delete GetGameLog();
+    GetGameLog() = nullptr;
     commanddeinit();
 #if 0
     LogDebugG("Freeing killlog");
@@ -785,7 +785,7 @@ void startserver()
     for (i = 0; i < 5; i++)
         teamscore[i] = 0;
 
-    addlinetologfile(gamelog, "Loading Map.", consolelogfilename);
+    addlinetologfile(GetGameLog(), "Loading Map.", GetGameLogFilename());
 
     // playing over internet - optimize
     if (CVar::net_lan == LAN)
@@ -849,7 +849,7 @@ void startserver()
 #endif
 
     // Create Weapons
-    addlinetologfile(gamelog, "Creating Weapons.", consolelogfilename);
+    addlinetologfile(GetGameLog(), "Creating Weapons.", GetGameLogFilename());
 
     if (CVar::sv_realisticmode)
     {
@@ -1003,7 +1003,7 @@ void startserver()
     updatewaverespawntime();
     waverespawncounter = waverespawntime;
 
-    addlinetologfile(gamelog, "Starting Game Server.", consolelogfilename);
+    addlinetologfile(GetGameLog(), "Starting Game Server.", GetGameLogFilename());
 
     InitNetworkServer(CVar::net_ip, CVar::net_port);
 

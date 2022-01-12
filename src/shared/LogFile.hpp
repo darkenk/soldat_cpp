@@ -31,3 +31,9 @@ constexpr std::string &GetKillLogFilename() requires(Config::IsServer())
     extern std::string killlogfilename;
     return killlogfilename;
 }
+
+template <Config::Module M = Config::GetModule()>
+tstringlist *&GetGameLog();
+
+template <Config::Module M = Config::GetModule()>
+std::string &GetGameLogFilename();

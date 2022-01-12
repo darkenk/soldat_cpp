@@ -217,10 +217,10 @@ void update_frame()
         {
             if (CVar::log_enable)
             {
-                if (checkfilesize(consolelogfilename) > max_logfilesize)
+                if (checkfilesize(GetGameLogFilename()) > max_logfilesize)
                     newlogfiles(GS::GetGame().GetUserDirectory());
 
-                writelogfile(gamelog, consolelogfilename);
+                writelogfile(GetGameLog(), GetGameLogFilename());
             }
         }
 
