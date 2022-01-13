@@ -23,12 +23,14 @@ void clientsendbullet(std::uint8_t i)
 {
     tmsg_clientbulletsnapshot bulletmsg;
 
+    auto &b = bullet[i];
+
     bulletmsg.header.id = msgid_bulletsnapshot;
-    bulletmsg.weaponnum = bullet[i].ownerweapon;
+    bulletmsg.weaponnum = b.ownerweapon;
     bulletmsg.pos = GetBulletParts().pos[i];
     bulletmsg.velocity = GetBulletParts().velocity[i];
     bulletmsg.clientticks = clienttickcount;
-    bulletmsg.seed = bullet[i].seed;
+    bulletmsg.seed = b.seed;
 
     GetNetwork()->senddata(&bulletmsg, sizeof(bulletmsg), k_nSteamNetworkingSend_Unreliable);
     NotImplemented(NITag::NETWORK);
@@ -45,7 +47,7 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     tvector2 bstraight;
     tvector2 bnorm;
     float hm;
-    std::int32_t i, k, pa, c, d;
+    std::int32_t pa, c, d;
     std::int16_t weaponindex;
     std::uint8_t style;
     float bulletspread;
@@ -83,13 +85,16 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     if (style == bullet_style_fragnade)
         hm = guns[fraggrenade].hitmultiply;
 
-    i = createbullet(a, b, bulletsnap->weaponnum, bulletsnap->owner, 255, hm, false, true);
+    const auto i =
+        createbullet(a, b, bulletsnap->weaponnum, bulletsnap->owner, 255, hm, false, true);
 
-    bullet[i].ownerpingtick =
+    auto &bul = bullet[i];
+
+    bul.ownerpingtick =
         SpriteSystem::Get().GetSprite(bulletsnap->owner).player->pingticks + pingticksadd;
-    pa = SpriteSystem::Get().GetSprite(mysprite).player->pingticks + bullet[i].ownerpingtick;
-    bullet[i].pingadd = pa;
-    bullet[i].pingaddstart = pa;
+    pa = SpriteSystem::Get().GetSprite(mysprite).player->pingticks + bul.ownerpingtick;
+    bul.pingadd = pa;
+    bul.pingaddstart = pa;
     if (!bulletsnap->forced)
     {
         bulletspread = guns[weaponindex].bulletspread;
@@ -112,17 +117,21 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
             a.x = a.x - sign(bstraight.x) * fabs(bnorm.y) * 3.0;
             a.y = a.y + sign(bstraight.y) * fabs(bnorm.x) * 3.0;
 
-            k = createbullet(a, bx, bulletsnap->weaponnum, bulletsnap->owner, 255, i, false, true);
+            const auto k =
+                createbullet(a, bx, bulletsnap->weaponnum, bulletsnap->owner, 255, i, false, true);
+            auto &b = bullet[k];
 
             if ((mysprite > 0) && (bulletsnap->owner > 0))
                 for (c = 1; c <= pa; c++)
-                    if (bullet[k].active)
+                {
+                    if (b.active)
                     {
                         GetBulletParts().doeulertimestepfor(k);
-                        bullet[k].update();
-                        if (!bullet[k].active)
+                        b.update();
+                        if (!b.active)
                             break;
                     }
+                }
         }
         else if (style == bullet_style_shotgun) // SPAS-12 pellets
         {
@@ -139,17 +148,19 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
             {
                 bx.x = bstraight.x + (Random() * 2 - 1) * bulletspread;
                 bx.y = bstraight.y + (Random() * 2 - 1) * bulletspread;
-                k = createbullet(a, bx, bulletsnap->weaponnum, bulletsnap->owner, 255, hm, false,
-                                 true);
+                const auto k = createbullet(a, bx, bulletsnap->weaponnum, bulletsnap->owner, 255,
+                                            hm, false, true);
+
+                auto &b = bullet[k];
 
                 if ((mysprite > 0) && (bulletsnap->owner > 0))
                 {
                     for (c = 1; c <= pa; c++)
-                        if (bullet[k].active)
+                        if (b.active)
                         {
                             GetBulletParts().doeulertimestepfor(k);
-                            bullet[k].update();
-                            if (!bullet[k].active)
+                            b.update();
+                            if (!b.active)
                                 break;
                         }
                 }
@@ -164,20 +175,20 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
         }
     }
 
-    if (bullet[i].active)
+    if (bul.active)
         if ((mysprite > 0) && (bulletsnap->owner > 0))
             for (c = 1; c <= pa; c++)
             {
                 GetBulletParts().doeulertimestepfor(i);
-                bullet[i].update();
-                if (!bullet[i].active)
+                bul.update();
+                if (!bul.active)
                     break;
             }
 
     // stat gun
     if (!bulletsnap->forced)
         if (style == bullet_style_m2)
-            for (i = 1; i <= max_things; i++)
+            for (auto i = 1; i <= max_things; i++)
                 if ((things[i].active) && (things[i].style == object_stationary_gun))
                     things[i].checkstationaryguncollision(true);
 

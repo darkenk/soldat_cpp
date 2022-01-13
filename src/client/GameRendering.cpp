@@ -732,18 +732,21 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
         ZoneScopedN("Bullets");
         for (i = 1; i <= max_bullets; i++)
         {
-            if (bullet[i].active or (bullet[i].pingadd > 0))
+            auto &b = bullet[i];
+            if (b.active or (b.pingadd > 0))
             {
-                j = bullet[i].num;
+                j = b.num;
 
                 s.bulletpos[i] = GetBulletParts().pos[j];
                 s.bulletvel[i] = GetBulletParts().velocity[j];
-                s.bullethitmul[i] = bullet[i].hitmultiply;
+                s.bullethitmul[i] = b.hitmultiply;
 
-                GetBulletParts().pos[j] = lerp(GetBulletParts().oldpos[j], GetBulletParts().pos[j], p);
-                GetBulletParts().velocity[j] = lerp(bullet[i].velocityprev, GetBulletParts().velocity[j], p);
-                bullet[i].hitmultiply = lerp(bullet[i].hitmultiplyprev, bullet[i].hitmultiply, p);
-                bullet[i].timeoutfloat = lerp(bullet[i].timeoutprev, bullet[i].timeout, p);
+                GetBulletParts().pos[j] =
+                    lerp(GetBulletParts().oldpos[j], GetBulletParts().pos[j], p);
+                GetBulletParts().velocity[j] =
+                    lerp(b.velocityprev, GetBulletParts().velocity[j], p);
+                b.hitmultiply = lerp(b.hitmultiplyprev, b.hitmultiply, p);
+                b.timeoutfloat = lerp(b.timeoutprev, b.timeout, p);
             }
         }
     }
@@ -800,11 +803,12 @@ void restorestate(tinterpolationstate &s)
 
     for (i = 1; i <= max_bullets; i++)
     {
-        if (bullet[i].active or (bullet[i].pingadd > 0))
+        auto &b = bullet[i];
+        if (b.active or (b.pingadd > 0))
         {
-            GetBulletParts().pos[bullet[i].num] = s.bulletpos[i];
-            GetBulletParts().velocity[bullet[i].num] = s.bulletvel[i];
-            bullet[i].hitmultiply = s.bullethitmul[i];
+            GetBulletParts().pos[b.num] = s.bulletpos[i];
+            GetBulletParts().velocity[b.num] = s.bulletvel[i];
+            b.hitmultiply = s.bullethitmul[i];
         }
     }
 
@@ -932,8 +936,11 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
             {
                 ZoneScopedN("RenderBullet");
                 for (i = 1; i <= max_bullets; i++)
-                    if (bullet[i].active or (bullet[i].pingadd > 0))
-                        bullet[i].render(timeelapsed);
+                {
+                    auto &b = bullet[i];
+                    if (b.active or (b.pingadd > 0))
+                        b.render(timeelapsed);
+                }
             }
 
             {

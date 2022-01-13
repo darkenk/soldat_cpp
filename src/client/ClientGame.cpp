@@ -220,9 +220,6 @@ void gameloop()
     double currenttime, frametime, simtime;
     double framepercent, dt;
     bool gamepaused;
-#ifdef ENABLE_FAE
-    tfaeresponsebox asyncfaeresponse;
-#endif
 
     gamepaused = (mapchangecounter >= 0);
 
@@ -247,15 +244,6 @@ void gameloop()
     frametiming.accumulator = frametiming.accumulator - simtime;
     framepercent = std::fmin(1, std::fmax(0, (float)(frametiming.accumulator) / dt));
 
-#ifdef ENABLE_FAE
-    // Poll for authentication result from Fae background thread (cf. ClientHandleFaeChallenge)
-    if ((faependingauth != nullptr) && faeauthfetch(faependingauth, asyncfaeresponse, nullptr))
-    {
-        clientsendfaeresponse(asyncfaeresponse);
-        faependingauth = nullptr;
-    }
-#endif
-
     for (maincontrol = 1; maincontrol <= (ticktime - ticktimelast); maincontrol++)
     { // frame rate independant code
         if (!gamepaused)
@@ -269,10 +257,6 @@ void gameloop()
 
         if (menutimer > -1)
             menutimer -= 1;
-
-#ifdef STEAM
-        steamapi_runcallbacks(0);
-#endif
 
         // General game updating
         update_frame();

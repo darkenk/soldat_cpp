@@ -18,30 +18,31 @@ namespace
 std::array<tmsg_bulletsnapshot, max_sprites> oldbulletsnapshotmsg;
 }
 
-void serverbulletsnapshot(std::uint8_t i, std::uint8_t tonum, bool forced)
+void serverbulletsnapshot(const std::uint8_t i, std::uint8_t tonum, bool forced)
 {
     tmsg_bulletsnapshot bulletmsg;
 
+    auto &b = bullet[i];
+
     // SERVER BULLETS SNAPSHOT
     bulletmsg.header.id = msgid_bulletsnapshot;
-    bulletmsg.owner = bullet[i].owner;
-    bulletmsg.weaponnum = bullet[i].ownerweapon;
+    bulletmsg.owner = b.owner;
+    bulletmsg.weaponnum = b.ownerweapon;
     bulletmsg.pos = GetBulletParts().pos[i];
     bulletmsg.velocity = GetBulletParts().velocity[i];
-    bulletmsg.seed = bullet[i].seed;
+    bulletmsg.seed = b.seed;
     bulletmsg.forced = forced;
 
 #ifdef SERVER
     if (!forced)
         if ((SpriteSystem::Get().GetSprite(bulletmsg.owner).weapon.ammocount > 0) &&
-            (bullet[i].style != bullet_style_fragnade) &&
-            (bullet[i].style != bullet_style_clusternade) &&
-            (bullet[i].style != bullet_style_cluster))
+            (b.style != bullet_style_fragnade) && (b.style != bullet_style_clusternade) &&
+            (b.style != bullet_style_cluster))
             SpriteSystem::Get().GetSprite(bulletmsg.owner).weapon.ammocount -= 1;
 
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
-        if ((sprite.player->controlmethod == human) && (sprite.num != bullet[i].owner))
+        if ((sprite.player->controlmethod == human) && (sprite.num != b.owner))
             if ((tonum == 0) || (sprite.num == tonum))
                 if (bulletcansend(GetBulletParts().pos[i].x, GetBulletParts().pos[i].y,
                                   sprite.player->camera, GetBulletParts().velocity[i].x) or

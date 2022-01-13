@@ -47,7 +47,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
                           std::uint8_t n, float hitm, bool net, bool mustcreate,
                           std::uint16_t seed) // Seed = -1
 {
-    std::int32_t i, j;
+    std::int32_t j;
     float mass;
     std::int16_t weaponindex;
     std::uint8_t sstyle;
@@ -55,14 +55,14 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
     std::int32_t result;
     result = -1;
 
-#ifdef SERVER
     LogTraceG("CreateBullet {} {} {}", snum, sowner, n);
-#endif
 
 #ifndef SERVER
-    if (demoplayer.active())
-        if (!mustcreate)
-            return result;
+    {
+        if (demoplayer.active())
+            if (!mustcreate)
+                return result;
+    }
 #endif
 
     weaponindex = weaponnumtoindex(snum, guns);
@@ -95,80 +95,87 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
     LogTraceG("CreateBullet 2");
 #endif
 
-    if (n == 255)
-    {
-        for (i = 1; i <= max_bullets + 1; i++)
+    auto f = [](const auto n) -> std::int32_t {
+        if (n != 255)
+        {
+            return n;
+        }
+        for (auto i = 1; i <= max_bullets + 1; i++)
         {
             if (i == max_bullets + 1)
             {
-                result = -1;
-                return result;
+                return -1;
             }
             if (!bullet[i].active)
-                break;
+            {
+                return i;
+            }
         }
-    }
-    else
+        return -1;
+    };
+    const auto i = f(n);
+    if (i == -1)
     {
-        i = n;
+        return i;
     }
 
     // i is now the active sprite
-#ifdef SERVER
     LogTraceG("CreateBullet 3");
-#endif
+
+    auto &b = bullet[i];
+
     // activate sprite
-    bullet[i].active = true;
+    b.active = true;
 #ifndef SERVER
-    bullet[i].hashit = false;
+    b.hashit = false;
 #endif
-    bullet[i].style = sstyle;
-    bullet[i].num = i;
-    bullet[i].owner = sowner;
-    bullet[i].timeout = guns[weaponindex].timeout;
+    b.style = sstyle;
+    b.num = i;
+    b.owner = sowner;
+    b.timeout = guns[weaponindex].timeout;
 #ifndef SERVER // TODO: Check if this should be used also in server
-    bullet[i].timeoutprev = guns[weaponindex].timeout;
+    b.timeoutprev = guns[weaponindex].timeout;
 #endif
-    bullet[i].hitmultiply = hitm;
+    b.hitmultiply = hitm;
 #ifndef SERVER // TODO: Check if this should be used also in server
-    bullet[i].hitmultiplyprev = hitm;
+    b.hitmultiplyprev = hitm;
 #endif
-    bullet[i].whizzed = false;
+    b.whizzed = false;
 
     if (
 #ifndef SERVER
         (sowner == camerafollowsprite) ||
 #endif
         (sstyle == bullet_style_flamearrow) || (sstyle == bullet_style_flame))
-        bullet[i].whizzed = true;
+        b.whizzed = true;
 
     if (SpriteSystem::Get().GetSprite(sowner).player->controlmethod == human)
     {
-        bullet[i].ownerpingtick = SpriteSystem::Get().GetSprite(sowner).player->pingticksb;
+        b.ownerpingtick = SpriteSystem::Get().GetSprite(sowner).player->pingticksb;
     }
     else
-        bullet[i].ownerpingtick = 0;
+        b.ownerpingtick = 0;
 
-    bullet[i].ownerweapon = snum;
-    bullet[i].hitbody = 0;
-    bullet[i].hitspot.x = 0;
-    bullet[i].hitspot.y = 0;
-    bullet[i].tracking = 0;
+    b.ownerweapon = snum;
+    b.hitbody = 0;
+    b.hitspot.x = 0;
+    b.hitspot.y = 0;
+    b.tracking = 0;
 
 #ifndef SERVER // TODO: Check if this should be used also in server
     if (SpriteSystem::Get().GetSprite(sowner).aimdistcoef < defaultaimdist)
-        bullet[i].tracking = 255;
+        b.tracking = 255;
 
-    bullet[i].imagestyle = SpriteSystem::Get().GetSprite(sowner).weapon.bulletimagestyle;
+    b.imagestyle = SpriteSystem::Get().GetSprite(sowner).weapon.bulletimagestyle;
 #else
-    bullet[i].initial = spos;
+    b.initial = spos;
 #endif
-    bullet[i].startuptime = maintickcounter;
-    bullet[i].ricochetcount = 0;
+    b.startuptime = maintickcounter;
+    b.ricochetcount = 0;
 #ifndef SERVER // TODO: Check if this should be used also in server
-    bullet[i].degradecount = 0;
-    bullet[i].pingadd = 0;
-    bullet[i].pingaddstart = 0;
+    b.degradecount = 0;
+    b.pingadd = 0;
+    b.pingaddstart = 0;
 #endif
 
     if (seed == std::numeric_limits<std::uint16_t>::max())
@@ -180,7 +187,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
             SpriteSystem::Get().GetSprite(sowner).bulletcount += 1;
         seed = SpriteSystem::Get().GetSprite(sowner).bulletcount;
     }
-    bullet[i].seed = seed;
+    b.seed = seed;
 
 #ifdef SERVER
     LogTraceG("CreateBullet 4");
@@ -195,7 +202,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
             spos.y = spos.y + svelocity.y;
         }
 
-    bullet[i].initial = spos;
+    b.initial = spos;
 
 #ifdef SERVER
     LogTraceG("CreateBullet 5");
@@ -211,9 +218,8 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
         if ((sowner == mysprite) && (clientstopmovingcounter > 0))
         {
             if ((SpriteSystem::Get().GetSprite(sowner).weapon.fireinterval > fireinterval_net) ||
-                mustcreate || (bullet[i].style == bullet_style_fragnade) ||
-                (bullet[i].style == bullet_style_clusternade) ||
-                (bullet[i].style == bullet_style_cluster))
+                mustcreate || (b.style == bullet_style_fragnade) ||
+                (b.style == bullet_style_clusternade) || (b.style == bullet_style_cluster))
             {
                 clientsendbullet(i);
                 // Damage multiplier hack was here, they recalled ClientSendBullet
@@ -231,7 +237,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
 
     if (sowner == mysprite)
     {
-        if (bullet[i].style == bullet_style_fragnade)
+        if (b.style == bullet_style_fragnade)
         {
             if (wepstats[18].shots == 0)
                 wepstats[18].textureid = GFX::INTERFACE_NADE;
@@ -241,8 +247,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
             if (wepstats[18].name == "")
                 wepstats[18].name = "Grenade";
         }
-        else if ((bullet[i].style == bullet_style_cluster) ||
-                 (bullet[i].style == bullet_style_clusternade))
+        else if ((b.style == bullet_style_cluster) || (b.style == bullet_style_clusternade))
         {
             if (wepstats[19].shots == 0)
                 wepstats[19].textureid = GFX::INTERFACE_CLUSTER_NADE;
@@ -252,7 +257,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
             if (wepstats[19].name == "")
                 wepstats[19].name = "Clusters";
         }
-        else if (bullet[i].style == bullet_style_m2)
+        else if (b.style == bullet_style_m2)
         {
             if (wepstats[20].shots == 0)
                 wepstats[20].textureid = GFX::INTERFACE_GUNS_M2;
@@ -262,7 +267,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
             if (wepstats[20].name == "")
                 wepstats[20].name = "Stationary gun";
         }
-        else if (bullet[i].style == bullet_style_punch)
+        else if (b.style == bullet_style_punch)
         {
             if (wepstats[17].shots == 0)
                 wepstats[17].textureid = GFX::INTERFACE_GUNS_FIST;
@@ -355,7 +360,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
         {
             for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
             {
-                if ((sprite.player->controlmethod == human) && (sprite.num != bullet[i].owner) &&
+                if ((sprite.player->controlmethod == human) && (sprite.num != b.owner) &&
                     (sprite.player->port == 0) && sprite.isspectator())
                 {
                     serverbulletsnapshot(i, sprite.num, false);
@@ -365,7 +370,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
     }
 #endif
 
-    // Bullet[i].Update;
+    // b.Update;
 #ifdef SERVER
     LogTraceG("CreateBullet 7");
 #endif
@@ -2729,29 +2734,30 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
     active = false;
     for (i = 1; i <= max_bullets; i++)
     {
-        if ((i != num) && bullet[i].active &&
-            ((bullet[i].style == bullet_style_fragnade) || (bullet[i].style == bullet_style_m79) ||
-             (bullet[i].style == bullet_style_law)))
+        auto &b = bullet[i];
+        if ((i != num) && b.active &&
+            ((b.style == bullet_style_fragnade) || (b.style == bullet_style_m79) ||
+             (b.style == bullet_style_law)))
         {
             a = vec2subtract(GetBulletParts().pos[num], GetBulletParts().pos[i]);
             s = vec2length2(a);
 
             if (s < after_explosion_radius2)
             {
-                switch (bullet[i].style)
+                switch (b.style)
                 {
                 case bullet_style_fragnade:
-                    bullet[i].hit(hit_type_fragnade);
+                    b.hit(hit_type_fragnade);
                     break;
                 case bullet_style_m79:
-                    bullet[i].hit(hit_type_explode);
+                    b.hit(hit_type_explode);
                     break;
                 case bullet_style_law:
-                    bullet[i].hit(hit_type_explode);
+                    b.hit(hit_type_explode);
                     break;
                 }
 
-                bullet[i].kill();
+                b.kill();
             }
         }
     }

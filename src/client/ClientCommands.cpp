@@ -223,13 +223,6 @@ void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)
     if (screenshotsinarow < 3)
     {
         screenshotsinarow += 1;
-#ifdef STEAM
-        if (CVar::cl_steam_screenshots)
-        {
-            steamapi.screenshots.triggerscreenshot(0);
-            return;
-        }
-#endif
         NotImplemented(NITag::OTHER);
 #if 0
         screenfile = userdirectory + "screens/" + formatdatetime("yyyy-mm-dd_hh-nn-ss_", now(0)) +

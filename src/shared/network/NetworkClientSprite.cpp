@@ -592,45 +592,58 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
 
     // Explode - lag compensate
     if (deathsnap->killbullet == 7) // M79
+    {
         for (j = max_bullets; j >= 1; j--)
-            if ((bullet[j].active) && (bullet[j].owner == deathsnap->killer) &&
-                (bullet[j].style == guns[m79].bulletstyle))
+        {
+            auto &b = bullet[j];
+            if ((b.active) && (b.owner == deathsnap->killer) && (b.style == guns[m79].bulletstyle))
             {
                 GetBulletParts().oldpos[j] = SpriteSystem::Get().GetSprite(i).skeleton.pos[8];
                 GetBulletParts().pos[j] = SpriteSystem::Get().GetSprite(i).skeleton.pos[8];
-                bullet[j].hit(3);
-                bullet[j].kill();
+                b.hit(3);
+                b.kill();
                 break;
             }
+        }
+    }
 
     if (deathsnap->killbullet == 224) /*LAW*/
+    {
         for (j = max_bullets; j >= 1; j--)
-            if ((bullet[j].active) && (bullet[j].owner == deathsnap->killer) &&
-                (bullet[j].style == guns[law].bulletstyle))
+        {
+            auto &b = bullet[j];
+            if ((b.active) && (b.owner == deathsnap->killer) && (b.style == guns[law].bulletstyle))
             {
                 GetBulletParts().oldpos[j] = SpriteSystem::Get().GetSprite(i).skeleton.pos[8];
                 GetBulletParts().pos[j] = SpriteSystem::Get().GetSprite(i).skeleton.pos[8];
-                bullet[j].hit(3);
-                bullet[j].kill();
+                b.hit(3);
+                b.kill();
                 break;
             }
+        }
+    }
 
     auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
     if (deathsnap->killbullet == 222) /*grenade*/
+    {
         for (j = max_bullets; j >= 1; j--)
-            if ((bullet[j].active) && (bullet[j].owner == deathsnap->killer) &&
-                (bullet[j].style == guns[fraggrenade].bulletstyle))
+        {
+            auto &b = bullet[j];
+            if ((b.active) && (b.owner == deathsnap->killer) &&
+                (b.style == guns[fraggrenade].bulletstyle))
             {
-                map.raycast(GetBulletParts().pos[j], SpriteSystem::Get().GetSprite(i).skeleton.pos[8],
-                            hm, 351);
+                map.raycast(GetBulletParts().pos[j],
+                            SpriteSystem::Get().GetSprite(i).skeleton.pos[8], hm, 351);
                 if (hm < after_explosion_radius)
                 {
                     GetBulletParts().oldpos[j] = spritePartsPos;
                     GetBulletParts().pos[j] = spritePartsPos;
-                    bullet[j].hit(4);
-                    bullet[j].kill();
+                    b.hit(4);
+                    b.kill();
                 }
             }
+        }
+    }
 }
 
 void clienthandledelta_movement(SteamNetworkingMessage_t *netmessage)

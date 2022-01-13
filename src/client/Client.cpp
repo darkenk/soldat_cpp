@@ -400,33 +400,7 @@ void startgame(int argc, const char *argv[])
     // TODO remove HWIDs, replace by Fae auth tickets
     hwid = "00000000000";
 
-#ifdef MSWINDOWS
-    if (CVar::r_sleeptime > 0)
-        timebeginperiod(CVar::r_sleeptime);
-#endif
-
     initing = 0;
-
-#ifdef STEAM
-    //  {$IFDEF STEAM}
-    //  Debug('[Steam] Initializing system');
-    //  // Initialize steam
-    //  try
-    //    SteamAPI := TSteam.Init;
-    //  except
-    //    on e: Exception do
-    //    begin
-    //      ShowMessage(_('Could not initialize Steam API. Try to run the game directly through
-    //      Steam')); Exit;
-    //    end;
-    //  end;
-
-    // SteamAPI.Utils.SetWarningMessageHook(SteamWarning);
-    // SteamCallbackDispatcher.Create(1221, @SteamNetConnectionStatusChangedCallback,
-    // SizeOf(SteamNetConnectionStatusChangedCallback_t)); SteamCallbackDispatcher.Create(2301,
-    // @OnScreenshotReady, SizeOf(ScreenshotReady_t)); SteamCallbackDispatcher.Create(3406,
-    // @DownloadItemResult, SizeOf(DownloadItemResult_t));
-#endif
 
     LogDebugG("[PhysFS] Initializing system");
 
@@ -459,12 +433,7 @@ void startgame(int argc, const char *argv[])
 
     moddir = "";
 
-#ifdef STEAM
-    if (CVar::fs_workshop_mod != 0)
-        loadworkshopmodarchives;
-    else
-#endif
-        if (CVar::fs_mod != "")
+    if (CVar::fs_mod != "")
     {
         LogDebugG("[PhysFS] Mounting mods/{}.smod", lowercase(CVar::fs_mod));
         if (!PHYSFS_mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod").c_str(),
@@ -477,11 +446,6 @@ void startgame(int argc, const char *argv[])
         moddir = std::string("mods/") + lowercase(CVar::fs_mod) + '/';
         custommodchecksum = sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod");
     }
-
-#ifdef STEAM
-    if (CVar::fs_workshop_interface != 0)
-        loadworkshopinterfacearchives;
-#endif
 
     loadinterfacearchives(userdirectory + "custom-interfaces/");
 
@@ -671,12 +635,6 @@ void startgame(int argc, const char *argv[])
     // GetMainConsole().console(("Welcome to Soldat ") + soldat_version, default_message_color);
     GetMainConsole().console(("Welcome to Soldat "), default_message_color);
 
-#ifdef ENABLE_FAE
-    if (faeisenabled)
-        GetMainConsole().console("Multi-player sessions are protected by Fae Anti-Cheat",
-                                 ac_message_color);
-#endif
-
     // Load weapon display names
     loadweaponnames();
     createweaponsbase(guns);
@@ -710,11 +668,6 @@ void shutdown()
 {
     exittomenu();
 
-#ifdef MSWINDOWS
-    if (CVar::r_sleeptime > 0)
-        timeendperiod(CVar::r_sleeptime);
-#endif
-
     if (abnormalterminate)
         return;
 
@@ -743,11 +696,6 @@ void shutdown()
     PHYSFS_deinit();
 
     commanddeinit();
-
-#ifdef STEAM
-    addlinetologfile(gamelog, "Steam API closing.", consolelogfilename);
-    steamapi_shutdown(0);
-#endif
 
     addlinetologfile(GetGameLog(), "   End of Log.", GetGameLogFilename());
 
@@ -796,15 +744,6 @@ void joinserver()
 
     initgamegraphics();
     dotextureloading(true);
-
-#ifdef ENABLE_FAE
-    // Fae performs various initialization tasks (compute HWID, checksum DLLs, etc.) in a separate
-    // thread. We must wait for this thread to become ready to accept messages. Otherwise, we cannot
-    // authenticate with the game server's anti-cheat component.
-    // NOTE That in case of an internal error Fae displays a message box here and quits.
-    rendergameinfo(_("Initializing"));
-    faepreflight; // no-op if Fae if called before or if Fae is disabled
-#endif
 
     InitClientNetwork();
     // DEMO

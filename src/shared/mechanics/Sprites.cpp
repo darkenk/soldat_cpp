@@ -1660,44 +1660,48 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         // game log
         if (what > 0)
         {
-#ifdef SERVER
-            s = weaponnamebynum(bullet[what].ownerweapon, guns);
-            if (bullet[what].ownerweapon == 0)
-                s = "USSOCOM";
-            if (bullet[what].style == bullet_style_fragnade)
-                s = "Grenade";
-            if (bullet[what].style == bullet_style_cluster)
-                s = "Cluster Grenades";
-            if (bullet[what].style == bullet_style_punch)
-                s = guns[noweapon].name;
-            if (bullet[what].style == bullet_style_m2)
-                s = "Stationary gun";
+            if constexpr (Config::IsServer())
+            {
+                auto &b = bullet[what];
+                s = weaponnamebynum(b.ownerweapon, guns);
+                if (b.ownerweapon == 0)
+                    s = "USSOCOM";
+                if (b.style == bullet_style_fragnade)
+                    s = "Grenade";
+                if (b.style == bullet_style_cluster)
+                    s = "Cluster Grenades";
+                if (b.style == bullet_style_punch)
+                    s = guns[noweapon].name;
+                if (b.style == bullet_style_m2)
+                    s = "Stationary gun";
+            }
+            else
+            {
                 // if Bullet[What].OwnerWeapon = noweapon_num then S := 'Selfkill';
-#else
-            s = weaponnamebynum(what, guns);
-            if (what == 222)
-                s = "Grenade";
-            if (what == 210)
-                s = "Clusters";
-            if (what == 211)
-                s = guns[knife].name;
-            if (what == 212)
-                s = guns[chainsaw].name;
-            if (what == 224)
-                s = guns[law].name;
-            if (what == 225)
-                s = "Stationary gun";
-            if (what == 205)
-                s = guns[flamer].name;
-            if (what == 207)
-                s = guns[bow].name;
-            if (what == 208)
-                s = guns[bow2].name;
-            if (what == 206)
-                s = guns[noweapon].name;
-            if (what == 250)
-                s = "Selfkill";
-#endif
+                s = weaponnamebynum(what, guns);
+                if (what == 222)
+                    s = "Grenade";
+                if (what == 210)
+                    s = "Clusters";
+                if (what == 211)
+                    s = guns[knife].name;
+                if (what == 212)
+                    s = guns[chainsaw].name;
+                if (what == 224)
+                    s = guns[law].name;
+                if (what == 225)
+                    s = "Stationary gun";
+                if (what == 205)
+                    s = guns[flamer].name;
+                if (what == 207)
+                    s = guns[bow].name;
+                if (what == 208)
+                    s = guns[bow2].name;
+                if (what == 206)
+                    s = guns[noweapon].name;
+                if (what == 250)
+                    s = "Selfkill";
+            }
         }
         else
         {
@@ -1813,14 +1817,15 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         extern float shotdistanceServer;
         extern float shotlifeServer;
         extern float shotricochetServer;
-        if (((what == 1) && (where == 1)) || (bullet[what].style == bullet_style_flame) || deadmeat)
+        auto &b = bullet[what];
+        if (((what == 1) && (where == 1)) || (b.style == bullet_style_flame) || deadmeat)
             ;
         else
         {
-            a = vec2subtract(GetBulletParts().pos[what], bullet[what].initial);
+            a = vec2subtract(GetBulletParts().pos[what], b.initial);
             shotdistanceServer = (float)(vec2length(a)) / 14;
-            shotricochetServer = bullet[what].ricochetcount;
-            shotlifeServer = (float)((maintickcounter - bullet[what].startuptime)) / 60;
+            shotricochetServer = b.ricochetcount;
+            shotlifeServer = (float)((maintickcounter - b.startuptime)) / 60;
         }
     }
 
@@ -3403,9 +3408,7 @@ void Sprite<M>::checkskeletonoutofbounds()
     std::int32_t bound;
     struct tvector2 *skeletonpos;
 
-#ifdef SERVER
     LogTraceG("TSprite.CheckSkeletonOutOfBounds");
-#endif
     auto &map = GS::GetGame().GetMap();
 
     if (survivalendround)
@@ -3420,9 +3423,10 @@ void Sprite<M>::checkskeletonoutofbounds()
 
         if ((fabs(skeletonpos->x) > bound) || (fabs(skeletonpos->y) > bound))
         {
-#ifndef SERVER
-            randomizestart(spritePartsPos, player->team);
-#endif
+            if constexpr (Config::IsClient(M))
+            {
+                randomizestart(spritePartsPos, player->team);
+            }
             respawn();
             break;
         }
@@ -4212,21 +4216,24 @@ void Sprite<M>::fire()
     if ((bodyanimation.id == AnimationType::Mercy) || (bodyanimation.id == AnimationType::Mercy2))
     {
         if ((bn > 0) && (bn < max_bullets + 1))
-            if (bullet[bn].active)
+        {
+            auto &b = bullet[bn];
+            if (b.active)
             {
                 a = GetBulletParts().velocity[bn];
                 vec2normalize(GetBulletParts().velocity[bn], GetBulletParts().velocity[bn]);
                 vec2scale(GetBulletParts().velocity[bn], GetBulletParts().velocity[bn], 70);
-                bullet[bn].hit(2);
-                bullet[bn].hit(9);
+                b.hit(2);
+                b.hit(9);
                 // couple more - not sure why
-                bullet[bn].hit(2);
-                bullet[bn].hit(9);
-                bullet[bn].hit(2);
-                bullet[bn].hit(9);
-                bullet[bn].hitbody = bullet[bn].owner;
+                b.hit(2);
+                b.hit(9);
+                b.hit(2);
+                b.hit(9);
+                b.hitbody = b.owner;
                 GetBulletParts().velocity[bn] = a;
             }
+        }
     }
 
     // Shouldn't we dec on server too?

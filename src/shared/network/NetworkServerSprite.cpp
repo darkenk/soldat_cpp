@@ -267,28 +267,29 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
     {
         // if Bullet[BulletNum].OwnerWeapon = 0 then
         // SpriteDeathMsg.KillBullet := 250;
-        spritedeathmsg.killbullet = bullet[bulletnum].ownerweapon;
-        if (bullet[bulletnum].style == 2)
+        auto &b = bullet[bulletnum];
+        spritedeathmsg.killbullet = b.ownerweapon;
+        if (b.style == 2)
             spritedeathmsg.killbullet = 222;
-        if (bullet[bulletnum].style == 10)
+        if (b.style == 10)
             spritedeathmsg.killbullet = 210;
-        if (bullet[bulletnum].style == 5)
+        if (b.style == 5)
             spritedeathmsg.killbullet = 205;
-        if (bullet[bulletnum].style == 7)
+        if (b.style == 7)
             spritedeathmsg.killbullet = 207;
-        if (bullet[bulletnum].style == 8)
+        if (b.style == 8)
             spritedeathmsg.killbullet = 208;
-        if (bullet[bulletnum].style == 6)
+        if (b.style == 6)
             spritedeathmsg.killbullet = 206;
-        if (bullet[bulletnum].ownerweapon == knife_num)
+        if (b.ownerweapon == knife_num)
             spritedeathmsg.killbullet = 211;
-        if (bullet[bulletnum].ownerweapon == chainsaw_num)
+        if (b.ownerweapon == chainsaw_num)
             spritedeathmsg.killbullet = 212;
-        if (bullet[bulletnum].style == 12)
+        if (b.style == 12)
             spritedeathmsg.killbullet = 224;
-        if (bullet[bulletnum].style == 13)
+        if (b.style == 13)
             spritedeathmsg.killbullet = 211;
-        if (bullet[bulletnum].style == 14)
+        if (b.style == 14)
             spritedeathmsg.killbullet = 225;
     }
 
