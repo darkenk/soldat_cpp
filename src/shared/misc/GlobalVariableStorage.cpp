@@ -11,10 +11,6 @@
 
 namespace
 {
-auto &ticks = InitGlobalVariable<std::int32_t, "ticks">();
-auto &tickspersecond = InitGlobalVariable<std::int32_t, "tickspersecond">();
-auto &frames = InitGlobalVariable<std::int32_t, "frames">();
-auto &framespersecond = InitGlobalVariable<std::int32_t, "framespersecond">();
 auto &ticktime = InitGlobalVariable<std::int32_t, "ticktime">();
 auto &ticktimelast = InitGlobalVariable<std::int32_t, "ticktimelast">();
 auto &goalticks = InitGlobalVariable<std::int32_t, "goalticks">();

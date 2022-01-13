@@ -249,8 +249,6 @@ void gameloop()
         if (!gamepaused)
             frametiming.elapsed = frametiming.elapsed + ((float)(1) / default_goalticks);
 
-        ticks += 1;
-
         clienttickcount += 1;
         // Update main tick counter
         maintickcounter += 1;

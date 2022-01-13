@@ -47,7 +47,6 @@ void apponidle()
 
     for (maincontrol = 1; maincontrol <= (ticktime - ticktimelast); maincontrol++)
     { // frame rate independant code
-        ticks = ticks + 1;
 
         servertickcounter += 1;
         // Update main tick counter

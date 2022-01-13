@@ -76,17 +76,6 @@ void Game<M>::number27timing()
     secondslast = seconds;
     seconds = std::chrono::duration_cast<std::chrono::seconds>(timepassed);
 
-    if (seconds != secondslast)
-    { // new Second
-        tickspersecond = ticks;
-        ticks = 0;
-
-        framespersecond = frames;
-        frames = 0;
-    }
-
-    frames += 1;
-
     ticktimelast = ticktime;
 
     ticktime = timepassed / std::chrono::milliseconds((1000) / goalticks);
