@@ -595,7 +595,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
             if (showscreen == false)
                 screencounter = 255;
             else
-                playsound(sfx_snapshot);
+                playsound(SfxEffect::snapshot);
         }
         else
         {

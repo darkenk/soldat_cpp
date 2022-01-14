@@ -857,9 +857,9 @@ void Thing<M>::update()
                             {
 #ifndef SERVER
                                 if (sv_gamemode.intvalue == gamestyle_inf)
-                                    playsound(sfx_infiltmus);
+                                    playsound(SfxEffect::infiltmus);
                                 else
-                                    playsound(sfx_ctf);
+                                    playsound(SfxEffect::ctf);
 #endif
 
                                 SpriteSystem::Get().GetSprite(holdingsprite).player->flags =
@@ -922,7 +922,7 @@ void Thing<M>::update()
                                 team_bravo)
                             {
 #ifndef SERVER
-                                playsound(sfx_ctf);
+                                playsound(SfxEffect::ctf);
 #endif
                                 SpriteSystem::Get().GetSprite(holdingsprite).player->flags =
                                     SpriteSystem::Get().GetSprite(holdingsprite).player->flags + 1;
@@ -1039,7 +1039,7 @@ void Thing<M>::update()
     if ((style < object_ussocom) || (style == object_parachute))
         if (Random(75) == 0)
             if (vec2length(vec2subtract(skeleton.pos[2], skeleton.oldpos[2])) > 1.0)
-                playsound(sfx_flag + Random(2), skeleton.pos[2]);
+                playsound(SfxEffect::flag + Random(2), skeleton.pos[2]);
 #endif
 
     // Parachute
@@ -1543,7 +1543,7 @@ bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
                             ((vec2length(vec2subtract(skeleton.pos[i], skeleton.oldpos[i])) >
                               1.5) &&
                              (collidecount[i] < 30)))
-                            playsound(sfx_weaponhit, skeleton.pos[i]);
+                            playsound(SfxEffect::weaponhit, skeleton.pos[i]);
 #endif
                     }
                     break;
@@ -1564,7 +1564,7 @@ bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
                             ((vec2length(vec2subtract(skeleton.pos[i], skeleton.oldpos[i])) >
                               1.5) &&
                              (collidecount[i] < 3)))
-                            playsound(sfx_kit_fall + Random(2), skeleton.pos[i]);
+                            playsound(SfxEffect::kit_fall + Random(2), skeleton.pos[i]);
 #endif
                     }
                     break;
@@ -1578,7 +1578,7 @@ bool Thing<M>::checkmapcollision(std::int32_t i, float x, float y)
                             ((vec2length(vec2subtract(skeleton.pos[i], skeleton.oldpos[i])) >
                               1.5) &&
                              (collidecount[i] < 3)))
-                            playsound(sfx_flag + Random(2), skeleton.pos[i]);
+                            playsound(SfxEffect::flag + Random(2), skeleton.pos[i]);
 #endif
                     }
                     break;
@@ -1912,23 +1912,23 @@ std::int32_t Thing<M>::checkspritecollision()
                 SpriteSystem::Get().GetSpritePartsPos(SpriteSystem::Get().GetSprite(j).num);
             if (((style > object_pointmatch_flag) && (style < object_rambo_bow)) ||
                 (style > object_parachute)) // take sound
-                playsound(sfx_takegun, spritePartsPos);
+                playsound(SfxEffect::takegun, spritePartsPos);
             else if (style == object_rambo_bow) // rambo sound
-                playsound(sfx_takebow, spritePartsPos);
+                playsound(SfxEffect::takebow, spritePartsPos);
             else if (style == object_medical_kit) // take medikit sound
-                playsound(sfx_takemedikit, spritePartsPos);
+                playsound(SfxEffect::takemedikit, spritePartsPos);
             else if (style == object_grenade_kit) // take grenade kit sound
-                playsound(sfx_pickupgun, spritePartsPos);
+                playsound(SfxEffect::pickupgun, spritePartsPos);
             else if (style == object_flamer_kit) // take flamer kit sound
-                playsound(sfx_godflame, spritePartsPos);
+                playsound(SfxEffect::godflame, spritePartsPos);
             else if (style == object_predator_kit) // take predator kit sound
-                playsound(sfx_predator, spritePartsPos);
+                playsound(SfxEffect::predator, spritePartsPos);
             else if (style == object_vest_kit) // take vest kit sound
-                playsound(sfx_vesttake, spritePartsPos);
+                playsound(SfxEffect::vesttake, spritePartsPos);
             else if (style == object_berserk_kit) // take berserker kit sound
-                playsound(sfx_berserker, spritePartsPos);
+                playsound(SfxEffect::berserker, spritePartsPos);
             else if (style == object_cluster_kit) // take cluster kit sound
-                playsound(sfx_pickupgun, spritePartsPos);
+                playsound(SfxEffect::pickupgun, spritePartsPos);
 #endif
 
 #ifdef SERVER
@@ -1966,7 +1966,7 @@ std::int32_t Thing<M>::checkspritecollision()
                 {
 #ifndef SERVER
                     // capture sound
-                    playsound(sfx_capture, skeleton.pos[1]);
+                    playsound(SfxEffect::capture, skeleton.pos[1]);
 #endif
                     holdingsprite = j;
 #ifdef SERVER
@@ -2537,7 +2537,7 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                                 if (sprite.usetime > m2gun_overheat)
                                 {
 #ifndef SERVER
-                                    playsound(sfx_m2overheat, spritePartsPos);
+                                    playsound(SfxEffect::m2overheat, spritePartsPos);
 #endif
                                     return result;
                                 }
@@ -2576,7 +2576,7 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                                 pos.y = skeleton.pos[3].y - 20;
                                 createspark(pos, norm, 22, sprite.num, 255); // hull
 
-                                playsound(sfx_m2fire, spritePartsPos);
+                                playsound(SfxEffect::m2fire, spritePartsPos);
 #endif
 
                                 sprite.usetime += 1;
@@ -2624,7 +2624,7 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
                             if (sprite.legsanimation.id == AnimationType::Stand)
                             {
 #ifndef SERVER
-                                playsound(sfx_m2use, spritePartsPos);
+                                playsound(SfxEffect::m2use, spritePartsPos);
 #endif
 
                                 statictype = true;

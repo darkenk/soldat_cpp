@@ -600,7 +600,7 @@ bool tspark::checkmapcollision(float x, float y)
                                 else
                                     createspark(pos, perp, 27, owner, 35);
 
-                                playsound(sfx_ts, GetSparkParts().pos[num]);
+                                playsound(SfxEffect::ts, GetSparkParts().pos[num]);
                             }
                         }
                         break;
@@ -630,7 +630,7 @@ bool tspark::checkmapcollision(float x, float y)
                         break;
                         case 6: {
                             if ((collidecount == 0) || (collidecount == 2) || (collidecount == 4))
-                                playsound(sfx_clipfall, GetSparkParts().pos[num]);
+                                playsound(SfxEffect::clipfall, GetSparkParts().pos[num]);
 
                             if (collidecount > 4)
                                 kill();
@@ -652,13 +652,13 @@ bool tspark::checkmapcollision(float x, float y)
                         case 72:
                         case 73: {
                             if ((collidecount == 0) || (collidecount == 2) || (collidecount == 4))
-                                playsound(sfx_shell + Random(2), GetSparkParts().pos[num]);
+                                playsound(SfxEffect::shell + Random(2), GetSparkParts().pos[num]);
                             if (collidecount > 4)
                                 kill();
                         }
                         break;
                         case 51: {
-                            playsound(sfx_gaugeshell, GetSparkParts().pos[num]);
+                            playsound(SfxEffect::gaugeshell, GetSparkParts().pos[num]);
                             if (collidecount > 4)
                                 kill();
                         }
@@ -678,7 +678,7 @@ bool tspark::checkmapcollision(float x, float y)
                         case 20:
                         case 23: {
                             if ((collidecount == 0) || (collidecount == 4))
-                                playsound(sfx_clipfall, GetSparkParts().pos[num]);
+                                playsound(SfxEffect::clipfall, GetSparkParts().pos[num]);
 
                             if (collidecount > 4)
                                 kill();

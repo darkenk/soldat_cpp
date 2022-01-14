@@ -233,7 +233,7 @@ void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)
 
         takescreenshot(screenfile);
 
-        playsound(sfx_snapshot);
+        playsound(SfxEffect::snapshot);
 
         if (showscreen)
         {

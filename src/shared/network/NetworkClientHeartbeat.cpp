@@ -51,16 +51,16 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
     if (CVar::sv_gamemode == gamestyle_inf)
         if (heartbeat->teamscore[team_bravo] > teamscore[team_bravo])
             if (heartbeat->teamscore[team_bravo] % 5 == 0)
-                playsound(sfx_infilt_point);
+                playsound(SfxEffect::infilt_point);
 
     if (CVar::sv_gamemode == gamestyle_htf)
     {
         if (heartbeat->teamscore[team_alpha] > teamscore[team_alpha])
             if (heartbeat->teamscore[team_alpha] % 5 == 0)
-                playsound(sfx_infilt_point);
+                playsound(SfxEffect::infilt_point);
         if (heartbeat->teamscore[team_bravo] > teamscore[team_bravo])
             if (heartbeat->teamscore[team_bravo] % 5 == 0)
-                playsound(sfx_infilt_point);
+                playsound(SfxEffect::infilt_point);
     }
 
     for (i = team_alpha; i <= team_delta; i++)

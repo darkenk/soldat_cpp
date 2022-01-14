@@ -724,7 +724,7 @@ void Bullet<M>::update()
 
     // his sound
     if ((timeout == bullet_timeout - 25) && (style != bullet_style_shotgun))
-        playsound(sfx_bulletby, GetBulletParts().pos[num]);
+        playsound(SfxEffect::bulletby, GetBulletParts().pos[num]);
 
     // whiizz above head
     if (!whizzed)
@@ -738,7 +738,7 @@ void Bullet<M>::update()
                     (GetBulletParts().pos[num].y > spritePartsPos.y - 350) &&
                     (GetBulletParts().pos[num].y < spritePartsPos.y + 100))
                 {
-                    playsound(sfx_bulletby2 + Random(4), GetBulletParts().pos[num]);
+                    playsound(SfxEffect::bulletby2 + Random(4), GetBulletParts().pos[num]);
                     whizzed = true;
                 }
             }
@@ -1294,7 +1294,7 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                                 {
                                     const auto &spritePartsPos =
                                         SpriteSystem::Get().GetSpritePartsPos(num);
-                                    playsound(sfx_grenade_bounce, spritePartsPos);
+                                    playsound(SfxEffect::grenade_bounce, spritePartsPos);
                                 }
 #endif
 
@@ -1681,12 +1681,12 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                             if (SpriteSystem::Get().GetSprite(j).vest < 1)
                             {
                                 if (!SpriteSystem::Get().GetSprite(j).deadmeat)
-                                    playsound(sfx_hit_arg + Random(3), GetBulletParts().pos[num]);
+                                    playsound(SfxEffect::hit_arg + Random(3), GetBulletParts().pos[num]);
                                 else
-                                    playsound(sfx_dead_hit, GetBulletParts().pos[num]);
+                                    playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
                             }
                             else
-                                playsound(sfx_vesthit, GetBulletParts().pos[num]);
+                                playsound(SfxEffect::vesthit, GetBulletParts().pos[num]);
 #endif
 
                             // Head, torso or leg hitbox modifier
@@ -1798,13 +1798,13 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                 if (SpriteSystem::Get().GetSprite(j).vest < 1)
                                 {
                                     if (!SpriteSystem::Get().GetSprite(j).deadmeat)
-                                        playsound(sfx_hit_arg + Random(3),
+                                        playsound(SfxEffect::hit_arg + Random(3),
                                                   GetBulletParts().pos[num]);
                                     else
-                                        playsound(sfx_dead_hit, GetBulletParts().pos[num]);
+                                        playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
                                 }
                                 else
-                                    playsound(sfx_vesthit, GetBulletParts().pos[num]);
+                                    playsound(SfxEffect::vesthit, GetBulletParts().pos[num]);
 #endif
 
 #ifdef SERVER
@@ -1978,13 +1978,13 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                 if (SpriteSystem::Get().GetSprite(j).vest < 1)
                                 {
                                     if (!SpriteSystem::Get().GetSprite(j).deadmeat)
-                                        playsound(sfx_hit_arg + Random(3),
+                                        playsound(SfxEffect::hit_arg + Random(3),
                                                   GetBulletParts().pos[num]);
                                     else
-                                        playsound(sfx_dead_hit, GetBulletParts().pos[num]);
+                                        playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
                                 }
                                 else
-                                    playsound(sfx_vesthit, GetBulletParts().pos[num]);
+                                    playsound(SfxEffect::vesthit, GetBulletParts().pos[num]);
                             }
 #endif
 
@@ -2216,7 +2216,7 @@ tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
 #endif
 
 #ifndef SERVER
-                    playsound(sfx_colliderhit, GetBulletParts().pos[num]);
+                    playsound(SfxEffect::colliderhit, GetBulletParts().pos[num]);
 #endif
 
                     hit(hit_type_wall);
@@ -2312,7 +2312,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 
         if (timeout < bullet_timeout - 5)
         {
-            playsound(sfx_ric + Random(4), GetBulletParts().pos[num]);
+            playsound(SfxEffect::ric + Random(4), GetBulletParts().pos[num]);
         }
 #endif
     }
@@ -2373,7 +2373,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
             createspark(GetBulletParts().pos[num], a, 54, owner, smoke_anims * 4 + 10);
 
         createspark(GetBulletParts().pos[num], a, 12, owner, explosion_anims * 3);
-        playsound(sfx_m79_explosion, GetBulletParts().pos[num]);
+        playsound(SfxEffect::m79_explosion, GetBulletParts().pos[num]);
 #endif
 
         explosionhit(hit_type_explode, spritehit, where);
@@ -2391,7 +2391,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
             createspark(GetBulletParts().pos[num], a, 54, owner, smoke_anims * 4 + 10);
 
         createspark(GetBulletParts().pos[num], a, 17, owner, explosion_anims * 3);
-        playsound(sfx_grenade_explosion, GetBulletParts().pos[num]);
+        playsound(SfxEffect::grenade_explosion, GetBulletParts().pos[num]);
 #endif
 
         explosionhit(hit_type_fragnade, spritehit, where);
@@ -2406,7 +2406,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
         vec2scale(b, b, 0.4 + (float)(Random(4)) / 10);
         createspark(a, b, 1, owner, 70);
 
-        playsound(sfx_bodyfall, GetBulletParts().pos[num]);
+        playsound(SfxEffect::bodyfall, GetBulletParts().pos[num]);
 #endif
     }
     break;
@@ -2417,7 +2417,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
         b.y = 0;
         createspark(GetBulletParts().pos[num], b, 29, owner, 55);
 
-        playsound(sfx_clustergrenade, GetBulletParts().pos[num]);
+        playsound(SfxEffect::clustergrenade, GetBulletParts().pos[num]);
 #endif
 
         a = vec2subtract(GetBulletParts().pos[num], GetBulletParts().velocity[num]);
@@ -2438,7 +2438,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 #ifndef SERVER
         a = vector2(0.0, 0.0);
         createspark(GetBulletParts().pos[num], a, 28, owner, explosion_anims * 3);
-        playsound(sfx_cluster_explosion, GetBulletParts().pos[num]);
+        playsound(SfxEffect::cluster_explosion, GetBulletParts().pos[num]);
 #endif
 
         explosionhit(hit_type_cluster, spritehit, where);
@@ -2449,7 +2449,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 #ifndef SERVER
         a = vector2(0.0, 0.0);
         createspark(GetBulletParts().pos[num], a, 29, owner, 55);
-        playsound(sfx_m2explode, GetBulletParts().pos[num]);
+        playsound(SfxEffect::m2explode, GetBulletParts().pos[num]);
 #endif
 
         explosionhit(hit_type_flak, spritehit, where);
@@ -2513,7 +2513,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
         b.y = (-3.0 + (float)(Random(60)) / 10.0);
         createspark(a, b, 27, owner, 35);
 
-        playsound(sfx_ric5 + Random(3), GetBulletParts().pos[num]);
+        playsound(SfxEffect::ric5 + Random(3), GetBulletParts().pos[num]);
     }
     break;
 #endif
@@ -2629,7 +2629,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
 #ifndef SERVER
                 createspark(spritePartsPos, vector2(0, -0.01), 5, owner, 80);
-                playsound(sfx_explosion_erg, spritePartsPos);
+                playsound(SfxEffect::explosion_erg, spritePartsPos);
 #endif
 
                 // collision respond
@@ -2774,7 +2774,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
                 if (distance(GetBulletParts().pos[num], spritePartsPos) < grenadeeffect_dist)
                 {
                     grenadeeffecttimer = 320;
-                    playsound(sfx_hum);
+                    playsound(SfxEffect::hum);
                 }
             }
         }

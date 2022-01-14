@@ -460,7 +460,7 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
         }
 
         if (result)
-            playsound(sfx_menuclick);
+            playsound(SfxEffect::menuclick);
     }
     return result;
 }

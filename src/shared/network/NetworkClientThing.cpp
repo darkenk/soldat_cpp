@@ -313,7 +313,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     case object_bravo_flag:
     case object_pointmatch_flag: {
         // capture sound
-        playsound(sfx_capture, thing.skeleton.pos[1]);
+        playsound(SfxEffect::capture, thing.skeleton.pos[1]);
         thing.holdingsprite = thingtakensnap->who;
         thing.statictype = false;
 
@@ -440,7 +440,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     }
     break;
     case object_rambo_bow: {
-        playsound(sfx_takebow, thing.skeleton.pos[1]);
+        playsound(SfxEffect::takebow, thing.skeleton.pos[1]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(bow_num, 1, 1);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(bow2_num, 2, 1);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.ammocount = 1;
@@ -461,13 +461,13 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     }
     break;
     case object_medical_kit: {
-        playsound(sfx_takemedikit, thing.skeleton.pos[1]);
+        playsound(SfxEffect::takemedikit, thing.skeleton.pos[1]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).SetHealth(starthealth);
         thing.kill();
     }
     break;
     case object_grenade_kit: {
-        playsound(sfx_pickupgun, thing.skeleton.pos[1]);
+        playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).SetThirdWeapon(guns[fraggrenade]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon.ammocount =
             CVar::sv_maxgrenades;
@@ -475,7 +475,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     }
     break;
     case object_flamer_kit: {
-        playsound(sfx_godflame, thing.skeleton.pos[1]);
+        playsound(SfxEffect::godflame, thing.skeleton.pos[1]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).bonustime = flamerbonustime;
         SpriteSystem::Get().GetSprite(thingtakensnap->who).bonusstyle = bonus_flamegod;
         SpriteSystem::Get()
@@ -493,7 +493,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     }
     break;
     case object_predator_kit: {
-        playsound(sfx_predator, thing.skeleton.pos[1]);
+        playsound(SfxEffect::predator, thing.skeleton.pos[1]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).alpha = predatoralpha;
         SpriteSystem::Get().GetSprite(thingtakensnap->who).bonustime = predatorbonustime;
         SpriteSystem::Get().GetSprite(thingtakensnap->who).bonusstyle = bonus_predator;
@@ -503,7 +503,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     }
     break;
     case object_vest_kit: {
-        playsound(sfx_vesttake, thing.skeleton.pos[1]);
+        playsound(SfxEffect::vesttake, thing.skeleton.pos[1]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).vest = defaultvest;
         if (thingtakensnap->who == mysprite)
             bigmessage(_("Bulletproof Vest!"), capturemessagewait, capture_message_color);
@@ -511,7 +511,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     }
     break;
     case object_berserk_kit: {
-        playsound(sfx_berserker, thing.skeleton.pos[1]);
+        playsound(SfxEffect::berserker, thing.skeleton.pos[1]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).bonusstyle = bonus_berserker;
         SpriteSystem::Get().GetSprite(thingtakensnap->who).bonustime = berserkerbonustime;
         if (thingtakensnap->who == mysprite)
@@ -520,7 +520,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     }
     break;
     case object_cluster_kit: {
-        playsound(sfx_pickupgun, thing.skeleton.pos[1]);
+        playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).SetThirdWeapon(guns[clustergrenade]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon.ammocount =
             cluster_grenades;
@@ -546,7 +546,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
         thing.statictype = true;
         SpriteSystem::Get().GetSprite(thingtakensnap->who).stat = i;
         const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(thingtakensnap->who);
-        playsound(sfx_m2use, spritePartsPos);
+        playsound(SfxEffect::m2use, spritePartsPos);
     }
     break;
     }
@@ -554,7 +554,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     if (((thing.style > object_pointmatch_flag) && (thing.style < object_rambo_bow)) ||
         ((thing.style > object_parachute) && (thing.style < object_stationary_gun)))
     {
-        playsound(sfx_pickupgun, thing.skeleton.pos[1]);
+        playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
         SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.fireintervalprev =
             SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.fireinterval;
         SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.fireintervalcount =

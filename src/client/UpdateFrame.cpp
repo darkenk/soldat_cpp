@@ -280,7 +280,7 @@ void update_frame()
                                                      (inttostr(timelimitcounter / 60)) + ' ' +
                                                      _("seconds"),
                                                  game_message_color);
-                        playsound(sfx_signal);
+                        playsound(SfxEffect::signal);
                     }
                 }
             }
@@ -292,7 +292,7 @@ void update_frame()
                                                  (inttostr(timelimitcounter / 60)) + ' ' +
                                                  _("seconds"),
                                              game_message_color);
-                    playsound(sfx_signal);
+                    playsound(SfxEffect::signal);
                 }
             }
             else if (timelimitcounter < 18001)
@@ -303,7 +303,7 @@ void update_frame()
                                                  (inttostr(timelimitcounter / 3600)) + ' ' +
                                                  _("minutes"),
                                              game_message_color);
-                    playsound(sfx_signal);
+                    playsound(SfxEffect::signal);
                 }
             }
             else if (timelimitcounter % 18000 == 0)
@@ -312,7 +312,7 @@ void update_frame()
                                              (inttostr(timelimitcounter / 3600)) + ' ' +
                                              _("minutes"),
                                          game_message_color);
-                playsound(sfx_signal);
+                playsound(SfxEffect::signal);
             }
         }
 

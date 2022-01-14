@@ -43,7 +43,7 @@ void makerain()
         }
     }
 
-    playsound(sfx_wind, channel_weather);
+    playsound(SfxEffect::wind, channel_weather);
 }
 
 // Backgorund animation and sound for sandstorm
@@ -74,7 +74,7 @@ void makesandstorm()
         }
     }
 
-    playsound(sfx_wind, channel_weather);
+    playsound(SfxEffect::wind, channel_weather);
 }
 
 // Backgorund animation and sound for snow
@@ -105,5 +105,5 @@ void makesnow()
         }
     }
 
-    playsound(sfx_wind, channel_weather);
+    playsound(SfxEffect::wind, channel_weather);
 }

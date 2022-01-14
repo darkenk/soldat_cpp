@@ -47,31 +47,31 @@ void playradiosound(std::uint8_t RadioID)
     switch (RadioID)
     {
     case 11:
-        playsound(Constants::SFX_RADIO_EFCUP, spritePartsPos);
+        playsound(SfxEffect::radio_efcup, spritePartsPos);
         break;
     case 12:
-        playsound(Constants::SFX_RADIO_EFCMID, spritePartsPos);
+        playsound(SfxEffect::radio_efcmid, spritePartsPos);
         break;
     case 13:
-        playsound(Constants::SFX_RADIO_EFCDOWN, spritePartsPos);
+        playsound(SfxEffect::radio_efcdown, spritePartsPos);
         break;
     case 21:
-        playsound(Constants::SFX_RADIO_FFCUP, spritePartsPos);
+        playsound(SfxEffect::radio_ffcup, spritePartsPos);
         break;
     case 22:
-        playsound(Constants::SFX_RADIO_FFCMID, spritePartsPos);
+        playsound(SfxEffect::radio_ffcmid, spritePartsPos);
         break;
     case 23:
-        playsound(Constants::SFX_RADIO_FFCDOWN, spritePartsPos);
+        playsound(SfxEffect::radio_ffcdown, spritePartsPos);
         break;
     case 31:
-        playsound(Constants::SFX_RADIO_ESUP, spritePartsPos);
+        playsound(SfxEffect::radio_esup, spritePartsPos);
         break;
     case 32:
-        playsound(Constants::SFX_RADIO_ESMID, spritePartsPos);
+        playsound(SfxEffect::radio_esmid, spritePartsPos);
         break;
     case 33:
-        playsound(Constants::SFX_RADIO_ESDOWN, spritePartsPos);
+        playsound(SfxEffect::radio_esdown, spritePartsPos);
         break;
     }
 }
@@ -331,8 +331,7 @@ bool checkweaponnotallowed(std::uint8_t i)
          (CVar::sv_gamemode != gamestyle_rambo)) or
         ((SpriteSystem::Get().GetSprite(i).weapon.num == bow2_num) and
          (CVar::sv_gamemode != gamestyle_rambo)) or
-        ((SpriteSystem::Get().GetSprite(i).weapon.num == flamer_num) and
-         (CVar::sv_bonus_flamer)))
+        ((SpriteSystem::Get().GetSprite(i).weapon.num == flamer_num) and (CVar::sv_bonus_flamer)))
     {
         return Result;
     }

@@ -451,7 +451,7 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
         if (!limbolock)
             gamemenushow(limbomenu);
         menutimer = menu_time;
-        playsound(sfx_playerdeath);
+        playsound(SfxEffect::playerdeath);
     }
 
     if (deathsnap->killer == mysprite)
@@ -760,7 +760,7 @@ void clienthandledelta_helmet(SteamNetworkingMessage_t *netmessage)
     if (deltahelmet->wearhelmet == 0)
     {
         createspark(SpriteSystem::Get().GetSprite(i).skeleton.pos[12], spriteVelocity, 6, i, 198);
-        playsound(sfx_headchop, SpriteSystem::Get().GetSprite(i).skeleton.pos[12]);
+        playsound(SfxEffect::headchop, SpriteSystem::Get().GetSprite(i).skeleton.pos[12]);
     }
 
     SpriteSystem::Get().GetSprite(i).wearhelmet = deltahelmet->wearhelmet;

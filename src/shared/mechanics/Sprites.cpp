@@ -268,7 +268,7 @@ void Sprite<M>::update()
     std::int32_t k;
     std::int32_t rnd;
     tvector2 m3, m4;
-    std::int32_t weaponreloadsound;
+    SfxEffect weaponreloadsound;
 #endif
     tvector2 mouseaim, p, m;
     // rotation vars
@@ -618,9 +618,9 @@ void Sprite<M>::update()
                             {
                                 createspark(m4, m3, 36, num, 35);
                                 if (Random(8) == 0)
-                                    playsound(sfx_onfire, spritePartsPos);
+                                    playsound(SfxEffect::onfire, spritePartsPos);
                                 if (Random(2) == 0)
-                                    playsound(sfx_firecrack, spritePartsPos);
+                                    playsound(SfxEffect::firecrack, spritePartsPos);
                             }
                             else if (Random(rnd / 3) == 0)
                                 createspark(m4, m3, 37, num, 75);
@@ -786,29 +786,29 @@ void Sprite<M>::update()
                 {
 
                     if (weapon.num == eagle_num)
-                        weaponreloadsound = sfx_deserteagle_reload;
+                        weaponreloadsound = SfxEffect::deserteagle_reload;
                     else if (weapon.num == mp5_num)
-                        weaponreloadsound = sfx_mp5_reload;
+                        weaponreloadsound = SfxEffect::mp5_reload;
                     else if (weapon.num == ak74_num)
-                        weaponreloadsound = sfx_ak74_reload;
+                        weaponreloadsound = SfxEffect::ak74_reload;
                     else if (weapon.num == steyraug_num)
-                        weaponreloadsound = sfx_steyraug_reload;
+                        weaponreloadsound = SfxEffect::steyraug_reload;
                     else if (weapon.num == ruger77_num)
-                        weaponreloadsound = sfx_ruger77_reload;
+                        weaponreloadsound = SfxEffect::ruger77_reload;
                     else if (weapon.num == m79_num)
-                        weaponreloadsound = sfx_m79_reload;
+                        weaponreloadsound = SfxEffect::m79_reload;
                     else if (weapon.num == barrett_num)
-                        weaponreloadsound = sfx_barretm82_reload;
+                        weaponreloadsound = SfxEffect::barretm82_reload;
                     else if (weapon.num == m249_num)
-                        weaponreloadsound = sfx_m249_reload;
+                        weaponreloadsound = SfxEffect::m249_reload;
                     else if (weapon.num == minigun_num)
-                        weaponreloadsound = sfx_minigun_reload;
+                        weaponreloadsound = SfxEffect::minigun_reload;
                     else if (weapon.num == colt_num)
-                        weaponreloadsound = sfx_colt1911_reload;
+                        weaponreloadsound = SfxEffect::colt1911_reload;
                     else
-                        weaponreloadsound = -1;
+                        weaponreloadsound = SfxEffect::INVALID;
 
-                    if (weaponreloadsound != -1)
+                    if (weaponreloadsound != SfxEffect::INVALID)
                         playsound(weaponreloadsound, spritePartsPos, reloadsoundchannel);
                 }
 
@@ -936,16 +936,16 @@ void Sprite<M>::update()
                         m4.y = -0.25;
                         createspark(m3, m4, 1, num, 20);
                         if (weapon.ammocount == 0)
-                            playsound(sfx_chainsaw_o, spritePartsPos, gattlingsoundchannel);
+                            playsound(SfxEffect::chainsaw_o, spritePartsPos, gattlingsoundchannel);
                         else
-                            playsound(sfx_chainsaw_m, spritePartsPos, defaultchannel);
+                            playsound(SfxEffect::chainsaw_m, spritePartsPos, defaultchannel);
                     }
                 }
 
                 if (control.fire)
                 {
                     if (weapon.ammocount > 0)
-                        playsound(sfx_chainsaw_r, spritePartsPos, gattlingsoundchannel);
+                        playsound(SfxEffect::chainsaw_r, spritePartsPos, gattlingsoundchannel);
                 }
             }
 
@@ -1108,7 +1108,7 @@ void Sprite<M>::update()
                             m4.x = 0;
                             m4.y = -0.69;
                             createspark(m3, m4, 31, num, 55);
-                            playsound(sfx_smoke, spritePartsPos);
+                            playsound(SfxEffect::smoke, spritePartsPos);
                             if (Random(2) == 0)
                             {
                                 m3 = skeleton.pos[9];
@@ -1844,7 +1844,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
         // the sound of death...
         if (!deadmeat)
-            playsound(sfx_death + Random(3), spritePartsPos);
+            playsound(SfxEffect::death + Random(3), spritePartsPos);
 #endif
     }
     break;
@@ -1887,16 +1887,16 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
                 if (bullet[what].ownerweapon == barrett_num)
                     // corpse explode
-                    playsound(sfx_bryzg, skeleton.pos[12]);
+                    playsound(SfxEffect::bryzg, skeleton.pos[12]);
 
                 if (who == mysprite)
-                    playsound(sfx_boomheadshot);
+                    playsound(SfxEffect::boomheadshot);
             }
 
         // siup leb!
         if (!deadmeat)
         {
-            playsound(sfx_headchop, skeleton.pos[12]);
+            playsound(SfxEffect::headchop, skeleton.pos[12]);
         }
 #endif
     }
@@ -1916,7 +1916,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
 #ifndef SERVER
         // play bryzg sound!
-        playsound(sfx_bryzg, skeleton.pos[12]);
+        playsound(SfxEffect::bryzg, skeleton.pos[12]);
 #endif
     }
     break;
@@ -1934,14 +1934,14 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             skeleton.constraints[23].active = false;
 
 #ifndef SERVER
-            playsound(sfx_killberserk, skeleton.pos[12]);
+            playsound(SfxEffect::killberserk, skeleton.pos[12]);
 #endif
         }
 
 #ifndef SERVER
     if (!deadmeat && (what > 0))
         if (bullet[what].ownerweapon == flamer_num)
-            playsound(sfx_burn, skeleton.pos[12]);
+            playsound(SfxEffect::burn, skeleton.pos[12]);
 #endif
 
     if (!deadmeat && (hascigar == 10))
@@ -1986,7 +1986,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                         {
                             auto &spritePartsPos =
                                 SpriteSystem::Get().GetSpritePartsPos(sprite.num);
-                            playsound(sfx_roar, spritePartsPos);
+                            playsound(SfxEffect::roar, spritePartsPos);
                         }
                     }
 #endif
@@ -2142,7 +2142,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                             bigmessage(wideformat(_("{} Flag dropped!"), _("Blue")),
                                        capturemessagewait, capture_message_color);
 
-                        playsound(sfx_infilt_point);
+                        playsound(SfxEffect::infilt_point);
                     }
                 }
 #endif
@@ -2575,13 +2575,13 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 #ifndef SERVER
                     if ((fabs(spriteVelocity.y) > 2.2) && (fabs(spriteVelocity.y) < 3.4) &&
                         (polytype != poly_type_bouncy))
-                        playsound(sfx_fall, spritePartsPos);
+                        playsound(SfxEffect::fall, spritePartsPos);
 #endif
 
                     if (fabs(spriteVelocity.y) > 3.5)
                     {
 #ifndef SERVER
-                        playsound(sfx_fall_hard, spritePartsPos);
+                        playsound(SfxEffect::fall_hard, spritePartsPos);
 #endif
 
                         // Hit ground
@@ -2590,7 +2590,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                             {
                                 healthhit(spriteVelocity.y * 5, num, 12, -1, spos);
 #ifndef SERVER
-                                playsound(sfx_fall, spritePartsPos);
+                                playsound(SfxEffect::fall, spritePartsPos);
 #endif
                             }
                     }
@@ -2622,12 +2622,12 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                             }
 
                         if (map.steps == 0)
-                            playsound(sfx_step + Random(4), spritePartsPos);
+                            playsound(SfxEffect::step + Random(4), spritePartsPos);
                         if (map.steps == 1)
-                            playsound(sfx_step5 + Random(4), spritePartsPos);
+                            playsound(SfxEffect::step5 + Random(4), spritePartsPos);
 
                         if (map.weather == 1)
-                            playsound(sfx_water_step, spritePartsPos);
+                            playsound(SfxEffect::water_step, spritePartsPos);
                     }
 
                     // Crouch
@@ -2637,16 +2637,16 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                         (legsanimation.count == 1))
                     {
                         if (Random(2) == 0)
-                            playsound(sfx_crouch_move, spritePartsPos);
+                            playsound(SfxEffect::crouch_move, spritePartsPos);
                         else if (Random(2) == 0)
-                            playsound(sfx_crouch_movel, spritePartsPos);
+                            playsound(SfxEffect::crouch_movel, spritePartsPos);
                     }
 
                     // Prone
                     if ((legsanimation.id == AnimationType::ProneMove) &&
                         (legsanimation.currframe == 8) && (legsanimation.count == 1))
                     {
-                        playsound(sfx_prone_move, spritePartsPos);
+                        playsound(SfxEffect::prone_move, spritePartsPos);
                     }
 
                     if ((fabs(spriteVelocity.x) > 2.4) &&
@@ -2686,7 +2686,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 #ifndef SERVER
                             if (vec2length(perp) > 1)
                             {
-                                playsound(sfx_bounce, spritePartsPos);
+                                playsound(SfxEffect::bounce, spritePartsPos);
                             }
 #endif
                         }
@@ -2909,10 +2909,10 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
                     a = vec2subtract(skeleton.pos[i], skeleton.oldpos[i]);
 
                     if ((fabs(a.y) > 0.8) && (deadcollidecount < 13))
-                        playsound(sfx_bodyfall, skeleton.pos[i]);
+                        playsound(SfxEffect::bodyfall, skeleton.pos[i]);
 
                     if ((fabs(a.y) > 2.1) && (deadcollidecount < 4))
-                        playsound(sfx_bonecrack, skeleton.pos[i]);
+                        playsound(SfxEffect::bonecrack, skeleton.pos[i]);
 #endif
 
                     deadcollidecount += 1;
@@ -2995,9 +2995,9 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 #else
 
                 if (polytype == poly_type_hurts)
-                    playsound(sfx_arg, spritePartsPos);
+                    playsound(SfxEffect::arg, spritePartsPos);
                 else if (polytype == poly_type_lava)
-                    playsound(sfx_lava, spritePartsPos);
+                    playsound(SfxEffect::lava, spritePartsPos);
 #endif
             }
 #ifdef SERVER
@@ -3032,7 +3032,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 #ifdef SERVER
                 healthhit(-2, num, 12, -1, spriteVelocity);
 #else
-                playsound(sfx_regenerate, spritePartsPos);
+                playsound(SfxEffect::regenerate, spritePartsPos);
 #endif
             }
     }
@@ -3061,7 +3061,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 #ifdef SERVER
                 Health = Health - 10;
 #else
-                playsound(sfx_arg, spritePartsPos);
+                playsound(SfxEffect::arg, spritePartsPos);
 #endif
             }
 #ifdef SERVER
@@ -3320,7 +3320,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
 #ifndef SERVER
         auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
         createspark(skeleton.pos[12], spriteVelocity, 6, num, 198);
-        playsound(sfx_headchop, skeleton.pos[where]);
+        playsound(SfxEffect::headchop, skeleton.pos[where]);
 #endif
     }
 
@@ -3474,7 +3474,7 @@ void Sprite<M>::respawn()
         return;
 
     if (num == mysprite)
-        playsound(sfx_wermusic, spritePartsPos);
+        playsound(SfxEffect::wermusic, spritePartsPos);
 #endif
 
 #ifdef SERVER
@@ -3719,7 +3719,7 @@ void Sprite<M>::respawn()
 #ifndef SERVER
     // Spawn sound
     if (num != mysprite)
-        playsound(sfx_spawn, spritePartsPos);
+        playsound(SfxEffect::spawn, spritePartsPos);
 
     // spawn spark
     createspark(spritePartsPos, spriteVelocity, 25, num, 33);
@@ -4185,7 +4185,7 @@ void Sprite<M>::fire()
         a.y = a.y + b.y * 2;
         bn = createbullet(a, b, weapon.num, num, 255, weapon.hitmultiply, true, false);
 #ifndef SERVER
-        playsound(sfx_flamer, spritePartsPos, gattlingsoundchannel);
+        playsound(SfxEffect::flamer, spritePartsPos, gattlingsoundchannel);
 #endif
     }
 
@@ -4273,7 +4273,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_ak74_fire, spritePartsPos);
+            playsound(SfxEffect::ak74_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4295,7 +4295,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_m249_fire, spritePartsPos);
+            playsound(SfxEffect::m249_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4317,7 +4317,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_ruger77_fire, spritePartsPos);
+            playsound(SfxEffect::ruger77_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4339,7 +4339,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_mp5_fire, spritePartsPos);
+            playsound(SfxEffect::mp5_fire, spritePartsPos);
         a.x = skeleton.pos[15].x + 2 - 0.2 * b.x;
         a.y = skeleton.pos[15].y - 2 - 0.2 * b.y;
 #endif
@@ -4363,7 +4363,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_spas12_fire, spritePartsPos);
+            playsound(SfxEffect::spas12_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position != pos_prone) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4378,7 +4378,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_m79_fire, spritePartsPos);
+            playsound(SfxEffect::m79_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position != pos_prone) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4389,7 +4389,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_deserteagle_fire, spritePartsPos);
+            playsound(SfxEffect::deserteagle_fire, spritePartsPos);
         a.x = skeleton.pos[15].x + 3 - 0.17 * b.x;
         a.y = skeleton.pos[15].y - 2 - 0.15 * b.y;
 #endif
@@ -4421,7 +4421,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_steyraug_fire, spritePartsPos);
+            playsound(SfxEffect::steyraug_fire, spritePartsPos);
         if (!col)
             createspark(a, c, 69, num, 255); // shell
 #endif
@@ -4441,7 +4441,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_barretm82_fire, spritePartsPos);
+            playsound(SfxEffect::barretm82_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4456,7 +4456,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_minigun_fire, spritePartsPos);
+            playsound(SfxEffect::minigun_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4471,7 +4471,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_colt1911_fire, spritePartsPos);
+            playsound(SfxEffect::colt1911_fire, spritePartsPos);
         a.x = skeleton.pos[15].x + 2 - 0.2 * b.x;
         a.y = skeleton.pos[15].y - 2 - 0.2 * b.y;
         if (!col)
@@ -4493,7 +4493,7 @@ void Sprite<M>::fire()
     {
 #ifndef SERVER
         if (bonusstyle != bonus_predator)
-            playsound(sfx_bow_fire, spritePartsPos);
+            playsound(SfxEffect::bow_fire, spritePartsPos);
 #endif
         if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
             (bodyanimation.id != AnimationType::GetUp) &&
@@ -4511,7 +4511,7 @@ void Sprite<M>::fire()
     if (weapon.num == law_num)
     {
         if (bonusstyle != bonus_predator)
-            playsound(sfx_law, spritePartsPos);
+            playsound(SfxEffect::law, spritePartsPos);
     }
 
     // smoke from muzzle
@@ -4741,7 +4741,7 @@ void Sprite<M>::throwgrenade()
             b.x = b.x * 0.5;
             b.y = b.y + 0.4;
             createspark(a, b, 30, num, 255); // Pin
-            playsound(sfx_grenade_pullout, a);
+            playsound(SfxEffect::grenade_pullout, a);
         }
     }
 #endif
@@ -4794,7 +4794,7 @@ void Sprite<M>::throwgrenade()
                 if ((num == mysprite) && (guns[fraggrenade].bink < 0))
                     hitspraycounter = calculatebink(hitspraycounter, -guns[fraggrenade].bink);
 
-                playsound(sfx_grenade_throw, a);
+                playsound(SfxEffect::grenade_throw, a);
 #endif
             }
         }

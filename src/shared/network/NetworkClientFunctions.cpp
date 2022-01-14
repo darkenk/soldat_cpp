@@ -227,12 +227,13 @@ void clienthandleplaysound(SteamNetworkingMessage_t *netmessage)
             scriptsamp[i].samp = loadsample((pchar)(moddir + "sfx/" + playsoundmsg->name.data()),
                                             scriptsamp[i].samp);
         }
-#endif
+
         auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
         if (playsoundmsg->emitter.x == 0)
             playsoundmsg->emitter.x = spritePartsPos.x;
         if (playsoundmsg->emitter.y == 0)
             playsoundmsg->emitter.y = spritePartsPos.y;
         playsound(i, playsoundmsg->emitter);
+#endif
     }
 }

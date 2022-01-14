@@ -678,7 +678,7 @@ void Game<M>::changemap()
     if (mysprite > 0)
     {
         auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
-        playsound(sfx_spawn, spritePartsPos);
+        playsound(SfxEffect::spawn, spritePartsPos);
     }
 
 #endif

@@ -16,184 +16,195 @@
 #include <soloud_wav.h>
 #include <string>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 using string = std::string;
 
-PascalArray<tsoundsample, 1, max_samples> samp;
+PascalArray<tsoundsample, 1, ToUint32(SfxEffect::COUNT)> samp;
 std::vector<tscriptsound> scriptsamp;
 float volumeinternal = 0.5f;
 std::int32_t defaultchannel = -1;
 
 static std::string_view AUDIO = "audio";
 
-[[deprecated("indexing from 1")]] const std::array<string, max_samples + 1> sample_files = {
-    {"",
-     "ak74-fire.wav",
-     "rocketz.wav",
-     "ak74-reload.wav",
-     "", // empty.wav - no longer used
-     "m249-fire.wav",
-     "ruger77-fire.wav",
-     "ruger77-reload.wav",
-     "m249-reload.wav",
-     "mp5-fire.wav",
-     "mp5-reload.wav",
-     "spas12-fire.wav",
-     "spas12-reload.wav",
-     "standup.wav",
-     "fall.wav",
-     "spawn.wav",
-     "m79-fire.wav",
-     "m79-explosion.wav",
-     "m79-reload.wav",
-     "grenade-throw.wav",
-     "grenade-explosion.wav",
-     "grenade-bounce.wav",
-     "bryzg.wav",
-     "infiltmus.wav",
-     "headchop.wav",
-     "explosion-erg.wav",
-     "water-step.wav",
-     "bulletby.wav",
-     "bodyfall.wav",
-     "deserteagle-fire.wav",
-     "deserteagle-reload.wav",
-     "steyraug-fire.wav",
-     "steyraug-reload.wav",
-     "barretm82-fire.wav",
-     "barretm82-reload.wav",
-     "minigun-fire.wav",
-     "minigun-reload.wav",
-     "minigun-start.wav",
-     "minigun-end.wav",
-     "pickupgun.wav",
-     "capture.wav",
-     "colt1911-fire.wav",
-     "colt1911-reload.wav",
-     "changeweapon.wav",
-     "shell.wav",
-     "shell2.wav",
-     "dead-hit.wav",
-     "throwgun.wav",
-     "bow-fire.wav",
-     "takebow.wav",
-     "takemedikit.wav",
-     "wermusic.wav",
-     "ts.wav",
-     "ctf.wav",
-     "berserker.wav",
-     "godflame.wav",
-     "flamer.wav",
-     "predator.wav",
-     "killberserk.wav",
-     "vesthit.wav",
-     "burn.wav",
-     "vesttake.wav",
-     "clustergrenade.wav",
-     "cluster-explosion.wav",
-     "grenade-pullout.wav",
-     "spit.wav",
-     "stuff.wav",
-     "smoke.wav",
-     "match.wav",
-     "roar.wav",
-     "step.wav",
-     "step2.wav",
-     "step3.wav",
-     "step4.wav",
-     "hum.wav",
-     "ric.wav",
-     "ric2.wav",
-     "ric3.wav",
-     "ric4.wav",
-     "dist-m79.wav",
-     "dist-grenade.wav",
-     "dist-gun1.wav",
-     "dist-gun2.wav",
-     "dist-gun3.wav",
-     "dist-gun4.wav",
-     "death.wav",
-     "death2.wav",
-     "death3.wav",
-     "crouch-move.wav",
-     "hit-arg.wav",
-     "hit-arg2.wav",
-     "hit-arg3.wav",
-     "goprone.wav",
-     "roll.wav",
-     "fall-hard.wav",
-     "onfire.wav",
-     "firecrack.wav",
-     "scope.wav",
-     "scopeback.wav",
-     "playerdeath.wav",
-     "changespin.wav",
-     "arg.wav",
-     "lava.wav",
-     "regenerate.wav",
-     "prone-move.wav",
-     "jump.wav",
-     "crouch.wav",
-     "crouch-movel.wav",
-     "step5.wav",
-     "step6.wav",
-     "step7.wav",
-     "step8.wav",
-     "stop.wav",
-     "bulletby2.wav",
-     "bulletby3.wav",
-     "bulletby4.wav",
-     "bulletby5.wav",
-     "weaponhit.wav",
-     "clipfall.wav",
-     "bonecrack.wav",
-     "gaugeshell.wav",
-     "colliderhit.wav",
-     "kit-fall.wav",
-     "kit-fall2.wav",
-     "flag.wav",
-     "flag2.wav",
-     "takegun.wav",
-     "infilt-point.wav",
-     "menuclick.wav",
-     "knife.wav",
-     "slash.wav",
-     "chainsaw-d.wav",
-     "chainsaw-m.wav",
-     "chainsaw-r.wav",
-     "piss.wav",
-     "law.wav",
-     "chainsaw-o.wav",
-     "m2fire.wav",
-     "m2explode.wav",
-     "m2overheat.wav",
-     "signal.wav",
-     "m2use.wav",
-     "scoperun.wav",
-     "mercy.wav",
-     "ric5.wav",
-     "ric6.wav",
-     "ric7.wav",
-     "law-start.wav",
-     "law-end.wav",
-     "boomheadshot.wav",
-     "snapshot.wav",
-     "radio/efcup.wav",
-     "radio/efcmid.wav",
-     "radio/efcdown.wav",
-     "radio/ffcup.wav",
-     "radio/ffcmid.wav",
-     "radio/ffcdown.wav",
-     "radio/esup.wav",
-     "radio/esmid.wav",
-     "radio/esdown.wav",
-     "bounce.wav",
-     "sfx_rain.wav",
-     "sfx_snow.wav",
-     "sfx_wind.wav"}};
+constexpr void Add(std::array<std::string_view, ToUint32(SfxEffect::COUNT)> &ref, SfxEffect sample,
+                   std::string_view name)
+{
+    auto &s = ref[ToUint32(sample)];
+    if (not s.empty())
+    {
+        throw std::runtime_error("Exists " + std::string(name));
+    }
+    s = name;
+}
+
+constexpr std::array<std::string_view, ToUint32(SfxEffect::COUNT)> GenerateSampleFileNames()
+{
+    std::array<std::string_view, ToUint32(SfxEffect::COUNT)> ref;
+    Add(ref, SfxEffect::ak74_fire, "ak74-fire.wav");
+    Add(ref, SfxEffect::rocketz, "rocketz.wav");
+    Add(ref, SfxEffect::ak74_reload, "ak74-reload.wav");
+    Add(ref, SfxEffect::m249_fire, "m249-fire.wav");
+    Add(ref, SfxEffect::ruger77_fire, "ruger77-fire.wav");
+    Add(ref, SfxEffect::ruger77_reload, "ruger77-reload.wav");
+    Add(ref, SfxEffect::m249_reload, "m249-reload.wav");
+    Add(ref, SfxEffect::mp5_fire, "mp5-fire.wav");
+    Add(ref, SfxEffect::mp5_reload, "mp5-reload.wav");
+    Add(ref, SfxEffect::spas12_fire, "spas12-fire.wav");
+    Add(ref, SfxEffect::spas12_reload, "spas12-reload.wav");
+    Add(ref, SfxEffect::standup, "standup.wav");
+    Add(ref, SfxEffect::fall, "fall.wav");
+    Add(ref, SfxEffect::spawn, "spawn.wav");
+    Add(ref, SfxEffect::m79_fire, "m79-fire.wav");
+    Add(ref, SfxEffect::m79_explosion, "m79-explosion.wav");
+    Add(ref, SfxEffect::m79_reload, "m79-reload.wav");
+    Add(ref, SfxEffect::grenade_throw, "grenade-throw.wav");
+    Add(ref, SfxEffect::grenade_explosion, "grenade-explosion.wav");
+    Add(ref, SfxEffect::grenade_bounce, "grenade-bounce.wav");
+    Add(ref, SfxEffect::bryzg, "bryzg.wav");
+    Add(ref, SfxEffect::infiltmus, "infiltmus.wav");
+    Add(ref, SfxEffect::headchop, "headchop.wav");
+    Add(ref, SfxEffect::explosion_erg, "explosion-erg.wav");
+    Add(ref, SfxEffect::water_step, "water-step.wav");
+    Add(ref, SfxEffect::bulletby, "bulletby.wav");
+    Add(ref, SfxEffect::bodyfall, "bodyfall.wav");
+    Add(ref, SfxEffect::deserteagle_fire, "deserteagle-fire.wav");
+    Add(ref, SfxEffect::deserteagle_reload, "deserteagle-reload.wav");
+    Add(ref, SfxEffect::steyraug_fire, "steyraug-fire.wav");
+    Add(ref, SfxEffect::steyraug_reload, "steyraug-reload.wav");
+    Add(ref, SfxEffect::barretm82_fire, "barretm82-fire.wav");
+    Add(ref, SfxEffect::barretm82_reload, "barretm82-reload.wav");
+    Add(ref, SfxEffect::minigun_fire, "minigun-fire.wav");
+    Add(ref, SfxEffect::minigun_reload, "minigun-reload.wav");
+    Add(ref, SfxEffect::minigun_start, "minigun-start.wav");
+    Add(ref, SfxEffect::minigun_end, "minigun-end.wav");
+    Add(ref, SfxEffect::pickupgun, "pickupgun.wav");
+    Add(ref, SfxEffect::capture, "capture.wav");
+    Add(ref, SfxEffect::colt1911_fire, "colt1911-fire.wav");
+    Add(ref, SfxEffect::colt1911_reload, "colt1911-reload.wav");
+    Add(ref, SfxEffect::changeweapon, "changeweapon.wav");
+    Add(ref, SfxEffect::shell, "shell.wav");
+    Add(ref, SfxEffect::shell2, "shell2.wav");
+    Add(ref, SfxEffect::dead_hit, "dead-hit.wav");
+    Add(ref, SfxEffect::throwgun, "throwgun.wav");
+    Add(ref, SfxEffect::bow_fire, "bow-fire.wav");
+    Add(ref, SfxEffect::takebow, "takebow.wav");
+    Add(ref, SfxEffect::takemedikit, "takemedikit.wav");
+    Add(ref, SfxEffect::wermusic, "wermusic.wav");
+    Add(ref, SfxEffect::ts, "ts.wav");
+    Add(ref, SfxEffect::ctf, "ctf.wav");
+    Add(ref, SfxEffect::berserker, "berserker.wav");
+    Add(ref, SfxEffect::godflame, "godflame.wav");
+    Add(ref, SfxEffect::flamer, "flamer.wav");
+    Add(ref, SfxEffect::predator, "predator.wav");
+    Add(ref, SfxEffect::killberserk, "killberserk.wav");
+    Add(ref, SfxEffect::vesthit, "vesthit.wav");
+    Add(ref, SfxEffect::burn, "burn.wav");
+    Add(ref, SfxEffect::vesttake, "vesttake.wav");
+    Add(ref, SfxEffect::clustergrenade, "clustergrenade.wav");
+    Add(ref, SfxEffect::cluster_explosion, "cluster-explosion.wav");
+    Add(ref, SfxEffect::grenade_pullout, "grenade-pullout.wav");
+    Add(ref, SfxEffect::spit, "spit.wav");
+    Add(ref, SfxEffect::stuff, "stuff.wav");
+    Add(ref, SfxEffect::smoke, "smoke.wav");
+    Add(ref, SfxEffect::match, "match.wav");
+    Add(ref, SfxEffect::roar, "roar.wav");
+    Add(ref, SfxEffect::step, "step.wav");
+    Add(ref, SfxEffect::step2, "step2.wav");
+    Add(ref, SfxEffect::step3, "step3.wav");
+    Add(ref, SfxEffect::step4, "step4.wav");
+    Add(ref, SfxEffect::hum, "hum.wav");
+    Add(ref, SfxEffect::ric, "ric.wav");
+    Add(ref, SfxEffect::ric2, "ric2.wav");
+    Add(ref, SfxEffect::ric3, "ric3.wav");
+    Add(ref, SfxEffect::ric4, "ric4.wav");
+    Add(ref, SfxEffect::dist_m79, "dist-m79.wav");
+    Add(ref, SfxEffect::dist_grenade, "dist-grenade.wav");
+    Add(ref, SfxEffect::dist_gun1, "dist-gun1.wav");
+    Add(ref, SfxEffect::dist_gun2, "dist-gun2.wav");
+    Add(ref, SfxEffect::dist_gun3, "dist-gun3.wav");
+    Add(ref, SfxEffect::dist_gun4, "dist-gun4.wav");
+    Add(ref, SfxEffect::death, "death.wav");
+    Add(ref, SfxEffect::death2, "death2.wav");
+    Add(ref, SfxEffect::death3, "death3.wav");
+    Add(ref, SfxEffect::crouch_move, "crouch-move.wav");
+    Add(ref, SfxEffect::hit_arg, "hit-arg.wav");
+    Add(ref, SfxEffect::hit_arg2, "hit-arg2.wav");
+    Add(ref, SfxEffect::hit_arg3, "hit-arg3.wav");
+    Add(ref, SfxEffect::goprone, "goprone.wav");
+    Add(ref, SfxEffect::roll, "roll.wav");
+    Add(ref, SfxEffect::fall_hard, "fall-hard.wav");
+    Add(ref, SfxEffect::onfire, "onfire.wav");
+    Add(ref, SfxEffect::firecrack, "firecrack.wav");
+    Add(ref, SfxEffect::scope, "scope.wav");
+    Add(ref, SfxEffect::scopeback, "scopeback.wav");
+    Add(ref, SfxEffect::playerdeath, "playerdeath.wav");
+    Add(ref, SfxEffect::changespin, "changespin.wav");
+    Add(ref, SfxEffect::arg, "arg.wav");
+    Add(ref, SfxEffect::lava, "lava.wav");
+    Add(ref, SfxEffect::regenerate, "regenerate.wav");
+    Add(ref, SfxEffect::prone_move, "prone-move.wav");
+    Add(ref, SfxEffect::jump, "jump.wav");
+    Add(ref, SfxEffect::crouch, "crouch.wav");
+    Add(ref, SfxEffect::crouch_movel, "crouch-movel.wav");
+    Add(ref, SfxEffect::step5, "step5.wav");
+    Add(ref, SfxEffect::step6, "step6.wav");
+    Add(ref, SfxEffect::step7, "step7.wav");
+    Add(ref, SfxEffect::step8, "step8.wav");
+    Add(ref, SfxEffect::stop, "stop.wav");
+    Add(ref, SfxEffect::bulletby2, "bulletby2.wav");
+    Add(ref, SfxEffect::bulletby3, "bulletby3.wav");
+    Add(ref, SfxEffect::bulletby4, "bulletby4.wav");
+    Add(ref, SfxEffect::bulletby5, "bulletby5.wav");
+    Add(ref, SfxEffect::weaponhit, "weaponhit.wav");
+    Add(ref, SfxEffect::clipfall, "clipfall.wav");
+    Add(ref, SfxEffect::bonecrack, "bonecrack.wav");
+    Add(ref, SfxEffect::gaugeshell, "gaugeshell.wav");
+    Add(ref, SfxEffect::colliderhit, "colliderhit.wav");
+    Add(ref, SfxEffect::kit_fall, "kit-fall.wav");
+    Add(ref, SfxEffect::kit_fall2, "kit-fall2.wav");
+    Add(ref, SfxEffect::flag, "flag.wav");
+    Add(ref, SfxEffect::flag2, "flag2.wav");
+    Add(ref, SfxEffect::takegun, "takegun.wav");
+    Add(ref, SfxEffect::infilt_point, "infilt-point.wav");
+    Add(ref, SfxEffect::menuclick, "menuclick.wav");
+    Add(ref, SfxEffect::knife, "knife.wav");
+    Add(ref, SfxEffect::slash, "slash.wav");
+    Add(ref, SfxEffect::chainsaw_d, "chainsaw-d.wav");
+    Add(ref, SfxEffect::chainsaw_m, "chainsaw-m.wav");
+    Add(ref, SfxEffect::chainsaw_r, "chainsaw-r.wav");
+    Add(ref, SfxEffect::piss, "piss.wav");
+    Add(ref, SfxEffect::law, "law.wav");
+    Add(ref, SfxEffect::chainsaw_o, "chainsaw-o.wav");
+    Add(ref, SfxEffect::m2fire, "m2fire.wav");
+    Add(ref, SfxEffect::m2explode, "m2explode.wav");
+    Add(ref, SfxEffect::m2overheat, "m2overheat.wav");
+    Add(ref, SfxEffect::signal, "signal.wav");
+    Add(ref, SfxEffect::m2use, "m2use.wav");
+    Add(ref, SfxEffect::scoperun, "scoperun.wav");
+    Add(ref, SfxEffect::mercy, "mercy.wav");
+    Add(ref, SfxEffect::ric5, "ric5.wav");
+    Add(ref, SfxEffect::ric6, "ric6.wav");
+    Add(ref, SfxEffect::ric7, "ric7.wav");
+    Add(ref, SfxEffect::law_start, "law-start.wav");
+    Add(ref, SfxEffect::law_end, "law-end.wav");
+    Add(ref, SfxEffect::boomheadshot, "boomheadshot.wav");
+    Add(ref, SfxEffect::snapshot, "snapshot.wav");
+    Add(ref, SfxEffect::radio_efcup, "radio/efcup.wav");
+    Add(ref, SfxEffect::radio_efcmid, "radio/efcmid.wav");
+    Add(ref, SfxEffect::radio_efcdown, "radio/efcdown.wav");
+    Add(ref, SfxEffect::radio_ffcup, "radio/ffcup.wav");
+    Add(ref, SfxEffect::radio_ffcmid, "radio/ffcmid.wav");
+    Add(ref, SfxEffect::radio_ffcdown, "radio/ffcdown.wav");
+    Add(ref, SfxEffect::radio_esup, "radio/esup.wav");
+    Add(ref, SfxEffect::radio_esmid, "radio/esmid.wav");
+    Add(ref, SfxEffect::radio_esdown, "radio/esdown.wav");
+    Add(ref, SfxEffect::bounce, "bounce.wav");
+    Add(ref, SfxEffect::rain, "SfxEffect::rain.wav");
+    Add(ref, SfxEffect::snow, "SfxEffect::snow.wav");
+    Add(ref, SfxEffect::wind, "SfxEffect::wind.wav");
+    return ref;
+}
+
+constexpr auto sample_files = GenerateSampleFileNames();
 
 class SoundEngine
 {
@@ -257,7 +268,7 @@ class SoundEngine
         Engine.deinit();
     }
 
-    void fplaysound(std::int32_t samplenum, float listenerx, float listenery, float emitterx,
+    void fplaysound(SfxEffect samplenum, float listenerx, float listenery, float emitterx,
                     float emittery, std::int32_t chan)
     {
         float dist;
@@ -265,7 +276,7 @@ class SoundEngine
         std::int32_t i;
         // Pan: Single = 0.0;
 
-        if (!samp[samplenum].loaded)
+        if (!samp[ToUint32(samplenum)].loaded)
             return;
 
         if (camerafollowsprite > 0)
@@ -282,48 +293,65 @@ class SoundEngine
         {
             switch (samplenum)
             {
-            case sfx_m79_explosion:
-                fplaysound(sfx_dist_m79, listenerx, listenery, emitterx, emittery, chan);
+            case SfxEffect::m79_explosion:
+                fplaysound(SfxEffect::dist_m79, listenerx, listenery, emitterx, emittery, chan);
                 break;
-            case sfx_grenade_explosion:
-            case sfx_clustergrenade:
-            case sfx_cluster_explosion:
-                fplaysound(sfx_dist_grenade, listenerx, listenery, emitterx, emittery, chan);
+            case SfxEffect::grenade_explosion:
+            case SfxEffect::clustergrenade:
+            case SfxEffect::cluster_explosion:
+                fplaysound(SfxEffect::dist_grenade, listenerx, listenery, emitterx, emittery, chan);
                 break;
-            case sfx_ak74_fire:
-            case sfx_m249_fire:
-            case sfx_ruger77_fire:
-            case sfx_spas12_fire:
-            case sfx_deserteagle_fire:
-            case sfx_steyraug_fire:
-            case sfx_barretm82_fire:
-            case sfx_minigun_fire:
-            case sfx_colt1911_fire:
-                fplaysound(81 + Random(4), listenerx, listenery, emitterx, emittery, chan);
-                break;
-            case sfx_dist_m79:
-            case sfx_dist_grenade:
-            case sfx_dist_gun1:
-            case sfx_dist_gun2:
-            case sfx_dist_gun3:
-            case sfx_dist_gun4:
+            case SfxEffect::ak74_fire:
+            case SfxEffect::m249_fire:
+            case SfxEffect::ruger77_fire:
+            case SfxEffect::spas12_fire:
+            case SfxEffect::deserteagle_fire:
+            case SfxEffect::steyraug_fire:
+            case SfxEffect::barretm82_fire:
+            case SfxEffect::minigun_fire:
+            case SfxEffect::colt1911_fire: {
+                auto sound = SfxEffect::dist_gun1;
+                switch (Random(4))
+                {
+                case 1:
+                    sound = SfxEffect::dist_gun1;
+                    break;
+                case 2:
+                    sound = SfxEffect::dist_gun2;
+                    break;
+                case 3:
+                    sound = SfxEffect::dist_gun3;
+                    break;
+                }
+
+                fplaysound(sound, listenerx, listenery, emitterx, emittery, chan);
+            }
+            break;
+            case SfxEffect::dist_m79:
+            case SfxEffect::dist_grenade:
+            case SfxEffect::dist_gun1:
+            case SfxEffect::dist_gun2:
+            case SfxEffect::dist_gun3:
+            case SfxEffect::dist_gun4:
                 if (dist > 1)
                     dist = dist - 1;
                 else
                     dist = 1 - 2 * dist;
                 break;
+            default:
+                break;
             }
         }
 
         // decrease volume if grenade effect
-        if ((grenadeeffecttimer > 0) && (samplenum != sfx_hum))
+        if ((grenadeeffecttimer > 0) && (samplenum != SfxEffect::hum))
             dist = (dist + 10) * (grenadeeffecttimer / 7);
 
         if (dist > 1)
             return;
 
-        if ((samplenum == sfx_rocketz) || (samplenum == sfx_chainsaw_r) ||
-            (samplenum == sfx_flamer))
+        if ((samplenum == SfxEffect::rocketz) || (samplenum == SfxEffect::chainsaw_r) ||
+            (samplenum == SfxEffect::flamer))
         {
             looping = true;
         } // loop
@@ -365,7 +393,7 @@ class SoundEngine
                 return;
             }
 
-            sources[chan] = Engine.play3d(*Waves[samplenum],
+            sources[chan] = Engine.play3d(*Waves[ToUint32(samplenum)],
                                           (float)((emitterx - listenerx)) / sound_meterlength,
                                           (float)((emittery - listenery)) / sound_meterlength,
                                           (float)(-sound_panwidth) / sound_meterlength);
@@ -373,8 +401,8 @@ class SoundEngine
             Engine.setVolume(sources[chan], volume);
             Engine.setLooping(sources[chan], looping);
 
-            LogDebug(AUDIO, "Play sound {}; sample num {}; channel {}", sample_files[samplenum],
-                     samplenum, chan);
+            LogDebug(AUDIO, "Play sound {}; sample num {}; channel {}",
+                     sample_files[ToUint32(samplenum)], samplenum, chan);
         }
     }
 
@@ -478,9 +506,10 @@ void loadsounds(string moddir)
     {
         if (sample_files[i] != "")
         {
-            samp[i] = loadsample((sfxpath + sample_files[i]), samp[i]);
+            samp[i] = loadsample((sfxpath + sample_files[i].data()), samp[i]);
             if (!samp[i].loaded)
-                GetMainConsole().console(string("Unable to load file ") + sfxpath + sample_files[i],
+                GetMainConsole().console(string("Unable to load file ") + sfxpath +
+                                             sample_files[i].data(),
                                          debug_message_color);
         }
     }
@@ -491,28 +520,28 @@ void closesound()
     Engine.CloseSound();
 }
 
-void fplaysound(std::int32_t samplenum, float listenerx, float listenery, float emitterx,
+void fplaysound(SfxEffect samplenum, float listenerx, float listenery, float emitterx,
                 float emittery, std::int32_t chan)
 {
     Engine.fplaysound(samplenum, listenerx, listenery, emitterx, emittery, chan);
 }
 
-void playsound(std::int32_t sample)
+void playsound(SfxEffect sample)
 {
     fplaysound(sample, camerax, cameray, camerax, cameray, defaultchannel);
 }
 
-void playsound(std::int32_t sample, std::int32_t channel)
+void playsound(SfxEffect sample, std::int32_t channel)
 {
     fplaysound(sample, camerax, cameray, camerax, cameray, channel);
 }
 
-void playsound(std::int32_t sample, const tvector2 &emitter)
+void playsound(SfxEffect sample, const tvector2 &emitter)
 {
     fplaysound(sample, camerax, cameray, emitter.x, emitter.y, defaultchannel);
 }
 
-void playsound(std::int32_t sample, const tvector2 &emitter, int32_t channel)
+void playsound(SfxEffect sample, const tvector2 &emitter, int32_t channel)
 {
     fplaysound(sample, camerax, cameray, emitter.x, emitter.y, channel);
 }

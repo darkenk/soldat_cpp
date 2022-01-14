@@ -473,7 +473,7 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
     if (pmsg_serverflaginfo(netmessage->m_pData)->style == returnred)
         if (CVar::sv_gamemode == gamestyle_ctf)
         {
-            playsound(sfx_capture);
+            playsound(SfxEffect::capture);
             bigmessage(_("Red Flag returned!"), capturemessagewait, alpha_message_color);
 
             GetMainConsole().console(
@@ -488,7 +488,7 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
     if (pmsg_serverflaginfo(netmessage->m_pData)->style == returnblue)
         if (CVar::sv_gamemode == gamestyle_ctf)
         {
-            playsound(sfx_capture);
+            playsound(SfxEffect::capture);
             bigmessage(_("Blue Flag returned!"), capturemessagewait, alpha_message_color);
 
             GetMainConsole().console(
@@ -512,7 +512,7 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
 
         if (CVar::sv_gamemode == gamestyle_inf)
         {
-            playsound(sfx_infiltmus);
+            playsound(SfxEffect::infiltmus);
 
             // flame it
             for (j = 1; j <= 10; j++)
@@ -527,7 +527,7 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
             }
         }
         else
-            playsound(sfx_ctf);
+            playsound(SfxEffect::ctf);
         if (teamflag[2] > 0)
             things[teamflag[2]].respawn();
 
@@ -547,7 +547,7 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
                             .GetSprite(pmsg_serverflaginfo(netmessage->m_pData)->who)
                             .player->name)),
             bravo_message_color);
-        playsound(sfx_ctf);
+        playsound(SfxEffect::ctf);
         if (teamflag[1] > 0)
             things[teamflag[1]].respawn();
 
