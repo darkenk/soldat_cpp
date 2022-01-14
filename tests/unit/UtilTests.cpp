@@ -50,32 +50,3 @@ TEST(UtilTest, GetSize)
     EXPECT_EQ("2 Mb", getsize(2 * 1024 * 1024));
     EXPECT_EQ("2 Gb", getsize(2 * 1024 * 1024 * 1024LL));
 }
-
-#include "Sound.hpp"
-
-constexpr bool Add(std::array<std::string_view, ToUint32(SfxEffect::COUNT)> &ref, SfxEffect sample,
-                   std::string_view name)
-{
-    // return ref[ToUint32(sample)].empty();
-    //     auto &s = ref[ToUint32(sample)];
-    //     if (s.empty())
-    //     {
-    //         s = name;
-    //         return false;
-    //     }
-    return true;
-}
-
-constexpr std::array<std::string_view, ToUint32(SfxEffect::COUNT)> GenerateSampleFileNames()
-{
-    std::array<std::string_view, ToUint32(SfxEffect::COUNT)> ref;
-    static_assert(Add(ref, SfxEffect::ak74_fire, "ak74-fire.wav"), "f");
-    return ref;
-}
-
-constexpr auto sample_files = GenerateSampleFileNames();
-
-TEST(Sample, GetNiceSample)
-{
-    std::string_view v;
-}
