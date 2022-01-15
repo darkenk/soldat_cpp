@@ -18,7 +18,7 @@
 
 using string = std::string;
 
-PascalArray<tsoundsample, 1, ToUint32(SfxEffect::COUNT)> samp;
+std::array<tsoundsample, ToUint32(SfxEffect::COUNT)> samp;
 std::vector<tscriptsound> scriptsamp;
 float volumeinternal = 0.5f;
 std::int32_t defaultchannel = -1;
@@ -216,7 +216,7 @@ class SoundEngine
         {
             return false;
         }
-        for (auto i = 1; i <= max_samples; i++)
+        for (auto i = 0U; i < ToUint32(SfxEffect::COUNT); i++)
         {
             samp[i].loaded = false;
             samp[i].buffer = i;
@@ -226,7 +226,7 @@ class SoundEngine
         return true;
     }
 
-    tsoundsample LoadSample(const std::string_view &name, tsoundsample samp)
+    tsoundsample LoadSample(const std::string_view &name, const tsoundsample &samp)
     {
         PhysFS_Buffer filebuffer;
 
@@ -261,10 +261,10 @@ class SoundEngine
 
     void CloseSound()
     {
-        for (auto i = Waves.StartIdx(); i <= Waves.EndIdx(); i++)
-        {
-            delete Waves[i];
-        }
+        std::for_each(std::begin(Waves), std::end(Waves), [](auto &w) {
+            delete w;
+            w = nullptr;
+        });
         Engine.deinit();
     }
 
@@ -433,7 +433,7 @@ class SoundEngine
 
   private:
     SoLoud::Soloud Engine;
-    PascalArray<SoLoud::Wav *, 1, max_samples> Waves = {};
+    std::array<SoLoud::Wav *, ToUint32(SfxEffect::COUNT)> Waves = {};
     std::array<SoLoud::handle, max_sources> sources{};
 };
 
@@ -445,7 +445,7 @@ bool initsound()
     return Engine.InitSound();
 }
 
-tsoundsample loadsample(const std::string_view &name, tsoundsample samp)
+tsoundsample loadsample(const std::string_view &name, const tsoundsample &samp)
 {
     return Engine.LoadSample(name, samp);
 }
@@ -486,12 +486,12 @@ std::int8_t soundnametoid(const std::string &name)
   VolumeSetting the volume percentage to scale
   return the volume scaled for internal use
 */
-float scalevolumesetting(std::uint8_t volumesetting)
+float scalevolumesetting(const std::uint8_t volumesetting)
 {
     return (power(1.0404, volumesetting) - 1) / (1.0404 - 1) / 1275;
 }
 
-void loadsounds(string moddir)
+void loadsounds(const string &moddir)
 {
 
     std::string sfxpath;
@@ -502,7 +502,7 @@ void loadsounds(string moddir)
     // Sound effects
     GetMainConsole().console("Loading sound effects", debug_message_color);
 
-    for (i = 1; i < sample_files.size(); i++)
+    for (i = 1U; i < sample_files.size(); i++)
     {
         if (sample_files[i] != "")
         {

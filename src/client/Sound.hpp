@@ -209,7 +209,6 @@ struct tscriptsound
 
 constexpr std::int32_t max_sources = 256;
 constexpr std::int32_t reserved_sources = 128;
-constexpr std::int32_t max_samples = 163;
 constexpr std::int32_t channel_weather = 127;
 
 extern std::vector<tscriptsound> scriptsamp;
@@ -218,9 +217,9 @@ extern std::int32_t defaultchannel;
 
 bool initsound();
 std::int8_t soundnametoid(const std::string &name);
-tsoundsample loadsample(const std::string_view &name, tsoundsample samp);
-float scalevolumesetting(std::uint8_t volumesetting);
-void loadsounds(std::string moddir);
+tsoundsample loadsample(const std::string_view &name, const tsoundsample &samp);
+float scalevolumesetting(const uint8_t volumesetting);
+void loadsounds(const std::string &moddir);
 void closesound();
 void fplaysound(SfxEffect samplenum, float listenerx, float listenery, float emitterx,
                 float emittery, std::int32_t chan);
