@@ -238,7 +238,7 @@ void exittomenu()
 {
     std::int32_t i;
 
-    goalticks = default_goalticks;
+    GS::GetGame().ResetGoalTicks();
 
     // Reset network state and show the status std::string (if any)
     // ShouldRenderFrames := False;

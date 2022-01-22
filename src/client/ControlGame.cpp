@@ -330,7 +330,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
             if (demoplayer.active())
             {
                 result = true;
-                CVar::demo_speed = (iif(goalticks == default_goalticks, 8.0, 1.0));
+                CVar::demo_speed = GS::GetGame().IsDefaultGoalTicks() ? 8.0 : 1.0;
             }
         }
         break;

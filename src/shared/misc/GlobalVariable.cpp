@@ -13,7 +13,6 @@ T &InitGlobalVariable(Args &&...args)
 template <Config::Module M>
 void InitAllGlobalVariables()
 {
-    goalticks = default_goalticks;
     survivalendround = false;
     weaponscleaned = false;
     ceasefiretime = default_ceasefire_time;

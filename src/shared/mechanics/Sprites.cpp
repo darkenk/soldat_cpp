@@ -1439,7 +1439,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     {
         // bullet time
         if (CVar::sv_bullettime)
-            if (goalticks == default_goalticks)
+            if (GS::GetGame().IsDefaultGoalTicks())
             {
                 k = 0;
                 for (auto &sprite : SpriteSystem::Get().GetActiveSprites())

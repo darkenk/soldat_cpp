@@ -88,6 +88,22 @@ class Game : public GlobalSubsystem<Game<M>>
 
     Polymap& GetMap() { return map; }
     twaypoints& GetBotPath() { return botpath; }
+
+    auto GetTickTime() const { return ticktime; }
+    void SetTickTime(const auto time) { ticktime = time; }
+
+    auto GetTickTimeLast() const { return ticktimelast; }
+    void SetTickTimeLast(const auto time) { ticktimelast = time; }
+
+    auto GetGoalTicks() const { return goalticks; }
+    void SetGoalTicks(const auto ticks) { goalticks = ticks; }
+    bool IsDefaultGoalTicks() { return goalticks == default_goalticks; }
+    void ResetGoalTicks() { goalticks = default_goalticks; };
+
+    auto GetBulletTimeTimer() const { return bullettimetimer; }
+    void TickBulletTimeTimer() { if (bullettimetimer > -1) { bullettimetimer -= 1; } }
+    void SetBulletTimeTimer(auto _Bullettimetimer) { bullettimetimer = _Bullettimetimer; }
+
   protected:
     Game();
 
@@ -105,6 +121,11 @@ class Game : public GlobalSubsystem<Game<M>>
     std::string UserDirectory;
     twaypoints botpath;
     Polymap map;
+
+    std::int32_t ticktime;
+    std::int32_t ticktimelast;
+    std::int32_t goalticks = default_goalticks;
+    std::int32_t bullettimetimer;
 
     friend GlobalSubsystem<Game<M>>;
 };

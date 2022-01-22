@@ -40,12 +40,14 @@ void update_frame()
     faeontick;
 #endif
 
+    auto &game = GS::GetGame();
+
     cameraprev.x = camerax;
     cameraprev.y = cameray;
     mouseprev.x = mx;
     mouseprev.y = my;
 
-    auto &map = GS::GetGame().GetMap();
+    auto &map = game.GetMap();
 
     if (mapchangecounter < 0)
     {
@@ -172,7 +174,7 @@ void update_frame()
                              spritePartsPos.x, spritePartsPos.y) < cursorsprite_distance)
                 {
                     cursortext = sprite.player->name;
-                    if (GS::GetGame().isteamgame())
+                    if (game.isteamgame())
                         if (sprite.isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
                         {
                             cursortext =
@@ -190,15 +192,14 @@ void update_frame()
     cursortextlength = length(cursortext);
 
     // bullet timer
-    if (bullettimetimer > -1)
-        bullettimetimer -= 1;
+    game.TickBulletTimeTimer();
 
-    if (bullettimetimer == 0)
+    if (game.GetBulletTimeTimer() == 0)
     {
-        GS::GetGame().togglebullettime(false);
-        bullettimetimer = -1;
+        game.togglebullettime(false);
+        game.TickBulletTimeTimer();
     }
-    else if (bullettimetimer < 1)
+    else if (game.GetBulletTimeTimer() < 1)
     {
         // MapChange counter update
         if ((mapchangecounter > -60) && (mapchangecounter < 99999999))
@@ -207,7 +208,7 @@ void update_frame()
         {
             if (mapchangename != "EXIT*!*")
             {
-                GS::GetGame().changemap();
+                game.changemap();
                 resetweaponstats();
             }
         }
@@ -218,7 +219,7 @@ void update_frame()
             if (CVar::log_enable)
             {
                 if (checkfilesize(GetGameLogFilename()) > max_logfilesize)
-                    newlogfiles(GS::GetGame().GetUserDirectory());
+                    newlogfiles(game.GetUserDirectory());
 
                 writelogfile(GetGameLog(), GetGameLogFilename());
             }

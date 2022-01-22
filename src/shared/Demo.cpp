@@ -432,7 +432,7 @@ void tdemoplayer::position(std::int32_t ticks)
         GetBigConsole().count = 0;
     }
 
-    goalticks = default_goalticks * 20;
+    GS::GetGame().SetGoalTicks(default_goalticks * 20);
 }
 #endif
 

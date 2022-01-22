@@ -403,7 +403,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
 
     if (!demoplayer.active())
     {
-        goalticks = default_goalticks;
+        GS::GetGame().ResetGoalTicks();
         notexts = 0;
     }
 
@@ -519,7 +519,8 @@ void clienthandleunaccepted(SteamNetworkingMessage_t *netmessage)
     else
         text = "";
 
-    addlinetologfile(GetGameLog(), string("*UA ") + inttostr(unacceptedmsg->state), GetGameLogFilename());
+    addlinetologfile(GetGameLog(), string("*UA ") + inttostr(unacceptedmsg->state),
+                     GetGameLogFilename());
 
     switch (unacceptedmsg->state)
     {

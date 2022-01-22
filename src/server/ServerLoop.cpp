@@ -35,7 +35,9 @@ void apponidle()
     float adjust;
 
     // LogTraceG("AppOnIdle");
-    GS::GetGame().number27timing(); // makes the program go and do the timing calculations
+
+    auto &game = GS::GetGame();
+    game.number27timing(); // makes the program go and do the timing calculations
 
     // NET RECEIVE
     GetServerNetwork()->ProcessLoop();
@@ -45,7 +47,8 @@ void apponidle()
         adminserver.processcommands(0);
 #endif
 
-    for (maincontrol = 1; maincontrol <= (ticktime - ticktimelast); maincontrol++)
+    for (maincontrol = 1; maincontrol <= (game.GetTickTime() - game.GetTickTimeLast());
+         maincontrol++)
     { // frame rate independant code
 
         servertickcounter += 1;
@@ -420,15 +423,14 @@ void updateframe()
     }
 
     // bullet timer
-    if (bullettimetimer > -1)
-        bullettimetimer -= 1;
+    GS::GetGame().TickBulletTimeTimer();
 
-    if (bullettimetimer == 0)
+    if (GS::GetGame().GetBulletTimeTimer() == 0)
     {
         GS::GetGame().togglebullettime(false);
-        bullettimetimer = -1;
+        GS::GetGame().TickBulletTimeTimer();
     }
-    else if (bullettimetimer < 1)
+    else if (GS::GetGame().GetBulletTimeTimer() < 1)
     {
         // MapChange counter update
         if ((mapchangecounter > -60) && (mapchangecounter < 99999999))

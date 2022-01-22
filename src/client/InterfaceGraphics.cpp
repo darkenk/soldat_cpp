@@ -1984,8 +1984,8 @@ void renderinterface(float timeelapsed, float width, float height)
     if (mysprite > 0)
         spriteme = &SpriteSystem::Get().GetSprite(mysprite);
 
-    widescreencut = (CVar::sv_bullettime) && (notexts == 0) && (goalticks < default_goalticks) &&
-                    (mapchangecounter < 0);
+    widescreencut = (CVar::sv_bullettime) && (notexts == 0) &&
+                    (GS::GetGame().GetGoalTicks() < default_goalticks) && (mapchangecounter < 0);
 
     // Big messages
     if (notexts == 0)

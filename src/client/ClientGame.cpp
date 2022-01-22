@@ -97,8 +97,8 @@ void resetframetiming()
     if (CVar::r_fpslimit)
         frametiming.mindeltatime = 1.0 / CVar::r_maxfps;
 
-    ticktime = 0;
-    ticktimelast = 0;
+    GS::GetGame().SetTickTime(0);
+    GS::GetGame().SetTickTimeLast(0);
 }
 
 float getcurrenttime()
@@ -229,22 +229,25 @@ void gameloop()
 
     frametiming.fpsaccum = frametiming.fpsaccum + frametime;
 
+    auto &game = GS::GetGame();
+
     frametiming.prevtime = currenttime;
-    ticktimelast = ticktime;
+    game.SetTickTimeLast(game.GetTickTime());
 
     if (frametime > 2)
         frametime = 0;
 
-    dt = (float)(1) / goalticks;
+    dt = (float)(1) / game.GetGoalTicks();
 
     frametiming.accumulator = frametiming.accumulator + frametime;
-    ticktime = ticktime + trunc((float)(frametiming.accumulator) / dt);
+    game.SetTickTime(game.GetTickTime() + trunc((float)(frametiming.accumulator) / dt));
 
-    simtime = (ticktime - ticktimelast) * dt;
+    simtime = (game.GetTickTime() - game.GetTickTimeLast()) * dt;
     frametiming.accumulator = frametiming.accumulator - simtime;
     framepercent = std::fmin(1, std::fmax(0, (float)(frametiming.accumulator) / dt));
 
-    for (maincontrol = 1; maincontrol <= (ticktime - ticktimelast); maincontrol++)
+    for (maincontrol = 1; maincontrol <= (game.GetTickTime() - game.GetTickTimeLast());
+         maincontrol++)
     { // frame rate independant code
         if (!gamepaused)
             frametiming.elapsed = frametiming.elapsed + ((float)(1) / default_goalticks);
