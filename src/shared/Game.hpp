@@ -215,6 +215,47 @@ class Game : public GlobalSubsystem<Game<M>>
         return mapchangetime;
     }
 
+    std::int32_t GetMainTickCounter() const
+    {
+        return maintickcounter;
+    }
+
+    void TickMainTickCounter()
+    {
+        maintickcounter += 1;
+    }
+
+    void ResetMainTickCounter()
+    {
+        maintickcounter = 0;
+    }
+
+    std::int32_t GetPlayersNum() const
+    {
+        return playersnum;
+    }
+
+    void SetPlayersNum(std::int32_t num)
+    {
+        playersnum = num;
+    }
+
+    std::int32_t GetBotsNum() const
+    {
+        return botsnum;
+    }
+
+    std::int32_t GetSpectatorsNum() const
+    {
+        return spectatorsnum;
+    }
+
+
+    std::int32_t GetPlayersTeamNum(std::int32_t idx) const
+    {
+        return playersteamnum[idx];
+    }
+
   protected:
     Game();
 
@@ -254,6 +295,12 @@ class Game : public GlobalSubsystem<Game<M>>
     std::int32_t starthealth = 150;
     std::int32_t timeleftsec;
     std::int32_t timeleftmin;
+
+    std::int32_t maintickcounter;
+    std::int32_t playersnum;
+    std::int32_t botsnum;
+    std::int32_t spectatorsnum;
+    PascalArray<std::int32_t, 1, 4> playersteamnum;
 
     friend GlobalSubsystem<Game<M>>;
 };

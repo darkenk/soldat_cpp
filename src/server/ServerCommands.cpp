@@ -41,7 +41,7 @@ void commandaddbot(std::vector<std::string> &args, std::uint8_t sender)
     if (length(name) < 1)
         return;
 
-    if (playersnum == max_players)
+    if (GS::GetGame().GetPlayersNum() == max_players)
         return;
 
     tempstr = args[0];
@@ -54,7 +54,7 @@ void commandaddbots(std::vector<std::string> &args, std::uint8_t sender)
     if (length(args) == 1)
         return;
 
-    if (playersnum == max_players)
+    if (GS::GetGame().GetPlayersNum() == max_players)
         return;
 
     auto amount = strtointdef(args[1], 2);

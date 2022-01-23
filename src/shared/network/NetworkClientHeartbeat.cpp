@@ -85,7 +85,7 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
 
     if (connection == INTERNET)
     {
-        if ((maintickcounter - heartbeattime) > 350)
+        if ((GS::GetGame().GetMainTickCounter() - heartbeattime) > 350)
         {
             heartbeattimewarnings += 1;
         }
@@ -95,7 +95,7 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
         }
     }
 
-    heartbeattime = maintickcounter;
+    heartbeattime = GS::GetGame().GetMainTickCounter();
 
     GS::GetGame().sortplayers();
 }

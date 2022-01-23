@@ -872,8 +872,10 @@ void Thing<M>::update()
                                 {
                                     teamscore[1] += CVar::sv_inf_redaward - 1;
                                     // penalty
-                                    if (playersteamnum[1] > playersteamnum[2])
-                                        teamscore[1] -= 5 * (playersteamnum[1] - playersteamnum[2]);
+                                    if (GS::GetGame().GetPlayersTeamNum(1) >
+                                        GS::GetGame().GetPlayersTeamNum(2))
+                                        teamscore[1] -= 5 * (GS::GetGame().GetPlayersTeamNum(1) -
+                                                             GS::GetGame().GetPlayersTeamNum(2));
                                     if (teamscore[1] < 0)
                                         teamscore[1] = 0;
 
@@ -2490,7 +2492,7 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
         interest = 0;
 
     if (interest > 0)
-        if (maintickcounter % 8 == 0)
+        if (GS::GetGame().GetMainTickCounter() % 8 == 0)
             interest -= 1;
 
     pos = skeleton.pos[1];
@@ -2533,7 +2535,7 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
 
                     if (sprite.control.fire)
                         if (sprite.legsanimation.id == AnimationType::Stand)
-                            if (maintickcounter % guns[m2].fireinterval == 0)
+                            if (GS::GetGame().GetMainTickCounter() % guns[m2].fireinterval == 0)
                             {
                                 if (sprite.usetime > m2gun_overheat)
                                 {

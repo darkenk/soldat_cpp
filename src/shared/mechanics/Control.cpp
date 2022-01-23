@@ -261,7 +261,7 @@ void controlsprite(tsprite &spritec)
                         {
                             if (!demoplayer.active() or (freecam == 1))
                             {
-                                if (playersnum < 1)
+                                if (GS::GetGame().GetPlayersNum() < 1)
                                     return;
 
                                 i = 0;
@@ -782,7 +782,7 @@ void controlsprite(tsprite &spritec)
                 spritec.dontdrop = true;
                 // Force a snapshot to be sent
                 forceclientspritesnapshotmov = true;
-                lastforceclientspritesnapshotmovtick = maintickcounter;
+                lastforceclientspritesnapshotmovtick = GS::GetGame().GetMainTickCounter();
 #endif
                 b = spritec.getcursoraimdirection();
                 vec2scale(playervelocity, spriteVelocity,
@@ -976,7 +976,7 @@ void controlsprite(tsprite &spritec)
             if (spritec.usetime > m2gun_overheat + 1)
                 spritec.usetime = 0;
             if (spritec.usetime > 0)
-                if (maintickcounter % 8 == 0)
+                if (GS::GetGame().GetMainTickCounter() % 8 == 0)
                     spritec.usetime -= 1;
         }
 
@@ -1471,7 +1471,7 @@ void controlsprite(tsprite &spritec)
                         if (spritec.aimdistcoef > sniperaimdist)
                         {
                             spritec.aimdistcoef = spritec.aimdistcoef - aimdistincr;
-                            if (maintickcounter % 27 == 0)
+                            if (GS::GetGame().GetMainTickCounter() % 27 == 0)
                             {
 #ifndef SERVER
                                 playsound(SfxEffect::scoperun, spritePartsPos);
@@ -1485,7 +1485,7 @@ void controlsprite(tsprite &spritec)
                         if (spritec.aimdistcoef > crouchaimdist)
                         {
                             spritec.aimdistcoef = spritec.aimdistcoef - 2 * aimdistincr;
-                            if (maintickcounter % 27 == 0)
+                            if (GS::GetGame().GetMainTickCounter() % 27 == 0)
                             {
 #ifndef SERVER
                                 playsound(SfxEffect::scoperun, spritePartsPos);
@@ -1507,7 +1507,7 @@ void controlsprite(tsprite &spritec)
                         if (spritec.aimdistcoef == defaultaimdist)
                             playsound(SfxEffect::scope, spritePartsPos);
 #endif
-                        if (maintickcounter % 27 == 0)
+                        if (GS::GetGame().GetMainTickCounter() % 27 == 0)
                         {
 #ifndef SERVER
                             playsound(SfxEffect::scoperun, spritePartsPos);
@@ -1540,7 +1540,7 @@ void controlsprite(tsprite &spritec)
         }
 
         // Check if near collider
-        if (maintickcounter % 10 == 0)
+        if (GS::GetGame().GetMainTickCounter() % 10 == 0)
         {
             spritec.colliderdistance = 255; // not near
 

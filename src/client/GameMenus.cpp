@@ -240,7 +240,7 @@ void gamemenushow(pgamemenu menu, bool show)
         kickmenuindex = 1;
         mapmenu->active = false;
 
-        if (playersnum < 1)
+        if (GS::GetGame().GetPlayersNum() < 1)
             menu = nullptr;
     }
     else if (menu == limbomenu)
@@ -329,7 +329,7 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
         {
             i = kickmenuindex;
 
-            if (playersnum < 1)
+            if (GS::GetGame().GetPlayersNum() < 1)
             {
                 gamemenushow(kickmenu, false);
             }
@@ -373,7 +373,7 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
         }
         else if (menu == mapmenu)
         {
-            if (playersnum < 1)
+            if (GS::GetGame().GetPlayersNum() < 1)
             {
                 gamemenushow(kickmenu, false);
             }

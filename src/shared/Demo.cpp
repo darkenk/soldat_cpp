@@ -233,7 +233,7 @@ void tdemorecorder<M>::saveposition()
     movementmsg.num = mysprite;
     movementmsg.velocity = spriteVelocity;
     movementmsg.pos = spritePartsPos;
-    movementmsg.servertick = maintickcounter;
+    movementmsg.servertick = GS::GetGame().GetMainTickCounter();
 
     encodekeys(SpriteSystem::Get().GetSprite(mysprite), movementmsg.keys16);
 
@@ -345,7 +345,7 @@ void tdemoplayer::processdemo()
         //      Exit;
         //    end;
 
-        if ((fskipto > 0) && (maintickcounter >= fskipto))
+        if ((fskipto > 0) && (GS::GetGame().GetMainTickCounter() >= fskipto))
         {
             fskipto = -1;
             shouldrenderframes = true;
@@ -384,11 +384,11 @@ void tdemoplayer::position(std::int32_t ticks)
     fskipto = ticks;
     shouldrenderframes = false;
 
-    if (fskipto < maintickcounter)
+    if (fskipto < GS::GetGame().GetMainTickCounter())
     {
         fdemofile.seek(sizeof(fdemoheader), tmemorystream<>::sofrombeginning);
 
-        maintickcounter = 0;
+        GS::GetGame().ResetMainTickCounter();
 
         for (i = 1; i <= max_sprites; i++)
             SpriteSystem::Get().GetSprite(i).kill();

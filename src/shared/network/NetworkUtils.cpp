@@ -218,7 +218,7 @@ bool iswronggamepassword(std::string GamePassword)
 // wouldn"t work
 bool isservertotallyfull()
 {
-    return playersnum >= max_players;
+    return GS::GetGame().GetPlayersNum() >= max_players;
 }
 
 // Checks if allowed server slots are taken
@@ -226,7 +226,7 @@ bool isservertotallyfull()
 // admins to join
 bool isserverfull()
 {
-    return ((playersnum - botsnum) >= CVar::sv_maxplayers) or (isservertotallyfull());
+    return ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetBotsNum()) >= CVar::sv_maxplayers) or (isservertotallyfull());
 }
 #endif
 

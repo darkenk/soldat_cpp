@@ -170,7 +170,7 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
 #else
     b.initial = spos;
 #endif
-    b.startuptime = maintickcounter;
+    b.startuptime = GS::GetGame().GetMainTickCounter();
     b.ricochetcount = 0;
 #ifndef SERVER // TODO: Check if this should be used also in server
     b.degradecount = 0;
@@ -227,10 +227,10 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
             else if ((SpriteSystem::Get().GetSprite(sowner).weapon.fireinterval <=
                       fireinterval_net) &&
                      (SpriteSystem::Get().GetSprite(sowner).burstcount == 0) &&
-                     (maintickcounter > lastforceclientspritesnapshotmovtick + fireinterval_net))
+                     (GS::GetGame().GetMainTickCounter() > lastforceclientspritesnapshotmovtick + fireinterval_net))
             {
                 forceclientspritesnapshotmov = true;
-                lastforceclientspritesnapshotmovtick = maintickcounter;
+                lastforceclientspritesnapshotmovtick = GS::GetGame().GetMainTickCounter();
             }
         }
     }
@@ -2095,7 +2095,7 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
                     {
                         if (thingcollisions[i].thingnum == things[j].num)
                         {
-                            if (maintickcounter < thingcollisions[i].cooldownend)
+                            if (GS::GetGame().GetMainTickCounter() < thingcollisions[i].cooldownend)
                             {
                                 skipcollision = true;
                                 break;
@@ -2110,7 +2110,7 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
                     newindex = length(thingcollisions);
                     setlength(thingcollisions, newindex + 1);
                     thingcollisions[newindex] =
-                        thingcollision(things[j].num, maintickcounter + thing_collision_cooldown);
+                        thingcollision(things[j].num, GS::GetGame().GetMainTickCounter() + thing_collision_cooldown);
 
                     // collision respond
                     thingvel = vec2subtract(things[j].skeleton.pos[where],

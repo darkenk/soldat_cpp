@@ -254,7 +254,7 @@ void gameloop()
 
         clienttickcount += 1;
         // Update main tick counter
-        maintickcounter += 1;
+        GS::GetGame().TickMainTickCounter();
 
         if (menutimer > -1)
             menutimer -= 1;
@@ -262,7 +262,7 @@ void gameloop()
         // General game updating
         update_frame();
 
-        if (demorecorder.active() && (maintickcounter % CVar::demo_rate == 0))
+        if (demorecorder.active() && (GS::GetGame().GetMainTickCounter() % CVar::demo_rate == 0))
             demorecorder.saveposition();
 
         if ((game.GetMapchangecounter() < 0) && (escmenu->active))
@@ -275,13 +275,14 @@ void gameloop()
         }
 
         // Radio Cooldown
-        if ((maintickcounter % second == 0) && (radiocooldown > 0) && (CVar::sv_radio))
+        if ((GS::GetGame().GetMainTickCounter() % second == 0) && (radiocooldown > 0) &&
+            (CVar::sv_radio))
             radiocooldown -= 1;
 
         // Packet rate send adjusting
         if (packetadjusting == 1)
         {
-            heavysendersnum = playersnum - spectatorsnum;
+            heavysendersnum = GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum();
 
             if (heavysendersnum < 5)
                 adjust = 0.75;
@@ -301,7 +302,7 @@ void gameloop()
 
             if (noheartbeattime > connectionproblem_time)
             {
-                if (maintickcounter % 120 == 0)
+                if (GS::GetGame().GetMainTickCounter() % 120 == 0)
                 {
                     if (noheartbeattime > disconnection_time)
                     {
@@ -340,14 +341,19 @@ void gameloop()
                 {
                     if (!sprite.deadmeat)
                     {
-                        if ((maintickcounter % (std::int32_t)round(7 * adjust) == 1) &&
-                            (maintickcounter % (std::int32_t)round(5 * adjust) != 0))
+                        if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(7 * adjust) ==
+                             1) &&
+                            (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(5 * adjust) !=
+                             0))
                             clientspritesnapshot();
-                        if ((maintickcounter % (std::int32_t)round(5 * adjust) == 0) ||
+                        if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(5 * adjust) ==
+                             0) ||
                             forceclientspritesnapshotmov)
                             clientspritesnapshotmov();
                     }
-                    else if (maintickcounter % (std::int32_t)round(30 * adjust) == 0)
+                    else if (GS::GetGame().GetMainTickCounter() %
+                                 (std::int32_t)round(30 * adjust) ==
+                             0)
                         clientspritesnapshotdead();
                 }
             }
@@ -355,14 +361,15 @@ void gameloop()
             {
                 if (!sprite.deadmeat)
                 {
-                    if (maintickcounter % (std::int32_t)round(4 * adjust) == 0)
+                    if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(4 * adjust) == 0)
                         clientspritesnapshot();
 
-                    if ((maintickcounter % (std::int32_t)round(3 * adjust) == 0) ||
+                    if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(3 * adjust) ==
+                         0) ||
                         forceclientspritesnapshotmov)
                         clientspritesnapshotmov();
                 }
-                else if (maintickcounter % (std::int32_t)round(15 * adjust) == 0)
+                else if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(15 * adjust) == 0)
                     clientspritesnapshotdead();
             }
 

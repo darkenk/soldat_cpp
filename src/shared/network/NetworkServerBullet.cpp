@@ -209,7 +209,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     if (GS::GetGame().GetMapchangecounter() == 999999999)
         return;
 
-    if (bullettime[p] > maintickcounter)
+    if (bullettime[p] > GS::GetGame().GetMainTickCounter())
         bullettime[p] = 0;
 
     if ((style != bullet_style_fragnade) && (style != bullet_style_punch) &&
@@ -218,7 +218,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     {
         if (SpriteSystem::Get().GetSprite(p).weapon.ammo > 1)
         {
-            if ((maintickcounter - bullettime[p]) <
+            if ((GS::GetGame().GetMainTickCounter() - bullettime[p]) <
                 ((SpriteSystem::Get().GetSprite(p).lastweaponfire) * 0.85))
             {
                 bulletwarningcount[p] += 1;
@@ -231,7 +231,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
 
         if (SpriteSystem::Get().GetSprite(p).weapon.ammo == 1)
         {
-            if ((maintickcounter - bullettime[p]) <
+            if ((GS::GetGame().GetMainTickCounter() - bullettime[p]) <
                 ((SpriteSystem::Get().GetSprite(p).lastweaponreload) * 0.9))
             {
                 bulletwarningcount[p] += 1;
@@ -245,18 +245,18 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
         if (bulletwarningcount[p] > 2)
             return;
 
-        bullettime[p] = maintickcounter;
+        bullettime[p] = GS::GetGame().GetMainTickCounter();
     }
 
-    if (grenadetime[p] > maintickcounter)
+    if (grenadetime[p] > GS::GetGame().GetMainTickCounter())
         grenadetime[p] = 0;
 
     if ((style == bullet_style_fragnade) || (style == bullet_style_clusternade))
     {
-        if (maintickcounter - grenadetime[p] < 6)
+        if (GS::GetGame().GetMainTickCounter() - grenadetime[p] < 6)
             return;
 
-        grenadetime[p] = maintickcounter;
+        grenadetime[p] = GS::GetGame().GetMainTickCounter();
     }
 
     if (style == bullet_style_thrownknife)

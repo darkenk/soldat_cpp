@@ -214,7 +214,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
 #endif
 
     if (isservertotallyfull() ||
-        (((playersnum - botsnum) >= CVar::sv_maxplayers) && (!isremoteadminip(player->ip))))
+        (((GS::GetGame().GetPlayersNum() - GS::GetGame().GetBotsNum()) >= CVar::sv_maxplayers) && (!isremoteadminip(player->ip))))
     {
         serversendunaccepted(player->peer, server_full);
         return;
@@ -303,7 +303,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     }
 
     // enforce spectator limit
-    if ((playerinfomsg->team == team_spectator) && (spectatorsnum >= CVar::sv_maxspectators))
+    if ((playerinfomsg->team == team_spectator) && (GS::GetGame().GetSpectatorsNum() >= CVar::sv_maxspectators))
     {
         if (!isremoteadminip(player->ip))
         {
@@ -512,13 +512,13 @@ void serversendplaylist(HSteamNetConnection peer)
     stringtoarray(playerslist.mapname.data(), map.name);
     playerslist.mapchecksum = mapchecksum;
 
-    playerslist.players = playersnum;
+    playerslist.players = GS::GetGame().GetPlayersNum();
     playerslist.currenttime = GS::GetGame().GetTimelimitcounter();
 
 #ifdef SERVER
     playerslist.serverticks = servertickcounter;
 #else
-    playerslist.serverticks = maintickcounter;
+    playerslist.serverticks = GS::GetGame().GetMainTickCounter();
 #endif
 
 #ifdef ENABLE_FAE
@@ -801,7 +801,7 @@ void serverping(std::uint8_t tonum)
         pingsendcount[tonum] += 1;
     else
         pingsendcount[tonum] = 1;
-    pingtime[tonum][pingsendcount[tonum]] = maintickcounter;
+    pingtime[tonum][pingsendcount[tonum]] = GS::GetGame().GetMainTickCounter();
 
     pingmsg.pingnum = pingsendcount[tonum];
 
@@ -943,7 +943,7 @@ void serverhandlepong(SteamNetworkingMessage_t *netmessage)
         return;
 
     SpriteSystem::Get().GetSprite(i).player->pingticks =
-        maintickcounter - pingtime[i][pongmsg->pingnum];
+        GS::GetGame().GetMainTickCounter() - pingtime[i][pongmsg->pingnum];
     SpriteSystem::Get().GetSprite(i).player->pingtime =
         SpriteSystem::Get().GetSprite(i).player->pingticks * 1000 / 60;
 

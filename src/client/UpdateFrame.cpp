@@ -107,13 +107,13 @@ void update_frame()
                     things[j].update();
         }
 
-        if (maintickcounter % second == 0)
+        if (GS::GetGame().GetMainTickCounter() % second == 0)
             if (screencounter != 255)
                 // TODO: don't rely on underflow
                 screencounter = 0xff & (screencounter - 1);
 
         // Change spectate target away from dead player
-        if (maintickcounter % (second * 5) == 0)
+        if (GS::GetGame().GetMainTickCounter() % (second * 5) == 0)
             if ((camerafollowsprite > 0) &&
                 SpriteSystem::Get().GetSprite(camerafollowsprite).deadmeat and
                 (CVar::sv_realisticmode) && (CVar::sv_survivalmode) && !game.GetSurvivalEndRound())
@@ -217,7 +217,7 @@ void update_frame()
         }
 
         // Game Stats save
-        if ((maintickcounter % CVar::log_filesupdate) == 0)
+        if ((GS::GetGame().GetMainTickCounter() % CVar::log_filesupdate) == 0)
         {
             if (CVar::log_enable)
             {
@@ -228,9 +228,9 @@ void update_frame()
             }
         }
 
-        if (maintickcounter % (second * 6) == 0)
+        if (GS::GetGame().GetMainTickCounter() % (second * 6) == 0)
         {
-            if (playersnum == 0)
+            if (GS::GetGame().GetPlayersNum() == 0)
                 if (game.GetMapchangecounter() > 99999999)
                 {
                     game.SetMapchangecounter(game.GetMapchangecounter() - 60);

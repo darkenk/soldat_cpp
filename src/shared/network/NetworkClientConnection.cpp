@@ -321,7 +321,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     }
 
     // Sync cvars
-    playersnum = playerslistmsg->players;
+    GS::GetGame().SetPlayersNum(playerslistmsg->players);
     GS::GetGame().SetTimelimitcounter(playerslistmsg->currenttime);
 
     b.x = 0;
@@ -408,7 +408,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     }
 
     clientvarsrecieved = false;
-    maintickcounter = 0;
+    GS::GetGame().ResetMainTickCounter();
     clienttickcount = playerslistmsg->serverticks;
     noheartbeattime = 0;
     GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
@@ -452,9 +452,9 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
             if (CVar::sv_balanceteams)
             {
                 selteam = 0;
-                if (playersteamnum[1] < playersteamnum[2])
+                if (GS::GetGame().GetPlayersTeamNum(1) < GS::GetGame().GetPlayersTeamNum(2))
                     selteam = 1;
-                if (playersteamnum[2] < playersteamnum[1])
+                if (GS::GetGame().GetPlayersTeamNum(2) < GS::GetGame().GetPlayersTeamNum(1))
                     selteam = 2;
                 if (selteam > 0)
                     clientsendplayerinfo();

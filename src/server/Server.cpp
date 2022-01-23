@@ -288,7 +288,7 @@ void ActivateServer(int argc, const char *argv[])
 #endif
 
     servertickcounter = 0;
-    maintickcounter = 0;
+    GS::GetGame().ResetMainTickCounter();
 
     // Initialize player dummy objects (cf. DummyPlayer definition for documentation)
     for (auto &s : SpriteSystem::Get().GetSprites())
@@ -672,7 +672,7 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
     LogDebugG("AddBotPlayer");
     std::int8_t Result = 0;
 
-    if (playersnum == max_players)
+    if (GS::GetGame().GetPlayersNum() == max_players)
     {
         GetServerMainConsole().console("Bot cannot be added because server is full",
                                        warning_message_color);

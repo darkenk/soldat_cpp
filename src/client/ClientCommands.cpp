@@ -281,7 +281,7 @@ void commanddemotick(std::vector<std::string> &args, std::uint8_t sender)
     if (args[0] == "demo_tick")
         demoplayer.position(strtointdef(args[1], 0));
     else
-        demoplayer.position(maintickcounter + strtointdef(args[1], 0));
+        demoplayer.position(GS::GetGame().GetMainTickCounter() + strtointdef(args[1], 0));
 }
 
 } // namespace

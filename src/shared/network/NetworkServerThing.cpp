@@ -53,7 +53,7 @@ void serverthingsnapshot(std::uint8_t tonum)
                           thingmsg.oldpos[1].y) > minmovedelta))
                 send = true;
 
-            if (maintickcounter % 2 == 0)
+            if (GS::GetGame().GetMainTickCounter() % 2 == 0)
             {
                 if (thing.style < object_ussocom)
                     send = true;

@@ -255,7 +255,7 @@ void writeconsole(std::uint8_t id, std::string text, uint32 colour)
 
 void updatewaverespawntime()
 {
-    waverespawntime = round(playersnum * waverespawn_time_mulitplier) * 60;
+    waverespawntime = round(GS::GetGame().GetPlayersNum() * waverespawn_time_mulitplier) * 60;
     if (waverespawntime > CVar::sv_respawntime_minwave)
         waverespawntime = CVar::sv_respawntime_maxwave;
     waverespawntime = waverespawntime - CVar::sv_respawntime_minwave;

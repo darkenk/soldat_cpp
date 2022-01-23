@@ -932,7 +932,7 @@ void Sprite<M>::update()
             {
                 if (CVar::r_maxsparks > (max_sparks - 10))
                 {
-                    if (maintickcounter % 15 == 0)
+                    if (GS::GetGame().GetMainTickCounter() % 15 == 0)
                     {
                         m3 = skeleton.pos[9];
                         m3.y = m3.y - 2;
@@ -991,7 +991,7 @@ void Sprite<M>::update()
 #endif
                 if ((jetscount < map.startjet) && !control.jetpack)
                 {
-                    if (onground || (maintickcounter % 2 == 0))
+                    if (onground || (GS::GetGame().GetMainTickCounter() % 2 == 0))
                         jetscount += 1;
                 }
 
@@ -1089,7 +1089,7 @@ void Sprite<M>::update()
             }
 
             // gain health from bow
-            if ((maintickcounter % 3 == 0) &&
+            if ((GS::GetGame().GetMainTickCounter() % 3 == 0) &&
                 ((weapon.num == bow_num) || (weapon.num == bow2_num)) &&
                 (Health < (GS::GetGame().GetStarthealth())))
             {
@@ -1099,7 +1099,7 @@ void Sprite<M>::update()
 #ifndef SERVER
             // smoke
             if (hascigar == 10)
-                if (maintickcounter % 160 == 0)
+                if (GS::GetGame().GetMainTickCounter() % 160 == 0)
                 {
                     {
                         m3 = skeleton.pos[9];
@@ -1133,7 +1133,7 @@ void Sprite<M>::update()
             // winter breath
             if (map.weather == 3)
                 if (CVar::r_maxsparks > (max_sparks - 10))
-                    if (maintickcounter % 160 == 0)
+                    if (GS::GetGame().GetMainTickCounter() % 160 == 0)
                     {
                         {
                             m3 = skeleton.pos[9];
@@ -1834,7 +1834,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             a = vec2subtract(GetBulletParts().pos[what], b.initial);
             shotdistanceServer = (float)(vec2length(a)) / 14;
             shotricochetServer = b.ricochetcount;
-            shotlifeServer = (float)((maintickcounter - b.startuptime)) / 60;
+            shotlifeServer = (float)((GS::GetGame().GetMainTickCounter() - b.startuptime)) / 60;
         }
     }
 
@@ -2968,7 +2968,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
     break;
     case poly_type_regenerates: {
         if (Health < GS::GetGame().GetStarthealth())
-            if (maintickcounter % 12 == 0)
+            if (GS::GetGame().GetMainTickCounter() % 12 == 0)
             {
 #ifdef SERVER
                 healthhit(-2, num, 12, -1, spriteVelocity);
@@ -3484,8 +3484,8 @@ void Sprite<M>::respawn()
     bgstate.backgroundpoly = background_poly_unknown;
 
 #ifdef SERVER
-    bullettime[num] = maintickcounter - 10;
-    grenadetime[num] = maintickcounter - 10;
+    bullettime[num] = GS::GetGame().GetMainTickCounter() - 10;
+    grenadetime[num] = GS::GetGame().GetMainTickCounter() - 10;
     knifecan[num] = true;
 #endif
 
@@ -3829,8 +3829,8 @@ void Sprite<M>::changeteam(std::int32_t team)
         respawn();
 
 #ifdef SERVER
-        bullettime[num] = maintickcounter - 10;
-        grenadetime[num] = maintickcounter - 10;
+        bullettime[num] = GS::GetGame().GetMainTickCounter() - 10;
+        grenadetime[num] = GS::GetGame().GetMainTickCounter() - 10;
         knifecan[num] = true;
 
         if (!player->demoplayer)

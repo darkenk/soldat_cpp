@@ -53,9 +53,11 @@ void apponidle()
 
         servertickcounter += 1;
         // Update main tick counter
-        maintickcounter = maintickcounter + 1;
-        if (maintickcounter == 2147483640)
-            maintickcounter = 0;
+        GS::GetGame().TickMainTickCounter();
+        if (GS::GetGame().GetMainTickCounter() == 2147483640)
+        {
+            GS::GetGame().ResetMainTickCounter();
+        }
 
 #ifdef SCRIPT
         scrptdispatcher.onclocktick(0);
@@ -65,19 +67,19 @@ void apponidle()
         runmanualcallbacks(0);
 #endif
         // Flood Nums Cancel
-        if (maintickcounter % 1000 == 0)
+        if (GS::GetGame().GetMainTickCounter() % 1000 == 0)
         {
             std::fill(std::begin(floodnum), std::end(floodnum), 0);
         }
 
         // clear last admin connect flood list every 3 seconds
-        if (maintickcounter % (second * 3) == 0)
+        if (GS::GetGame().GetMainTickCounter() % (second * 3) == 0)
         {
             std::fill(std::begin(lastadminips), std::end(lastadminips), "");
         }
 
         // Warnings Cancel
-        if (maintickcounter % (minute * 5) == 0)
+        if (GS::GetGame().GetMainTickCounter() % (minute * 5) == 0)
         {
             for (auto &p : pingwarnings)
             {
@@ -95,7 +97,7 @@ void apponidle()
             }
         }
 
-        if (maintickcounter % 1000 == 0)
+        if (GS::GetGame().GetMainTickCounter() % 1000 == 0)
         {
             for (auto &s : SpriteSystem::Get().GetSprites())
             {
@@ -121,12 +123,12 @@ void apponidle()
         LogTraceG("AppOnIdle 2");
 
         // Network updating
-        if (maintickcounter % second == 0)
+        if (GS::GetGame().GetMainTickCounter() % second == 0)
         {
             // Player Ping Warning
             if (GS::GetGame().GetMapchangecounter() < 0)
             {
-                if (maintickcounter % (second * 6) == 0)
+                if (GS::GetGame().GetMainTickCounter() % (second * 6) == 0)
                 {
                     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
                     {
@@ -169,7 +171,7 @@ void apponidle()
             std::fill(std::begin(messagesasecnum), std::end(messagesasecnum), 0);
         }
 
-        if (maintickcounter % (second * 10) == 0)
+        if (GS::GetGame().GetMainTickCounter() % (second * 10) == 0)
         {
             for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
             {
@@ -178,7 +180,7 @@ void apponidle()
         }
 
         // Packet rate send adjusting
-        heavysendersnum = playersnum - spectatorsnum;
+        heavysendersnum = GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum();
 
         if (heavysendersnum < 5)
             adjust = 0.66;
@@ -190,22 +192,22 @@ void apponidle()
         // Send Bundled packets
         if (CVar::net_lan == LAN)
         {
-            if (maintickcounter % (std::int32_t)round(30 * adjust) == 0)
+            if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) == 0)
                 serverspritesnapshot(netw);
 
-            if ((maintickcounter % (std::int32_t)round(15 * adjust) == 0) &&
-                (maintickcounter % (std::int32_t)round(30 * adjust) != 0))
+            if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(15 * adjust) == 0) &&
+                (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) != 0))
                 serverspritesnapshotmajor(netw);
 
-            if (maintickcounter % (std::int32_t)round(20 * adjust) == 0)
+            if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(20 * adjust) == 0)
                 serverskeletonsnapshot(netw);
 
-            if (maintickcounter % (std::int32_t)round(59 * adjust) == 0)
+            if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(59 * adjust) == 0)
                 serverheartbeat();
 
-            if ((maintickcounter % (std::int32_t)round(4 * adjust) == 0) &&
-                (maintickcounter % (std::int32_t)round(30 * adjust) != 0) &&
-                (maintickcounter % (std::int32_t)round(60 * adjust) != 0))
+            if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(4 * adjust) == 0) &&
+                (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) != 0) &&
+                (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(60 * adjust) != 0))
             {
                 for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
                 {
@@ -218,22 +220,38 @@ void apponidle()
         }
         else if (CVar::net_lan == INTERNET)
         {
-            if (maintickcounter % (std::int32_t)round(CVar::net_t1_snapshot * adjust) == 0)
+            if (GS::GetGame().GetMainTickCounter() %
+                    (std::int32_t)round(CVar::net_t1_snapshot * adjust) ==
+                0)
                 serverspritesnapshot(netw);
 
-            if ((maintickcounter % (std::int32_t)round(CVar::net_t1_majorsnapshot * adjust) == 0) &&
-                (maintickcounter % (std::int32_t)round(CVar::net_t1_snapshot * adjust) != 0))
+            if ((GS::GetGame().GetMainTickCounter() %
+                     (std::int32_t)round(CVar::net_t1_majorsnapshot * adjust) ==
+                 0) &&
+                (GS::GetGame().GetMainTickCounter() %
+                     (std::int32_t)round(CVar::net_t1_snapshot * adjust) !=
+                 0))
                 serverspritesnapshotmajor(netw);
 
-            if (maintickcounter % (std::int32_t)round(CVar::net_t1_deadsnapshot * adjust) == 0)
+            if (GS::GetGame().GetMainTickCounter() %
+                    (std::int32_t)round(CVar::net_t1_deadsnapshot * adjust) ==
+                0)
                 serverskeletonsnapshot(netw);
 
-            if (maintickcounter % (std::int32_t)round(CVar::net_t1_heartbeat * adjust) == 0)
+            if (GS::GetGame().GetMainTickCounter() %
+                    (std::int32_t)round(CVar::net_t1_heartbeat * adjust) ==
+                0)
                 serverheartbeat();
 
-            if ((maintickcounter % (std::int32_t)round(CVar::net_t1_delta * adjust) == 0) &&
-                (maintickcounter % (std::int32_t)round(CVar::net_t1_snapshot * adjust) != 0) &&
-                (maintickcounter % (std::int32_t)round(CVar::net_t1_majorsnapshot * adjust) != 0))
+            if ((GS::GetGame().GetMainTickCounter() %
+                     (std::int32_t)round(CVar::net_t1_delta * adjust) ==
+                 0) &&
+                (GS::GetGame().GetMainTickCounter() %
+                     (std::int32_t)round(CVar::net_t1_snapshot * adjust) !=
+                 0) &&
+                (GS::GetGame().GetMainTickCounter() %
+                     (std::int32_t)round(CVar::net_t1_majorsnapshot * adjust) !=
+                 0))
             {
                 for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
                 {
@@ -284,7 +302,7 @@ void apponidle()
                         kickplayer(j, false, kick_ac, 0, "No Anti-Cheat Response");
                         continue;
                     }
-                    else if ((maintickcounter % (second * 3) == 0) and
+                    else if ((GS::GetGame().GetMainTickCounter() % (second * 3) == 0) and
                              (!SpriteSystem::Get().GetSprite(j).player->faeresponsepending))
                     {
                         // Send periodic anti-cheat challenge.
@@ -294,23 +312,25 @@ void apponidle()
                 }
 #endif
 
-                if (maintickcounter % minute == 0)
+                if (GS::GetGame().GetMainTickCounter() % minute == 0)
                     serversyncmsg();
 
                 if (CVar::net_lan == LAN)
                 {
-                    if (maintickcounter % (std::int32_t)round(21 * adjust) == 0)
+                    if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(21 * adjust) == 0)
                         serverping(j);
 
-                    if (maintickcounter % (std::int32_t)round(12 * adjust) == 0)
+                    if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(12 * adjust) == 0)
                         serverthingsnapshot(j);
                 }
                 else if (CVar::net_lan == INTERNET)
                 {
-                    if (maintickcounter % (std::int32_t)round(CVar::net_t1_ping * adjust) == 0)
+                    if (GS::GetGame().GetMainTickCounter() %
+                            (std::int32_t)round(CVar::net_t1_ping * adjust) ==
+                        0)
                         serverping(j);
 
-                    if (maintickcounter %
+                    if (GS::GetGame().GetMainTickCounter() %
                             (std::int32_t)round(CVar::net_t1_thingsnapshot * adjust) ==
                         0)
                         serverthingsnapshot(j);
@@ -387,23 +407,23 @@ void updateframe()
                 }
 
                 if (CVar::sv_bonus_berserker)
-                    if (maintickcounter % bonusfreq == 0)
+                    if (GS::GetGame().GetMainTickCounter() % bonusfreq == 0)
                         if (Random(berserkerbonus_random) == 0)
                             spawnthings(object_berserk_kit, 1);
 
                 j = flamerbonus_random;
                 if (CVar::sv_bonus_flamer)
-                    if (maintickcounter % 444 == 0)
+                    if (GS::GetGame().GetMainTickCounter() % 444 == 0)
                         if (Random(j) == 0)
                             spawnthings(object_flamer_kit, 1);
 
                 if (CVar::sv_bonus_predator)
-                    if (maintickcounter % bonusfreq == 0)
+                    if (GS::GetGame().GetMainTickCounter() % bonusfreq == 0)
                         if (Random(predatorbonus_random) == 0)
                             spawnthings(object_predator_kit, 1);
 
                 if (CVar::sv_bonus_vest)
-                    if (maintickcounter % (bonusfreq / 2) == 0)
+                    if (GS::GetGame().GetMainTickCounter() % (bonusfreq / 2) == 0)
                         if (Random(vestbonus_random) == 0)
                             spawnthings(object_vest_kit, 1);
 
@@ -415,7 +435,7 @@ void updateframe()
                 if (CVar::sv_gamemode == gamestyle_htf)
                     j = round(clusterbonus_random * 0.75);
                 if (CVar::sv_bonus_cluster)
-                    if (maintickcounter % (bonusfreq / 2) == 0)
+                    if (GS::GetGame().GetMainTickCounter() % (bonusfreq / 2) == 0)
                         if (Random(j) == 0)
                             spawnthings(object_cluster_kit, 1);
             }
@@ -441,7 +461,7 @@ void updateframe()
             GS::GetGame().changemap();
 
         // Game Stats save
-        if (maintickcounter % CVar::log_filesupdate == 0)
+        if (GS::GetGame().GetMainTickCounter() % CVar::log_filesupdate == 0)
         {
             if (CVar::log_enable)
             {
@@ -457,7 +477,7 @@ void updateframe()
         }
 
         // Anti-Hack for Mass-Flag Cheat
-        if (maintickcounter % second == 0)
+        if (GS::GetGame().GetMainTickCounter() % second == 0)
         {
             if (CVar::sv_antimassflag)
             {
@@ -493,7 +513,7 @@ void updateframe()
         }
         if (CVar::sv_healthcooldown > 0)
         {
-            if (maintickcounter % (CVar::sv_healthcooldown * second) == 0)
+            if (GS::GetGame().GetMainTickCounter() % (CVar::sv_healthcooldown * second) == 0)
             {
                 for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
                 {
@@ -506,7 +526,7 @@ void updateframe()
         }
 
         // Anti-Chat Flood
-        if (maintickcounter % second == 0)
+        if (GS::GetGame().GetMainTickCounter() % second == 0)
         {
             for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
             {
@@ -522,7 +542,7 @@ void updateframe()
             }
         }
 
-        if (maintickcounter % second == 0)
+        if (GS::GetGame().GetMainTickCounter() % second == 0)
             if ((lastreqip[0] != "") && (lastreqip[0] == lastreqip[1]) &&
                 (lastreqip[1] == lastreqip[2]) && (lastreqip[2] == lastreqip[3]))
             {
@@ -530,14 +550,14 @@ void updateframe()
                 GetServerMainConsole().console(string("Firewalled IP ") + dropip, 0);
             }
 
-        if (maintickcounter % (second * 3) == 0)
+        if (GS::GetGame().GetMainTickCounter() % (second * 3) == 0)
             for (j = 0; j <= 3; j++)
                 lastreqip[j] = ""; // Reset last 4 IP requests in 3 seconds
 
-        if (maintickcounter % (second * 30) == 0)
+        if (GS::GetGame().GetMainTickCounter() % (second * 30) == 0)
             dropip = ""; // Clear temporary firewall IP
 
-        if (maintickcounter % minute == 0)
+        if (GS::GetGame().GetMainTickCounter() % minute == 0)
         {
             NotImplemented(NITag::NETWORK);
 #if 0
@@ -548,13 +568,13 @@ void updateframe()
 
         // *BAN*
         // Ban Timers v2
-        if (maintickcounter % minute == 0)
+        if (GS::GetGame().GetMainTickCounter() % minute == 0)
         {
             updateipbanlist();
             updatehwbanlist();
         }
 
-        if (maintickcounter % minute == 0)
+        if (GS::GetGame().GetMainTickCounter() % minute == 0)
         {
             auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
             std::for_each(std::begin(activeSprites), std::end(activeSprites),
@@ -562,8 +582,8 @@ void updateframe()
         }
 
         // Leftover from old Ban Timers code
-        if (maintickcounter % (second * 10) == 0)
-            if (playersnum == 0)
+        if (GS::GetGame().GetMainTickCounter() % (second * 10) == 0)
+            if (GS::GetGame().GetPlayersNum() == 0)
                 if (GS::GetGame().GetMapchangecounter() > 99999999)
                     GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
@@ -632,31 +652,33 @@ void updateframe()
 
     // Infiltration mode blue team score point
     j = CVar::sv_inf_bluelimit * second;
-    if (playersteamnum[1] < playersteamnum[2])
-        j = CVar::sv_inf_bluelimit * second + 2 * second * (playersteamnum[2] - playersteamnum[1]);
+    if (GS::GetGame().GetPlayersTeamNum(1) < GS::GetGame().GetPlayersTeamNum(2))
+        j = CVar::sv_inf_bluelimit * second +
+            2 * second * (GS::GetGame().GetPlayersTeamNum(2) - GS::GetGame().GetPlayersTeamNum(1));
 
     if (CVar::sv_gamemode == gamestyle_inf)
         if (GS::GetGame().GetMapchangecounter() < 0)
             if (things[teamflag[2]].inbase)
-                if ((playersteamnum[1] > 0) && (playersteamnum[2] > 0))
-                    /*and(PlayersTeamNum[1] >= PlayersTeamNum[2])*/
-                    if (maintickcounter % j == 0)
+                if ((GS::GetGame().GetPlayersTeamNum(1) > 0) &&
+                    (GS::GetGame().GetPlayersTeamNum(2) > 0))
+                    if (GS::GetGame().GetMainTickCounter() % j == 0)
                     {
                         teamscore[2] += 1;
                         GS::GetGame().sortplayers();
                     }
 
     // HTF mode team score point
-    if (playersteamnum[2] == playersteamnum[1])
+    if (GS::GetGame().GetPlayersTeamNum(2) == GS::GetGame().GetPlayersTeamNum(1))
         htftime = CVar::sv_htf_pointstime * 60;
 
     if (CVar::sv_gamemode == gamestyle_htf)
     {
         if (GS::GetGame().GetMapchangecounter() < 0)
         {
-            if ((playersteamnum[1] > 0) && (playersteamnum[2] > 0))
+            if ((GS::GetGame().GetPlayersTeamNum(1) > 0) &&
+                (GS::GetGame().GetPlayersTeamNum(2) > 0))
             {
-                if (maintickcounter % htftime == 0)
+                if (GS::GetGame().GetMainTickCounter() % htftime == 0)
                 {
                     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
                     {
@@ -667,12 +689,16 @@ void updateframe()
                                 teamscore[sprite.player->team] += 1;
 
                                 if (sprite.player->team == team_alpha)
-                                    htftime = htf_sec_point +
-                                              2 * second * (playersteamnum[1] - playersteamnum[2]);
+                                    htftime =
+                                        htf_sec_point + 2 * second *
+                                                            (GS::GetGame().GetPlayersTeamNum(1) -
+                                                             GS::GetGame().GetPlayersTeamNum(2));
 
                                 if (sprite.player->team == team_bravo)
-                                    htftime = htf_sec_point +
-                                              2 * second * (playersteamnum[2] - playersteamnum[1]);
+                                    htftime =
+                                        htf_sec_point + 2 * second *
+                                                            (GS::GetGame().GetPlayersTeamNum(2) -
+                                                             GS::GetGame().GetPlayersTeamNum(1));
 
                                 if (htftime < htf_sec_point)
                                     htftime = htf_sec_point;
@@ -688,7 +714,7 @@ void updateframe()
 
     // Spawn Rambo bow if nobody has it and not on map
     if (CVar::sv_gamemode == gamestyle_rambo)
-        if (maintickcounter % second == 0)
+        if (GS::GetGame().GetMainTickCounter() % second == 0)
         {
             _x = 0;
 
@@ -715,7 +741,7 @@ void updateframe()
 
     // Destroy flags if > 1
     if ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf))
-        if (maintickcounter % (second * 2) == 0)
+        if (GS::GetGame().GetMainTickCounter() % (second * 2) == 0)
         {
             _x = 0;
 
@@ -759,7 +785,7 @@ void updateframe()
         }
 
     if ((CVar::sv_gamemode == gamestyle_pointmatch) || (CVar::sv_gamemode == gamestyle_htf))
-        if (maintickcounter % (second * 2) == 0)
+        if (GS::GetGame().GetMainTickCounter() % (second * 2) == 0)
         {
             _x = 0;
 

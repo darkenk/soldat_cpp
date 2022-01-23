@@ -76,8 +76,8 @@ void serverspritesnapshot(std::uint8_t r)
             b = vec2subtract(servermsg.velocity, oldspritesnapshotmsg[i].velocity);
 
             if (((vec2length(b) > veldelta)) ||
-                (maintickcounter - time_spritesnapshot_mov[i] > 30) ||
-                (maintickcounter - time_spritesnapshot[i] > 30) ||
+                (GS::GetGame().GetMainTickCounter() - time_spritesnapshot_mov[i] > 30) ||
+                (GS::GetGame().GetMainTickCounter() - time_spritesnapshot[i] > 30) ||
                 (servermsg.health != oldspritesnapshotmsg[i].health) ||
                 (servermsg.position != oldspritesnapshotmsg[i].position) ||
                 (servermsg.keys16 != oldspritesnapshotmsg[i].keys16) ||
@@ -136,7 +136,7 @@ void serverspritesnapshotmajor(std::uint8_t r)
             b = vec2subtract(servermsg.velocity, oldspritesnapshotmsg[i].velocity);
 
             if (((vec2length(b) > veldelta)) ||
-                ((maintickcounter - time_spritesnapshot_mov[i]) > 30) ||
+                ((GS::GetGame().GetMainTickCounter() - time_spritesnapshot_mov[i]) > 30) ||
                 (servermsg.position != oldspritesnapshotmsg[i].position) ||
                 (servermsg.health != oldspritesnapshotmsg[i].health) ||
                 (servermsg.keys16 != oldspritesnapshotmsg[i].keys16))
@@ -505,7 +505,7 @@ void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
 
     serverspritedeltas(i);
 
-    time_spritesnapshot[i] = maintickcounter;
+    time_spritesnapshot[i] = GS::GetGame().GetMainTickCounter();
 }
 void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage)
 {
@@ -551,7 +551,7 @@ void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage)
 
     serverspritedeltas(i);
 
-    time_spritesnapshot_mov[i] = maintickcounter;
+    time_spritesnapshot_mov[i] = GS::GetGame().GetMainTickCounter();
 }
 
 void serverhandleclientspritesnapshot_dead(SteamNetworkingMessage_t *netmessage)

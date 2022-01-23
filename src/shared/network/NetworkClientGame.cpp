@@ -114,7 +114,7 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
         clientplayerreceived = true;
         clientplayerreceivedcounter = -1;
         badmapidcount = 2;
-        heartbeattime = maintickcounter;
+        heartbeattime = GS::GetGame().GetMainTickCounter();
         heartbeattimewarnings = 0;
 
         CVar::r_zoom = 0.0; // Reset zoom
@@ -424,7 +424,7 @@ void clienthandlemapchange(SteamNetworkingMessage_t *netmessage)
     fragsmenushow = true;
     statsmenushow = false;
     gamemenushow(limbomenu, false);
-    heartbeattime = maintickcounter;
+    heartbeattime = GS::GetGame().GetMainTickCounter();
     heartbeattimewarnings = 0;
 
     if (CVar::cl_endscreenshot)

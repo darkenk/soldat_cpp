@@ -752,7 +752,7 @@ void renderteammenutext()
             x = 269 + ord(btn == hoveredbutton);
 
             if ((i > 0) && (i < 5))
-                gfxdrawtext(string("(") + inttostr(playersteamnum[i]) + ')', x, y);
+                gfxdrawtext(string("(") + inttostr(GS::GetGame().GetPlayersTeamNum(i)) + ')', x, y);
         }
     }
 }
@@ -964,7 +964,7 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
 
         pos = 0;
 
-        for (i = 1; i <= playersnum; i++)
+        for (i = 1; i <= GS::GetGame().GetPlayersNum(); i++)
         {
             if (sortedplayers[i].playernum == playerindex)
             {
@@ -973,16 +973,18 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
             }
         }
 
-        if ((pos > 0) && (pos <= (playersnum - spectatorsnum)))
+        if ((pos > 0) &&
+            (pos <= (GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum())))
         {
-            str1 = (inttostr(pos)) + '/' + (inttostr(playersnum - spectatorsnum));
+            str1 = (inttostr(pos)) + '/' +
+                   (inttostr(GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum()));
             gfxtextcolor(rgba(88, 255, 90, int_.alpha));
             gfxdrawtext(str1, x, y);
         }
 
         gfxtextcolor(rgba(255, 55, 50, int_.alpha));
 
-        if ((pos == 1) && ((playersnum - spectatorsnum) > 1))
+        if ((pos == 1) && ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum()) > 1))
         {
             i = me->player->kills - sortedplayers[2].kills;
             str1 = (iif(i > 0, "+", ""));
@@ -1199,7 +1201,7 @@ void renderfragsmenutexts(float fragmenubottom)
             if ((CVar::ui_hidespectators) && (i == 5))
                 z = 0;
             else if (i == 5)
-                z = spectatorsnum;
+                z = GS::GetGame().GetSpectatorsNum();
             else
                 z = GS::GetGame().GetTeamplayersnum(i);
 
@@ -1239,7 +1241,9 @@ void renderfragsmenutexts(float fragmenubottom)
     else
     {
         lines[0].y = y + 40 + fragsmenu_player_height;
-        lines[5].y = y + 40 + (playersnum - spectatorsnum + 1) * fragsmenu_player_height;
+        lines[5].y = y + 40 +
+                     (GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum() + 1) *
+                         fragsmenu_player_height;
     }
 
     // columns
@@ -1315,14 +1319,14 @@ void renderfragsmenutexts(float fragmenubottom)
     }
     else
     {
-        gfxdrawtext(inttostr(playersnum), x + 450, y + 15);
+        gfxdrawtext(inttostr(GS::GetGame().GetPlayersNum()), x + 450, y + 15);
     }
 
     // players
     fillchar(ids.data(), sizeof(ids), 0);
     fillchar(totalteamkills.data(), sizeof(totalteamkills), 0);
 
-    for (j = 1; j <= playersnum; j++)
+    for (j = 1; j <= GS::GetGame().GetPlayersNum(); j++)
     {
         k = 0;
         i = sortedplayers[j].playernum;
@@ -1378,7 +1382,7 @@ void renderfragsmenutexts(float fragmenubottom)
             // see above ("team lines") to know what's up with this
             i = iif(j < 6, j % 5, 5);
             if (i == 5)
-                z = spectatorsnum;
+                z = GS::GetGame().GetSpectatorsNum();
             else
                 z = GS::GetGame().GetTeamplayersnum(i);
 
@@ -1586,7 +1590,7 @@ void renderchattexts()
             dx = (float)(-rectwidth(gfxtextmetrics("..."))) / 2;
             NotImplemented(NITag::GFX);
 #if 0
-            str1 =  (copy("...", 1, maintickcounter / 30 % 3 + 1));
+            str1 =  (copy("...", 1, GS::GetGame().GetMainTickCounter() / 30 % 3 + 1));
 #endif
 
             gfxtextcolor(rgba(abovechat_message_color));
@@ -2594,14 +2598,18 @@ void renderinterface(float timeelapsed, float width, float height)
                 i = i + 15;
             if (game.GetTeamplayersnum(0) > 0)
                 i = i + 15;
-            if (spectatorsnum > 0)
+            if (GS::GetGame().GetSpectatorsNum() > 0)
                 i = i + 15;
 
             if (CVar::ui_hidespectators)
                 fragmenubottom =
-                    70 + ((playersnum - spectatorsnum + 1) * fragsmenu_player_height) + i;
+                    70 +
+                    ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum() + 1) *
+                     fragsmenu_player_height) +
+                    i;
             else
-                fragmenubottom = 70 + ((playersnum + 1) * fragsmenu_player_height) + i;
+                fragmenubottom =
+                    70 + ((GS::GetGame().GetPlayersNum() + 1) * fragsmenu_player_height) + i;
 
             _scala.x = (float)(590) / background_width;
             _scala.y = (float)(fragmenubottom) / background_width;
@@ -2656,12 +2664,12 @@ void renderinterface(float timeelapsed, float width, float height)
                 teamposstep[0] = nextitemstep;
                 nextitemstep = nextitemstep + 20;
             }
-            if (spectatorsnum > 0)
+            if (GS::GetGame().GetSpectatorsNum() > 0)
             {
                 teamposstep[5] = nextitemstep;
             }
 
-            for (j = 1; j <= playersnum; j++)
+            for (j = 1; j <= GS::GetGame().GetPlayersNum(); j++)
             {
                 if (sortedplayers[j].playernum > 0)
                 {
@@ -2970,7 +2978,7 @@ void renderinterface(float timeelapsed, float width, float height)
 
         if (GS::GetGame().GetMapchangecounter() > 0)
         {
-            if (fragsmenushow && (playersnum > 1) &&
+            if (fragsmenushow && (GS::GetGame().GetPlayersNum() > 1) &&
                 (GS::GetGame().GetMapchangecounter() < 999999999))
                 renderendgametexts(fragmenubottom);
 
@@ -3077,11 +3085,12 @@ void renderinterface(float timeelapsed, float width, float height)
             if (demoplayer.active())
             {
                 gfxdrawtext(wideformat("Demo: %.2d:%.2d / %.2d:%.2d (%d / %d)",
-                                       round((maintickcounter / 60) / 60),
-                                       round((maintickcounter / 60) % 60),
+                                       round((GS::GetGame().GetMainTickCounter() / 60) / 60),
+                                       round((GS::GetGame().GetMainTickCounter() / 60) % 60),
                                        round((demoplayer.header().ticksnum / 60) / 60),
                                        round((demoplayer.header().ticksnum / 60) % 60),
-                                       maintickcounter, demoplayer.header().ticksnum),
+                                       GS::GetGame().GetMainTickCounter(),
+                                       demoplayer.header().ticksnum),
                             460 * x, 80 * y);
             }
             else

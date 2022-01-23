@@ -33,10 +33,4 @@ auto &defaultwmchecksum = InitGlobalVariable<std::uint64_t, "defaultwmchecksum">
 auto &loadedwmchecksum = InitGlobalVariable<std::uint64_t, "loadedwmchecksum">();
 
 auto &demorecorder = InitGlobalVariable<tdemorecorder<>, "demorecorder">();
-
-auto &maintickcounter = InitGlobalVariable<std::int32_t, "maintickcounter">();
-auto &playersnum = InitGlobalVariable<std::int32_t, "playersnum">();
-auto &botsnum = InitGlobalVariable<std::int32_t, "botsnum">();
-auto &spectatorsnum = InitGlobalVariable<std::int32_t, "spectatorsnum">();
-auto &playersteamnum = InitGlobalVariable<PascalArray<std::int32_t, 1, 4>, "playersteamnum">();
 } // namespace

@@ -10,10 +10,7 @@
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/Sprites.hpp"
-
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
+#include "shared/misc/GlobalSystems.hpp"
 
 // Backgorund animation and sound for rain
 void makerain()
@@ -27,7 +24,7 @@ void makerain()
     else
         modder = 17;
 
-    if (maintickcounter % modder == 0)
+    if (GS::GetGame().GetMainTickCounter() % modder == 0)
     {
         a.x = camerax - gamewidthhalf - 128;
 
@@ -58,7 +55,7 @@ void makesandstorm()
     else
         modder = 17;
 
-    if (maintickcounter % modder == 0)
+    if (GS::GetGame().GetMainTickCounter() % modder == 0)
     {
         a.x = camerax - gamewidthhalf - 1.5 * 512;
 
@@ -89,7 +86,7 @@ void makesnow()
     else
         modder = 17;
 
-    if (maintickcounter % modder == 0)
+    if (GS::GetGame().GetMainTickCounter() % modder == 0)
     {
         a.x = camerax - gamewidthhalf - 256;
 

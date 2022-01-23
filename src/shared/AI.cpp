@@ -333,7 +333,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
                 if (with.burstcount > 3)
                 {
                     with.control.fire = false;
-                    if (maintickcounter % second == 0)
+                    if (GS::GetGame().GetMainTickCounter() % second == 0)
                         with.burstcount = 0;
                 }
 
@@ -341,7 +341,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
                 if (with.burstcount > 30)
                 {
                     with.control.fire = false;
-                    if (maintickcounter % second == 0)
+                    if (GS::GetGame().GetMainTickCounter() % second == 0)
                         with.burstcount = 0;
                 }
         }
@@ -510,7 +510,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
     auto &map = GS::GetGame().GetMap();
 
     if ((spritec.player->controlmethod == bot) && !spritec.deadmeat && !spritec.dummy)
-    // if (MainTickCounter mod (SECOND * 2) = 0) then
+    // if (GS::GetGame().GetMainTickCounter() mod (SECOND * 2) = 0) then
     {
         tempb = spritec.control.thrownade;
 
