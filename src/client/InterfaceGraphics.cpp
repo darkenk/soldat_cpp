@@ -966,7 +966,7 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
 
         for (i = 1; i <= GS::GetGame().GetPlayersNum(); i++)
         {
-            if (sortedplayers[i].playernum == playerindex)
+            if (GS::GetGame().GetSortedPlayers(i).playernum == playerindex)
             {
                 pos = i;
                 break;
@@ -986,14 +986,14 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
 
         if ((pos == 1) && ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum()) > 1))
         {
-            i = me->player->kills - sortedplayers[2].kills;
+            i = me->player->kills - GS::GetGame().GetSortedPlayers(2).kills;
             str1 = (iif(i > 0, "+", ""));
             str1 = wideformat("{} ({}{})", me->player->kills, str1, i);
             gfxdrawtext(str1, x, y + 10);
         }
         else
         {
-            i = me->player->kills - sortedplayers[1].kills;
+            i = me->player->kills - GS::GetGame().GetSortedPlayers(1).kills;
             str1 = (inttostr(me->player->kills)) + " (" + (inttostr(i)) + ')';
             gfxdrawtext(str1, x, y + 10);
         }
@@ -1064,7 +1064,7 @@ void renderendgametexts(float fragmenubottom)
     std::int32_t i;
     float y;
 
-    i = sortedplayers[1].playernum;
+    i = GS::GetGame().GetSortedPlayers(1).playernum;
 
     if (GS::GetGame().isteamgame())
     {
@@ -1283,7 +1283,8 @@ void renderfragsmenutexts(float fragmenubottom)
     // demo name
     if (demorecorder.active())
     {
-        gfxtextcolor(rgba(0, 128, 0, fabs(round(sin((float)(sinuscounter) / 2) * 255))));
+        gfxtextcolor(
+            rgba(0, 128, 0, fabs(round(sin((float)(GS::GetGame().GetSinusCounter()) / 2) * 255))));
         gfxdrawtext(demorecorder.name(), x + 280, y + fragmenubottom - 10);
     }
 
@@ -1329,7 +1330,7 @@ void renderfragsmenutexts(float fragmenubottom)
     for (j = 1; j <= GS::GetGame().GetPlayersNum(); j++)
     {
         k = 0;
-        i = sortedplayers[j].playernum;
+        i = GS::GetGame().GetSortedPlayers(j).playernum;
 
         if (i <= 0)
             continue;
@@ -2457,8 +2458,8 @@ void renderinterface(float timeelapsed, float width, float height)
     {
         alfa = CVar::ui_minimap_transparency;
 
-        f1 = teamflag[1];
-        f2 = teamflag[2];
+        f1 = GS::GetGame().GetTeamFlag(1);
+        f2 = GS::GetGame().GetTeamFlag(2);
 
         if ((f1 > 0) && (f2 > 0) &&
             ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf)))
@@ -2671,31 +2672,33 @@ void renderinterface(float timeelapsed, float width, float height)
 
             for (j = 1; j <= GS::GetGame().GetPlayersNum(); j++)
             {
-                if (sortedplayers[j].playernum > 0)
+                if (GS::GetGame().GetSortedPlayers(j).playernum > 0)
                 {
                     if (!SpriteSystem::Get()
-                             .GetSprite(sortedplayers[j].playernum)
+                             .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                              .player->demoplayer)
                     {
                         x = 32 + fragx;
                         y = 61 + j * fragsmenu_player_height + fragy;
 
                         if (CVar::ui_hidespectators and
-                            SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).isspectator())
+                            SpriteSystem::Get()
+                                .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
+                                .isspectator())
                             continue;
 
                         if (GS::GetGame().isteamgame())
                         {
                             // New team based score board
                             if (SpriteSystem::Get()
-                                    .GetSprite(sortedplayers[j].playernum)
+                                    .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                     .player->team == team_alpha)
                             {
                                 y = 70 + (ids[1] * 15) + teamposstep[1] + fragy;
                                 ids[1] = ids[1] + 1;
                             }
                             else if (SpriteSystem::Get()
-                                         .GetSprite(sortedplayers[j].playernum)
+                                         .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                          .player->team == team_bravo)
                             {
                                 y = 70 + game.GetTeamplayersnum(1) * fragsmenu_player_height +
@@ -2705,7 +2708,7 @@ void renderinterface(float timeelapsed, float width, float height)
                             // if sv_gamemode.IntValue = GAMESTYLE_TEAMMATCH then
                             // begin
                             else if (SpriteSystem::Get()
-                                         .GetSprite(sortedplayers[j].playernum)
+                                         .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                          .player->team == team_charlie)
                             {
                                 y = 70 +
@@ -2715,7 +2718,7 @@ void renderinterface(float timeelapsed, float width, float height)
                                 ids[3] = ids[3] + 1;
                             }
                             else if (SpriteSystem::Get()
-                                         .GetSprite(sortedplayers[j].playernum)
+                                         .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                          .player->team == team_delta)
                             {
                                 y = 70 +
@@ -2727,7 +2730,7 @@ void renderinterface(float timeelapsed, float width, float height)
                             }
                             // end;
                             else if (SpriteSystem::Get()
-                                         .GetSprite(sortedplayers[j].playernum)
+                                         .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                          .player->team == team_none)
                             {
                                 y = 70 +
@@ -2738,7 +2741,7 @@ void renderinterface(float timeelapsed, float width, float height)
                                 ids[0] = ids[0] + 1;
                             }
                             else if (SpriteSystem::Get()
-                                         .GetSprite(sortedplayers[j].playernum)
+                                         .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                          .player->team == team_spectator)
                             {
                                 y = 70 +
@@ -2752,9 +2755,11 @@ void renderinterface(float timeelapsed, float width, float height)
                         }
                         y = y - (fragsscrolllev * 20);
 
-                        if (SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).deadmeat and
+                        if (SpriteSystem::Get()
+                                .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
+                                .deadmeat and
                             SpriteSystem::Get()
-                                .GetSprite(sortedplayers[j].playernum)
+                                .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                 .isnotspectator())
                             gfxdrawsprite(t[GFX::INTERFACE_DEADDOT], pixelalignx(x),
                                           pixelaligny(y + 1),
@@ -2762,7 +2767,7 @@ void renderinterface(float timeelapsed, float width, float height)
 
                         x = 31 + fragx;
 
-                        if (sortedplayers[j].playernum == mysprite)
+                        if (GS::GetGame().GetSortedPlayers(j).playernum == mysprite)
                             gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], pixelalignx(x),
                                           pixelaligny(y + 1),
                                           rgba(0xffffff, CVar::ui_status_transparency));
@@ -2771,7 +2776,7 @@ void renderinterface(float timeelapsed, float width, float height)
 #ifdef STEAM
                         // Steam Friend
                         if (!SpriteSystem::Get()
-                                 .GetSprite(sortedplayers[j].playernum)
+                                 .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                  .player->steamfriend)
                             gfxdrawsprite(t[GFX::interface_friend], pixelalignx(fragx + 240),
                                           pixelaligny(y), color);
@@ -2780,12 +2785,12 @@ void renderinterface(float timeelapsed, float width, float height)
                         // reg star
                         l = 0;
                         if ((SpriteSystem::Get()
-                                 .GetSprite(sortedplayers[j].playernum)
+                                 .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                  .player->jetcolor &
                              0xff000000) == color_transparency_registered)
                             l = GFX::INTERFACE_STAR;
                         else if ((SpriteSystem::Get()
-                                      .GetSprite(sortedplayers[j].playernum)
+                                      .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                       .player->jetcolor &
                                   0xff000000) == color_transparency_special)
                             l = GFX::INTERFACE_PROT;
@@ -2798,23 +2803,25 @@ void renderinterface(float timeelapsed, float width, float height)
 
                         // flag icon
                         if ((SpriteSystem::Get()
-                                 .GetSprite(sortedplayers[j].playernum)
+                                 .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                  .player->flags > 0) and
                             SpriteSystem::Get()
-                                .GetSprite(sortedplayers[j].playernum)
+                                .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                 .isnotspectator())
                             gfxdrawsprite(t[GFX::INTERFACE_FLAG], pixelalignx(fragx + 337),
                                           pixelaligny(y - 1), color);
 
                         // mute sign
-                        if (SpriteSystem::Get().GetSprite(sortedplayers[j].playernum).muted or
+                        if (SpriteSystem::Get()
+                                .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
+                                .muted or
                             muteall)
                             gfxdrawsprite(t[GFX::INTERFACE_MUTE], pixelalignx(fragx + 246),
                                           pixelaligny(y - 1), color);
 
                         // bot icon
                         if ((SpriteSystem::Get()
-                                 .GetSprite(sortedplayers[j].playernum)
+                                 .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                                  .player->jetcolor &
                              0xff000000) == color_transparency_bot)
                             gfxdrawsprite(t[GFX::INTERFACE_BOT], pixelalignx(fragx + 534),
@@ -2824,14 +2831,18 @@ void renderinterface(float timeelapsed, float width, float height)
                             t[GFX::INTERFACE_CONNECTION], pixelalignx(fragx + 520),
                             pixelaligny(y + 2),
                             rgba((std::uint8_t)(
-                                     ((255 * (100 - SpriteSystem::Get()
-                                                        .GetSprite(sortedplayers[j].playernum)
-                                                        .player->connectionquality)) /
+                                     ((255 *
+                                       (100 -
+                                        SpriteSystem::Get()
+                                            .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
+                                            .player->connectionquality)) /
                                       100)),
-                                 (std::uint8_t)((255 * SpriteSystem::Get()
-                                                           .GetSprite(sortedplayers[j].playernum)
-                                                           .player->connectionquality) /
-                                                100),
+                                 (std::uint8_t)(
+                                     (255 *
+                                      SpriteSystem::Get()
+                                          .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
+                                          .player->connectionquality) /
+                                     100),
                                  0, CVar::ui_status_transparency));
                     }
                 }
@@ -2908,25 +2919,25 @@ void renderinterface(float timeelapsed, float width, float height)
                       (float)(88) / background_width, rgba(0xffffff, round(int_.alpha * 0.56)));
 
         // Draw captured flags in Team Box
-        if ((teamflag[1] > 0) && (teamflag[2] > 0))
+        if ((GS::GetGame().GetTeamFlag(1) > 0) && (GS::GetGame().GetTeamFlag(2) > 0))
         {
             if (CVar::sv_gamemode == gamestyle_ctf)
             {
                 x = pixelalignx((int_.teambox_x + 4) * _iscala.x);
                 y = pixelaligny((int_.teambox_y + 5) * _iscala.y);
 
-                if (!things[teamflag[1]].inbase)
+                if (!things[GS::GetGame().GetTeamFlag(1)].inbase)
                     gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y,
                                   rgba(0xff0000, round(int_.alpha)));
 
                 x = pixelalignx(x + 31);
 
-                if (!things[teamflag[2]].inbase)
+                if (!things[GS::GetGame().GetTeamFlag(2)].inbase)
                     gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff, round(int_.alpha)));
             }
             else if (CVar::sv_gamemode == gamestyle_inf)
             {
-                if (!things[teamflag[2]].inbase)
+                if (!things[GS::GetGame().GetTeamFlag(2)].inbase)
                 {
                     x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
                     y = pixelaligny((int_.teambox_y + 3) * _iscala.y);
@@ -2935,12 +2946,13 @@ void renderinterface(float timeelapsed, float width, float height)
                 }
             }
         }
-        else if ((teamflag[1] > 0) && (CVar::sv_gamemode == gamestyle_htf))
+        else if ((GS::GetGame().GetTeamFlag(1) > 0) && (CVar::sv_gamemode == gamestyle_htf))
         {
-            if (things[teamflag[1]].holdingsprite > 0)
+            if (things[GS::GetGame().GetTeamFlag(1)].holdingsprite > 0)
             {
-                if (SpriteSystem::Get().GetSprite(things[teamflag[1]].holdingsprite).player->team ==
-                    team_alpha)
+                if (SpriteSystem::Get()
+                        .GetSprite(things[GS::GetGame().GetTeamFlag(1)].holdingsprite)
+                        .player->team == team_alpha)
                 {
                     x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
                     y = pixelaligny((int_.teambox_y + 3) * _iscala.y);

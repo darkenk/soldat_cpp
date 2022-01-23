@@ -453,8 +453,8 @@ void clienthandlemapchange(SteamNetworkingMessage_t *netmessage)
         if ((CVar::sv_gamemode == gamestyle_deathmatch) ||
             (CVar::sv_gamemode == gamestyle_pointmatch) || (CVar::sv_gamemode == gamestyle_rambo))
         {
-            if (sortedplayers[1].playernum > 0)
-                camerafollowsprite = sortedplayers[1].playernum;
+            if (GS::GetGame().GetSortedPlayers(1).playernum > 0)
+                camerafollowsprite = GS::GetGame().GetSortedPlayers(1).playernum;
             if (!escmenu->active)
             {
                 mx = gamewidthhalf;
@@ -487,8 +487,8 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
                                 .GetSprite(pmsg_serverflaginfo(netmessage->m_pData)->who)
                                 .player->name)),
                 alpha_message_color);
-            if (teamflag[1] > 0)
-                things[teamflag[1]].respawn();
+            if (GS::GetGame().GetTeamFlag(1) > 0)
+                things[GS::GetGame().GetTeamFlag(1)].respawn();
         }
     if (pmsg_serverflaginfo(netmessage->m_pData)->style == returnblue)
         if (CVar::sv_gamemode == gamestyle_ctf)
@@ -502,8 +502,8 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
                                 .GetSprite(pmsg_serverflaginfo(netmessage->m_pData)->who)
                                 .player->name)),
                 bravo_message_color);
-            if (teamflag[2] > 0)
-                things[teamflag[2]].respawn();
+            if (GS::GetGame().GetTeamFlag(2) > 0)
+                things[GS::GetGame().GetTeamFlag(2)].respawn();
         }
     if (pmsg_serverflaginfo(netmessage->m_pData)->style == capturered)
     {
@@ -522,8 +522,8 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
             // flame it
             for (j = 1; j <= 10; j++)
             {
-                a.x = things[teamflag[1]].skeleton.pos[2].x - 10 + Random(20);
-                a.y = things[teamflag[1]].skeleton.pos[2].y - 10 + Random(20);
+                a.x = things[GS::GetGame().GetTeamFlag(1)].skeleton.pos[2].x - 10 + Random(20);
+                a.y = things[GS::GetGame().GetTeamFlag(1)].skeleton.pos[2].y - 10 + Random(20);
                 b.x = 0;
                 b.y = 0;
                 createspark(a, b, 36, 0, 35);
@@ -533,11 +533,11 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
         }
         else
             playsound(SfxEffect::ctf);
-        if (teamflag[2] > 0)
-            things[teamflag[2]].respawn();
+        if (GS::GetGame().GetTeamFlag(2) > 0)
+            things[GS::GetGame().GetTeamFlag(2)].respawn();
 
         // cap spark
-        createspark(things[teamflag[1]].skeleton.pos[2], b, 61,
+        createspark(things[GS::GetGame().GetTeamFlag(1)].skeleton.pos[2], b, 61,
                     pmsg_serverflaginfo(netmessage->m_pData)->who, 18);
 
         if (CVar::sv_survivalmode)
@@ -555,11 +555,11 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
                             .player->name)),
             bravo_message_color);
         playsound(SfxEffect::ctf);
-        if (teamflag[1] > 0)
-            things[teamflag[1]].respawn();
+        if (GS::GetGame().GetTeamFlag(1) > 0)
+            things[GS::GetGame().GetTeamFlag(1)].respawn();
 
         // cap spark
-        createspark(things[teamflag[2]].skeleton.pos[2], b, 61,
+        createspark(things[GS::GetGame().GetTeamFlag(2)].skeleton.pos[2], b, 61,
                     pmsg_serverflaginfo(netmessage->m_pData)->who, 18);
 
         if (CVar::sv_survivalmode)

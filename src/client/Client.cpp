@@ -429,7 +429,7 @@ void startgame(int argc, const char *argv[])
             return;
         }
 
-        gamemodchecksum = sha1file(basedirectory + "/soldat.smod");
+        GS::GetGame().SetGameModChecksum(sha1file(basedirectory + "/soldat.smod"));
     }
 
     moddir = "";
@@ -445,7 +445,8 @@ void startgame(int argc, const char *argv[])
             return;
         }
         moddir = std::string("mods/") + lowercase(CVar::fs_mod) + '/';
-        custommodchecksum = sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod");
+        GS::GetGame().SetCustomModChecksum(
+            sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"));
     }
 
     loadinterfacearchives(userdirectory + "custom-interfaces/");

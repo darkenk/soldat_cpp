@@ -237,7 +237,10 @@ void update_frame()
                 }
         }
 
-        sinuscounter = sinuscounter + iluminatespeed;
+        {
+            auto v = GS::GetGame().GetSinusCounter() + iluminatespeed;
+            GS::GetGame().SetSinusCounter(v);
+        }
 
         if (grenadeeffecttimer > -1)
             grenadeeffecttimer = grenadeeffecttimer - 1;

@@ -826,12 +826,12 @@ void Thing<M>::update()
             inbase = false;
         }
 
-        teamflag[style] = num;
+        GS::GetGame().SetTeamFlag(style, num);
     }
     break;
     case object_pointmatch_flag: {
 #ifndef SERVER
-        teamflag[1] = num;
+        GS::GetGame().SetTeamFlag(1, num);
 #endif
     }
     break;
@@ -864,20 +864,28 @@ void Thing<M>::update()
 
                                 SpriteSystem::Get().GetSprite(holdingsprite).player->flags =
                                     SpriteSystem::Get().GetSprite(holdingsprite).player->flags + 1;
-                                teamscore[1] += 1;
+                                GS::GetGame().SetTeamScore(1, GS::GetGame().GetTeamScore(1) + 1);
 
                                 b.x = 0;
                                 b.y = 0;
                                 if (CVar::sv_gamemode == gamestyle_inf)
                                 {
-                                    teamscore[1] += CVar::sv_inf_redaward - 1;
+                                    GS::GetGame().SetTeamScore(1, GS::GetGame().GetTeamScore(1) +
+                                                                      CVar::sv_inf_redaward - 1);
                                     // penalty
                                     if (GS::GetGame().GetPlayersTeamNum(1) >
                                         GS::GetGame().GetPlayersTeamNum(2))
-                                        teamscore[1] -= 5 * (GS::GetGame().GetPlayersTeamNum(1) -
-                                                             GS::GetGame().GetPlayersTeamNum(2));
-                                    if (teamscore[1] < 0)
-                                        teamscore[1] = 0;
+                                    {
+                                        GS::GetGame().SetTeamScore(
+                                            1, GS::GetGame().GetTeamScore(1) -
+                                                   (5 * (GS::GetGame().GetPlayersTeamNum(1) -
+                                                         GS::GetGame().GetPlayersTeamNum(2))));
+                                    }
+                                    if (GS::GetGame().GetTeamScore(1) < 0)
+                                    {
+                                        GS::GetGame().SetTeamScore(
+                                            1, GS::GetGame().GetTeamScore(1) + 1);
+                                    }
 
 #ifndef SERVER
                                     // flame it
@@ -928,7 +936,7 @@ void Thing<M>::update()
 #endif
                                 SpriteSystem::Get().GetSprite(holdingsprite).player->flags =
                                     SpriteSystem::Get().GetSprite(holdingsprite).player->flags + 1;
-                                teamscore[2] += 1;
+                                GS::GetGame().SetTeamScore(2, GS::GetGame().GetTeamScore(2) + 1);
 
 #ifndef SERVER
                                 // cap spark

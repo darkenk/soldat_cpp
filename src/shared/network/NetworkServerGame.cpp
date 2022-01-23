@@ -119,8 +119,10 @@ void servermapchange(std::uint8_t id)
     mapchangemsg.header.id = msgid_mapchange;
     mapchangemsg.counter = GS::GetGame().GetMapchangecounter();
     strcpy(mapchangemsg.mapname.data(), GS::GetGame().GetMapchange().name.data());
-    mapchecksum = getmapchecksum(GS::GetGame().GetMapchange(), gamemodchecksum);
+    auto mapchecksum =
+        getmapchecksum(GS::GetGame().GetMapchange(), GS::GetGame().GetGameModChecksum());
     mapchangemsg.mapchecksum = mapchecksum;
+    GS::GetGame().SetMapChecksum(mapchecksum);
 
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {

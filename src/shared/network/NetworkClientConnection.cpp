@@ -132,12 +132,12 @@ void clientsendplayerinfo()
     if (CVar::cl_player_chainstyle == 2)
         playerinfo.look = playerinfo.look | B8;
 
-    playerinfo.gamemodchecksum.Dummy[0] = htobe32(gamemodchecksum.Dummy[0]);
-    playerinfo.gamemodchecksum.Dummy[1] = htobe32(gamemodchecksum.Dummy[1]);
-    playerinfo.gamemodchecksum.Dummy[2] = htobe32(gamemodchecksum.Dummy[2]);
-    playerinfo.gamemodchecksum.Dummy[3] = htobe32(gamemodchecksum.Dummy[3]);
-    playerinfo.gamemodchecksum.Dummy[4] = htobe32(gamemodchecksum.Dummy[4]);
-    playerinfo.custommodchecksum = custommodchecksum;
+    playerinfo.gamemodchecksum.Dummy[0] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[0]);
+    playerinfo.gamemodchecksum.Dummy[1] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[1]);
+    playerinfo.gamemodchecksum.Dummy[2] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[2]);
+    playerinfo.gamemodchecksum.Dummy[3] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[3]);
+    playerinfo.gamemodchecksum.Dummy[4] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[4]);
+    playerinfo.custommodchecksum = GS::GetGame().GetCustomModChecksum();
 
     GetNetwork()->senddata(&playerinfo, sizeof(playerinfo), k_nSteamNetworkingSend_Reliable);
     clientplayersent = true;
@@ -241,7 +241,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
                     return;
                 }
                 moddir = string("mods/") + modname + '/';
-                custommodchecksum = checksum;
+                GS::GetGame().SetCustomModChecksum(checksum);
                 AnimationSystem::Get().LoadAnimObjects(moddir);
                 loadsounds(moddir);
                 forcegraphicsreload = true;

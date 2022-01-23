@@ -165,6 +165,8 @@ std::string dropip = "";
 
 std::array<std::string, Constants::MAX_ADMIN_FLOOD_IPS> adminfloodip;
 std::array<std::string, Constants::MAX_LAST_ADMIN_IPS> lastadminips;
+std::int32_t mapindex;
+
 std::int32_t AdminIPCounter = 0;
 
 std::int32_t waverespawntime, waverespawncounter;
@@ -349,7 +351,7 @@ void ActivateServer(int argc, const char *argv[])
         return;
     }
 
-    gamemodchecksum = sha1file(basedirectory + "/soldat.smod");
+    GS::GetGame().SetGameModChecksum(sha1file(basedirectory + "/soldat.smod"));
 
     ModDir = "";
 
@@ -364,7 +366,8 @@ void ActivateServer(int argc, const char *argv[])
             return;
         }
         ModDir = "mods/" + lowercase(CVar::fs_mod) + "/";
-        custommodchecksum = sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod");
+        GS::GetGame().SetCustomModChecksum(
+            sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"));
     }
 
     // Create the basic folder structure
@@ -469,7 +472,7 @@ void ActivateServer(int argc, const char *argv[])
 
     GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
-    sinuscounter = 0;
+    GS::GetGame().SetSinusCounter(0);
 
     addlinetologfile(GetGameLog(), "Loading Maps List", GetGameLogFilename());
 
@@ -783,7 +786,9 @@ void startserver()
     }
 
     for (i = 0; i < 5; i++)
-        teamscore[i] = 0;
+    {
+        GS::GetGame().SetTeamScore(i, 0);
+    }
 
     addlinetologfile(GetGameLog(), "Loading Map.", GetGameLogFilename());
 
@@ -896,25 +901,33 @@ void startserver()
     if (CVar::sv_gamemode == Constants::GAMESTYLE_POINTMATCH)
     {
         randomizestart(a, 14);
-        teamflag[1] = creatething(a, 255, Constants::OBJECT_POINTMATCH_FLAG, 255);
+        auto v = creatething(a, 255, Constants::OBJECT_POINTMATCH_FLAG, 255);
+        GS::GetGame().SetTeamFlag(1, v);
     }
 
     // add yellow flag
     if (CVar::sv_gamemode == Constants::GAMESTYLE_HTF)
     {
         randomizestart(a, 14);
-        teamflag[1] = creatething(a, 255, Constants::OBJECT_POINTMATCH_FLAG, 255);
+        auto v = creatething(a, 255, Constants::OBJECT_POINTMATCH_FLAG, 255);
+        GS::GetGame().SetTeamFlag(1, v);
     }
 
     if (CVar::sv_gamemode == Constants::GAMESTYLE_CTF)
     {
         // red flag
         if (randomizestart(a, 5))
-            teamflag[1] = creatething(a, 255, Constants::OBJECT_ALPHA_FLAG, 255);
+        {
+            auto v = creatething(a, 255, Constants::OBJECT_ALPHA_FLAG, 255);
+            GS::GetGame().SetTeamFlag(1, v);
+        }
 
         // blue flag
         if (randomizestart(a, 6))
-            teamflag[2] = creatething(a, 255, Constants::OBJECT_BRAVO_FLAG, 255);
+        {
+            auto v = creatething(a, 255, Constants::OBJECT_BRAVO_FLAG, 255);
+            GS::GetGame().SetTeamFlag(2, v);
+        }
     }
 
     if (CVar::sv_gamemode == Constants::GAMESTYLE_RAMBO)
@@ -927,11 +940,17 @@ void startserver()
     {
         // red flag
         if (randomizestart(a, 5))
-            teamflag[1] = creatething(a, 255, Constants::OBJECT_ALPHA_FLAG, 255);
+        {
+            auto v = creatething(a, 255, Constants::OBJECT_ALPHA_FLAG, 255);
+            GS::GetGame().SetTeamFlag(1, v);
+        }
 
         // blue flag
         if (randomizestart(a, 6))
-            teamflag[2] = creatething(a, 255, Constants::OBJECT_BRAVO_FLAG, 255);
+        {
+            auto v = creatething(a, 255, Constants::OBJECT_BRAVO_FLAG, 255);
+            GS::GetGame().SetTeamFlag(2, v);
+        }
     }
 
     if (not CVar::sv_survivalmode)

@@ -587,7 +587,10 @@ void updateframe()
                 if (GS::GetGame().GetMapchangecounter() > 99999999)
                     GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
-        sinuscounter = sinuscounter + iluminatespeed;
+        {
+            auto v = GS::GetGame().GetSinusCounter() + iluminatespeed;
+            GS::GetGame().SetSinusCounter(v);
+        }
 
         // Wave respawn count
         waverespawncounter = waverespawncounter - 1;
@@ -658,12 +661,12 @@ void updateframe()
 
     if (CVar::sv_gamemode == gamestyle_inf)
         if (GS::GetGame().GetMapchangecounter() < 0)
-            if (things[teamflag[2]].inbase)
+            if (things[GS::GetGame().GetTeamFlag(2)].inbase)
                 if ((GS::GetGame().GetPlayersTeamNum(1) > 0) &&
                     (GS::GetGame().GetPlayersTeamNum(2) > 0))
                     if (GS::GetGame().GetMainTickCounter() % j == 0)
                     {
-                        teamscore[2] += 1;
+                        GS::GetGame().SetTeamScore(2, GS::GetGame().GetTeamScore(2) + 1);
                         GS::GetGame().sortplayers();
                     }
 
@@ -686,7 +689,9 @@ void updateframe()
                         {
                             if (things[sprite.holdedthing].style == object_pointmatch_flag)
                             {
-                                teamscore[sprite.player->team] += 1;
+                                GS::GetGame().SetTeamScore(
+                                    sprite.player->team,
+                                    GS::GetGame().GetTeamScore(sprite.player->team) + 1);
 
                                 if (sprite.player->team == team_alpha)
                                     htftime =
@@ -760,8 +765,13 @@ void updateframe()
                         }
 
             if (_x == 0)
+            {
                 if (randomizestart(m, 5))
-                    teamflag[1] = creatething(m, 255, object_alpha_flag, 255);
+                {
+                    auto v = creatething(m, 255, object_alpha_flag, 255);
+                    GS::GetGame().SetTeamFlag(1, v);
+                }
+            }
 
             _x = 0;
 
@@ -780,8 +790,13 @@ void updateframe()
                         }
 
             if (_x == 0)
+            {
                 if (randomizestart(m, 6))
-                    teamflag[2] = creatething(m, 255, object_bravo_flag, 255);
+                {
+                    auto v = creatething(m, 255, object_bravo_flag, 255);
+                    GS::GetGame().SetTeamFlag(2, v);
+                }
+            }
         }
 
     if ((CVar::sv_gamemode == gamestyle_pointmatch) || (CVar::sv_gamemode == gamestyle_htf))
@@ -805,7 +820,10 @@ void updateframe()
 
             if (_x == 0)
                 if (randomizestart(m, 14))
-                    teamflag[1] = creatething(m, 255, object_pointmatch_flag, 255);
+                {
+                    auto v = creatething(m, 255, object_pointmatch_flag, 255);
+                    GS::GetGame().SetTeamFlag(1, v);
+                }
         }
     auto &map = GS::GetGame().GetMap();
     if ((CVar::demo_autorecord) && (demorecorder.active() == false) && (map.name != ""))

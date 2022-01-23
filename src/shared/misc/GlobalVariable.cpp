@@ -13,7 +13,6 @@ T &InitGlobalVariable(Args &&...args)
 template <Config::Module M>
 void InitAllGlobalVariables()
 {
-    sinuscounter = 0;
 }
 
 template void InitAllGlobalVariables<Config::GetModule()>();

@@ -470,7 +470,7 @@ void gotothing(std::uint8_t snum, std::uint8_t tnum)
         if (t.x < m.x)
             with.control.left = true;
 
-        if ((thing.holdingsprite > 0) && (teamflag[with.player->team] > team_none))
+        if ((thing.holdingsprite > 0) && (GS::GetGame().GetTeamFlag(with.player->team) > team_none))
             if ((with.player->team ==
                  SpriteSystem::Get().GetSprite(thing.holdingsprite).player->team) and
                 (!thing.inbase))
@@ -707,7 +707,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
                         if (spritec.player->team == team_bravo)
                             spritec.brain.pathnum = 2;
 
-                        if (!things[teamflag[2]].inbase)
+                        if (!things[GS::GetGame().GetTeamFlag(2)].inbase)
                             if (spritec.player->team == team_bravo)
                                 spritec.brain.pathnum = 2;
 
@@ -766,7 +766,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
                         // Special waypoint
                         if (((CVar::sv_gamemode == gamestyle_inf) &&
                              (spritec.player->team == team_bravo) &&
-                             (things[teamflag[2]].inbase) & (spritec.holdedthing == 0)) ||
+                             (things[GS::GetGame().GetTeamFlag(2)].inbase) &
+                                 (spritec.holdedthing == 0)) ||
                             ((CVar::sv_gamemode == gamestyle_ctf) && (spritec.holdedthing == 0)) ||
                             ((CVar::sv_gamemode != gamestyle_inf) &&
                              (CVar::sv_gamemode != gamestyle_ctf) &&
@@ -958,7 +959,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
                             if (((CVar::sv_gamemode == gamestyle_ctf) ||
                                  (CVar::sv_gamemode == gamestyle_inf)) &&
                                 (thing.style != spritec.player->team) and
-                                !things[teamflag[spritec.player->team]].inbase)
+                                !things[GS::GetGame().GetTeamFlag(spritec.player->team)].inbase)
                                 seething = false;
                             // dont take it if is flag in base
                             if (((CVar::sv_gamemode == gamestyle_ctf) ||
@@ -1091,7 +1092,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
         if (CVar::bots_chat)
             if (Random(spritec.brain.chatfreq * 150) == 0)
             {
-                if (sortedplayers[1].playernum == spritec.num)
+                if (GS::GetGame().GetSortedPlayers(1).playernum == spritec.num)
                     serversendstringmessage((spritec.brain.chatwinning), all_players, spritec.num,
                                             msgtype_pub);
             }

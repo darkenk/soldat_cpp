@@ -10,10 +10,6 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <steam/isteamnetworkingmessages.h>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 // HEARTBEAT
 void serverheartbeat()
 {
@@ -46,7 +42,7 @@ void serverheartbeat()
     for (auto j = team_alpha; j <= team_delta; j++)
     {
         [[deprecated("indexing")]] auto jminus1 = j - 1;
-        heartbeatmsg.teamscore[jminus1] = teamscore[j];
+        heartbeatmsg.teamscore[jminus1] = GS::GetGame().GetTeamScore(j);
     }
     auto &map = GS::GetGame().GetMap();
     heartbeatmsg.mapid = map.mapid;

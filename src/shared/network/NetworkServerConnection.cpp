@@ -205,8 +205,8 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     NotImplemented(NITag::OTHER, "no sha1match");
 #if 0
     if ((CVar::sv_pure and
-         (!sha1match(tsha1digest(playerinfomsg->gamemodchecksum), gamemodchecksum))) or
-        (!sha1match(tsha1digest(playerinfomsg->custommodchecksum), custommodchecksum)))
+         (!sha1match(tsha1digest(playerinfomsg->gamemodchecksum), GS::GetGame().GetGameModChecksum()))) or
+        (!sha1match(tsha1digest(playerinfomsg->custommodchecksum), GS::GetGame().GetCustommodchecksum())))
     {
         serversendunaccepted(player.peer, wrong_checksum);
         return;
@@ -214,7 +214,8 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
 #endif
 
     if (isservertotallyfull() ||
-        (((GS::GetGame().GetPlayersNum() - GS::GetGame().GetBotsNum()) >= CVar::sv_maxplayers) && (!isremoteadminip(player->ip))))
+        (((GS::GetGame().GetPlayersNum() - GS::GetGame().GetBotsNum()) >= CVar::sv_maxplayers) &&
+         (!isremoteadminip(player->ip))))
     {
         serversendunaccepted(player->peer, server_full);
         return;
@@ -303,7 +304,8 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     }
 
     // enforce spectator limit
-    if ((playerinfomsg->team == team_spectator) && (GS::GetGame().GetSpectatorsNum() >= CVar::sv_maxspectators))
+    if ((playerinfomsg->team == team_spectator) &&
+        (GS::GetGame().GetSpectatorsNum() >= CVar::sv_maxspectators))
     {
         if (!isremoteadminip(player->ip))
         {
@@ -506,11 +508,11 @@ void serversendplaylist(HSteamNetConnection peer)
     playerslist.header.id = msgid_playerslist;
 
     stringtoarray(playerslist.modname.data(), CVar::fs_mod);
-    playerslist.modchecksum = custommodchecksum;
+    playerslist.modchecksum = GS::GetGame().GetCustomModChecksum();
     auto &map = GS::GetGame().GetMap();
 
     stringtoarray(playerslist.mapname.data(), map.name);
-    playerslist.mapchecksum = mapchecksum;
+    playerslist.mapchecksum = GS::GetGame().GetMapChecksum();
 
     playerslist.players = GS::GetGame().GetPlayersNum();
     playerslist.currenttime = GS::GetGame().GetTimelimitcounter();

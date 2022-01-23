@@ -15,15 +15,6 @@ auto &weaponsel =
     InitGlobalVariable<PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, max_sprites>,
                        "weaponsel">();
 
-auto &teamscore = InitGlobalVariable<std::array<std::int32_t, 5>, "teamscore">();
-auto &teamflag = InitGlobalVariable<std::array<std::int32_t, 4>, "teamflag">();
-auto &sinuscounter = InitGlobalVariable<float, "sinuscounter">();
-auto &custommodchecksum = InitGlobalVariable<tsha1digest, "custommodchecksum">();
-auto &gamemodchecksum = InitGlobalVariable<tsha1digest, "gamemodchecksum">();
-auto &mapchecksum = InitGlobalVariable<tsha1digest, "mapchecksum">();
-auto &mapindex = InitGlobalVariable<std::int32_t, "mapindex">();
-auto &sortedplayers = InitGlobalVariable<PascalArray<tkillsort, 1, max_sprites>, "sortedplayers">();
-
 auto &bullet = InitGlobalVariable<PascalArray<tbullet, 1, max_bullets>, "bullet">();
 auto &things = InitGlobalVariable<PascalArray<tthing, 1, max_things>, "things">();
 

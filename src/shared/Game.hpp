@@ -250,10 +250,70 @@ class Game : public GlobalSubsystem<Game<M>>
         return spectatorsnum;
     }
 
-
     std::int32_t GetPlayersTeamNum(std::int32_t idx) const
     {
         return playersteamnum[idx];
+    }
+
+    std::int32_t GetTeamScore(std::int32_t idx) const
+    {
+        return teamscore[idx];
+    }
+
+    void SetTeamScore(std::int32_t idx,  std::int32_t value)
+    {
+        teamscore[idx] = value;
+    }
+
+    std::int32_t GetTeamFlag(std::int32_t idx) const
+    {
+        return teamflag[idx];
+    }
+
+    void SetTeamFlag(std::int32_t idx, std::int32_t value)
+    {
+        teamflag[idx] = value;
+    }
+
+    float GetSinusCounter() const
+    {
+        return sinuscounter;
+    }
+    void SetSinusCounter(float _sinuscounter)
+    {
+        sinuscounter = _sinuscounter;
+    }
+
+    const tsha1digest &GetCustomModChecksum() const
+    {
+        return custommodchecksum;
+    }
+    void SetCustomModChecksum(const tsha1digest &_custommodchecksum)
+    {
+        custommodchecksum = _custommodchecksum;
+    }
+
+    const tsha1digest &GetGameModChecksum() const
+    {
+        return gamemodchecksum;
+    }
+    void SetGameModChecksum(const tsha1digest &_gamemodchecksum)
+    {
+        gamemodchecksum = _gamemodchecksum;
+    }
+
+    const tsha1digest &GetMapChecksum() const
+    {
+        return mapchecksum;
+    }
+    void SetMapChecksum(const tsha1digest &_mapchecksum)
+    {
+        mapchecksum = _mapchecksum;
+    }
+
+    const tkillsort& GetSortedPlayers(std::int32_t idx) const
+    {
+        return sortedplayers[idx];
     }
 
   protected:
@@ -301,6 +361,14 @@ class Game : public GlobalSubsystem<Game<M>>
     std::int32_t botsnum;
     std::int32_t spectatorsnum;
     PascalArray<std::int32_t, 1, 4> playersteamnum;
+
+    std::array<std::int32_t, 5> teamscore;
+    std::array<std::int32_t, 4> teamflag;
+    float sinuscounter = 0.0f;
+    tsha1digest custommodchecksum;
+    tsha1digest gamemodchecksum;
+    tsha1digest mapchecksum;
+    PascalArray<tkillsort, 1, max_sprites> sortedplayers;
 
     friend GlobalSubsystem<Game<M>>;
 };

@@ -38,6 +38,7 @@ extern PascalArray<std::int8_t, 1, max_players> tklistkills; // TK Warnings
 
 extern std::array<std::string, Constants::MAX_ADMIN_FLOOD_IPS> adminfloodip;
 extern std::array<std::string, Constants::MAX_LAST_ADMIN_IPS> lastadminips;
+extern std::int32_t mapindex;
 
 void spawnthings(std::int8_t Style, std::int8_t Amount);
 void nextmap();

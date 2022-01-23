@@ -998,7 +998,7 @@ void Sprite<M>::update()
             if (ceasefirecounter > -1)
             {
                 ceasefirecounter = ceasefirecounter - 1;
-                alpha = round(fabs(100 + 70 * sin(sinuscounter)));
+                alpha = round(fabs(100 + 70 * sin(GS::GetGame().GetSinusCounter())));
             }
             else
             {
@@ -1242,15 +1242,16 @@ void Sprite<M>::update()
 
                         if (CVar::sv_gamemode != gamestyle_htf)
                         {
-                            if ((teamflag[1] > 0) && (teamflag[2] > 0))
+                            if ((GS::GetGame().GetTeamFlag(1) > 0) &&
+                                (GS::GetGame().GetTeamFlag(2) > 0))
                             {
-                                if (!things[teamflag[1]].inbase)
+                                if (!things[GS::GetGame().GetTeamFlag(1)].inbase)
                                 {
-                                    things[teamflag[1]].respawn();
+                                    things[GS::GetGame().GetTeamFlag(1)].respawn();
                                 }
-                                if (!things[teamflag[2]].inbase)
+                                if (!things[GS::GetGame().GetTeamFlag(2)].inbase)
                                 {
-                                    things[teamflag[2]].respawn();
+                                    things[GS::GetGame().GetTeamFlag(2)].respawn();
                                 }
                             }
                         }
@@ -1344,7 +1345,9 @@ void Sprite<M>::kill()
         }
 
         if (left == false)
-            teamscore[player->team] = team_none;
+        {
+            GS::GetGame().SetTeamScore(player->team, team_none);
+        }
     }
 
 #ifdef SERVER
@@ -1581,7 +1584,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 if (isnotinsameteam(SpriteSystem::Get().GetSprite(who)))
                 {
                     SpriteSystem::Get().GetSprite(who).player->kills += 1;
-                    teamscore[SpriteSystem::Get().GetSprite(who).player->team] += 1;
+                    auto t = SpriteSystem::Get().GetSprite(who).player->team;
+                    GS::GetGame().SetTeamScore(t, GS::GetGame().GetTeamScore(t) + 1);
 #ifdef SERVER
                     // mulitkill count
                     SpriteSystem::Get().GetSprite(who).multikilltime = multikillinterval;

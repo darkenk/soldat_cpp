@@ -49,22 +49,24 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
 
     // play bding sound
     if (CVar::sv_gamemode == gamestyle_inf)
-        if (heartbeat->teamscore[team_bravo] > teamscore[team_bravo])
+        if (heartbeat->teamscore[team_bravo] > GS::GetGame().GetTeamScore(team_bravo))
             if (heartbeat->teamscore[team_bravo] % 5 == 0)
                 playsound(SfxEffect::infilt_point);
 
     if (CVar::sv_gamemode == gamestyle_htf)
     {
-        if (heartbeat->teamscore[team_alpha] > teamscore[team_alpha])
+        if (heartbeat->teamscore[team_alpha] > GS::GetGame().GetTeamScore(team_alpha))
             if (heartbeat->teamscore[team_alpha] % 5 == 0)
                 playsound(SfxEffect::infilt_point);
-        if (heartbeat->teamscore[team_bravo] > teamscore[team_bravo])
+        if (heartbeat->teamscore[team_bravo] > GS::GetGame().GetTeamScore(team_bravo))
             if (heartbeat->teamscore[team_bravo] % 5 == 0)
                 playsound(SfxEffect::infilt_point);
     }
 
     for (i = team_alpha; i <= team_delta; i++)
-        teamscore[i] = heartbeat->teamscore[i - 1];
+    {
+        GS::GetGame().SetTeamScore(i, heartbeat->teamscore[i - 1]);
+    }
 
     // MapID differs, map not changed
     if ((GS::GetGame().GetMapchangecounter() < 0) && (heartbeat->mapid != 0) &&
