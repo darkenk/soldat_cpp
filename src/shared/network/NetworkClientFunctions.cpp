@@ -50,11 +50,11 @@ void clienthandleserversyncmsg(SteamNetworkingMessage_t *netmessage)
 
     syncmsg = pmsg_serversyncmsg(netmessage->m_pData);
 
-    timelimitcounter = syncmsg->time;
+    GS::GetGame().SetTimelimitcounter(syncmsg->time);
     if (syncmsg->pause == 1)
     {
-        mapchangecounter = 999999999;
-        mapchangename = "PAUSE*!*";
+        GS::GetGame().SetMapchangecounter(999999999);
+        GS::GetGame().SetMapchangename("PAUSE*!*");
         for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
         {
             stopsound(sprite.reloadsoundchannel);
@@ -63,8 +63,10 @@ void clienthandleserversyncmsg(SteamNetworkingMessage_t *netmessage)
             stopsound(sprite.gattlingsoundchannel2);
         }
     }
-    else if (mapchangecounter == 999999999)
-        mapchangecounter = -60;
+    else if (GS::GetGame().GetMapchangecounter() == 999999999)
+    {
+        GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
+    }
 }
 
 void clienthandleforceposition(SteamNetworkingMessage_t *netmessage)

@@ -103,7 +103,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     sprite.num = i;
     sprite.deadmeat = false;
     sprite.respawncounter = 0;
-    sprite.ceasefirecounter = ceasefiretime;
+    sprite.ceasefirecounter = GS::GetGame().GetCeasefiretime();
 
     if (CVar::sv_survivalmode)
         sprite.ceasefirecounter = sprite.ceasefirecounter * 3;
@@ -153,7 +153,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     sprite.skeleton = AnimationSystem::Get().GetSkeleton(Gostek);
     sprite.skeleton.vdamping = 0.9945;
 
-    sprite.SetHealth(starthealth);
+    sprite.SetHealth(GS::GetGame().GetStarthealth());
     sprite.aimdistcoef = defaultaimdist;
 
     sprite.SetFirstWeapon(guns[noweapon]);
@@ -1090,8 +1090,11 @@ void Sprite<M>::update()
 
             // gain health from bow
             if ((maintickcounter % 3 == 0) &&
-                ((weapon.num == bow_num) || (weapon.num == bow2_num)) && (Health < (starthealth)))
+                ((weapon.num == bow_num) || (weapon.num == bow2_num)) &&
+                (Health < (GS::GetGame().GetStarthealth())))
+            {
                 Health = Health + 1;
+            }
 
 #ifndef SERVER
             // smoke
@@ -1156,8 +1159,9 @@ void Sprite<M>::update()
 #ifdef SERVER
                 if (ceasefirecounter < 1)
 #else
-                if (((CVar::sv_survivalmode) && (ceasefirecounter < ceasefiretime * 3 - 30)) ||
-                    (ceasefirecounter < ceasefiretime - 30))
+                if (((CVar::sv_survivalmode) &&
+                     (ceasefirecounter < GS::GetGame().GetCeasefiretime() * 3 - 30)) ||
+                    (ceasefirecounter < GS::GetGame().GetCeasefiretime() - 30))
 #endif
                     if (onground || control.jetpack)
                         if ((holdedthing > 0) && (holdedthing < max_things + 1))
@@ -2963,7 +2967,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
     }
     break;
     case poly_type_regenerates: {
-        if (Health < starthealth)
+        if (Health < GS::GetGame().GetStarthealth())
             if (maintickcounter % 12 == 0)
             {
 #ifdef SERVER
@@ -3264,8 +3268,8 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
     // safety precautions
     if (Health < (brutaldeathhealth - 1))
         Health = brutaldeathhealth;
-    if (Health > starthealth)
-        Health = starthealth;
+    if (Health > GS::GetGame().GetStarthealth())
+        Health = GS::GetGame().GetStarthealth();
 
     // death!
     t = impact;
@@ -3425,7 +3429,7 @@ void Sprite<M>::respawn()
     deadmeatbeforerespawn = deadmeat;
     deadmeat = false;
     halfdead = false;
-    Health = starthealth;
+    Health = GS::GetGame().GetStarthealth();
     wearhelmet = 1;
 
     if (player->headcap == 0)
@@ -3438,7 +3442,7 @@ void Sprite<M>::respawn()
     spriteForces.y = 0;
     jetscount = map.startjet;
     jetscountprev = map.startjet;
-    ceasefirecounter = ceasefiretime;
+    ceasefirecounter = GS::GetGame().GetCeasefiretime();
     if (CVar::sv_advancemode)
         ceasefirecounter = ceasefirecounter * 3;
     brain.pissedoff = 0;
@@ -3908,7 +3912,8 @@ void Sprite<M>::changeteam(std::int32_t team)
 
         // Check if map change is in progress
 #ifdef SERVER
-        if ((mapchangecounter > -60) && (mapchangecounter < 99999999))
+        if ((GS::GetGame().GetMapchangecounter() > -60) &&
+            (GS::GetGame().GetMapchangecounter() < 99999999))
             servermapchange(num);
 #endif
 

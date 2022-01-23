@@ -134,6 +134,87 @@ class Game : public GlobalSubsystem<Game<M>>
 
     void CalculateTeamAliveNum(std::int32_t player);
 
+    std::int32_t GetCeasefiretime() const
+    {
+        return ceasefiretime;
+    }
+
+    std::int32_t GetMapchangecounter() const
+    {
+        return mapchangecounter;
+    }
+
+    void SetMapchangecounter(std::int32_t _mapchangecounter)
+    {
+        mapchangecounter = _mapchangecounter;
+    }
+
+    std::int32_t GetStarthealth() const
+    {
+        return starthealth;
+    }
+    void SetStarthealth(std::int32_t _starthealth)
+    {
+        starthealth = _starthealth;
+    }
+
+    const std::string &GetMapchangename() const
+    {
+        return mapchangename;
+    }
+
+    void SetMapchangename(const std::string &_mapchangename)
+    {
+        mapchangename = _mapchangename;
+    }
+
+    std::int32_t GetTimelimitcounter() const
+    {
+        return timelimitcounter;
+    }
+    void SetTimelimitcounter(std::int32_t _timelimitcounter)
+    {
+        timelimitcounter = _timelimitcounter;
+    }
+
+    std::int32_t GetTimeleftmin() const
+    {
+        return timeleftmin;
+    }
+    void SetTimeleftmin(std::int32_t _timeleftmin)
+    {
+        timeleftmin = _timeleftmin;
+    }
+
+    std::int32_t GetTimeleftsec() const
+    {
+        return timeleftsec;
+    }
+    void SetTimeleftsec(std::int32_t _timeleftsec)
+    {
+        timeleftsec = _timeleftsec;
+    }
+
+    void SetMapchange(const tmapinfo &_mapchange)
+    {
+        mapchange = _mapchange;
+    }
+
+    const tmapinfo &GetMapchange() const
+    {
+        return mapchange;
+    }
+
+    void SetMapchangechecksum(const tsha1digest &_mapchangechecksum)
+    {
+        mapchangechecksum = _mapchangechecksum;
+    }
+
+    std::int32_t GetMapchangetime() const
+    {
+        return mapchangetime;
+    }
+
   protected:
     Game();
 
@@ -161,6 +242,18 @@ class Game : public GlobalSubsystem<Game<M>>
     std::array<std::int8_t, 6> teamalivenum;
     PascalArray<std::int8_t, 0, 4> teamplayersnum;
     bool survivalendround = false;
+
+    std::int32_t ceasefiretime = default_ceasefire_time;
+    std::int32_t mapchangetime = default_mapchange_time;
+    std::int32_t mapchangecounter;
+    std::string mapchangename;
+    tmapinfo mapchange ;
+    std::uint64_t mapchangeitemid;
+    tsha1digest mapchangechecksum;
+    std::int32_t timelimitcounter = 3600;
+    std::int32_t starthealth = 150;
+    std::int32_t timeleftsec;
+    std::int32_t timeleftmin;
 
     friend GlobalSubsystem<Game<M>>;
 };

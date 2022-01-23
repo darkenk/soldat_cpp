@@ -287,12 +287,12 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                 gamemenushow(kickmenu, !kickmenu->active);
                 break;
             case 3: {
-                result = (mysprite > 0) && (mapchangecounter < 0);
+                result = (mysprite > 0) && (GS::GetGame().GetMapchangecounter() < 0);
 
                 if (result)
                 {
                     gamemenushow(teammenu);
-                    mapchangecounter = -60;
+                    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
                     selteam = 0;
                 }
                 else if ((mysprite == 0) && GS::GetGame().isteamgame())

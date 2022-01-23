@@ -1,20 +1,6 @@
 // automatically converted
 
-#define __gostekgraphics_implementation__
-
 #include "GostekGraphics.hpp"
-
-/*#include "Math.h"*/
-/*#include "SysUtils.h"*/
-/*#include "Client.h"*/
-/*#include "Vector.h"*/
-/*#include "Game.h"*/
-/*#include "ClientGame.h"*/
-/*#include "Weapons.h"*/
-/*#include "Parts.h"*/
-/*#include "Constants.h"*/
-/*#include "GameRendering.h"*/
-/*#include "Gfx.h"*/
 #include "GameRendering.hpp"
 #include "Gfx.hpp"
 #include "common/gfx.hpp"
@@ -22,6 +8,7 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>
 #include <array>
 #include <memory_resource>
@@ -234,7 +221,7 @@ void rendergostek(tsprite &soldier)
     float x1, y1, x2, y2, cx, cy, r, sx, sy;
     std::int32_t tex, team2offset;
 
-    if ((soldier.style != 1) || (soldier.ceasefirecounter > ceasefiretime - 5) ||
+    if ((soldier.style != 1) || (soldier.ceasefirecounter > GS::GetGame().GetCeasefiretime() - 5) ||
         ((CVar::sv_realisticmode) && (soldier.visible == 0)) or (soldier.isspectator()) or
         (soldier.player->name == "") or (soldier.player->demoplayer))
         return;

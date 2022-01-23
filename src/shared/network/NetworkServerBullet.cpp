@@ -206,7 +206,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
         if (vec2length(b) > 366)
             return;
 
-    if (mapchangecounter == 999999999)
+    if (GS::GetGame().GetMapchangecounter() == 999999999)
         return;
 
     if (bullettime[p] > maintickcounter)

@@ -341,12 +341,17 @@ bool keydown(SDL_KeyboardEvent &keyevent)
             if (demoplayer.active())
             {
                 result = true;
-                if ((mapchangecounter < 0) || (mapchangecounter > 99999999))
+                if ((GS::GetGame().GetMapchangecounter() < 0) ||
+                    (GS::GetGame().GetMapchangecounter() > 99999999))
                 {
-                    if (mapchangecounter < 0)
-                        mapchangecounter = 999999999;
+                    if (GS::GetGame().GetMapchangecounter() < 0)
+                    {
+                        GS::GetGame().SetMapchangecounter(999999999);
+                    }
                     else
-                        mapchangecounter = -60;
+                    {
+                        GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
+                    }
                 }
             }
         }

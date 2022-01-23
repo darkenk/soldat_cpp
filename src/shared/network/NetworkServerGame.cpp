@@ -117,9 +117,9 @@ void servermapchange(std::uint8_t id)
     tplayer dstplayer;
 
     mapchangemsg.header.id = msgid_mapchange;
-    mapchangemsg.counter = mapchangecounter;
-    strcpy(mapchangemsg.mapname.data(), mapchange.name.data());
-    mapchecksum = getmapchecksum(mapchange, gamemodchecksum);
+    mapchangemsg.counter = GS::GetGame().GetMapchangecounter();
+    strcpy(mapchangemsg.mapname.data(), GS::GetGame().GetMapchange().name.data());
+    mapchecksum = getmapchecksum(GS::GetGame().GetMapchange(), gamemodchecksum);
     mapchangemsg.mapchecksum = mapchecksum;
 
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
@@ -335,8 +335,8 @@ void serversyncmsg(std::int32_t tonum)
     tmsg_serversyncmsg syncmsg;
 
     syncmsg.header.id = msgid_serversyncmsg;
-    syncmsg.time = timelimitcounter;
-    if (mapchangecounter == 999999999)
+    syncmsg.time = GS::GetGame().GetTimelimitcounter();
+    if (GS::GetGame().GetMapchangecounter() == 999999999)
         syncmsg.pause = 1;
     else
         syncmsg.pause = 0;

@@ -322,7 +322,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
 
     // Sync cvars
     playersnum = playerslistmsg->players;
-    timelimitcounter = playerslistmsg->currenttime;
+    GS::GetGame().SetTimelimitcounter(playerslistmsg->currenttime);
 
     b.x = 0;
     b.y = 0;
@@ -411,7 +411,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     maintickcounter = 0;
     clienttickcount = playerslistmsg->serverticks;
     noheartbeattime = 0;
-    mapchangecounter = -60;
+    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
     gamemenushow(escmenu, false);
     limbolock = false;
 
@@ -462,10 +462,10 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
         }
     }
 
-    starthealth = default_health;
+    GS::GetGame().SetStarthealth(default_health);
     if (CVar::sv_realisticmode)
     {
-        starthealth = floatistic_health;
+        GS::GetGame().SetStarthealth(floatistic_health);
         GetMainConsole().console(_("Realistic Mode ON"), mode_message_color);
     }
     if (CVar::sv_survivalmode)

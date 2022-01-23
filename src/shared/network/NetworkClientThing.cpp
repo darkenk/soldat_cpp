@@ -13,6 +13,7 @@
 #include "NetworkUtils.hpp"
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -462,7 +463,9 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     break;
     case object_medical_kit: {
         playsound(SfxEffect::takemedikit, thing.skeleton.pos[1]);
-        SpriteSystem::Get().GetSprite(thingtakensnap->who).SetHealth(starthealth);
+        SpriteSystem::Get()
+            .GetSprite(thingtakensnap->who)
+            .SetHealth(GS::GetGame().GetStarthealth());
         thing.kill();
     }
     break;

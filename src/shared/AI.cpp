@@ -286,11 +286,9 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
         if (((SpriteSystem::Get().GetSprite(snum).weapon.num == noweapon_num) ||
              (SpriteSystem::Get().GetSprite(snum).weapon.num == knife_num) ||
              (SpriteSystem::Get().GetSprite(snum).weapon.num == chainsaw_num)) &&
-            (((SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num !=
-               noweapon_num) &&
+            (((SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num != noweapon_num) &&
               (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num != knife_num) &&
-              (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num !=
-               chainsaw_num)) ||
+              (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num != chainsaw_num)) ||
              (t.y > m.y)))
         {
             with.control.right = false;
@@ -402,10 +400,8 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 
         // impossible
         if (CVar::bots_difficulty < 60)
-            if ((SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num ==
-                 barrett_num) ||
-                (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num ==
-                 ruger77_num))
+            if ((SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num == barrett_num) ||
+                (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num == ruger77_num))
             {
                 dist = round(sqrt(sqr(m.x - t.x) + sqr(m.y - t.y)));
                 with.control.mouseaimx = round(t.x);
@@ -601,10 +597,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
         }
 
         if (spritec.brain.targetnum > 0)
-            if ((SpriteSystem::Get().GetSprite(spritec.brain.targetnum).weapon.num ==
-                 bow_num) ||
-                (SpriteSystem::Get().GetSprite(spritec.brain.targetnum).weapon.num ==
-                 bow2_num))
+            if ((SpriteSystem::Get().GetSprite(spritec.brain.targetnum).weapon.num == bow_num) ||
+                (SpriteSystem::Get().GetSprite(spritec.brain.targetnum).weapon.num == bow2_num))
                 spritec.brain.pissedoff = 0;
 
         if (spritec.brain.pissedoff == spritec.num)
@@ -935,7 +929,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
                      (thing.style == object_flamer_kit) || (thing.style == object_predator_kit) ||
                      (thing.style == object_vest_kit) || (thing.style == object_berserk_kit) ||
                      (thing.style == object_combat_knife) ||
-                     ((thing.style == object_medical_kit) && (spritec.GetHealth() < starthealth)) ||
+                     ((thing.style == object_medical_kit) &&
+                      (spritec.GetHealth() < GS::GetGame().GetStarthealth())) ||
                      ((thing.style == object_grenade_kit) &&
                       (spritec.tertiaryweapon.ammocount < CVar::sv_maxgrenades) &&
                       ((spritec.tertiaryweapon.num != clustergrenade_num) ||
@@ -1043,7 +1038,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
         if (CVar::bots_difficulty < 201)
             for (i = 1; i <= max_bullets; i++)
                 if (bullet[i].active && (bullet[i].style == bullet_style_fragnade) &&
-                    (distance(GetBulletParts().pos[i].x, GetBulletParts().pos[i].y, spritePartsPos.x,
+                    (distance(GetBulletParts().pos[i].x, GetBulletParts().pos[i].y,
+                              spritePartsPos.x,
                               spritePartsPos.y) < (fraggrenade_explosion_radius * 1.4)))
                 {
                     if (GetBulletParts().pos[i].x > spritePartsPos.x)

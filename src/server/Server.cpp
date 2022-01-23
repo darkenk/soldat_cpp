@@ -467,7 +467,7 @@ void ActivateServer(int argc, const char *argv[])
     WriteLn(" Hit CTRL+C to Exit");
     WriteLn(" Please command the server using the Soldat Admin program");
 
-    mapchangecounter = -60;
+    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
     sinuscounter = 0;
 
@@ -854,13 +854,13 @@ void startserver()
     if (CVar::sv_realisticmode)
     {
         GetServerMainConsole().console("Realistic Mode ON", mode_message_color);
-        starthealth = Constants::REALISTIC_HEALTH;
+        GS::GetGame().SetStarthealth(Constants::REALISTIC_HEALTH);
         loadweapons("weapons_realistic");
         lastwepmod = "weapons_realistic";
     }
     else
     {
-        starthealth = Constants::DEFAULT_HEALTH;
+        GS::GetGame().SetStarthealth(Constants::DEFAULT_HEALTH);
         loadweapons("weapons");
         lastwepmod = "weapons";
     }
@@ -993,11 +993,11 @@ void startserver()
     // sort the players frag list
     GS::GetGame().sortplayers();
 
-    mapchangecounter = -60;
+    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
     lastplayer = 0;
 
-    timelimitcounter = CVar::sv_timelimit;
+    GS::GetGame().SetTimelimitcounter(CVar::sv_timelimit);
 
     // Wave respawn time
     updatewaverespawntime();
@@ -1067,8 +1067,8 @@ bool preparemapchange(std::string Name)
     bool Result = false;
     if (getmapinfo(Name, GS::GetGame().GetUserDirectory(), Status))
     {
-        mapchange = Status;
-        mapchangecounter = mapchangetime;
+        GS::GetGame().SetMapchange(Status);
+        GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangetime());
         // s} to client that map changes
         servermapchange(all_players);
         GetServerMainConsole().console("Next  map" + Status.name, game_message_color);

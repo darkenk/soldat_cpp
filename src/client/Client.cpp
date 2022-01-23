@@ -156,7 +156,8 @@ void restartgraph()
     auto &map = GS::GetGame().GetMap();
 
     // Load Map
-    map.loadmap(mapchange, CVar::r_forcebg, CVar::r_forcebg_color1, CVar::r_forcebg_color2);
+    map.loadmap(GS::GetGame().GetMapchange(), CVar::r_forcebg, CVar::r_forcebg_color1,
+                CVar::r_forcebg_color2);
 
     windowready = true;
 
@@ -273,7 +274,7 @@ void exittomenu()
     }
 
     map.filename = ""; // force reloading next time
-    mapchangecounter = -60;
+    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
     // WindowReady := False;
 
     auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
@@ -639,7 +640,7 @@ void startgame(int argc, const char *argv[])
     loadweaponnames();
     createweaponsbase(guns);
 
-    mapchangecounter = -60;
+    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
     playernamesshow = true;
 

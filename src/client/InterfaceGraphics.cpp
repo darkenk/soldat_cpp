@@ -878,7 +878,7 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
             x = relinfo.healthbar_rel_x * _iscala.x + (int_.healthbar_x - relinfo.healthbar_rel_x);
             y = relinfo.healthbar_rel_y * _iscala.y + (int_.healthbar_y - relinfo.healthbar_rel_y);
 
-            t = (float)(me->GetHealth()) / starthealth;
+            t = (float)(me->GetHealth()) / GS::GetGame().GetStarthealth();
             gfxdrawtext(inttostr(trunc(t * 100)) + '%', x, y);
         }
 
@@ -1262,7 +1262,8 @@ void renderfragsmenutexts(float fragmenubottom)
     gfxdrawtext(CVar::sv_hostname, x + 30, y + 15);
 
     // time left && computer time
-    str1 = wideformat("{} {}:{}", ("Time"), timeleftmin, timeleftsec);
+    str1 = wideformat("{} {}:{}", ("Time"), GS::GetGame().GetTimeleftmin(),
+                      GS::GetGame().GetTimeleftsec());
     setfontstyle(font_small);
     gfxtextcolor(rgba(170, 160, 200, 230));
     gfxdrawtext(str1, x + 485, y + 15);
@@ -1988,7 +1989,8 @@ void renderinterface(float timeelapsed, float width, float height)
         spriteme = &SpriteSystem::Get().GetSprite(mysprite);
 
     widescreencut = (CVar::sv_bullettime) && (notexts == 0) &&
-                    (GS::GetGame().GetGoalTicks() < default_goalticks) && (mapchangecounter < 0);
+                    (GS::GetGame().GetGoalTicks() < default_goalticks) &&
+                    (GS::GetGame().GetMapchangecounter() < 0);
 
     // Big messages
     if (notexts == 0)
@@ -2113,7 +2115,8 @@ void renderinterface(float timeelapsed, float width, float height)
                 renderbar(GFX::INTERFACE_HEALTH_BAR, int_.healthbar_pos, int_.healthbar_x,
                           relinfo.healthbar_rel_x, int_.healthbar_y, relinfo.healthbar_rel_y,
                           int_.healthbar_width, int_.healthbar_height, int_.healthbar_rotate,
-                          (float)(spriteme->GetHealth()) / starthealth, intalign.healthbar == 0);
+                          (float)(spriteme->GetHealth()) / GS::GetGame().GetStarthealth(),
+                          intalign.healthbar == 0);
             }
 
             if (int_.vest && (spriteme->vest > 0))
@@ -2225,7 +2228,8 @@ void renderinterface(float timeelapsed, float width, float height)
 
         // Aim cursor
         if (!(limbomenu->active || teammenu->active || escmenu->active) && !spriteme->deadmeat &&
-            ((mapchangecounter < 0) || (mapchangecounter == 999999999)) &&
+            ((GS::GetGame().GetMapchangecounter() < 0) ||
+             (GS::GetGame().GetMapchangecounter() == 999999999)) &&
             !(demoplayer.active() && (!CVar::demo_showcrosshair)) &&
             !((spectnumber > 0) && (spectnumber <= 32) &&
               (SpriteSystem::Get().GetSprite(spectnumber).player->demoplayer == false)))
@@ -2964,12 +2968,13 @@ void renderinterface(float timeelapsed, float width, float height)
         if (int_.team)
             renderteamscoretexts();
 
-        if (mapchangecounter > 0)
+        if (GS::GetGame().GetMapchangecounter() > 0)
         {
-            if (fragsmenushow && (playersnum > 1) && (mapchangecounter < 999999999))
+            if (fragsmenushow && (playersnum > 1) &&
+                (GS::GetGame().GetMapchangecounter() < 999999999))
                 renderendgametexts(fragmenubottom);
 
-            if (mapchangecounter > 99999999)
+            if (GS::GetGame().GetMapchangecounter() > 99999999)
             {
                 // game paused
                 gfxtextcolor(rgba(185, 250, 138));
@@ -3023,8 +3028,8 @@ void renderinterface(float timeelapsed, float width, float height)
         setfontstyle(font_small);
 
         // cursor text
-        if ((cursortextlength > 0) && (mapchangecounter < 0) && !teammenu->active &&
-            !escmenu->active && !demoplayer.active())
+        if ((cursortextlength > 0) && (GS::GetGame().GetMapchangecounter() < 0) &&
+            !teammenu->active && !escmenu->active && !demoplayer.active())
         {
             x = mx * _rscala.x - 0.5 * rectwidth(gfxtextmetrics((cursortext)));
             y = (my + 10) * _rscala.y;

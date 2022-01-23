@@ -1853,7 +1853,8 @@ std::int32_t Thing<M>::checkspritecollision()
             if (dist < radius)
                 if (dist < closestdist)
 #ifdef SERVER
-                    if (!((style == object_medical_kit) && (sprite.GetHealth() == starthealth)))
+                    if (!((style == object_medical_kit) &&
+                          (sprite.GetHealth() == GS::GetGame().GetStarthealth())))
                         if (!((style == object_grenade_kit) &&
                               (sprite.tertiaryweapon.ammocount == CVar::sv_maxgrenades) &&
                               (sprite.tertiaryweapon.num == fraggrenade_num)))
@@ -1880,7 +1881,7 @@ std::int32_t Thing<M>::checkspritecollision()
             ((style == 15) && (SpriteSystem::Get().GetSprite(j).weapon.num == noweapon_num) &&
              (timeout < (CVar::sv_respawntime * flag_timeout - 100))) ||
             (((style == object_medical_kit) &&
-              (SpriteSystem::Get().GetSprite(j).GetHealth() < starthealth)
+              (SpriteSystem::Get().GetSprite(j).GetHealth() < GS::GetGame().GetStarthealth())
 #ifdef SERVER
               && (SpriteSystem::Get().GetSprite(j).haspack == false)
 #endif
@@ -2255,7 +2256,7 @@ std::int32_t Thing<M>::checkspritecollision()
                     }
             break;
         case object_medical_kit: {
-            if (SpriteSystem::Get().GetSprite(j).GetHealth() < starthealth)
+            if (SpriteSystem::Get().GetSprite(j).GetHealth() < GS::GetGame().GetStarthealth())
             {
                 // pickup health pack
 #ifdef SERVER
@@ -2267,7 +2268,7 @@ std::int32_t Thing<M>::checkspritecollision()
                     if (CVar::sv_healthcooldown > 0)
                         SpriteSystem::Get().GetSprite(j).haspack = true;
 #endif
-                    SpriteSystem::Get().GetSprite(j).SetHealth(starthealth);
+                    SpriteSystem::Get().GetSprite(j).SetHealth(GS::GetGame().GetStarthealth());
                     respawn();
 
 #ifdef SCRIPT
@@ -2336,7 +2337,7 @@ std::int32_t Thing<M>::checkspritecollision()
                         }
 #endif
 
-                        SpriteSystem::Get().GetSprite(j).SetHealth(starthealth);
+                        SpriteSystem::Get().GetSprite(j).SetHealth(GS::GetGame().GetStarthealth());
 #ifdef SCRIPT
                     }
 #endif
@@ -2356,7 +2357,7 @@ std::int32_t Thing<M>::checkspritecollision()
                     bigmessage(_("Predator Mode!"), capturemessagewait, bonus_message_color);
 #endif
 
-                SpriteSystem::Get().GetSprite(j).SetHealth(starthealth);
+                SpriteSystem::Get().GetSprite(j).SetHealth(GS::GetGame().GetStarthealth());
 
 #ifdef SCRIPT
                 scrptdispatcher.onkitpickup(j, num);
@@ -2388,7 +2389,7 @@ std::int32_t Thing<M>::checkspritecollision()
                     bigmessage(_("Berserker Mode!"), capturemessagewait, bonus_message_color);
 #endif
 
-                SpriteSystem::Get().GetSprite(j).SetHealth(starthealth);
+                SpriteSystem::Get().GetSprite(j).SetHealth(GS::GetGame().GetStarthealth());
 
 #ifdef SCRIPT
                 scrptdispatcher.onkitpickup(j, num);

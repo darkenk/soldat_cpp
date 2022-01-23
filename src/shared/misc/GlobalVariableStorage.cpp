@@ -11,17 +11,6 @@
 
 namespace
 {
-auto &ceasefiretime = InitGlobalVariable<std::int32_t, "ceasefiretime">();
-auto &mapchangetime = InitGlobalVariable<std::int32_t, "mapchangetime">();
-auto &mapchangecounter = InitGlobalVariable<std::int32_t, "mapchangecounter">();
-auto &mapchangename = InitGlobalVariable<std::string, "mapchangename">();
-auto &mapchange = InitGlobalVariable<tmapinfo, "mapchange">();
-auto &mapchangeitemid = InitGlobalVariable<std::uint64_t, "mapchangeitemid">();
-auto &mapchangechecksum = InitGlobalVariable<tsha1digest, "mapchangechecksum">();
-auto &timelimitcounter = InitGlobalVariable<std::int32_t, "timelimitcounter">();
-auto &starthealth = InitGlobalVariable<std::int32_t, "starthealth">();
-auto &timeleftsec = InitGlobalVariable<std::int32_t, "timeleftsec">();
-auto &timeleftmin = InitGlobalVariable<std::int32_t, "timeleftmin">();
 auto &weaponsel =
     InitGlobalVariable<PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, max_sprites>,
                        "weaponsel">();

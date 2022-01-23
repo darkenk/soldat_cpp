@@ -112,7 +112,7 @@ void apponidle()
         // General game updating
         updateframe();
 
-        if (mapchangecounter < 0)
+        if (GS::GetGame().GetMapchangecounter() < 0)
         {
             if (demorecorder.active())
                 demorecorder.savenextframe();
@@ -124,7 +124,7 @@ void apponidle()
         if (maintickcounter % second == 0)
         {
             // Player Ping Warning
-            if (mapchangecounter < 0)
+            if (GS::GetGame().GetMapchangecounter() < 0)
             {
                 if (maintickcounter % (second * 6) == 0)
                 {
@@ -251,7 +251,7 @@ void apponidle()
             {
                 j = sprite.num;
                 // connection problems
-                if (mapchangecounter < 0)
+                if (GS::GetGame().GetMapchangecounter() < 0)
                     noclientupdatetime[j] = noclientupdatetime[j] + 1;
                 if (noclientupdatetime[j] > disconnection_time)
                 {
@@ -330,7 +330,7 @@ void updateframe()
 
     LogTraceG("UpdateFrame");
 
-    if (mapchangecounter < 0)
+    if (GS::GetGame().GetMapchangecounter() < 0)
     {
         {
             ZoneScopedN("SpriteParts");
@@ -433,9 +433,11 @@ void updateframe()
     else if (GS::GetGame().GetBulletTimeTimer() < 1)
     {
         // MapChange counter update
-        if ((mapchangecounter > -60) && (mapchangecounter < 99999999))
-            mapchangecounter = mapchangecounter - 1;
-        if ((mapchangecounter < 0) && (mapchangecounter > -59))
+        if ((GS::GetGame().GetMapchangecounter() > -60) &&
+            (GS::GetGame().GetMapchangecounter() < 99999999))
+            GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 1);
+        if ((GS::GetGame().GetMapchangecounter() < 0) &&
+            (GS::GetGame().GetMapchangecounter() > -59))
             GS::GetGame().changemap();
 
         // Game Stats save
@@ -562,8 +564,8 @@ void updateframe()
         // Leftover from old Ban Timers code
         if (maintickcounter % (second * 10) == 0)
             if (playersnum == 0)
-                if (mapchangecounter > 99999999)
-                    mapchangecounter = -60;
+                if (GS::GetGame().GetMapchangecounter() > 99999999)
+                    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
         sinuscounter = sinuscounter + iluminatespeed;
 
@@ -575,31 +577,36 @@ void updateframe()
         GS::GetGame().TickVote();
 
         // Time Limit decrease
-        if (mapchangecounter < 99999999)
+        if (GS::GetGame().GetMapchangecounter() < 99999999)
             // if (MapChangeCounter<0) then
-            if (timelimitcounter > 0)
-                timelimitcounter = timelimitcounter - 1;
-        if (timelimitcounter == 1)
+            if (GS::GetGame().GetTimelimitcounter() > 0)
+                GS::GetGame().SetTimelimitcounter(GS::GetGame().GetTimelimitcounter() - 1);
+        if (GS::GetGame().GetTimelimitcounter() == 1)
         {
             nextmap();
         }
 
-        timeleftmin = timelimitcounter / minute;
-        timeleftsec = (timelimitcounter - timeleftmin * minute) / 60;
+        GS::GetGame().SetTimeleftmin(GS::GetGame().GetTimelimitcounter() / minute);
+        GS::GetGame().SetTimeleftsec(
+            (GS::GetGame().GetTimelimitcounter() - GS::GetGame().GetTimeleftmin() * minute) / 60);
 
-        if (timelimitcounter > 0)
+        if (GS::GetGame().GetTimelimitcounter() > 0)
         {
-            if (timelimitcounter < five_minutes + 1)
+            if (GS::GetGame().GetTimelimitcounter() < five_minutes + 1)
             {
-                if (timelimitcounter % minute == 0)
+                if (GS::GetGame().GetTimelimitcounter() % minute == 0)
                     GetServerMainConsole().console(
-                        string("Time Left: ") + inttostr(timelimitcounter / minute) + " minutes",
+                        string("Time Left: ") +
+                            inttostr(GS::GetGame().GetTimelimitcounter() / minute) + " minutes",
                         game_message_color);
             }
-            else if (timelimitcounter % five_minutes == 0)
-                GetServerMainConsole().console(string("Time Left: ") +
-                                                   inttostr(timelimitcounter / minute) + " minutes",
-                                               game_message_color);
+            else if (GS::GetGame().GetTimelimitcounter() % five_minutes == 0)
+            {
+                GetServerMainConsole().console(
+                    string("Time Left: ") + inttostr(GS::GetGame().GetTimelimitcounter() / minute) +
+                        " minutes",
+                    game_message_color);
+            }
         }
 
         LogTraceG("UpdateFrame 2");
@@ -629,7 +636,7 @@ void updateframe()
         j = CVar::sv_inf_bluelimit * second + 2 * second * (playersteamnum[2] - playersteamnum[1]);
 
     if (CVar::sv_gamemode == gamestyle_inf)
-        if (mapchangecounter < 0)
+        if (GS::GetGame().GetMapchangecounter() < 0)
             if (things[teamflag[2]].inbase)
                 if ((playersteamnum[1] > 0) && (playersteamnum[2] > 0))
                     /*and(PlayersTeamNum[1] >= PlayersTeamNum[2])*/
@@ -645,7 +652,7 @@ void updateframe()
 
     if (CVar::sv_gamemode == gamestyle_htf)
     {
-        if (mapchangecounter < 0)
+        if (GS::GetGame().GetMapchangecounter() < 0)
         {
             if ((playersteamnum[1] > 0) && (playersteamnum[2] > 0))
             {

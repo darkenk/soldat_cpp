@@ -67,8 +67,8 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
         teamscore[i] = heartbeat->teamscore[i - 1];
 
     // MapID differs, map not changed
-    if ((mapchangecounter < 0) && (heartbeat->mapid != 0) && (heartbeat->mapid != map.mapid) &&
-        (!demoplayer.active()))
+    if ((GS::GetGame().GetMapchangecounter() < 0) && (heartbeat->mapid != 0) &&
+        (heartbeat->mapid != map.mapid) && (!demoplayer.active()))
     {
         badmapidcount -= 1;
     }
@@ -79,7 +79,7 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
     {
         GetMainConsole().console(_("Wrong map version detected"), server_message_color);
         clientdisconnect();
-        mapchangecounter = -60;
+        GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
         return;
     }
 

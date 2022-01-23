@@ -453,7 +453,8 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     }
 
     // check if map change is in progress
-    if ((mapchangecounter > -60) && (mapchangecounter < 99999999))
+    if ((GS::GetGame().GetMapchangecounter() > -60) &&
+        (GS::GetGame().GetMapchangecounter() < 99999999))
         servermapchange(player->spritenum);
 
 #ifdef SCRIPT
@@ -512,7 +513,7 @@ void serversendplaylist(HSteamNetConnection peer)
     playerslist.mapchecksum = mapchecksum;
 
     playerslist.players = playersnum;
-    playerslist.currenttime = timelimitcounter;
+    playerslist.currenttime = GS::GetGame().GetTimelimitcounter();
 
 #ifdef SERVER
     playerslist.serverticks = servertickcounter;

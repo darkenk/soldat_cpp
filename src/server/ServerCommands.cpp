@@ -114,21 +114,22 @@ void commandmap(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandpause(std::vector<std::string> &args, std::uint8_t sender)
 {
-    mapchangecounter = 999999999;
+    GS::GetGame().SetMapchangecounter(999999999);
     serversyncmsg();
 }
 
 void commandunpause(std::vector<std::string> &args, std::uint8_t sender)
 {
-    mapchangecounter = -60;
+    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
     serversyncmsg();
 }
 
 void commandrestart(std::vector<std::string> &args, std::uint8_t sender)
 {
-    auto &map = GS::GetGame().GetMap();
-    mapchangename = map.name;
-    mapchangecounter = mapchangetime;
+    auto &game = GS::GetGame();
+    auto &map = game.GetMap();
+    game.SetMapchangename(map.name);
+    game.SetMapchangecounter(game.GetMapchangetime());
     servermapchange(all_players); // Inform clients of Map Change
 #ifdef SCRIPT
     scrptdispatcher.onbeforemapchange(mapchangename);
@@ -442,7 +443,7 @@ void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
         return;
     }
 
-    mapchangecounter = -60;
+    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
     serverdisconnect();
     for (i = 1; i <= max_bullets; i++)
         bullet[i].kill();

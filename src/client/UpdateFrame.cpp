@@ -49,7 +49,7 @@ void update_frame()
 
     auto &map = game.GetMap();
 
-    if (mapchangecounter < 0)
+    if (game.GetMapchangecounter() < 0)
     {
         ZoneScopedN("Update1");
         if (demoplayer.active() && escmenu->active)
@@ -179,7 +179,8 @@ void update_frame()
                         {
                             cursortext =
                                 cursortext + ' ' +
-                                inttostr(round(((float)(sprite.GetHealth()) / starthealth) * 100)) +
+                                inttostr(round(
+                                    ((float)(sprite.GetHealth()) / game.GetStarthealth()) * 100)) +
                                 '%';
                             cursorfriendly = true;
                         }
@@ -202,11 +203,13 @@ void update_frame()
     else if (game.GetBulletTimeTimer() < 1)
     {
         // MapChange counter update
-        if ((mapchangecounter > -60) && (mapchangecounter < 99999999))
-            mapchangecounter = mapchangecounter - 1;
-        if ((mapchangecounter < 0) && (mapchangecounter > -59))
+        if ((game.GetMapchangecounter() > -60) && (game.GetMapchangecounter() < 99999999))
         {
-            if (mapchangename != "EXIT*!*")
+            game.SetMapchangecounter(game.GetMapchangecounter() - 1);
+        }
+        if ((game.GetMapchangecounter() < 0) && (game.GetMapchangecounter() > -59))
+        {
+            if (game.GetMapchangename() != "EXIT*!*")
             {
                 game.changemap();
                 resetweaponstats();
@@ -228,8 +231,10 @@ void update_frame()
         if (maintickcounter % (second * 6) == 0)
         {
             if (playersnum == 0)
-                if (mapchangecounter > 99999999)
-                    mapchangecounter = -60;
+                if (game.GetMapchangecounter() > 99999999)
+                {
+                    game.SetMapchangecounter(game.GetMapchangecounter() - 60);
+                }
         }
 
         sinuscounter = sinuscounter + iluminatespeed;
@@ -243,7 +248,7 @@ void update_frame()
 
         // Idle counter
         if (mysprite > 0)
-            if (mapchangecounter < 99999999)
+            if (game.GetMapchangecounter() < 99999999)
                 if (SpriteSystem::Get().GetSprite(mysprite).isnotspectator() &&
                     (!SpriteSystem::Get().GetSprite(mysprite).player->demoplayer))
                 {
@@ -262,55 +267,59 @@ void update_frame()
                 }
 
         // Time Limit decrease
-        if (mapchangecounter < 99999999)
-            if (timelimitcounter > 0)
-                timelimitcounter = timelimitcounter - 1;
-
-        timeleftmin = timelimitcounter / 3600;
-        timeleftsec = (timelimitcounter - timeleftmin * 3600) / 60;
-
-        if (timelimitcounter > 0)
+        if (game.GetMapchangecounter() < 99999999)
         {
-            if (timelimitcounter < 601)
+            if (game.GetTimelimitcounter() > 0)
             {
-                if (timelimitcounter % 60 == 0)
+                game.SetTimelimitcounter(game.GetTimelimitcounter() - 1);
+            }
+        }
+
+        game.SetTimeleftmin(game.GetTimelimitcounter() / 3600);
+        game.SetTimeleftsec((game.GetTimelimitcounter() - game.GetTimeleftmin() * 3600) / 60);
+
+        if (game.GetTimelimitcounter() > 0)
+        {
+            if (game.GetTimelimitcounter() < 601)
+            {
+                if (game.GetTimelimitcounter() % 60 == 0)
                 {
-                    if (mapchangecounter == -60)
+                    if (game.GetMapchangecounter() == -60)
                     {
                         GetMainConsole().console(_("Time Left:") + ' ' +
-                                                     (inttostr(timelimitcounter / 60)) + ' ' +
-                                                     _("seconds"),
+                                                     (inttostr(game.GetTimelimitcounter() / 60)) +
+                                                     ' ' + _("seconds"),
                                                  game_message_color);
                         playsound(SfxEffect::signal);
                     }
                 }
             }
-            else if (timelimitcounter < 3601)
+            else if (game.GetTimelimitcounter() < 3601)
             {
-                if (timelimitcounter % 600 == 0)
+                if (game.GetTimelimitcounter() % 600 == 0)
                 {
                     GetMainConsole().console(_("Time Left:") + ' ' +
-                                                 (inttostr(timelimitcounter / 60)) + ' ' +
+                                                 (inttostr(game.GetTimelimitcounter() / 60)) + ' ' +
                                                  _("seconds"),
                                              game_message_color);
                     playsound(SfxEffect::signal);
                 }
             }
-            else if (timelimitcounter < 18001)
+            else if (game.GetTimelimitcounter() < 18001)
             {
-                if (timelimitcounter % 3600 == 0)
+                if (game.GetTimelimitcounter() % 3600 == 0)
                 {
                     GetMainConsole().console(_("Time Left:") + ' ' +
-                                                 (inttostr(timelimitcounter / 3600)) + ' ' +
-                                                 _("minutes"),
+                                                 (inttostr(game.GetTimelimitcounter() / 3600)) +
+                                                 ' ' + _("minutes"),
                                              game_message_color);
                     playsound(SfxEffect::signal);
                 }
             }
-            else if (timelimitcounter % 18000 == 0)
+            else if (game.GetTimelimitcounter() % 18000 == 0)
             {
                 GetMainConsole().console(_("Time Left:") + ' ' +
-                                             (inttostr(timelimitcounter / 3600)) + ' ' +
+                                             (inttostr(game.GetTimelimitcounter() / 3600)) + ' ' +
                                              _("minutes"),
                                          game_message_color);
                 playsound(SfxEffect::signal);
@@ -430,7 +439,7 @@ void update_frame()
 
     // end game screen
     if (screentaken)
-        if (mapchangecounter < ((float)(default_mapchange_time) / 3))
+        if (game.GetMapchangecounter() < ((float)(default_mapchange_time) / 3))
         {
             screentaken = false;
 #ifdef STEAM

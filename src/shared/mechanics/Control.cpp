@@ -344,8 +344,10 @@ void controlsprite(tsprite &spritec)
 
         if (spritec.deadmeat)
             spritec.freecontrols();
-        if (mapchangecounter > 0)
+        if (GS::GetGame().GetMapchangecounter() > 0)
+        {
             spritec.freecontrols();
+        }
 
         spritec.fired = 0;
 

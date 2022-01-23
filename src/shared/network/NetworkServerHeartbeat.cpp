@@ -50,11 +50,11 @@ void serverheartbeat()
     }
     auto &map = GS::GetGame().GetMap();
     heartbeatmsg.mapid = map.mapid;
-    if (mapchangecounter > 0)
+    if (GS::GetGame().GetMapchangecounter() > 0)
         heartbeatmsg.mapid = 0;
-    if ((CVar::sv_timelimit - timelimitcounter) < 600)
+    if ((CVar::sv_timelimit - GS::GetGame().GetTimelimitcounter()) < 600)
         heartbeatmsg.mapid = 0;
-    if ((timelimitcounter) < 600)
+    if ((GS::GetGame().GetTimelimitcounter()) < 600)
         heartbeatmsg.mapid = 0;
 
     for (auto &s : SpriteSystem::Get().GetActiveSprites())

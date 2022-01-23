@@ -221,7 +221,7 @@ void gameloop()
     double framepercent, dt;
     bool gamepaused;
 
-    gamepaused = (mapchangecounter >= 0);
+    gamepaused = (GS::GetGame().GetMapchangecounter() >= 0);
 
     currenttime = getcurrenttime();
 
@@ -265,7 +265,7 @@ void gameloop()
         if (demorecorder.active() && (maintickcounter % CVar::demo_rate == 0))
             demorecorder.saveposition();
 
-        if ((mapchangecounter < 0) && (escmenu->active))
+        if ((game.GetMapchangecounter() < 0) && (escmenu->active))
         {
             // DEMO
             if (demorecorder.active())
@@ -296,7 +296,7 @@ void gameloop()
         if ((mysprite > 0) && (!demoplayer.active()))
         {
             // connection problems
-            if ((mapchangecounter < 0) && escmenu->active)
+            if ((game.GetMapchangecounter() < 0) && escmenu->active)
                 noheartbeattime += 1;
 
             if (noheartbeattime > connectionproblem_time)
@@ -395,9 +395,13 @@ void gameloop()
             renderframe(frametiming.elapsed - dt * (1 - framepercent), framepercent, false);
     }
 
-    if ((mapchangecounter < 0) && (mapchangecounter > -59))
-        if (mapchangename == "EXIT*!*")
+    if ((game.GetMapchangecounter() < 0) && (game.GetMapchangecounter() > -59))
+    {
+        if (game.GetMapchangename() == "EXIT*!*")
+        {
             exittomenu();
+        }
+    }
 
     if (mapchanged)
     {

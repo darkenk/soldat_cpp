@@ -119,8 +119,10 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
 
         CVar::r_zoom = 0.0; // Reset zoom
 
-        if (mapchangecounter < 999999999)
-            mapchangecounter = -60;
+        if (GS::GetGame().GetMapchangecounter() < 999999999)
+        {
+            GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
+        }
         fragsmenushow = false;
         statsmenushow = false;
     }
@@ -390,7 +392,7 @@ void clienthandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
 
     GS::GetGame().sortplayers();
 
-    if ((playermsg->num == mysprite) && (mapchangecounter < 1))
+    if ((playermsg->num == mysprite) && (GS::GetGame().GetMapchangecounter() < 1))
     {
         GS::GetGame().showmapchangescoreboard();
         gamemenushow(teammenu, false);
@@ -412,11 +414,13 @@ void clienthandlemapchange(SteamNetworkingMessage_t *netmessage)
 
     mapchange = pmsg_mapchange(netmessage->m_pData);
 
+    std::string mapchangename;
     mapchangename.resize(mapchange->mapnamelength, '0');
     std::copy(mapchange->mapname.begin(), mapchange->mapname.begin() + mapchange->mapnamelength,
               mapchangename.begin());
-    mapchangecounter = mapchange->counter;
-    mapchangechecksum = mapchange->mapchecksum;
+    GS::GetGame().SetMapchangename(mapchangename);
+    GS::GetGame().SetMapchangecounter(mapchange->counter);
+    GS::GetGame().SetMapchangechecksum(mapchange->mapchecksum);
     fragsmenushow = true;
     statsmenushow = false;
     gamemenushow(limbomenu, false);
@@ -442,7 +446,8 @@ void clienthandlemapchange(SteamNetworkingMessage_t *netmessage)
         return;
     }
 
-    GetMainConsole().console(_("Next map:") + ' ' + (mapchangename), game_message_color);
+    GetMainConsole().console(_("Next map:") + ' ' + (GS::GetGame().GetMapchangename()),
+                             game_message_color);
 
     if (!CVar::sv_survivalmode)
         if ((CVar::sv_gamemode == gamestyle_deathmatch) ||
