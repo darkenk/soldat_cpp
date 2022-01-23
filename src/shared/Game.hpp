@@ -104,6 +104,36 @@ class Game : public GlobalSubsystem<Game<M>>
     void TickBulletTimeTimer() { if (bullettimetimer > -1) { bullettimetimer -= 1; } }
     void SetBulletTimeTimer(auto _Bullettimetimer) { bullettimetimer = _Bullettimetimer; }
 
+    std::uint8_t GetAlivenum() const
+    {
+        return alivenum;
+    }
+    void SetAlivenum(std::uint8_t _Alivenum)
+    {
+        alivenum = _Alivenum;
+    }
+
+    std::int8_t GetTeamAliveNum(std::int32_t idx) const
+    {
+        return teamalivenum[idx];
+    }
+
+    bool GetSurvivalEndRound() const
+    {
+        return survivalendround;
+    }
+    void SetSurvivalendround(bool _survivalendround)
+    {
+        survivalendround = _survivalendround;
+    }
+
+    std::int8_t GetTeamplayersnum(std::int32_t idx) const
+    {
+        return teamplayersnum[idx];
+    }
+
+    void CalculateTeamAliveNum(std::int32_t player);
+
   protected:
     Game();
 
@@ -126,6 +156,11 @@ class Game : public GlobalSubsystem<Game<M>>
     std::int32_t ticktimelast;
     std::int32_t goalticks = default_goalticks;
     std::int32_t bullettimetimer;
+
+    std::uint8_t alivenum;
+    std::array<std::int8_t, 6> teamalivenum;
+    PascalArray<std::int8_t, 0, 4> teamplayersnum;
+    bool survivalendround = false;
 
     friend GlobalSubsystem<Game<M>>;
 };

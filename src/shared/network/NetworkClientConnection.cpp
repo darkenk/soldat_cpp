@@ -397,7 +397,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     gamethingtarget = 0;
     selteam = 0;
     menutimer = 0;
-    survivalendround = false;
+    GS::GetGame().SetSurvivalendround(false);
     camerax = 0;
     cameray = 0;
 

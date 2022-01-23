@@ -536,7 +536,9 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
                     pmsg_serverflaginfo(netmessage->m_pData)->who, 18);
 
         if (CVar::sv_survivalmode)
-            survivalendround = true;
+        {
+            GS::GetGame().SetSurvivalendround(true);
+        }
     }
     if (pmsg_serverflaginfo(netmessage->m_pData)->style == captureblue)
     {
@@ -556,7 +558,9 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
                     pmsg_serverflaginfo(netmessage->m_pData)->who, 18);
 
         if (CVar::sv_survivalmode)
-            survivalendround = true;
+        {
+            GS::GetGame().SetSurvivalendround(true);
+        }
     }
 }
 

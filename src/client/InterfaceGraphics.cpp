@@ -1201,7 +1201,7 @@ void renderfragsmenutexts(float fragmenubottom)
             else if (i == 5)
                 z = spectatorsnum;
             else
-                z = teamplayersnum[i];
+                z = GS::GetGame().GetTeamplayersnum(i);
 
             if (z > 0)
             {
@@ -1308,7 +1308,7 @@ void renderfragsmenutexts(float fragmenubottom)
                 break;
             }
 
-            gfxdrawtext(inttostr(teamplayersnum[i]), x + 440 + 20 * ((i - 1) / 2),
+            gfxdrawtext(inttostr(GS::GetGame().GetTeamplayersnum(i)), x + 440 + 20 * ((i - 1) / 2),
                         y + 10 + 10 * ((i - 1) % 2));
         }
     }
@@ -1379,7 +1379,7 @@ void renderfragsmenutexts(float fragmenubottom)
             if (i == 5)
                 z = spectatorsnum;
             else
-                z = teamplayersnum[i];
+                z = GS::GetGame().GetTeamplayersnum(i);
 
             if (z > 0)
             {
@@ -1679,9 +1679,11 @@ void renderrespawnandsurvivaltexts()
 
     me = &SpriteSystem::Get().GetSprite(mysprite);
 
+    auto &game = GS::GetGame();
+
     if (me->isnotspectator())
     {
-        if (me->deadmeat || survivalendround)
+        if (me->deadmeat || game.GetSurvivalEndRound())
         {
             gfxdrawsprite(textures[GFX::INTERFACE_BACK], 180 * _iscala.x, _iscala.y,
                           (float)(300) / background_width, (float)(22) / background_width,
@@ -1694,16 +1696,17 @@ void renderrespawnandsurvivaltexts()
             str1 = wideformat(("Respawn in... {}"), floattostrf(p, fffixed, 7, 1));
             gfxtextcolor(rgba(255, 65, 55));
         }
-        else if ((CVar::sv_survivalmode) && me->deadmeat && !survivalendround)
+        else if ((CVar::sv_survivalmode) && me->deadmeat && !game.GetSurvivalEndRound())
         {
             gfxtextcolor(rgba(115, 255, 100));
 
             if (!GS::GetGame().isteamgame())
-                str1 = (inttostr(alivenum)) + ' ' + ("players left");
+                str1 = (inttostr(game.GetAlivenum())) + ' ' + ("players left");
             else
-                str1 = (inttostr(teamalivenum[me->player->team])) + ' ' + ("team players left");
+                str1 = (inttostr(game.GetTeamAliveNum(me->player->team))) + ' ' +
+                       ("team players left");
         }
-        else if (survivalendround)
+        else if (game.GetSurvivalEndRound())
         {
             if (me->deadmeat)
             {
@@ -1721,7 +1724,7 @@ void renderrespawnandsurvivaltexts()
         setfontstyle(font_menu);
         gfxdrawtext(str1, 200 * _iscala.x, 4 * _iscala.y);
     }
-    else if (survivalendround)
+    else if (game.GetSurvivalEndRound())
     {
         setfontstyle(font_menu);
         gfxtextcolor(rgba(115, 255, 100));
@@ -2566,6 +2569,8 @@ void renderinterface(float timeelapsed, float width, float height)
         wepstatsnum = z;
     }
 
+    auto &game = GS::GetGame();
+
     // Background For Frags Stats
     if (fragsmenushow)
     {
@@ -2575,15 +2580,15 @@ void renderinterface(float timeelapsed, float width, float height)
             y = 5 + fragy;
             i = 0;
 
-            if (teamplayersnum[1] > 0)
+            if (game.GetTeamplayersnum(1) > 0)
                 i = i + 15;
-            if (teamplayersnum[2] > 0)
+            if (game.GetTeamplayersnum(2) > 0)
                 i = i + 15;
-            if (teamplayersnum[3] > 0)
+            if (game.GetTeamplayersnum(3) > 0)
                 i = i + 15;
-            if (teamplayersnum[4] > 0)
+            if (game.GetTeamplayersnum(4) > 0)
                 i = i + 15;
-            if (teamplayersnum[0] > 0)
+            if (game.GetTeamplayersnum(0) > 0)
                 i = i + 15;
             if (spectatorsnum > 0)
                 i = i + 15;
@@ -2622,27 +2627,27 @@ void renderinterface(float timeelapsed, float width, float height)
             ids[4] = 0;
             ids[5] = 0;
 
-            if (teamplayersnum[1] > 0)
+            if (game.GetTeamplayersnum(1) > 0)
             {
                 teamposstep[1] = nextitemstep;
                 nextitemstep = nextitemstep + 20;
             }
-            if (teamplayersnum[2] > 0)
+            if (game.GetTeamplayersnum(2) > 0)
             {
                 teamposstep[2] = nextitemstep;
                 nextitemstep = nextitemstep + 20;
             }
-            if (teamplayersnum[3] > 0)
+            if (game.GetTeamplayersnum(3) > 0)
             {
                 teamposstep[3] = nextitemstep;
                 nextitemstep = nextitemstep + 20;
             }
-            if (teamplayersnum[4] > 0)
+            if (game.GetTeamplayersnum(4) > 0)
             {
                 teamposstep[4] = nextitemstep;
                 nextitemstep = nextitemstep + 20;
             }
-            if (teamplayersnum[0] > 0)
+            if (game.GetTeamplayersnum(0) > 0)
             {
                 teamposstep[0] = nextitemstep;
                 nextitemstep = nextitemstep + 20;
@@ -2681,7 +2686,7 @@ void renderinterface(float timeelapsed, float width, float height)
                                          .GetSprite(sortedplayers[j].playernum)
                                          .player->team == team_bravo)
                             {
-                                y = 70 + teamplayersnum[1] * fragsmenu_player_height +
+                                y = 70 + game.GetTeamplayersnum(1) * fragsmenu_player_height +
                                     teamposstep[2] + fragy + (ids[2] * 15);
                                 ids[2] = ids[2] + 1;
                             }
@@ -2692,7 +2697,7 @@ void renderinterface(float timeelapsed, float width, float height)
                                          .player->team == team_charlie)
                             {
                                 y = 70 +
-                                    (teamplayersnum[1] + teamplayersnum[2]) *
+                                    (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2)) *
                                         fragsmenu_player_height +
                                     teamposstep[3] + fragy + (ids[3] * 15);
                                 ids[3] = ids[3] + 1;
@@ -2702,7 +2707,8 @@ void renderinterface(float timeelapsed, float width, float height)
                                          .player->team == team_delta)
                             {
                                 y = 70 +
-                                    (teamplayersnum[1] + teamplayersnum[2] + teamplayersnum[3]) *
+                                    (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2) +
+                                     game.GetTeamplayersnum(3)) *
                                         fragsmenu_player_height +
                                     teamposstep[4] + fragy + (ids[4] * 15);
                                 ids[4] = ids[4] + 1;
@@ -2713,8 +2719,8 @@ void renderinterface(float timeelapsed, float width, float height)
                                          .player->team == team_none)
                             {
                                 y = 70 +
-                                    (teamplayersnum[1] + teamplayersnum[2] + teamplayersnum[3] +
-                                     teamplayersnum[4]) *
+                                    (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2) +
+                                     game.GetTeamplayersnum(3) + game.GetTeamplayersnum(4)) *
                                         fragsmenu_player_height +
                                     teamposstep[0] + fragy + (ids[0] * 15);
                                 ids[0] = ids[0] + 1;
@@ -2724,8 +2730,9 @@ void renderinterface(float timeelapsed, float width, float height)
                                          .player->team == team_spectator)
                             {
                                 y = 70 +
-                                    (teamplayersnum[1] + teamplayersnum[2] + teamplayersnum[3] +
-                                     teamplayersnum[4] + teamplayersnum[0]) *
+                                    (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2) +
+                                     game.GetTeamplayersnum(3) + game.GetTeamplayersnum(4) +
+                                     game.GetTeamplayersnum(0)) *
                                         fragsmenu_player_height +
                                     teamposstep[5] + fragy + (ids[5] * 15);
                                 ids[5] = ids[5] + 1;

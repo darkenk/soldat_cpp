@@ -13,8 +13,6 @@ T &InitGlobalVariable(Args &&...args)
 template <Config::Module M>
 void InitAllGlobalVariables()
 {
-    survivalendround = false;
-    weaponscleaned = false;
     ceasefiretime = default_ceasefire_time;
     mapchangetime = default_mapchange_time;
     timelimitcounter = 3600;

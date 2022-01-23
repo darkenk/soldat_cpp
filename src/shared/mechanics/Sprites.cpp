@@ -42,6 +42,11 @@ auto constexpr LOG = "sprites";
 
 using std::numbers::pi;
 
+namespace
+{
+bool weaponscleaned = false;
+}
+
 template <Config::Module M>
 std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t sstyle, std::uint8_t n,
                           tplayer *player, bool transferownership)
@@ -1215,7 +1220,7 @@ void Sprite<M>::update()
             {
                 if (respawncounter == 1)
                 {
-                    if (!survivalendround)
+                    if (!GS::GetGame().GetSurvivalEndRound())
                         respawncounter += 2;
                     else
                     {
@@ -1959,7 +1964,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             if ((CVar::sv_gamemode == gamestyle_deathmatch) ||
                 (CVar::sv_gamemode == gamestyle_rambo))
             {
-                alivenum = 0;
+                auto alivenum = 0;
 
                 for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
                 {
@@ -1968,6 +1973,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 }
 
                 alivenum -= 1;
+                GS::GetGame().SetAlivenum(alivenum);
 
                 if (alivenum < 2)
                 {
@@ -1976,7 +1982,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                         sprite.respawncounter = survival_respawntime;
                     }
 
-                    survivalendround = true;
+                    GS::GetGame().SetSurvivalendround(true);
 
 #ifndef SERVER
                     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
@@ -2008,85 +2014,16 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             if ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf) ||
                 (CVar::sv_gamemode == gamestyle_htf) || (CVar::sv_gamemode == gamestyle_teammatch))
             {
-                teamalivenum[1] = 0;
-                teamalivenum[2] = 0;
-                teamalivenum[3] = 0;
-                teamalivenum[4] = 0;
 
-                for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-                {
-                    if (!sprite.deadmeat and (sprite.player->team == team_alpha))
-                        teamalivenum[team_alpha] += 1;
-                    if (!sprite.deadmeat and (sprite.player->team == team_bravo))
-                        teamalivenum[team_bravo] += 1;
-                    if (!sprite.deadmeat and (sprite.player->team == team_charlie))
-                        teamalivenum[team_charlie] += 1;
-                    if (!sprite.deadmeat and (sprite.player->team == team_delta))
-                        teamalivenum[team_delta] += 1;
-                }
-
-                teamalivenum[player->team] -= 1;
-
-                alivenum = teamalivenum[1] + teamalivenum[2] + teamalivenum[3] + teamalivenum[4];
-
-                if (((teamalivenum[1] > 0) && (teamalivenum[2] < 1) && (teamalivenum[3] < 1) &&
-                     (teamalivenum[4] < 1)) ||
-                    ((teamalivenum[2] > 0) && (teamalivenum[1] < 1) && (teamalivenum[3] < 1) &&
-                     (teamalivenum[4] < 1)) ||
-                    ((teamalivenum[3] > 0) && (teamalivenum[1] < 1) && (teamalivenum[2] < 1) &&
-                     (teamalivenum[4] < 1)) ||
-                    ((teamalivenum[4] > 0) && (teamalivenum[1] < 1) && (teamalivenum[2] < 1) &&
-                     (teamalivenum[3] < 1)) ||
-                    ((teamalivenum[1] < 1) && (teamalivenum[2] < 1) && (teamalivenum[3] < 1) &&
-                     (teamalivenum[4] < 1)))
-                {
-                    auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
-                    std::for_each(
-                        std::begin(activeSprites), std::end(activeSprites),
-                        [](auto &sprite) { sprite.respawncounter = survival_respawntime; });
-
-                    if (!survivalendround)
-                        if (CVar::sv_gamemode == gamestyle_ctf)
-                        {
-                            if (teamalivenum[1] > 0)
-                                teamscore[1] += 1;
-                            if (teamalivenum[2] > 0)
-                                teamscore[2] += 1;
-                        }
-                    if (!survivalendround)
-                        if (CVar::sv_gamemode == gamestyle_inf)
-                        {
-                            if (teamalivenum[1] > 0)
-                                teamscore[1] += CVar::sv_inf_redaward;
-
-                            // penalty
-                            if (playersteamnum[1] > playersteamnum[2])
-                                teamscore[1] -= 5 * (playersteamnum[1] - playersteamnum[2]);
-                            if (teamscore[1] < 0)
-                                teamscore[1] = 0;
-                        }
-
-                    survivalendround = true;
-
-                    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-                    {
-                        if (!sprite.deadmeat)
-                        {
-                            sprite.idlerandom = 5;
-                            sprite.idletime = 1;
-                        }
-                    }
-                }
-
+                GS::GetGame().CalculateTeamAliveNum(player->team);
 #ifndef SERVER
                 if (mysprite > 0)
                     if (isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
                         if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
                             GetMainConsole().console(
                                 _("Players left on your team:") + ' ' +
-                                    (inttostr(teamalivenum[SpriteSystem::Get()
-                                                               .GetSprite(mysprite)
-                                                               .player->team])),
+                                    (inttostr(GS::GetGame().GetTeamAliveNum(
+                                        SpriteSystem::Get().GetSprite(mysprite).player->team))),
                                 game_message_color);
 #endif
             }
@@ -3386,7 +3323,7 @@ void Sprite<M>::checkoutofbounds()
 #endif
     auto &map = GS::GetGame().GetMap();
 
-    if (survivalendround)
+    if (GS::GetGame().GetSurvivalEndRound())
         return;
 
     bound = map.sectorsnum * map.GetSectorsDivision() - 50;
@@ -3411,7 +3348,7 @@ void Sprite<M>::checkskeletonoutofbounds()
     LogTraceG("TSprite.CheckSkeletonOutOfBounds");
     auto &map = GS::GetGame().GetMap();
 
-    if (survivalendround)
+    if (GS::GetGame().GetSurvivalEndRound())
         return;
 
     bound = map.sectorsnum * map.GetSectorsDivision() - 50;
@@ -3449,7 +3386,7 @@ void Sprite<M>::respawn()
 
     LogTraceG("TSprite.Respawn");
     if (CVar::sv_survivalmode_clearweapons)
-        if (survivalendround && !weaponscleaned)
+        if (GS::GetGame().GetSurvivalEndRound() && !weaponscleaned)
         {
             for (j = 1; j <= max_things; j++)
             {
@@ -3732,7 +3669,7 @@ void Sprite<M>::respawn()
 
     if (canrespawn(deadmeatbeforerespawn))
     {
-        if (survivalendround)
+        if (GS::GetGame().GetSurvivalEndRound())
         {
             survivalcheckendround = false;
             for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
@@ -3744,7 +3681,7 @@ void Sprite<M>::respawn()
                         break;
                     }
             }
-            survivalendround = survivalcheckendround;
+            GS::GetGame().SetSurvivalendround(survivalcheckendround);
         }
     }
     else
@@ -4957,7 +4894,8 @@ template <Config::Module M>
 bool Sprite<M>::canrespawn(bool deadmeatbeforerespawn)
 {
     bool result;
-    result = (CVar::sv_survivalmode == false) or (survivalendround) or (!deadmeatbeforerespawn);
+    result = (CVar::sv_survivalmode == false) or (GS::GetGame().GetSurvivalEndRound()) or
+             (!deadmeatbeforerespawn);
     return result;
 }
 

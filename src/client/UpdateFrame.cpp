@@ -116,7 +116,7 @@ void update_frame()
         if (maintickcounter % (second * 5) == 0)
             if ((camerafollowsprite > 0) &&
                 SpriteSystem::Get().GetSprite(camerafollowsprite).deadmeat and
-                (CVar::sv_realisticmode) && (CVar::sv_survivalmode) && !survivalendround)
+                (CVar::sv_realisticmode) && (CVar::sv_survivalmode) && !game.GetSurvivalEndRound())
             {
                 camerafollowsprite = getcameratarget(0);
             }

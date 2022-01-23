@@ -568,7 +568,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
 
             // force spectator chat to teamchat in survival mode when Round hasn't ended
             if ((CVar::sv_survivalmode)&SpriteSystem::Get().GetSprite(mysprite).isspectator() &&
-                !survivalendround && (CVar::sv_survivalmode_antispy))
+                !game.GetSurvivalEndRound() && (CVar::sv_survivalmode_antispy))
                 chattype = msgtype_team;
 
             cursorposition = length(chattext);

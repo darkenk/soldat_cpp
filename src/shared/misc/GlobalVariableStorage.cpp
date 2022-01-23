@@ -11,12 +11,6 @@
 
 namespace
 {
-auto &alivenum = InitGlobalVariable<std::uint8_t, "alivenum">();
-auto &teamalivenum = InitGlobalVariable<std::array<std::int8_t, 6>, "teamalivenum">();
-auto &teamplayersnum = InitGlobalVariable<PascalArray<std::int8_t, 0, 4>, "teamplayersnum">();
-auto &survivalendround = InitGlobalVariable<bool, "survivalendround">();
-auto &weaponscleaned = InitGlobalVariable<bool, "weaponscleaned">();
-
 auto &ceasefiretime = InitGlobalVariable<std::int32_t, "ceasefiretime">();
 auto &mapchangetime = InitGlobalVariable<std::int32_t, "mapchangetime">();
 auto &mapchangecounter = InitGlobalVariable<std::int32_t, "mapchangecounter">();

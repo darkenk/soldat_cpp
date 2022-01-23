@@ -981,7 +981,7 @@ void Thing<M>::update()
 
                             if (CVar::sv_survivalmode)
                             {
-                                survivalendround = true;
+                                GS::GetGame().SetSurvivalendround(true);
 
                                 // Everyone should die in floatistic after cap
                                 // because if nobody is dead the round will not end
@@ -1952,8 +1952,9 @@ std::int32_t Thing<M>::checkspritecollision()
                 return result;
 
             // Dont allow flag cap when round has ended
-            if (survivalendround && ((style == object_alpha_flag) || (style == object_bravo_flag) ||
-                                     (style == object_pointmatch_flag)))
+            if (GS::GetGame().GetSurvivalEndRound() &&
+                ((style == object_alpha_flag) || (style == object_bravo_flag) ||
+                 (style == object_pointmatch_flag)))
                 return result;
 
             statictype = false;
@@ -2279,8 +2280,7 @@ std::int32_t Thing<M>::checkspritecollision()
         case object_grenade_kit: {
             if ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount <
                  CVar::sv_maxgrenades) &&
-                ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num !=
-                  clustergrenade_num) ||
+                ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num != clustergrenade_num) ||
                  (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount == 0)))
             {
                 team = SpriteSystem::Get().GetSprite(j).player->team;

@@ -902,6 +902,79 @@ void Game<M>::TickVote()
 }
 
 template <Config::Module M>
+void Game<M>::CalculateTeamAliveNum(int32_t player)
+{
+    teamalivenum[1] = 0;
+    teamalivenum[2] = 0;
+    teamalivenum[3] = 0;
+    teamalivenum[4] = 0;
+
+    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    {
+        if (!sprite.deadmeat and (sprite.player->team == team_alpha))
+            teamalivenum[team_alpha] += 1;
+        if (!sprite.deadmeat and (sprite.player->team == team_bravo))
+            teamalivenum[team_bravo] += 1;
+        if (!sprite.deadmeat and (sprite.player->team == team_charlie))
+            teamalivenum[team_charlie] += 1;
+        if (!sprite.deadmeat and (sprite.player->team == team_delta))
+            teamalivenum[team_delta] += 1;
+    }
+
+    teamalivenum[player] -= 1;
+
+    alivenum = teamalivenum[1] + teamalivenum[2] + teamalivenum[3] + teamalivenum[4];
+
+    if (((teamalivenum[1] > 0) && (teamalivenum[2] < 1) && (teamalivenum[3] < 1) &&
+         (teamalivenum[4] < 1)) ||
+        ((teamalivenum[2] > 0) && (teamalivenum[1] < 1) && (teamalivenum[3] < 1) &&
+         (teamalivenum[4] < 1)) ||
+        ((teamalivenum[3] > 0) && (teamalivenum[1] < 1) && (teamalivenum[2] < 1) &&
+         (teamalivenum[4] < 1)) ||
+        ((teamalivenum[4] > 0) && (teamalivenum[1] < 1) && (teamalivenum[2] < 1) &&
+         (teamalivenum[3] < 1)) ||
+        ((teamalivenum[1] < 1) && (teamalivenum[2] < 1) && (teamalivenum[3] < 1) &&
+         (teamalivenum[4] < 1)))
+    {
+        auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+        std::for_each(std::begin(activeSprites), std::end(activeSprites),
+                      [](auto &sprite) { sprite.respawncounter = survival_respawntime; });
+
+        if (!survivalendround)
+            if (CVar::sv_gamemode == gamestyle_ctf)
+            {
+                if (teamalivenum[1] > 0)
+                    teamscore[1] += 1;
+                if (teamalivenum[2] > 0)
+                    teamscore[2] += 1;
+            }
+        if (!survivalendround)
+            if (CVar::sv_gamemode == gamestyle_inf)
+            {
+                if (teamalivenum[1] > 0)
+                    teamscore[1] += CVar::sv_inf_redaward;
+
+                // penalty
+                if (playersteamnum[1] > playersteamnum[2])
+                    teamscore[1] -= 5 * (playersteamnum[1] - playersteamnum[2]);
+                if (teamscore[1] < 0)
+                    teamscore[1] = 0;
+            }
+
+        survivalendround = true;
+
+        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        {
+            if (!sprite.deadmeat)
+            {
+                sprite.idlerandom = 5;
+                sprite.idletime = 1;
+            }
+        }
+    }
+}
+
+template <Config::Module M>
 Game<M>::Game() : map(botpath)
 {
 }
