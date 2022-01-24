@@ -11,6 +11,7 @@
 #include "NetworkServerThing.hpp"
 #include "common/Logging.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -346,11 +347,11 @@ bool tservernetwork::senddata(const std::byte *Data, std::int32_t Size, HSteamNe
     if (FHost == k_HSteamNetConnection_Invalid)
         return Result;
 
-    if (demorecorder.active())
+    if (GS::GetDemoRecorder().active())
     {
         NotImplemented(NITag::NETWORK, "check peer comparision");
         if (Peer == std::numeric_limits<std::uint32_t>::max())
-            demorecorder.saverecord(Data, Size);
+            GS::GetDemoRecorder().saverecord(Data, Size);
     }
 
     NetworkingSockets->SendMessageToConnection(Peer, Data, Size, Flags, nullptr);

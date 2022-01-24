@@ -22,6 +22,4 @@ auto &guns = InitGlobalVariable<GunsDescription, "guns">();
 auto &defaultguns = InitGlobalVariable<GunsDescription, "defaultguns">();
 auto &defaultwmchecksum = InitGlobalVariable<std::uint64_t, "defaultwmchecksum">();
 auto &loadedwmchecksum = InitGlobalVariable<std::uint64_t, "loadedwmchecksum">();
-
-auto &demorecorder = InitGlobalVariable<tdemorecorder<>, "demorecorder">();
 } // namespace

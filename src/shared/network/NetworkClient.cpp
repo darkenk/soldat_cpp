@@ -12,6 +12,7 @@
 #include "NetworkClientSprite.hpp"
 #include "NetworkClientThing.hpp"
 #include "common/Logging.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 //clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -170,9 +171,9 @@ void tclientnetwork::handlemessages(PSteamNetworkingMessage_t IncomingMsg)
 
     PacketHeader = pmsgheader(IncomingMsg->m_pData);
 
-    if (demorecorder.active())
+    if (GS::GetDemoRecorder().active())
     {
-        demorecorder.saverecord(IncomingMsg->m_pData, IncomingMsg->m_cbSize);
+        GS::GetDemoRecorder().saverecord(IncomingMsg->m_pData, IncomingMsg->m_cbSize);
     }
 
     switch (PacketHeader->id)

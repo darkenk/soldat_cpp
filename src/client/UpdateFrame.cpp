@@ -460,11 +460,11 @@ void update_frame()
             takescreenshot(screenfile);
         }
 
-    if ((CVar::demo_autorecord) && (demorecorder.active() == false) && (map.name != ""))
+    if ((CVar::demo_autorecord) && (GS::GetDemoRecorder().active() == false) && (map.name != ""))
     {
         NotImplemented(NITag::OTHER, "No now() function");
 #if 0
-        demorecorder.startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
+        GS::GetDemoRecorder().startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
                                  formatdatetime("yyyy-mm-dd_hh-nn-ss_", now()) + map.name + ".sdm");
 #endif
     }

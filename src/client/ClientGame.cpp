@@ -262,14 +262,14 @@ void gameloop()
         // General game updating
         update_frame();
 
-        if (demorecorder.active() && (GS::GetGame().GetMainTickCounter() % CVar::demo_rate == 0))
-            demorecorder.saveposition();
+        if (GS::GetDemoRecorder().active() && (GS::GetGame().GetMainTickCounter() % CVar::demo_rate == 0))
+            GS::GetDemoRecorder().saveposition();
 
         if ((game.GetMapchangecounter() < 0) && (escmenu->active))
         {
             // DEMO
-            if (demorecorder.active())
-                demorecorder.savenextframe();
+            if (GS::GetDemoRecorder().active())
+                GS::GetDemoRecorder().savenextframe();
             if (demoplayer.active())
                 demoplayer.processdemo();
         }

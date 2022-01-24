@@ -491,23 +491,23 @@ bool keydown(SDL_KeyboardEvent &keyevent)
         {
             if (CVar::demo_autorecord)
             {
-                demorecorder.stoprecord();
+                GS::GetDemoRecorder().stoprecord();
                 NotImplemented(NITag::OTHER);
 #if 0
-                demorecorder.startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
+                GS::GetDemoRecorder().startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
                                          sniperline_client_hppformatdatetime("yyyy-mm-dd_hh-nn-ss_", now(0)) + map.name +
                                          ".sdm");
 #endif
             }
-            else if (demorecorder.active())
+            else if (GS::GetDemoRecorder().active())
             {
-                demorecorder.stoprecord();
+                GS::GetDemoRecorder().stoprecord();
             }
             else
             {
                 NotImplemented(NITag::OTHER);
 #if 0
-                demorecorder.startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
+                GS::GetDemoRecorder().startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
                                          formatdatetime("yyyy-mm-dd_hh-nn-ss_", now(0)) + map.name +
                                          ".sdm");
 #endif

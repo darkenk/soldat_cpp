@@ -247,8 +247,8 @@ void exittomenu()
 
     // resetsynccvars;
 
-    if (demorecorder.active())
-        demorecorder.stoprecord();
+    if (GS::GetDemoRecorder().active())
+        GS::GetDemoRecorder().stoprecord();
 
     if (demoplayer.active())
         demoplayer.stopdemo();

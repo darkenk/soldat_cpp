@@ -35,7 +35,7 @@ void clientsendbullet(std::uint8_t i)
     GetNetwork()->senddata(&bulletmsg, sizeof(bulletmsg), k_nSteamNetworkingSend_Unreliable);
     NotImplemented(NITag::NETWORK);
 #if 0
-    if (demorecorder.active())
+    if (GS::GetDemoRecorder().active())
         serverbulletsnapshot(i, 0, false);
 #endif
 }

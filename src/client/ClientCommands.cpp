@@ -142,8 +142,8 @@ void commandrecord(std::vector<std::string> &args, std::uint8_t sender)
         str1 = formatdatetime("yyyy-mm-dd_hh-nn-ss_", now()) + map.name;
 #endif
 
-    demorecorder.stoprecord();
-    demorecorder.startrecord(GS::GetGame().GetUserDirectory() + "demos/" + str1 + ".sdm");
+    GS::GetDemoRecorder().stoprecord();
+    GS::GetDemoRecorder().startrecord(GS::GetGame().GetUserDirectory() + "demos/" + str1 + ".sdm");
 }
 
 void commandmute(std::vector<std::string> &args, std::uint8_t sender)
@@ -208,7 +208,7 @@ void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandstop(std::vector<std::string> &args, std::uint8_t sender)
 {
-    demorecorder.stoprecord();
+    GS::GetDemoRecorder().stoprecord();
 }
 
 void commandshutdown(std::vector<std::string> &args, std::uint8_t sender)

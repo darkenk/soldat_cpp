@@ -53,7 +53,7 @@ void serverbulletsnapshot(const std::uint8_t i, std::uint8_t tonum, bool forced)
                 }
     }
 #else
-    demorecorder.saverecord(bulletmsg, sizeof(bulletmsg));
+    GS::GetDemoRecorder().saverecord(bulletmsg, sizeof(bulletmsg));
 #endif
 }
 

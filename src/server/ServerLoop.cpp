@@ -116,8 +116,8 @@ void apponidle()
 
         if (GS::GetGame().GetMapchangecounter() < 0)
         {
-            if (demorecorder.active())
-                demorecorder.savenextframe();
+            if (GS::GetDemoRecorder().active())
+                GS::GetDemoRecorder().savenextframe();
         }
 
         LogTraceG("AppOnIdle 2");
@@ -826,11 +826,11 @@ void updateframe()
                 }
         }
     auto &map = GS::GetGame().GetMap();
-    if ((CVar::demo_autorecord) && (demorecorder.active() == false) && (map.name != ""))
+    if ((CVar::demo_autorecord) && (GS::GetDemoRecorder().active() == false) && (map.name != ""))
     {
         NotImplemented(NITag::OTHER);
 #if 0
-        demorecorder.startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
+        GS::GetDemoRecorder().startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
                                  formatdatetime("yyyy-mm-dd_hh-nn-ss_", now(0)) + map.name +
                                  ".sdm");
 #endif

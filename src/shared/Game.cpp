@@ -469,7 +469,7 @@ void Game<M>::changemap()
 #endif
 #ifndef SERVER
     mapchanged = true;
-    demorecorder.stoprecord();
+    GS::GetDemoRecorder().stoprecord();
 
     if (getmapinfo(mapchangename, UserDirectory, mapchangestatus) &&
         verifymapchecksum(mapchangestatus, mapchangechecksum, gamemodchecksum))
@@ -685,12 +685,12 @@ void Game<M>::changemap()
     // DEMO
     if (CVar::demo_autorecord)
     {
-        if (demorecorder.active())
-            demorecorder.stoprecord();
+        if (GS::GetDemoRecorder().active())
+            GS::GetDemoRecorder().stoprecord();
 
         NotImplemented(NITag::OTHER, "no current time function");
 #if 0
-        demorecorder.startrecord(userdirectory + "demos/" +
+        GS::GetDemoRecorder().startrecord(userdirectory + "demos/" +
                                  formatdatetime("yyyy-mm-dd_hh-nn-ss_", now()) + map.name + ".sdm");
 #endif
     }

@@ -1281,11 +1281,11 @@ void renderfragsmenutexts(float fragmenubottom)
     gfxdrawtext(CVar::sv_info, x + 30, y + 30);
 
     // demo name
-    if (demorecorder.active())
+    if (GS::GetDemoRecorder().active())
     {
         gfxtextcolor(
             rgba(0, 128, 0, fabs(round(sin((float)(GS::GetGame().GetSinusCounter()) / 2) * 255))));
-        gfxdrawtext(demorecorder.name(), x + 280, y + fragmenubottom - 10);
+        gfxdrawtext(GS::GetDemoRecorder().name(), x + 280, y + fragmenubottom - 10);
     }
 
     // players count
@@ -3148,7 +3148,7 @@ void renderinterface(float timeelapsed, float width, float height)
         }
 
         // REC
-        if (demorecorder.active())
+        if (GS::GetDemoRecorder().active())
         {
             gfxtextcolor(rgba(195, 0, 0, fabs(sin(5.1 * timeelapsed / 2) * 255)));
             gfxdrawtext("REC", 612 * _iscala.x, 1 * _iscala.y);

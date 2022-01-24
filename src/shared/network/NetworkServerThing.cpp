@@ -143,7 +143,7 @@ void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
                                              SpriteSystem::Get().GetSprite(tonum).player->peer,
                                              k_nSteamNetworkingSend_Unreliable);
 #else
-                demorecorder.saverecord(thingmsg, sizeof(thingmsg));
+                GS::GetDemoRecorder().saverecord(thingmsg, sizeof(thingmsg));
 #endif
             }
     }

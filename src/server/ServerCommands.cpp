@@ -1034,13 +1034,13 @@ void commandrecord(std::vector<std::string> &args, std::uint8_t sender)
 #endif
     }
 
-    demorecorder.stoprecord();
-    demorecorder.startrecord(GS::GetGame().GetUserDirectory() + "demos/" + str1 + ".sdm");
+    GS::GetDemoRecorder().stoprecord();
+    GS::GetDemoRecorder().startrecord(GS::GetGame().GetUserDirectory() + "demos/" + str1 + ".sdm");
 }
 
 void commandstop(std::vector<std::string> &args, std::uint8_t sender)
 {
-    demorecorder.stoprecord();
+    GS::GetDemoRecorder().stoprecord();
 }
 
 } // namespace

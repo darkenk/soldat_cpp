@@ -590,7 +590,7 @@ void serversendplaylist(HSteamNetConnection peer)
     GetServerNetwork()->senddata(&playerslist, sizeof(playerslist), peer,
                                  k_nSteamNetworkingSend_Reliable);
 #else
-    demorecorder.saverecord(playerslist, sizeof(playerslist));
+    GS::GetDemoRecorder().saverecord(playerslist, sizeof(playerslist));
 #endif
 }
 
@@ -724,11 +724,11 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
     }
     else
     {
-        if (demorecorder.active())
+        if (GS::GetDemoRecorder().active())
         {
             newplayer.adoptspriteid =
                 (std::uint8_t)(SpriteSystem::Get().GetSprite(num).player->demoplayer == true);
-            demorecorder.saverecord(&newplayer, sizeof(newplayer));
+            GS::GetDemoRecorder().saverecord(&newplayer, sizeof(newplayer));
         }
     }
     NotImplemented(NITag::OTHER, "No time functions");
@@ -740,7 +740,7 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
 #endif
 #else
     newplayer.adoptspriteid = 1;
-    demorecorder.saverecord(newplayer, sizeof(newplayer));
+    GS::GetDemoRecorder().saverecord(newplayer, sizeof(newplayer));
 #endif
 }
 
@@ -872,7 +872,7 @@ void serversynccvars(std::uint8_t tonum, HSteamNetConnection peer, bool fullsync
                                      k_nSteamNetworkingSend_Reliable);
     }
 #else
-    demorecorder.saverecord(varsmsg, sizeof(varsmsg) + buffersize);
+    GS::GetDemoRecorder().saverecord(varsmsg, sizeof(varsmsg) + buffersize);
 #endif
     varsmsg->~tmsg_serversynccvars();
     delete[] data;
@@ -921,7 +921,7 @@ void servervars(std::uint8_t tonum)
                                  SpriteSystem::Get().GetSprite(tonum).player->peer,
                                  k_nSteamNetworkingSend_Reliable);
 #else
-    demorecorder.saverecord(varsmsg, sizeof(varsmsg));
+    GS::GetDemoRecorder().saverecord(varsmsg, sizeof(varsmsg));
 #endif
 }
 
