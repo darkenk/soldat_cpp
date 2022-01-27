@@ -1036,6 +1036,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
 
         auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(spritec.num);
         // Runaway from grenade!
+        auto &bullet = GS::GetBulletSystem().GetBullets();
         if (CVar::bots_difficulty < 201)
             for (i = 1; i <= max_bullets; i++)
                 if (bullet[i].active && (bullet[i].style == bullet_style_fragnade) &&

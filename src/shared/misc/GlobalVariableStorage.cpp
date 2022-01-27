@@ -11,6 +11,5 @@
 
 namespace
 {
-auto &bullet = InitGlobalVariable<PascalArray<tbullet, 1, max_bullets>, "bullet">();
 auto &things = InitGlobalVariable<PascalArray<tthing, 1, max_things>, "things">();
 } // namespace

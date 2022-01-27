@@ -73,6 +73,7 @@ void update_frame()
         // Bullets update
         {
             ZoneScopedN("Bullets");
+            auto &bullet = GS::GetBulletSystem().GetBullets();
             for (j = 1; j <= max_bullets; j++)
             {
                 if (bullet[j].active)

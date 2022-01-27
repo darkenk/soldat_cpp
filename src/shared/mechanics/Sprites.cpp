@@ -1453,6 +1453,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         return;
 
     auto &guns = GS::GetWeaponSystem().GetGuns();
+    auto &bullet = GS::GetBulletSystem().GetBullets();
 
     if (!deadmeat)
     {
@@ -3233,6 +3234,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
 
 #ifndef SERVER
     auto &guns = GS::GetWeaponSystem().GetGuns();
+    auto &bullet = GS::GetBulletSystem().GetBullets();
     if ((what > 0) && (this->num != mysprite))
     {
         switch (bullet[what].style)
@@ -4172,6 +4174,7 @@ void Sprite<M>::fire()
         }
     }
 
+    auto &bullet = GS::GetBulletSystem().GetBullets();
     // Mercy animation
     if ((bodyanimation.id == AnimationType::Mercy) || (bodyanimation.id == AnimationType::Mercy2))
     {

@@ -392,8 +392,7 @@ void tdemoplayer::position(std::int32_t ticks)
 
         for (i = 1; i <= max_sprites; i++)
             SpriteSystem::Get().GetSprite(i).kill();
-        for (i = 1; i <= max_bullets; i++)
-            bullet[i].kill();
+        GS::GetBulletSystem().KillAll();
         for (i = 1; i <= max_sparks; i++)
             spark[i].kill();
         for (i = 1; i <= max_things; i++)

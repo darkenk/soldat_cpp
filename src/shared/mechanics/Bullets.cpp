@@ -97,7 +97,9 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
     LogTraceG("CreateBullet 2");
 #endif
 
-    auto f = [](const auto n) -> std::int32_t {
+    auto &bullet = GS::GetBulletSystem().GetBullets();
+
+    auto f = [&bullet](const auto n) -> std::int32_t {
         if (n != 255)
         {
             return n;
@@ -389,6 +391,7 @@ std::int32_t servercreatebullet(tvector2 spos, tvector2 svelocity, std::uint8_t 
 
     std::int32_t result;
     result = -1;
+    auto &bullet = GS::GetBulletSystem().GetBullets();
 
     if ((sowner <= 0) || (sowner >= max_sprites))
         return result;
@@ -2746,6 +2749,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
     // check explosion collision with bullets
     active = false;
+    auto &bullet = GS::GetBulletSystem().GetBullets();
     for (i = 1; i <= max_bullets; i++)
     {
         auto &b = bullet[i];

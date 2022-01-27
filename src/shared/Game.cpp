@@ -491,10 +491,7 @@ void Game<M>::changemap()
     }
 #endif
 
-    for (auto &b : bullet)
-    {
-        b.kill();
-    }
+    GS::GetBulletSystem().KillAll();
     for (auto &t : things)
     {
         t.kill();

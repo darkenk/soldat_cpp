@@ -732,7 +732,7 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
         ZoneScopedN("Bullets");
         for (i = 1; i <= max_bullets; i++)
         {
-            auto &b = bullet[i];
+            auto &b = GS::GetBulletSystem().GetBullets()[i];
             if (b.active or (b.pingadd > 0))
             {
                 j = b.num;
@@ -803,7 +803,7 @@ void restorestate(tinterpolationstate &s)
 
     for (i = 1; i <= max_bullets; i++)
     {
-        auto &b = bullet[i];
+        auto &b = GS::GetBulletSystem().GetBullets()[i];
         if (b.active or (b.pingadd > 0))
         {
             GetBulletParts().pos[b.num] = s.bulletpos[i];
@@ -937,7 +937,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
                 ZoneScopedN("RenderBullet");
                 for (i = 1; i <= max_bullets; i++)
                 {
-                    auto &b = bullet[i];
+                    auto &b = GS::GetBulletSystem().GetBullets()[i];
                     if (b.active or (b.pingadd > 0))
                         b.render(timeelapsed);
                 }

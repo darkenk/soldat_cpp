@@ -445,8 +445,7 @@ void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
 
     GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
     serverdisconnect();
-    for (i = 1; i <= max_bullets; i++)
-        bullet[i].kill();
+    GS::GetBulletSystem().KillAll();
     for (i = 1; i <= max_things; i++)
         things[i].kill();
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())

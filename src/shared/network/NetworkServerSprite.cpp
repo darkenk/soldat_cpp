@@ -267,6 +267,7 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
     {
         // if Bullet[BulletNum].OwnerWeapon = 0 then
         // SpriteDeathMsg.KillBullet := 250;
+        auto &bullet = GS::GetBulletSystem().GetBullets();
         auto &b = bullet[bulletnum];
         spritedeathmsg.killbullet = b.ownerweapon;
         if (b.style == 2)

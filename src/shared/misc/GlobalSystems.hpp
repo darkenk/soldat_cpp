@@ -3,6 +3,7 @@
 #include "common/misc/PortUtils.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/misc/GlobalSubsystem.hpp"
+#include "shared/mechanics/BulletSystem.hpp"
 #include "shared/Game.hpp"
 #include "shared/Demo.hpp"
 
@@ -25,6 +26,11 @@ class GlobalSystems final : public GlobalSubsystem<GlobalSystems<M>>
         return *GlobalSystems::Get().DemoRecorder;
     }
 
+    static BulletSystem& GetBulletSystem()
+    {
+        return *GlobalSystems::Get().BulletSystemObject;
+    }
+
   protected:
     GlobalSystems();
     ~GlobalSystems();
@@ -34,6 +40,7 @@ class GlobalSystems final : public GlobalSubsystem<GlobalSystems<M>>
     friend GlobalSubsystem<GlobalSystems<M>>;
     std::unique_ptr<WeaponSystem> WeaponSystemObject;
     std::unique_ptr<tdemorecorder<M>> DemoRecorder;
+    std::unique_ptr<BulletSystem> BulletSystemObject;
 };
 
 using GS = GlobalSystems<>;

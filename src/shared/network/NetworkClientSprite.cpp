@@ -593,6 +593,7 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
                 (inttostr(SpriteSystem::Get().GetSprite(deathsnap->killer).player->kills)) + ')',
             spectator_d_message_color, k);
     }
+    auto &bullet = GS::GetBulletSystem().GetBullets();
 
     // Explode - lag compensate
     if (deathsnap->killbullet == 7) // M79

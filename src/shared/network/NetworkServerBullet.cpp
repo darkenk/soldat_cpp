@@ -22,6 +22,7 @@ void serverbulletsnapshot(const std::uint8_t i, std::uint8_t tonum, bool forced)
 {
     tmsg_bulletsnapshot bulletmsg;
 
+    auto &bullet = GS::GetBulletSystem().GetBullets();
     auto &b = bullet[i];
 
     // SERVER BULLETS SNAPSHOT

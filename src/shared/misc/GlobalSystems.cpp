@@ -9,6 +9,7 @@ GlobalSystems<M>::GlobalSystems()
 {
     SpriteSystem::Init();
     AnimationSystem::Init();
+    BulletSystemObject = std::make_unique<BulletSystem>();
     WeaponSystemObject = std::make_unique<WeaponSystem>();
     DemoRecorder = std::make_unique<tdemorecorder<M>>();
     Game<M>::Init();
@@ -18,8 +19,9 @@ template <Config::Module M>
 GlobalSystems<M>::~GlobalSystems()
 {
     Game<M>::Deinit();
-    DemoRecorder.release();
-    WeaponSystemObject.release();
+    DemoRecorder.reset();
+    WeaponSystemObject.reset();
+    BulletSystemObject.reset();
     AnimationSystem::Deinit();
     SpriteSystem::Deinit();
 }

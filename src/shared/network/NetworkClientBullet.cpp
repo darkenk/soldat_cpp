@@ -23,7 +23,7 @@ std::array<tmsg_bulletsnapshot, max_sprites> oldbulletsnapshotmsg;
 void clientsendbullet(std::uint8_t i)
 {
     tmsg_clientbulletsnapshot bulletmsg;
-
+    auto &bullet = GS::GetBulletSystem().GetBullets();
     auto &b = bullet[i];
 
     bulletmsg.header.id = msgid_bulletsnapshot;
@@ -90,6 +90,7 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     const auto i =
         createbullet(a, b, bulletsnap->weaponnum, bulletsnap->owner, 255, hm, false, true);
 
+    auto &bullet = GS::GetBulletSystem().GetBullets();
     auto &bul = bullet[i];
 
     bul.ownerpingtick =
