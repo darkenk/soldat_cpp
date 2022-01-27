@@ -2063,6 +2063,7 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
     pos.x = 0;
     result = pos;
     auto &guns = GS::GetWeaponSystem().GetGuns();
+    auto things = GS::GetThingSystem().GetThings();
 
     // iterate through Things
     if (style != bullet_style_fragnade)
@@ -2721,6 +2722,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
             }
         }
     } // for SpriteSystem::Get().GetSprite(i)
+    auto things = GS::GetThingSystem().GetThings();
 
     // check explosion collision with things
     for (i = 1; i <= max_things; i++)

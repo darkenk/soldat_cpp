@@ -767,6 +767,7 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
 
     {
         ZoneScopedN("Things");
+        auto things = GS::GetThingSystem().GetThings();
         for (i = 1; i <= max_things; i++)
         {
             if (things[i].active)
@@ -818,6 +819,7 @@ void restorestate(tinterpolationstate &s)
             GetSparkParts().pos[spark[i].num] = s.sparkpos[i];
     }
 
+    auto things = GS::GetThingSystem().GetThings();
     for (i = 1; i <= max_things; i++)
     {
         if (things[i].active)
@@ -841,6 +843,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
     tgfxtexture *rt;
 
     mg = &mapgfx;
+    auto things = GS::GetThingSystem().GetThings();
 
     // graphics might be destroyed before end of game loop
     if (mg->vertexbuffer == nullptr)

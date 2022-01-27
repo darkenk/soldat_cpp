@@ -492,10 +492,7 @@ void Game<M>::changemap()
 #endif
 
     GS::GetBulletSystem().KillAll();
-    for (auto &t : things)
-    {
-        t.kill();
-    }
+    GS::GetThingSystem().KillAll();
 #ifndef SERVER
     for (auto &s : spark)
     {

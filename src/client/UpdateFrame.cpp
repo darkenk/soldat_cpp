@@ -102,6 +102,7 @@ void update_frame()
 
         {
             ZoneScopedN("Things");
+            auto things = GS::GetThingSystem().GetThings();
             // update Things
             for (j = 1; j <= max_things; j++)
                 if (things[j].active)

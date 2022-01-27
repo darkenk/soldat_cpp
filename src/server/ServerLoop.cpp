@@ -349,6 +349,7 @@ void updateframe()
     std::uint32_t _x;
 
     LogTraceG("UpdateFrame");
+    auto things = GS::GetThingSystem().GetThings();
 
     if (GS::GetGame().GetMapchangecounter() < 0)
     {

@@ -188,6 +188,7 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
                     break;
             }
 
+    auto things = GS::GetThingSystem().GetThings();
     // stat gun
     if (!bulletsnap->forced)
         if (style == bullet_style_m2)

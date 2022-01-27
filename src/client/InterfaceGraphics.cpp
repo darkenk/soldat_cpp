@@ -1844,6 +1844,7 @@ void renderplayername(float width, float height, std::int32_t i, bool onlyoffscr
     std::uint8_t alpha;
     tgfxrect rc;
     float x, y, w, h, dx, dy;
+    auto things = GS::GetThingSystem().GetThings();
 
     dy = iif(onlyoffscreen, -10, 5) + 15;
     rc = gfxtextmetrics((SpriteSystem::Get().GetSprite(i).player->name));
@@ -1972,6 +1973,7 @@ void renderinterface(float timeelapsed, float width, float height)
 #if 0
     steamnetworkingquickconnectionstatus networkstats;
 #endif
+    auto things = GS::GetThingSystem().GetThings();
 
     spriteme = nullptr;
     tgfxspritearray &t = textures;

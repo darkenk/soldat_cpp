@@ -469,6 +469,7 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
 {
     std::int32_t j;
     tvector2 a, b;
+    auto things = GS::GetThingSystem().GetThings();
 
     if (!verifypacket(sizeof(tmsg_serverflaginfo), netmessage->m_cbSize, msgid_flaginfo))
         return;

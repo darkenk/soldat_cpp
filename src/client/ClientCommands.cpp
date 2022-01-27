@@ -262,6 +262,9 @@ void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
         GetMainConsole().console("Usage: switchcamflag \"id\"", game_message_color);
         return;
     }
+
+    auto things = GS::GetThingSystem().GetThings();
+
     if (SpriteSystem::Get().GetSprite(mysprite).isspectator())
     {
         for (i = 1; i <= max_things; i++)

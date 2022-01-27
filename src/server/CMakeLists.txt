@@ -22,6 +22,7 @@ set(SHARED_SRC
     ../shared/mechanics/Control.cpp
     ../shared/mechanics/SpriteSystem.cpp
     ../shared/mechanics/BulletSystem.cpp
+    ../shared/mechanics/ThingSystem.cpp
     ../shared/network/Net.cpp
     ../shared/network/NetworkServer.cpp
     ../shared/network/NetworkUtils.cpp

@@ -1156,7 +1156,7 @@ void spawnthings(std::int8_t Style, std::int8_t Amount)
         k = 9;
         break;
     }
-
+    auto things = GS::GetThingSystem().GetThings();
     for (i = 0; i < Amount; i++)
     {
         team = 0;

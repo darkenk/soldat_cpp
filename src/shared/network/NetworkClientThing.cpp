@@ -40,6 +40,7 @@ void clienthandleserverthingsnapshot(SteamNetworkingMessage_t *netmessage)
     a.x = thingsnap->pos[1].x;
     a.y = thingsnap->pos[1].y;
 
+    auto things = GS::GetThingSystem().GetThings();
     auto &thing = things[i];
 
     if ((!thing.active) || (thing.style != thingsnap->style))
@@ -133,6 +134,7 @@ void clienthandleserverthingmustsnapshot(SteamNetworkingMessage_t *netmessage)
     if ((i < 1) || (i > max_things))
         return;
 
+    auto things = GS::GetThingSystem().GetThings();
     auto &thing = things[i];
 
     if ((thingmustsnap->owner > 0) && (thingmustsnap->owner < max_sprites + 1))
@@ -280,6 +282,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     if ((i < 1) || (i > max_things))
         return;
 
+    auto things = GS::GetThingSystem().GetThings();
     auto &thing = things[i];
 
     if (thingtakensnap->who == 255)

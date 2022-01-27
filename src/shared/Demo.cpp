@@ -395,8 +395,7 @@ void tdemoplayer::position(std::int32_t ticks)
         GS::GetBulletSystem().KillAll();
         for (i = 1; i <= max_sparks; i++)
             spark[i].kill();
-        for (i = 1; i <= max_things; i++)
-            things[i].kill();
+        GS::GetThingSystem().KillAll();
 
         // Reset World and Big Texts
         for (i = 0; i < max_big_messages; i++)

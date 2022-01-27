@@ -446,6 +446,7 @@ void gotothing(std::uint8_t snum, std::uint8_t tnum)
 {
     std::int32_t disttotargetx, disttotargety;
 
+    auto things = GS::GetThingSystem().GetThings();
     {
         auto &with = SpriteSystem::Get().GetSprite(snum);
         auto &thing = things[tnum];
@@ -508,7 +509,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
     bool tempb;
 
     auto &map = GS::GetGame().GetMap();
-
+    auto things = GS::GetThingSystem().GetThings();
     if ((spritec.player->controlmethod == bot) && !spritec.deadmeat && !spritec.dummy)
     // if (GS::GetGame().GetMainTickCounter() mod (SECOND * 2) = 0) then
     {
