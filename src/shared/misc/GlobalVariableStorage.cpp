@@ -11,10 +11,6 @@
 
 namespace
 {
-auto &weaponsel =
-    InitGlobalVariable<PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, max_sprites>,
-                       "weaponsel">();
-
 auto &bullet = InitGlobalVariable<PascalArray<tbullet, 1, max_bullets>, "bullet">();
 auto &things = InitGlobalVariable<PascalArray<tthing, 1, max_things>, "things">();
 } // namespace

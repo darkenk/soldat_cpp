@@ -882,7 +882,7 @@ void startserver()
     {
         for (i = 1; i <= primary_weapons; i++)
         {
-            weaponsel[j][i] = weaponSystem.IsEnabled(i);
+            GS::GetGame().GetWeaponsel()[j][i] = weaponSystem.IsEnabled(i);
         }
     }
 
@@ -892,7 +892,7 @@ void startserver()
         {
             for (i = 1; i < primary_weapons; i++)
             {
-                weaponsel[j][i] = 1;
+                GS::GetGame().GetWeaponsel()[j][i] = 1;
             }
         }
         GetServerMainConsole().console("Advance Mode ON", mode_message_color);

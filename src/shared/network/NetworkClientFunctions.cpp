@@ -128,6 +128,7 @@ void clienthandleweaponactivemessage(SteamNetworkingMessage_t *netmessage)
 
     wactivemessage = pmsg_weaponactivemessage(netmessage->m_pData);
     auto &weaponSystem = GS::GetWeaponSystem();
+    auto &weaponsel = GS::GetGame().GetWeaponsel();
 
     if ((wactivemessage->weapon > 0) && (wactivemessage->weapon <= main_weapons))
     {

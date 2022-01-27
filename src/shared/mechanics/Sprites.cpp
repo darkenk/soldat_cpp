@@ -1376,6 +1376,8 @@ void selectdefaultweapons(std::uint8_t mysprite)
 
     i = weaponSystem.CountEnabledPrimaryWeapons();
 
+    auto &weaponsel = GS::GetGame().GetWeaponsel();
+
     if (i == 1)
     {
         for (j = 1; j <= primary_weapons; j++)
@@ -2122,6 +2124,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifndef SERVER
     stopsound(reloadsoundchannel);
 #endif
+    auto &weaponsel = GS::GetGame().GetWeaponsel();
 
     // BREAD
 #ifdef SERVER
@@ -3423,6 +3426,7 @@ void Sprite<M>::respawn()
 
     auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
     auto &spriteForces = SpriteSystem::Get().GetForces(num);
+    auto &weaponsel = GS::GetGame().GetWeaponsel();
 
 #ifndef SERVER
     if ((player->name == "") or (player->demoplayer))

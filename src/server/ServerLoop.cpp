@@ -648,7 +648,7 @@ void updateframe()
         if (!CVar::sv_advancemode)
             for (j = 1; j <= max_sprites; j++)
                 for (i = 1; i <= 10; i++)
-                    weaponsel[j][i] = 1;
+                    GS::GetGame().GetWeaponsel()[j][i] = 1;
     } // bullettime off
 
     LogTraceG("UpdateFrame 3");

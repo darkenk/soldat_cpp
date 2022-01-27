@@ -277,6 +277,7 @@ void newplayerweapon()
     i = mysprite;
 
     SpriteSystem::Get().GetSprite(i).player->secwep = CVar::cl_player_secwep;
+    auto &weaponsel = GS::GetGame().GetWeaponsel();
 
     for (j = 1; j < main_weapons; j++)
     {

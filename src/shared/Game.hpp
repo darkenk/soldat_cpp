@@ -316,6 +316,11 @@ class Game : public GlobalSubsystem<Game<M>>
         return sortedplayers[idx];
     }
 
+    PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, max_sprites> &GetWeaponsel()
+    {
+        return weaponsel;
+    }
+
   protected:
     Game();
 
@@ -369,6 +374,7 @@ class Game : public GlobalSubsystem<Game<M>>
     tsha1digest gamemodchecksum;
     tsha1digest mapchecksum;
     PascalArray<tkillsort, 1, max_sprites> sortedplayers;
+    PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, max_sprites> weaponsel;
 
     friend GlobalSubsystem<Game<M>>;
 };

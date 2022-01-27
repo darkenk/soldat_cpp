@@ -416,11 +416,12 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
             i = buttonindex + 1;
             auto &weaponSystem = GS::GetWeaponSystem();
 
-            if (weaponSystem.IsEnabled(i) && (weaponsel[mysprite][i] == 1))
+            if (weaponSystem.IsEnabled(i) && (GS::GetGame().GetWeaponsel()[mysprite][i] == 1))
             {
                 if (i <= 10)
                 {
-                    if (weaponSystem.IsEnabled(i) && (weaponsel[mysprite][i] == 1))
+                    if (weaponSystem.IsEnabled(i) &&
+                        (GS::GetGame().GetWeaponsel()[mysprite][i] == 1))
                     {
                         SpriteSystem::Get().GetSprite(mysprite).selweapon =
                             GS::GetWeaponSystem().GetGuns()[i].num;
