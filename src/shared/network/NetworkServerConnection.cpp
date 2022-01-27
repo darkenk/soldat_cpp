@@ -18,10 +18,6 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-//clang-format off
-#include "../misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 auto constexpr minsperhour = 60;
 auto constexpr minsperday = 24 * minsperhour;
 

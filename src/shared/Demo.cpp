@@ -21,10 +21,6 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <filesystem>
 
-//clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 using string = std::string;
 
 #ifndef SERVER

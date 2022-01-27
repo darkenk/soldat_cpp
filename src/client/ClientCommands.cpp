@@ -15,10 +15,6 @@
 #include "shared/network/NetworkClientMessages.hpp"
 #include <regex>
 
-//clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 std::uint8_t screenshotsinarow = 0;
 
 namespace

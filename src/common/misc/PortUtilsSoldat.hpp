@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "GlobalVariable.hpp"
 #include "PortUtils.hpp"
 #include "RandomGenerator.hpp"
 #include <cmath>

@@ -14,10 +14,6 @@
 #include "shared/network/NetworkServerMessages.hpp"
 #include <filesystem>
 
-//clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 // procedure WriteLn1(S: Variant); overload;
 // begin
 //  if CvarsInitialized and log_timestamp.Value then

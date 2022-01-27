@@ -19,10 +19,6 @@
 #include <Tracy.hpp>
 #include <thread>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 using string = std::string;
 
 tvector2 mouseprev;
@@ -262,7 +258,8 @@ void gameloop()
         // General game updating
         update_frame();
 
-        if (GS::GetDemoRecorder().active() && (GS::GetGame().GetMainTickCounter() % CVar::demo_rate == 0))
+        if (GS::GetDemoRecorder().active() &&
+            (GS::GetGame().GetMainTickCounter() % CVar::demo_rate == 0))
             GS::GetDemoRecorder().saveposition();
 
         if ((game.GetMapchangecounter() < 0) && (escmenu->active))

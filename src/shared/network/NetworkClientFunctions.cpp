@@ -14,10 +14,6 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <physfs.h>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 void clienthandlevoteon(SteamNetworkingMessage_t *netmessage)
 {
     tmsg_voteon *voteonmsg;

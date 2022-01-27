@@ -19,10 +19,6 @@
 #include <map>
 #include <sstream>
 
-//clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 static bool deferredinitialized = false;
 static std::map<std::string, tcommand *> commands;
 static std::vector<std::string> deferredcommands;

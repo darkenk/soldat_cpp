@@ -18,10 +18,6 @@
 #include <numbers>
 #include <set>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 template <Config::Module M>
 particlesystem &GetSparkParts()
 {

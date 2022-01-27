@@ -14,10 +14,6 @@
 #include "common/Logging.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-//clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 static std::string_view NETMSG = "net_msg";
 auto constexpr LOG_NET = "network";
 

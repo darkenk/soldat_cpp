@@ -17,14 +17,9 @@
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include "shared/misc/GlobalVariable.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include <Tracy.hpp>
 #include <cstdint>
-
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
 
 std::int32_t idlecounter, oldmousex;
 

@@ -8,10 +8,6 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 void serversendfreecam(std::uint8_t tonum, bool freecam, tvector2 pos)
 {
     tmsg_clientfreecam freecammsg;

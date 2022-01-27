@@ -15,10 +15,6 @@
 #include <numbers>
 #include <set>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 using std::numbers::pi;
 
 #define IDS 1

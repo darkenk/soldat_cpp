@@ -27,10 +27,6 @@
 #include <limits>
 #include <numbers>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 using std::numbers::pi;
 
 template <Config::Module M>

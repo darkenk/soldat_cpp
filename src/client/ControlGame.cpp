@@ -23,10 +23,6 @@
 #include <SDL2/SDL.h>
 #include <numeric>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 bool votekickreasontype = false;
 
 void clearchattext()

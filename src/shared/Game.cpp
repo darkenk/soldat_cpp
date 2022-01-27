@@ -25,10 +25,6 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <chrono>
 
-//clang-format off
-#include "misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 #ifndef SERVER
 std::int32_t gamewidth = default_width;
 std::int32_t gameheight = default_height;

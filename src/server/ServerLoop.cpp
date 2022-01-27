@@ -20,10 +20,6 @@
 #include "shared/network/NetworkServerThing.hpp"
 #include <Tracy.hpp>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 using string = std::string;
 
 void apponidle()

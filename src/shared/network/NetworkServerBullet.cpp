@@ -9,10 +9,6 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-//clang-format off
-#include "../misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 namespace
 {
 std::array<tmsg_bulletsnapshot, max_sprites> oldbulletsnapshotmsg;

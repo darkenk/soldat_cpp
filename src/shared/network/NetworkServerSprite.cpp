@@ -9,10 +9,6 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <steam/isteamnetworkingmessages.h>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 std::array<std::array<tmsg_serverspritedelta_movement, max_sprites>, max_sprites> oldmovementmsg;
 std::array<std::array<tmsg_serverspritedelta_mouseaim, max_sprites>, max_sprites> oldmouseaimmsg;
 std::array<std::array<tmsg_serverspritedelta_weapons, max_sprites>, max_sprites> oldweaponsmsg;

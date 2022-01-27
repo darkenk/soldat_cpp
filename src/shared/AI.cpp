@@ -15,10 +15,6 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 // Checks the distance on one axis
 std::int32_t checkdistance(float posa, float posb)
 {

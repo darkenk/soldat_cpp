@@ -12,10 +12,6 @@
 #include <codecvt>
 #include <locale>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 // utility wrapper to adapt locale-bound facets for wstring/wbuffer convert
 template <class Facet>
 struct deletable_facet : Facet
@@ -119,7 +115,8 @@ void clienthandlechatmessage(SteamNetworkingMessage_t *netmessage)
         GetMainConsole().console(std::string(" ") + cs, col);
     }
 
-    /*if Radio and SpriteSystem::Get().GetSprite(i).IsInSameTeam(SpriteSystem::Get().GetSprite(MySprite)) then
+    /*if Radio and
+    SpriteSystem::Get().GetSprite(i).IsInSameTeam(SpriteSystem::Get().GetSprite(MySprite)) then
     begin
       PlayRadioSound(RadioID)
     end;*/

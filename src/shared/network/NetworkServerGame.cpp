@@ -12,10 +12,6 @@
 
 #include <string>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 extern TServerPlayer dummyplayer;
 
 void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)

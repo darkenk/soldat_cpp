@@ -12,10 +12,6 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
 {
     tmsg_heartbeat *heartbeat;

@@ -7,10 +7,6 @@
 
 #include <locale>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 template <Config::Module M>
 void Console<M>::scrollconsole()
 {

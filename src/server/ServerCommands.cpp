@@ -17,10 +17,6 @@
 #include "shared/network/NetworkServerMessages.hpp"
 #include "shared/network/NetworkUtils.hpp"
 
-//clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 using string = std::string;
 
 namespace

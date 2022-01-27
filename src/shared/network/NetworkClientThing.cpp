@@ -15,10 +15,6 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 void clienthandleserverthingsnapshot(SteamNetworkingMessage_t *netmessage)
 {
     tmsg_serverthingsnapshot *thingsnap;

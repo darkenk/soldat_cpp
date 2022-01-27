@@ -32,10 +32,6 @@
 #include <steam/steamnetworkingsockets.h>
 #include <thread>
 
-//clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 // constexpr auto PATH_MAX = 4095;
 
 bool progready = false;

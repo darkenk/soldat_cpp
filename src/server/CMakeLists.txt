@@ -34,8 +34,6 @@ set(SHARED_SRC
     ../shared/network/NetworkServerConnection.cpp
     ../shared/network/NetworkServerFunctions.cpp
     ../shared/network/NetworkServerHeartbeat.cpp
-    ../shared/misc/GlobalVariable.cpp
-    ../shared/misc/GlobalVariableStorage.cpp
     ../shared/misc/GlobalSystems.cpp
 )
 

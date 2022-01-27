@@ -14,10 +14,6 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 namespace
 {
 tmsg_clientspritesnapshot oldclientsnapshotmsg;

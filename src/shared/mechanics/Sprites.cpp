@@ -30,10 +30,6 @@
 #include <client/ClientGame.hpp>
 #include <numbers>
 
-//clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-//clang-format on
-
 #ifndef SERVER
 bool wasreloading;
 #endif
@@ -4993,3 +4989,5 @@ tvector2 Sprite<M>::GetOldSpritePos(int32_t idx)
 }
 
 template class Sprite<>;
+template bool teamcollides(PolygonType polytype, std::int32_t team, const bool bullet);
+template class BackgroundState<>;

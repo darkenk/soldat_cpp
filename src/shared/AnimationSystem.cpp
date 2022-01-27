@@ -1,16 +1,12 @@
 // automatically converted
 #include "AnimationSystem.hpp"
-#include "common/Anims.hpp"
-
 #include "LogFile.hpp"
+#include "common/Anims.hpp"
 #include "common/Parts.hpp"
-
 #include "mechanics/SpriteSystem.hpp"
 #include "physfs.h"
-
-// clang-format off
-#include "misc/GlobalVariableStorage.cpp"
-// clang-format on
+#include "shared/mechanics/Bullets.hpp"
+#include "shared/mechanics/Sparks.hpp"
 
 // TODO: add file missing checks
 // TODO: translate filenames into english

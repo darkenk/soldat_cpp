@@ -8,10 +8,6 @@
 #include <fstream>
 #include <iomanip>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 namespace
 {
 std::mutex loglock;

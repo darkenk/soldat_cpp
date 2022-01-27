@@ -21,10 +21,6 @@
 #include <physfs.h>
 #include <shared/Cvar.hpp>
 
-//clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 using string = std::string;
 
 namespace

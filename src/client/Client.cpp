@@ -37,10 +37,6 @@
 #include <physfs.h>
 #include <thread>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 namespace
 {
 bool progready;

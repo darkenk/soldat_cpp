@@ -18,10 +18,6 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <limits>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
 {
     tmsg_newplayer *newplayermsg;

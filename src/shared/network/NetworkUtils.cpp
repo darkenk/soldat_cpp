@@ -23,10 +23,6 @@
 #endif
 #include "shared/mechanics/SpriteSystem.hpp"
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 void encodekeys(tsprite &SpriteC, uint16_t &Keys16);
 void decodekeys(tsprite &SpriteC, std::uint32_t Keys16);
 

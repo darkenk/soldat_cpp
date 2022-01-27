@@ -13,10 +13,6 @@
 #include <cuchar>
 #include <steam/isteamnetworkingmessages.h>
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
                              std::uint8_t msgtype)
 {

@@ -35,10 +35,6 @@
 
 #include "common/gfx.hpp"
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 tgamerenderingparams gamerenderingparams;
 tgfxspritearray textures;
 

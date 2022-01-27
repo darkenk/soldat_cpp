@@ -3,13 +3,10 @@
 #include "platform/include/Threads.hpp"
 #include "server/Server.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include "shared/misc/GlobalVariable.hpp"
 #include <thread>
 
 int main(int argc, const char *argv[])
 {
-    InitAllGlobalVariables<Config::CLIENT_MODULE>();
-    InitAllGlobalVariables<Config::SERVER_MODULE>();
     InitLogging();
     GlobalSystems<Config::CLIENT_MODULE>::Init();
     GlobalSystems<Config::SERVER_MODULE>::Init();

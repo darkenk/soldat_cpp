@@ -49,8 +49,6 @@ set(SHARED_SRC
     ../shared/network/NetworkClientHeartbeat.cpp
     ../shared/misc/FontAtlas.cpp
     ../shared/misc/BitStream.cpp
-    ../shared/misc/GlobalVariable.cpp
-    ../shared/misc/GlobalVariableStorage.cpp
     ../shared/misc/GlobalSystems.cpp
 )
 

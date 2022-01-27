@@ -8,10 +8,6 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 #ifdef SERVER
 void serverthingsnapshot(std::uint8_t tonum)
 {
