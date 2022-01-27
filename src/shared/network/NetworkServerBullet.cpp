@@ -153,7 +153,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
             return;
     }
 
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
     if (style == bullet_style_m2)
     {
         onstatgun = false;

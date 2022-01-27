@@ -113,3 +113,14 @@ std::unique_ptr<TStream> PhysFS_ReadAsStream(const std::string_view &file)
     auto ret = std::make_unique<PhysFSStream>(file);
     return ret;
 }
+
+bool PhysFS_InitThreadSafe()
+{
+    static std::mutex initMutex;
+    std::lock_guard m(initMutex);
+    if (PHYSFS_isInit())
+    {
+        return true;
+    }
+    return PHYSFS_init(nullptr);
+}

@@ -34,7 +34,7 @@ class FlagSet
     }
 
     template <typename E>
-    friend FlagSet<E> &&operator&(FlagSet<E> &left, const E &right);
+    friend FlagSet<E> operator&(FlagSet<E> &left, const E &right);
 
   private:
     EnumStorageType FlagStorage;
@@ -48,18 +48,18 @@ static FlagSet<T> &&operator|(FlagSet<T> &&ref, const T &right)
 }
 
 template <typename T>
-FlagSet<typename std::enable_if<EnableFlagSet<T>::enable, T>::type> &&operator|(const T &left,
+FlagSet<typename std::enable_if<EnableFlagSet<T>::enable, T>::type> operator|(const T &left,
                                                                                 const T &right)
 {
     FlagSet<T> flags{left};
     flags.Set(right);
-    return std::move(flags);
+    return flags;
 }
 
 template <typename T>
-FlagSet<T> &&operator&(FlagSet<T> &left, const T &right)
+FlagSet<T> operator&(FlagSet<T> &left, const T &right)
 {
     FlagSet<T> flags(left);
     flags.FlagStorage &= static_cast<typename FlagSet<T>::EnumStorageType>(right);
-    return std::move(flags);
+    return flags;
 }

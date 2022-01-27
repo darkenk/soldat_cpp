@@ -22,7 +22,7 @@ class TThingSystem
 
   private:
     TThingSystem(const TThingSystem&) = delete;
-    PascalArray<tthing, 1, max_things> Things;
+    PascalArray<tthing, 1, max_things> Things{};
 };
 
 using ThingSystem = TThingSystem<>;

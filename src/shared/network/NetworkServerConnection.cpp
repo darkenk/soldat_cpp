@@ -175,7 +175,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     if (!verifypacket(sizeof(tmsg_playerinfo), netmessage->m_cbSize, msgid_playerinfo))
         return;
 
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     playerinfomsg = pmsg_playerinfo(netmessage->m_pData);
     player = reinterpret_cast<TServerPlayer *>(netmessage->m_nConnUserData);

@@ -30,7 +30,7 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
         return;
 
     spritesnap = pmsg_serverspritesnapshot(netmessage->m_pData);
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     // assign received sprite info to sprite
     i = spritesnap->num;
@@ -202,7 +202,7 @@ void clienthandleserverspritesnapshot_major(SteamNetworkingMessage_t *netmessage
     }
 
     // kill the bow
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
     if ((SpriteSystem::Get().GetSprite(i).weapon.num == bow_num) ||
         (SpriteSystem::Get().GetSprite(i).weapon.num == bow2_num))
         for (j = 1; j <= max_things; j++)

@@ -17,8 +17,8 @@ template <Config::Module M = Config::GetModule()>
 class Thing
 {
   public:
-    bool active;
-    std::uint8_t style, num, owner;
+    bool active{false};
+    std::uint8_t style, num{0}, owner;
     std::uint8_t holdingsprite;
     std::uint8_t ammocount;
     float radius;

@@ -259,7 +259,7 @@ void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
         return;
     }
 
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     if (SpriteSystem::Get().GetSprite(mysprite).isspectator())
     {

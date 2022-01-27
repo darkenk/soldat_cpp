@@ -399,7 +399,7 @@ void startgame(int argc, const char *argv[])
 
     LogDebugG("[PhysFS] Initializing system");
 
-    if (PHYSFS_isInit() == 0 && not PHYSFS_init(nullptr))
+    if (not PhysFS_InitThreadSafe())
     {
         showmessage(("Could not initialize PhysFS. Try to reinstall the game."));
         return;

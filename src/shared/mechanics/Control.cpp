@@ -94,7 +94,7 @@ void controlsprite(tsprite &spritec)
     auto &spriteVelocity = spriteSystem.GetVelocity(spritec.num);
     auto &spriteForces = spriteSystem.GetForces(spritec.num);
     auto &guns = GS::GetWeaponSystem().GetGuns();
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     switch (spritec.style)
     {

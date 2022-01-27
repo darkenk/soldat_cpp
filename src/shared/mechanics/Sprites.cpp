@@ -641,7 +641,7 @@ void Sprite<M>::update()
 #ifdef SERVER
     LogTraceG("TSprite.Update 2");
 #endif
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     if (!deadmeat)
     {
@@ -1298,7 +1298,7 @@ void Sprite<M>::kill()
 {
     bool left;
 
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
 #ifdef SERVER
     LogTraceG("TSprite.Kill");
@@ -1453,7 +1453,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
     auto &guns = GS::GetWeaponSystem().GetGuns();
     auto &bullet = GS::GetBulletSystem().GetBullets();
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     if (!deadmeat)
     {
@@ -2270,7 +2270,7 @@ std::int32_t Sprite<M>::dropweapon()
         }
     }
 
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
     if (result > 0)
         things[result].ammocount = weapon.ammocount;
 
@@ -2924,7 +2924,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
     auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
     auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
     auto &guns = GS::GetWeaponSystem().GetGuns();
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     switch (polytype)
     {
@@ -3408,7 +3408,7 @@ void Sprite<M>::respawn()
     auto &map = GS::GetGame().GetMap();
 
     auto &guns = GS::GetWeaponSystem().GetGuns();
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     LogTraceG("TSprite.Respawn");
     if (CVar::sv_survivalmode_clearweapons)
@@ -3734,7 +3734,7 @@ void Sprite<M>::parachute(tvector2 &a)
     std::int32_t n, i;
     float d = 0.0;
     auto &map = GS::GetGame().GetMap();
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     LogTraceG("Parachute");
     if (holdedthing > 0)
@@ -3785,7 +3785,7 @@ void Sprite<M>::changeteam(std::int32_t team)
     if (team > team_spectator)
         return;
 
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     if (active)
     {
@@ -4577,7 +4577,7 @@ void Sprite<M>::throwflag()
     tvector2 futurepoint1, futurepoint2, futurepoint3, futurepoint4;
     auto &map = GS::GetGame().GetMap();
     auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     if ((bodyanimation.id != AnimationType::Roll) && (bodyanimation.id != AnimationType::RollBack))
     {

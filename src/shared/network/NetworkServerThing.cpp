@@ -14,7 +14,7 @@ void serverthingsnapshot(std::uint8_t tonum)
     tmsg_serverthingsnapshot thingmsg;
     std::int32_t i, j;
     bool send;
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     for (i = 1; i <= max_things; i++)
     {
@@ -73,7 +73,7 @@ void serverthingmustsnapshot(const std::uint8_t i)
     tmsg_serverthingmustsnapshot thingmsg;
     std::int32_t j;
 
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
     auto &thing = things[i];
 
     if (thing.style == object_parachute)
@@ -112,7 +112,7 @@ void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
     tmsg_serverthingmustsnapshot thingmsg;
     std::int32_t i, j;
 
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
     for (i = 1; i <= max_things; i++)
     {
         auto &thing = things[i];
@@ -154,7 +154,7 @@ void serverthingmustsnapshotonconnectto(const std::uint8_t i, const std::uint8_t
     tmsg_serverthingmustsnapshot thingmsg;
     std::int32_t j;
 
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
     auto &thing = things[i];
 
     if (thing.style == object_parachute)
@@ -186,7 +186,7 @@ void serverthingtaken(const std::uint8_t i, const std::uint8_t w)
 {
     tmsg_serverthingtaken thingmsg;
 
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
     auto &thing = things[i];
 
     thingmsg.header.id = msgid_thingtaken;

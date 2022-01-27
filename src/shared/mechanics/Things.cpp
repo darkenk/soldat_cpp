@@ -44,7 +44,7 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
     LogTraceG("CreateThing");
 
     auto &guns = GS::GetWeaponSystem().GetGuns();
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     i = 0;
     // Remove flag if a new one is created
@@ -581,7 +581,7 @@ bool spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num)
     previousspawn = 0;
 
     auto &map = GS::GetGame().GetMap();
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     for (i = 1; i <= 255; i++)
     {
@@ -840,7 +840,7 @@ void Thing<M>::update()
 #ifdef SERVER
     LogTraceG("TThing.Update 2");
 #endif
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
 // check if flag is touchdown
 #ifdef SERVER
@@ -1618,7 +1618,7 @@ void Thing<M>::kill()
 #ifdef SERVER
     LogTraceG("TThing.Kill");
 #endif
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     if (num <= 0) // skip uninited Things
         return;
@@ -1707,7 +1707,7 @@ void Thing<M>::respawn()
 {
     tvector2 a;
     std::int32_t i;
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
 #ifdef SERVER
     LogTraceG("TThing.Respawn");
@@ -1830,7 +1830,7 @@ std::int32_t Thing<M>::checkspritecollision()
     LogTraceG("TThing.CheckSpriteCollision");
 #endif
     auto &guns = GS::GetWeaponSystem().GetGuns();
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
 
     result = -1;
 

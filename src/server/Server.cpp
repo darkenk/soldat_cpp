@@ -332,7 +332,7 @@ void ActivateServer(int argc, const char *argv[])
     SetCurrentDir(userdirectory);
 #endif
 
-    if (PHYSFS_isInit() == 0 && not PHYSFS_init(pchar(ParamStr(0))))
+    if (not PhysFS_InitThreadSafe())
     {
         WriteLn("Could not initialize PhysFS.");
         progready = false;
@@ -1152,7 +1152,7 @@ void spawnthings(std::int8_t Style, std::int8_t Amount)
         k = 9;
         break;
     }
-    auto things = GS::GetThingSystem().GetThings();
+    auto& things = GS::GetThingSystem().GetThings();
     for (i = 0; i < Amount; i++)
     {
         team = 0;
