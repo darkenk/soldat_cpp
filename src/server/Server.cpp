@@ -624,6 +624,9 @@ void loadweapons(std::string Filename)
     bool IsRealistic;
     LogDebugG("LoadWeapons");
 
+    auto &guns = GS::GetWeaponSystem().GetGuns();
+    auto &defaultguns = GS::GetWeaponSystem().GetDefaultGuns();
+
     IsRealistic = CVar::sv_realisticmode == true;
     createweapons(IsRealistic, guns, defaultguns);
     // FIXME (falcon) while the above instruction has to be done every time,
@@ -689,6 +692,8 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
     randomizestart(a, team);
     p = createsprite(a, b, 1, 255, NewPlayer, true);
     Result = p;
+
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     {
         TIniFile ini(

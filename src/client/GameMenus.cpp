@@ -119,9 +119,10 @@ void initgamemenus()
     for (i = 0; i <= main_weapons - 1; i++)
     {
         if (i < primary_weapons)
-            s = (inttostr((i + 1) % 10)) + ' ' + (gundisplayname[guns[i + 1].num]);
+            s = (inttostr((i + 1) % 10)) + ' ' +
+                (gundisplayname[GS::GetWeaponSystem().GetGuns()[i + 1].num]);
         else
-            s = (gundisplayname[guns[i + 1].num]);
+            s = (gundisplayname[GS::GetWeaponSystem().GetGuns()[i + 1].num]);
 
         initbutton(limbomenu, i, s, 35, 154 + 18 * (i + ord(i >= primary_weapons)), 235, 16);
     }
@@ -421,7 +422,8 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                 {
                     if (weaponSystem.IsEnabled(i) && (weaponsel[mysprite][i] == 1))
                     {
-                        SpriteSystem::Get().GetSprite(mysprite).selweapon = guns[i].num;
+                        SpriteSystem::Get().GetSprite(mysprite).selweapon =
+                            GS::GetWeaponSystem().GetGuns()[i].num;
                     }
 
                     if (SpriteSystem::Get().GetSprite(mysprite).selweapon > 0)
@@ -441,7 +443,8 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                 {
                     CVar::cl_player_secwep = (i - 11);
                     SpriteSystem::Get().GetSprite(mysprite).player->secwep = i - 11;
-                    SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(guns[i].num, 2);
+                    SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
+                        GS::GetWeaponSystem().GetGuns()[i].num, 2);
 
                     auto count = weaponSystem.CountEnabledPrimaryWeapons();
 
@@ -450,7 +453,8 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
                         gamemenushow(limbomenu, false);
                         SpriteSystem::Get().GetSprite(mysprite).SetFirstWeapon(
                             SpriteSystem::Get().GetSprite(mysprite).secondaryweapon);
-                        SpriteSystem::Get().GetSprite(mysprite).SetSecondWeapon(guns[noweapon]);
+                        SpriteSystem::Get().GetSprite(mysprite).SetSecondWeapon(
+                            GS::GetWeaponSystem().GetGuns()[noweapon]);
                     }
 
                     if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)

@@ -6,6 +6,7 @@
 #include "../Game.hpp"
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -57,6 +58,7 @@ void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, 
 
     SpriteSystem::Get().GetSprite(id).applyweaponbynum(primary, 1);
     SpriteSystem::Get().GetSprite(id).applyweaponbynum(secondary, 2);
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     if (ammo > guns[weaponnumtoindex(primary, guns)].ammo)
         ammo = guns[weaponnumtoindex(primary, guns)].ammo;

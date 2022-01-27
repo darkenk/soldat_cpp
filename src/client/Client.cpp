@@ -639,7 +639,7 @@ void startgame(int argc, const char *argv[])
 
     // Load weapon display names
     loadweaponnames();
-    createweaponsbase(guns);
+    createweaponsbase(GS::GetWeaponSystem().GetGuns());
 
     GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 

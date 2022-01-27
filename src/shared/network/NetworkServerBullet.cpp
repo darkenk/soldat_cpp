@@ -83,6 +83,8 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
     p = player->spritenum;
 
+    auto &guns = GS::GetWeaponSystem().GetGuns();
+
     messagesasecnum[p] += 1;
 
     SpriteSystem::Get().GetSprite(p).player->pingticksb =

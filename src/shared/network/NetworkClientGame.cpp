@@ -134,6 +134,8 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
 
     SpriteSystem::Get().GetSprite(i).respawn();
 
+    auto &guns = GS::GetWeaponSystem().GetGuns();
+
     if (d == 1)
     {
         SpriteSystem::Get().GetSprite(i).SetFirstWeapon(guns[noweapon]);

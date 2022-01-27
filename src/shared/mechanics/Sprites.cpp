@@ -108,6 +108,8 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
     if (CVar::sv_survivalmode)
         sprite.ceasefirecounter = sprite.ceasefirecounter * 3;
 
+    auto &guns = GS::GetWeaponSystem().GetGuns();
+
     sprite.alpha = 255;
     sprite.brain.pissedoff = 0;
     sprite.vest = 0;
@@ -1410,7 +1412,8 @@ void selectdefaultweapons(std::uint8_t mysprite)
                 CVar::cl_player_secwep = (SpriteSystem::Get().GetSprite(mysprite).player->secwep);
 
                 if (limbomenu->active && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
-                    SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(guns[j].num, 2);
+                    SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
+                        GS::GetWeaponSystem().GetGuns()[j].num, 2);
                 clientspritesnapshot();
                 break;
             }
@@ -1446,6 +1449,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         return;
     if (what > max_bullets)
         return;
+
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     if (!deadmeat)
     {
@@ -2913,6 +2918,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
     tvector2 a, b;
     auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
     auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     switch (polytype)
     {
@@ -3112,6 +3118,7 @@ void Sprite<M>::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32
     if (player->knifewarnings > 0)
         player->knifewarnings -= 1;
 #endif
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     if (restoreprimarystate && (gun == 2))
     {
@@ -3222,6 +3229,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
     Health = Health - hm;
 
 #ifndef SERVER
+    auto &guns = GS::GetWeaponSystem().GetGuns();
     if ((what > 0) && (this->num != mysprite))
     {
         switch (bullet[what].style)
@@ -3391,6 +3399,8 @@ void Sprite<M>::respawn()
     bool deadmeatbeforerespawn;
     bool survivalcheckendround;
     auto &map = GS::GetGame().GetMap();
+
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     LogTraceG("TSprite.Respawn");
     if (CVar::sv_survivalmode_clearweapons)
@@ -4655,6 +4665,7 @@ void Sprite<M>::throwgrenade()
     tvector2 playervelocity;
     auto &map = GS::GetGame().GetMap();
     auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     // Start throw animation
     if (!control.thrownade)

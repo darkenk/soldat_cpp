@@ -523,7 +523,7 @@ void Game<M>::changemap()
                 sprite.selweapon = 0;
 #endif
                 sprite.freecontrols();
-                sprite.SetFirstWeapon(guns[noweapon]);
+                sprite.SetFirstWeapon(GS::GetWeaponSystem().GetGuns()[noweapon]);
 
                 secwep = sprite.player->secwep + 1;
 
@@ -531,11 +531,12 @@ void Game<M>::changemap()
                 if ((secwep >= 1) && (secwep <= secondary_weapons) &&
                     (weaponSystem.IsEnabled(primary_weapons + secwep)))
                 {
-                    sprite.SetSecondWeapon(guns[primary_weapons + secwep]);
+                    sprite.SetSecondWeapon(
+                        GS::GetWeaponSystem().GetGuns()[primary_weapons + secwep]);
                 }
                 else
                 {
-                    sprite.SetSecondWeapon(guns[noweapon]);
+                    sprite.SetSecondWeapon(GS::GetWeaponSystem().GetGuns()[noweapon]);
                 }
 
                 sprite.respawncounter = 0;

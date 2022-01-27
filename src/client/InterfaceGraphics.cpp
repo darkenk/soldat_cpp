@@ -466,8 +466,8 @@ struct tattr
 
 void getweaponattribs(std::int32_t i, std::vector<tattr> &attrs)
 {
-    tgun &curgun = guns[i];
-    tgun &defgun = defaultguns[i];
+    auto &curgun = GS::GetWeaponSystem().GetGuns()[i];
+    auto &defgun = GS::GetWeaponSystem().GetDefaultGuns()[i];
 
     attrs[0].cur = (float)(curgun.hitmultiply *
                            (curgun.modifierlegs + curgun.modifierchest + curgun.modifierhead)) /
@@ -940,7 +940,8 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
         }
 
         // weapon
-        if (int_.weapon && isdoubleweaponindex(weaponnumtoindex(me->weapon.num, guns)))
+        if (int_.weapon &&
+            isdoubleweaponindex(weaponnumtoindex(me->weapon.num, GS::GetWeaponSystem().GetGuns())))
         {
             x = relinfo.ammobar_rel_x * _iscala.x + (int_.weapon_x - relinfo.ammobar_rel_x);
             y = relinfo.ammobar_rel_y * _iscala.y + (int_.weapon_y - relinfo.ammobar_rel_y);

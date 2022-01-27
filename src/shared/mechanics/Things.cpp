@@ -47,6 +47,8 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
     std::int32_t result;
     LogTraceG("CreateThing");
 
+    auto &guns = GS::GetWeaponSystem().GetGuns();
+
     i = 0;
     // Remove flag if a new one is created
     if (sstyle < object_ussocom)
@@ -1826,6 +1828,7 @@ std::int32_t Thing<M>::checkspritecollision()
     std::int32_t result;
     LogTraceG("TThing.CheckSpriteCollision");
 #endif
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     result = -1;
 
@@ -2504,6 +2507,8 @@ std::int32_t Thing<M>::checkstationaryguncollision(bool clientcheck)
             interest -= 1;
 
     pos = skeleton.pos[1];
+
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {

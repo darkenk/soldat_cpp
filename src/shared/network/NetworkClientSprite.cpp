@@ -245,6 +245,8 @@ void clienthandleserverskeletonsnapshot(SteamNetworkingMessage_t *netmessage)
     if (!SpriteSystem::Get().GetSprite(i).active)
         return;
 
+    auto &guns = GS::GetWeaponSystem().GetGuns();
+
     SpriteSystem::Get().GetSprite(i).deadmeat = true;
     SpriteSystem::Get().GetSprite(i).respawncounter = skeletonsnap->respawncounter;
     SpriteSystem::Get().GetSprite(i).SetFirstWeapon(guns[noweapon]);
@@ -431,6 +433,8 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
         SpriteSystem::Get().GetSprite(i).skeleton.constraints[21].active = false;
     if ((deathsnap->constraints & B5) == B5)
         SpriteSystem::Get().GetSprite(i).skeleton.constraints[23].active = false;
+
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     SpriteSystem::Get().GetSprite(i).SetFirstWeapon(guns[noweapon]);
     SpriteSystem::Get().GetSprite(i).respawncounter = deathsnap->respawncounter;

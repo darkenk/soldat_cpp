@@ -629,12 +629,13 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
         newplayerweapon();
     }
 
-    createdefaultweapons(CVar::sv_realisticmode, guns, defaultguns);
-    GS::GetWeaponSystem().SetDefaultWMChecksum(createwmchecksum(guns));
+    createdefaultweapons(CVar::sv_realisticmode, GS::GetWeaponSystem().GetGuns(),
+                         GS::GetWeaponSystem().GetDefaultGuns());
+    GS::GetWeaponSystem().SetDefaultWMChecksum(createwmchecksum(GS::GetWeaponSystem().GetGuns()));
 
     for (weaponindex = 0; weaponindex < original_weapons; weaponindex++)
     {
-        auto &gun = guns[weaponindex + 1];
+        auto &gun = GS::GetWeaponSystem().GetGuns()[weaponindex + 1];
         gun.hitmultiply = varsmsg->damage[weaponindex];
         gun.ammo = varsmsg->ammo[weaponindex];
         gun.reloadtime = varsmsg->reloadtime[weaponindex];
@@ -654,7 +655,7 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
         gun.nocollision = varsmsg->nocollision[weaponindex];
     }
 
-    buildweapons(guns);
+    buildweapons(GS::GetWeaponSystem().GetGuns());
 
     if (mysprite > 0)
     {
@@ -666,7 +667,7 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
             clientspritesnapshot();
     }
 
-    GS::GetWeaponSystem().SetLoadedWMChecksum(createwmchecksum(guns));
+    GS::GetWeaponSystem().SetLoadedWMChecksum(createwmchecksum(GS::GetWeaponSystem().GetGuns()));
 
     if (GS::GetWeaponSystem().GetLoadedWMChecksum() != GS::GetWeaponSystem().GetDefaultWMChecksum())
     {

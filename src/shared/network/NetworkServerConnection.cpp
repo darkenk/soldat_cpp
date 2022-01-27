@@ -893,6 +893,8 @@ void servervars(std::uint8_t tonum)
         varsmsg.weaponactive[i - 1] = weaponSystem.IsEnabled(i);
     }
 
+    auto &guns = GS::GetWeaponSystem().GetGuns();
+
     for (weaponindex = 1; weaponindex <= original_weapons; weaponindex++)
     {
         auto &gun = guns[weaponindex];

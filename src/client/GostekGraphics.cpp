@@ -404,7 +404,7 @@ void rendergostek(tsprite &soldier)
 
     // secondary weapon (on the back)
 
-    index = weaponnumtoindex(soldier.secondaryweapon.num, guns);
+    index = weaponnumtoindex(soldier.secondaryweapon.num, GS::GetWeaponSystem().GetGuns());
 
     if ((index >= eagle) && (index <= flamer))
         include(visible, GOSTEK_SECONDARY_FIRST + index - eagle);
@@ -447,7 +447,7 @@ void rendergostek(tsprite &soldier)
     }
     else if (!soldier.deadmeat)
     {
-        index = weaponnumtoindex(soldier.weapon.num, guns);
+        index = weaponnumtoindex(soldier.weapon.num, GS::GetWeaponSystem().GetGuns());
 
         if ((index >= eagle) && (index <= flamer))
         {

@@ -55,6 +55,8 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
     std::int32_t result;
     result = -1;
 
+    auto &guns = GS::GetWeaponSystem().GetGuns();
+
     LogTraceG("CreateBullet {} {} {}", snum, sowner, n);
 
 #ifndef SERVER
@@ -227,7 +229,8 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
             else if ((SpriteSystem::Get().GetSprite(sowner).weapon.fireinterval <=
                       fireinterval_net) &&
                      (SpriteSystem::Get().GetSprite(sowner).burstcount == 0) &&
-                     (GS::GetGame().GetMainTickCounter() > lastforceclientspritesnapshotmovtick + fireinterval_net))
+                     (GS::GetGame().GetMainTickCounter() >
+                      lastforceclientspritesnapshotmovtick + fireinterval_net))
             {
                 forceclientspritesnapshotmov = true;
                 lastforceclientspritesnapshotmovtick = GS::GetGame().GetMainTickCounter();
@@ -808,6 +811,8 @@ void Bullet<M>::render(double timeelapsed)
 
     bulletvel = GetBulletParts().velocity[num];
     sinusvar = sin(timeoutfloat + 5.1 * timeelapsed);
+
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     switch (style)
     {
@@ -1471,6 +1476,8 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
     if ((style == bullet_style_arrow) && (timeout <= arrow_resist))
         return result;
 
+    auto &guns = GS::GetWeaponSystem().GetGuns();
+
     pos.x = 0;
     result = pos;
 
@@ -1681,7 +1688,8 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                             if (SpriteSystem::Get().GetSprite(j).vest < 1)
                             {
                                 if (!SpriteSystem::Get().GetSprite(j).deadmeat)
-                                    playsound(SfxEffect::hit_arg + Random(3), GetBulletParts().pos[num]);
+                                    playsound(SfxEffect::hit_arg + Random(3),
+                                              GetBulletParts().pos[num]);
                                 else
                                     playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
                             }
@@ -2051,6 +2059,7 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
 
     pos.x = 0;
     result = pos;
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     // iterate through Things
     if (style != bullet_style_fragnade)
@@ -2110,7 +2119,8 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
                     newindex = length(thingcollisions);
                     setlength(thingcollisions, newindex + 1);
                     thingcollisions[newindex] =
-                        thingcollision(things[j].num, GS::GetGame().GetMainTickCounter() + thing_collision_cooldown);
+                        thingcollision(things[j].num, GS::GetGame().GetMainTickCounter() +
+                                                          thing_collision_cooldown);
 
                     // collision respond
                     thingvel = vec2subtract(things[j].skeleton.pos[where],
@@ -2279,6 +2289,8 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 #ifdef SERVER
     LogTraceG("TBullet.Hit");
 #endif
+
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     switch (t)
     {
@@ -2538,6 +2550,8 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
     tvector2 b;
     std::int32_t n, rnd;
 #endif
+
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     switch (typ)
     {
@@ -2991,6 +3005,8 @@ template <Config::Module M>
 std::uint8_t Bullet<M>::getweaponindex()
 {
     std::uint8_t weaponindex;
+
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     std::uint8_t result;
     for (weaponindex = 1; weaponindex <= high(guns); weaponindex++)

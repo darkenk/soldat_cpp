@@ -7,6 +7,7 @@
 #include "../mechanics/Bullets.hpp"
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 // clang-format off
 #include "shared/misc/GlobalVariableStorage.cpp"
@@ -70,6 +71,7 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
             (oldbulletsnapshotmsg[bulletsnap->owner].velocity.y == bulletsnap->velocity.y))
             return;
 
+    auto &guns = GS::GetWeaponSystem().GetGuns();
     weaponindex = weaponnumtoindex(bulletsnap->weaponnum, guns);
     if (weaponindex == -1)
         return;

@@ -226,7 +226,8 @@ bool isservertotallyfull()
 // admins to join
 bool isserverfull()
 {
-    return ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetBotsNum()) >= CVar::sv_maxplayers) or (isservertotallyfull());
+    return ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetBotsNum()) >= CVar::sv_maxplayers) or
+           (isservertotallyfull());
 }
 #endif
 
@@ -301,6 +302,8 @@ void newplayerweapon()
 
     SecWep = SpriteSystem::Get().GetSprite(i).player->secwep + 1;
 
+    auto &guns = GS::GetWeaponSystem().GetGuns();
+
     if ((SecWep >= 1) and (SecWep <= secondary_weapons) and
         (weaponSystem.IsEnabled(primary_weapons + SecWep)))
     {
@@ -319,6 +322,7 @@ bool checkweaponnotallowed(std::uint8_t i)
     LogTraceG("CheckWeaponNotAllowed");
 
     auto Result = true;
+    auto &guns = GS::GetWeaponSystem().GetGuns();
 
     auto &weaponSystem = GS::GetWeaponSystem();
     WeaponIndex = weaponnumtoindex(SpriteSystem::Get().GetSprite(i).weapon.num, guns);

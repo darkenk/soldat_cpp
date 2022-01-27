@@ -272,6 +272,8 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     if (!verifypacket(sizeof(tmsg_serverthingtaken), netmessage->m_cbSize, msgid_thingtaken))
         return;
 
+    auto &guns = GS::GetWeaponSystem().GetGuns();
+
     thingtakensnap = pmsg_serverthingtaken(netmessage->m_pData);
 
     const auto i = thingtakensnap->num;
