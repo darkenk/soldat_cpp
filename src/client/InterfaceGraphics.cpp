@@ -553,7 +553,7 @@ void renderweaponmenutext()
     gfxtextcolor(rgba(214, 214, 214, 255));
     gfxdrawtext(("Secondary Weapon:"), 65, 349);
 
-    if (loadedwmchecksum != defaultwmchecksum)
+    if (GS::GetWeaponSystem().GetLoadedWMChecksum() != GS::GetWeaponSystem().GetDefaultWMChecksum())
     {
         gfxtextcolor(rgba(204, 94, 94, 205));
         gfxdrawtext(45 + 252 - rectwidth(gfxtextmetrics(("Weapons Mod"))), 139);
@@ -604,7 +604,8 @@ void renderweaponmenutext()
         btn = &limbomenu->button[min(9, cursoronindex)];
         y = btn->y1 + (float)((btn->y2 - btn->y1)) / 2;
 
-        if (loadedwmchecksum != defaultwmchecksum)
+        if (GS::GetWeaponSystem().GetLoadedWMChecksum() !=
+            GS::GetWeaponSystem().GetDefaultWMChecksum())
         {
             tipy = y - 26;
 

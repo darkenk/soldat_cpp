@@ -906,10 +906,10 @@ void commandinfo(std::vector<std::string> &args, std::uint8_t sender)
     }
 #endif
 
-    if (loadedwmchecksum != defaultwmchecksum)
+    if (GS::GetWeaponSystem().GetLoadedWMChecksum() != GS::GetWeaponSystem().GetDefaultWMChecksum())
         serversendstringmessage(string("Server uses weapon mod \"") + (wmname) + " v" +
-                                    (wmversion) + "\" (checksum " + (inttostr(loadedwmchecksum)) +
-                                    ')',
+                                    (wmversion) + "\" (checksum " +
+                                    (inttostr(GS::GetWeaponSystem().GetLoadedWMChecksum())) + ')',
                                 sender, 255, msgtype_pub);
 }
 

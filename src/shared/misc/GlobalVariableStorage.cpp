@@ -20,6 +20,4 @@ auto &things = InitGlobalVariable<PascalArray<tthing, 1, max_things>, "things">(
 
 auto &guns = InitGlobalVariable<GunsDescription, "guns">();
 auto &defaultguns = InitGlobalVariable<GunsDescription, "defaultguns">();
-auto &defaultwmchecksum = InitGlobalVariable<std::uint64_t, "defaultwmchecksum">();
-auto &loadedwmchecksum = InitGlobalVariable<std::uint64_t, "loadedwmchecksum">();
 } // namespace

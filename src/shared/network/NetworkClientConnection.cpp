@@ -630,7 +630,7 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
     }
 
     createdefaultweapons(CVar::sv_realisticmode, guns, defaultguns);
-    defaultwmchecksum = createwmchecksum(guns);
+    GS::GetWeaponSystem().SetDefaultWMChecksum(createwmchecksum(guns));
 
     for (weaponindex = 0; weaponindex < original_weapons; weaponindex++)
     {
@@ -666,13 +666,18 @@ void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
             clientspritesnapshot();
     }
 
-    loadedwmchecksum = createwmchecksum(guns);
+    GS::GetWeaponSystem().SetLoadedWMChecksum(createwmchecksum(guns));
 
-    if (loadedwmchecksum != defaultwmchecksum)
+    if (GS::GetWeaponSystem().GetLoadedWMChecksum() != GS::GetWeaponSystem().GetDefaultWMChecksum())
+    {
         if (!demoplayer.active())
+        {
             GetMainConsole().console(_("Server uses weapon mod (checksum") + ' ' +
-                                         (inttostr(loadedwmchecksum)) + ')',
+                                         (inttostr(GS::GetWeaponSystem().GetLoadedWMChecksum())) +
+                                         ')',
                                      server_message_color);
+        }
+    }
 }
 
 template <typename T>

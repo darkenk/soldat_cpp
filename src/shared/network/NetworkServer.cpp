@@ -13,10 +13,6 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-// clang-format off
-#include "shared/misc/GlobalVariableStorage.cpp"
-// clang-format on
-
 // We"re assigning a dummy player class to all sprites that are currently not being controlled
 // by a player. This avoids nasty surprises with older code that reads .Player despite .Active
 // being false. A player object is swapped in by CreateSprite as needed. For bots we simply leave
