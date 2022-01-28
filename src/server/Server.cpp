@@ -254,7 +254,7 @@ void DaemonizeProgram()
 
 void ActivateServer(int argc, const char *argv[])
 {
-    std::int32_t j, i;
+    std::int32_t i;
     NotImplemented(NITag::NETWORK, "Rewrite message");
 #if 0
   WriteLn("");
@@ -278,11 +278,6 @@ void ActivateServer(int argc, const char *argv[])
 
   WriteLn(" Compiled with FreePascal " + {$I %FPCVERSION%});
   WriteLn("");
-#endif
-
-#if 0
-    DefaultFormatSettings.DecimalSeparator = ".";
-    DefaultFormatSettings.DateSeparator = "-";
 #endif
 
     servertickcounter = 0;
@@ -390,69 +385,14 @@ void ActivateServer(int argc, const char *argv[])
 
     LogDebugG("ActivateServer");
 
-#ifdef SCRIPT
-    ScrptDispatcher.SafeMode = sc_safemode;
-    ScrptDispatcher.MaxScripts = sc_maxscripts;
-#endif
-
     if (CVar::net_ip == "")
     {
         CVar::net_ip = "0.0.0.0";
     }
 
-#ifdef STEAM
-    SteamAPI = TSteamGS.Init(
-        0,             // The IP address you are going to bind to
-        net_port,      // The port that clients will connect to for gameplay.
-        net_port + 20, // The port that will manage server browser related duties and
-                       // info pings from clients.
-        eServerModeAuthenticationAndSecure, // Sets the authentication method of the server.
-        pchar(SOLDAT_VERSION));
-
-    SteamAPI_ManualDispatch_Init();
-
-    if (SteamAPI = nil)
-    {
-        WriteLn("[Steam] Failed to initialize Steam instance.");
-        ShutDown;
-    }
-    else
-    {
-        SteamAPI.Utils.SetWarningMessageHook(@SteamWarning);
-
-        SteamAPI.GameServer.SetModDir(pchar("Soldat"));
-        SteamAPI.GameServer.SetProduct(pchar("Soldat"));
-        SteamAPI.GameServer.SetGameDescription(pchar("Soldat"));
-
-        // SteamCallbackDispatcher.Create(101, @OnSteamServersConnected,
-        // SizeOf(SteamServersConnected_t), k_ECallbackFlagsGameServer);
-        // SteamCallbackDispatcher.Create(102, @OnSteamServerConnectFailure,
-        // SizeOf(SteamServerConnectFailure_t), k_ECallbackFlagsGameServer);
-        // SteamCallbackDispatcher.Create(103, @OnSteamServersConnected,
-        // SizeOf(SteamServersDisconnected_t), k_ECallbackFlagsGameServer);
-        // SteamCallbackDispatcher.Create(1221,
-        // @SteamNetConnectionStatusChangedCallback,
-        // SizeOf(SteamNetConnectionStatusChangedCallback_t),
-        // k_ECallbackFlagsGameServer); SteamCallbackDispatcher.Create(3406,
-        // @DownloadItemResult, SizeOf(DownloadItemResult_t),
-        // k_ECallbackFlagsGameServer);
-
-        if sv_setsteamaccount
-            != "" then SteamAPI.GameServer.LogOn(pchar(
-                   sv_setsteamaccount)) else SteamAPI.GameServer.LogOnAnonymous();
-
-        if SteamAPI
-            .UGC.BInitWorkshopForGameServer(638490, pchar(userdirectory + "/workshop"))
-                then WriteLn("[Steam] Initialized Workshop.") else WriteLn(
-                    "[Steam] Failed to initialize Workshop.");
-    }
-#endif // STEAM
-
     progready = true;
 
-#ifndef SCRIPT
     CVar::sc_enable = 0;
-#endif
 
     auto &weaponSystem = GS::GetWeaponSystem();
 
@@ -597,6 +537,12 @@ void ShutDown()
     GameNetworkingSockets_Kill();
 #endif
 
+    for (auto &s : SpriteSystem::Get().GetSprites())
+    {
+        delete s.player;
+        s.player = nullptr;
+    }
+
     addlinetologfile(GetGameLog(), "   End of Log.", GetGameLogFilename());
     LogDebugG("Updating gamestats");
     GS::GetGame().updategamestats();
@@ -615,7 +561,7 @@ void ShutDown()
 #endif
 }
 
-void loadweapons(std::string Filename)
+void loadweapons(const std::string &Filename)
 {
     bool IsRealistic;
     LogDebugG("LoadWeapons");
@@ -1152,7 +1098,7 @@ void spawnthings(std::int8_t Style, std::int8_t Amount)
         k = 9;
         break;
     }
-    auto& things = GS::GetThingSystem().GetThings();
+    auto &things = GS::GetThingSystem().GetThings();
     for (i = 0; i < Amount; i++)
     {
         team = 0;

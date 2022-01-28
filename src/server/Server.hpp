@@ -46,7 +46,7 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
                 std::string Reason = "");
 bool preparemapchange(std::string Name);
 std::int8_t addbotplayer(std::string name, std::int32_t team);
-void loadweapons(std::string Filename);
+void loadweapons(const std::string &Filename);
 void startserver();
 void ActivateServer(int argc, const char *argv[]);
 void RunServer(int argc, const char *argv[]);

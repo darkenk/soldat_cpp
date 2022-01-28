@@ -198,9 +198,9 @@ constexpr std::array<std::string_view, ToUint32(SfxEffect::COUNT)> GenerateSampl
     Add(ref, SfxEffect::radio_esmid, "radio/esmid.wav");
     Add(ref, SfxEffect::radio_esdown, "radio/esdown.wav");
     Add(ref, SfxEffect::bounce, "bounce.wav");
-    Add(ref, SfxEffect::rain, "SfxEffect::rain.wav");
-    Add(ref, SfxEffect::snow, "SfxEffect::snow.wav");
-    Add(ref, SfxEffect::wind, "SfxEffect::wind.wav");
+    Add(ref, SfxEffect::rain, "sfx_rain.wav");
+    Add(ref, SfxEffect::snow, "sfx_snow.wav");
+    Add(ref, SfxEffect::wind, "sfx_wind.wav");
     return ref;
 }
 

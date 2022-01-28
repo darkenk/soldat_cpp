@@ -672,6 +672,12 @@ void shutdown()
     // Free GFX
     destroygamegraphics();
 
+    for (auto &s : SpriteSystem::Get().GetSprites())
+    {
+        delete s.player;
+        s.player = nullptr;
+    }
+
     SDL_Quit();
 
     deinittranslation();

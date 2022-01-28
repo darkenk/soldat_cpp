@@ -13,14 +13,6 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-// We"re assigning a dummy player class to all sprites that are currently not being controlled
-// by a player. This avoids nasty surprises with older code that reads .Player despite .Active
-// being false. A player object is swapped in by CreateSprite as needed. For bots we simply leave
-// the bot object and free it when it is replaced.
-// Albeit this approach is very robust I"d prefer if we get rid of this and fix all .Active
-// checks (if any) later. Alternatively we could move a good bit if info from Player to Sprite.
-TServerPlayer dummyplayer;
-
 std::int32_t servertickcounter;
 PascalArray<std::int32_t, 1, max_players> noclientupdatetime;
 PascalArray<std::int32_t, 1, max_players> messagesasecnum;
@@ -151,7 +143,8 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
             ScrptDispatcher.OnLeaveGame(Player->spritenum, false);
 #endif
             SpriteSystem::Get().GetSprite(Player->spritenum).kill();
-            SpriteSystem::Get().GetSprite(Player->spritenum).player = &dummyplayer;
+            delete SpriteSystem::Get().GetSprite(Player->spritenum).player;
+            SpriteSystem::Get().GetSprite(Player->spritenum).player = new TServerPlayer;
         }
 
         LogWarn(LOG_NET, "Connection lost {} {}", pInfo->m_info.m_eEndReason,
