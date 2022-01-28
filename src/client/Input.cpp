@@ -82,8 +82,7 @@ void unbindall()
 
 void startinput()
 {
-    NotImplemented(NITag::INPUT);
-    // SDL_SetRelativeMouseMode(SDL_TRUE);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
     SDL_StopTextInput();
 }
 

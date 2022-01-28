@@ -38,3 +38,12 @@ cd out/linux_x86
 cmake ../../../ -DCMAKE_BUILD_TYPE:STRING=Debug
 cmake --build --target SoldatClient SoldatServer
 ```
+
+## Debugging
+### Mouse locking while debugging on linux
+When game triggers breakpoint under debugger, mouse is locked to game and thus you cannot use it.
+To overcome it in gdb execute:
+```bash
+source ${PROJECT}/build/gdb/release_mouse.py
+```
+
