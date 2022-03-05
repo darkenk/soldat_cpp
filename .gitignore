@@ -1,5 +1,3 @@
 out/
 .clangd/*
 CMakeLists.txt.user
-third_party/src/protobuf*/**/*.pb.cc
-third_party/src/protobuf*/**/*.pb.h
