@@ -71,6 +71,11 @@ target_link_libraries(SoldatClientLib
     spdlog::spdlog
 )
 
+target_precompile_headers(SoldatClientLib PRIVATE
+    ${CommonPCH}
+    "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/Client.hpp>"
+    "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/Input.hpp>"
+)
 
 add_executable(SoldatClient main.cpp)
 target_link_libraries(SoldatClient

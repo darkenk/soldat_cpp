@@ -7,12 +7,6 @@ tvector2 vector2(MyFloat x, MyFloat y)
     return tvector2(x, y);
 }
 
-template <typename T>
-static T sqr(T v)
-{
-    return v * v;
-}
-
 MyFloat vec2length2(const tvector2 &v)
 {
     return sqr(v.x) + sqr(v.y);

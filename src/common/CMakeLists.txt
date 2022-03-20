@@ -23,7 +23,7 @@ set(SRC
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     # enable optimization for SHA1.cpp to boost startup of the game in debug mode
-    set_source_files_properties(misc/SHA1.cpp PROPERTIES COMPILE_FLAGS -O3)
+    set_source_files_properties(misc/SHA1.cpp PROPERTIES SKIP_PRECOMPILE_HEADERS TRUE COMPILE_FLAGS -O3)
 endif()
 
 add_library(CommonLib ${SRC} ${TRACY_SRC})
@@ -35,4 +35,8 @@ target_link_libraries(CommonLib
 target_include_directories(CommonLib PRIVATE
     ${TRACY_INCLUDE_DIR}
     ${PHYSFS_INC}
+)
+
+target_precompile_headers(CommonLib PRIVATE
+    ${CommonPCH}
 )

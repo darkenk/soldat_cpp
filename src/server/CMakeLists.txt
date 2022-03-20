@@ -56,6 +56,12 @@ target_link_libraries(SoldatServerLib
     GameNetworkingSockets::GameNetworkingSockets_s
 )
 
+target_precompile_headers(SoldatServerLib PRIVATE
+    ${CommonPCH}
+    "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/Server.hpp>"
+)
+
+
 add_executable(SoldatServer main.cpp)
 target_compile_definitions(SoldatServer PRIVATE SERVER=1)
 target_link_libraries(SoldatServer

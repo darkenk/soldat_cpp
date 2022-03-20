@@ -16,3 +16,5 @@ target_link_libraries(SoldatGame
     GameNetworkingSockets::GameNetworkingSockets_s
     ${SOLOUD_LIBRARY}
 )
+
+set_target_properties(SoldatGame PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/game)

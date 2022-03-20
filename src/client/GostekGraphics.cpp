@@ -241,7 +241,7 @@ void rendergostek(tsprite &soldier)
         color[color_cygar] = rgba(0x616161);
 
     alpha[alpha_base] = soldier.alpha;
-    alpha[alpha_blood] = max(0.0, min(255.0, 200 - round(soldier.GetHealth())));
+    alpha[alpha_blood] = max(0.0f, min(255.0f, 200 - round(soldier.GetHealth())));
 
     if (soldier.GetHealth() > (90 - 40 * CVar::sv_realisticmode))
         alpha[alpha_blood] = 0;
@@ -532,7 +532,7 @@ void rendergostek(tsprite &soldier)
             }
             else if (gs.flex > 0)
             {
-                sx = min(1.5, sqrt(sqr(x2 - x1) + sqr(y2 - y1)) / gs.flex);
+                sx = min(1.5f, sqrt(sqr(x2 - x1) + sqr(y2 - y1)) / gs.flex);
             }
 
             drawgosteksprite(textures[tex], x1, y1 + 1, sx, sy, cx, cy, r, color[gs.color]);

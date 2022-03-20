@@ -41,7 +41,7 @@ set(SOLOUD_LIBRARY ${THIRD_PARTY_OUT_DIR}/soloud/out/lib/libsoloud_static.a)
 set(TRACY_SRC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8/TracyClient.cpp)
 set(TRACY_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8)
 
-
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace")
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 #add_definitions(-DTRACY_ENABLE)
@@ -50,6 +50,12 @@ find_package(SDL2 REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(GameNetworkingSockets REQUIRED)
 find_package(spdlog REQUIRED)
+
+set(CommonPCH
+    "$<$<COMPILE_LANGUAGE:CXX>:${ROOT_DIR}/src/common/Logging.hpp>"
+    "$<$<COMPILE_LANGUAGE:CXX>:${ROOT_DIR}/src/common/misc/PortUtils.hpp>"
+    "$<$<COMPILE_LANGUAGE:CXX>:${ROOT_DIR}/src/common/misc/PortUtilsSoldat.hpp>"
+)
 
 #shared library must be compiled with client or server defines
 #add_subdirectory(src/shared)

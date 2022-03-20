@@ -1861,7 +1861,7 @@ void renderplayername(float width, float height, std::int32_t i, bool onlyoffscr
         dy = fabs(SpriteSystem::Get().GetSprite(mysprite).skeleton.pos[7].y -
                   SpriteSystem::Get().GetSprite(i).skeleton.pos[7].y);
 
-        alpha = min(255.0, 50 + round(100000 / (dx + (float)(dy) / 2)));
+        alpha = min(255.0f, 50 + round(100000 / (dx + (float)(dy) / 2)));
 
         if ((SpriteSystem::Get().GetSprite(i).holdedthing > 0) &&
             (things[SpriteSystem::Get().GetSprite(i).holdedthing].style < 4))
@@ -3256,7 +3256,7 @@ void renderinterface(float timeelapsed, float width, float height)
             y = pixelaligny(my * _rscala.y);
 
             gfxdrawsprite(t[GFX::INTERFACE_MENUCURSOR], x, y,
-                          rgba(0xffffff, round(CVar::ui_status_transparency)));
+                          rgba(0xffffff, CVar::ui_status_transparency));
         }
     }
 }
