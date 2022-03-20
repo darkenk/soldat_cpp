@@ -112,7 +112,8 @@ int main(int argc, char *argv[])
 
         SetColor(Green);
         DrawLine(raycastLine, offset);
-
+//@todo this does not work due to api changes
+#if 0
         for (auto &s : map.sectors)
         {
             for (auto &sector : s)
@@ -130,6 +131,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
+#endif
 
         SDL_RenderPresent(renderer);
 

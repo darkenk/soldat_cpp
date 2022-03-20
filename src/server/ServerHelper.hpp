@@ -20,7 +20,7 @@ std::uint8_t fixteam(std::uint8_t team);
 std::string weaponnamebynum(std::int32_t num);
 #endif
 void writepid();
-std::int32_t getpid();
+std::int32_t soldat_getpid();
 void writeconsole(std::uint8_t id, std::string text, std::uint32_t colour);
 void updatewaverespawntime();
 std::string randombot();

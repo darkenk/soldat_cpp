@@ -232,7 +232,7 @@ void writepid()
 #endif
 }
 
-std::int32_t getpid()
+std::int32_t soldat_getpid()
 {
     NotImplemented(NITag::OTHER);
     return 0;

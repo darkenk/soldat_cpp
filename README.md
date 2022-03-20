@@ -14,7 +14,7 @@ To test client and server you need [assets](https://github.com/Soldat/base).
 * libsodium-1.0.18
 * physfs-3.0.2
 * protobuf-3.19.1
-* SDL2-2.0.14
+* SDL2-2.0.20
 * spdlog-1.9.2
 * stb
 * SoLoud
@@ -23,11 +23,13 @@ To test client and server you need [assets](https://github.com/Soldat/base).
 * Tracy-0.7.8
 
 # Build
-Currently only linux x64 is supported.
+Currently only linux x64 and linux aarch64 are supported.
 ## Requirements
 * Clang-12
 * cmake-3.18
 * python-3
+* automake
+* autotools-dev
 
 ## Steps
 ```bash

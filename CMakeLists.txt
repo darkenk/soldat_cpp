@@ -1,21 +1,31 @@
-set(CMAKE_C_COMPILER clang-12)
-set(CMAKE_CXX_COMPILER clang++-12)
 set(CMAKE_CXX_STANDARD 20)
 
 project(SoldatCPP)
 cmake_minimum_required(VERSION 3.18)
 
+set(SOLDAT_PLATFORM linux_x64)
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "^aarch64")
+  set(SOLDAT_PLATFORM linux_aarch64)
+  link_directories(/opt/vc/lib)
+endif() 
+#set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
 set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(THIRD_PARTY_OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/release/third_party)
+message(STATUS "Using third party: ${THIRD_PARTY_OUT_DIR}")
 
-set(THIRD_PARTY_OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/out/linux_x64/release/third_party)
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/GameNetworkingSockets-1.3.0/cmake/)
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
+set(CMAKE_MODULE_PATH
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/libsodium-1.0.18/contrib
+    ${CMAKE_MODULE_PATH}
+)
+set(CMAKE_PREFIX_PATH
     ${THIRD_PARTY_OUT_DIR}/gamenetworkingsockets/out/
     ${THIRD_PARTY_OUT_DIR}/libsodium/out/
     ${THIRD_PARTY_OUT_DIR}/sdl/out/
     ${THIRD_PARTY_OUT_DIR}/freetype/out/
     ${THIRD_PARTY_OUT_DIR}/openal/out/
     ${THIRD_PARTY_OUT_DIR}/spdlog/out/
+    ${THIRD_PARTY_OUT_DIR}/gtest/out/
+    ${CMAKE_PREFIX_PATH}
 )
 
 set(PHYSFS_LIB ${THIRD_PARTY_OUT_DIR}/physfs/out/lib/libphysfs.a)
@@ -24,13 +34,7 @@ set(GLAD_INC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/glad/debug/include)
 # @todo make glad as static lib
 set(GLAD_SRC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/glad/debug/src/glad.c)
 set(STB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/stb)
-# gtest are missing
-set(GTEST_INCLUDE_DIR ${THIRD_PARTY_OUT_DIR}/gtest/out/include)
-set(GTEST_LIBRARY ${THIRD_PARTY_OUT_DIR}/gtest/out/lib/libgtest.a)
-set(GTEST_MAIN_LIBRARY ${THIRD_PARTY_OUT_DIR}/gtest/out/lib/libgtest_main.a)
-set(GMOCK_LIBRARY ${THIRD_PARTY_OUT_DIR}/gtest/out/lib/libgmock.a)
-set(GMOCK_MAIN_LIBRARY ${THIRD_PARTY_OUT_DIR}/gtest/out/lib/libgmock_main.a)
-# solout
+# soloud
 set(SOLOUD_INCLUDE_DIR ${THIRD_PARTY_OUT_DIR}/soloud/out/include)
 set(SOLOUD_LIBRARY ${THIRD_PARTY_OUT_DIR}/soloud/out/lib/libsoloud_static.a)
 #tracy

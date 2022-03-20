@@ -1,6 +1,10 @@
 #pragma once
 
-#if __has_include(<source_location>)
+#if __has_include(<version>)
+#include <version>
+#endif
+
+#if defined(__cpp_lib_source_location)
 #include <source_location>
 using source_location = std::source_location;
 #else

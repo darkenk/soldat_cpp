@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import os
+import platform
 import subprocess
 from enum import Enum
 from os import path
@@ -11,18 +12,20 @@ JOBS = str(os.cpu_count())
 
 class Platform(Enum):
     LINUX_x64 = 'linux_x64'
+    LINUX_aarch64 = 'linux_aarch64'
 
 class Config(Enum):
     Release = 'release'
     Debug = 'debug'
 
 # current configuration
-
 PLATFORM = Platform.LINUX_x64
 CONFIG = Config.Release
 
-# Helpers
+if platform.machine() == 'aarch64':
+    PLATFORM = Platform.LINUX_aarch64
 
+# Helpers
 def GetThirdPartyOutDir(platform, config):
     return path.join(path.join(path.join(OUT_DIR, platform.value), config.value), 'third_party') + '/'
 
@@ -46,12 +49,13 @@ def SetupProtobuf(platform, config):
     PTB_SRC = THIRD_PARTY_SRC_DIR + 'protobuf-3.19.1'
     PTB_DIR = GetProtobufOutDir(platform, config)
     os.makedirs(PTB_DIR, exist_ok = True)
-
     print("Build protobuf in " + PTB_DIR, flush=True)
 
-    subprocess.check_call([PTB_SRC + '/configure', '--prefix=' + PTB_DIR + '/out'], cwd=PTB_DIR)
-    subprocess.check_call(['make', '-j' + JOBS], cwd=PTB_DIR)
-    subprocess.check_call(['make', 'install'], cwd=PTB_DIR)
+    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + PTB_DIR + '/out',
+        GetCmakeArgBuildType(config), '-Dprotobuf_BUILD_SHARED_LIBS=OFF',
+        '-Dprotobuf_BUILD_TESTS=OFF', '-DCMAKE_POSITION_INDEPENDENT_CODE=ON', PTB_SRC + '/cmake'],cwd=PTB_DIR)
+    subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=PTB_DIR)
+    subprocess.check_call(['cmake', '--install', '.'], cwd=PTB_DIR)
 
 def SetupLibsodium(platform, config):
     SOD_SRC = THIRD_PARTY_SRC_DIR + 'libsodium-1.0.18'
@@ -71,12 +75,14 @@ def SetupGameNetworkingSockets(platform, config):
     subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + GNS_DIR + '/out',
                         GetCmakeArgBuildType(config), '-DUSE_CRYPTO=libsodium',
                            '-DUSE_CRYPTO25519=libsodium', '-DCMAKE_PREFIX_PATH=' + GetSodiumOutDir(platform, config) +'/out/;' + GetProtobufOutDir(platform, config) + '/out/',
+                           '-Dprotobuf_BUILD_TESTS=OFF', '-Dprotobuf_BUILD_SHARED_LIBS=OFF',
+                           '-DProtobuf_USE_STATIC_LIBS=ON',
                         GNS_SRC], cwd=GNS_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=GNS_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=GNS_DIR)
 
 def SetupSDL(platform, config):
-    SDL_SRC = THIRD_PARTY_SRC_DIR + 'SDL2-2.0.14'
+    SDL_SRC = THIRD_PARTY_SRC_DIR + 'SDL2-2.0.20'
     SDL_DIR = GetThirdPartyOutDir(platform, config) + 'sdl'
     os.makedirs(SDL_DIR, exist_ok = True)
 
@@ -133,8 +139,14 @@ def SetupFreetype(platform, config):
     FT_DIR = GetThirdPartyOutDir(platform, config) + 'freetype'
     os.makedirs(FT_DIR, exist_ok = True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + FT_DIR + '/out', GetCmakeArgBuildType(config),
-        "-DDISABLE_PNG=ON", "-DDISABLE_HARFBUZ=ON", "-DDISABLE_ZLIB=ON", FT_SRC], cwd=FT_DIR)
+    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + FT_DIR + '/out',
+        GetCmakeArgBuildType(config),
+        "-DDISABLE_PNG=ON",
+        "-DDISABLE_HARFBUZ=ON",
+        "-DDISABLE_ZLIB=ON",
+        "-DCMAKE_DISABLE_FIND_PACKAGE_BZip2=TRUE",
+        "-DCMAKE_DISABLE_FIND_PACKAGE_BrotliDec=TRUE",
+        FT_SRC], cwd=FT_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=FT_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=FT_DIR)
 

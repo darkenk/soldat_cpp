@@ -12,14 +12,13 @@ include_directories(../src/shared)
 include_directories(../src/)
 include_directories(config)
 include_directories(${TRACY_INCLUDE_DIR})
+include_directories(${PHYSFS_INC})
 remove_definitions(-DTRACY_ENABLE=1)
 
 
-link_libraries(${GTEST_MAIN_LIBRARY}
-    ${GTEST_LIBRARY}
+link_libraries(GTest::gmock_main
+    GTest::gtest
     ${CMAKE_THREAD_LIBS_INIT}
-    ${GMOCK_MAIN_LIBRARY}
-    ${GMOCK_LIBRARY}
     spdlog::spdlog
     ${PHYSFS_LIB}
     SDL2::SDL2main

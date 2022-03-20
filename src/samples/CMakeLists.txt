@@ -2,6 +2,7 @@ add_executable(PolyMapSample PolyMapSample.cpp)
 target_include_directories(PolyMapSample PRIVATE
     ${ROOT_DIR}/src
     ${TRACY_INCLUDE_DIR}
+    ${PHYSFS_INC}
 )
 target_link_libraries(PolyMapSample
     SoldatClientLib

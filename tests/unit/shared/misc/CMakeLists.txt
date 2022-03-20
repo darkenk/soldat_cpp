@@ -9,11 +9,9 @@ set(INC_DIRS
 )
 
 set(LIB_DIRS
-    ${GTEST_MAIN_LIBRARY}
-    ${GTEST_LIBRARY}
+    GTest::gmock_main
+    GTest::gtest
     ${CMAKE_THREAD_LIBS_INIT}
-    ${GMOCK_MAIN_LIBRARY}
-    ${GMOCK_LIBRARY}
     spdlog::spdlog
     ${PHYSFS_LIB}
     SDL2::SDL2main

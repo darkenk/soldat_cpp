@@ -8,14 +8,13 @@ set(INC_DIRS
     ${ROOT_DIR}/src/
     config
     ${TRACY_INCLUDE_DIR}
+    ${PHYSFS_INC}
 )
 
 set(LIB_DIRS
-    ${GTEST_MAIN_LIBRARY}
-    ${GTEST_LIBRARY}
+    GTest::gmock_main
+    GTest::gtest
     ${CMAKE_THREAD_LIBS_INIT}
-    ${GMOCK_MAIN_LIBRARY}
-    ${GMOCK_LIBRARY}
     spdlog::spdlog
     ${PHYSFS_LIB}
     SDL2::SDL2main
@@ -23,14 +22,24 @@ set(LIB_DIRS
     GameNetworkingSockets::GameNetworkingSockets_s
 )
 
-add_executable(AnimsTest AnimsTest.cpp ${ROOT_DIR}/src/shared/AnimationSystem.cpp)
+add_executable(AnimsTest
+    AnimsTest.cpp ${ROOT_DIR}/src/shared/AnimationSystem.cpp
+    ${ROOT_DIR}/src/shared/mechanics/SpriteSystem.cpp
+    ${ROOT_DIR}/src/shared/LogFile.cpp
+    ${ROOT_DIR}/src/common/Anims.cpp
+    ${ROOT_DIR}/src/common/Parts.cpp
+)
 target_include_directories(AnimsTest PRIVATE ${INC_DIRS})
 target_link_libraries(AnimsTest ${LIB_DIRS})
 gtest_discover_tests(AnimsTest)
 
 add_executable(SharedTest
     ${ROOT_DIR}/src/common/misc/PortUtils.cpp
+    ${ROOT_DIR}/src/common/Parts.cpp
+    ${ROOT_DIR}/src/common/Vector.cpp
+    ${ROOT_DIR}/src/common/PhysFSExt.cpp
     mechanics/SpriteSystemTest.cpp ${ROOT_DIR}/src/shared/mechanics/SpriteSystem.cpp
+    #${ROOT_DIR}/src/shared/mechanics/Sprites.cpp
     #mechanics/SpriteTest.cpp ${ROOT_DIR}/src/shared/mechanics/Sprites.cpp
     )
 target_include_directories(SharedTest PRIVATE ${INC_DIRS})
