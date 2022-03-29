@@ -7,6 +7,7 @@
 #include "common/Logging.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/Cvar.hpp"
 #include "shared/misc/FontAtlas.hpp"
 #include "shared/misc/SignalUtils.hpp"
 #include <SDL2/SDL.h>
@@ -37,6 +38,12 @@ using string = std::string;
 
 GLint OPENGL_MAX_LABEL_LENGTH;
 constexpr std::array<std::int32_t, 4> OPENGL_TEXTURE_FORMAT = {{GL_ALPHA, GL_RG, GL_RGB, GL_RGBA}};
+
+static bool gOpenGLES = false;
+static bool IsOpenGLES()
+{
+    return gOpenGLES;
+}
 
 /******************************************************************************/
 /*                              Helper functions                              */
@@ -252,22 +259,96 @@ bool gfxframebuffersupported()
     return glGenFramebuffers != nullptr && glBlitFramebuffer != nullptr;
 }
 
+const std::string_view GetVertexShaderSource()
+{
+    if (IsOpenGLES())
+    {
+        return R"(
+#version 100
+uniform mat3 mvp;
+attribute lowp vec4 in_position;
+attribute lowp vec2 in_texcoords;
+attribute lowp vec4 in_color;
+varying lowp vec2 texcoords;
+varying lowp vec4 color;
+void main()
+{
+    color = vec4(in_color.rgb * in_color.a, in_color.a);
+    texcoords = in_texcoords;
+    gl_Position.xyw = mvp * in_position.xyw;
+    gl_Position.z = 0.00;
+}
+        )";
+    }
+    else
+    {
+        return R"(
+#version 120
+uniform mat3 mvp;
+attribute vec4 in_position;
+attribute vec2 in_texcoords;
+attribute vec4 in_color;
+varying vec2 texcoords;
+varying vec4 color;
+void main()
+{
+    color = vec4(in_color.rgb * in_color.a, in_color.a);
+    texcoords = in_texcoords;
+    gl_Position.xyw = mvp * in_position.xyw;
+    gl_Position.z = 0.00;
+}
+    )";
+    }
+}
+
+const std::string_view GetFragmentShaderSource()
+{
+    if (IsOpenGLES())
+    {
+        return R"(
+#version 100
+#define DITHERING 0
+varying lowp vec2 texcoords;
+varying lowp vec4 color;
+uniform sampler2D sampler;
+uniform sampler2D dither;
+
+void main()
+{
+    gl_FragColor = texture2D(sampler, texcoords) * color;
+    #if DITHERING
+    gl_FragColor.rgb += vec3(
+        texture2D(dither, gl_FragCoord.xy / 8.0).a / 32.0 - 1.0/128.0);
+    #endif
+}
+        )";
+    }
+    else
+    {
+        return R"(
+#version 120
+#define DITHERING 0
+varying vec2 texcoords;
+varying vec4 color;
+uniform sampler2D sampler;
+uniform sampler2D dither;
+
+void main()
+{
+    gl_FragColor = texture2D(sampler, texcoords) * color;
+    #if DITHERING
+    gl_FragColor.rgb += vec3(
+        texture2D(dither, gl_FragCoord.xy / 8.0).a / 32.0 - 1.0/128.0);
+    #endif
+}
+        )";
+    }
+}
+
 bool initshaderprogram(bool dithering)
 {
-    const std::array<std::string, 13> vert_source = {
-        {"#version 120", "uniform mat3 mvp;", "attribute vec4 in_position;",
-         "attribute vec2 in_texcoords;", "attribute vec4 in_color;", "varying vec2 texcoords;",
-         "varying vec4 color;", "void main() {",
-         "  color = vec4(in_color.rgb * in_color.a, in_color.a);", "  texcoords = in_texcoords;",
-         "  gl_Position.xyw = mvp * in_position.xyw;", "  gl_Position.z = 0.00;", "}"}};
-
-    const std::array<std::string, 12> frag_source = {
-        {"#version 120", "#define DITHERING 0", "varying vec2 texcoords;", "varying vec4 color;",
-         "uniform sampler2D sampler;", "uniform sampler2D dither;", "void main() {",
-         "  gl_FragColor = texture2D(sampler, texcoords) * color;", "#if DITHERING",
-         "  gl_FragColor.rgb += vec3(texture2D(dither, gl_FragCoord.xy / 8.0).a / 32.0 - "
-         "1.0/128.0);",
-         "#endif", "}"}};
+    const std::string_view vert_source = GetVertexShaderSource();
+    const std::string_view frag_source = GetFragmentShaderSource();
 
     const std::array<std::uint8_t, 8 * 8> dither = {
         {0,  32, 8,  40, 2,  34, 10, 42, 48, 16, 56, 24, 50, 18, 58, 26, 12, 44, 4,  36, 14, 46,
@@ -295,25 +376,25 @@ bool initshaderprogram(bool dithering)
     if (!requiredfunctions)
         return initshaderprogram_result;
 
-    vertsrc = join1(vert_source, "\12");
-    fragsrc = join1(frag_source, "\12");
-
     NotImplemented(NITag::GFX, "Missing stringreplace");
 #if 0
     if (!dithering)
         fragsrc = stringreplace(fragsrc, "#define DITHERING 1", "#define DITHERING 0");
 #endif
 
-    vertshader = createshader(GL_VERTEX_SHADER, vertsrc);
-    fragshader = createshader(GL_FRAGMENT_SHADER, fragsrc);
-
-    if ((vertshader == 0) || (fragshader == 0))
+    vertshader = createshader(GL_VERTEX_SHADER, vert_source.data());
+    if (not vertshader)
     {
-        if (vertshader != 0)
-            glDeleteShader(vertshader);
-        if (fragshader != 0)
-            glDeleteShader(fragshader);
-        return initshaderprogram_result;
+        LogWarnG("Vertex shader compilation failed");
+        Abort();
+        return false;
+    }
+    fragshader = createshader(GL_FRAGMENT_SHADER, frag_source.data());
+    if (not fragshader)
+    {
+        LogWarnG("Fragment shader compilation failed");
+        Abort();
+        return false;
     }
 
     gfxcontext.shaderprogram = glCreateProgram();
@@ -418,7 +499,42 @@ bool gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline)
 
     bool gfxinitcontext_result = true;
 
-    gameglcontext = SDL_GL_CreateContext(wnd);
+    struct OpenGLVersion
+    {
+        SDL_GLprofile profile;
+        std::uint32_t major;
+        std::uint32_t minor;
+    };
+    constexpr std::array versions{OpenGLVersion{SDL_GL_CONTEXT_PROFILE_CORE, 4, 3},
+                                  OpenGLVersion{SDL_GL_CONTEXT_PROFILE_ES, 3, 0}};
+
+    for (const auto &v : versions)
+    {
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, v.profile);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, v.major);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, v.minor);
+
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+
+        if (CVar::r_msaa > 0)
+        {
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, CVar::r_msaa);
+        }
+
+        gameglcontext = SDL_GL_CreateContext(wnd);
+        if (gameglcontext)
+        {
+            gOpenGLES = v.profile == SDL_GL_CONTEXT_PROFILE_ES;
+            break;
+        }
+    }
+    if (gameglcontext == nullptr)
+    {
+        LogCriticalG("Failed to create gl context");
+        Abort();
+        return false;
+    }
     glad_set_post_callback(OpenGLGladDebug);
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
     {
@@ -432,12 +548,14 @@ bool gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline)
     readextensions();
 #endif
     SDL_GL_MakeCurrent(gamewindow, gameglcontext);
-    glDebugMessageCallback(OpenGLDebug, nullptr);
+
+    if (not IsOpenGLES())
+    {
+        glDebugMessageCallback(OpenGLDebug, nullptr);
+    }
     version = std::string(reinterpret_cast<const char *>(glGetString(GL_VERSION)));
     i = version.find(" ");
     glGetIntegerv(GL_MAX_LABEL_LENGTH, &OPENGL_MAX_LABEL_LENGTH);
-    // FIXME: Not compatible with opengl ES
-    gfxcontext.majorversion = strtoint(version.substr(0, i - 1));
     gfxlog(string("OpenGL version: ") + version);
 
     NotImplemented(NITag::GFX, "EXTs missing in glad");
@@ -512,7 +630,10 @@ bool gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline)
     // setup some state
 
     glEnable(GL_BLEND);
-    glEnable(GL_MULTISAMPLE);
+    if (not IsOpenGLES())
+    {
+        glEnable(GL_MULTISAMPLE);
+    }
     glDisable(GL_DEPTH_TEST);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -2336,8 +2457,10 @@ tgfxtexture::tgfxtexture(std::int32_t width, std::int32_t height, std::int32_t c
         LogInfoG("debug name {} is too long. Max length is {}", debug_name,
                  OPENGL_MAX_LABEL_LENGTH);
     }
-    glObjectLabel(GL_TEXTURE, fhandle, debugNameSize, debug_name.data());
-
+    if (not IsOpenGLES())
+    {
+        glObjectLabel(GL_TEXTURE, fhandle, debugNameSize, debug_name.data());
+    }
     if (data != nullptr)
     {
         std::memcpy(&fpixel.color, data, comp);

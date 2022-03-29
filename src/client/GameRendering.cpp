@@ -513,18 +513,6 @@ bool initgamegraphics()
     else
         windowflags = windowflags;
 
-    // TODO: set opengl 4.3 profile for better debugging
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
-
-    if (CVar::r_msaa > 0)
-    {
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, CVar::r_msaa);
-    }
-
     gamewindow = SDL_CreateWindow("Soldat", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                   windowwidth, windowheight, windowflags);
 
@@ -763,7 +751,7 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
 
     {
         ZoneScopedN("Things");
-        auto& things = GS::GetThingSystem().GetThings();
+        auto &things = GS::GetThingSystem().GetThings();
         for (i = 1; i <= max_things; i++)
         {
             if (things[i].active)
@@ -815,7 +803,7 @@ void restorestate(tinterpolationstate &s)
             GetSparkParts().pos[spark[i].num] = s.sparkpos[i];
     }
 
-    auto& things = GS::GetThingSystem().GetThings();
+    auto &things = GS::GetThingSystem().GetThings();
     for (i = 1; i <= max_things; i++)
     {
         if (things[i].active)
@@ -839,7 +827,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
     tgfxtexture *rt;
 
     mg = &mapgfx;
-    auto& things = GS::GetThingSystem().GetThings();
+    auto &things = GS::GetThingSystem().GetThings();
 
     // graphics might be destroyed before end of game loop
     if (mg->vertexbuffer == nullptr)
