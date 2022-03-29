@@ -35,6 +35,9 @@ def GetSodiumOutDir(platform, config):
 def GetProtobufOutDir(platform, config):
     return path.join(GetThirdPartyOutDir(platform, config), 'protobuf')
 
+def GetLibreSSLOutDir(platform, config):
+    return path.join(GetThirdPartyOutDir(platform, config), 'libressl')
+
 def GetCmakeArgBuildType(config):
     if config == Config.Release:
         return '-DCMAKE_BUILD_TYPE=Release'
@@ -64,8 +67,18 @@ def SetupLibsodium(platform, config):
 
     subprocess.check_call([SOD_SRC + '/configure', '--prefix=' + SOD_DIR + '/out'], cwd=SOD_DIR)
     subprocess.check_call(['make', '-j' + JOBS], cwd=SOD_DIR)
-    subprocess.check_call(['make', 'check'], cwd=SOD_DIR)
     subprocess.check_call(['make', 'install'], cwd=SOD_DIR)
+
+def SetupLibressl(platform, config):
+    SSL_SRC = THIRD_PARTY_SRC_DIR + 'libressl-3.4.3'
+    SSL_DIR = GetThirdPartyOutDir(platform, config) + 'libressl'
+    os.makedirs(SSL_DIR, exist_ok = True)
+
+    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + SSL_DIR + '/out',
+        GetCmakeArgBuildType(config), '-DLIBRESSL_APPS=OFF', '-DLIBRESSL_TESTS=OFF',
+        SSL_SRC], cwd=SSL_DIR)
+    subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=SSL_DIR)
+    subprocess.check_call(['cmake', '--install', '.'], cwd=SSL_DIR)
 
 def SetupGameNetworkingSockets(platform, config):
     GNS_SRC = THIRD_PARTY_SRC_DIR + 'GameNetworkingSockets-1.3.0'
@@ -73,8 +86,8 @@ def SetupGameNetworkingSockets(platform, config):
     os.makedirs(GNS_DIR, exist_ok = True)
 
     subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + GNS_DIR + '/out',
-                        GetCmakeArgBuildType(config), '-DUSE_CRYPTO=libsodium',
-                           '-DUSE_CRYPTO25519=libsodium', '-DCMAKE_PREFIX_PATH=' + GetSodiumOutDir(platform, config) +'/out/;' + GetProtobufOutDir(platform, config) + '/out/',
+                        GetCmakeArgBuildType(config), '-DUSE_CRYPTO=LibreSSL',
+                           '-DUSE_CRYPTO25519=libsodium', '-DCMAKE_PREFIX_PATH=' + GetLibreSSLOutDir(platform, config) +'/out/;' + GetProtobufOutDir(platform, config) + '/out/',
                            '-Dprotobuf_BUILD_TESTS=OFF', '-Dprotobuf_BUILD_SHARED_LIBS=OFF',
                            '-DProtobuf_USE_STATIC_LIBS=ON',
                         GNS_SRC], cwd=GNS_DIR)
@@ -159,7 +172,8 @@ def SetupTracy(platform, config):
 
 #SetupTracy(PLATFORM, CONFIG)
 
-SetupLibsodium(PLATFORM, CONFIG)
+#SetupLibsodium(PLATFORM, CONFIG)
+SetupLibressl(PLATFORM, CONFIG)
 SetupProtobuf(PLATFORM, CONFIG)
 SetupGameNetworkingSockets(PLATFORM, CONFIG)
 SetupSDL(PLATFORM, CONFIG)

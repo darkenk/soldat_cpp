@@ -48,7 +48,7 @@ if(USE_CRYPTO STREQUAL "BCrypt")
 		)
 endif()
 
-if(USE_CRYPTO STREQUAL "OpenSSL")
+if(USE_CRYPTO STREQUAL "OpenSSL" OR USE_CRYPTO STREQUAL "LibreSSL")
 	set(GNS_CRYPTO_DEFINES ${GNS_CRYPTO_DEFINES} STEAMNETWORKINGSOCKETS_CRYPTO_VALVEOPENSSL)
 	set(GNS_SRCS ${GNS_SRCS}
 		"common/crypto_openssl.cpp"
@@ -203,6 +203,9 @@ macro(gamenetworkingsockets_common GNS_TARGET)
 				crypt32
 				)
 		endif()
+	endif()
+	if(USE_CRYPTO STREQUAL "LibreSSL")
+		target_link_libraries(${GNS_TARGET} PRIVATE LibreSSL::Crypto)
 	endif()
 
 	if(USE_CRYPTO STREQUAL "libsodium" OR USE_CRYPTO25519 STREQUAL "libsodium")

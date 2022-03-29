@@ -15,6 +15,7 @@ message(STATUS "Using third party: ${THIRD_PARTY_OUT_DIR}")
 
 set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/libsodium-1.0.18/contrib
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/GameNetworkingSockets-1.3.0/cmake
     ${CMAKE_MODULE_PATH}
 )
 set(CMAKE_PREFIX_PATH
@@ -25,6 +26,7 @@ set(CMAKE_PREFIX_PATH
     ${THIRD_PARTY_OUT_DIR}/openal/out/
     ${THIRD_PARTY_OUT_DIR}/spdlog/out/
     ${THIRD_PARTY_OUT_DIR}/gtest/out/
+    ${THIRD_PARTY_OUT_DIR}/libressl/out/
     ${CMAKE_PREFIX_PATH}
 )
 
@@ -47,6 +49,7 @@ set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-point
 #add_definitions(-DTRACY_ENABLE)
 
 find_package(SDL2 REQUIRED)
+find_package(LibreSSL REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(GameNetworkingSockets REQUIRED)
 find_package(spdlog REQUIRED)

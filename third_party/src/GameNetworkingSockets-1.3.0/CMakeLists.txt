@@ -56,7 +56,7 @@ option(GAMENETWORKINGSOCKETS_BUILD_TESTS "Build crypto, pki and network connecti
 #
 # Primary crypto library (for AES, SHA256, etc)
 #
-set(useCryptoOptions OpenSSL libsodium BCrypt)
+set(useCryptoOptions LibreSSL OpenSSL libsodium BCrypt)
 set(USE_CRYPTO "OpenSSL" CACHE STRING "Crypto library to use for AES/SHA256")
 set_property(CACHE USE_CRYPTO PROPERTY STRINGS ${useCryptoOptions})
 
@@ -148,9 +148,12 @@ endif()
 
 if(USE_CRYPTO STREQUAL "libsodium")
 	if(NOT CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|x86_64.*|AMD64.*|i686.*|i386.*|x86.*")
-		# DK disable error to pass compilation on aarch64
-		#message(FATAL_ERROR "-DUSE_CRYPTO=libsodium invalid, libsodium AES implementation only works on x86/x86_64 CPUs")
+		message(FATAL_ERROR "-DUSE_CRYPTO=libsodium invalid, libsodium AES implementation only works on x86/x86_64 CPUs")
 	endif()
+endif()
+
+if(USE_CRYPTO STREQUAL "LibreSSL")
+	find_package(LibreSSL REQUIRED)
 endif()
 
 # We always need at least sse2 on x86
