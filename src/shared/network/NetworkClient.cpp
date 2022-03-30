@@ -163,7 +163,10 @@ void tclientnetwork::handlemessages(PSteamNetworkingMessage_t IncomingMsg)
     pmsgheader PacketHeader;
 
     if (IncomingMsg->m_cbSize < sizeof(tmsgheader))
+    {
+        IncomingMsg->Release();
         return; // truncated packet
+    }
 
     PacketHeader = pmsgheader(IncomingMsg->m_pData);
 
@@ -361,10 +364,7 @@ void tclientnetwork::handlemessages(PSteamNetworkingMessage_t IncomingMsg)
 #endif
     }
 
-    if (not demoplayer.active())
-    {
-        IncomingMsg->m_pfnRelease(IncomingMsg);
-    }
+    IncomingMsg->Release();
 }
 
 bool tclientnetwork::senddata(const std::byte *Data, std::int32_t Size, std::int32_t Flags,

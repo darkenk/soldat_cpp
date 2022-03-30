@@ -211,11 +211,13 @@ void tservernetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
     pmsgheader PacketHeader;
     if (IncomingMsg->m_cbSize < sizeof(tmsgheader))
     {
+        IncomingMsg->Release();
         return; // truncated packet
     }
 
     if (IncomingMsg->m_nConnUserData == -1)
     {
+        IncomingMsg->Release();
         return;
     }
 
@@ -246,6 +248,7 @@ void tservernetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
     if ((Player->spritenum == 0) or
         (SpriteSystem::Get().GetSprite(Player->spritenum).player != Player))
     {
+        IncomingMsg->Release();
         return;
     }
 
@@ -305,7 +308,7 @@ void tservernetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 #endif
     }
 
-    IncomingMsg->m_pfnRelease(IncomingMsg);
+    IncomingMsg->Release();
 }
 
 tservernetwork::~tservernetwork()
