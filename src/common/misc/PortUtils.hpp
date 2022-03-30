@@ -86,6 +86,11 @@ struct StringLiteral
     char value[N];
 };
 
+consteval const char *GetRelativePath(const std::string_view v)
+{
+    return v.substr(v.find("soldat_cpp") + sizeof("soldat_cpp")).data();
+}
+
 void NotImplementedImpl(const source_location &location,
                         std::string_view msg) requires(Config::IsDebug());
 
@@ -103,7 +108,7 @@ static inline void NotImplementedGeneric(NotImplementedArea::Tag area,
         return;
     }
     fired = true;
-    NotImplementedImpl(source_location::current(File.value, Function.value, Line), msg);
+    NotImplementedImpl(source_location::current(GetRelativePath(File.value), Function.value, Line), msg);
 };
 
 static inline void NotImplementedGeneric() requires(Config::IsRelease())
