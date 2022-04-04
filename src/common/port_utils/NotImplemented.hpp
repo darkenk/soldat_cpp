@@ -49,7 +49,7 @@ class Wrapper
         }
         fired = true;
         Config::ShowNotImplementedMessage(
-            area, msg, source_location::current(file.value, function.value, line));
+            area, msg, source_location::current(GetRelativePath(file.value), function.value, line));
     }
 };
 

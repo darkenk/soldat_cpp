@@ -34,7 +34,7 @@ add_executable(UnitTests
     unit/CVarTests.cpp ../src/shared/Cvar.cpp
     unit/TIniFileTest.cpp ../src/common/misc/TIniFile.cpp
     ../src/common/misc/PortUtils.cpp
-    unit/common/notimplemented/NotImplementedTests.cpp
+    unit/common/notimplemented/NotImplementedTests.cpp ../src/common/port_utils/NotImplemented.cpp
     unit/FontAtlasTest.cpp ../src/shared/misc/FontAtlas.cpp
     unit/BitStreamTest.cpp
     unit/SafeTypeTest.cpp

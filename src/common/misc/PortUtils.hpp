@@ -19,11 +19,6 @@ class MsgLineWrapper
     const source_location &location;
 };
 
-consteval const char *GetRelativePath(const std::string_view v)
-{
-    return v.substr(v.find("soldat_cpp") + sizeof("soldat_cpp")).data();
-}
-
 void AssertImpl(const bool condition, const MsgLineWrapper &msg = "") requires(Config::IsDebug());
 
 inline void AssertImpl(const bool /*condition*/,
