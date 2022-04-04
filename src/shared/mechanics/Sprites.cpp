@@ -349,7 +349,7 @@ void Sprite<M>::update()
     skeleton.pos[25] = skeleton.pos[5];
     if (!deadmeat)
     {
-        NotImplemented(NITag::OTHER, "This code has no effect");
+        NotImplemented( "This code has no effect");
         vec2add(skeleton.pos[21], spriteVelocity);
         vec2add(skeleton.pos[23], spriteVelocity);
         vec2add(skeleton.pos[25], spriteVelocity);
@@ -1771,7 +1771,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         {
             if (CVar::log_enable)
             {
-                NotImplemented(NITag::OTHER, "No date");
+                NotImplemented( "No date");
 #if 0
                 s2 = formatdatetime("yy/mm/dd", get_date());
                 s2 = s2 + ' ' + formatdatetime("hh:nn:ss", get_time());
@@ -4077,7 +4077,7 @@ void Sprite<M>::fire()
     if (weapon.num == eagle_num) // Eagles
     {
         bulletcount += 1;
-        NotImplemented(NITag::OTHER);
+        NotImplemented();
 #if 0
         randseed = bulletcount;
 #endif
@@ -4100,7 +4100,7 @@ void Sprite<M>::fire()
     if (weapon.bulletstyle == bullet_style_shotgun) // Shotgun
     {
         bulletcount += 1;
-        NotImplemented(NITag::OTHER);
+        NotImplemented();
 #if 0
         randseed = bulletcount;
 #endif

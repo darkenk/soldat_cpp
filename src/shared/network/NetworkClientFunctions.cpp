@@ -179,7 +179,7 @@ void clienthandlejoinserver(SteamNetworkingMessage_t *netmessage)
         return;
 
     joinservermsg = pmsg_joinserver(netmessage->m_pData);
-    NotImplemented(NITag::NETWORK);
+    NotImplemented("network");
 #if 0
     GetMainConsole().console(std::string("Redirecting to... ") +
                             netaddrtostr(in_addr(joinservermsg->ip)) + ':' +
@@ -190,7 +190,7 @@ void clienthandlejoinserver(SteamNetworkingMessage_t *netmessage)
     clientdisconnect();
 
     redirecttoserver = true;
-    NotImplemented(NITag::NETWORK);
+    NotImplemented("network");
 #if 0
     redirectip = netaddrtostr(in_addr(joinservermsg->ip));
 #endif
@@ -215,7 +215,7 @@ void clienthandleplaysound(SteamNetworkingMessage_t *netmessage)
     {
         // Name to ID, for easy use for scripters
         i = soundnametoid(playsoundmsg->name.data());
-        NotImplemented(NITag::NETWORK);
+        NotImplemented("network");
 #if 0
         // Sound downloaded, but not initialized. So intialize it
         if (i == -1)

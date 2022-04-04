@@ -216,7 +216,7 @@ static inline std::int32_t high(const PascalArray<T, StartIndex, EndIndex> &v)
 
 inline void sleep(std::int32_t t)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 }
 
 class tstringlist : public std::vector<std::string>
@@ -228,11 +228,11 @@ class tstringlist : public std::vector<std::string>
     }
     void savetofile(const std::string &filename)
     {
-        NotImplemented(NITag::FILESYSTEM, "lack of save for tstringlist");
+        NotImplemented("filesystem", "lack of save for tstringlist");
     }
     void loadfromfile(const std::string &filename)
     {
-        NotImplemented(NITag::FILESYSTEM, "lack of load for tstringlist");
+        NotImplemented("filesystem", "lack of load for tstringlist");
     }
 };
 
@@ -267,7 +267,7 @@ static inline std::int32_t ord(T ref)
 
 static inline std::string formatfloat(const std::string &format, float f)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
     return std::to_string(f);
 }
 
@@ -295,7 +295,7 @@ enum DummyPort
 
 static inline std::string floattostrf(float p, DummyPort, std::int32_t base, std::int32_t exp)
 {
-    NotImplemented(NITag::OTHER, "no floattostrf");
+    NotImplemented( "no floattostrf");
     return std::to_string(p);
 }
 
@@ -321,6 +321,6 @@ static inline std::int32_t sign(const T &v1)
 
 static inline bool fileexists(const std::string &path)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
     return false;
 }

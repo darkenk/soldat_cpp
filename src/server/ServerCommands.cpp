@@ -318,7 +318,7 @@ void commandunadm(std::vector<std::string> &args, std::uint8_t sender)
 
     if (isremoteadminip(name))
     {
-        NotImplemented(NITag::NETWORK);
+        NotImplemented("network");
 #if 0
         j = remoteips.indexof(name);
         remoteips.delete_(j);
@@ -345,7 +345,7 @@ void commandsetteam(std::vector<std::string> &args, std::uint8_t sender)
         return;
 
     tempstr = args[0];
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     teamset = strtointdef(std::string(tempstr.at(8)), 1);
 #endif
@@ -472,7 +472,7 @@ void commandloadlist(std::vector<std::string> &args, std::uint8_t sender)
 
     if (length(args) == 0)
     {
-        NotImplemented(NITag::OTHER, "missing stringreplace");
+        NotImplemented( "missing stringreplace");
 #if 0
         name = stringreplace(CVar::sv_maplist, ".txt", "", rfreplaceall);
 #endif
@@ -616,7 +616,7 @@ void commanddelmap(std::vector<std::string> &args, std::uint8_t sender)
 
     for (tempint = 0; tempint <= (mapslist.size() - 1); tempint++)
     {
-        NotImplemented(NITag::OTHER);
+        NotImplemented();
 #if 0
         if (uppercase(mapslist[tempint]) == uppercase(name))
         {
@@ -701,7 +701,7 @@ void commandweaponoff(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandbanlist(std::vector<std::string> &args, std::uint8_t sender)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     std::int32_t i;
     tdatetime banduration;
@@ -753,7 +753,7 @@ void commandnetstats(std::vector<std::string> &args, std::uint8_t sender)
     if (GetServerNetwork()->NetworkingSocket().GetDetailedConnectionStatus(1, statstext.data(),
                                                                            2048) == 0)
     {
-        NotImplemented(NITag::OTHER);
+        NotImplemented();
 #if 0
         output << statstext << NL;
 #endif
@@ -763,7 +763,7 @@ void commandnetstats(std::vector<std::string> &args, std::uint8_t sender)
         if (GetServerNetwork()->NetworkingSocket().GetDetailedConnectionStatus(
                 dstplayer->peer, statstext.data(), 2048) == 0)
         {
-            NotImplemented(NITag::OTHER);
+            NotImplemented();
 #if 0
             output << "----------------" << NL;
             output << dstplayer.name << NL;
@@ -1022,7 +1022,7 @@ void commandrecord(std::vector<std::string> &args, std::uint8_t sender)
         str1 = args[1];
     else
     {
-        NotImplemented(NITag::OTHER);
+        NotImplemented();
 #if 0
         str1 = formatdatetime("yyyy-mm-dd_hh-nn-ss_", now(0)) + map.name;
 #endif

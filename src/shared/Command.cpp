@@ -47,7 +47,7 @@ static void commandexec(std::vector<std::string> &args, std::uint8_t sender = 25
 
 static void commandtoggle(std::vector<std::string> &args, std::uint8_t sender)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     CVarBase acvar;
 
@@ -80,7 +80,7 @@ static void commandalias(std::vector<std::string> &args, std::uint8_t sender)
         return;
     }
     aliasname = args[1];
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     if ((tcvarbase.find(aliasname) != nullptr) && (commandfind(aliasname) != nullptr))
     {
@@ -106,7 +106,7 @@ static void commandexecutealias(std::vector<std::string> &args, std::uint8_t sen
         GetMainConsole().console("Cannot find alias command", debug_message_color);
         return;
     }
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     inputparse.delimiter = ';';
     inputparse.strictdelimiter = true;
@@ -128,7 +128,7 @@ static void commandecho(std::vector<std::string> &args, std::uint8_t sender)
 
 static void commandreset(std::vector<std::string> &args, std::uint8_t sender)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     std::string cvarname;
     tcvarbase acvar;
@@ -154,7 +154,7 @@ static void commandreset(std::vector<std::string> &args, std::uint8_t sender)
 
 static void commandcmdlist(std::vector<std::string> &args, std::uint8_t sender)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     std::int32_t i;
     pcommand commandptr;
@@ -169,7 +169,7 @@ static void commandcmdlist(std::vector<std::string> &args, std::uint8_t sender)
 
 static void commandcvarlist(std::vector<std::string> &args, std::uint8_t sender)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     std::int32_t i;
     tcvarbase acvar;
@@ -196,7 +196,7 @@ static void commandcvarlist(std::vector<std::string> &args, std::uint8_t sender)
 
 static void commandinc(std::vector<std::string> &args, std::uint8_t sender)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     std::string cvarname;
     tcvarbase acvar;
@@ -688,7 +688,7 @@ void commandinit()
     commandadd("alias", commandalias, "creates alias", 0);
     commandadd("toggle", commandtoggle, "toggles cvar between two values", 0);
     commandadd("inc", commandinc, "increments cvar value", 0);
-    NotImplemented(NITag::OTHER, "Missing development commands");
+    NotImplemented( "Missing development commands");
 #if 0
     if (!Config::IsMaster())
     {

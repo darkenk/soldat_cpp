@@ -30,7 +30,7 @@ void clientsendbullet(std::uint8_t i)
     bulletmsg.seed = b.seed;
 
     GetNetwork()->senddata(&bulletmsg, sizeof(bulletmsg), k_nSteamNetworkingSend_Unreliable);
-    NotImplemented(NITag::NETWORK);
+    NotImplemented("network");
 #if 0
     if (GS::GetDemoRecorder().active())
         serverbulletsnapshot(i, 0, false);
@@ -102,7 +102,7 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
         {
             // Undo the bullet spread used on the first pellet that was sent in order to
             // get the "straight" bullet vector. Then re-apply the the same randomness
-            NotImplemented(NITag::NETWORK);
+            NotImplemented("network");
 #if 0
             randseed = bulletsnap->seed;
 #endif
@@ -136,7 +136,7 @@ void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
         {
             // Undo the bullet spread used on the first pellet that was sent in order to
             // get the "straight" bullet vector. Then re-apply the the same randomness
-            NotImplemented(NITag::NETWORK);
+            NotImplemented("network");
 #if 0
             randseed = bulletsnap->seed;
 #endif

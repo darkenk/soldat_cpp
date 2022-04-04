@@ -1977,7 +1977,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                                           SpriteSystem::Get().GetSprite(j).num) !=
                                 spritecollisions.end())
                             {
-                                NotImplemented(NITag::OTHER, "Check spritecollisions");
+                                NotImplemented( "Check spritecollisions");
 #if 0
                                 include(spritecollisions, SpriteSystem::Get().GetSprite(j).num);
 #endif

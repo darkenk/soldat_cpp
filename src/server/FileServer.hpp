@@ -4,5 +4,5 @@
 
 void StopFileServer()
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 }

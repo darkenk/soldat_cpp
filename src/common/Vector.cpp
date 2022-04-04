@@ -9,7 +9,7 @@ tvector2 vector2(MyFloat x, MyFloat y)
 
 MyFloat vec2length2(const tvector2 &v)
 {
-    return sqr(v.x) + sqr(v.y);
+    return v.x * v.x + v.y * v.y;
 }
 
 MyFloat vec2dot(const tvector2 &v1, const tvector2 &v2)
@@ -42,7 +42,7 @@ pvector2 vec2normalize(tvector2 &vout, const tvector2 &v)
 
 MyFloat vec3length(const tvector3 &v)
 {
-    return std::sqrt(sqr(v.x) + sqr(v.y) + sqr(v.z));
+    return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 tvector2 tvector2::operator+(const tvector2 &v) const

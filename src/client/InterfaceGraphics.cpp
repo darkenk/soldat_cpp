@@ -671,7 +671,7 @@ void renderescmenutext(float w, float h)
 
     gfxtextcolor(rgba(230, 235, 255, 190));
     gfxtextverticalalign(gfx_bottom);
-    NotImplemented(NITag::GFX, "No soldat version");
+    NotImplemented("rendering", "No soldat version");
 #if 0
     gfxdrawtext(escmenu->x + escmenu->w + dx - 2 -
                     rectwidth(gfxtextmetrics(string("Soldat ") + soldat_version)),
@@ -1269,7 +1269,7 @@ void renderfragsmenutexts(float fragmenubottom)
     setfontstyle(font_small);
     gfxtextcolor(rgba(170, 160, 200, 230));
     gfxdrawtext(str1, x + 485, y + 15);
-    NotImplemented(NITag::GFX, "No time");
+    NotImplemented("rendering", "No time");
 #if 0
     gfxdrawtext(formatdatetime("h:nn:ss ampm", get_time()), x + 485, y + 30);
 #endif
@@ -1587,7 +1587,7 @@ void renderchattexts()
         if (SpriteSystem::Get().GetSprite(i).typing && !hide)
         {
             dx = (float)(-rectwidth(gfxtextmetrics("..."))) / 2;
-            NotImplemented(NITag::GFX);
+            NotImplemented("rendering");
 #if 0
             str1 =  (copy("...", 1, GS::GetGame().GetMainTickCounter() / 30 % 3 + 1));
 #endif
@@ -1775,7 +1775,7 @@ void renderradiomenutexts()
 
     if (rmenustate[0] != ' ')
     {
-        NotImplemented(NITag::GFX, "rmenustate to int?");
+        NotImplemented("rendering", "rmenustate to int?");
 #if 0
         s = choose(strtoint(rmenustate[0]) - 1, {"EFC", "FFC", "ES"});
 #endif
@@ -1965,7 +1965,7 @@ void renderinterface(float timeelapsed, float width, float height)
     pgfxsprite spr;
     bool widescreencut;
     std::string str1;
-    NotImplemented(NITag::NETWORK);
+    NotImplemented("network");
 #if 0
     steamnetworkingquickconnectionstatus networkstats;
 #endif
@@ -1982,7 +1982,7 @@ void renderinterface(float timeelapsed, float width, float height)
     /*$IF DEFINED(TESTING) or DEFINED(RELEASE_CANDIDATE)*/
     setfontstyle(font_small);
     gfxtextcolor(rgba(250, 245, 255, 150));
-    NotImplemented(NITag::GFX, "soldat_version_long");
+    NotImplemented("rendering", "soldat_version_long");
 #if 0
     gfxdrawtext(soldat_version_long, 565 * _iscala.x, 465 * _iscala.y);
 #endif
@@ -3107,7 +3107,7 @@ void renderinterface(float timeelapsed, float width, float height)
             }
             else
             {
-                NotImplemented(NITag::NETWORK);
+                NotImplemented("network");
 #if 0
                 networkstats = udp.getquickconnectionstatus(udp.peer);
                 setfontstyle(font_smallest);

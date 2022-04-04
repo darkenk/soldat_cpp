@@ -191,7 +191,7 @@ float getimagescale(const std::string &imagepath)
 
     data = &scaledata.root;
     path = lowercase(imagepath);
-    NotImplemented(NITag::GFX);
+    NotImplemented("rendering");
 #if 0
     if (((moddir != "") && (lowercase(moddir) == path.substr(1, length(moddir)))))
     {
@@ -215,7 +215,7 @@ float getimagescale(const std::string &imagepath)
 
     if (scale == "")
     {
-        NotImplemented(NITag::GFX);
+        NotImplemented("rendering");
 #if 0
         key = stringreplace(extractfiledir(path), '\\', '/', set::of(rfreplaceall, eos));
         scale = data->at(key);

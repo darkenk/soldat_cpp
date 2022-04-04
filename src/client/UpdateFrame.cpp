@@ -449,7 +449,7 @@ void update_frame()
                 return;
             }
 #endif
-            NotImplemented(NITag::OTHER, "No now() function");
+            NotImplemented( "No now() function");
 #if 0
             screenfile = GS::GetGame().GetUserDirectory() + "screens/" +
                          formatdatetime("yyyy-mm-dd_hh-nn-ss_", now()) + map.name + "_endgame.png";
@@ -459,7 +459,7 @@ void update_frame()
 
     if ((CVar::demo_autorecord) && (GS::GetDemoRecorder().active() == false) && (map.name != ""))
     {
-        NotImplemented(NITag::OTHER, "No now() function");
+        NotImplemented( "No now() function");
 #if 0
         GS::GetDemoRecorder().startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
                                  formatdatetime("yyyy-mm-dd_hh-nn-ss_", now()) + map.name + ".sdm");

@@ -204,13 +204,13 @@ static void WriteLn(const std::string &msg)
 
 static std::string ParamStr(std::int32_t v)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
     return "./";
 }
 
 static std::string ExtractFilePath(const std::string &path)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
     return "./";
 }
 
@@ -220,7 +220,7 @@ static std::string ExtractFilePath(const std::string &path)
 // no idea how to avoid it. Perhaps somebody who knows this code could fix it.
 void DaemonizeProgram()
 {
-    NotImplemented(NITag::NETWORK);
+    NotImplemented("network");
 #if 0
     var pid, sid TPid;
     pid = FpFork;
@@ -255,7 +255,7 @@ void DaemonizeProgram()
 void ActivateServer(int argc, const char *argv[])
 {
     std::int32_t i;
-    NotImplemented(NITag::NETWORK, "Rewrite message");
+    NotImplemented("network", "Rewrite message");
 #if 0
   WriteLn("");
   WriteLn("             -= Soldat Dedicated Server " + SOLDAT_VERSION + " - " +
@@ -295,13 +295,13 @@ void ActivateServer(int argc, const char *argv[])
     GetServerMainConsole().newmessagewait = 150;
     GetServerMainConsole().alphacount = 255;
 
-    NotImplemented(NITag::OTHER, "Who cares about colors?");
+    NotImplemented( "Who cares about colors?");
 #if 0
     if GetEnvironmentVariable ("COLORTERM")
         != "" then GetServerMainConsole().TerminalColors = true;
 #endif
 
-    NotImplemented(NITag::OTHER, "No cvarinit");
+    NotImplemented( "No cvarinit");
 #if 0
     cvarinit();
 #endif
@@ -322,7 +322,7 @@ void ActivateServer(int argc, const char *argv[])
     LogDebugG("[FS]  userdirectory {}", userdirectory);
     LogDebugG("[FS]  basedirectory {}", basedirectory);
 
-    NotImplemented(NITag::OTHER, "No set current dir");
+    NotImplemented( "No set current dir");
 #if 0
     SetCurrentDir(userdirectory);
 #endif
@@ -438,12 +438,12 @@ void ActivateServer(int argc, const char *argv[])
     // Banned IPs text file
     if (not createfileifmissing(userdirectory + "configs/banned.txt"))
     {
-        NotImplemented(NITag::OTHER, "Failed to create configs/banned.txt");
+        NotImplemented( "Failed to create configs/banned.txt");
     }
 
     if (not createfileifmissing(userdirectory + "configs/bannedhw.txt"))
     {
-        NotImplemented(NITag::OTHER, "Failed to create configs/bannedhw.txt");
+        NotImplemented( "Failed to create configs/bannedhw.txt");
     }
 
     loadbannedlist(userdirectory + "configs/banned.txt");
@@ -451,7 +451,7 @@ void ActivateServer(int argc, const char *argv[])
 
     if (fileexists(userdirectory + "configs/remote.txt"))
     {
-        NotImplemented(NITag::OTHER);
+        NotImplemented();
 #if 0
             RemoteIPs.LoadFromFile(userdirectory + "configs/remote.txt");
 #endif
@@ -483,7 +483,7 @@ void ActivateServer(int argc, const char *argv[])
     writelogfile(&GetKillLog(), GetKillLogFilename());
     writelogfile(GetGameLog(), GetGameLogFilename());
 
-    NotImplemented(NITag::OTHER, "mixing commands between server and client");
+    NotImplemented( "mixing commands between server and client");
     // rundeferredcommands();
 }
 
@@ -493,7 +493,7 @@ void ShutDown()
     progready = false;
 
     GetServerMainConsole().console("Shutting down server...", game_message_color);
-    NotImplemented(NITag::OTHER, "Missing delete file");
+    NotImplemented( "Missing delete file");
 #if 0
     SysUtils.DeleteFile(userdirectory + "logs/" + sv_pidfilename);
 #endif
@@ -574,7 +574,7 @@ void loadweapons(const std::string &Filename)
     // FIXME (falcon) while the above instruction has to be done every time,
     // because you never know if WM provides all the values,
     // this could be done only once per mode (realistic/non-realistic)
-    NotImplemented(NITag::OTHER, "no checksum");
+    NotImplemented( "no checksum");
 #if 0
     DefaultWMChecksum = CreateWMChecksum();
 #endif
@@ -591,7 +591,7 @@ void loadweapons(const std::string &Filename)
             createweapons(IsRealistic, guns, defaultguns);
         }
     }
-    NotImplemented(NITag::OTHER, "no checksum");
+    NotImplemented( "no checksum");
 #if 0
     LoadedWMChecksum = CreateWMChecksum();
 
@@ -757,7 +757,7 @@ void startserver()
     auto &map = GS::GetGame().GetMap();
 
     // Load Map
-    NotImplemented(NITag::NETWORK, "Is it really commented in reference version");
+    NotImplemented("network", "Is it really commented in reference version");
     /*
         if (not map.loadmap(StartMap))
         {
@@ -775,7 +775,7 @@ void startserver()
         }
         else
             map.name = StartMap.name;
-        NotImplemented(NITag::OTHER, "No checksum");
+        NotImplemented( "No checksum");
 #if 0
         MapCheckSum = GetMapChecksum(MapChangeName, userdirectory);
 #endif
@@ -791,7 +791,7 @@ void startserver()
             return;
         }
     }
-    NotImplemented(NITag::OTHER, "No checksum");
+    NotImplemented( "No checksum");
 #if 0
     MapCheckSum = GetMapChecksum(StartMap);
 #endif
@@ -992,7 +992,7 @@ void startserver()
 
     if (CVar::fileserver_enable)
     {
-        NotImplemented(NITag::NETWORK, "No start file server");
+        NotImplemented("network", "No start file server");
 #if 0
         StartFileServer();
 #endif
@@ -1006,7 +1006,7 @@ void startserver()
 
     if (CVar::sv_lobby)
     {
-        NotImplemented(NITag::NETWORK, "no lobby");
+        NotImplemented("network", "no lobby");
 #if 0
         if (LobbyThread == nullptr)
         {
@@ -1240,7 +1240,7 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
     {
         if (time > 0)
         {
-            NotImplemented(NITag::OTHER, "Msg ban");
+            NotImplemented( "Msg ban");
 #if 0
             TimeStr = iif((time + 1) div 3600 > 1439, IntToStr((time + 1) div 5184000) + " days",
                           IntToStr((time + 1) div 3600) + " minutes");

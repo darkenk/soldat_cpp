@@ -376,7 +376,7 @@ bool initshaderprogram(bool dithering)
     if (!requiredfunctions)
         return initshaderprogram_result;
 
-    NotImplemented(NITag::GFX, "Missing stringreplace");
+    NotImplemented("rendering", "Missing stringreplace");
 #if 0
     if (!dithering)
         fragsrc = stringreplace(fragsrc, "#define DITHERING 1", "#define DITHERING 0");
@@ -558,7 +558,7 @@ bool gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline)
     glGetIntegerv(GL_MAX_LABEL_LENGTH, &OPENGL_MAX_LABEL_LENGTH);
     gfxlog(string("OpenGL version: ") + version);
 
-    NotImplemented(NITag::GFX, "EXTs missing in glad");
+    NotImplemented("rendering", "EXTs missing in glad");
 #if 0
     if (!assigned(glGenFramebuffers))
     {
@@ -830,7 +830,7 @@ void gfxpresent(bool finish)
 }
 void gfxsetmipmapbias(float bias)
 {
-    NotImplemented(NITag::GFX, "This is probably some garbage after fixed pipeline");
+    NotImplemented("rendering", "This is probably some garbage after fixed pipeline");
 #if 0
      glTexEnvf(GL_TEXTURE_FILTER_CONTROL, GL_TEXTURE_LOD_BIAS, bias);
 #endif
@@ -881,7 +881,7 @@ void gfxsavescreen(const std::string &filename, std::int32_t x, std::int32_t y, 
     src += w * h * 4;
     glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, src);
 
-    NotImplemented(NITag::GFX, "Lack of screenshot");
+    NotImplemented("rendering", "Lack of screenshot");
 #if 0
     screenthread = tscreenshotthread.create(filename, w, h, data);
     screenthread.freeonterminate = true;

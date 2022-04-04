@@ -72,7 +72,7 @@ TNetwork::~TNetwork()
     }
     disconnect(true);
 #ifndef STEAM
-    NotImplemented(NITag::NETWORK);
+    NotImplemented("network");
 #if 0
     NetworkingSockets->Destroy;
 #endif

@@ -120,7 +120,7 @@ bool loadbotconfig(TIniFile &ini, tsprite &spritec, GunsDescription &guns)
 
         ReadConf(conf, "Name", spritec.player->name);
 
-        NotImplemented(NITag::OTHER);
+        NotImplemented();
         // setlength(spritec.player.name, min(length(spritec.player.name), playername_chars));
 
         if (spritec.player->team == team_none)

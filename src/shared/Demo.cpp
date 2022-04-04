@@ -70,7 +70,7 @@ bool tdemorecorder<M>::startrecord(const string &filename)
 
     fdemoheader.header = {'S', 'O', 'L', 'D', 'E', 'M'};
     fdemoheader.ticksnum = 0;
-    NotImplemented(NITag::OTHER, "No time for demo");
+    NotImplemented( "No time for demo");
 #if 0
     fdemoheader.startdate = datetimetounix(now);
 #endif
@@ -167,7 +167,7 @@ std::int32_t tdemorecorder<M>::createdemoplayer()
     p = createsprite(a, v, 1, max_sprites, &player, true);
     if ((p > 0) && (p < max_sprites + 1))
     {
-        NotImplemented(NITag::NETWORK);
+        NotImplemented("network");
 #if 0
 #ifdef SERVER
         serversynccvars(p, player.peer, true);
@@ -205,7 +205,7 @@ void tdemorecorder<M>::saverecord(const void *r, std::int32_t size)
 template <Config::Module M>
 void tdemorecorder<M>::savecamera()
 {
-    NotImplemented(NITag::NETWORK);
+    NotImplemented("network");
 #if 0
     tmsg_clientspritesnapshot_dead msg;
 
@@ -218,7 +218,7 @@ void tdemorecorder<M>::savecamera()
 template <Config::Module M>
 void tdemorecorder<M>::saveposition()
 {
-    NotImplemented(NITag::NETWORK);
+    NotImplemented("network");
 #if 0
     tmsg_serverspritedelta_movement movementmsg;
 
@@ -318,7 +318,7 @@ void tdemoplayer::stopdemo()
 
 void tdemoplayer::processdemo()
 {
-    NotImplemented(NITag::NETWORK);
+    NotImplemented("network");
 #if 0
     std::array<char, 16384> readbuf;
     SteamNetworkingMessage_t* packet;
@@ -441,51 +441,51 @@ void tdemoplayer::position(std::int32_t ticks)
 template <Config::Module M>
 bool tmemorystream<M>::writebuffer(const void *buff, int32_t size)
 {
-    NotImplemented(NITag::FILESYSTEM);
+    NotImplemented("filesystem");
     return false;
 }
 
 template <Config::Module M>
 bool tmemorystream<M>::savetofile(const std::string &filename)
 {
-    NotImplemented(NITag::FILESYSTEM);
+    NotImplemented("filesystem");
     return false;
 }
 
 template <Config::Module M>
 void tmemorystream<M>::write1(const void *buff, int32_t size)
 {
-    NotImplemented(NITag::FILESYSTEM);
+    NotImplemented("filesystem");
 }
 
 template <Config::Module M>
 void tmemorystream<M>::read1(void *buff, int32_t size)
 {
-    NotImplemented(NITag::FILESYSTEM);
+    NotImplemented("filesystem");
 }
 
 template <Config::Module M>
 void tmemorystream<M>::readbuffer(void *buff, int32_t size)
 {
-    NotImplemented(NITag::FILESYSTEM);
+    NotImplemented("filesystem");
 }
 
 template <Config::Module M>
 void tmemorystream<M>::loadfromfile(const std::string &filename)
 {
-    NotImplemented(NITag::FILESYSTEM);
+    NotImplemented("filesystem");
 }
 
 template <Config::Module M>
 void tmemorystream<M>::seek(int32_t bytes, tmemorystream::pos position)
 {
-    NotImplemented(NITag::FILESYSTEM);
+    NotImplemented("filesystem");
 }
 
 template <Config::Module M>
 void tmemorystream<M>::free()
 {
-    NotImplemented(NITag::FILESYSTEM);
+    NotImplemented("filesystem");
 }
 
 template struct tmemorystream<>;

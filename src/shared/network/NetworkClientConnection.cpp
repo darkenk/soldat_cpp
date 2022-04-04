@@ -205,16 +205,16 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
             client_message_color);
 
     gClientServerIP = GetNetwork()->GetStringAddress(&GetNetwork()->Address(), false);
-    NotImplemented(NITag::NETWORK, "no sha1 checks");
+    NotImplemented("network", "no sha1 checks");
 #if 1
     mapname = trim(playerslistmsg->mapname.data());
     modname = trim(playerslistmsg->modname.data());
-    NotImplemented(NITag::NETWORK, "string replace");
+    NotImplemented("network", "string replace");
 #if 0
     mapname = ansireplacestr(trim(playerslistmsg->mapname.data()))., "..", "");
     modname = ansireplacestr(trim(playerslistmsg->modname.data()), "..", "");
 #endif
-    NotImplemented(NITag::NETWORK, "download url");
+    NotImplemented("network", "download url");
 #if 0
     if (CVar::sv_downloadurl != "")
         downloadurl = includetrailingpathdelimiter(CVar::sv_downloadurl);
@@ -247,7 +247,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
             }
             else
             {
-                NotImplemented(NITag::NETWORK, "no download thread");
+                NotImplemented("network", "no download thread");
 #if 0
                 downloadthread = tdownloadthread.create(downloadurl + "mods/" + modname + ".smod",
                                                         GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod",
@@ -296,7 +296,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
         else
 #endif
         {
-            NotImplemented(NITag::NETWORK, "no download thread");
+            NotImplemented("network", "no download thread");
 #if 0
             downloadthread = tdownloadthread.create(downloadurl + "maps/" + mapname + ".smap",
                                                     GS::GetGame().GetUserDirectory() + "maps/" + mapname + ".smap",
@@ -305,7 +305,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
             return;
         }
     }
-    NotImplemented(NITag::NETWORK, "no download thread");
+    NotImplemented("network", "no download thread");
 #if 0
     downloadretry = 0;
 #endif
@@ -521,7 +521,7 @@ void clienthandleunaccepted(SteamNetworkingMessage_t *netmessage)
     switch (unacceptedmsg->state)
     {
     case wrong_version:
-        NotImplemented(NITag::NETWORK, "No soldat version");
+        NotImplemented("network", "No soldat version");
 #if 0
         rendergameinfo(_("Wrong game versions. Your version:") + ' ' + soldat_version + ' ' +
                        _("Server Version:") + ' ' + unacceptedmsg->version);

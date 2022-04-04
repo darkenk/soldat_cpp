@@ -570,7 +570,7 @@ void startgame(int argc, const char *argv[])
     }
     else
     {
-        NotImplemented(NITag::LOCALIZATION);
+        NotImplemented("localization");
 #if 0
         getlanguageids(systemlang, systemfallbacklang);
 #endif
@@ -684,7 +684,7 @@ void shutdown()
 
     addlinetologfile(GetGameLog(), "UDP closing.", GetGameLogFilename());
 
-    NotImplemented(NITag::NETWORK);
+    NotImplemented("network");
 #if 0
     freeandnullptr(udp);
 #endif
@@ -738,7 +738,7 @@ void joinserver()
 
     gClientServerIP = trim(joinip);
 
-    NotImplemented(NITag::OTHER, "No error checking");
+    NotImplemented( "No error checking");
 #if 0
     if (!trystrtoint(trim(joinport), serverport))
         return;

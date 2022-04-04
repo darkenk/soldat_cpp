@@ -97,7 +97,7 @@ void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
     SpriteSystem::Get().GetSprite(i).kill();
     delete SpriteSystem::Get().GetSprite(i).player;
     SpriteSystem::Get().GetSprite(i).player = new TServerPlayer();
-    NotImplemented(NITag::OTHER, "Check if &player is used properly to remove player");
+    NotImplemented( "Check if &player is used properly to remove player");
     players.erase(std::remove(players.begin(), players.end(), player), players.end());
 
     GetServerNetwork()->NetworkingSocket().CloseConnection(netmessage->m_conn, 0, "", false);

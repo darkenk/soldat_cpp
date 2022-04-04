@@ -199,7 +199,7 @@ void newlogfiles(const std::string &userdirectory)
 
 // TODO error logging once mainconsole is ready
 #ifdef SERVER
-    NotImplemented(NITag::OTHER, "Missing logging");
+    NotImplemented( "Missing logging");
 #if 0
     killlogfilename = format("%slogs/kills/killlog-%s-01.txt", set::of(userdirectory, s2, eos));
     j = 1;

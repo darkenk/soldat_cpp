@@ -100,7 +100,7 @@ void apponidle()
                 s.player->knifewarnings = 0;
             }
         }
-        NotImplemented(NITag::NETWORK);
+        NotImplemented("network");
 #if 0
         // sync changed cvars to all players
         if (cvarsneedsyncing)
@@ -557,7 +557,7 @@ void updateframe()
 
         if (GS::GetGame().GetMainTickCounter() % minute == 0)
         {
-            NotImplemented(NITag::NETWORK);
+            NotImplemented("network");
 #if 0
             if (CVar::sv_lobby)
                 lobbythread = tlobbythread.create;
@@ -826,7 +826,7 @@ void updateframe()
     auto &map = GS::GetGame().GetMap();
     if ((CVar::demo_autorecord) && (GS::GetDemoRecorder().active() == false) && (map.name != ""))
     {
-        NotImplemented(NITag::OTHER);
+        NotImplemented();
 #if 0
         GS::GetDemoRecorder().startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
                                  formatdatetime("yyyy-mm-dd_hh-nn-ss_", now(0)) + map.name +

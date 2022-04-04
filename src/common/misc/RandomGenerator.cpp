@@ -6,7 +6,7 @@ std::default_random_engine generator;
 
 void Randomize()
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 }
 
 float Random()

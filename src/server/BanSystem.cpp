@@ -12,7 +12,7 @@ std::string lastbanhw;
 
 static bool matchesmask(const std::string &v, const std::string &mask)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
     return false;
 }
 
@@ -95,7 +95,7 @@ std::int32_t findban(const std::string &ip)
 
 void loadbannedlist(const std::string &filename)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     std::int32_t i, j;
     tstringlist temparray;
@@ -130,7 +130,7 @@ void loadbannedlist(const std::string &filename)
 
 void savebannedlist(const std::string &filename)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     std::int32_t i;
     std::string buff;
@@ -254,7 +254,7 @@ std::int32_t findbanhw(const std::string &hw)
 
 void loadbannedlisthw(const std::string &filename)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     std::int32_t i, j;
     tstringlist temparray;
@@ -289,7 +289,7 @@ void loadbannedlisthw(const std::string &filename)
 
 void savebannedlisthw(const std::string &filename)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     std::int32_t i;
     std::string buff;

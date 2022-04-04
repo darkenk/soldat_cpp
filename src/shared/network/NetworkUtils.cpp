@@ -130,7 +130,7 @@ void decodekeys(tsprite &SpriteC, uint16_t Keys16)
 template <Config::Module M>
 std::string fixplayername(const char *Name)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
     return Name;
 #if 0
     if ((trim(Name) == "")
@@ -231,7 +231,7 @@ bool isserverfull()
 template <Config::Module M>
 bool iswronggameversion(std::string RequestVersion)
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
     return false;
 #if 0
     return RequestVersion != soldat_version;
@@ -244,7 +244,7 @@ std::string returnfixedplayername(std::string name)
     std::int32_t i;
     std::string r;
     r = "";
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
     return name;
 #if 0
   for

@@ -34,6 +34,7 @@ add_executable(UnitTests
     unit/CVarTests.cpp ../src/shared/Cvar.cpp
     unit/TIniFileTest.cpp ../src/common/misc/TIniFile.cpp
     ../src/common/misc/PortUtils.cpp
+    unit/common/notimplemented/NotImplementedTests.cpp
     unit/FontAtlasTest.cpp ../src/shared/misc/FontAtlas.cpp
     unit/BitStreamTest.cpp
     unit/SafeTypeTest.cpp
@@ -42,6 +43,9 @@ add_executable(UnitTests
     unit/PolyMapTest.cpp ../src/common/PolyMap.cpp ../src/common/MapFile.cpp ../src/common/PhysFSExt.cpp
     unit/common/WeaponSystemTest.cpp ../src/common/WeaponSystem.cpp
 )
+set_source_files_properties(unit/common/notimplemented/NotImplementedTests.cpp PROPERTIES INCLUDE_DIRECTORIES
+    ${CMAKE_CURRENT_SOURCE_DIR}/unit/common/notimplemented)
+
 gtest_discover_tests(UnitTests)
 
 add_executable(UtilsTest

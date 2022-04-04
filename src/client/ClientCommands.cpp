@@ -75,7 +75,7 @@ void commandconnect(std::vector<std::string> &args, std::uint8_t sender)
 
         joinport = getpiece(s, ':', 3);
         joinport = getpiece(joinport, '/', 1);
-        NotImplemented(NITag::OTHER);
+        NotImplemented();
 #if 0
         joinport = ansireplacestr(joinport, '/', "");
 #endif
@@ -130,7 +130,7 @@ void commandrecord(std::vector<std::string> &args, std::uint8_t sender)
 {
     std::string str1;
 
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     if (length(args) == 2)
         str1 = args[1];
@@ -219,7 +219,7 @@ void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)
     if (screenshotsinarow < 3)
     {
         screenshotsinarow += 1;
-        NotImplemented(NITag::OTHER);
+        NotImplemented();
 #if 0
         screenfile = userdirectory + "screens/" + formatdatetime("yyyy-mm-dd_hh-nn-ss_", now(0)) +
                      map.name + "_screenshot.png";

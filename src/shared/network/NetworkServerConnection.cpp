@@ -200,7 +200,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     }
 #endif
 
-    NotImplemented(NITag::OTHER, "no sha1match");
+    NotImplemented( "no sha1match");
 #if 0
     if ((CVar::sv_pure and
          (!sha1match(tsha1digest(playerinfomsg->gamemodchecksum), GS::GetGame().GetGameModChecksum()))) or
@@ -729,7 +729,7 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
             GS::GetDemoRecorder().saverecord(&newplayer, sizeof(newplayer));
         }
     }
-    NotImplemented(NITag::OTHER, "No time functions");
+    NotImplemented( "No time functions");
 #if 0
     addlinetologfile(gamelog,
                      std::string(" Net - ") + SpriteSystem::Get().GetSprite(num).player->name + " connected " +
@@ -781,7 +781,7 @@ void serverplayerdisconnect(std::uint8_t num, std::uint8_t why)
                                      k_nSteamNetworkingSend_Reliable);
     }
 
-    NotImplemented(NITag::OTHER, "No time functions");
+    NotImplemented( "No time functions");
 #if 0
     addlinetologfile(gamelog,
                      string(" Net - ") + SpriteSystem::Get().GetSprite(num).player->name + " disconnected " +

@@ -60,7 +60,7 @@ void clienthandlechatmessage(SteamNetworkingMessage_t *netmessage)
     std::uint8_t msgtype;
     std::uint32_t col;
 
-    NotImplemented(NITag::NETWORK);
+    NotImplemented("network");
 #if 0
     cs = pmsg_stringmessage(netmessage->m_pData)->text.data();
 #endif

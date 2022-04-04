@@ -123,7 +123,7 @@ void Polymap::loaddata(const tmapfile &mapfile)
 
     if (length(mapfile.waypoints) > 0)
     {
-        NotImplemented(NITag::MAP);
+        NotImplemented("map");
         std::memcpy(&botpath.waypoint[1], &mapfile.waypoints[0],
                     sizeof(twaypoint) * length(mapfile.waypoints));
     }

@@ -193,7 +193,7 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
 #ifdef STEAM
             Player->SteamID = TSteamID(pInfo->m_info.m_identityRemote.GetSteamID64);
 #endif
-            NotImplemented(NITag::NETWORK, "Pointer cast is probably wrong");
+            NotImplemented("network", "Pointer cast is probably wrong");
             NetworkingSockets->SetConnectionUserData(pInfo->m_hConn, (std::uint64_t)Player);
             LogInfo(LOG_NET, "Connection  accepted {}", pInfo->m_info.m_szConnectionDescription);
             players.push_back(Player);
@@ -341,7 +341,7 @@ bool tservernetwork::senddata(const std::byte *Data, std::int32_t Size, HSteamNe
 
     if (GS::GetDemoRecorder().active())
     {
-        NotImplemented(NITag::NETWORK, "check peer comparision");
+        NotImplemented("network", "check peer comparision");
         if (Peer == std::numeric_limits<std::uint32_t>::max())
             GS::GetDemoRecorder().saverecord(Data, Size);
     }

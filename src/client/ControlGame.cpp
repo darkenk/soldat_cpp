@@ -380,7 +380,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
 
                 if (i == 1)
                 {
-                    NotImplemented(NITag::OTHER);
+                    NotImplemented();
 #if 0
                     chattext = (CVar::radiomenus[string("Menu1") +
                                                  choose(strtoint(rmenustate[0]) - 1,
@@ -488,7 +488,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
             if (CVar::demo_autorecord)
             {
                 GS::GetDemoRecorder().stoprecord();
-                NotImplemented(NITag::OTHER);
+                NotImplemented();
 #if 0
                 GS::GetDemoRecorder().startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
                                          sniperline_client_hppformatdatetime("yyyy-mm-dd_hh-nn-ss_", now(0)) + map.name +
@@ -501,7 +501,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
             }
             else
             {
-                NotImplemented(NITag::OTHER);
+                NotImplemented();
 #if 0
                 GS::GetDemoRecorder().startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
                                          formatdatetime("yyyy-mm-dd_hh-nn-ss_", now(0)) + map.name +

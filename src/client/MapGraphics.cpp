@@ -551,7 +551,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
 
     for (i = low(mg.animations); i <= high(mg.animations); i++)
     {
-        NotImplemented(NITag::GFX, "pointer cast to uint64");
+        NotImplemented("rendering", "pointer cast to uint64");
         mg.animationscmd[i] = &mg.props[(std::uint64_t)(mg.animationscmd[i]) >> 28]
                                        [(std::uint64_t)(mg.animationscmd[i]) & 0xfffffff];
 

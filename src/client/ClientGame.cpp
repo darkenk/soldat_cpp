@@ -147,7 +147,7 @@ void tabcomplete()
     // If not already tab-completing, save and use this base text for tab completetion
     if (currenttabcompleteplayer == 0)
     {
-        NotImplemented(NITag::OTHER, "string operation");
+        NotImplemented( "string operation");
 #if 0
         // Find where the current std::uint64_t starts
         lastseparator = lastdelimiter(' ', string(chattext));

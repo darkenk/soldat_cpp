@@ -414,7 +414,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
         if (smallcaptext != "")
         {
             bigmessage(bigcaptext, capturemessagewait, capcolor);
-            NotImplemented(NITag::NETWORK);
+            NotImplemented("network");
 #if 0
             GetMainConsole().console(smallcaptext, (SpriteSystem::Get().GetSprite(j).player->name), capcolor);
 #endif

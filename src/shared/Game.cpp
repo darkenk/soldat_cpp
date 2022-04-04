@@ -277,7 +277,7 @@ void Game<M>::startvote(std::uint8_t startervote, std::uint8_t typevote, std::st
                         (" from the game"),
                     vote_message_color);
                 VoteActive = false;
-                NotImplemented(NITag::NETWORK, "No clientvotekick");
+                NotImplemented("network", "No clientvotekick");
 #if 0
                 clientvotekick(strtoint(targetvote), true, "");
 #endif
@@ -679,7 +679,7 @@ void Game<M>::changemap()
         if (GS::GetDemoRecorder().active())
             GS::GetDemoRecorder().stoprecord();
 
-        NotImplemented(NITag::OTHER, "no current time function");
+        NotImplemented( "no current time function");
 #if 0
         GS::GetDemoRecorder().startrecord(userdirectory + "demos/" +
                                  formatdatetime("yyyy-mm-dd_hh-nn-ss_", now()) + map.name + ".sdm");

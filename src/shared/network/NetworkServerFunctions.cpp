@@ -144,7 +144,7 @@ void forwardclient(std::uint8_t id, std::string targetip, std::int32_t targetpor
 
     joinservermsg.header.id = msgid_joinserver;
     joinservermsg.port = targetport;
-    NotImplemented(NITag::NETWORK, "missing strtonetaddr");
+    NotImplemented("network", "missing strtonetaddr");
 #if 0
     joinservermsg.ip = std::uint32_t(strtonetaddr(targetip));
 #endif

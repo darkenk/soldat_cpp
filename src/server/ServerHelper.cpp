@@ -213,7 +213,7 @@ void savemaplist()
 
 void writepid()
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
 #if 0
     std::uint32_t pid;
     textfile pidfile;
@@ -234,7 +234,7 @@ void writepid()
 
 std::int32_t soldat_getpid()
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
     return 0;
 #if 0
     std::int32_t getpid_result;
@@ -261,7 +261,7 @@ void updatewaverespawntime()
 
 std::string randombot()
 {
-    NotImplemented(NITag::OTHER);
+    NotImplemented();
     return {};
 #if 0
     tstringlist botlist;

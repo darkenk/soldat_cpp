@@ -318,7 +318,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     {
         // Undo the bullet spread used on the first pellet that was sent in order to
         // get the "straight" bullet vector. Then re-apply the the same randomness
-        NotImplemented(NITag::OTHER, "No randseed");
+        NotImplemented( "No randseed");
 #if 0
         randseed = bulletsnap->seed;
 #endif
@@ -338,7 +338,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     {
         // Undo the bullet spread used on the first pellet that was sent in order to
         // get the "straight" bullet vector. Then re-apply the the same randomness
-        NotImplemented(NITag::OTHER, "No randseed");
+        NotImplemented( "No randseed");
 #if 0
         randseed = bulletsnap->seed;
 #endif

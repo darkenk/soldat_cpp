@@ -7,6 +7,7 @@ set(SRC
     misc/TIniFile.cpp
     misc/TMemoryStream.cpp
     network/Net.cpp
+    port_utils/NotImplemented.cpp
     Anims.cpp
     Calc.cpp
     Logging.cpp

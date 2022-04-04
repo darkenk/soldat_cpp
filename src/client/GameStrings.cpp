@@ -12,7 +12,7 @@ tmofile translationfile;
 bool inittranslation(const std::string &filename)
 {
 #if ENABLE_STUBS
-    NotImplemented(NITag::LOCALIZATION);
+    NotImplemented("localization");
     return false;
 #else
     tstream translationstream;
@@ -38,7 +38,7 @@ bool inittranslation(const std::string &filename)
 std::wstring _(const std::wstring &inputtext)
 {
 #if ENABLE_STUBS
-    NotImplemented(NITag::LOCALIZATION, __PRETTY_FUNCTION__);
+    NotImplemented("localization", __PRETTY_FUNCTION__);
     return inputtext;
 #else
     const std::wstring &translation;
@@ -60,7 +60,7 @@ std::wstring _(const std::wstring &inputtext)
 std::string _(const std::string &inputtext)
 {
 #if ENABLE_STUBS
-    NotImplemented(NITag::LOCALIZATION, "No translations only stubs available");
+    NotImplemented("localization", "No translations only stubs available");
     return inputtext;
 #else
 
@@ -83,7 +83,7 @@ std::string _(const std::string &inputtext)
 void deinittranslation()
 {
 #if ENABLE_STUBS
-    NotImplemented(NITag::LOCALIZATION);
+    NotImplemented("localization");
 #else
     translationfile.free;
 #endif
