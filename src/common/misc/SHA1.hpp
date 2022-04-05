@@ -30,15 +30,15 @@
 
 class SHA1
 {
-  public:
-    SHA1();
-    void update(const std::string &s);
-    void update(std::istream &is);
-    std::array<std::uint32_t, 5> final();
-    static std::array<std::uint32_t, 5> from_file(const std::string &filename);
+public:
+  SHA1();
+  void update(const std::string &s);
+  void update(std::istream &is);
+  std::array<std::uint32_t, 5> final();
+  static std::array<std::uint32_t, 5> from_file(const std::string &filename);
 
-  private:
-    uint32_t digest[5];
-    std::string buffer;
-    uint64_t transforms;
+private:
+  uint32_t digest[5];
+  std::string buffer;
+  uint64_t transforms;
 };

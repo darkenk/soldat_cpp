@@ -6,10 +6,10 @@ namespace Config
 
 enum Module
 {
-    CLIENT_MODULE,
-    SERVER_MODULE,
-    TEST_MODULE,
-    INVALID_MODULE
+  CLIENT_MODULE,
+  SERVER_MODULE,
+  TEST_MODULE,
+  INVALID_MODULE
 };
 
 namespace defaults
@@ -17,7 +17,7 @@ namespace defaults
 
 constexpr Module GetModule() noexcept
 {
-    return INVALID_MODULE;
+  return INVALID_MODULE;
 }
 
 } // namespace defaults
@@ -34,16 +34,16 @@ namespace Config
 {
 constexpr bool IsServer(Config::Module module = Config::GetModule()) noexcept
 {
-    return module == Module::SERVER_MODULE;
+  return module == Module::SERVER_MODULE;
 }
 
 constexpr bool IsClient(Config::Module module = Config::GetModule()) noexcept
 {
-    return module == Module::CLIENT_MODULE;
+  return module == Module::CLIENT_MODULE;
 }
 
 constexpr bool IsTest(Config::Module module = Config::GetModule()) noexcept
 {
-    return module == Config::Module::TEST_MODULE;
+  return module == Config::Module::TEST_MODULE;
 }
 } // namespace Config

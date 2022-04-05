@@ -6,7 +6,7 @@ namespace Config
 
 constexpr Module GetModule() noexcept
 {
-    return CLIENT_MODULE;
+  return CLIENT_MODULE;
 }
 
 } // namespace Config

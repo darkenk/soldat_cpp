@@ -2,8 +2,8 @@
 
 /*#include "Windows.h"*/
 /*#include "SDL2.h"*/
-#include "shared/Constants.hpp"
 #include "common/Vector.hpp"
+#include "shared/Constants.hpp"
 #include <string>
 
 void resetframetiming();

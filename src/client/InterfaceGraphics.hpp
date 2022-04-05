@@ -1,7 +1,7 @@
 #pragma once
 
-#include "shared/Constants.hpp"
 #include "common/Vector.hpp"
+#include "shared/Constants.hpp"
 #include "shared/mechanics/Sprites.hpp"
 
 #include <array>

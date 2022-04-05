@@ -24,94 +24,94 @@ typedef tmapcolor *pmapcolor;
 typedef struct tmapvertex *pmapvertex;
 struct tmapvertex
 {
-    MyFloat x = 0.0f;
-    MyFloat y = 0.0f;
-    MyFloat z = 0.0f;
-    MyFloat rhw = 0.0f;
-    tmapcolor color;
-    MyFloat u = 0.0f;
-    MyFloat v = 0.0f;
+  MyFloat x = 0.0f;
+  MyFloat y = 0.0f;
+  MyFloat z = 0.0f;
+  MyFloat rhw = 0.0f;
+  tmapcolor color;
+  MyFloat u = 0.0f;
+  MyFloat v = 0.0f;
 };
 
 typedef struct tmappolygon *pmappolygon;
 struct tmappolygon
 {
-    std::array<tmapvertex, 3> vertices;
-    // precomputed
-    std::array<float, 3> bk;
-    std::array<tvector3, 3> normals;
-    std::uint8_t polytype = 0;
-    std::uint8_t textureindex = 0;
+  std::array<tmapvertex, 3> vertices;
+  // precomputed
+  std::array<float, 3> bk;
+  std::array<tvector3, 3> normals;
+  std::uint8_t polytype = 0;
+  std::uint8_t textureindex = 0;
 };
 
 struct tmapsector
 {
-    using TPolys = std::vector<std::uint16_t>;
-    TPolys Polys;
+  using TPolys = std::vector<std::uint16_t>;
+  TPolys Polys;
 };
 
 typedef struct tmapprop *pmapprop;
 struct tmapprop
 {
-    bool active;
-    std::uint32_t style;
-    std::int32_t width, height;
-    float x, y;
-    float rotation;
-    float scalex, scaley;
-    std::uint8_t alpha;
-    tmapcolor color;
-    std::uint8_t level;
+  bool active;
+  std::uint32_t style;
+  std::int32_t width, height;
+  float x, y;
+  float rotation;
+  float scalex, scaley;
+  std::uint8_t alpha;
+  tmapcolor color;
+  std::uint8_t level;
 };
 
 typedef struct tmapscenery *pmapscenery;
 struct tmapscenery
 {
-    std::string filename;
-    std::int32_t date;
+  std::string filename;
+  std::int32_t date;
 };
 
 typedef struct tmapcollider *pmapcollider;
 struct tmapcollider
 {
-    bool active;
-    float x, y;
-    float radius;
+  bool active;
+  float x, y;
+  float radius;
 };
 
 typedef struct tmapspawnpoint *pmapspawnpoint;
 struct tmapspawnpoint
 {
-    bool active;
-    std::int32_t x, y, team;
+  bool active;
+  std::int32_t x, y, team;
 };
 
 typedef struct tmapfile *pmapfile;
 struct tmapfile
 {
-    std::string filename;
-    tmapinfo mapinfo;
-    std::uint32_t hash;
-    std::int32_t version;
-    std::string mapname;
-    std::vector<std::string> textures;
-    tmapcolor bgcolortop;
-    tmapcolor bgcolorbtm;
-    std::int32_t startjet;
-    std::uint8_t grenadepacks;
-    std::uint8_t medikits;
-    std::uint8_t weather;
-    std::uint8_t steps;
-    std::int32_t randomid;
-    std::vector<tmappolygon> polygons;
-    std::int32_t sectorsdivision;
-    std::int32_t sectorsnum;
-    std::vector<tmapsector> sectors;
-    std::vector<tmapprop> props;
-    std::vector<tmapscenery> scenery;
-    std::vector<tmapcollider> colliders;
-    std::vector<tmapspawnpoint> spawnpoints;
-    std::vector<twaypoint> waypoints;
+  std::string filename;
+  tmapinfo mapinfo;
+  std::uint32_t hash;
+  std::int32_t version;
+  std::string mapname;
+  std::vector<std::string> textures;
+  tmapcolor bgcolortop;
+  tmapcolor bgcolorbtm;
+  std::int32_t startjet;
+  std::uint8_t grenadepacks;
+  std::uint8_t medikits;
+  std::uint8_t weather;
+  std::uint8_t steps;
+  std::int32_t randomid;
+  std::vector<tmappolygon> polygons;
+  std::int32_t sectorsdivision;
+  std::int32_t sectorsnum;
+  std::vector<tmapsector> sectors;
+  std::vector<tmapprop> props;
+  std::vector<tmapscenery> scenery;
+  std::vector<tmapcollider> colliders;
+  std::vector<tmapspawnpoint> spawnpoints;
+  std::vector<twaypoint> waypoints;
 };
 
 bool loadmapfile(const tmapinfo &mapinfo, tmapfile &map);

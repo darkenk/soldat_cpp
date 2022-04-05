@@ -8,53 +8,53 @@
 
 class tthingcollision
 {
-  public:
-    std::uint8_t thingnum;
-    std::uint32_t cooldownend;
+public:
+  std::uint8_t thingnum;
+  std::uint32_t cooldownend;
 };
 
 template <Config::Module M = Config::GetModule()>
 class Thing
 {
-  public:
-    bool active{false};
-    std::uint8_t style, num{0}, owner;
-    std::uint8_t holdingsprite;
-    std::uint8_t ammocount;
-    float radius;
-    std::int32_t timeout;
-    bool statictype;
-    std::int32_t interest;
-    bool collidewithbullets;
-    bool inbase;
-    std::uint8_t lastspawn, team;
-    particlesystem skeleton;
-    PascalArray<std::uint8_t, 1, 4> collidecount;
-    PascalArray<tmappolygon, 1, 2> polys;
-    tbackgroundstate bgstate;
+public:
+  bool active{false};
+  std::uint8_t style, num{0}, owner;
+  std::uint8_t holdingsprite;
+  std::uint8_t ammocount;
+  float radius;
+  std::int32_t timeout;
+  bool statictype;
+  std::int32_t interest;
+  bool collidewithbullets;
+  bool inbase;
+  std::uint8_t lastspawn, team;
+  particlesystem skeleton;
+  PascalArray<std::uint8_t, 1, 4> collidecount;
+  PascalArray<tmappolygon, 1, 2> polys;
+  tbackgroundstate bgstate;
 #ifndef SERVER
-    std::int32_t tex1, tex2;
-    std::uint32_t texture;
-    std::uint32_t color;
+  std::int32_t tex1, tex2;
+  std::uint32_t texture;
+  std::uint32_t color;
 #endif
-    //    public
-    void update();
+  //    public
+  void update();
 #ifndef SERVER
-    void render(double timeelapsed);
-    void polygonsrender();
+  void render(double timeelapsed);
+  void polygonsrender();
 #endif
-    bool checkmapcollision(std::int32_t i, float x, float y);
-    void kill();
-    void checkoutofbounds();
-    void respawn();
-    void moveskeleton(float x1, float y1, bool fromzero);
+  bool checkmapcollision(std::int32_t i, float x, float y);
+  void kill();
+  void checkoutofbounds();
+  void respawn();
+  void moveskeleton(float x1, float y1, bool fromzero);
 #ifdef SERVER
-    std::int32_t checkspritecollision();
+  std::int32_t checkspritecollision();
 #endif
 #ifdef SERVER
-    std::int32_t checkstationaryguncollision();
+  std::int32_t checkstationaryguncollision();
 #else
-    std::int32_t checkstationaryguncollision(bool clientcheck);
+  std::int32_t checkstationaryguncollision(bool clientcheck);
 #endif
 };
 

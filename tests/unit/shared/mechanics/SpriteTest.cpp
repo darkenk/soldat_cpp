@@ -8,5 +8,5 @@ using testing::Field;
 
 TEST(SpriteTest, BringIntoTestHarness)
 {
-    auto s = Sprite();
+  auto s = Sprite();
 }

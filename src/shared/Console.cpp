@@ -10,110 +10,110 @@
 template <Config::Module M>
 void Console<M>::scrollconsole()
 {
-    std::int32_t x;
+  std::int32_t x;
 
-    if (count > 0)
+  if (count > 0)
+  {
+    for (x = 1; x <= count - 1; x++)
     {
-        for (x = 1; x <= count - 1; x++)
-        {
-            textmessagecolor[x] = textmessagecolor[x + 1];
-            textmessage[x] = textmessage[x + 1];
-            nummessage[x] = nummessage[x + 1]; // scroll the messages up 1
-            alphacount = 255;
-        }
-        textmessage[count] = ""; // blank the last message
-        nummessage[count] = 0;
-        count -= 1;
+      textmessagecolor[x] = textmessagecolor[x + 1];
+      textmessage[x] = textmessage[x + 1];
+      nummessage[x] = nummessage[x + 1]; // scroll the messages up 1
+      alphacount = 255;
     }
-    scrolltick = 0;
+    textmessage[count] = ""; // blank the last message
+    nummessage[count] = 0;
+    count -= 1;
+  }
+  scrolltick = 0;
 }
 
 template <Config::Module M>
 void Console<M>::consoleadd(const std::string &what, std::int32_t col)
 {
-    // adds a new message
-    count += 1;
-    scrolltick = -newmessagewait;
-    textmessage[count] = what;
-    textmessagecolor[count] = col;
-    nummessage[count] = -255;
-    if (count == 1)
-    {
-        alphacount = 255;
-    }
-    if (count == countmax)
-    {
-        scrollconsole();
-    }
+  // adds a new message
+  count += 1;
+  scrolltick = -newmessagewait;
+  textmessage[count] = what;
+  textmessagecolor[count] = col;
+  nummessage[count] = -255;
+  if (count == 1)
+  {
+    alphacount = 255;
+  }
+  if (count == countmax)
+  {
+    scrollconsole();
+  }
 }
 
 template <Config::Module M>
 void Console<M>::consolenum(const std::string &what, std::int32_t col, std::int32_t num)
 {
-    // adds a new message
-    count += 1;
-    scrolltick = -newmessagewait;
-    textmessage[count] = what;
-    textmessagecolor[count] = col;
-    nummessage[count] = num;
-    if (count == countmax)
-    {
-        scrollconsole();
-    }
+  // adds a new message
+  count += 1;
+  scrolltick = -newmessagewait;
+  textmessage[count] = what;
+  textmessagecolor[count] = col;
+  nummessage[count] = num;
+  if (count == countmax)
+  {
+    scrollconsole();
+  }
 }
 
 template <Config::Module M>
 void Console<M>::console(const std::string &what, std::int32_t col) // overload;
 {
-    if (what.empty())
-    {
-        return;
-    }
+  if (what.empty())
+  {
+    return;
+  }
 
-    addlinetologfile(GetGameLog(), what, GetGameLogFilename());
+  addlinetologfile(GetGameLog(), what, GetGameLogFilename());
 
-    if constexpr (Config::IsServer(M))
-    {
-        LogDebugG("{}", what);
+  if constexpr (Config::IsServer(M))
+  {
+    LogDebugG("{}", what);
 #ifdef RCON
-        broadcastmsg(std::string(what));
+    broadcastmsg(std::string(what));
 #endif
 
-        // adds a new message
-        // NOTE: not thread save!
-        // added mod to prevent AVs
-        count += 1;
-        if (count >= countmax)
-            count = 1;
+    // adds a new message
+    // NOTE: not thread save!
+    // added mod to prevent AVs
+    count += 1;
+    if (count >= countmax)
+      count = 1;
 
-        scrolltick = -newmessagewait;
-        textmessage[count] = what;
-        textmessagecolor[count] = col;
-        nummessage[count] = -255;
-        if (count == 1)
-            alphacount = 255;
-        if (count == countmax)
-            scrollconsole();
-    }
-    if constexpr (Config::IsClient(M))
-    {
-        GetMainConsole().consoleadd(what, col);
-        GetBigConsole().consoleadd(what, col);
-    }
+    scrolltick = -newmessagewait;
+    textmessage[count] = what;
+    textmessagecolor[count] = col;
+    nummessage[count] = -255;
+    if (count == 1)
+      alphacount = 255;
+    if (count == countmax)
+      scrollconsole();
+  }
+  if constexpr (Config::IsClient(M))
+  {
+    GetMainConsole().consoleadd(what, col);
+    GetBigConsole().consoleadd(what, col);
+  }
 }
 
 template <Config::Module M>
 void Console<M>::console(const std::string &what, std::int32_t col,
                          std::uint8_t sender) requires(Config::IsServer(M))
 {
-    this->console(what, col);
-    if ((sender > 0) && (sender < max_players + 1))
+  this->console(what, col);
+  if ((sender > 0) && (sender < max_players + 1))
+  {
+    if constexpr (Config::IsServer(M))
     {
-        if constexpr (Config::IsServer(M))
-        {
-            serversendstringmessage(what, sender, 255, msgtype_pub);
-        }
+      serversendstringmessage(what, sender, 255, msgtype_pub);
     }
+  }
 }
 
 template class Console<Config::GetModule()>;
@@ -121,22 +121,22 @@ template class Console<Config::GetModule()>;
 template <Config::Module M>
 Console<M> &GetBigConsole()
 {
-    static Console<M> bigconsole;
-    return bigconsole;
+  static Console<M> bigconsole;
+  return bigconsole;
 }
 
 template <Config::Module M>
 Console<M> &GetKillConsole()
 {
-    static Console<M> killconsole;
-    return killconsole;
+  static Console<M> killconsole;
+  return killconsole;
 }
 
 template <Config::Module M>
 Console<M> &GetMainConsole()
 {
-    static Console<M> gMainConsole;
-    return gMainConsole;
+  static Console<M> gMainConsole;
+  return gMainConsole;
 }
 
 template tconsole &GetMainConsole<Config::GetModule()>();

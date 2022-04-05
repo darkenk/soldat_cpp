@@ -19,25 +19,25 @@ extern PascalArray<bool, 1, max_players> knifecan;
 
 class tservernetwork : public TNetwork
 {
-  public:
-    void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
-    tservernetwork(std::string Host, std::uint32_t Port);
-    ~tservernetwork();
-    void ProcessLoop();
-    void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);
-    template <typename T>
-    bool senddata(const T *Data, std::int32_t Size, HSteamNetConnection peer, std::int32_t Flags)
-    {
-        return senddata(reinterpret_cast<const std::byte *>(Data), Size, peer, Flags);
-    }
-    bool senddata(const std::byte *Data, std::int32_t Size, HSteamNetConnection peer,
-                  std::int32_t Flags);
-    void UpdateNetworkStats(std::uint8_t Player);
+public:
+  void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
+  tservernetwork(std::string Host, std::uint32_t Port);
+  ~tservernetwork();
+  void ProcessLoop();
+  void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);
+  template <typename T>
+  bool senddata(const T *Data, std::int32_t Size, HSteamNetConnection peer, std::int32_t Flags)
+  {
+    return senddata(reinterpret_cast<const std::byte *>(Data), Size, peer, Flags);
+  }
+  bool senddata(const std::byte *Data, std::int32_t Size, HSteamNetConnection peer,
+                std::int32_t Flags);
+  void UpdateNetworkStats(std::uint8_t Player);
 
-    bool disconnect(bool now) override;
+  bool disconnect(bool now) override;
 
-  private:
-    HSteamNetPollGroup FPollGroup;
+private:
+  HSteamNetPollGroup FPollGroup;
 };
 
 bool InitNetworkServer(const std::string &Host, std::uint32_t Port) requires(Config::IsServer());

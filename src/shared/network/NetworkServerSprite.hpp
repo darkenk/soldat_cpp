@@ -19,11 +19,11 @@ void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage);
 void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage);
 
 extern std::array<std::array<tmsg_serverspritedelta_movement, max_sprites>, max_sprites>
-    oldmovementmsg;
+  oldmovementmsg;
 extern std::array<std::array<tmsg_serverspritedelta_mouseaim, max_sprites>, max_sprites>
-    oldmouseaimmsg;
+  oldmouseaimmsg;
 extern std::array<std::array<tmsg_serverspritedelta_weapons, max_sprites>, max_sprites>
-    oldweaponsmsg;
+  oldweaponsmsg;
 extern std::array<std::array<tmsg_serverspritedelta_helmet, max_sprites>, max_sprites> oldhelmetmsg;
 extern std::array<tmsg_serverspritesnapshot, max_sprites> oldspritesnapshotmsg;
 extern std::array<std::int32_t, max_sprites> time_spritesnapshot;

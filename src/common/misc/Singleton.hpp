@@ -3,15 +3,15 @@
 template <class T>
 class Singleton
 {
-  public:
-    static T &Get()
-    {
-        static T obj;
-        return obj;
-    }
+public:
+  static T &Get()
+  {
+    static T obj;
+    return obj;
+  }
 
-  protected:
-    Singleton()
-    {
-    }
+protected:
+  Singleton()
+  {
+  }
 };

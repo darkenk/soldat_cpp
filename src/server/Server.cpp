@@ -199,19 +199,19 @@ TSteamGS SteamAPI;
 
 static void WriteLn(const std::string &msg)
 {
-    LogDebugG("{}", msg);
+  LogDebugG("{}", msg);
 }
 
 static std::string ParamStr(std::int32_t v)
 {
-    NotImplemented();
-    return "./";
+  NotImplemented();
+  return "./";
 }
 
 static std::string ExtractFilePath(const std::string &path)
 {
-    NotImplemented();
-    return "./";
+  NotImplemented();
+  return "./";
 }
 
 #ifndef MSWINDOWS
@@ -220,7 +220,7 @@ static std::string ExtractFilePath(const std::string &path)
 // no idea how to avoid it. Perhaps somebody who knows this code could fix it.
 void DaemonizeProgram()
 {
-    NotImplemented("network");
+  NotImplemented("network");
 #if 0
     var pid, sid TPid;
     pid = FpFork;
@@ -254,8 +254,8 @@ void DaemonizeProgram()
 
 void ActivateServer(int argc, const char *argv[])
 {
-    std::int32_t i;
-    NotImplemented("network", "Rewrite message");
+  std::int32_t i;
+  NotImplemented("network", "Rewrite message");
 #if 0
   WriteLn("");
   WriteLn("             -= Soldat Dedicated Server " + SOLDAT_VERSION + " - " +
@@ -280,280 +280,279 @@ void ActivateServer(int argc, const char *argv[])
   WriteLn("");
 #endif
 
-    servertickcounter = 0;
-    GS::GetGame().ResetMainTickCounter();
+  servertickcounter = 0;
+  GS::GetGame().ResetMainTickCounter();
 
-    // Initialize player dummy objects (cf. DummyPlayer definition for documentation)
-    for (auto &s : SpriteSystem::Get().GetSprites())
-    {
-        s.player = new TServerPlayer();
-    }
+  // Initialize player dummy objects (cf. DummyPlayer definition for documentation)
+  for (auto &s : SpriteSystem::Get().GetSprites())
+  {
+    s.player = new TServerPlayer();
+  }
 
-    // Create Consoles
-    GetServerMainConsole().countmax = 7;
-    GetServerMainConsole().scrolltickmax = 150;
-    GetServerMainConsole().newmessagewait = 150;
-    GetServerMainConsole().alphacount = 255;
+  // Create Consoles
+  GetServerMainConsole().countmax = 7;
+  GetServerMainConsole().scrolltickmax = 150;
+  GetServerMainConsole().newmessagewait = 150;
+  GetServerMainConsole().alphacount = 255;
 
-    NotImplemented( "Who cares about colors?");
+  NotImplemented("Who cares about colors?");
 #if 0
     if GetEnvironmentVariable ("COLORTERM")
         != "" then GetServerMainConsole().TerminalColors = true;
 #endif
 
-    NotImplemented( "No cvarinit");
+  NotImplemented("No cvarinit");
 #if 0
     cvarinit();
 #endif
-    initservercommands();
-    parsecommandline(argc, argv);
+  initservercommands();
+  parsecommandline(argc, argv);
 
-    if (CVar::fs_basepath == "")
-    {
-        basedirectory = ExtractFilePath(ParamStr(0));
-    }
-    if (CVar::fs_userpath == "")
-    {
-        GS::GetGame().SetUserDirectory(ParamStr(0));
-    }
+  if (CVar::fs_basepath == "")
+  {
+    basedirectory = ExtractFilePath(ParamStr(0));
+  }
+  if (CVar::fs_userpath == "")
+  {
+    GS::GetGame().SetUserDirectory(ParamStr(0));
+  }
 
-    const auto &userdirectory = GS::GetGame().GetUserDirectory();
+  const auto &userdirectory = GS::GetGame().GetUserDirectory();
 
-    LogDebugG("[FS]  userdirectory {}", userdirectory);
-    LogDebugG("[FS]  basedirectory {}", basedirectory);
+  LogDebugG("[FS]  userdirectory {}", userdirectory);
+  LogDebugG("[FS]  basedirectory {}", basedirectory);
 
-    NotImplemented( "No set current dir");
+  NotImplemented("No set current dir");
 #if 0
     SetCurrentDir(userdirectory);
 #endif
 
-    if (not PhysFS_InitThreadSafe())
+  if (not PhysFS_InitThreadSafe())
+  {
+    WriteLn("Could not initialize PhysFS.");
+    progready = false;
+    CVar::sc_enable = false;
+    return;
+  }
+  if (not PHYSFS_mount(pchar(basedirectory + "/soldat.smod"), "/", false))
+  {
+    WriteLn("Could not load base game archive (soldat.smod).");
+    progready = false;
+    CVar::sc_enable = false;
+    return;
+  }
+
+  GS::GetGame().SetGameModChecksum(sha1file(basedirectory + "/soldat.smod"));
+
+  ModDir = "";
+
+  if (CVar::fs_mod != "")
+  {
+    if (not PHYSFS_mount(pchar(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
+                         pchar("mods/" + lowercase(CVar::fs_mod) + "/"), false))
     {
-        WriteLn("Could not initialize PhysFS.");
-        progready = false;
-        CVar::sc_enable = false;
-        return;
+      WriteLn("Could not load mod archive (" + std::string(CVar::fs_mod) + ").");
+      progready = false;
+      CVar::sc_enable = false;
+      return;
     }
-    if (not PHYSFS_mount(pchar(basedirectory + "/soldat.smod"), "/", false))
-    {
-        WriteLn("Could not load base game archive (soldat.smod).");
-        progready = false;
-        CVar::sc_enable = false;
-        return;
-    }
+    ModDir = "mods/" + lowercase(CVar::fs_mod) + "/";
+    GS::GetGame().SetCustomModChecksum(
+      sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"));
+  }
 
-    GS::GetGame().SetGameModChecksum(sha1file(basedirectory + "/soldat.smod"));
+  // Create the basic folder structure
+  createdirifmissing(userdirectory + "/configs");
+  createdirifmissing(userdirectory + "/demos");
+  createdirifmissing(userdirectory + "/logs");
+  createdirifmissing(userdirectory + "/logs/kills");
+  createdirifmissing(userdirectory + "/maps");
+  createdirifmissing(userdirectory + "/mods");
 
-    ModDir = "";
+  // Copy default configs if they are missing
+  PhysFS_CopyFileFromArchive("configs/server.cfg", userdirectory + "/configs/server.cfg");
+  PhysFS_CopyFileFromArchive("configs/weapons.ini", userdirectory + "/configs/weapons.ini");
+  PhysFS_CopyFileFromArchive("configs/weapons_realistic.ini",
+                             userdirectory + "/configs/weapons_realistic.ini");
 
-    if (CVar::fs_mod != "")
-    {
-        if (not PHYSFS_mount(pchar(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
-                             pchar("mods/" + lowercase(CVar::fs_mod) + "/"), false))
-        {
-            WriteLn("Could not load mod archive (" + std::string(CVar::fs_mod) + ").");
-            progready = false;
-            CVar::sc_enable = false;
-            return;
-        }
-        ModDir = "mods/" + lowercase(CVar::fs_mod) + "/";
-        GS::GetGame().SetCustomModChecksum(
-            sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"));
-    }
-
-    // Create the basic folder structure
-    createdirifmissing(userdirectory + "/configs");
-    createdirifmissing(userdirectory + "/demos");
-    createdirifmissing(userdirectory + "/logs");
-    createdirifmissing(userdirectory + "/logs/kills");
-    createdirifmissing(userdirectory + "/maps");
-    createdirifmissing(userdirectory + "/mods");
-
-    // Copy default configs if they are missing
-    PhysFS_CopyFileFromArchive("configs/server.cfg", userdirectory + "/configs/server.cfg");
-    PhysFS_CopyFileFromArchive("configs/weapons.ini", userdirectory + "/configs/weapons.ini");
-    PhysFS_CopyFileFromArchive("configs/weapons_realistic.ini",
-                               userdirectory + "/configs/weapons_realistic.ini");
-
-    loadconfig("server.cfg");
+  loadconfig("server.cfg");
 
 #if 0
     CvarsInitialized = true;
 #endif
 
-    newlogfiles(userdirectory);
+  newlogfiles(userdirectory);
 
-    LogDebugG("ActivateServer");
+  LogDebugG("ActivateServer");
 
-    if (CVar::net_ip == "")
-    {
-        CVar::net_ip = "0.0.0.0";
-    }
+  if (CVar::net_ip == "")
+  {
+    CVar::net_ip = "0.0.0.0";
+  }
 
-    progready = true;
+  progready = true;
 
-    CVar::sc_enable = 0;
+  CVar::sc_enable = 0;
 
-    auto &weaponSystem = GS::GetWeaponSystem();
+  auto &weaponSystem = GS::GetWeaponSystem();
 
-    weaponSystem.EnableAllWeapons();
+  weaponSystem.EnableAllWeapons();
 
-    AnimationSystem::Get().LoadAnimObjects("");
-    if (length(ModDir) > 0)
-        AnimationSystem::Get().LoadAnimObjects(ModDir);
+  AnimationSystem::Get().LoadAnimObjects("");
+  if (length(ModDir) > 0)
+    AnimationSystem::Get().LoadAnimObjects(ModDir);
 
-    // greet!
-    WriteLn(" Hit CTRL+C to Exit");
-    WriteLn(" Please command the server using the Soldat Admin program");
+  // greet!
+  WriteLn(" Hit CTRL+C to Exit");
+  WriteLn(" Please command the server using the Soldat Admin program");
 
-    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
+  GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
-    GS::GetGame().SetSinusCounter(0);
+  GS::GetGame().SetSinusCounter(0);
 
-    addlinetologfile(GetGameLog(), "Loading Maps List", GetGameLogFilename());
+  addlinetologfile(GetGameLog(), "Loading Maps List", GetGameLogFilename());
 
-    if (fileexists(userdirectory + "configs/" + std::string(CVar::sv_maplist)))
-    {
-        mapslist.loadfromfile(userdirectory + "configs/" + std::string(CVar::sv_maplist));
-        auto it = std::remove(mapslist.begin(), mapslist.end(), "");
-        mapslist.erase(it, mapslist.end());
-    }
+  if (fileexists(userdirectory + "configs/" + std::string(CVar::sv_maplist)))
+  {
+    mapslist.loadfromfile(userdirectory + "configs/" + std::string(CVar::sv_maplist));
+    auto it = std::remove(mapslist.begin(), mapslist.end(), "");
+    mapslist.erase(it, mapslist.end());
+  }
 
-    if (mapslist.size() == 0)
-    {
-        WriteLn("");
-        WriteLn("  No maps list found (adding default). Please add maps in configs/mapslist.txt");
-        WriteLn("");
-        if (not GS::GetGame().isteamgame())
-            mapslist.add("Arena");
-        else
-            mapslist.add("ctf_Ash");
-    }
+  if (mapslist.size() == 0)
+  {
+    WriteLn("");
+    WriteLn("  No maps list found (adding default). Please add maps in configs/mapslist.txt");
+    WriteLn("");
+    if (not GS::GetGame().isteamgame())
+      mapslist.add("Arena");
+    else
+      mapslist.add("ctf_Ash");
+  }
 #if 0
         for (i = 1; i < max_sprites; i++)
             for (j = 1; j < max_sprites; j++)
                 OldHelmetMsg[i, j].WearHelmet = 1;
 #endif
 
-    // Banned IPs text file
-    if (not createfileifmissing(userdirectory + "configs/banned.txt"))
-    {
-        NotImplemented( "Failed to create configs/banned.txt");
-    }
+  // Banned IPs text file
+  if (not createfileifmissing(userdirectory + "configs/banned.txt"))
+  {
+    NotImplemented("Failed to create configs/banned.txt");
+  }
 
-    if (not createfileifmissing(userdirectory + "configs/bannedhw.txt"))
-    {
-        NotImplemented( "Failed to create configs/bannedhw.txt");
-    }
+  if (not createfileifmissing(userdirectory + "configs/bannedhw.txt"))
+  {
+    NotImplemented("Failed to create configs/bannedhw.txt");
+  }
 
-    loadbannedlist(userdirectory + "configs/banned.txt");
-    loadbannedlisthw(userdirectory + "configs/bannedhw.txt");
+  loadbannedlist(userdirectory + "configs/banned.txt");
+  loadbannedlisthw(userdirectory + "configs/bannedhw.txt");
 
-    if (fileexists(userdirectory + "configs/remote.txt"))
-    {
-        NotImplemented();
+  if (fileexists(userdirectory + "configs/remote.txt"))
+  {
+    NotImplemented();
 #if 0
             RemoteIPs.LoadFromFile(userdirectory + "configs/remote.txt");
 #endif
-    }
+  }
 
-    adminips = remoteips;
-    adminips.add("127.0.0.1");
+  adminips = remoteips;
+  adminips.add("127.0.0.1");
 
-    // Flood IP stuff
-    for (i = 1; i < max_floodips; i++)
-        floodip[i] = " ";
-    for (i = 1; i < max_floodips; i++)
-        floodnum[i] = 0;
+  // Flood IP stuff
+  for (i = 1; i < max_floodips; i++)
+    floodip[i] = " ";
+  for (i = 1; i < max_floodips; i++)
+    floodnum[i] = 0;
 
 #ifdef RCON
-    if sv_adminpassword
-        != "" then AdminServer = TAdminServer.Create(sv_adminpassword, "Welcome") else
-        {
-            WriteLn("");
-            WriteLn(" The server must be started with an Admin Password parameter" +
-                    " to run Admin");
-            WriteLn("   edit server.cfg and set sv_adminpassword variable");
-            WriteLn("");
-        }
+  if sv_adminpassword
+    != "" then AdminServer = TAdminServer.Create(sv_adminpassword, "Welcome") else
+    {
+      WriteLn("");
+      WriteLn(" The server must be started with an Admin Password parameter" + " to run Admin");
+      WriteLn("   edit server.cfg and set sv_adminpassword variable");
+      WriteLn("");
+    }
 #endif
 
-    WriteLn(" Server  name" + std::string(CVar::sv_hostname));
-    GS::GetGame().updategamestats();
-    writelogfile(&GetKillLog(), GetKillLogFilename());
-    writelogfile(GetGameLog(), GetGameLogFilename());
+  WriteLn(" Server  name" + std::string(CVar::sv_hostname));
+  GS::GetGame().updategamestats();
+  writelogfile(&GetKillLog(), GetKillLogFilename());
+  writelogfile(GetGameLog(), GetGameLogFilename());
 
-    NotImplemented( "mixing commands between server and client");
-    // rundeferredcommands();
+  NotImplemented("mixing commands between server and client");
+  // rundeferredcommands();
 }
 
 void ShutDown()
 {
-    LogDebugG("ShutDown");
-    progready = false;
+  LogDebugG("ShutDown");
+  progready = false;
 
-    GetServerMainConsole().console("Shutting down server...", game_message_color);
-    NotImplemented( "Missing delete file");
+  GetServerMainConsole().console("Shutting down server...", game_message_color);
+  NotImplemented("Missing delete file");
 #if 0
     SysUtils.DeleteFile(userdirectory + "logs/" + sv_pidfilename);
 #endif
 
-    if (GetServerNetwork() != nullptr)
-    {
-        serverdisconnect();
+  if (GetServerNetwork() != nullptr)
+  {
+    serverdisconnect();
 
-        GetServerMainConsole().console("Shutting down game networking.", game_message_color);
+    GetServerMainConsole().console("Shutting down game networking.", game_message_color);
 
-        DeinitServerNetwork();
-    }
+    DeinitServerNetwork();
+  }
 
 #ifdef RCON
-    if (sv_adminpassword != "")
+  if (sv_adminpassword != "")
+  {
+    try GetServerMainConsole().console("Shutting down admin server...", GAME_MESSAGE_COLOR);
+    if (AdminServer != nil)
     {
-        try GetServerMainConsole().console("Shutting down admin server...", GAME_MESSAGE_COLOR);
-        if (AdminServer != nil)
-        {
-            AdminServer.Active = false;
-            AdminServer.Bindings.Clear;
-            sv_adminpassword = "";
-            FreeAndNil(AdminServer);
-        }
-        except on Exception e do WriteLn("Error on  SHUTDOWN" + e.Message);
+      AdminServer.Active = false;
+      AdminServer.Bindings.Clear;
+      sv_adminpassword = "";
+      FreeAndNil(AdminServer);
     }
+    except on Exception e do WriteLn("Error on  SHUTDOWN" + e.Message);
+  }
 #endif
 
-    StopFileServer();
+  StopFileServer();
 
 #ifdef SCRIPT
-    ScrptDispatcher.Free;
+  ScrptDispatcher.Free;
 #endif
 
 #ifdef STEAM
-    Debug("[Steam] Shutdown");
-    SteamAPI.GameServer.Shutdown;
+  Debug("[Steam] Shutdown");
+  SteamAPI.GameServer.Shutdown;
 #endif
 
 #ifndef STEAM
-    GameNetworkingSockets_Kill();
+  GameNetworkingSockets_Kill();
 #endif
 
-    for (auto &s : SpriteSystem::Get().GetSprites())
-    {
-        delete s.player;
-        s.player = nullptr;
-    }
+  for (auto &s : SpriteSystem::Get().GetSprites())
+  {
+    delete s.player;
+    s.player = nullptr;
+  }
 
-    addlinetologfile(GetGameLog(), "   End of Log.", GetGameLogFilename());
-    LogDebugG("Updating gamestats");
-    GS::GetGame().updategamestats();
-    LogDebugG("Saving killlog");
-    writelogfile(&GetKillLog(), GetKillLogFilename());
-    LogDebugG("Saving gamelog");
-    writelogfile(GetGameLog(), GetGameLogFilename());
-    LogDebugG("Freeing gamelog");
-    delete GetGameLog();
-    GetGameLog() = nullptr;
-    commanddeinit();
+  addlinetologfile(GetGameLog(), "   End of Log.", GetGameLogFilename());
+  LogDebugG("Updating gamestats");
+  GS::GetGame().updategamestats();
+  LogDebugG("Saving killlog");
+  writelogfile(&GetKillLog(), GetKillLogFilename());
+  LogDebugG("Saving gamelog");
+  writelogfile(GetGameLog(), GetGameLogFilename());
+  LogDebugG("Freeing gamelog");
+  delete GetGameLog();
+  GetGameLog() = nullptr;
+  commanddeinit();
 #if 0
     LogDebugG("Freeing killlog");
     delete killlog;
@@ -563,35 +562,35 @@ void ShutDown()
 
 void loadweapons(const std::string &Filename)
 {
-    bool IsRealistic;
-    LogDebugG("LoadWeapons");
+  bool IsRealistic;
+  LogDebugG("LoadWeapons");
 
-    auto &guns = GS::GetWeaponSystem().GetGuns();
-    auto &defaultguns = GS::GetWeaponSystem().GetDefaultGuns();
+  auto &guns = GS::GetWeaponSystem().GetGuns();
+  auto &defaultguns = GS::GetWeaponSystem().GetDefaultGuns();
 
-    IsRealistic = CVar::sv_realisticmode == true;
-    createweapons(IsRealistic, guns, defaultguns);
-    // FIXME (falcon) while the above instruction has to be done every time,
-    // because you never know if WM provides all the values,
-    // this could be done only once per mode (realistic/non-realistic)
-    NotImplemented( "no checksum");
+  IsRealistic = CVar::sv_realisticmode == true;
+  createweapons(IsRealistic, guns, defaultguns);
+  // FIXME (falcon) while the above instruction has to be done every time,
+  // because you never know if WM provides all the values,
+  // this could be done only once per mode (realistic/non-realistic)
+  NotImplemented("no checksum");
 #if 0
     DefaultWMChecksum = CreateWMChecksum();
 #endif
+  {
+    TIniFile ini{
+      ReadAsFileStream(GS::GetGame().GetUserDirectory() + "configs/" + Filename + ".ini")};
+    if (loadweaponsconfig(ini, wmname, wmversion, guns))
     {
-        TIniFile ini{
-            ReadAsFileStream(GS::GetGame().GetUserDirectory() + "configs/" + Filename + ".ini")};
-        if (loadweaponsconfig(ini, wmname, wmversion, guns))
-        {
-            buildweapons(guns);
-        }
-        else
-        {
-            WriteLn("Using default weapons mod");
-            createweapons(IsRealistic, guns, defaultguns);
-        }
+      buildweapons(guns);
     }
-    NotImplemented( "no checksum");
+    else
+    {
+      WriteLn("Using default weapons mod");
+      createweapons(IsRealistic, guns, defaultguns);
+    }
+  }
+  NotImplemented("no checksum");
 #if 0
     LoadedWMChecksum = CreateWMChecksum();
 
@@ -605,642 +604,638 @@ void loadweapons(const std::string &Filename)
         }
 #endif
 
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-    {
-        sprite.applyweaponbynum(sprite.weapon.num, 1, sprite.weapon.ammocount);
-    }
+  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  {
+    sprite.applyweaponbynum(sprite.weapon.num, 1, sprite.weapon.ammocount);
+  }
 }
 
 std::int8_t addbotplayer(std::string name, std::int32_t team)
 {
-    tvector2 a, b;
-    std::int32_t p;
-    TServerPlayer *NewPlayer;
-    std::string TempStr = "";
-    LogDebugG("AddBotPlayer");
-    std::int8_t Result = 0;
+  tvector2 a, b;
+  std::int32_t p;
+  TServerPlayer *NewPlayer;
+  std::string TempStr = "";
+  LogDebugG("AddBotPlayer");
+  std::int8_t Result = 0;
 
-    if (GS::GetGame().GetPlayersNum() == max_players)
+  if (GS::GetGame().GetPlayersNum() == max_players)
+  {
+    GetServerMainConsole().console("Bot cannot be added because server is full",
+                                   warning_message_color);
+    return Result;
+  }
+
+  NewPlayer = new TServerPlayer();
+  NewPlayer->team = team;
+  NewPlayer->applyshirtcolorfromteam();
+
+  randomizestart(a, team);
+  p = createsprite(a, b, 1, 255, NewPlayer, true);
+  Result = p;
+
+  auto &guns = GS::GetWeaponSystem().GetGuns();
+
+  {
+    TIniFile ini(
+      ReadAsFileStream(GS::GetGame().GetUserDirectory() + "configs/bots/" + name + ".bot"));
+
+    if (not loadbotconfig(ini, SpriteSystem::Get().GetSprite(p), guns))
     {
-        GetServerMainConsole().console("Bot cannot be added because server is full",
-                                       warning_message_color);
-        return Result;
+      GetServerMainConsole().console("Bot file " + name + " not found", warning_message_color);
+      SpriteSystem::Get().GetSprite(p).kill();
+      return Result;
     }
+  }
 
-    NewPlayer = new TServerPlayer();
-    NewPlayer->team = team;
-    NewPlayer->applyshirtcolorfromteam();
+  SpriteSystem::Get().GetSprite(p).respawn();
+  SpriteSystem::Get().GetSprite(p).player->controlmethod = bot;
+  SpriteSystem::Get().GetSprite(p).player->chatwarnings = 0;
+  SpriteSystem::Get().GetSprite(p).player->grabspersecond = 0;
 
-    randomizestart(a, team);
-    p = createsprite(a, b, 1, 255, NewPlayer, true);
-    Result = p;
+  serversendnewplayerinfo(p, join_normal);
 
-    auto &guns = GS::GetWeaponSystem().GetGuns();
-
-    {
-        TIniFile ini(
-            ReadAsFileStream(GS::GetGame().GetUserDirectory() + "configs/bots/" + name + ".bot"));
-
-        if (not loadbotconfig(ini, SpriteSystem::Get().GetSprite(p), guns))
-        {
-            GetServerMainConsole().console("Bot file " + name + " not found",
-                                           warning_message_color);
-            SpriteSystem::Get().GetSprite(p).kill();
-            return Result;
-        }
-    }
-
-    SpriteSystem::Get().GetSprite(p).respawn();
-    SpriteSystem::Get().GetSprite(p).player->controlmethod = bot;
-    SpriteSystem::Get().GetSprite(p).player->chatwarnings = 0;
-    SpriteSystem::Get().GetSprite(p).player->grabspersecond = 0;
-
-    serversendnewplayerinfo(p, join_normal);
-
-    switch (team)
-    {
-    case 0:
-        TempStr = "the game";
-        break;
-    case 1:
-        TempStr = "alpha team";
-        break;
-    case 2:
-        TempStr = "bravo team";
-        break;
-    case 3:
-        TempStr = "charlie team";
-        break;
-    case 4:
-        TempStr = "delta team";
-        break;
-    case 5:
-        TempStr = "as spectator";
-        break;
-    }
-    GetServerMainConsole().console(SpriteSystem::Get().GetSprite(p).player->name + " " +
-                                       "has joined " + TempStr + ".",
-                                   enter_message_color);
+  switch (team)
+  {
+  case 0:
+    TempStr = "the game";
+    break;
+  case 1:
+    TempStr = "alpha team";
+    break;
+  case 2:
+    TempStr = "bravo team";
+    break;
+  case 3:
+    TempStr = "charlie team";
+    break;
+  case 4:
+    TempStr = "delta team";
+    break;
+  case 5:
+    TempStr = "as spectator";
+    break;
+  }
+  GetServerMainConsole().console(SpriteSystem::Get().GetSprite(p).player->name + " " +
+                                   "has joined " + TempStr + ".",
+                                 enter_message_color);
 
 #ifdef SCRIPT
-    ScrptDispatcher.OnJoinTeam(p, SpriteSystem::Get().GetSprite(p).Player.Team,
-                               SpriteSystem::Get().GetSprite(p).Player.Team, true);
-    ScrptDispatcher.OnWeaponChange(p, SpriteSystem::Get().GetSprite(p).Weapon.Num,
-                                   SpriteSystem::Get().GetSprite(p).SecondaryWeapon.Num,
-                                   SpriteSystem::Get().GetSprite(p).Weapon.AmmoCount,
-                                   SpriteSystem::Get().GetSprite(p).SecondaryWeapon.AmmoCount);
+  ScrptDispatcher.OnJoinTeam(p, SpriteSystem::Get().GetSprite(p).Player.Team,
+                             SpriteSystem::Get().GetSprite(p).Player.Team, true);
+  ScrptDispatcher.OnWeaponChange(p, SpriteSystem::Get().GetSprite(p).Weapon.Num,
+                                 SpriteSystem::Get().GetSprite(p).SecondaryWeapon.Num,
+                                 SpriteSystem::Get().GetSprite(p).Weapon.AmmoCount,
+                                 SpriteSystem::Get().GetSprite(p).SecondaryWeapon.AmmoCount);
 #endif
 
-    GS::GetGame().sortplayers();
-    return Result;
+  GS::GetGame().sortplayers();
+  return Result;
 }
 
 void startserver()
 {
-    tvector2 a;
-    std::int32_t i, k, j;
-    tmapinfo StartMap;
-    LogDebugG("StartServer");
+  tvector2 a;
+  std::int32_t i, k, j;
+  tmapinfo StartMap;
+  LogDebugG("StartServer");
 #ifdef SCRIPT
-    if (sc_enable)
-        ScrptDispatcher.Launch();
+  if (sc_enable)
+    ScrptDispatcher.Launch();
 #endif
 
-    if (not GS::GetGame().isteamgame())
-    {
-        k = CVar::bots_random_noteam;
-    }
-    else if (CVar::sv_gamemode == gamestyle_teammatch)
-    {
-        k = CVar::bots_random_alpha + CVar::bots_random_bravo + CVar::bots_random_charlie +
-            CVar::bots_random_delta;
-    }
-    else
-    {
-        k = CVar::bots_random_alpha + CVar::bots_random_bravo;
-    }
+  if (not GS::GetGame().isteamgame())
+  {
+    k = CVar::bots_random_noteam;
+  }
+  else if (CVar::sv_gamemode == gamestyle_teammatch)
+  {
+    k = CVar::bots_random_alpha + CVar::bots_random_bravo + CVar::bots_random_charlie +
+        CVar::bots_random_delta;
+  }
+  else
+  {
+    k = CVar::bots_random_alpha + CVar::bots_random_bravo;
+  }
 
-    // if (k > (max_sprites - 1)) then
-    //  return;
+  // if (k > (max_sprites - 1)) then
+  //  return;
 
-    Randomize();
+  Randomize();
 
-    for (i = 1; i < max_sprites; i++)
-    {
-        noclientupdatetime[i] = 0;
-        time_spritesnapshot[i] = 0;
-        time_spritesnapshot_mov[i] = 0;
-    }
+  for (i = 1; i < max_sprites; i++)
+  {
+    noclientupdatetime[i] = 0;
+    time_spritesnapshot[i] = 0;
+    time_spritesnapshot_mov[i] = 0;
+  }
 
-    for (i = 0; i < 5; i++)
-    {
-        GS::GetGame().SetTeamScore(i, 0);
-    }
+  for (i = 0; i < 5; i++)
+  {
+    GS::GetGame().SetTeamScore(i, 0);
+  }
 
-    addlinetologfile(GetGameLog(), "Loading Map.", GetGameLogFilename());
+  addlinetologfile(GetGameLog(), "Loading Map.", GetGameLogFilename());
 
-    // playing over internet - optimize
-    if (CVar::net_lan == LAN)
-    {
-        CVar::sv_guns_collide = true;
-        CVar::sv_kits_collide = true;
-    }
-    if (CVar::net_lan == INTERNET)
-    {
-        CVar::sv_guns_collide = false;
-        CVar::sv_kits_collide = false;
-    }
+  // playing over internet - optimize
+  if (CVar::net_lan == LAN)
+  {
+    CVar::sv_guns_collide = true;
+    CVar::sv_kits_collide = true;
+  }
+  if (CVar::net_lan == INTERNET)
+  {
+    CVar::sv_guns_collide = false;
+    CVar::sv_kits_collide = false;
+  }
 
-    mapindex = 0;
-    // StartMap = MapsList[MapIndex];
+  mapindex = 0;
+  // StartMap = MapsList[MapIndex];
 
-    auto &map = GS::GetGame().GetMap();
+  auto &map = GS::GetGame().GetMap();
 
-    // Load Map
-    NotImplemented("network", "Is it really commented in reference version");
-    /*
-        if (not map.loadmap(StartMap))
-        {
-            GetServerMainConsole().console("Could Error not load map maps/" + StartMap.mapname +
+  // Load Map
+  NotImplemented("network", "Is it really commented in reference version");
+  /*
+      if (not map.loadmap(StartMap))
+      {
+          GetServerMainConsole().console("Could Error not load map maps/" + StartMap.mapname +
 ".smap", debug_message_color); if (not map.loadmap("Arena"))
-            {
-                GetServerMainConsole().console("Could Error not load map maps/ Arena.smap",
-                                    debug_message_color);
-                return;
-            }
-            else
-            {
-                map.name = "Arena";
-            }
-        }
-        else
-            map.name = StartMap.name;
-        NotImplemented( "No checksum");
+          {
+              GetServerMainConsole().console("Could Error not load map maps/ Arena.smap",
+                                  debug_message_color);
+              return;
+          }
+          else
+          {
+              map.name = "Arena";
+          }
+      }
+      else
+          map.name = StartMap.name;
+      NotImplemented( "No checksum");
 #if 0
-        MapCheckSum = GetMapChecksum(MapChangeName, userdirectory);
+      MapCheckSum = GetMapChecksum(MapChangeName, userdirectory);
 #endif
-    */
+  */
 
-    if (getmapinfo(mapslist[mapindex], GS::GetGame().GetUserDirectory(), StartMap))
+  if (getmapinfo(mapslist[mapindex], GS::GetGame().GetUserDirectory(), StartMap))
+  {
+    if (not map.loadmap(StartMap))
     {
-        if (not map.loadmap(StartMap))
-        {
-            GetServerMainConsole().console("Could Error not load map " + StartMap.name,
-                                           debug_message_color);
-            Abort();
-            return;
-        }
+      GetServerMainConsole().console("Could Error not load map " + StartMap.name,
+                                     debug_message_color);
+      Abort();
+      return;
     }
-    NotImplemented( "No checksum");
+  }
+  NotImplemented("No checksum");
 #if 0
     MapCheckSum = GetMapChecksum(StartMap);
 #endif
 
 #ifdef SCRIPT
-    ScrptDispatcher.OnAfterMapChange(Map.Name);
+  ScrptDispatcher.OnAfterMapChange(Map.Name);
 #endif
 
-    // Create Weapons
-    addlinetologfile(GetGameLog(), "Creating Weapons.", GetGameLogFilename());
+  // Create Weapons
+  addlinetologfile(GetGameLog(), "Creating Weapons.", GetGameLogFilename());
 
-    if (CVar::sv_realisticmode)
+  if (CVar::sv_realisticmode)
+  {
+    GetServerMainConsole().console("Realistic Mode ON", mode_message_color);
+    GS::GetGame().SetStarthealth(Constants::REALISTIC_HEALTH);
+    loadweapons("weapons_realistic");
+    lastwepmod = "weapons_realistic";
+  }
+  else
+  {
+    GS::GetGame().SetStarthealth(Constants::DEFAULT_HEALTH);
+    loadweapons("weapons");
+    lastwepmod = "weapons";
+  }
+
+  // Weapons
+  auto &weaponSystem = GS::GetWeaponSystem();
+
+  for (j = 1; j < max_sprites; j++)
+  {
+    for (i = 1; i <= primary_weapons; i++)
     {
-        GetServerMainConsole().console("Realistic Mode ON", mode_message_color);
-        GS::GetGame().SetStarthealth(Constants::REALISTIC_HEALTH);
-        loadweapons("weapons_realistic");
-        lastwepmod = "weapons_realistic";
+      GS::GetGame().GetWeaponsel()[j][i] = weaponSystem.IsEnabled(i);
     }
-    else
-    {
-        GS::GetGame().SetStarthealth(Constants::DEFAULT_HEALTH);
-        loadweapons("weapons");
-        lastwepmod = "weapons";
-    }
+  }
 
-    // Weapons
-    auto &weaponSystem = GS::GetWeaponSystem();
-
+  if (CVar::sv_advancemode)
+  {
     for (j = 1; j < max_sprites; j++)
     {
-        for (i = 1; i <= primary_weapons; i++)
+      for (i = 1; i < primary_weapons; i++)
+      {
+        GS::GetGame().GetWeaponsel()[j][i] = 1;
+      }
+    }
+    GetServerMainConsole().console("Advance Mode ON", mode_message_color);
+  }
+
+  if (CVar::sv_gamemode == Constants::GAMESTYLE_DEATHMATCH)
+  {
+  }
+
+  // add yellow flag
+  if (CVar::sv_gamemode == Constants::GAMESTYLE_POINTMATCH)
+  {
+    randomizestart(a, 14);
+    auto v = creatething(a, 255, Constants::OBJECT_POINTMATCH_FLAG, 255);
+    GS::GetGame().SetTeamFlag(1, v);
+  }
+
+  // add yellow flag
+  if (CVar::sv_gamemode == Constants::GAMESTYLE_HTF)
+  {
+    randomizestart(a, 14);
+    auto v = creatething(a, 255, Constants::OBJECT_POINTMATCH_FLAG, 255);
+    GS::GetGame().SetTeamFlag(1, v);
+  }
+
+  if (CVar::sv_gamemode == Constants::GAMESTYLE_CTF)
+  {
+    // red flag
+    if (randomizestart(a, 5))
+    {
+      auto v = creatething(a, 255, Constants::OBJECT_ALPHA_FLAG, 255);
+      GS::GetGame().SetTeamFlag(1, v);
+    }
+
+    // blue flag
+    if (randomizestart(a, 6))
+    {
+      auto v = creatething(a, 255, Constants::OBJECT_BRAVO_FLAG, 255);
+      GS::GetGame().SetTeamFlag(2, v);
+    }
+  }
+
+  if (CVar::sv_gamemode == Constants::GAMESTYLE_RAMBO)
+  {
+    randomizestart(a, 15);
+    creatething(a, 255, Constants::OBJECT_RAMBO_BOW, 255);
+  }
+
+  if (CVar::sv_gamemode == Constants::GAMESTYLE_INF)
+  {
+    // red flag
+    if (randomizestart(a, 5))
+    {
+      auto v = creatething(a, 255, Constants::OBJECT_ALPHA_FLAG, 255);
+      GS::GetGame().SetTeamFlag(1, v);
+    }
+
+    // blue flag
+    if (randomizestart(a, 6))
+    {
+      auto v = creatething(a, 255, Constants::OBJECT_BRAVO_FLAG, 255);
+      GS::GetGame().SetTeamFlag(2, v);
+    }
+  }
+
+  if (not CVar::sv_survivalmode)
+  {
+    // spawn medikits
+    spawnthings(Constants::OBJECT_MEDICAL_KIT, map.medikits);
+
+    // spawn grenadekits
+    if (CVar::sv_maxgrenades > 0)
+      spawnthings(Constants::OBJECT_GRENADE_KIT, map.grenades);
+  }
+  else
+  {
+    GetServerMainConsole().console("Survival Mode ON", mode_message_color);
+  }
+
+  // stat gun
+  if (CVar::sv_stationaryguns)
+  {
+    for (i = 1; i < max_spawnpoints; i++)
+    {
+      if (map.spawnpoints[i].active)
+      {
+        if (map.spawnpoints[i].team == 16)
         {
-            GS::GetGame().GetWeaponsel()[j][i] = weaponSystem.IsEnabled(i);
+          a.x = map.spawnpoints[i].x;
+          a.y = map.spawnpoints[i].y;
+          creatething(a, 255, Constants::OBJECT_STATIONARY_GUN, 255);
         }
+      }
     }
+  }
 
-    if (CVar::sv_advancemode)
-    {
-        for (j = 1; j < max_sprites; j++)
-        {
-            for (i = 1; i < primary_weapons; i++)
-            {
-                GS::GetGame().GetWeaponsel()[j][i] = 1;
-            }
-        }
-        GetServerMainConsole().console("Advance Mode ON", mode_message_color);
-    }
+  switch (CVar::sv_gamemode)
+  {
+  case Constants::GAMESTYLE_DEATHMATCH:
+    CVar::sv_killlimit = CVar::sv_dm_limit;
+    break;
+  case Constants::GAMESTYLE_POINTMATCH:
+    CVar::sv_killlimit = CVar::sv_pm_limit;
+    break;
+  case Constants::GAMESTYLE_RAMBO:
+    CVar::sv_killlimit = CVar::sv_rm_limit;
+    break;
+  case Constants::GAMESTYLE_TEAMMATCH:
+    CVar::sv_killlimit = CVar::sv_tm_limit;
+    break;
+  case Constants::GAMESTYLE_CTF:
+    CVar::sv_killlimit = CVar::sv_ctf_limit;
+    break;
+  case Constants::GAMESTYLE_INF:
+    CVar::sv_killlimit = CVar::sv_inf_limit;
+    break;
+  case Constants::GAMESTYLE_HTF:
+    CVar::sv_killlimit = CVar::sv_htf_limit;
+    break;
+  }
 
-    if (CVar::sv_gamemode == Constants::GAMESTYLE_DEATHMATCH)
-    {
-    }
+  // sort the players frag list
+  GS::GetGame().sortplayers();
 
-    // add yellow flag
-    if (CVar::sv_gamemode == Constants::GAMESTYLE_POINTMATCH)
-    {
-        randomizestart(a, 14);
-        auto v = creatething(a, 255, Constants::OBJECT_POINTMATCH_FLAG, 255);
-        GS::GetGame().SetTeamFlag(1, v);
-    }
+  GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
-    // add yellow flag
-    if (CVar::sv_gamemode == Constants::GAMESTYLE_HTF)
-    {
-        randomizestart(a, 14);
-        auto v = creatething(a, 255, Constants::OBJECT_POINTMATCH_FLAG, 255);
-        GS::GetGame().SetTeamFlag(1, v);
-    }
+  lastplayer = 0;
 
-    if (CVar::sv_gamemode == Constants::GAMESTYLE_CTF)
-    {
-        // red flag
-        if (randomizestart(a, 5))
-        {
-            auto v = creatething(a, 255, Constants::OBJECT_ALPHA_FLAG, 255);
-            GS::GetGame().SetTeamFlag(1, v);
-        }
+  GS::GetGame().SetTimelimitcounter(CVar::sv_timelimit);
 
-        // blue flag
-        if (randomizestart(a, 6))
-        {
-            auto v = creatething(a, 255, Constants::OBJECT_BRAVO_FLAG, 255);
-            GS::GetGame().SetTeamFlag(2, v);
-        }
-    }
+  // Wave respawn time
+  updatewaverespawntime();
+  waverespawncounter = waverespawntime;
 
-    if (CVar::sv_gamemode == Constants::GAMESTYLE_RAMBO)
-    {
-        randomizestart(a, 15);
-        creatething(a, 255, Constants::OBJECT_RAMBO_BOW, 255);
-    }
+  addlinetologfile(GetGameLog(), "Starting Game Server.", GetGameLogFilename());
 
-    if (CVar::sv_gamemode == Constants::GAMESTYLE_INF)
-    {
-        // red flag
-        if (randomizestart(a, 5))
-        {
-            auto v = creatething(a, 255, Constants::OBJECT_ALPHA_FLAG, 255);
-            GS::GetGame().SetTeamFlag(1, v);
-        }
+  InitNetworkServer(CVar::net_ip, CVar::net_port);
 
-        // blue flag
-        if (randomizestart(a, 6))
-        {
-            auto v = creatething(a, 255, Constants::OBJECT_BRAVO_FLAG, 255);
-            GS::GetGame().SetTeamFlag(2, v);
-        }
-    }
+  if (GetServerNetwork()->Active() == true)
+  {
+    WriteLn("[NET] Game networking initialized.");
+    auto addr = GetServerNetwork()->Address();
+    WriteLn("[NET] Server is listening on " + GetServerNetwork()->GetStringAddress(&addr, true));
+  }
+  else
+  {
+    WriteLn("[NET] Failed to bind to " + std::string(CVar::net_ip) + ":" +
+            inttostr(CVar::net_port));
+    ShutDown();
+    return;
+  }
 
-    if (not CVar::sv_survivalmode)
-    {
-        // spawn medikits
-        spawnthings(Constants::OBJECT_MEDICAL_KIT, map.medikits);
+  serverport = GetServerNetwork()->Port();
 
-        // spawn grenadekits
-        if (CVar::sv_maxgrenades > 0)
-            spawnthings(Constants::OBJECT_GRENADE_KIT, map.grenades);
-    }
-    else
-    {
-        GetServerMainConsole().console("Survival Mode ON", mode_message_color);
-    }
-
-    // stat gun
-    if (CVar::sv_stationaryguns)
-    {
-        for (i = 1; i < max_spawnpoints; i++)
-        {
-            if (map.spawnpoints[i].active)
-            {
-                if (map.spawnpoints[i].team == 16)
-                {
-                    a.x = map.spawnpoints[i].x;
-                    a.y = map.spawnpoints[i].y;
-                    creatething(a, 255, Constants::OBJECT_STATIONARY_GUN, 255);
-                }
-            }
-        }
-    }
-
-    switch (CVar::sv_gamemode)
-    {
-    case Constants::GAMESTYLE_DEATHMATCH:
-        CVar::sv_killlimit = CVar::sv_dm_limit;
-        break;
-    case Constants::GAMESTYLE_POINTMATCH:
-        CVar::sv_killlimit = CVar::sv_pm_limit;
-        break;
-    case Constants::GAMESTYLE_RAMBO:
-        CVar::sv_killlimit = CVar::sv_rm_limit;
-        break;
-    case Constants::GAMESTYLE_TEAMMATCH:
-        CVar::sv_killlimit = CVar::sv_tm_limit;
-        break;
-    case Constants::GAMESTYLE_CTF:
-        CVar::sv_killlimit = CVar::sv_ctf_limit;
-        break;
-    case Constants::GAMESTYLE_INF:
-        CVar::sv_killlimit = CVar::sv_inf_limit;
-        break;
-    case Constants::GAMESTYLE_HTF:
-        CVar::sv_killlimit = CVar::sv_htf_limit;
-        break;
-    }
-
-    // sort the players frag list
-    GS::GetGame().sortplayers();
-
-    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
-
-    lastplayer = 0;
-
-    GS::GetGame().SetTimelimitcounter(CVar::sv_timelimit);
-
-    // Wave respawn time
-    updatewaverespawntime();
-    waverespawncounter = waverespawntime;
-
-    addlinetologfile(GetGameLog(), "Starting Game Server.", GetGameLogFilename());
-
-    InitNetworkServer(CVar::net_ip, CVar::net_port);
-
-    if (GetServerNetwork()->Active() == true)
-    {
-        WriteLn("[NET] Game networking initialized.");
-        auto addr = GetServerNetwork()->Address();
-        WriteLn("[NET] Server is listening on " +
-                GetServerNetwork()->GetStringAddress(&addr, true));
-    }
-    else
-    {
-        WriteLn("[NET] Failed to bind to " + std::string(CVar::net_ip) + ":" +
-                inttostr(CVar::net_port));
-        ShutDown();
-        return;
-    }
-
-    serverport = GetServerNetwork()->Port();
-
-    if (CVar::fileserver_enable)
-    {
-        NotImplemented("network", "No start file server");
+  if (CVar::fileserver_enable)
+  {
+    NotImplemented("network", "No start file server");
 #if 0
         StartFileServer();
 #endif
-    }
+  }
 #ifdef ENABLE_FAE
-    if (ac_enable)
-    {
-        WriteLn("[AC] Anti-Cheat enabled");
-    }
+  if (ac_enable)
+  {
+    WriteLn("[AC] Anti-Cheat enabled");
+  }
 #endif
 
-    if (CVar::sv_lobby)
-    {
-        NotImplemented("network", "no lobby");
+  if (CVar::sv_lobby)
+  {
+    NotImplemented("network", "no lobby");
 #if 0
         if (LobbyThread == nullptr)
         {
             LobbyThread = TLobbyThread.Create();
         }
 #endif
-    }
+  }
 
-    for (k = 0; k < CVar::bots_random_alpha; k++)
-        addbotplayer(randombot(), 1);
-    for (k = 0; k < CVar::bots_random_bravo; k++)
-        addbotplayer(randombot(), 2);
-    for (k = 0; k < CVar::bots_random_charlie; k++)
-        addbotplayer(randombot(), 3);
-    for (k = 0; k < CVar::bots_random_delta; k++)
-        addbotplayer(randombot(), 4);
+  for (k = 0; k < CVar::bots_random_alpha; k++)
+    addbotplayer(randombot(), 1);
+  for (k = 0; k < CVar::bots_random_bravo; k++)
+    addbotplayer(randombot(), 2);
+  for (k = 0; k < CVar::bots_random_charlie; k++)
+    addbotplayer(randombot(), 3);
+  for (k = 0; k < CVar::bots_random_delta; k++)
+    addbotplayer(randombot(), 4);
 
-    GS::GetGame().updategamestats();
+  GS::GetGame().updategamestats();
 }
 
 bool preparemapchange(std::string Name)
 {
-    tmapinfo Status;
-    bool Result = false;
-    if (getmapinfo(Name, GS::GetGame().GetUserDirectory(), Status))
-    {
-        GS::GetGame().SetMapchange(Status);
-        GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangetime());
-        // s} to client that map changes
-        servermapchange(all_players);
-        GetServerMainConsole().console("Next  map" + Status.name, game_message_color);
+  tmapinfo Status;
+  bool Result = false;
+  if (getmapinfo(Name, GS::GetGame().GetUserDirectory(), Status))
+  {
+    GS::GetGame().SetMapchange(Status);
+    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangetime());
+    // s} to client that map changes
+    servermapchange(all_players);
+    GetServerMainConsole().console("Next  map" + Status.name, game_message_color);
 #ifdef SCRIPT
-        ScrptDispatcher.OnBeforeMapChange(Status.Name);
+    ScrptDispatcher.OnBeforeMapChange(Status.Name);
 #endif
-        Result = true;
-    }
-    return Result;
+    Result = true;
+  }
+  return Result;
 }
 
 void nextmap()
 {
-    LogDebugG("NextMap");
+  LogDebugG("NextMap");
 
-    if (mapslist.size() < 1)
-    {
-        GetServerMainConsole().console("Can"
-                                       "t load maps from mapslist",
-                                       game_message_color);
-    }
-    else
-    {
-        mapindex = mapindex + 1;
+  if (mapslist.size() < 1)
+  {
+    GetServerMainConsole().console("Can"
+                                   "t load maps from mapslist",
+                                   game_message_color);
+  }
+  else
+  {
+    mapindex = mapindex + 1;
 
-        if (mapindex >= mapslist.size())
-            mapindex = 0;
-        preparemapchange(mapslist[mapindex]);
-    }
+    if (mapindex >= mapslist.size())
+      mapindex = 0;
+    preparemapchange(mapslist[mapindex]);
+  }
 }
 
 void spawnthings(std::int8_t Style, std::int8_t Amount)
 {
-    std::int32_t i, k, l, team;
-    tvector2 a;
+  std::int32_t i, k, l, team;
+  tvector2 a;
 
-    LogTraceG("SpawnThings");
+  LogTraceG("SpawnThings");
 
-    k = 0;
-    switch (Style)
+  k = 0;
+  switch (Style)
+  {
+  case Constants::OBJECT_MEDICAL_KIT:
+    k = 8;
+    break;
+  case Constants::OBJECT_GRENADE_KIT:
+    k = 7;
+    break;
+  case Constants::OBJECT_FLAMER_KIT:
+    k = 11;
+    break;
+  case Constants::OBJECT_PREDATOR_KIT:
+    k = 13;
+    break;
+  case Constants::OBJECT_VEST_KIT:
+    k = 10;
+    break;
+  case Constants::OBJECT_BERSERK_KIT:
+    k = 12;
+    break;
+  case Constants::OBJECT_CLUSTER_KIT:
+    k = 9;
+    break;
+  }
+  auto &things = GS::GetThingSystem().GetThings();
+  for (i = 0; i < Amount; i++)
+  {
+    team = 0;
+    if (CVar::sv_gamemode == Constants::GAMESTYLE_CTF)
     {
-    case Constants::OBJECT_MEDICAL_KIT:
-        k = 8;
-        break;
-    case Constants::OBJECT_GRENADE_KIT:
-        k = 7;
-        break;
-    case Constants::OBJECT_FLAMER_KIT:
-        k = 11;
-        break;
-    case Constants::OBJECT_PREDATOR_KIT:
-        k = 13;
-        break;
-    case Constants::OBJECT_VEST_KIT:
-        k = 10;
-        break;
-    case Constants::OBJECT_BERSERK_KIT:
-        k = 12;
-        break;
-    case Constants::OBJECT_CLUSTER_KIT:
-        k = 9;
-        break;
+      if ((Style == Constants::OBJECT_MEDICAL_KIT) or (Style == Constants::OBJECT_GRENADE_KIT))
+      {
+        if (i % 2 == 0)
+        {
+          team = 1;
+        }
+        else
+        {
+          team = 2;
+        }
+      }
     }
-    auto &things = GS::GetThingSystem().GetThings();
-    for (i = 0; i < Amount; i++)
+
+    things[max_things - 1].team = team;
+
+    if (team == 0)
     {
-        team = 0;
-        if (CVar::sv_gamemode == Constants::GAMESTYLE_CTF)
-        {
-            if ((Style == Constants::OBJECT_MEDICAL_KIT) or
-                (Style == Constants::OBJECT_GRENADE_KIT))
-            {
-                if (i % 2 == 0)
-                {
-                    team = 1;
-                }
-                else
-                {
-                    team = 2;
-                }
-            }
-        }
-
-        things[max_things - 1].team = team;
-
-        if (team == 0)
-        {
-            if (not randomizestart(a, k))
-                return;
-        }
-        else if (not spawnboxes(a, k, max_things - 1))
-            if (not randomizestart(a, k))
-                return;
-
-        a.x = a.x - Constants::SPAWNRANDOMVELOCITY +
-              (Random(round(2 * 100 * Constants::SPAWNRANDOMVELOCITY)) / 100);
-        a.y = a.y - Constants::SPAWNRANDOMVELOCITY +
-              (Random(round(2 * 100 * Constants::SPAWNRANDOMVELOCITY)) / 100);
-        l = creatething(a, 255, Style, 255);
-
-        if ((l > 0) and (l < max_things + 1))
-        {
-            things[l].team = team;
-        }
+      if (not randomizestart(a, k))
+        return;
     }
+    else if (not spawnboxes(a, k, max_things - 1))
+      if (not randomizestart(a, k))
+        return;
+
+    a.x = a.x - Constants::SPAWNRANDOMVELOCITY +
+          (Random(round(2 * 100 * Constants::SPAWNRANDOMVELOCITY)) / 100);
+    a.y = a.y - Constants::SPAWNRANDOMVELOCITY +
+          (Random(round(2 * 100 * Constants::SPAWNRANDOMVELOCITY)) / 100);
+    l = creatething(a, 255, Style, 255);
+
+    if ((l > 0) and (l < max_things + 1))
+    {
+      things[l].team = team;
+    }
+  }
 }
 
 bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, std::string Reason)
 {
-    std::int32_t i;
-    std::string timestr;
+  std::int32_t i;
+  std::string timestr;
 
-    bool Result = false;
-    LogDebugG("KickPlayer");
+  bool Result = false;
+  LogDebugG("KickPlayer");
 
-    // bound check
-    if ((num > max_players) or (num < 1))
+  // bound check
+  if ((num > max_players) or (num < 1))
+  {
+    return Result;
+  }
+
+  i = num;
+
+  if ((not SpriteSystem::Get().GetSprite(i).IsActive()))
+    return Result;
+
+  if (((why == kick_cheat)) and (CVar::sv_anticheatkick))
+  {
+    return Result;
+  }
+
+  // check if admin should be kicked
+  if (((why == kick_ping or why == kick_flooding or why == kick_voted) and
+       (length(SpriteSystem::Get().GetSprite(i).player->ip) > 5)))
+  {
+    if (isremoteadminip(SpriteSystem::Get().GetSprite(i).player->ip) or
+        isadminip(SpriteSystem::Get().GetSprite(i).player->ip))
     {
-        return Result;
+      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                       " is admin and cannot be kicked.",
+                                     client_message_color);
+      return Result;
     }
+  }
 
-    i = num;
-
-    if ((not SpriteSystem::Get().GetSprite(i).IsActive()))
-        return Result;
-
-    if (((why == kick_cheat)) and (CVar::sv_anticheatkick))
+  if (why == kick_leftgame)
+  {
+    switch (SpriteSystem::Get().GetSprite(i).player->team)
     {
-        return Result;
+    case 0:
+      GetServerMainConsole().console(
+        SpriteSystem::Get().GetSprite(i).player->name + " has left the game.", enter_message_color);
+      break;
+    case 1:
+      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                       " has left alpha team.",
+                                     alphaj_message_color);
+      break;
+    case 2:
+      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                       " has left bravo team.",
+                                     bravoj_message_color);
+      break;
+    case 3:
+      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                       " has left charlie team.",
+                                     charliej_message_color);
+      break;
+    case 4:
+      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                       " has left delta team.",
+                                     deltaj_message_color);
+      break;
+    case 5:
+      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                       " has left spectators",
+                                     deltaj_message_color);
+      break;
     }
+  }
 
-    // check if admin should be kicked
-    if (((why == kick_ping or why == kick_flooding or why == kick_voted) and
-         (length(SpriteSystem::Get().GetSprite(i).player->ip) > 5)))
-    {
-        if (isremoteadminip(SpriteSystem::Get().GetSprite(i).player->ip) or
-            isadminip(SpriteSystem::Get().GetSprite(i).player->ip))
-        {
-            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                               " is admin and cannot be kicked.",
-                                           client_message_color);
-            return Result;
-        }
-    }
+  if (not Ban and not(why == kick_leftgame) and not(why == kick_silent))
+  {
+    GetServerMainConsole().console(
+      SpriteSystem::Get().GetSprite(i).player->name + " has been kicked." +
+        iif(SpriteSystem::Get().GetSprite(i).player->controlmethod == bot, std::string(""),
+            "(" + SpriteSystem::Get().GetSprite(i).player->ip + ")"),
+      client_message_color);
+  }
 
-    if (why == kick_leftgame)
-    {
-        switch (SpriteSystem::Get().GetSprite(i).player->team)
-        {
-        case 0:
-            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                               " has left the game.",
-                                           enter_message_color);
-            break;
-        case 1:
-            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                               " has left alpha team.",
-                                           alphaj_message_color);
-            break;
-        case 2:
-            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                               " has left bravo team.",
-                                           bravoj_message_color);
-            break;
-        case 3:
-            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                               " has left charlie team.",
-                                           charliej_message_color);
-            break;
-        case 4:
-            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                               " has left delta team.",
-                                           deltaj_message_color);
-            break;
-        case 5:
-            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                               " has left spectators",
-                                           deltaj_message_color);
-            break;
-        }
-    }
-
-    if (not Ban and not(why == kick_leftgame) and not(why == kick_silent))
-    {
-        GetServerMainConsole().console(
-            SpriteSystem::Get().GetSprite(i).player->name + " has been kicked." +
-                iif(SpriteSystem::Get().GetSprite(i).player->controlmethod == bot, std::string(""),
-                    "(" + SpriteSystem::Get().GetSprite(i).player->ip + ")"),
-            client_message_color);
-    }
-
-    if (Ban)
-    {
-        addbannedip(SpriteSystem::Get().GetSprite(i).player->ip, Reason, time);
+  if (Ban)
+  {
+    addbannedip(SpriteSystem::Get().GetSprite(i).player->ip, Reason, time);
 #ifdef STEAM
-        AddBannedHW(IntToStr(SpriteSystem::Get().GetSprite(i).Player.SteamID.GetAccountID), Reason,
-                    time);
-        {$ELSE} AddBannedHW(SpriteSystem::Get().GetSprite(i).Player.HWid, Reason, time);
+    AddBannedHW(IntToStr(SpriteSystem::Get().GetSprite(i).Player.SteamID.GetAccountID), Reason,
+                time);
+    {$ELSE} AddBannedHW(SpriteSystem::Get().GetSprite(i).Player.HWid, Reason, time);
 #endif
-    }
+  }
 
-    if (Ban)
+  if (Ban)
+  {
+    if (time > 0)
     {
-        if (time > 0)
-        {
-            NotImplemented( "Msg ban");
+      NotImplemented("Msg ban");
 #if 0
             TimeStr = iif((time + 1) div 3600 > 1439, IntToStr((time + 1) div 5184000) + " days",
                           IntToStr((time + 1) div 3600) + " minutes");
@@ -1248,44 +1243,43 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
                                     TimeStr + " (" + Reason + ")",
                                 client_message_color)
 #endif
-        }
-        else
-            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                               " has been kicked and permanently banned (" +
-                                               Reason + ")",
-                                           client_message_color);
     }
+    else
+      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                       " has been kicked and permanently banned (" + Reason + ")",
+                                     client_message_color);
+  }
 
-    savetxtlists();
+  savetxtlists();
 
-    if (not SpriteSystem::Get().GetSprite(i).IsActive())
-        return Result;
+  if (not SpriteSystem::Get().GetSprite(i).IsActive())
+    return Result;
 #ifdef SCRIPT
-    if (why in[KICK_AC, KICK_CHEAT, KICK_CONSOLE, KICK_PING, KICK_NORESPONSE, KICK_NOCHEATRESPONSE,
-               KICK_FLOODING, KICK_VOTED, KICK_SILENT])
-    {
-        ScrptDispatcher.OnLeaveGame(i, true);
-    }
+  if (why in[KICK_AC, KICK_CHEAT, KICK_CONSOLE, KICK_PING, KICK_NORESPONSE, KICK_NOCHEATRESPONSE,
+             KICK_FLOODING, KICK_VOTED, KICK_SILENT])
+  {
+    ScrptDispatcher.OnLeaveGame(i, true);
+  }
 #endif
 
-    serverplayerdisconnect(i, why);
+  serverplayerdisconnect(i, why);
 
-    if ((why != kick_ac) and (why != kick_cheat) and (why != kick_console) and (why != kick_voted))
-    {
-        SpriteSystem::Get().GetSprite(i).dropweapon();
-    }
+  if ((why != kick_ac) and (why != kick_cheat) and (why != kick_console) and (why != kick_voted))
+  {
+    SpriteSystem::Get().GetSprite(i).dropweapon();
+  }
 
-    SpriteSystem::Get().GetSprite(i).kill();
+  SpriteSystem::Get().GetSprite(i).kill();
 
-    Result = true;
-    return Result;
+  Result = true;
+  return Result;
 }
 
 #ifdef STEAM
 initialization
 // Mask exceptions on 32 and 64 bit fpc builds
 {
-    $IF defined(cpui386) or defined(cpux86_64)
+  $IF defined(cpui386) or defined(cpux86_64)
 }
 // SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow,
 // exPrecision]);
@@ -1293,29 +1287,29 @@ initialization
 
 void RunServer(int argc, const char *argv[])
 {
-    ActivateServer(argc, argv);
-    writepid();
+  ActivateServer(argc, argv);
+  writepid();
 
-    if (progready)
+  if (progready)
+  {
+    startserver();
+  }
+  while (progready)
+  {
+    auto begin = std::chrono::system_clock::now();
+    apponidle();
+    auto end = std::chrono::system_clock::now();
+    constexpr auto frameTime = std::chrono::seconds(1) / 60.f;
     {
-        startserver();
+      ZoneScopedN("WaitingForNextFrame");
+      std::this_thread::sleep_for(frameTime - (end - begin));
     }
-    while (progready)
-    {
-        auto begin = std::chrono::system_clock::now();
-        apponidle();
-        auto end = std::chrono::system_clock::now();
-        constexpr auto frameTime = std::chrono::seconds(1) / 60.f;
-        {
-            ZoneScopedN("WaitingForNextFrame");
-            std::this_thread::sleep_for(frameTime - (end - begin));
-        }
-        FrameMarkNamed("ServerFrame");
-    }
-    ShutDown();
+    FrameMarkNamed("ServerFrame");
+  }
+  ShutDown();
 }
 
 void ShutdownServer()
 {
-    progready = false;
+  progready = false;
 }

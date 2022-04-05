@@ -7,8 +7,8 @@
 
 struct tintersectionresult
 {
-    std::array<tvector2, 2> points;
-    std::int8_t numintersections = 0;
+  std::array<tvector2, 2> points;
+  std::int8_t numintersections = 0;
 };
 
 tintersectionresult islineintersectingcircle(tvector2 line1, tvector2 line2, tvector2 circlecenter,

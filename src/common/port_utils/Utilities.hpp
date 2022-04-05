@@ -18,17 +18,17 @@ namespace PortUtilities
 template <std::size_t N>
 struct StringLiteral
 {
-    constexpr StringLiteral(const char (&str)[N])
-    {
-        std::copy_n(str, N, value);
-    }
+  constexpr StringLiteral(const char (&str)[N])
+  {
+    std::copy_n(str, N, value);
+  }
 
-    char value[N];
+  char value[N];
 };
 
 consteval const char *GetRelativePath(const std::string_view v)
 {
-    return v.substr(v.find("soldat_cpp") + sizeof("soldat_cpp")).data();
+  return v.substr(v.find("soldat_cpp") + sizeof("soldat_cpp")).data();
 }
 
 } // namespace PortUtilities

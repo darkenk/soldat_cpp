@@ -31,44 +31,44 @@ namespace PortUtilities::NotImplemented
 
 consteval bool IsDisabled(const std::string_view &area)
 {
-    return !Config::NotImplementedEnabled or
-           std::find_if(std::begin(Config::DisabledAreas), std::end(Config::DisabledAreas),
-                        [&area](auto &v) { return v == area; }) != std::end(Config::DisabledAreas);
+  return !Config::NotImplementedEnabled or
+         std::find_if(std::begin(Config::DisabledAreas), std::end(Config::DisabledAreas),
+                      [&area](auto &v) { return v == area; }) != std::end(Config::DisabledAreas);
 };
 
 template <int line, StringLiteral file, StringLiteral function>
 class Wrapper
 {
-  public:
-    static PU_ALWAYS_INLINE void NotImplemented(const char *area = "", const char *msg = "")
+public:
+  static PU_ALWAYS_INLINE void NotImplemented(const char *area = "", const char *msg = "")
+  {
+    static bool fired = false;
+    if (fired)
     {
-        static bool fired = false;
-        if (fired)
-        {
-            return;
-        }
-        fired = true;
-        Config::ShowNotImplementedMessage(
-            area, msg, source_location::current(GetRelativePath(file.value), function.value, line));
+      return;
     }
+    fired = true;
+    Config::ShowNotImplementedMessage(
+      area, msg, source_location::current(GetRelativePath(file.value), function.value, line));
+  }
 };
 
 consteval std::string_view GetArea()
 {
-    return "GENERIC";
+  return "GENERIC";
 }
 
 consteval std::string_view GetArea(const std::string_view area, auto &...args)
 {
-    return area;
+  return area;
 }
 
 } // namespace PortUtilities::NotImplemented
 
 #define NotImplemented(...)                                                                        \
-    if constexpr (not PortUtilities::NotImplemented::IsDisabled(                                   \
-                      PortUtilities::NotImplemented::GetArea(__VA_ARGS__)))                        \
-    {                                                                                              \
-        PortUtilities::NotImplemented::Wrapper<__LINE__, __FILE__, __FUNCTION__>::NotImplemented(  \
-            __VA_OPT__(__VA_ARGS__));                                                              \
-    }
+  if constexpr (not PortUtilities::NotImplemented::IsDisabled(                                     \
+                  PortUtilities::NotImplemented::GetArea(__VA_ARGS__)))                            \
+  {                                                                                                \
+    PortUtilities::NotImplemented::Wrapper<__LINE__, __FILE__, __FUNCTION__>::NotImplemented(      \
+      __VA_OPT__(__VA_ARGS__));                                                                    \
+  }

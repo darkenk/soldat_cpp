@@ -5,18 +5,18 @@
 
 #include "Constants.hpp"
 #include "common/Vector.hpp"
+#include "common/misc/GlobalSubsystem.hpp"
 #include "mechanics/Bullets.hpp"
 #include "mechanics/Sparks.hpp"
 #include "mechanics/Sprites.hpp"
 #include "mechanics/Things.hpp"
-#include "common/misc/GlobalSubsystem.hpp"
 
 struct tkillsort
 {
-    std::int32_t kills, deaths;
-    std::uint8_t flags;
-    std::int32_t playernum;
-    std::uint32_t color;
+  std::int32_t kills, deaths;
+  std::uint8_t flags;
+  std::int32_t playernum;
+  std::uint32_t color;
 };
 
 #ifndef SERVER
@@ -37,345 +37,427 @@ extern std::int32_t heartbeattime, heartbeattimewarnings;
 extern PascalArray<tspark, 1, max_sparks> spark; // spark game handling sprite
 #endif
 
-template<Config::Module M = Config::GetModule()>
+template <Config::Module M = Config::GetModule()>
 class Game : public GlobalSubsystem<Game<M>>
 {
-  public:
-    void number27timing();
-    void togglebullettime(bool turnon, std::int32_t duration = 30);
-    void updategamestats();
-    bool pointvisible(float x, float y, const int32_t i);
-    bool pointvisible2(float x, float y, const int32_t i);
-    void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targetvote,
-               std::string reasonvote);
+public:
+  void number27timing();
+  void togglebullettime(bool turnon, std::int32_t duration = 30);
+  void updategamestats();
+  bool pointvisible(float x, float y, const int32_t i);
+  bool pointvisible2(float x, float y, const int32_t i);
+  void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targetvote,
+                 std::string reasonvote);
 
-    void stopvote();
-    void timervote();
+  void stopvote();
+  void timervote();
 #ifdef SERVER
-    void countvote(std::uint8_t voter);
+  void countvote(std::uint8_t voter);
 #endif
-    void showmapchangescoreboard();
-    void showmapchangescoreboard(const std::string nextmap);
-    bool isteamgame();
+  void showmapchangescoreboard();
+  void showmapchangescoreboard(const std::string nextmap);
+  bool isteamgame();
 #ifndef SERVER
-    bool ispointonscreen(const tvector2& point);
+  bool ispointonscreen(const tvector2 &point);
 #endif
-    void changemap();
-    void sortplayers();
+  void changemap();
+  void sortplayers();
 
-    bool IsVoteActive() const { return VoteActive; }
-    void SetVoteActive(bool active) { VoteActive = active; }
+  bool IsVoteActive() const
+  {
+    return VoteActive;
+  }
+  void SetVoteActive(bool active)
+  {
+    VoteActive = active;
+  }
 
-    std::uint8_t GetVoteType() const { return VoteType; }
-    void SetVoteType(std::uint8_t voteType) { VoteType = voteType; }
+  std::uint8_t GetVoteType() const
+  {
+    return VoteType;
+  }
+  void SetVoteType(std::uint8_t voteType)
+  {
+    VoteType = voteType;
+  }
 
-    const std::string &GetVoteTarget() const { return VoteTarget; }
-    void SetVoteTarget(const std::string &voteTarget) { VoteTarget = voteTarget; }
+  const std::string &GetVoteTarget() const
+  {
+    return VoteTarget;
+  }
+  void SetVoteTarget(const std::string &voteTarget)
+  {
+    VoteTarget = voteTarget;
+  }
 
-    const std::string& GetVoteStarter() const { return VoteStarter; }
-    const std::string& GetVoteReason() const { return VoteReason; }
-    std::int32_t GetVoteTimeRemaining() const { return VoteTimeRemaining; }
+  const std::string &GetVoteStarter() const
+  {
+    return VoteStarter;
+  }
+  const std::string &GetVoteReason() const
+  {
+    return VoteReason;
+  }
+  std::int32_t GetVoteTimeRemaining() const
+  {
+    return VoteTimeRemaining;
+  }
 
-    bool HasVoted(std::int32_t spriteId) const { return VoteHasVoted[spriteId]; }
+  bool HasVoted(std::int32_t spriteId) const
+  {
+    return VoteHasVoted[spriteId];
+  }
 
-    void ResetVoteCooldown(std::int32_t spriteId) { VoteCooldown[spriteId] = default_vote_time; }
-    bool CanVote(std::int32_t spriteId) const { return VoteCooldown[spriteId] < 0; }
-    void TickVote();
+  void ResetVoteCooldown(std::int32_t spriteId)
+  {
+    VoteCooldown[spriteId] = default_vote_time;
+  }
+  bool CanVote(std::int32_t spriteId) const
+  {
+    return VoteCooldown[spriteId] < 0;
+  }
+  void TickVote();
 
-    void SetUserDirectory(const std::string& userDirectory) { UserDirectory = userDirectory; }
-    const std::string& GetUserDirectory() const { return UserDirectory; }
+  void SetUserDirectory(const std::string &userDirectory)
+  {
+    UserDirectory = userDirectory;
+  }
+  const std::string &GetUserDirectory() const
+  {
+    return UserDirectory;
+  }
 
+  Polymap &GetMap()
+  {
+    return map;
+  }
+  twaypoints &GetBotPath()
+  {
+    return botpath;
+  }
 
-    Polymap& GetMap() { return map; }
-    twaypoints& GetBotPath() { return botpath; }
+  auto GetTickTime() const
+  {
+    return ticktime;
+  }
+  void SetTickTime(const auto time)
+  {
+    ticktime = time;
+  }
 
-    auto GetTickTime() const { return ticktime; }
-    void SetTickTime(const auto time) { ticktime = time; }
+  auto GetTickTimeLast() const
+  {
+    return ticktimelast;
+  }
+  void SetTickTimeLast(const auto time)
+  {
+    ticktimelast = time;
+  }
 
-    auto GetTickTimeLast() const { return ticktimelast; }
-    void SetTickTimeLast(const auto time) { ticktimelast = time; }
+  auto GetGoalTicks() const
+  {
+    return goalticks;
+  }
+  void SetGoalTicks(const auto ticks)
+  {
+    goalticks = ticks;
+  }
+  bool IsDefaultGoalTicks()
+  {
+    return goalticks == default_goalticks;
+  }
+  void ResetGoalTicks()
+  {
+    goalticks = default_goalticks;
+  };
 
-    auto GetGoalTicks() const { return goalticks; }
-    void SetGoalTicks(const auto ticks) { goalticks = ticks; }
-    bool IsDefaultGoalTicks() { return goalticks == default_goalticks; }
-    void ResetGoalTicks() { goalticks = default_goalticks; };
-
-    auto GetBulletTimeTimer() const { return bullettimetimer; }
-    void TickBulletTimeTimer() { if (bullettimetimer > -1) { bullettimetimer -= 1; } }
-    void SetBulletTimeTimer(auto _Bullettimetimer) { bullettimetimer = _Bullettimetimer; }
-
-    std::uint8_t GetAlivenum() const
+  auto GetBulletTimeTimer() const
+  {
+    return bullettimetimer;
+  }
+  void TickBulletTimeTimer()
+  {
+    if (bullettimetimer > -1)
     {
-        return alivenum;
+      bullettimetimer -= 1;
     }
-    void SetAlivenum(std::uint8_t _Alivenum)
-    {
-        alivenum = _Alivenum;
-    }
+  }
+  void SetBulletTimeTimer(auto _Bullettimetimer)
+  {
+    bullettimetimer = _Bullettimetimer;
+  }
 
-    std::int8_t GetTeamAliveNum(std::int32_t idx) const
-    {
-        return teamalivenum[idx];
-    }
+  std::uint8_t GetAlivenum() const
+  {
+    return alivenum;
+  }
+  void SetAlivenum(std::uint8_t _Alivenum)
+  {
+    alivenum = _Alivenum;
+  }
 
-    bool GetSurvivalEndRound() const
-    {
-        return survivalendround;
-    }
-    void SetSurvivalendround(bool _survivalendround)
-    {
-        survivalendround = _survivalendround;
-    }
+  std::int8_t GetTeamAliveNum(std::int32_t idx) const
+  {
+    return teamalivenum[idx];
+  }
 
-    std::int8_t GetTeamplayersnum(std::int32_t idx) const
-    {
-        return teamplayersnum[idx];
-    }
+  bool GetSurvivalEndRound() const
+  {
+    return survivalendround;
+  }
+  void SetSurvivalendround(bool _survivalendround)
+  {
+    survivalendround = _survivalendround;
+  }
 
-    void CalculateTeamAliveNum(std::int32_t player);
+  std::int8_t GetTeamplayersnum(std::int32_t idx) const
+  {
+    return teamplayersnum[idx];
+  }
 
-    std::int32_t GetCeasefiretime() const
-    {
-        return ceasefiretime;
-    }
+  void CalculateTeamAliveNum(std::int32_t player);
 
-    std::int32_t GetMapchangecounter() const
-    {
-        return mapchangecounter;
-    }
+  std::int32_t GetCeasefiretime() const
+  {
+    return ceasefiretime;
+  }
 
-    void SetMapchangecounter(std::int32_t _mapchangecounter)
-    {
-        mapchangecounter = _mapchangecounter;
-    }
+  std::int32_t GetMapchangecounter() const
+  {
+    return mapchangecounter;
+  }
 
-    std::int32_t GetStarthealth() const
-    {
-        return starthealth;
-    }
-    void SetStarthealth(std::int32_t _starthealth)
-    {
-        starthealth = _starthealth;
-    }
+  void SetMapchangecounter(std::int32_t _mapchangecounter)
+  {
+    mapchangecounter = _mapchangecounter;
+  }
 
-    const std::string &GetMapchangename() const
-    {
-        return mapchangename;
-    }
+  std::int32_t GetStarthealth() const
+  {
+    return starthealth;
+  }
+  void SetStarthealth(std::int32_t _starthealth)
+  {
+    starthealth = _starthealth;
+  }
 
-    void SetMapchangename(const std::string &_mapchangename)
-    {
-        mapchangename = _mapchangename;
-    }
+  const std::string &GetMapchangename() const
+  {
+    return mapchangename;
+  }
 
-    std::int32_t GetTimelimitcounter() const
-    {
-        return timelimitcounter;
-    }
-    void SetTimelimitcounter(std::int32_t _timelimitcounter)
-    {
-        timelimitcounter = _timelimitcounter;
-    }
+  void SetMapchangename(const std::string &_mapchangename)
+  {
+    mapchangename = _mapchangename;
+  }
 
-    std::int32_t GetTimeleftmin() const
-    {
-        return timeleftmin;
-    }
-    void SetTimeleftmin(std::int32_t _timeleftmin)
-    {
-        timeleftmin = _timeleftmin;
-    }
+  std::int32_t GetTimelimitcounter() const
+  {
+    return timelimitcounter;
+  }
+  void SetTimelimitcounter(std::int32_t _timelimitcounter)
+  {
+    timelimitcounter = _timelimitcounter;
+  }
 
-    std::int32_t GetTimeleftsec() const
-    {
-        return timeleftsec;
-    }
-    void SetTimeleftsec(std::int32_t _timeleftsec)
-    {
-        timeleftsec = _timeleftsec;
-    }
+  std::int32_t GetTimeleftmin() const
+  {
+    return timeleftmin;
+  }
+  void SetTimeleftmin(std::int32_t _timeleftmin)
+  {
+    timeleftmin = _timeleftmin;
+  }
 
-    void SetMapchange(const tmapinfo &_mapchange)
-    {
-        mapchange = _mapchange;
-    }
+  std::int32_t GetTimeleftsec() const
+  {
+    return timeleftsec;
+  }
+  void SetTimeleftsec(std::int32_t _timeleftsec)
+  {
+    timeleftsec = _timeleftsec;
+  }
 
-    const tmapinfo &GetMapchange() const
-    {
-        return mapchange;
-    }
+  void SetMapchange(const tmapinfo &_mapchange)
+  {
+    mapchange = _mapchange;
+  }
 
-    void SetMapchangechecksum(const tsha1digest &_mapchangechecksum)
-    {
-        mapchangechecksum = _mapchangechecksum;
-    }
+  const tmapinfo &GetMapchange() const
+  {
+    return mapchange;
+  }
 
-    std::int32_t GetMapchangetime() const
-    {
-        return mapchangetime;
-    }
+  void SetMapchangechecksum(const tsha1digest &_mapchangechecksum)
+  {
+    mapchangechecksum = _mapchangechecksum;
+  }
 
-    std::int32_t GetMainTickCounter() const
-    {
-        return maintickcounter;
-    }
+  std::int32_t GetMapchangetime() const
+  {
+    return mapchangetime;
+  }
 
-    void TickMainTickCounter()
-    {
-        maintickcounter += 1;
-    }
+  std::int32_t GetMainTickCounter() const
+  {
+    return maintickcounter;
+  }
 
-    void ResetMainTickCounter()
-    {
-        maintickcounter = 0;
-    }
+  void TickMainTickCounter()
+  {
+    maintickcounter += 1;
+  }
 
-    std::int32_t GetPlayersNum() const
-    {
-        return playersnum;
-    }
+  void ResetMainTickCounter()
+  {
+    maintickcounter = 0;
+  }
 
-    void SetPlayersNum(std::int32_t num)
-    {
-        playersnum = num;
-    }
+  std::int32_t GetPlayersNum() const
+  {
+    return playersnum;
+  }
 
-    std::int32_t GetBotsNum() const
-    {
-        return botsnum;
-    }
+  void SetPlayersNum(std::int32_t num)
+  {
+    playersnum = num;
+  }
 
-    std::int32_t GetSpectatorsNum() const
-    {
-        return spectatorsnum;
-    }
+  std::int32_t GetBotsNum() const
+  {
+    return botsnum;
+  }
 
-    std::int32_t GetPlayersTeamNum(std::int32_t idx) const
-    {
-        return playersteamnum[idx];
-    }
+  std::int32_t GetSpectatorsNum() const
+  {
+    return spectatorsnum;
+  }
 
-    std::int32_t GetTeamScore(std::int32_t idx) const
-    {
-        return teamscore[idx];
-    }
+  std::int32_t GetPlayersTeamNum(std::int32_t idx) const
+  {
+    return playersteamnum[idx];
+  }
 
-    void SetTeamScore(std::int32_t idx,  std::int32_t value)
-    {
-        teamscore[idx] = value;
-    }
+  std::int32_t GetTeamScore(std::int32_t idx) const
+  {
+    return teamscore[idx];
+  }
 
-    std::int32_t GetTeamFlag(std::int32_t idx) const
-    {
-        return teamflag[idx];
-    }
+  void SetTeamScore(std::int32_t idx, std::int32_t value)
+  {
+    teamscore[idx] = value;
+  }
 
-    void SetTeamFlag(std::int32_t idx, std::int32_t value)
-    {
-        teamflag[idx] = value;
-    }
+  std::int32_t GetTeamFlag(std::int32_t idx) const
+  {
+    return teamflag[idx];
+  }
 
-    float GetSinusCounter() const
-    {
-        return sinuscounter;
-    }
-    void SetSinusCounter(float _sinuscounter)
-    {
-        sinuscounter = _sinuscounter;
-    }
+  void SetTeamFlag(std::int32_t idx, std::int32_t value)
+  {
+    teamflag[idx] = value;
+  }
 
-    const tsha1digest &GetCustomModChecksum() const
-    {
-        return custommodchecksum;
-    }
-    void SetCustomModChecksum(const tsha1digest &_custommodchecksum)
-    {
-        custommodchecksum = _custommodchecksum;
-    }
+  float GetSinusCounter() const
+  {
+    return sinuscounter;
+  }
+  void SetSinusCounter(float _sinuscounter)
+  {
+    sinuscounter = _sinuscounter;
+  }
 
-    const tsha1digest &GetGameModChecksum() const
-    {
-        return gamemodchecksum;
-    }
-    void SetGameModChecksum(const tsha1digest &_gamemodchecksum)
-    {
-        gamemodchecksum = _gamemodchecksum;
-    }
+  const tsha1digest &GetCustomModChecksum() const
+  {
+    return custommodchecksum;
+  }
+  void SetCustomModChecksum(const tsha1digest &_custommodchecksum)
+  {
+    custommodchecksum = _custommodchecksum;
+  }
 
-    const tsha1digest &GetMapChecksum() const
-    {
-        return mapchecksum;
-    }
-    void SetMapChecksum(const tsha1digest &_mapchecksum)
-    {
-        mapchecksum = _mapchecksum;
-    }
+  const tsha1digest &GetGameModChecksum() const
+  {
+    return gamemodchecksum;
+  }
+  void SetGameModChecksum(const tsha1digest &_gamemodchecksum)
+  {
+    gamemodchecksum = _gamemodchecksum;
+  }
 
-    const tkillsort& GetSortedPlayers(std::int32_t idx) const
-    {
-        return sortedplayers[idx];
-    }
+  const tsha1digest &GetMapChecksum() const
+  {
+    return mapchecksum;
+  }
+  void SetMapChecksum(const tsha1digest &_mapchecksum)
+  {
+    mapchecksum = _mapchecksum;
+  }
 
-    PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, max_sprites> &GetWeaponsel()
-    {
-        return weaponsel;
-    }
+  const tkillsort &GetSortedPlayers(std::int32_t idx) const
+  {
+    return sortedplayers[idx];
+  }
 
-  protected:
-    Game();
+  PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, max_sprites> &GetWeaponsel()
+  {
+    return weaponsel;
+  }
 
-  private:
-    bool VoteActive = false;
-    std::uint8_t VoteType = vote_map;
-    std::string VoteTarget;
-    std::string VoteStarter;
-    std::string VoteReason;
-    std::int32_t VoteTimeRemaining = -1;
-    std::uint8_t VoteNumVotes = 0;
-    std::uint8_t VoteMaxVotes = 0;
-    PascalArray<bool, 1, max_sprites> VoteHasVoted;
-    PascalArray<bool, 1, max_sprites> VoteCooldown;
-    std::string UserDirectory;
-    twaypoints botpath;
-    Polymap map;
+protected:
+  Game();
 
-    std::int32_t ticktime;
-    std::int32_t ticktimelast;
-    std::int32_t goalticks = default_goalticks;
-    std::int32_t bullettimetimer;
+private:
+  bool VoteActive = false;
+  std::uint8_t VoteType = vote_map;
+  std::string VoteTarget;
+  std::string VoteStarter;
+  std::string VoteReason;
+  std::int32_t VoteTimeRemaining = -1;
+  std::uint8_t VoteNumVotes = 0;
+  std::uint8_t VoteMaxVotes = 0;
+  PascalArray<bool, 1, max_sprites> VoteHasVoted;
+  PascalArray<bool, 1, max_sprites> VoteCooldown;
+  std::string UserDirectory;
+  twaypoints botpath;
+  Polymap map;
 
-    std::uint8_t alivenum;
-    std::array<std::int8_t, 6> teamalivenum;
-    PascalArray<std::int8_t, 0, 4> teamplayersnum;
-    bool survivalendround = false;
+  std::int32_t ticktime;
+  std::int32_t ticktimelast;
+  std::int32_t goalticks = default_goalticks;
+  std::int32_t bullettimetimer;
 
-    std::int32_t ceasefiretime = default_ceasefire_time;
-    std::int32_t mapchangetime = default_mapchange_time;
-    std::int32_t mapchangecounter;
-    std::string mapchangename;
-    tmapinfo mapchange ;
-    std::uint64_t mapchangeitemid;
-    tsha1digest mapchangechecksum;
-    std::int32_t timelimitcounter = 3600;
-    std::int32_t starthealth = 150;
-    std::int32_t timeleftsec;
-    std::int32_t timeleftmin;
+  std::uint8_t alivenum;
+  std::array<std::int8_t, 6> teamalivenum;
+  PascalArray<std::int8_t, 0, 4> teamplayersnum;
+  bool survivalendround = false;
 
-    std::int32_t maintickcounter;
-    std::int32_t playersnum;
-    std::int32_t botsnum;
-    std::int32_t spectatorsnum;
-    PascalArray<std::int32_t, 1, 4> playersteamnum;
+  std::int32_t ceasefiretime = default_ceasefire_time;
+  std::int32_t mapchangetime = default_mapchange_time;
+  std::int32_t mapchangecounter;
+  std::string mapchangename;
+  tmapinfo mapchange;
+  std::uint64_t mapchangeitemid;
+  tsha1digest mapchangechecksum;
+  std::int32_t timelimitcounter = 3600;
+  std::int32_t starthealth = 150;
+  std::int32_t timeleftsec;
+  std::int32_t timeleftmin;
 
-    std::array<std::int32_t, 5> teamscore;
-    std::array<std::int32_t, 4> teamflag;
-    float sinuscounter = 0.0f;
-    tsha1digest custommodchecksum;
-    tsha1digest gamemodchecksum;
-    tsha1digest mapchecksum;
-    PascalArray<tkillsort, 1, max_sprites> sortedplayers;
-    PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, max_sprites> weaponsel;
+  std::int32_t maintickcounter;
+  std::int32_t playersnum;
+  std::int32_t botsnum;
+  std::int32_t spectatorsnum;
+  PascalArray<std::int32_t, 1, 4> playersteamnum;
 
-    friend GlobalSubsystem<Game<M>>;
+  std::array<std::int32_t, 5> teamscore;
+  std::array<std::int32_t, 4> teamflag;
+  float sinuscounter = 0.0f;
+  tsha1digest custommodchecksum;
+  tsha1digest gamemodchecksum;
+  tsha1digest mapchecksum;
+  PascalArray<tkillsort, 1, max_sprites> sortedplayers;
+  PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, max_sprites> weaponsel;
+
+  friend GlobalSubsystem<Game<M>>;
 };
-

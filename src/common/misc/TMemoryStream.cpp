@@ -3,33 +3,33 @@
 
 class MemoryStream : public TStream
 {
-  public:
-    MemoryStream(const std::string_view content) : Stream(content.data())
-    {
-    }
+public:
+  MemoryStream(const std::string_view content) : Stream(content.data())
+  {
+  }
 
-    ~MemoryStream() = default;
+  ~MemoryStream() = default;
 
-    bool ReadLine(std::string &out) override
+  bool ReadLine(std::string &out) override
+  {
+    if (Stream.eof())
     {
-        if (Stream.eof())
-        {
-            return false;
-        }
-        std::getline(Stream, out);
-        return true;
+      return false;
     }
-    void Reset() override
-    {
-        Stream.clear(std::istringstream::goodbit);
-        Stream.seekg(0);
-    }
+    std::getline(Stream, out);
+    return true;
+  }
+  void Reset() override
+  {
+    Stream.clear(std::istringstream::goodbit);
+    Stream.seekg(0);
+  }
 
-  private:
-    std::istringstream Stream;
+private:
+  std::istringstream Stream;
 };
 
 std::unique_ptr<TStream> ReadAsMemoryStream(const std::string_view &content)
 {
-    return std::make_unique<MemoryStream>(content);
+  return std::make_unique<MemoryStream>(content);
 }

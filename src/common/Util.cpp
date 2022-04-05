@@ -8,45 +8,45 @@
 
 std::int32_t charcount(const char character, const std::string &str1)
 {
-    std::int32_t result = 0;
-    for (std::size_t i = 0; i < str1.length(); i++)
+  std::int32_t result = 0;
+  for (std::size_t i = 0; i < str1.length(); i++)
+  {
+    if (character == str1[i])
     {
-        if (character == str1[i])
-        {
-            result += 1;
-        }
+      result += 1;
     }
-    return result;
+  }
+  return result;
 }
 
 tstringarray splitstr(const std::string source, const char delimiter, std::int32_t limit)
 {
 
-    size_t last = 0;
-    size_t next = 0;
-    tstringarray ret;
-    while (((next = source.find(delimiter, last)) != std::string::npos) && limit--)
-    {
-        ret.push_back(source.substr(last, next - last));
-        last = next + 1;
-    }
-    ret.push_back(source.substr(last));
-    return ret;
+  size_t last = 0;
+  size_t next = 0;
+  tstringarray ret;
+  while (((next = source.find(delimiter, last)) != std::string::npos) && limit--)
+  {
+    ret.push_back(source.substr(last, next - last));
+    last = next + 1;
+  }
+  ret.push_back(source.substr(last));
+  return ret;
 }
 
 std::string getpiece(const std::string source, const char delimiter, const std::int32_t piece)
 {
-    return splitstr(source, delimiter, piece)[piece - 1];
+  return splitstr(source, delimiter, piece)[piece - 1];
 }
 
 std::int32_t posex(const std::string substr, std::string s, std::uint32_t offset)
 {
-    return s.find(substr, offset);
+  return s.find(substr, offset);
 }
 
 std::uint32_t colortohex(tcolor color)
 {
-    return color;
+  return color;
 }
 
 #if 0 // not used
@@ -60,32 +60,32 @@ tcolor std::stringtocolor(const std::string s)
 
 std::string numberformat(std::uint32_t num)
 {
-    return std::to_string(num);
+  return std::to_string(num);
 }
 
 std::int32_t checkfilesize(const std::string &filename)
 {
-    std::filesystem::path p(filename);
-    return std::filesystem::file_size(p);
+  std::filesystem::path p(filename);
+  return std::filesystem::file_size(p);
 }
 
 std::string overridefileext(const std::string &filename, const std::string &ext)
 {
-    auto result = filename;
-    auto dotPos = filename.find_last_of('.');
-    if (dotPos == std::string::npos)
-    {
-        return result;
-    }
-    if (filename.substr(dotPos) != ext)
-    {
-        result.replace(dotPos, result.length(), ext);
-        if (not PHYSFS_exists(result.c_str()))
-        {
-            result = filename;
-        }
-    }
+  auto result = filename;
+  auto dotPos = filename.find_last_of('.');
+  if (dotPos == std::string::npos)
+  {
     return result;
+  }
+  if (filename.substr(dotPos) != ext)
+  {
+    result.replace(dotPos, result.length(), ext);
+    if (not PHYSFS_exists(result.c_str()))
+    {
+      result = filename;
+    }
+  }
+  return result;
 }
 
 // function MapExists(MapName: std::string; RootDirectory: std::string{$IFNDEF SERVER}; Checksum:
@@ -112,140 +112,140 @@ std::string md5stringhelper(std::string text)
 // returns false on error and true if everything is allright
 bool createdirifmissing(const std::string &dir)
 {
-    std::filesystem::path p(dir);
-    if (std::filesystem::is_directory(p))
-    {
-        return true;
-    }
-    return std::filesystem::create_directory(p);
+  std::filesystem::path p(dir);
+  if (std::filesystem::is_directory(p))
+  {
+    return true;
+  }
+  return std::filesystem::create_directory(p);
 }
 
 bool createfileifmissing(const std::string &filename)
 {
-    std::filesystem::path p(filename);
-    if (std::filesystem::is_regular_file(p))
-    {
-        return true;
-    }
-    std::ofstream d(filename);
+  std::filesystem::path p(filename);
+  if (std::filesystem::is_regular_file(p))
+  {
     return true;
+  }
+  std::ofstream d(filename);
+  return true;
 }
 
 std::string getsize(std::int64_t bytes)
 {
-    std::int64_t filesize;
+  std::int64_t filesize;
 
-    std::string getsize_result;
+  std::string getsize_result;
 
-    if (bytes < 1024)
-    {
-        return std::to_string(bytes) + " B";
-    }
-    filesize = bytes / 1024;
+  if (bytes < 1024)
+  {
+    return std::to_string(bytes) + " B";
+  }
+  filesize = bytes / 1024;
+  if (filesize > 1024)
+  {
+    filesize = filesize / 1024;
+
     if (filesize > 1024)
     {
-        filesize = filesize / 1024;
-
-        if (filesize > 1024)
-        {
-            return std::to_string(filesize / 1024) + " Gb";
-        }
-        else
-        {
-            return std::to_string(filesize) + " Mb";
-        }
+      return std::to_string(filesize / 1024) + " Gb";
     }
-    return std::to_string(filesize) + " Kb";
+    else
+    {
+      return std::to_string(filesize) + " Mb";
+    }
+  }
+  return std::to_string(filesize) + " Kb";
 }
 
 bool verifymapchecksum(const tmapinfo &map, const tsha1digest &checksum,
                        const tsha1digest &defaultgamemodchecksum)
 {
-    return getmapchecksum(map, defaultgamemodchecksum) == checksum;
+  return getmapchecksum(map, defaultgamemodchecksum) == checksum;
 }
 
 tsha1digest getmapchecksum(const tmapinfo &map, const tsha1digest &defaultgamemodchecksum)
 {
-    if (PHYSFS_exists((pchar)(std::string("maps/") + map.mapname + ".pms")))
-    {
-        return defaultgamemodchecksum;
-    }
-    else if (fileexists(map.path))
-    {
-        return sha1file(map.path);
-    }
-    return tsha1digest{};
+  if (PHYSFS_exists((pchar)(std::string("maps/") + map.mapname + ".pms")))
+  {
+    return defaultgamemodchecksum;
+  }
+  else if (fileexists(map.path))
+  {
+    return sha1file(map.path);
+  }
+  return tsha1digest{};
 }
 
 // for string delimiter
 std::vector<std::string> split_string(std::string s, std::string delimiter)
 {
-    size_t pos_start = 0, pos_end, delim_len = delimiter.length();
-    std::string token;
-    std::vector<std::string> res;
+  size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+  std::string token;
+  std::vector<std::string> res;
 
-    while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos)
-    {
-        token = s.substr(pos_start, pos_end - pos_start);
-        pos_start = pos_end + delim_len;
-        res.push_back(token);
-    }
+  while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos)
+  {
+    token = s.substr(pos_start, pos_end - pos_start);
+    pos_start = pos_end + delim_len;
+    res.push_back(token);
+  }
 
-    res.push_back(s.substr(pos_start));
-    return res;
+  res.push_back(s.substr(pos_start));
+  return res;
 }
 
 bool getmapinfo(const std::string &mapname, const std::string &directory,
                 tmapinfo &mapinfo) // dk out MapInfo
 {
-    tstringarray split;
-    std::uint64_t itemid;
+  tstringarray split;
+  std::uint64_t itemid;
 
-    bool result;
-    result = false;
+  bool result;
+  result = false;
 
-    if (mapname.rfind("workshop/") == 0)
+  if (mapname.rfind("workshop/") == 0)
+  {
+    split = split_string(mapname, "/");
+    if (length(split) >= 2)
     {
-        split = split_string(mapname, "/");
-        if (length(split) >= 2)
+      itemid = strtointdef(split[1], 0);
+      if (itemid > 0)
+      {
+        mapinfo.workshopid = itemid;
+        mapinfo.mapname = split[2];
+        if (fileexists(directory + "maps/" + mapname + ".smap"))
         {
-            itemid = strtointdef(split[1], 0);
-            if (itemid > 0)
-            {
-                mapinfo.workshopid = itemid;
-                mapinfo.mapname = split[2];
-                if (fileexists(directory + "maps/" + mapname + ".smap"))
-                {
-                    mapinfo.path = directory + "maps/" + mapname + ".smap";
-                    mapinfo.name = mapname;
-                    result = true;
-                }
-            }
+          mapinfo.path = directory + "maps/" + mapname + ".smap";
+          mapinfo.name = mapname;
+          result = true;
         }
+      }
+    }
+  }
+  else
+  {
+    if (PHYSFS_exists((pchar)(std::string("maps/") + mapname + ".pms")))
+    {
+      mapinfo.name = mapname;
+      mapinfo.mapname = mapname;
+      mapinfo.workshopid = 0;
+      mapinfo.path = "smod";
+      result = true;
     }
     else
     {
-        if (PHYSFS_exists((pchar)(std::string("maps/") + mapname + ".pms")))
-        {
-            mapinfo.name = mapname;
-            mapinfo.mapname = mapname;
-            mapinfo.workshopid = 0;
-            mapinfo.path = "smod";
-            result = true;
-        }
-        else
-        {
-            if (fileexists(directory + "maps/" + mapname + ".smap"))
-            {
-                mapinfo.name = mapname;
-                mapinfo.mapname = mapname;
-                mapinfo.workshopid = 0;
-                mapinfo.path = directory + "maps/" + mapname + ".smap";
-                result = true;
-            }
-        }
+      if (fileexists(directory + "maps/" + mapname + ".smap"))
+      {
+        mapinfo.name = mapname;
+        mapinfo.mapname = mapname;
+        mapinfo.workshopid = 0;
+        mapinfo.path = directory + "maps/" + mapname + ".smap";
+        result = true;
+      }
     }
-    return result;
+  }
+  return result;
 }
 
 #if 0

@@ -15,24 +15,21 @@ SDL_Renderer *renderer = nullptr;
 
 void DrawTriangle(const tmappolygon &triangle, const tvector2 &offset)
 {
-    const auto &v1 = triangle.vertices[0];
-    const auto &v2 = triangle.vertices[1];
-    const auto &v3 = triangle.vertices[2];
+  const auto &v1 = triangle.vertices[0];
+  const auto &v2 = triangle.vertices[1];
+  const auto &v3 = triangle.vertices[2];
 
-    SDL_RenderDrawLineF(renderer, v1.x + offset.x, v1.y + offset.y, v2.x + offset.x,
-                        v2.y + offset.y);
-    SDL_RenderDrawLineF(renderer, v2.x + offset.x, v2.y + offset.y, v3.x + offset.x,
-                        v3.y + offset.y);
-    SDL_RenderDrawLineF(renderer, v3.x + offset.x, v3.y + offset.y, v1.x + offset.x,
-                        v1.y + offset.y);
+  SDL_RenderDrawLineF(renderer, v1.x + offset.x, v1.y + offset.y, v2.x + offset.x, v2.y + offset.y);
+  SDL_RenderDrawLineF(renderer, v2.x + offset.x, v2.y + offset.y, v3.x + offset.x, v3.y + offset.y);
+  SDL_RenderDrawLineF(renderer, v3.x + offset.x, v3.y + offset.y, v1.x + offset.x, v1.y + offset.y);
 }
 
 struct Color
 {
-    Color(std::uint8_t r, std::uint8_t g, std::uint8_t b) : r{r}, g{g}, b{b} {};
-    std::uint8_t r = 255;
-    std::uint8_t g = 255;
-    std::uint8_t b = 255;
+  Color(std::uint8_t r, std::uint8_t g, std::uint8_t b) : r{r}, g{g}, b{b} {};
+  std::uint8_t r = 255;
+  std::uint8_t g = 255;
+  std::uint8_t b = 255;
 };
 
 Color Red{255, 0, 0};
@@ -42,76 +39,75 @@ Color Yellow{255, 255, 0};
 
 void SetColor(const Color &color)
 {
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
+  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
 }
 
 struct Line
 {
-    Line(float xbegin, float ybegin, float xend, float yend)
-        : begin{xbegin, ybegin}, end{xend, yend}
-    {
-    }
-    tvector2 begin;
-    tvector2 end;
+  Line(float xbegin, float ybegin, float xend, float yend) : begin{xbegin, ybegin}, end{xend, yend}
+  {
+  }
+  tvector2 begin;
+  tvector2 end;
 };
 
 void DrawLine(const Line &line, const tvector2 &offset)
 {
-    SDL_RenderDrawLineF(renderer, line.begin.x + offset.x, line.begin.y + offset.y,
-                        line.end.x + offset.x, line.end.y + offset.y);
+  SDL_RenderDrawLineF(renderer, line.begin.x + offset.x, line.begin.y + offset.y,
+                      line.end.x + offset.x, line.end.y + offset.y);
 }
 
 } // namespace
 
 int main(int argc, char *argv[])
 {
-    InitLogging();
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
-    {
-        std::abort();
-    }
-    SDL_Window *window = NULL;
+  InitLogging();
+  if (SDL_Init(SDL_INIT_VIDEO) != 0)
+  {
+    std::abort();
+  }
+  SDL_Window *window = NULL;
 
-    if (SDL_CreateWindowAndRenderer(640, 480, 0, &window, &renderer) != 0)
-    {
-        std::abort();
-    }
-    SDL_bool done = SDL_FALSE;
-    tvector2 lastClick{};
+  if (SDL_CreateWindowAndRenderer(640, 480, 0, &window, &renderer) != 0)
+  {
+    std::abort();
+  }
+  SDL_bool done = SDL_FALSE;
+  tvector2 lastClick{};
 
-    {
-        auto ret = PHYSFS_init(nullptr);
-        SoldatAssert(0 != ret);
-    }
-    {
-        auto ret = PHYSFS_mount("./soldat.smod", "/", false);
-        SoldatAssert(0 != ret);
-    }
-    twaypoints tw;
-    Polymap map{tw};
-    tmapinfo mapinfo;
-    auto ret = getmapinfo("ctf_Ash", "", mapinfo);
-    SoldatAssert(true == ret);
-    ret = map.loadmap(mapinfo);
-    SoldatAssert(true == ret);
-    float scale = 1.0f;
+  {
+    auto ret = PHYSFS_init(nullptr);
+    SoldatAssert(0 != ret);
+  }
+  {
+    auto ret = PHYSFS_mount("./soldat.smod", "/", false);
+    SoldatAssert(0 != ret);
+  }
+  twaypoints tw;
+  Polymap map{tw};
+  tmapinfo mapinfo;
+  auto ret = getmapinfo("ctf_Ash", "", mapinfo);
+  SoldatAssert(true == ret);
+  ret = map.loadmap(mapinfo);
+  SoldatAssert(true == ret);
+  float scale = 1.0f;
 
-    tvector2 offset{600.0f, 600.0f};
+  tvector2 offset{600.0f, 600.0f};
 
-    Line raycastLine{-100.0f, -100.0f, 400.0f, 40.0f};
+  Line raycastLine{-100.0f, -100.0f, 400.0f, 40.0f};
 
-    while (!done)
-    {
-        SDL_Event event;
+  while (!done)
+  {
+    SDL_Event event;
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-        SDL_RenderClear(renderer);
-        SDL_RenderSetScale(renderer, scale, scale);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(renderer);
+    SDL_RenderSetScale(renderer, scale, scale);
 
-        SDL_RenderDrawPointF(renderer, lastClick.x, lastClick.y);
+    SDL_RenderDrawPointF(renderer, lastClick.x, lastClick.y);
 
-        SetColor(Green);
-        DrawLine(raycastLine, offset);
+    SetColor(Green);
+    DrawLine(raycastLine, offset);
 //@todo this does not work due to api changes
 #if 0
         for (auto &s : map.sectors)
@@ -133,42 +129,42 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        SDL_RenderPresent(renderer);
+    SDL_RenderPresent(renderer);
 
-        while (SDL_PollEvent(&event))
+    while (SDL_PollEvent(&event))
+    {
+      switch (event.type)
+      {
+      case SDL_QUIT:
+        done = SDL_TRUE;
+        break;
+      case SDL_MOUSEMOTION:
+        if (event.motion.state & SDL_BUTTON_RMASK)
         {
-            switch (event.type)
-            {
-            case SDL_QUIT:
-                done = SDL_TRUE;
-                break;
-            case SDL_MOUSEMOTION:
-                if (event.motion.state & SDL_BUTTON_RMASK)
-                {
-                    offset.x += event.motion.xrel;
-                    offset.y += event.motion.yrel;
-                }
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-                if (event.button.button == 1)
-                {
-                    lastClick.x = event.button.x / scale - offset.x;
-                    lastClick.y = event.button.y / scale - offset.y;
-                }
-                break;
-            case SDL_MOUSEWHEEL:
-                scale += event.wheel.y / 10.f;
-                break;
-            default:
-                break;
-            }
+          offset.x += event.motion.xrel;
+          offset.y += event.motion.yrel;
         }
-        FrameMark;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        break;
+      case SDL_MOUSEBUTTONDOWN:
+        if (event.button.button == 1)
+        {
+          lastClick.x = event.button.x / scale - offset.x;
+          lastClick.y = event.button.y / scale - offset.y;
+        }
+        break;
+      case SDL_MOUSEWHEEL:
+        scale += event.wheel.y / 10.f;
+        break;
+      default:
+        break;
+      }
     }
+    FrameMark;
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    return 0;
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
+  return 0;
 }

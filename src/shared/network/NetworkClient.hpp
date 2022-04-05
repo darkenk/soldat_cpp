@@ -13,23 +13,23 @@ extern std::uint32_t votemapcount;
 
 class tclientnetwork : public TNetwork
 {
-  public:
-    void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
-    tclientnetwork();
-    virtual ~tclientnetwork()
-    {
-    }
-    bool connect(std::string Host, std::uint32_t Port);
-    void processloop();
-    void handlemessages(PSteamNetworkingMessage_t IncomingMsg);
-    template <typename T>
-    bool senddata(const T *Data, std::int32_t Size, std::int32_t Flags,
-                  const source_location &location = source_location::current())
-    {
-        return senddata(reinterpret_cast<const std::byte *>(Data), Size, Flags, location);
-    }
-    bool senddata(const std::byte *Data, std::int32_t Size, std::int32_t Flags,
-                  const source_location &location = source_location::current());
+public:
+  void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
+  tclientnetwork();
+  virtual ~tclientnetwork()
+  {
+  }
+  bool connect(std::string Host, std::uint32_t Port);
+  void processloop();
+  void handlemessages(PSteamNetworkingMessage_t IncomingMsg);
+  template <typename T>
+  bool senddata(const T *Data, std::int32_t Size, std::int32_t Flags,
+                const source_location &location = source_location::current())
+  {
+    return senddata(reinterpret_cast<const std::byte *>(Data), Size, Flags, location);
+  }
+  bool senddata(const std::byte *Data, std::int32_t Size, std::int32_t Flags,
+                const source_location &location = source_location::current());
 };
 
 void InitClientNetwork() requires(Config::IsClient());

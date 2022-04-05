@@ -1,17 +1,17 @@
 #pragma once
 
-#include "../Util.hpp"
 #include "..//Vector.hpp"
+#include "../Util.hpp"
 #include "../Weapons.hpp"
 #include "../misc/PortUtilsSoldat.hpp"
 //#include "shared/Version.hpp"
 #include <array>
 #include <cstdint>
+#include <mutex>
+#include <queue>
 #include <steam/isteamnetworkingutils.h>
 #include <steam/steamnetworkingsockets.h>
 #include <string>
-#include <mutex>
-#include <queue>
 
 // Binary ops
 auto constexpr B1 = 1;
@@ -160,82 +160,82 @@ using PSteamNetworkingMessage_t = SteamNetworkingMessage_t *;
 
 class TNetwork
 {
-  public:
-    bool Active()
-    {
-        return FActive;
-    }
-    void SetActive(bool active)
-    {
-        FActive = active;
-    }
-    TNetwork();
-    virtual ~TNetwork();
+public:
+  bool Active()
+  {
+    return FActive;
+  }
+  void SetActive(bool active)
+  {
+    FActive = active;
+  }
+  TNetwork();
+  virtual ~TNetwork();
 
-    virtual bool disconnect(bool Now);
-    void FlushMsg();
-    virtual void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) = 0;
+  virtual bool disconnect(bool Now);
+  void FlushMsg();
+  virtual void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) = 0;
 
-    std::string GetDetailedConnectionStatus(HSteamNetConnection hConn);
-    SteamNetworkingQuickConnectionStatus GetQuickConnectionStatus(HSteamNetConnection hConn);
-    void setconnectionname(HSteamNetConnection hConn, std::string Name);
-    std::string GetStringAddress(PSteamNetworkingIPAddr pAddress, bool Port);
+  std::string GetDetailedConnectionStatus(HSteamNetConnection hConn);
+  SteamNetworkingQuickConnectionStatus GetQuickConnectionStatus(HSteamNetConnection hConn);
+  void setconnectionname(HSteamNetConnection hConn, std::string Name);
+  std::string GetStringAddress(PSteamNetworkingIPAddr pAddress, bool Port);
 
-    HSteamListenSocket Host()
-    {
-        return FHost;
-    }
-    HSteamNetConnection Peer()
-    {
-        return FPeer;
-    }
-    ISteamNetworkingSockets &NetworkingSocket()
-    {
-        return *NetworkingSockets;
-    }
-    ISteamNetworkingUtils &NetworkingUtil()
-    {
-        return *NetworkingUtils;
-    }
+  HSteamListenSocket Host()
+  {
+    return FHost;
+  }
+  HSteamNetConnection Peer()
+  {
+    return FPeer;
+  }
+  ISteamNetworkingSockets &NetworkingSocket()
+  {
+    return *NetworkingSockets;
+  }
+  ISteamNetworkingUtils &NetworkingUtil()
+  {
+    return *NetworkingUtils;
+  }
 
-    std::uint32_t Port()
-    {
-        return FAddress.m_port;
-    }
-    void SetPort(std::uint32_t port)
-    {
-        FAddress.m_port = port;
-    }
-    SteamNetworkingIPAddr &Address()
-    {
-        return FAddress;
-    }
-  protected:
-    bool FInit;
-    bool FActive;
-    SteamNetworkingIPAddr FAddress;
+  std::uint32_t Port()
+  {
+    return FAddress.m_port;
+  }
+  void SetPort(std::uint32_t port)
+  {
+    FAddress.m_port = port;
+  }
+  SteamNetworkingIPAddr &Address()
+  {
+    return FAddress;
+  }
 
-    HSteamNetConnection FPeer;
-    HSteamListenSocket FHost;
+protected:
+  bool FInit;
+  bool FActive;
+  SteamNetworkingIPAddr FAddress;
+
+  HSteamNetConnection FPeer;
+  HSteamListenSocket FHost;
 #ifndef STEAM
-    ISteamNetworkingSockets *NetworkingSockets;
-    ISteamNetworkingUtils *NetworkingUtils;
+  ISteamNetworkingSockets *NetworkingSockets;
+  ISteamNetworkingUtils *NetworkingUtils;
 #else
-    TSteamNetworkingSockets NetworkingSockets;
-    TSteamNetworkingUtils NetworkingUtils;
+  TSteamNetworkingSockets NetworkingSockets;
+  TSteamNetworkingUtils NetworkingUtils;
 #endif
-    void RunCallbacks();
+  void RunCallbacks();
 
-    static std::mutex sNetworksMutex;
-    static std::vector<TNetwork*> sNetworks;
+  static std::mutex sNetworksMutex;
+  static std::vector<TNetwork *> sNetworks;
 
-    friend void NetworksGlobalCallback(PSteamNetConnectionStatusChangedCallback_t pInfo);
+  friend void NetworksGlobalCallback(PSteamNetConnectionStatusChangedCallback_t pInfo);
 
-  private:
-    std::mutex QueueMutex;
-    std::queue<SteamNetConnectionStatusChangedCallback_t> QuedCallbacks;
+private:
+  std::mutex QueueMutex;
+  std::queue<SteamNetConnectionStatusChangedCallback_t> QuedCallbacks;
 };
-
 
 using TStatsString = std::array<char, 2048>;
 using TIPString = std::array<char, 128>;
@@ -243,31 +243,31 @@ using TIPString = std::array<char, 128>;
 #pragma pack(push, 1)
 struct tmsgheader
 {
-    std::uint8_t id;
+  std::uint8_t id;
 };
 using pmsgheader = tmsgheader *;
 
 struct tmsg_stringmessage
 {
-    tmsgheader header;
-    std::uint8_t num;
-    std::uint8_t msgtype;
-    std::array<char16_t, 0> text;
+  tmsgheader header;
+  std::uint8_t num;
+  std::uint8_t msgtype;
+  std::array<char16_t, 0> text;
 };
 using pmsg_stringmessage = tmsg_stringmessage *;
 
 struct tmsg_ping
 {
-    tmsgheader header;
-    std::uint8_t pingticks;
-    std::uint8_t pingnum;
+  tmsgheader header;
+  std::uint8_t pingticks;
+  std::uint8_t pingnum;
 };
 using pmsg_ping = tmsg_ping *;
 
 struct tmsg_pong
 {
-    tmsgheader header;
-    std::uint8_t pingnum;
+  tmsgheader header;
+  std::uint8_t pingnum;
 };
 using pmsg_pong = tmsg_pong *;
 
@@ -276,18 +276,18 @@ using pmsg_pong = tmsg_pong *;
 
 struct tmsg_heartbeat
 {
-    tmsgheader header;
-    std::uint32_t mapid;
-    std::array<std::uint16_t, 4> teamscore;
-    std::array<bool, max_players> active;
-    std::array<std::uint16_t, max_players> kills;
-    std::array<std::uint8_t, max_players> caps;
-    std::array<std::uint8_t, max_players> team;
-    std::array<std::uint16_t, max_players> deaths;
-    std::array<std::uint8_t, max_players> ping;
-    std::array<std::uint16_t, max_players> realping;
-    std::array<std::uint8_t, max_players> connectionquality;
-    std::array<std::uint8_t, max_players> flags;
+  tmsgheader header;
+  std::uint32_t mapid;
+  std::array<std::uint16_t, 4> teamscore;
+  std::array<bool, max_players> active;
+  std::array<std::uint16_t, max_players> kills;
+  std::array<std::uint8_t, max_players> caps;
+  std::array<std::uint8_t, max_players> team;
+  std::array<std::uint16_t, max_players> deaths;
+  std::array<std::uint8_t, max_players> ping;
+  std::array<std::uint16_t, max_players> realping;
+  std::array<std::uint8_t, max_players> connectionquality;
+  std::array<std::uint8_t, max_players> flags;
 };
 using pmsg_heartbeat = tmsg_heartbeat *;
 
@@ -298,55 +298,55 @@ static_assert(sizeof(tmsg_heartbeat) == 397, "TMsg_HeartBeat should be 397");
 
 struct tmsg_serverspritesnapshot
 {
-    tmsgheader header;
-    std::uint8_t num;
-    tvector2 pos, velocity;
-    std::int16_t mouseaimx, mouseaimy;
-    std::uint8_t position;
-    std::uint16_t keys16;
-    std::uint8_t look;
-    float vest;
-    float health;
-    std::uint8_t ammocount, grenadecount;
-    std::uint8_t weaponnum, secondaryweaponnum;
-    std::int32_t serverticks;
+  tmsgheader header;
+  std::uint8_t num;
+  tvector2 pos, velocity;
+  std::int16_t mouseaimx, mouseaimy;
+  std::uint8_t position;
+  std::uint16_t keys16;
+  std::uint8_t look;
+  float vest;
+  float health;
+  std::uint8_t ammocount, grenadecount;
+  std::uint8_t weaponnum, secondaryweaponnum;
+  std::int32_t serverticks;
 };
 using pmsg_serverspritesnapshot = tmsg_serverspritesnapshot *;
 
 struct tmsg_serverspritesnapshot_major
 {
-    tmsgheader header;
-    std::uint8_t num;
-    tvector2 pos, velocity;
-    float health;
-    std::int16_t mouseaimx, mouseaimy;
-    std::uint8_t position;
-    std::uint16_t keys16;
-    std::int32_t serverticks;
+  tmsgheader header;
+  std::uint8_t num;
+  tvector2 pos, velocity;
+  float health;
+  std::int16_t mouseaimx, mouseaimy;
+  std::uint8_t position;
+  std::uint16_t keys16;
+  std::int32_t serverticks;
 };
 using pmsg_serverspritesnapshot_major = tmsg_serverspritesnapshot_major *;
 
 struct tmsg_servervars
 {
-    tmsgheader header;
-    std::array<float, original_weapons> damage;
-    std::array<std::uint8_t, original_weapons> ammo;
-    std::array<std::uint16_t, original_weapons> reloadtime;
-    std::array<float, original_weapons> speed;
-    std::array<std::uint8_t, original_weapons> bulletstyle;
-    std::array<std::uint16_t, original_weapons> startuptime;
-    std::array<std::int16_t, original_weapons> bink;
-    std::array<std::uint16_t, original_weapons> fireinterval;
-    std::array<float, original_weapons> movementacc;
-    std::array<float, original_weapons> bulletspread;
-    std::array<std::uint16_t, original_weapons> recoil;
-    std::array<float, original_weapons> push;
-    std::array<float, original_weapons> inheritedvelocity;
-    std::array<float, original_weapons> modifierhead;
-    std::array<float, original_weapons> modifierchest;
-    std::array<float, original_weapons> modifierlegs;
-    std::array<std::uint8_t, original_weapons> nocollision;
-    std::array<std::uint8_t, main_weapons> weaponactive;
+  tmsgheader header;
+  std::array<float, original_weapons> damage;
+  std::array<std::uint8_t, original_weapons> ammo;
+  std::array<std::uint16_t, original_weapons> reloadtime;
+  std::array<float, original_weapons> speed;
+  std::array<std::uint8_t, original_weapons> bulletstyle;
+  std::array<std::uint16_t, original_weapons> startuptime;
+  std::array<std::int16_t, original_weapons> bink;
+  std::array<std::uint16_t, original_weapons> fireinterval;
+  std::array<float, original_weapons> movementacc;
+  std::array<float, original_weapons> bulletspread;
+  std::array<std::uint16_t, original_weapons> recoil;
+  std::array<float, original_weapons> push;
+  std::array<float, original_weapons> inheritedvelocity;
+  std::array<float, original_weapons> modifierhead;
+  std::array<float, original_weapons> modifierchest;
+  std::array<float, original_weapons> modifierlegs;
+  std::array<std::uint8_t, original_weapons> nocollision;
+  std::array<std::uint8_t, main_weapons> weaponactive;
 };
 
 static_assert(offsetof(tmsg_servervars, bulletstyle) == 221, "Bulletstyle should be 221");
@@ -356,9 +356,9 @@ using pmsg_servervars = tmsg_servervars *;
 
 struct tmsg_serversynccvars
 {
-    tmsgheader header;
-    std::uint8_t itemcount;
-    std::array<std::uint8_t, 0> data;
+  tmsgheader header;
+  std::uint8_t itemcount;
+  std::array<std::uint8_t, 0> data;
 };
 using pmsg_serversynccvars = tmsg_serversynccvars *;
 
@@ -366,26 +366,26 @@ using pmsg_serversynccvars = tmsg_serversynccvars *;
 // - current players status
 struct tmsg_clientspritesnapshot
 {
-    tmsgheader header;
-    std::uint8_t ammocount, secondaryammocount;
-    std::uint8_t weaponnum, secondaryweaponnum;
-    std::uint8_t position;
+  tmsgheader header;
+  std::uint8_t ammocount, secondaryammocount;
+  std::uint8_t weaponnum, secondaryweaponnum;
+  std::uint8_t position;
 };
 using pmsg_clientspritesnapshot = tmsg_clientspritesnapshot *;
 
 struct tmsg_clientspritesnapshot_mov
 {
-    tmsgheader header;
-    tvector2 pos, velocity;
-    std::uint16_t keys16;
-    std::int16_t mouseaimx, mouseaimy;
+  tmsgheader header;
+  tvector2 pos, velocity;
+  std::uint16_t keys16;
+  std::int16_t mouseaimx, mouseaimy;
 };
 using pmsg_clientspritesnapshot_mov = tmsg_clientspritesnapshot_mov *;
 
 struct tmsg_clientspritesnapshot_dead
 {
-    tmsgheader header;
-    std::uint8_t camerafocus;
+  tmsgheader header;
+  std::uint8_t camerafocus;
 };
 using pmsg_clientspritesnapshot_dead = tmsg_clientspritesnapshot_dead *;
 
@@ -394,13 +394,13 @@ using pmsg_clientspritesnapshot_dead = tmsg_clientspritesnapshot_dead *;
 
 struct tmsg_bulletsnapshot
 {
-    tmsgheader header;
-    std::uint8_t owner, weaponnum;
-    tvector2 pos, velocity;
-    std::uint16_t seed;
-    bool forced; // createbullet() forced bullet?
+  tmsgheader header;
+  std::uint8_t owner, weaponnum;
+  tvector2 pos, velocity;
+  std::uint16_t seed;
+  bool forced; // createbullet() forced bullet?
 
-    void Dump();
+  void Dump();
 };
 using pmsg_bulletsnapshot = tmsg_bulletsnapshot *;
 
@@ -408,11 +408,11 @@ using pmsg_bulletsnapshot = tmsg_bulletsnapshot *;
 // - for clients' bullet information
 struct tmsg_clientbulletsnapshot
 {
-    tmsgheader header;
-    std::uint8_t weaponnum;
-    tvector2 pos, velocity;
-    std::uint16_t seed;
-    std::int32_t clientticks;
+  tmsgheader header;
+  std::uint8_t weaponnum;
+  tvector2 pos, velocity;
+  std::uint16_t seed;
+  std::int32_t clientticks;
 };
 using pmsg_clientbulletsnapshot = tmsg_clientbulletsnapshot *;
 
@@ -421,21 +421,21 @@ using pmsg_clientbulletsnapshot = tmsg_clientbulletsnapshot *;
 
 struct tmsg_serverskeletonsnapshot
 {
-    tmsgheader header;
-    std::uint8_t num;
-    // byte constraints;
-    std::int16_t respawncounter;
+  tmsgheader header;
+  std::uint8_t num;
+  // byte constraints;
+  std::int16_t respawncounter;
 };
 using pmsg_serverskeletonsnapshot = tmsg_serverskeletonsnapshot *;
 
 // mapchange type
 struct tmsg_mapchange
 {
-    tmsgheader header;
-    std::int16_t counter;
-    std::uint8_t mapnamelength; // number of characters in mapname (equivalent to Pascals' string)
-    std::array<char, MAPNAME_CHARS> mapname;
-    tsha1digest mapchecksum;
+  tmsgheader header;
+  std::int16_t counter;
+  std::uint8_t mapnamelength; // number of characters in mapname (equivalent to Pascals' string)
+  std::array<char, MAPNAME_CHARS> mapname;
+  tsha1digest mapchecksum;
 };
 using pmsg_mapchange = tmsg_mapchange *;
 
@@ -443,9 +443,9 @@ using pmsg_mapchange = tmsg_mapchange *;
 // - info on the things in world that move
 struct tmsg_serverthingsnapshot
 {
-    tmsgheader header;
-    std::uint8_t num, owner, style, holdingsprite;
-    std::array<tvector2, 4> oldpos, pos;
+  tmsgheader header;
+  std::uint8_t num, owner, style, holdingsprite;
+  std::array<tvector2, 4> oldpos, pos;
 };
 using pmsg_serverthingsnapshot = tmsg_serverthingsnapshot *;
 
@@ -453,10 +453,10 @@ using pmsg_serverthingsnapshot = tmsg_serverthingsnapshot *;
 // - info on the things in world
 struct tmsg_serverthingmustsnapshot
 {
-    tmsgheader header;
-    std::uint8_t num, owner, style, holdingsprite;
-    std::array<tvector2, 4> pos, oldpos;
-    std::int32_t timeout;
+  tmsgheader header;
+  std::uint8_t num, owner, style, holdingsprite;
+  std::array<tvector2, 4> pos, oldpos;
+  std::int32_t timeout;
 };
 using pmsg_serverthingmustsnapshot = tmsg_serverthingmustsnapshot *;
 
@@ -465,9 +465,9 @@ using pmsg_serverthingmustsnapshot = tmsg_serverthingmustsnapshot *;
 
 struct tmsg_serverthingtaken
 {
-    tmsgheader header;
-    std::uint8_t num, who;
-    std::uint8_t style, ammocount;
+  tmsgheader header;
+  std::uint8_t num, who;
+  std::uint8_t style, ammocount;
 };
 using pmsg_serverthingtaken = tmsg_serverthingtaken *;
 
@@ -476,15 +476,15 @@ using pmsg_serverthingtaken = tmsg_serverthingtaken *;
 
 struct tmsg_spritedeath
 {
-    tmsgheader header;
-    std::uint8_t num, killer, killbullet, where;
-    std::uint8_t constraints;
-    std::array<tvector2, 16> pos, oldpos;
-    float health;
-    std::uint8_t onfire;
-    std::int16_t respawncounter;
-    float shotdistance, shotlife;
-    std::uint8_t shotricochet;
+  tmsgheader header;
+  std::uint8_t num, killer, killbullet, where;
+  std::uint8_t constraints;
+  std::array<tvector2, 16> pos, oldpos;
+  float health;
+  std::uint8_t onfire;
+  std::int16_t respawncounter;
+  float shotdistance, shotlife;
+  std::uint8_t shotricochet;
 };
 using pmsg_spritedeath = tmsg_spritedeath *;
 
@@ -492,13 +492,13 @@ using pmsg_spritedeath = tmsg_spritedeath *;
 
 struct tmsg_requestgame
 {
-    tmsgheader header;
-    // soldat_version_chars = 6
-    std::array<char, 6> version;
-    std::uint8_t forwarded;
-    std::uint8_t haveanticheat;
-    std::array<char, PLAYERHWID_CHARS> hardwareid;
-    std::array<char, 24> password;
+  tmsgheader header;
+  // soldat_version_chars = 6
+  std::array<char, 6> version;
+  std::uint8_t forwarded;
+  std::uint8_t haveanticheat;
+  std::array<char, PLAYERHWID_CHARS> hardwareid;
+  std::array<char, 24> password;
 };
 using pmsg_requestgame = tmsg_requestgame *;
 
@@ -506,13 +506,13 @@ using pmsg_requestgame = tmsg_requestgame *;
 
 struct tmsg_playerinfo
 {
-    tmsgheader header;
-    std::array<char, PLAYERNAME_CHARS> name;
-    std::uint8_t look;
-    std::uint8_t team;
-    std::uint32_t shirtcolor, pantscolor, skincolor, haircolor, jetcolor;
-    tsha1digest gamemodchecksum;
-    tsha1digest custommodchecksum;
+  tmsgheader header;
+  std::array<char, PLAYERNAME_CHARS> name;
+  std::uint8_t look;
+  std::uint8_t team;
+  std::uint32_t shirtcolor, pantscolor, skincolor, haircolor, jetcolor;
+  tsha1digest gamemodchecksum;
+  tsha1digest custommodchecksum;
 };
 static_assert(sizeof(tmsg_playerinfo) == 87, "TMsg_PlayerInfo should be 87");
 
@@ -521,23 +521,23 @@ using pmsg_playerinfo = tmsg_playerinfo *;
 // players list type
 struct tmsg_playerslist
 {
-    tmsgheader header;
-    std::array<char, MAPNAME_CHARS> modname;
-    tsha1digest modchecksum;
-    std::array<char, MAPNAME_CHARS> mapname;
-    tsha1digest mapchecksum;
-    std::uint8_t players;
-    std::array<std::array<char, PLAYERNAME_CHARS>, max_players> name{0};
-    std::array<std::uint32_t, max_players> shirtcolor, pantscolor, skincolor, haircolor, jetcolor;
-    std::array<std::uint8_t, max_players> team;
-    std::array<std::uint8_t, max_players> predduration;
-    std::array<std::uint8_t, max_players> look;
-    std::array<tvector2, max_players> pos;
-    std::array<tvector2, max_players> vel;
-    std::array<std::uint64_t, max_players> steamid;
-    std::int32_t currenttime;
-    std::int32_t serverticks;
-    bool anticheatrequired;
+  tmsgheader header;
+  std::array<char, MAPNAME_CHARS> modname;
+  tsha1digest modchecksum;
+  std::array<char, MAPNAME_CHARS> mapname;
+  tsha1digest mapchecksum;
+  std::uint8_t players;
+  std::array<std::array<char, PLAYERNAME_CHARS>, max_players> name{0};
+  std::array<std::uint32_t, max_players> shirtcolor, pantscolor, skincolor, haircolor, jetcolor;
+  std::array<std::uint8_t, max_players> team;
+  std::array<std::uint8_t, max_players> predduration;
+  std::array<std::uint8_t, max_players> look;
+  std::array<tvector2, max_players> pos;
+  std::array<tvector2, max_players> vel;
+  std::array<std::uint64_t, max_players> steamid;
+  std::int32_t currenttime;
+  std::int32_t serverticks;
+  bool anticheatrequired;
 };
 static_assert(offsetof(tmsg_playerslist, players) == 169, "Players should be at 169 byte");
 static_assert(offsetof(tmsg_playerslist, name) == 170, "Name should be at 170 byte");
@@ -550,27 +550,27 @@ using pmsg_playerslist = tmsg_playerslist *;
 // rejected connection type
 struct tmsg_unaccepted
 {
-    tmsgheader header;
-    std::uint8_t state;
-    // soldat_version_chars = 6
-    std::array<char, 6> version;
-    std::array<char, 0> text;
+  tmsgheader header;
+  std::uint8_t state;
+  // soldat_version_chars = 6
+  std::array<char, 6> version;
+  std::array<char, 0> text;
 };
 using pmsg_unaccepted = tmsg_unaccepted *;
 
 // new player type
 struct tmsg_newplayer
 {
-    tmsgheader header;
-    std::uint8_t num;
-    std::uint8_t adoptspriteid;
-    std::uint8_t jointype;
-    std::array<char, PLAYERNAME_CHARS> name;
-    std::uint32_t shirtcolor, pantscolor, skincolor, haircolor, jetcolor;
-    std::uint8_t team;
-    std::uint8_t look;
-    tvector2 pos;
-    std::uint64_t steamid;
+  tmsgheader header;
+  std::uint8_t num;
+  std::uint8_t adoptspriteid;
+  std::uint8_t jointype;
+  std::array<char, PLAYERNAME_CHARS> name;
+  std::uint32_t shirtcolor, pantscolor, skincolor, haircolor, jetcolor;
+  std::uint8_t team;
+  std::uint8_t look;
+  tvector2 pos;
+  std::uint64_t steamid;
 };
 using pmsg_newplayer = tmsg_newplayer *;
 
@@ -578,16 +578,16 @@ using pmsg_newplayer = tmsg_newplayer *;
 
 struct tmsg_serverdisconnect
 {
-    tmsgheader header;
+  tmsgheader header;
 };
 using pmsg_serverdisconnect = tmsg_serverdisconnect *;
 
 // player disconnect type
 struct tmsg_playerdisconnect
 {
-    tmsgheader header;
-    std::uint8_t num;
-    std::uint8_t why;
+  tmsgheader header;
+  std::uint8_t num;
+  std::uint8_t why;
 };
 using pmsg_playerdisconnect = tmsg_playerdisconnect *;
 
@@ -595,17 +595,17 @@ using pmsg_playerdisconnect = tmsg_playerdisconnect *;
 
 struct tmsg_idleanimation
 {
-    tmsgheader header;
-    std::uint8_t num;
-    std::int16_t idlerandom;
+  tmsgheader header;
+  std::uint8_t num;
+  std::int16_t idlerandom;
 };
 using pmsg_idleanimation = tmsg_idleanimation *;
 
 struct tmsg_clientfreecam
 {
-    tmsgheader header;
-    std::uint8_t freecamon;
-    tvector2 targetpos;
+  tmsgheader header;
+  std::uint8_t freecamon;
+  tvector2 targetpos;
 };
 using pmsg_clientfreecam = tmsg_clientfreecam *;
 
@@ -613,52 +613,52 @@ using pmsg_clientfreecam = tmsg_clientfreecam *;
 
 struct tmsg_serverspritedelta_movement
 {
-    tmsgheader header;
-    std::uint8_t num;
-    tvector2 pos, velocity;
-    std::uint16_t keys16;
-    std::int16_t mouseaimx, mouseaimy;
-    std::int32_t servertick;
+  tmsgheader header;
+  std::uint8_t num;
+  tvector2 pos, velocity;
+  std::uint16_t keys16;
+  std::int16_t mouseaimx, mouseaimy;
+  std::int32_t servertick;
 };
 using pmsg_serverspritedelta_movement = tmsg_serverspritedelta_movement *;
 
 struct tmsg_serverspritedelta_mouseaim
 {
-    tmsgheader header;
-    std::uint8_t num;
-    std::int16_t mouseaimx, mouseaimy;
+  tmsgheader header;
+  std::uint8_t num;
+  std::int16_t mouseaimx, mouseaimy;
 };
 using pmsg_serverspritedelta_mouseaim = tmsg_serverspritedelta_mouseaim *;
 
 struct tmsg_serverspritedelta_weapons
 {
-    tmsgheader header;
-    std::uint8_t num;
-    std::uint8_t weaponnum, secondaryweaponnum;
-    std::uint8_t ammocount;
+  tmsgheader header;
+  std::uint8_t num;
+  std::uint8_t weaponnum, secondaryweaponnum;
+  std::uint8_t ammocount;
 };
 using pmsg_serverspritedelta_weapons = tmsg_serverspritedelta_weapons *;
 
 struct tmsg_serverspritedelta_helmet
 {
-    tmsgheader header;
-    std::uint8_t num;
-    std::uint8_t wearhelmet;
+  tmsgheader header;
+  std::uint8_t num;
+  std::uint8_t wearhelmet;
 };
 using pmsg_serverspritedelta_helmet = tmsg_serverspritedelta_helmet *;
 
 struct tmsg_serverflaginfo
 {
-    tmsgheader header;
-    std::uint8_t style, who;
+  tmsgheader header;
+  std::uint8_t style, who;
 };
 using pmsg_serverflaginfo = tmsg_serverflaginfo *;
 
 struct tmsg_serversyncmsg
 {
-    tmsgheader header;
-    std::int32_t time;
-    std::uint8_t pause;
+  tmsgheader header;
+  std::int32_t time;
+  std::uint8_t pause;
 };
 using pmsg_serversyncmsg = tmsg_serversyncmsg *;
 
@@ -666,54 +666,54 @@ using pmsg_serversyncmsg = tmsg_serversyncmsg *;
 using pmsg_faechallenge = tmsg_faechallenge *;
 struct tmsg_faechallenge
 {
-    tmsgheader header;
-    std::uint8_t inorder;
-    tfaechallenge challenge;
+  tmsgheader header;
+  std::uint8_t inorder;
+  tfaechallenge challenge;
 }
 
 using pmsg_faeresponse = tmsg_faeresponse *;
 struct tmsg_faeresponse
 {
-    tmsgheader header;
-    tfaeresponsebox response;
+  tmsgheader header;
+  tfaeresponsebox response;
 }
 #endif
 
 struct tmsg_forceposition
 {
-    tmsgheader header;
-    tvector2 pos;
-    std::uint8_t playerid;
+  tmsgheader header;
+  tvector2 pos;
+  std::uint8_t playerid;
 };
 using pmsg_forceposition = tmsg_forceposition *;
 
 struct tmsg_forcevelocity
 {
-    tmsgheader header;
-    tvector2 vel;
-    std::uint8_t playerid;
+  tmsgheader header;
+  tvector2 vel;
+  std::uint8_t playerid;
 };
 using pmsg_forcevelocity = tmsg_forcevelocity *;
 
 struct tmsg_forceweapon
 {
-    tmsgheader header;
-    std::uint8_t weaponnum, secondaryweaponnum;
-    std::uint8_t ammocount, secammocount;
+  tmsgheader header;
+  std::uint8_t weaponnum, secondaryweaponnum;
+  std::uint8_t ammocount, secammocount;
 };
 using pmsg_forceweapon = tmsg_forceweapon *;
 
 struct tmsg_changeteam
 {
-    tmsgheader header;
-    std::uint8_t team;
+  tmsgheader header;
+  std::uint8_t team;
 };
 using pmsg_changeteam = tmsg_changeteam *;
 
 struct tmsg_requestthing
 {
-    tmsgheader header;
-    std::uint8_t thingid;
+  tmsgheader header;
+  std::uint8_t thingid;
 };
 using pmsg_requestthing = tmsg_requestthing *;
 
@@ -723,12 +723,12 @@ using pmsg_requestthing = tmsg_requestthing *;
 
 struct tmsg_voteon
 {
-    tmsgheader header;
-    std::uint8_t votetype;
-    std::uint16_t timer;
-    std::uint8_t who;
-    std::array<char, MAPNAME_CHARS> targetname;
-    std::array<char, REASON_CHARS> reason;
+  tmsgheader header;
+  std::uint8_t votetype;
+  std::uint16_t timer;
+  std::uint8_t who;
+  std::array<char, MAPNAME_CHARS> targetname;
+  std::array<char, REASON_CHARS> reason;
 };
 using pmsg_voteon = tmsg_voteon *;
 
@@ -736,7 +736,7 @@ using pmsg_voteon = tmsg_voteon *;
 
 struct tmsg_voteoff
 {
-    tmsgheader header;
+  tmsgheader header;
 };
 using pmsg_voteoff = tmsg_voteoff *;
 
@@ -744,17 +744,17 @@ using pmsg_voteoff = tmsg_voteoff *;
 
 struct tmsg_votemap
 {
-    tmsgheader header;
-    std::uint16_t mapid;
+  tmsgheader header;
+  std::uint16_t mapid;
 };
 using pmsg_votemap = tmsg_votemap *;
 
 // voting map list response
 struct tmsg_votemapreply
 {
-    tmsgheader header;
-    std::uint16_t count;
-    std::array<char, MAPNAME_CHARS> mapname;
+  tmsgheader header;
+  std::uint16_t count;
+  std::array<char, MAPNAME_CHARS> mapname;
 };
 using pmsg_votemapreply = tmsg_votemapreply *;
 
@@ -762,24 +762,24 @@ using pmsg_votemapreply = tmsg_votemapreply *;
 
 struct tmsg_votekick
 {
-    tmsgheader header;
-    std::uint8_t ban;
-    std::uint8_t num;
-    std::array<char, REASON_CHARS> reason;
+  tmsgheader header;
+  std::uint8_t ban;
+  std::uint8_t num;
+  std::array<char, REASON_CHARS> reason;
 };
 using pmsg_votekick = tmsg_votekick *;
 
 // message packet
 struct tmsg_serverspecialmessage
 {
-    tmsgheader header;
-    std::uint8_t msgtype; // 0 - console, 1 - big text, 2 - world text
-    std::uint8_t layerid; // only used for big text and world text
-    std::int32_t delay;
-    float scale;
-    std::uint32_t color;
-    float x, y;
-    std::array<char, 0> text;
+  tmsgheader header;
+  std::uint8_t msgtype; // 0 - console, 1 - big text, 2 - world text
+  std::uint8_t layerid; // only used for big text and world text
+  std::int32_t delay;
+  float scale;
+  std::uint32_t color;
+  float x, y;
+  std::array<char, 0> text;
 };
 using pmsg_serverspecialmessage = tmsg_serverspecialmessage *;
 
@@ -787,33 +787,33 @@ using pmsg_serverspecialmessage = tmsg_serverspecialmessage *;
 
 struct tmsg_weaponactivemessage
 {
-    tmsgheader header;
-    std::uint8_t active, weapon;
+  tmsgheader header;
+  std::uint8_t active, weapon;
 };
 using pmsg_weaponactivemessage = tmsg_weaponactivemessage *;
 
 struct tmsg_joinserver
 {
-    tmsgheader header;
-    std::uint32_t ip;
-    std::uint16_t port;
-    std::array<char, 50> showmsg;
+  tmsgheader header;
+  std::uint32_t ip;
+  std::uint16_t port;
+  std::array<char, 50> showmsg;
 };
 using pmsg_joinserver = tmsg_joinserver *;
 
 struct tmsg_playsound
 { // server -> client
-    tmsgheader header;
-    std::array<char, 26> name;
-    tvector2 emitter;
+  tmsgheader header;
+  std::array<char, 26> name;
+  tvector2 emitter;
 };
 using pmsg_playsound = tmsg_playsound *;
 
 struct tmsg_voicedata
 {
-    tmsgheader header;
-    std::uint8_t speaker;
-    std::array<std::uint8_t, 0> data;
+  tmsgheader header;
+  std::uint8_t speaker;
+  std::array<std::uint8_t, 0> data;
 };
 using pmsg_voicedata = tmsg_voicedata *;
 

@@ -19,24 +19,24 @@ TPlayers players;
 
 void TServerPlayer::applyshirtcolorfromteam()
 {
-    if ((CVar::sv_teamcolors) and GS::GetGame().isteamgame())
+  if ((CVar::sv_teamcolors) and GS::GetGame().isteamgame())
+  {
+    switch (team)
     {
-        switch (team)
-        {
-        case 1:
-            shirtcolor = 0xFFD20F05;
-            break;
-        case 2:
-            shirtcolor = 0xFF151FD9;
-            break;
-        case 3:
-            shirtcolor = 0xFFD2D205;
-            break;
-        case 4:
-            shirtcolor = 0xFF05D205;
-            break;
-        }
+    case 1:
+      shirtcolor = 0xFFD20F05;
+      break;
+    case 2:
+      shirtcolor = 0xFF151FD9;
+      break;
+    case 3:
+      shirtcolor = 0xFFD2D205;
+      break;
+    case 4:
+      shirtcolor = 0xFF05D205;
+      break;
     }
+  }
 }
 
 TServerPlayer::~TServerPlayer()

@@ -11,25 +11,25 @@ const std::int32_t gfx_monochrome = 1;
 
 enum tgfxtexturewrap
 {
-    gfx_clamp,
-    gfx_repeat,
-    last_tgfxtexturewrap
+  gfx_clamp,
+  gfx_repeat,
+  last_tgfxtexturewrap
 };
 enum tgfxverticalalign
 {
-    gfx_top,
-    gfx_baseline,
-    gfx_bottom,
-    last_tgfxverticalalign
+  gfx_top,
+  gfx_baseline,
+  gfx_bottom,
+  last_tgfxverticalalign
 };
 
 enum tgfxtexturefilter
 {
-    gfx_linear,
-    gfx_nearest,
-    gfx_mipmap_linear,
-    gfx_mipmap_nearest,
-    last_tgfxtexturefilter
+  gfx_linear,
+  gfx_nearest,
+  gfx_mipmap_linear,
+  gfx_mipmap_nearest,
+  last_tgfxtexturefilter
 };
 
 typedef std::array<float, 9> tgfxmat3;
@@ -38,250 +38,250 @@ typedef tgfxmat3 *pgfxmat3;
 typedef struct tgfxcolor *pgfxcolor;
 struct tgfxcolor
 {
-    union {
-        struct
-        {
-            std::uint8_t r, g, b, a;
-        };
-        std::uint32_t rgba;
+  union {
+    struct
+    {
+      std::uint8_t r, g, b, a;
     };
+    std::uint32_t rgba;
+  };
 };
 
 typedef struct tgfxvertex *pgfxvertex;
 struct tgfxvertex
 {
-    float x, y;
-    float u, v;
-    tgfxcolor color;
+  float x, y;
+  float u, v;
+  tgfxcolor color;
 };
 
 typedef struct tgfxrect *pgfxrect;
 struct tgfxrect
 {
-    MyFloat left = 0.0f, right = 0.0f;
-    MyFloat top = 0.0f, bottom = 0.0f;
-    float width()
-    {
-        return std::abs(right - left);
-    }
-    float height()
-    {
-        return std::abs(top - bottom);
-    }
+  MyFloat left = 0.0f, right = 0.0f;
+  MyFloat top = 0.0f, bottom = 0.0f;
+  float width()
+  {
+    return std::abs(right - left);
+  }
+  float height()
+  {
+    return std::abs(top - bottom);
+  }
 };
 
 struct trect
 {
-    std::int32_t left = 0, top = 0, right = 0, bottom = 0;
-    trect()
-    {
-    }
-    trect(std::int32_t left, std::int32_t top, std::int32_t right, std::int32_t bottom)
-        : left(left), top(top), right(right), bottom(bottom)
-    {
-    }
+  std::int32_t left = 0, top = 0, right = 0, bottom = 0;
+  trect()
+  {
+  }
+  trect(std::int32_t left, std::int32_t top, std::int32_t right, std::int32_t bottom)
+    : left(left), top(top), right(right), bottom(bottom)
+  {
+  }
 
-    std::int32_t width()
-    {
-        return std::abs(right - left);
-    }
-    std::int32_t height()
-    {
-        return std::abs(top - bottom);
-    }
+  std::int32_t width()
+  {
+    return std::abs(right - left);
+  }
+  std::int32_t height()
+  {
+    return std::abs(top - bottom);
+  }
 };
 
 typedef void *tgfxfont;
 
 class tgfximage
 {
-  private:
-    std::uint8_t *fdata = nullptr;
-    std::int32_t fwidth = 0;
-    std::int32_t fheight = 0;
-    std::int32_t fcomponents = 0;
-    std::int32_t fnumframes = 0;
-    bool floadedfromfile = false;
+private:
+  std::uint8_t *fdata = nullptr;
+  std::int32_t fwidth = 0;
+  std::int32_t fheight = 0;
+  std::int32_t fcomponents = 0;
+  std::int32_t fnumframes = 0;
+  bool floadedfromfile = false;
 
-  public:
-    tgfximage(const std::string &filename, tgfxcolor colorkey);
-    tgfximage(std::int32_t width, std::int32_t height, std::int32_t comp = 4);
-    ~tgfximage();
-    std::uint8_t *getimagedata(std::int32_t frame = 0);
-    std::uint64_t getframedelay(std::int32_t frame = 0);
-    void update(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, std::uint8_t *data,
-                std::int32_t frame = 0);
-    void premultiply();
-    void resize(std::int32_t w, std::int32_t h);
-    std::int32_t width()
-    {
-        return fwidth;
-    };
-    std::int32_t height()
-    {
-        return fheight;
-    };
-    std::int32_t components()
-    {
-        return fcomponents;
-    }
-    std::int32_t numframes()
-    {
-        return fnumframes;
-    }
+public:
+  tgfximage(const std::string &filename, tgfxcolor colorkey);
+  tgfximage(std::int32_t width, std::int32_t height, std::int32_t comp = 4);
+  ~tgfximage();
+  std::uint8_t *getimagedata(std::int32_t frame = 0);
+  std::uint64_t getframedelay(std::int32_t frame = 0);
+  void update(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, std::uint8_t *data,
+              std::int32_t frame = 0);
+  void premultiply();
+  void resize(std::int32_t w, std::int32_t h);
+  std::int32_t width()
+  {
+    return fwidth;
+  };
+  std::int32_t height()
+  {
+    return fheight;
+  };
+  std::int32_t components()
+  {
+    return fcomponents;
+  }
+  std::int32_t numframes()
+  {
+    return fnumframes;
+  }
 };
 
 class tgfxtexture
 {
-  public:
-    std::uint32_t fhandle;
-    std::uint32_t ffbohandle;
-    std::int32_t fwidth;
-    std::int32_t fheight;
-    std::int32_t fcomponents;
-    std::int32_t fsamples;
-    struct
-    {
-        std::int32_t x, y;
-        tgfxcolor color;
-    } fpixel;
-    void update(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, std::uint8_t *data);
-    void setwrap(tgfxtexturewrap s, tgfxtexturewrap t);
-    void setfilter(tgfxtexturefilter min, tgfxtexturefilter mag);
+public:
+  std::uint32_t fhandle;
+  std::uint32_t ffbohandle;
+  std::int32_t fwidth;
+  std::int32_t fheight;
+  std::int32_t fcomponents;
+  std::int32_t fsamples;
+  struct
+  {
+    std::int32_t x, y;
+    tgfxcolor color;
+  } fpixel;
+  void update(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, std::uint8_t *data);
+  void setwrap(tgfxtexturewrap s, tgfxtexturewrap t);
+  void setfilter(tgfxtexturefilter min, tgfxtexturefilter mag);
 
-  public:
-    tgfxtexture(std::int32_t width, std::int32_t height, std::int32_t comp, bool rt, bool msaa,
-                std::uint8_t *data, const std::string_view &debug_name);
-    ~tgfxtexture();
-    std::int32_t width()
-    {
-        return fwidth;
-    }
-    std::int32_t height()
-    {
-        return fheight;
-    }
-    std::int32_t components()
-    {
-        return fcomponents;
-    }
-    std::int32_t samples()
-    {
-        return fsamples;
-    }
+public:
+  tgfxtexture(std::int32_t width, std::int32_t height, std::int32_t comp, bool rt, bool msaa,
+              std::uint8_t *data, const std::string_view &debug_name);
+  ~tgfxtexture();
+  std::int32_t width()
+  {
+    return fwidth;
+  }
+  std::int32_t height()
+  {
+    return fheight;
+  }
+  std::int32_t components()
+  {
+    return fcomponents;
+  }
+  std::int32_t samples()
+  {
+    return fsamples;
+  }
 
-    std::int32_t handle()
-    {
-        return fhandle;
-    }
+  std::int32_t handle()
+  {
+    return fhandle;
+  }
 };
 
 class tgfxvertexbuffer
 {
-  private:
-    std::uint32_t fhandle;
-    std::int32_t fcapacity;
+private:
+  std::uint32_t fhandle;
+  std::int32_t fcapacity;
 
-  public:
-    tgfxvertexbuffer(std::int32_t cap, bool _static, pgfxvertex data);
-    ~tgfxvertexbuffer();
-    void update(std::int32_t offset, std::int32_t count, pgfxvertex data);
-    std::int32_t capacity()
-    {
-        return fcapacity;
-    };
+public:
+  tgfxvertexbuffer(std::int32_t cap, bool _static, pgfxvertex data);
+  ~tgfxvertexbuffer();
+  void update(std::int32_t offset, std::int32_t count, pgfxvertex data);
+  std::int32_t capacity()
+  {
+    return fcapacity;
+  };
 
-    std::int32_t handle()
-    {
-        return fhandle;
-    }
+  std::int32_t handle()
+  {
+    return fhandle;
+  }
 };
 
 class tgfxindexbuffer
 {
-  private:
-    std::uint32_t fhandle;
-    std::int32_t fcapacity;
+private:
+  std::uint32_t fhandle;
+  std::int32_t fcapacity;
 
-  public:
-    void update(std::int32_t offset, std::int32_t count, std::uint16_t *data);
-    tgfxindexbuffer(std::int32_t cap, bool _static, std::uint16_t *data);
-    ~tgfxindexbuffer();
-    std::int32_t capacity()
-    {
-        return fcapacity;
-    }
+public:
+  void update(std::int32_t offset, std::int32_t count, std::uint16_t *data);
+  tgfxindexbuffer(std::int32_t cap, bool _static, std::uint16_t *data);
+  ~tgfxindexbuffer();
+  std::int32_t capacity()
+  {
+    return fcapacity;
+  }
 
-    std::uint32_t handle()
-    {
-        return fhandle;
-    }
+  std::uint32_t handle()
+  {
+    return fhandle;
+  }
 };
 
 typedef struct tgfxsprite *pgfxsprite;
 struct tgfxsprite
 {
-    std::int32_t x, y;
-    std::int32_t width, height;
-    float scale;
-    std::int32_t delay;
-    tgfxrect texcoords;
-    tgfxtexture *texture;
-    pgfxsprite next;
+  std::int32_t x, y;
+  std::int32_t width, height;
+  float scale;
+  std::int32_t delay;
+  tgfxrect texcoords;
+  tgfxtexture *texture;
+  pgfxsprite next;
 };
 
 typedef pgfxsprite *tgfxspritearray;
 
 class tgfxspritesheet
 {
-  private:
-    std::vector<tgfxtexture *> ftextures;
-    std::vector<tgfxsprite> fsprites;
-    std::vector<tgfxsprite *> fadditionalsprites;
-    void *floaddata;
-    std::int32_t getspritecount();
-    std::int32_t gettexturecount();
-    bool isloading();
-    void loadnextimage();
-    void packrects();
-    void updatenextsprite();
-    void updatetexture();
-    void cleanup();
+private:
+  std::vector<tgfxtexture *> ftextures;
+  std::vector<tgfxsprite> fsprites;
+  std::vector<tgfxsprite *> fadditionalsprites;
+  void *floaddata;
+  std::int32_t getspritecount();
+  std::int32_t gettexturecount();
+  bool isloading();
+  void loadnextimage();
+  void packrects();
+  void updatenextsprite();
+  void updatetexture();
+  void cleanup();
 
-  public:
-    tgfxspritesheet(std::int32_t count);
-    ~tgfxspritesheet();
-    void addimage(const std::string &path, tgfxcolor colorkey, float targetscale);
-    void addimage(const std::string &path, tgfxcolor colorkey, tvector2 targetsize);
-    void addimage(tgfximage *image);
-    void load();
-    void startloading();
-    void continueloading();
-    void finishloading();
-    std::int32_t spritecount()
-    {
-        return getspritecount();
-    };
-    std::int32_t texturecount()
-    {
-        return gettexturecount();
-    };
-    // property Sprites[Index: Integer]: PGfxSprite read GetSprite; default;
-    // property Texture[Index: Integer]: TGfxTexture read GetTexture;
-    pgfxsprite getsprite(std::int32_t index);
-    tgfxtexture *gettexture(std::int32_t index);
-    bool loading()
-    {
-        return isloading();
-    }
+public:
+  tgfxspritesheet(std::int32_t count);
+  ~tgfxspritesheet();
+  void addimage(const std::string &path, tgfxcolor colorkey, float targetscale);
+  void addimage(const std::string &path, tgfxcolor colorkey, tvector2 targetsize);
+  void addimage(tgfximage *image);
+  void load();
+  void startloading();
+  void continueloading();
+  void finishloading();
+  std::int32_t spritecount()
+  {
+    return getspritecount();
+  };
+  std::int32_t texturecount()
+  {
+    return gettexturecount();
+  };
+  // property Sprites[Index: Integer]: PGfxSprite read GetSprite; default;
+  // property Texture[Index: Integer]: TGfxTexture read GetTexture;
+  pgfxsprite getsprite(std::int32_t index);
+  tgfxtexture *gettexture(std::int32_t index);
+  bool loading()
+  {
+    return isloading();
+  }
 };
 
 typedef struct tgfxdrawcommand *pgfxdrawcommand;
 struct tgfxdrawcommand
 {
-    tgfxtexture *texture = nullptr;
-    std::int32_t offset;
-    std::int32_t count;
+  tgfxtexture *texture = nullptr;
+  std::int32_t offset;
+  std::int32_t count;
 };
 
 typedef struct SDL_Window SDL_Window;

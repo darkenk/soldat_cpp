@@ -6,27 +6,27 @@ std::default_random_engine generator;
 
 void Randomize()
 {
-    NotImplemented();
+  NotImplemented();
 }
 
 float Random()
 {
-    std::uniform_real_distribution<> dis(0.0f, 1.0);
-    return dis(generator);
+  std::uniform_real_distribution<> dis(0.0f, 1.0);
+  return dis(generator);
 }
 
 std::int32_t Random(std::uint32_t range)
 {
-    if (range == 0)
-    {
-        return 0;
-    }
-    std::uniform_int_distribution<> distrib(0, range - 1);
-    return distrib(generator);
+  if (range == 0)
+  {
+    return 0;
+  }
+  std::uniform_int_distribution<> distrib(0, range - 1);
+  return distrib(generator);
 }
 
 int32_t randomrange(uint32_t lowerBound, uint32_t upperBound)
 {
-    std::uniform_int_distribution<> distrib(lowerBound, upperBound);
-    return distrib(generator);
+  std::uniform_int_distribution<> distrib(lowerBound, upperBound);
+  return distrib(generator);
 }

@@ -5,49 +5,48 @@
 template <>
 bool FromString<std::int32_t>(const std::string_view &value, std::int32_t &outValue) noexcept
 {
-    auto ret = std::find_if(std::begin(value), std::end(value),
-                            [](auto const &c) { return !std::isdigit(c); });
-    if (ret != std::end(value))
-    {
-        return false;
-    }
-    outValue = std::atoi(value.data());
-    return true;
+  auto ret = std::find_if(std::begin(value), std::end(value),
+                          [](auto const &c) { return !std::isdigit(c); });
+  if (ret != std::end(value))
+  {
+    return false;
+  }
+  outValue = std::atoi(value.data());
+  return true;
 }
 
 template <>
 bool FromString<bool>(const std::string_view &value, bool &outValue) noexcept
 {
-    const std::map<const std::string_view, bool> conversionTable = {
-        {"true", true}, {"True", true}, {"false", false}, {"False", false}};
-    auto v = conversionTable.find(value);
-    if (v == std::end(conversionTable))
-    {
-        return false;
-    }
-    outValue = v->second;
-    return true;
+  const std::map<const std::string_view, bool> conversionTable = {
+    {"true", true}, {"True", true}, {"false", false}, {"False", false}};
+  auto v = conversionTable.find(value);
+  if (v == std::end(conversionTable))
+  {
+    return false;
+  }
+  outValue = v->second;
+  return true;
 }
 
 template <>
 bool FromString<std::string>(const std::string_view &value, std::string &outValue) noexcept
 {
-    outValue = value;
-    return true;
+  outValue = value;
+  return true;
 }
 
 template <>
 bool FromString<float>(const std::string_view &value, float &outValue) noexcept
 {
-    auto ret = std::find_if(std::begin(value), std::end(value), [](auto const &c) {
-        return !(std::isdigit(c) || c == '.' || c == 'f');
-    });
-    if (ret != std::end(value))
-    {
-        return false;
-    }
-    outValue = std::atof(value.data());
-    return true;
+  auto ret = std::find_if(std::begin(value), std::end(value),
+                          [](auto const &c) { return !(std::isdigit(c) || c == '.' || c == 'f'); });
+  if (ret != std::end(value))
+  {
+    return false;
+  }
+  outValue = std::atof(value.data());
+  return true;
 }
 #ifdef SERVER
 namespace CVarServer

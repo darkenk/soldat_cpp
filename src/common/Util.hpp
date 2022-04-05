@@ -14,10 +14,10 @@ using tstringarray = std::vector<std::string>;
 
 struct tmapinfo
 {
-    std::string name;
-    std::string mapname;
-    std::uint64_t workshopid = -1;
-    std::string path;
+  std::string name;
+  std::string mapname;
+  std::uint64_t workshopid = -1;
+  std::string path;
 };
 // how often does character appear in str
 std::int32_t charcount(const char, const std::string &str1);
@@ -34,13 +34,13 @@ std::int32_t posex(const std::string substr, std::string s, std::uint32_t offset
 template <typename T>
 T iif(const bool condition, T truepart, T falsepart)
 {
-    return condition ? truepart : falsepart;
+  return condition ? truepart : falsepart;
 }
 
 template <typename T>
 T &choose(const std::int32_t index, T choices[])
 {
-    return choices[index];
+  return choices[index];
 }
 
 // TODO: colortohex - I don't floatly get how it should work

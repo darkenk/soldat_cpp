@@ -22,7 +22,7 @@ get_files_and_append_to_list(SRC_DIR, list_of_files)
 get_files_and_append_to_list(TEST_DIR, list_of_files)
 
 
-args = ["clang-format-11", "-i", "--style=file"]
+args = ["clang-format", "-i", "--style=file"]
 args.extend(list_of_files)
 print
 subprocess.call(args, cwd=BASE_DIR)

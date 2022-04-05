@@ -25,16 +25,16 @@ void updatehwbanlist();
 
 struct tbanip
 {
-    std::string ip;
-    std::int32_t time;
-    std::string reason;
+  std::string ip;
+  std::int32_t time;
+  std::string reason;
 };
 
 struct tbanhw
 {
-    std::string hw;
-    std::int32_t time;
-    std::string reason;
+  std::string hw;
+  std::int32_t time;
+  std::string reason;
 };
 
 extern std::vector<tbanip> bannediplist;

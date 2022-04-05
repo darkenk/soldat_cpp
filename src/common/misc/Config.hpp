@@ -6,9 +6,9 @@ namespace Config
 
 enum BuildConfiguration
 {
-    DEBUG,
-    RELEASE,
-    MASTER
+  DEBUG,
+  RELEASE,
+  MASTER
 };
 
 namespace defaults
@@ -18,7 +18,7 @@ namespace defaults
 // CMake should generate Config.tweakme.hpp wit proper configuration
 constexpr BuildConfiguration GetConfiguration() noexcept
 {
-    return DEBUG;
+  return DEBUG;
 }
 
 } // namespace defaults
@@ -27,17 +27,17 @@ using namespace defaults;
 
 constexpr bool IsDebug() noexcept
 {
-    return GetConfiguration() == DEBUG;
+  return GetConfiguration() == DEBUG;
 }
 
 constexpr bool IsRelease() noexcept
 {
-    return GetConfiguration() == RELEASE;
+  return GetConfiguration() == RELEASE;
 }
 
 constexpr bool IsMaster() noexcept
 {
-    return GetConfiguration() == MASTER;
+  return GetConfiguration() == MASTER;
 }
 
 namespace impl

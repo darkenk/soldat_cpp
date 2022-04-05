@@ -8,85 +8,85 @@
 template <typename T, void (*FASSERT)(const T &)>
 struct SafeType
 {
-    constexpr SafeType()
-    {
-        FASSERT(Value);
-    }
+  constexpr SafeType()
+  {
+    FASSERT(Value);
+  }
 
-    constexpr SafeType(const T value) : Value{value}
-    {
-        FASSERT(Value);
-    }
+  constexpr SafeType(const T value) : Value{value}
+  {
+    FASSERT(Value);
+  }
 
-    operator T() const
-    {
-        return Value;
-    }
+  operator T() const
+  {
+    return Value;
+  }
 
-    SafeType operator++()
-    {
-        return ++Value;
-    }
+  SafeType operator++()
+  {
+    return ++Value;
+  }
 
-    SafeType operator++(int)
-    {
-        return Value++;
-    }
+  SafeType operator++(int)
+  {
+    return Value++;
+  }
 
-    SafeType operator--()
-    {
-        return --Value;
-    }
+  SafeType operator--()
+  {
+    return --Value;
+  }
 
-    SafeType operator--(int)
-    {
-        return Value--;
-    }
+  SafeType operator--(int)
+  {
+    return Value--;
+  }
 
-    SafeType &operator+=(const SafeType &b)
-    {
-        Value += b.Value;
-        FASSERT(Value);
-        return *this;
-    }
+  SafeType &operator+=(const SafeType &b)
+  {
+    Value += b.Value;
+    FASSERT(Value);
+    return *this;
+  }
 
-    SafeType &operator-=(const SafeType &b)
-    {
-        Value -= b.Value;
-        FASSERT(Value);
-        return *this;
-    }
+  SafeType &operator-=(const SafeType &b)
+  {
+    Value -= b.Value;
+    FASSERT(Value);
+    return *this;
+  }
 
-    SafeType &operator*=(const SafeType &b)
-    {
-        Value *= b.Value;
-        FASSERT(Value);
-        return *this;
-    }
+  SafeType &operator*=(const SafeType &b)
+  {
+    Value *= b.Value;
+    FASSERT(Value);
+    return *this;
+  }
 
-    SafeType &operator/=(const SafeType &b)
-    {
-        Value /= b.Value;
-        FASSERT(Value);
-        return *this;
-    }
+  SafeType &operator/=(const SafeType &b)
+  {
+    Value /= b.Value;
+    FASSERT(Value);
+    return *this;
+  }
 
-  private:
-    T Value;
+private:
+  T Value;
 };
 
 template <typename T>
 void EnsureNotNan(const T &v)
 {
-    SoldatAssert(not std::isnan(v));
-    SoldatAssert(not std::isinf(v));
+  SoldatAssert(not std::isnan(v));
+  SoldatAssert(not std::isinf(v));
 }
 
 template <typename T, T Start, T End>
 void EnsureInt(const T &v)
 {
-    SoldatAssert(v >= Start);
-    SoldatAssert(v <= End);
+  SoldatAssert(v >= Start);
+  SoldatAssert(v <= End);
 }
 
 using MyFloat = SafeType<float, EnsureNotNan<float>>;

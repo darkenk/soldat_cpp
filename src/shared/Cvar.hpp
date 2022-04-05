@@ -12,7 +12,7 @@ bool FromString(const std::string_view &value, T &outValue) noexcept;
 
 enum class CVarFlags : std::uint32_t
 {
-    // clang-format off
+  // clang-format off
     NONE      = 0x0,
     IMMUTABLE = 0x1,   // can't be changed after set
     ARCHIVE   = 0x2,   // save cvar to cfg file
@@ -24,168 +24,168 @@ enum class CVarFlags : std::uint32_t
     SYNC      = 0x80,  // sync cvar to client cvar
     SCRIPT    = 0x100, // cvar set by script
     INITONLY  = 0x200  // cvar can be changed only at startup
-    // clang-format on
+  // clang-format on
 };
 
 template <>
 struct EnableFlagSet<CVarFlags>
 {
-    static constexpr bool enable = true;
+  static constexpr bool enable = true;
 };
 
 template <typename T, Config::Module M = Config::GetModule()>
 class CVarBase
 {
+public:
+  CVarBase(const std::string_view &name, const std::string_view &description,
+           FlagSet<CVarFlags> flags, const T &value, const std::uint8_t id = 255)
+    : Value{value}, Name{name}, Description{description}, Flags{flags}, Id{id}
+  {
+    if (CVars.contains(Name))
+    {
+      throw std::runtime_error("CVar has been created already");
+    }
+    CVars.emplace(std::make_pair(Name, this));
+  };
+
+  CVarBase(const CVarBase &ref) = delete;
+
+  bool operator==(const T &ref) const
+  {
+    return ref == Value;
+  }
+
+  operator T() const
+  {
+    return Value;
+  }
+
+  T &operator=(const T &v)
+  {
+    Value = v;
+    return Value;
+  }
+
+  // TODO: does it make sense?
+  CVarBase &operator=(const CVarBase &ref)
+  {
+    Value = ref.Value;
+    return *this;
+  }
+
+  bool ParseAndSetValue(const std::string_view &value) noexcept
+  {
+    return FromString<T>(value, Value);
+  }
+
+  std::string ValueAsString() const noexcept
+  {
+    return std::to_string(Value);
+  }
+
+  static CVarBase &Find(const std::string &cvarName) noexcept
+  {
+    auto it = CVars.find(cvarName);
+    if (it == std::end(CVars))
+    {
+      return InvalidCVar;
+    }
+    return *(it->second);
+  }
+
+  static CVarBase &Find(const std::uint8_t id) noexcept
+  {
+    auto it = std::find_if(CVars.begin(), CVars.end(),
+                           [id](const auto &cv) { return cv.second->Id == id; });
+    if (it == std::end(CVars))
+    {
+      return InvalidCVar;
+    }
+    return *(it->second);
+  }
+
+  bool IsValid() const
+  {
+    return this != &InvalidCVar;
+  }
+
+  bool IsSyncable() const
+  {
+    return Flags.Test(CVarFlags::SYNC);
+  }
+
+  class AllCVars
+  {
   public:
-    CVarBase(const std::string_view &name, const std::string_view &description,
-             FlagSet<CVarFlags> flags, const T &value, const std::uint8_t id = 255)
-        : Value{value}, Name{name}, Description{description}, Flags{flags}, Id{id}
+    // member typedefs provided through inheriting from std::iterator
+    class iterator : public std::iterator<std::input_iterator_tag, CVarBase>
     {
-        if (CVars.contains(Name))
-        {
-            throw std::runtime_error("CVar has been created already");
-        }
-        CVars.emplace(std::make_pair(Name, this));
-    };
-
-    CVarBase(const CVarBase &ref) = delete;
-
-    bool operator==(const T &ref) const
-    {
-        return ref == Value;
-    }
-
-    operator T() const
-    {
-        return Value;
-    }
-
-    T &operator=(const T &v)
-    {
-        Value = v;
-        return Value;
-    }
-
-    // TODO: does it make sense?
-    CVarBase &operator=(const CVarBase &ref)
-    {
-        Value = ref.Value;
+    public:
+      using InternalIterType = typename std::map<const std::string, CVarBase *>::iterator;
+      InternalIterType InternalIter;
+      explicit iterator(InternalIterType iter) : InternalIter(iter)
+      {
+      }
+      iterator &operator++()
+      {
+        InternalIter++;
         return *this;
-    }
-
-    bool ParseAndSetValue(const std::string_view &value) noexcept
-    {
-        return FromString<T>(value, Value);
-    }
-
-    std::string ValueAsString() const noexcept
-    {
-        return std::to_string(Value);
-    }
-
-    static CVarBase &Find(const std::string &cvarName) noexcept
-    {
-        auto it = CVars.find(cvarName);
-        if (it == std::end(CVars))
-        {
-            return InvalidCVar;
-        }
-        return *(it->second);
-    }
-
-    static CVarBase &Find(const std::uint8_t id) noexcept
-    {
-        auto it = std::find_if(CVars.begin(), CVars.end(),
-                               [id](const auto &cv) { return cv.second->Id == id; });
-        if (it == std::end(CVars))
-        {
-            return InvalidCVar;
-        }
-        return *(it->second);
-    }
-
-    bool IsValid() const
-    {
-        return this != &InvalidCVar;
-    }
-
-    bool IsSyncable() const
-    {
-        return Flags.Test(CVarFlags::SYNC);
-    }
-
-    class AllCVars
-    {
-      public:
-        // member typedefs provided through inheriting from std::iterator
-        class iterator : public std::iterator<std::input_iterator_tag, CVarBase>
-        {
-          public:
-            using InternalIterType = typename std::map<const std::string, CVarBase *>::iterator;
-            InternalIterType InternalIter;
-            explicit iterator(InternalIterType iter) : InternalIter(iter)
-            {
-            }
-            iterator &operator++()
-            {
-                InternalIter++;
-                return *this;
-            }
-            iterator operator++(int)
-            {
-                iterator retval = *this;
-                ++(*this);
-                return retval;
-            }
-            bool operator==(iterator other) const
-            {
-                return InternalIter == other.InternalIter;
-            }
-            bool operator!=(iterator other) const
-            {
-                return !(*this == other);
-            }
-            CVarBase &operator*() const
-            {
-                return *(InternalIter->second);
-            }
-        };
-        iterator begin()
-        {
-            return iterator(CVarBase::CVars.begin());
-        }
-        iterator end()
-        {
-            return iterator(CVarBase::CVars.end());
-        }
+      }
+      iterator operator++(int)
+      {
+        iterator retval = *this;
+        ++(*this);
+        return retval;
+      }
+      bool operator==(iterator other) const
+      {
+        return InternalIter == other.InternalIter;
+      }
+      bool operator!=(iterator other) const
+      {
+        return !(*this == other);
+      }
+      CVarBase &operator*() const
+      {
+        return *(InternalIter->second);
+      }
     };
-
-    static AllCVars GetAllCVars()
+    iterator begin()
     {
-        return AllCVars();
+      return iterator(CVarBase::CVars.begin());
     }
-
-    std::uint8_t GetId() const
+    iterator end()
     {
-        return Id;
+      return iterator(CVarBase::CVars.end());
     }
+  };
 
-    const std::string &GetName() const
-    {
-        return Name;
-    }
+  static AllCVars GetAllCVars()
+  {
+    return AllCVars();
+  }
 
-  private:
-    T Value;
-    const std::string Name;
-    const std::string Description;
-    FlagSet<CVarFlags> Flags;
-    std::uint8_t Id;
+  std::uint8_t GetId() const
+  {
+    return Id;
+  }
 
-    using Map = std::map<const std::string, CVarBase *>;
+  const std::string &GetName() const
+  {
+    return Name;
+  }
 
-    static CVarBase InvalidCVar;
-    static Map CVars;
+private:
+  T Value;
+  const std::string Name;
+  const std::string Description;
+  FlagSet<CVarFlags> Flags;
+  std::uint8_t Id;
+
+  using Map = std::map<const std::string, CVarBase *>;
+
+  static CVarBase InvalidCVar;
+  static Map CVars;
 };
 
 template <typename T, Config::Module M>

@@ -17,4 +17,4 @@ constexpr std::int32_t dist_stop_prone = 25;
 std::int32_t checkdistance(float posa, float posb);
 void simpledecision(std::uint8_t snum, const twaypoints &botpath);
 void gotothing(std::uint8_t snum, std::uint8_t tnum);
-void controlbot(tsprite &spritec, const twaypoints& botpath);
+void controlbot(tsprite &spritec, const twaypoints &botpath);

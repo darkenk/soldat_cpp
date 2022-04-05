@@ -7,7 +7,7 @@
 
 struct tgamerenderingparams
 {
-    std::string interfacename;
+  std::string interfacename;
 };
 
 constexpr std::int32_t font_big = 0;

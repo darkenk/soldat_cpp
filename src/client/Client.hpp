@@ -20,10 +20,10 @@ void showmessage(const std::wstring &messagetext);
 
 struct tweaponstat
 {
-    std::string name;
-    std::uint32_t textureid;
-    std::uint32_t shots, hits, kills, headshots;
-    std::uint8_t accuracy;
+  std::string name;
+  std::uint32_t textureid;
+  std::uint32_t shots, hits, kills, headshots;
+  std::uint8_t accuracy;
 };
 
 extern bool gamelooprun;

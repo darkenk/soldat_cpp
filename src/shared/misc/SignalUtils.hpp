@@ -5,6 +5,6 @@
 
 inline void Abort()
 {
-    std::fflush(stdout);
-    std::abort();
+  std::fflush(stdout);
+  std::abort();
 }

@@ -4,7 +4,7 @@
 
 TEST(PolyMapTest, TestSkipRayCastForSector)
 {
-    // clang-format off
+  // clang-format off
     EXPECT_TRUE(Polymap::ShouldTestPolygonWithRay(poly_type_normal, false, false, false, 0));
     EXPECT_FALSE(Polymap::ShouldTestPolygonWithRay(poly_type_only_bullets, false, true, false, 0));
     EXPECT_TRUE(Polymap::ShouldTestPolygonWithRay(poly_type_only_bullets, false, false, false, 0));
@@ -54,76 +54,76 @@ TEST(PolyMapTest, TestSkipRayCastForSector)
     EXPECT_FALSE(Polymap::ShouldTestPolygonWithRay(poly_type_non_flagger_collides, true, false, true, 0));
     EXPECT_FALSE(Polymap::ShouldTestPolygonWithRay(poly_type_non_flagger_collides, false, true, true, 0));
 
-    // clang-format on
+  // clang-format on
 }
 
 TEST(PolyMapTest, GetSectorCoordInitialTest)
 {
-    twaypoints w;
-    Polymap p{w};
-    tmapfile mapfile;
-    mapfile.sectorsnum = 2;
-    mapfile.sectorsdivision = 58;
-    auto amountOfSectors = std::pow(2 * mapfile.sectorsnum + 1, 2);
-    for (auto s = 1; s <= amountOfSectors; s++)
-    {
-        mapfile.sectors.emplace_back().Polys.emplace_back(s);
-    }
-    p.loadmap(mapfile);
+  twaypoints w;
+  Polymap p{w};
+  tmapfile mapfile;
+  mapfile.sectorsnum = 2;
+  mapfile.sectorsdivision = 58;
+  auto amountOfSectors = std::pow(2 * mapfile.sectorsnum + 1, 2);
+  for (auto s = 1; s <= amountOfSectors; s++)
+  {
+    mapfile.sectors.emplace_back().Polys.emplace_back(s);
+  }
+  p.loadmap(mapfile);
 
-    {
-        EXPECT_EQ(5, p.GetSector({-100.f, 100.f}).GetPolys()[0].Index);
-    }
+  {
+    EXPECT_EQ(5, p.GetSector({-100.f, 100.f}).GetPolys()[0].Index);
+  }
 
-    {
-        EXPECT_EQ(9, p.GetSector({-58.f, 58.f}).GetPolys()[0].Index);
-    }
+  {
+    EXPECT_EQ(9, p.GetSector({-58.f, 58.f}).GetPolys()[0].Index);
+  }
 
-    {
-        EXPECT_EQ(13, p.GetSector({-28.f, 28.f}).GetPolys()[0].Index);
-    }
+  {
+    EXPECT_EQ(13, p.GetSector({-28.f, 28.f}).GetPolys()[0].Index);
+  }
 
-    {
-        EXPECT_EQ(9, p.GetSector({-29.f, 29.f}).GetPolys()[0].Index);
-    }
+  {
+    EXPECT_EQ(9, p.GetSector({-29.f, 29.f}).GetPolys()[0].Index);
+  }
 
-    {
-        EXPECT_EQ(9, p.GetSector({-28.f - 58.f, 28.f + 58.f}).GetPolys()[0].Index);
-    }
+  {
+    EXPECT_EQ(9, p.GetSector({-28.f - 58.f, 28.f + 58.f}).GetPolys()[0].Index);
+  }
 
-    {
-        EXPECT_EQ(5, p.GetSector({-29.f - 58.f, 29.f + 58.f}).GetPolys()[0].Index);
-    }
+  {
+    EXPECT_EQ(5, p.GetSector({-29.f - 58.f, 29.f + 58.f}).GetPolys()[0].Index);
+  }
 }
 
 TEST(PolyMapTest, GetSectorPolygons)
 {
-    twaypoints w;
-    Polymap p{w};
-    tmapfile mapfile;
-    mapfile.sectorsnum = 2;
-    mapfile.sectorsdivision = 10;
-    auto amountOfSectors = std::pow(2 * mapfile.sectorsnum + 1, 2);
-    for (auto s = 1; s <= amountOfSectors; s++)
-    {
-        mapfile.sectors.emplace_back().Polys.emplace_back(s);
-    }
-    p.loadmap(mapfile);
+  twaypoints w;
+  Polymap p{w};
+  tmapfile mapfile;
+  mapfile.sectorsnum = 2;
+  mapfile.sectorsdivision = 10;
+  auto amountOfSectors = std::pow(2 * mapfile.sectorsnum + 1, 2);
+  for (auto s = 1; s <= amountOfSectors; s++)
+  {
+    mapfile.sectors.emplace_back().Polys.emplace_back(s);
+  }
+  p.loadmap(mapfile);
 
-    {
-        const auto sector = p.GetSector({-25.0f, -25.0f});
-        EXPECT_EQ(false, sector.IsValid());
-    }
+  {
+    const auto sector = p.GetSector({-25.0f, -25.0f});
+    EXPECT_EQ(false, sector.IsValid());
+  }
 
-    {
-        const auto sector = p.GetSector({-15.0f, -15.0f});
-        ASSERT_EQ(true, sector.IsValid());
-        EXPECT_EQ(1, sector.GetPolys()[0].Index);
-    }
+  {
+    const auto sector = p.GetSector({-15.0f, -15.0f});
+    ASSERT_EQ(true, sector.IsValid());
+    EXPECT_EQ(1, sector.GetPolys()[0].Index);
+  }
 
-    {
-        const auto sector = p.GetSector({15.0f, 15.0f});
-        ASSERT_EQ(true, sector.IsValid());
-        EXPECT_EQ(25, sector.GetPolys()[0].Index);
-    }
+  {
+    const auto sector = p.GetSector({15.0f, 15.0f});
+    ASSERT_EQ(true, sector.IsValid());
+    EXPECT_EQ(25, sector.GetPolys()[0].Index);
+  }
 }

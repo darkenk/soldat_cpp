@@ -13,339 +13,336 @@
 
 void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
 {
-    tmsg_playerdisconnect *playermsg;
-    tplayer *player;
-    std::int32_t i, j;
+  tmsg_playerdisconnect *playermsg;
+  tplayer *player;
+  std::int32_t i, j;
 
-    if (!verifypacket(sizeof(tmsg_playerdisconnect), netmessage->m_cbSize, msgid_playerdisconnect))
-        return;
+  if (!verifypacket(sizeof(tmsg_playerdisconnect), netmessage->m_cbSize, msgid_playerdisconnect))
+    return;
 
-    playermsg = pmsg_playerdisconnect(netmessage->m_pData);
-    player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
-    i = player->spritenum;
+  playermsg = pmsg_playerdisconnect(netmessage->m_pData);
+  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  i = player->spritenum;
 
-    for (j = 0; j <= SpriteSystem::Get().GetSprite(i).bulletcheckamount; j++)
-        SpriteSystem::Get().GetSprite(i).bulletcheck[j] = 0;
+  for (j = 0; j <= SpriteSystem::Get().GetSprite(i).bulletcheckamount; j++)
+    SpriteSystem::Get().GetSprite(i).bulletcheck[j] = 0;
 
-    SpriteSystem::Get().GetSprite(i).bulletcheckindex = 0;
-    SpriteSystem::Get().GetSprite(i).bulletcheckamount = 0;
+  SpriteSystem::Get().GetSprite(i).bulletcheckindex = 0;
+  SpriteSystem::Get().GetSprite(i).bulletcheckamount = 0;
 
-    messagesasecnum[playermsg->num] += 1;
+  messagesasecnum[playermsg->num] += 1;
 
-    if ((GS::GetGame().IsVoteActive()) && (GS::GetGame().GetVoteType() == vote_kick))
-        if (strtoint(GS::GetGame().GetVoteTarget()) == i)
-        {
-            kickplayer(i, true, kick_voted, five_minutes, "Vote Kicked (Left game)");
-            GS::GetGame().stopvote();
-            return;
-        }
-
-    switch (SpriteSystem::Get().GetSprite(i).player->team)
+  if ((GS::GetGame().IsVoteActive()) && (GS::GetGame().GetVoteType() == vote_kick))
+    if (strtoint(GS::GetGame().GetVoteTarget()) == i)
     {
-    case team_none:
-        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                           " has left the game.",
-                                       enter_message_color);
-        break;
-    case team_alpha:
-        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                           " has left alpha team.",
-                                       alphaj_message_color);
-        break;
-    case team_bravo:
-        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                           " has left bravo team.",
-                                       bravoj_message_color);
-        break;
-    case team_charlie:
-        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                           " has left charlie team.",
-                                       charliej_message_color);
-        break;
-    case team_delta:
-        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                           " has left delta team.",
-                                       deltaj_message_color);
-        break;
-    case team_spectator:
-        GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                           " has left spectators",
-                                       deltaj_message_color);
-        break;
+      kickplayer(i, true, kick_voted, five_minutes, "Vote Kicked (Left game)");
+      GS::GetGame().stopvote();
+      return;
     }
 
-    for (j = 1; j <= max_players; j++)
-        if ((trim(tklist[j]) == "") || (tklist[j] == SpriteSystem::Get().GetSprite(i).player->ip))
-        {
-            tklistkills[j] = SpriteSystem::Get().GetSprite(i).player->tkwarnings;
-            tklist[j] = SpriteSystem::Get().GetSprite(i).player->ip;
-            break;
-        }
+  switch (SpriteSystem::Get().GetSprite(i).player->team)
+  {
+  case team_none:
+    GetServerMainConsole().console(
+      SpriteSystem::Get().GetSprite(i).player->name + " has left the game.", enter_message_color);
+    break;
+  case team_alpha:
+    GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                     " has left alpha team.",
+                                   alphaj_message_color);
+    break;
+  case team_bravo:
+    GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                     " has left bravo team.",
+                                   bravoj_message_color);
+    break;
+  case team_charlie:
+    GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                     " has left charlie team.",
+                                   charliej_message_color);
+    break;
+  case team_delta:
+    GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+                                     " has left delta team.",
+                                   deltaj_message_color);
+    break;
+  case team_spectator:
+    GetServerMainConsole().console(
+      SpriteSystem::Get().GetSprite(i).player->name + " has left spectators", deltaj_message_color);
+    break;
+  }
 
-    serverplayerdisconnect(i, kick_leftgame);
+  for (j = 1; j <= max_players; j++)
+    if ((trim(tklist[j]) == "") || (tklist[j] == SpriteSystem::Get().GetSprite(i).player->ip))
+    {
+      tklistkills[j] = SpriteSystem::Get().GetSprite(i).player->tkwarnings;
+      tklist[j] = SpriteSystem::Get().GetSprite(i).player->ip;
+      break;
+    }
 
-    if (SpriteSystem::Get().GetSprite(i).isnotspectator())
-        SpriteSystem::Get().GetSprite(i).dropweapon();
-    SpriteSystem::Get().GetSprite(i).player->muted = 0;
-    SpriteSystem::Get().GetSprite(i).player->tkwarnings = 0;
+  serverplayerdisconnect(i, kick_leftgame);
+
+  if (SpriteSystem::Get().GetSprite(i).isnotspectator())
+    SpriteSystem::Get().GetSprite(i).dropweapon();
+  SpriteSystem::Get().GetSprite(i).player->muted = 0;
+  SpriteSystem::Get().GetSprite(i).player->tkwarnings = 0;
 
 #ifdef SCRIPT
-    scrptdispatcher.onleavegame(SpriteSystem::Get().GetSprite(i).num, false);
+  scrptdispatcher.onleavegame(SpriteSystem::Get().GetSprite(i).num, false);
 #endif
 
-    // NOTE: no disconnect event is generated by disconnect_now, hence we destroy Player here
-    SpriteSystem::Get().GetSprite(i).kill();
-    delete SpriteSystem::Get().GetSprite(i).player;
-    SpriteSystem::Get().GetSprite(i).player = new TServerPlayer();
-    NotImplemented( "Check if &player is used properly to remove player");
-    players.erase(std::remove(players.begin(), players.end(), player), players.end());
+  // NOTE: no disconnect event is generated by disconnect_now, hence we destroy Player here
+  SpriteSystem::Get().GetSprite(i).kill();
+  delete SpriteSystem::Get().GetSprite(i).player;
+  SpriteSystem::Get().GetSprite(i).player = new TServerPlayer();
+  NotImplemented("Check if &player is used properly to remove player");
+  players.erase(std::remove(players.begin(), players.end(), player), players.end());
 
-    GetServerNetwork()->NetworkingSocket().CloseConnection(netmessage->m_conn, 0, "", false);
+  GetServerNetwork()->NetworkingSocket().CloseConnection(netmessage->m_conn, 0, "", false);
 
-    dobalancebots(1, SpriteSystem::Get().GetSprite(i).player->team);
+  dobalancebots(1, SpriteSystem::Get().GetSprite(i).player->team);
 }
 
 void servermapchange(std::uint8_t id)
 {
-    tmsg_mapchange mapchangemsg;
-    tplayer dstplayer;
+  tmsg_mapchange mapchangemsg;
+  tplayer dstplayer;
 
-    mapchangemsg.header.id = msgid_mapchange;
-    mapchangemsg.counter = GS::GetGame().GetMapchangecounter();
-    strcpy(mapchangemsg.mapname.data(), GS::GetGame().GetMapchange().name.data());
-    auto mapchecksum =
-        getmapchecksum(GS::GetGame().GetMapchange(), GS::GetGame().GetGameModChecksum());
-    mapchangemsg.mapchecksum = mapchecksum;
-    GS::GetGame().SetMapChecksum(mapchecksum);
+  mapchangemsg.header.id = msgid_mapchange;
+  mapchangemsg.counter = GS::GetGame().GetMapchangecounter();
+  strcpy(mapchangemsg.mapname.data(), GS::GetGame().GetMapchange().name.data());
+  auto mapchecksum =
+    getmapchecksum(GS::GetGame().GetMapchange(), GS::GetGame().GetGameModChecksum());
+  mapchangemsg.mapchecksum = mapchecksum;
+  GS::GetGame().SetMapChecksum(mapchecksum);
 
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-    {
-        sprite.player->tkwarnings = 0;
-        tklist[sprite.num] = "";
-        tklistkills[sprite.num] = 0;
-    }
+  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  {
+    sprite.player->tkwarnings = 0;
+    tklist[sprite.num] = "";
+    tklistkills[sprite.num] = 0;
+  }
 
-    if (id == 0)
-    {
-        ;
-        // NOTE we send to pending players too, otherwise there is a small window where they miss
-        // the map change NOTE also that we're using the CONNECTION channel, which is required for
-        // all packets that can be sent before a sprite is assigned to the player for proper
-        // sequencing with encryption commands.
-        //    for DstPlayer in Players do
-        //      udp->senddata(&MapChangeMsg, sizeof(MapChangeMsg), DstPlayer.peer,
-        //      k_nSteamNetworkingSend_Reliable);
-    }
-    else if ((SpriteSystem::Get().GetSprite(id).active) &&
-             (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
-        GetServerNetwork()->senddata(&mapchangemsg, sizeof(mapchangemsg),
-                                     SpriteSystem::Get().GetSprite(id).player->peer,
-                                     k_nSteamNetworkingSend_Reliable);
+  if (id == 0)
+  {
+    ;
+    // NOTE we send to pending players too, otherwise there is a small window where they miss
+    // the map change NOTE also that we're using the CONNECTION channel, which is required for
+    // all packets that can be sent before a sprite is assigned to the player for proper
+    // sequencing with encryption commands.
+    //    for DstPlayer in Players do
+    //      udp->senddata(&MapChangeMsg, sizeof(MapChangeMsg), DstPlayer.peer,
+    //      k_nSteamNetworkingSend_Reliable);
+  }
+  else if ((SpriteSystem::Get().GetSprite(id).active) &&
+           (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
+    GetServerNetwork()->senddata(&mapchangemsg, sizeof(mapchangemsg),
+                                 SpriteSystem::Get().GetSprite(id).player->peer,
+                                 k_nSteamNetworkingSend_Reliable);
 }
 
 void serverflaginfo(std::uint8_t style, std::uint8_t who)
 {
-    tmsg_serverflaginfo flagmsg;
+  tmsg_serverflaginfo flagmsg;
 
-    flagmsg.header.id = msgid_flaginfo;
-    flagmsg.style = style;
-    flagmsg.who = who;
+  flagmsg.header.id = msgid_flaginfo;
+  flagmsg.style = style;
+  flagmsg.who = who;
 
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-    {
-        if (sprite.player->controlmethod == human)
-            GetServerNetwork()->senddata(&flagmsg, sizeof(flagmsg), sprite.player->peer,
-                                         k_nSteamNetworkingSend_Reliable);
-    }
+  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  {
+    if (sprite.player->controlmethod == human)
+      GetServerNetwork()->senddata(&flagmsg, sizeof(flagmsg), sprite.player->peer,
+                                   k_nSteamNetworkingSend_Reliable);
+  }
 }
 
 void serveridleanimation(std::uint8_t num, std::int16_t style)
 {
-    tmsg_idleanimation idlemsg;
+  tmsg_idleanimation idlemsg;
 
-    idlemsg.header.id = msgid_idleanimation;
-    idlemsg.num = num;
-    idlemsg.idlerandom = style;
+  idlemsg.header.id = msgid_idleanimation;
+  idlemsg.num = num;
+  idlemsg.idlerandom = style;
 
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  {
+    if (sprite.player->controlmethod == human)
     {
-        if (sprite.player->controlmethod == human)
-        {
-            GetServerNetwork()->senddata(&idlemsg, sizeof(idlemsg), sprite.player->peer,
-                                         k_nSteamNetworkingSend_Reliable);
-        }
+      GetServerNetwork()->senddata(&idlemsg, sizeof(idlemsg), sprite.player->peer,
+                                   k_nSteamNetworkingSend_Reliable);
     }
+  }
 }
 
 void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string targetname,
                       std::string reason)
 {
-    tmsg_voteon votemsg;
+  tmsg_voteon votemsg;
 
-    votemsg.header.id = msgid_voteon;
-    votemsg.votetype = votestyle;
-    votemsg.timer = GS::GetGame().GetVoteTimeRemaining();
-    votemsg.who = voter;
-    stringtoarray(votemsg.targetname.data(), targetname);
-    stringtoarray(votemsg.reason.data(), reason);
+  votemsg.header.id = msgid_voteon;
+  votemsg.votetype = votestyle;
+  votemsg.timer = GS::GetGame().GetVoteTimeRemaining();
+  votemsg.who = voter;
+  stringtoarray(votemsg.targetname.data(), targetname);
+  stringtoarray(votemsg.reason.data(), reason);
 
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  {
+    if (sprite.player->controlmethod == human)
     {
-        if (sprite.player->controlmethod == human)
-        {
-            GetServerNetwork()->senddata(&votemsg, sizeof(votemsg), sprite.player->peer,
-                                         k_nSteamNetworkingSend_Reliable);
-        }
+      GetServerNetwork()->senddata(&votemsg, sizeof(votemsg), sprite.player->peer,
+                                   k_nSteamNetworkingSend_Reliable);
     }
+  }
 }
 
 void serversendvoteoff()
 {
-    tmsg_voteoff votemsg;
+  tmsg_voteoff votemsg;
 
-    votemsg.header.id = msgid_voteoff;
+  votemsg.header.id = msgid_voteoff;
 
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  {
+    if (sprite.player->controlmethod == human)
     {
-        if (sprite.player->controlmethod == human)
-        {
-            GetServerNetwork()->senddata(&votemsg, sizeof(votemsg), sprite.player->peer,
-                                         k_nSteamNetworkingSend_Reliable);
-        }
+      GetServerNetwork()->senddata(&votemsg, sizeof(votemsg), sprite.player->peer,
+                                   k_nSteamNetworkingSend_Reliable);
     }
+  }
 }
 
 void serverhandlevotekick(SteamNetworkingMessage_t *netmessage)
 {
-    tmsg_votekick *votekickmsg;
-    tplayer *player;
-    std::int32_t i;
+  tmsg_votekick *votekickmsg;
+  tplayer *player;
+  std::int32_t i;
 
-    if (!verifypacket(sizeof(tmsg_votekick), netmessage->m_cbSize, msgid_votekick))
-        return;
+  if (!verifypacket(sizeof(tmsg_votekick), netmessage->m_cbSize, msgid_votekick))
+    return;
 
-    votekickmsg = pmsg_votekick(netmessage->m_pData);
-    player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
-    i = player->spritenum;
+  votekickmsg = pmsg_votekick(netmessage->m_pData);
+  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  i = player->spritenum;
 
+  if (GS::GetGame().IsVoteActive())
+  {
+    // if a vote against a player is in progress,
+    // don't allow that player to vote against himself.
+    if (GS::GetGame().GetVoteType() != vote_kick)
+      return;
+    if (strtoint(GS::GetGame().GetVoteTarget()) == i)
+    {
+      serversendstringmessage("A vote has been cast against you. You can not vote.", i, 255,
+                              msgtype_pub);
+      return;
+    }
+
+    // check if he already voted
+    if (GS::GetGame().HasVoted(i))
+      return;
+
+    // check if the vote target is actually the target
+    if (GS::GetGame().GetVoteTarget() != inttostr(votekickmsg->num))
+      return;
+
+#ifdef SCRIPT
+    scrptdispatcher.onvotekick(i, votekickmsg.num);
+#endif
+    GS::GetGame().countvote(i);
+  }
+  else
+  {
     if (GS::GetGame().IsVoteActive())
     {
-        // if a vote against a player is in progress,
-        // don't allow that player to vote against himself.
-        if (GS::GetGame().GetVoteType() != vote_kick)
-            return;
-        if (strtoint(GS::GetGame().GetVoteTarget()) == i)
-        {
-            serversendstringmessage("A vote has been cast against you. You can not vote.", i, 255,
-                                    msgtype_pub);
-            return;
-        }
-
-        // check if he already voted
-        if (GS::GetGame().HasVoted(i))
-            return;
-
-        // check if the vote target is actually the target
-        if (GS::GetGame().GetVoteTarget() != inttostr(votekickmsg->num))
-            return;
+      // only allow valid votes
+      if ((votekickmsg->num < 1) || (votekickmsg->num > max_players))
+        return;
+      if (SpriteSystem::Get().GetSprite(i).player->muted == 1)
+      {
+        writeconsole(i, "You are muted. You can't cast a vote kick.", server_message_color);
+        return;
+      }
 
 #ifdef SCRIPT
-        scrptdispatcher.onvotekick(i, votekickmsg.num);
-#endif
-        GS::GetGame().countvote(i);
-    }
-    else
-    {
-        if (GS::GetGame().IsVoteActive())
-        {
-            // only allow valid votes
-            if ((votekickmsg->num < 1) || (votekickmsg->num > max_players))
-                return;
-            if (SpriteSystem::Get().GetSprite(i).player->muted == 1)
-            {
-                writeconsole(i, "You are muted. You can't cast a vote kick.", server_message_color);
-                return;
-            }
-
-#ifdef SCRIPT
-            if (scrptdispatcher.onvotekickstart(i, votekickmsg.num, string(votekickmsg.reason)))
-                return;
+      if (scrptdispatcher.onvotekickstart(i, votekickmsg.num, string(votekickmsg.reason)))
+        return;
 #endif
 
-            GS::GetGame().startvote(i, vote_kick, inttostr(votekickmsg->num),
-                                    votekickmsg->reason.data());
-            serversendvoteon(GS::GetGame().GetVoteType(), i, inttostr(votekickmsg->num),
-                             votekickmsg->reason.data());
-            // Show started votekick in admin console
-            GetServerMainConsole().console(
-                SpriteSystem::Get().GetSprite(i).player->name + " started votekick against " +
-                    SpriteSystem::Get().GetSprite(votekickmsg->num).player->name +
-                    " - Reason:" + std::string(votekickmsg->reason.data()),
-                vote_message_color);
-        }
+      GS::GetGame().startvote(i, vote_kick, inttostr(votekickmsg->num), votekickmsg->reason.data());
+      serversendvoteon(GS::GetGame().GetVoteType(), i, inttostr(votekickmsg->num),
+                       votekickmsg->reason.data());
+      // Show started votekick in admin console
+      GetServerMainConsole().console(
+        SpriteSystem::Get().GetSprite(i).player->name + " started votekick against " +
+          SpriteSystem::Get().GetSprite(votekickmsg->num).player->name +
+          " - Reason:" + std::string(votekickmsg->reason.data()),
+        vote_message_color);
     }
+  }
 }
 
 void serverhandlevotemap(SteamNetworkingMessage_t *netmessage)
 {
-    tmsg_votemap *votemapmsg;
-    tmsg_votemapreply votemapreplymsg;
-    tplayer *player;
-    std::int32_t i;
+  tmsg_votemap *votemapmsg;
+  tmsg_votemapreply votemapreplymsg;
+  tplayer *player;
+  std::int32_t i;
 
-    if (!verifypacket(sizeof(tmsg_votemap), netmessage->m_cbSize, msgid_votemap))
-        return;
+  if (!verifypacket(sizeof(tmsg_votemap), netmessage->m_cbSize, msgid_votemap))
+    return;
 
-    votemapmsg = pmsg_votemap(netmessage->m_pData);
-    player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
-    i = player->spritenum;
+  votemapmsg = pmsg_votemap(netmessage->m_pData);
+  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  i = player->spritenum;
 
-    if (votemapmsg->mapid > mapslist.size() - 1)
-        return;
+  if (votemapmsg->mapid > mapslist.size() - 1)
+    return;
 
-    votemapreplymsg.header.id = msgid_votemapreply;
-    votemapreplymsg.count = mapslist.size();
-    strcpy(votemapreplymsg.mapname.data(), mapslist[votemapmsg->mapid].data());
+  votemapreplymsg.header.id = msgid_votemapreply;
+  votemapreplymsg.count = mapslist.size();
+  strcpy(votemapreplymsg.mapname.data(), mapslist[votemapmsg->mapid].data());
 
-    GetServerNetwork()->senddata(&votemapreplymsg, sizeof(votemapreplymsg),
-                                 SpriteSystem::Get().GetSprite(i).player->peer,
-                                 k_nSteamNetworkingSend_Reliable);
+  GetServerNetwork()->senddata(&votemapreplymsg, sizeof(votemapreplymsg),
+                               SpriteSystem::Get().GetSprite(i).player->peer,
+                               k_nSteamNetworkingSend_Reliable);
 }
 
 void serverhandlechangeteam(SteamNetworkingMessage_t *netmessage)
 {
-    tmsg_changeteam *changeteammsg;
-    tplayer *player;
-    std::int32_t i;
+  tmsg_changeteam *changeteammsg;
+  tplayer *player;
+  std::int32_t i;
 
-    if (!verifypacket(sizeof(tmsg_changeteam), netmessage->m_cbSize, msgid_changeteam))
-        return;
-    changeteammsg = pmsg_changeteam(netmessage->m_pData);
-    player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
-    i = player->spritenum;
-    SpriteSystem::Get().GetSprite(i).changeteam(changeteammsg->team);
+  if (!verifypacket(sizeof(tmsg_changeteam), netmessage->m_cbSize, msgid_changeteam))
+    return;
+  changeteammsg = pmsg_changeteam(netmessage->m_pData);
+  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  i = player->spritenum;
+  SpriteSystem::Get().GetSprite(i).changeteam(changeteammsg->team);
 }
 
 void serversyncmsg(std::int32_t tonum)
 {
-    tmsg_serversyncmsg syncmsg;
+  tmsg_serversyncmsg syncmsg;
 
-    syncmsg.header.id = msgid_serversyncmsg;
-    syncmsg.time = GS::GetGame().GetTimelimitcounter();
-    if (GS::GetGame().GetMapchangecounter() == 999999999)
-        syncmsg.pause = 1;
-    else
-        syncmsg.pause = 0;
+  syncmsg.header.id = msgid_serversyncmsg;
+  syncmsg.time = GS::GetGame().GetTimelimitcounter();
+  if (GS::GetGame().GetMapchangecounter() == 999999999)
+    syncmsg.pause = 1;
+  else
+    syncmsg.pause = 0;
 
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  {
+    if ((tonum == 0) || (sprite.num == tonum))
     {
-        if ((tonum == 0) || (sprite.num == tonum))
-        {
-            if (sprite.player->controlmethod == human)
-            {
-                GetServerNetwork()->senddata(&syncmsg, sizeof(syncmsg), sprite.player->peer,
-                                             k_nSteamNetworkingSend_Reliable);
-            }
-        }
+      if (sprite.player->controlmethod == human)
+      {
+        GetServerNetwork()->senddata(&syncmsg, sizeof(syncmsg), sprite.player->peer,
+                                     k_nSteamNetworkingSend_Reliable);
+      }
     }
+  }
 }

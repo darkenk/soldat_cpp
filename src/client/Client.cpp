@@ -145,642 +145,639 @@ std::int32_t shotricochet;
 
 void restartgraph()
 {
-    windowready = false;
+  windowready = false;
 
-    dotextureloading(true);
+  dotextureloading(true);
 
-    auto &map = GS::GetGame().GetMap();
+  auto &map = GS::GetGame().GetMap();
 
-    // Load Map
-    map.loadmap(GS::GetGame().GetMapchange(), CVar::r_forcebg, CVar::r_forcebg_color1,
-                CVar::r_forcebg_color2);
+  // Load Map
+  map.loadmap(GS::GetGame().GetMapchange(), CVar::r_forcebg, CVar::r_forcebg_color1,
+              CVar::r_forcebg_color2);
 
-    windowready = true;
+  windowready = true;
 
-    if (!escmenu->active)
-    {
-        mx = gamewidthhalf;
-        my = gameheighthalf;
-        mouseprev.x = mx;
-        mouseprev.y = my;
-    }
+  if (!escmenu->active)
+  {
+    mx = gamewidthhalf;
+    my = gameheighthalf;
+    mouseprev.x = mx;
+    mouseprev.y = my;
+  }
 
-    GetMainConsole().console(("Graphics restart"), debug_message_color);
+  GetMainConsole().console(("Graphics restart"), debug_message_color);
 }
 
 void loadweaponnames()
 {
-    std::int32_t i;
+  std::int32_t i;
 
-    GetMainConsole().console(std::string("Loading Weapon Names from ") + moddir +
-                                 "txt/weaponnames.txt",
-                             debug_message_color);
-    if (PHYSFS_exists((pchar)(moddir + "txt/weaponnames.txt")))
+  GetMainConsole().console(std::string("Loading Weapon Names from ") + moddir +
+                             "txt/weaponnames.txt",
+                           debug_message_color);
+  if (PHYSFS_exists((pchar)(moddir + "txt/weaponnames.txt")))
+  {
+    PHYSFS_File *tf;
+    tf = PHYSFS_openRead((pchar)(moddir + "txt/weaponnames.txt"));
+    for (i = 0; i <= double_weapons - 1; i++)
     {
-        PHYSFS_File *tf;
-        tf = PHYSFS_openRead((pchar)(moddir + "txt/weaponnames.txt"));
-        for (i = 0; i <= double_weapons - 1; i++)
-        {
-            PhysFS_ReadLn(tf, gundisplayname[weaponnumexternaltointernal(i)]);
-        }
-        PHYSFS_close(tf);
+      PhysFS_ReadLn(tf, gundisplayname[weaponnumexternaltointernal(i)]);
     }
+    PHYSFS_close(tf);
+  }
 }
 
 void redirectdialog()
 {
-    std::array<SDL_MessageBoxButtonData, 2> buttons;
-    SDL_MessageBoxData data;
-    std::int32_t response;
+  std::array<SDL_MessageBoxButtonData, 2> buttons;
+  SDL_MessageBoxData data;
+  std::int32_t response;
 
-    rendergameinfo("Server Redirect");
-    buttons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
-    buttons[0].buttonid = 0;
-    buttons[0].text = "Yes";
-    buttons[1].flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
-    buttons[1].buttonid = 1;
-    buttons[1].text = "No";
+  rendergameinfo("Server Redirect");
+  buttons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
+  buttons[0].buttonid = 0;
+  buttons[0].text = "Yes";
+  buttons[1].flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
+  buttons[1].buttonid = 1;
+  buttons[1].text = "No";
 
-    data.flags = 0;
-    data.window = gamewindow;
-    data.title = "Server Redirect";
-    auto msg = (redirectmsg + "\r\n\r\nRedirect to server " + redirectip + ":" +
-                inttostr(redirectport) + "?");
-    data.message = msg.c_str();
-    data.numbuttons = 2;
-    data.buttons = &buttons.at(0);
-    data.colorScheme = nullptr;
+  data.flags = 0;
+  data.window = gamewindow;
+  data.title = "Server Redirect";
+  auto msg =
+    (redirectmsg + "\r\n\r\nRedirect to server " + redirectip + ":" + inttostr(redirectport) + "?");
+  data.message = msg.c_str();
+  data.numbuttons = 2;
+  data.buttons = &buttons.at(0);
+  data.colorScheme = nullptr;
 
-    if (SDL_ShowMessageBox(&data, &response) != 0)
-        return;
+  if (SDL_ShowMessageBox(&data, &response) != 0)
+    return;
 
-    redirecttoserver = false;
+  redirecttoserver = false;
 
-    if (response == 0)
-    {
-        joinip = redirectip;
-        joinport = inttostr(redirectport);
-        joinserver();
-    }
-    else
-    {
-        redirectip = "";
-        redirectport = 0;
-        redirectmsg = "";
-        exittomenu();
-    }
+  if (response == 0)
+  {
+    joinip = redirectip;
+    joinport = inttostr(redirectport);
+    joinserver();
+  }
+  else
+  {
+    redirectip = "";
+    redirectport = 0;
+    redirectmsg = "";
+    exittomenu();
+  }
 }
 
 void exittomenu()
 {
-    std::int32_t i;
+  std::int32_t i;
 
-    GS::GetGame().ResetGoalTicks();
+  GS::GetGame().ResetGoalTicks();
 
-    // Reset network state and show the status std::string (if any)
-    // ShouldRenderFrames := False;
-    // NetEncActive := False;
+  // Reset network state and show the status std::string (if any)
+  // ShouldRenderFrames := False;
+  // NetEncActive := False;
 
-    // resetsynccvars;
+  // resetsynccvars;
 
-    if (GS::GetDemoRecorder().active())
-        GS::GetDemoRecorder().stoprecord();
+  if (GS::GetDemoRecorder().active())
+    GS::GetDemoRecorder().stoprecord();
 
-    if (demoplayer.active())
-        demoplayer.stopdemo();
+  if (demoplayer.active())
+    demoplayer.stopdemo();
 
-    if (mysprite > 0)
-    {
-        clientdisconnect();
-    }
-    if (GetNetwork())
-    {
-        GetNetwork()->disconnect(true);
-    }
+  if (mysprite > 0)
+  {
+    clientdisconnect();
+  }
+  if (GetNetwork())
+  {
+    GetNetwork()->disconnect(true);
+  }
 
-    stopsound(channel_weather);
+  stopsound(channel_weather);
 
-    auto &map = GS::GetGame().GetMap();
+  auto &map = GS::GetGame().GetMap();
 
-    map.name = "";
+  map.name = "";
 
-    if (escmenu != nullptr)
-    {
-        gamemenushow(escmenu, false);
-    }
+  if (escmenu != nullptr)
+  {
+    gamemenushow(escmenu, false);
+  }
 
-    map.filename = ""; // force reloading next time
-    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
-    // WindowReady := False;
+  map.filename = ""; // force reloading next time
+  GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
+  // WindowReady := False;
 
-    auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+  auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
 
-    std::for_each(std::begin(activeSprites), std::end(activeSprites),
-                  [](auto &sprite) { sprite.kill(); });
-    GS::GetBulletSystem().KillAll();
-    for (i = 1; i <= max_sparks; i++)
-        spark[i].kill();
-    GS::GetThingSystem().KillAll();
+  std::for_each(std::begin(activeSprites), std::end(activeSprites),
+                [](auto &sprite) { sprite.kill(); });
+  GS::GetBulletSystem().KillAll();
+  for (i = 1; i <= max_sparks; i++)
+    spark[i].kill();
+  GS::GetThingSystem().KillAll();
 
-    // Reset World and Big Texts
-    for (i = 0; i < max_big_messages; i++)
-    {
-        // Big Text
-        bigtext[i] = "";
-        bigdelay[i] = 0;
-        bigscale[i] = 0;
-        bigcolor[i] = 0;
-        bigposx[i] = 0;
-        bigposy[i] = 0;
-        bigx[i] = 0;
-        // World Text
-        worldtext[i] = "";
-        worlddelay[i] = 0;
-        worldscale[i] = 0;
-        worldcolor[i] = 0;
-        worldposx[i] = 0;
-        worldposy[i] = 0;
-        worldx[i] = 0;
-    }
+  // Reset World and Big Texts
+  for (i = 0; i < max_big_messages; i++)
+  {
+    // Big Text
+    bigtext[i] = "";
+    bigdelay[i] = 0;
+    bigscale[i] = 0;
+    bigcolor[i] = 0;
+    bigposx[i] = 0;
+    bigposy[i] = 0;
+    bigx[i] = 0;
+    // World Text
+    worldtext[i] = "";
+    worlddelay[i] = 0;
+    worldscale[i] = 0;
+    worldcolor[i] = 0;
+    worldposx[i] = 0;
+    worldposy[i] = 0;
+    worldx[i] = 0;
+  }
 
-    // Reset ABOVE CHAT MESSAGE
-    for (i = 1; i < max_sprites; i++)
-    {
-        chatdelay[i] = 0;
-        chatmessage[i] = "";
-        chatteam[i] = false;
-    }
+  // Reset ABOVE CHAT MESSAGE
+  for (i = 1; i < max_sprites; i++)
+  {
+    chatdelay[i] = 0;
+    chatmessage[i] = "";
+    chatteam[i] = false;
+  }
 
-    mysprite = 0;
-    camerafollowsprite = 0;
-    gamethingtarget = 0;
+  mysprite = 0;
+  camerafollowsprite = 0;
+  gamethingtarget = 0;
 
-    if (redirecttoserver)
-        redirectdialog();
+  if (redirecttoserver)
+    redirectdialog();
 }
 
 void startgame(int argc, const char *argv[])
 {
-    float fov;
-    SDL_DisplayMode currentdisplay;
-    std::string systemlang = "en_US";
-    std::string systemfallbacklang = "en_US";
-    char *basepathsdl;
-    char *userpathsdl;
-    if (Config::IsDebug())
+  float fov;
+  SDL_DisplayMode currentdisplay;
+  std::string systemlang = "en_US";
+  std::string systemfallbacklang = "en_US";
+  char *basepathsdl;
+  char *userpathsdl;
+  if (Config::IsDebug())
+  {
+    userpathsdl = SDL_GetBasePath();
+    basepathsdl = SDL_GetBasePath();
+  }
+  else
+  {
+    userpathsdl = SDL_GetPrefPath("Soldat", "Soldat");
+    basepathsdl = SDL_GetBasePath();
+  }
+
+  initclientcommands();
+
+  parsecommandline(argc, argv);
+  if (argc == 1)
+  {
+    parseinput("join 127.0.0.1 23073");
+  }
+
+  if (CVar::fs_portable)
+  {
+    GS::GetGame().SetUserDirectory(basepathsdl);
+    basedirectory = basepathsdl;
+    LogDebugG("[FS] Portable mode enabled.");
+  }
+  else
+  {
+    if (CVar::fs_userpath == "")
+      GS::GetGame().SetUserDirectory(basepathsdl);
+    if (CVar::fs_basepath == "")
+      basedirectory = basepathsdl;
+  }
+  SDL_free(basepathsdl);
+  SDL_free(userpathsdl);
+  basepathsdl = nullptr;
+  userpathsdl = nullptr;
+
+  const auto &userdirectory = GS::GetGame().GetUserDirectory();
+
+  LogDebugG("[FS] userdirectory: {}", userdirectory);
+  LogDebugG("[FS] basedirectory: {}", basedirectory);
+
+  // Create the basic folder structure
+  createdirifmissing(userdirectory + "/configs");
+  createdirifmissing(userdirectory + "/screens");
+  createdirifmissing(userdirectory + "/demos");
+  createdirifmissing(userdirectory + "/logs");
+  createdirifmissing(userdirectory + "/logs/kills");
+  createdirifmissing(userdirectory + "/maps");
+  createdirifmissing(userdirectory + "/mods");
+
+  newlogfiles(userdirectory);
+
+  GetMainConsole().countmax = round(15 * _rscala.y);
+  GetMainConsole().scrolltickmax = 150;
+  GetMainConsole().newmessagewait = 150;
+  GetMainConsole().alphacount = 255;
+  GetMainConsole().count = 0;
+  GetMainConsole().countmax = round(CVar::ui_console_length * _rscala.y);
+
+  if (GetMainConsole().countmax > 254)
+  {
+    GetMainConsole().countmax = 254;
+  }
+
+  // TODO remove HWIDs, replace by Fae auth tickets
+  hwid = "00000000000";
+
+  initing = 0;
+
+  LogDebugG("[PhysFS] Initializing system");
+
+  if (not PhysFS_InitThreadSafe())
+  {
+    showmessage(("Could not initialize PhysFS. Try to reinstall the game."));
+    return;
+  }
+
+  LogDebugG("[PhysFS] Mounting game archive");
+  if (CVar::fs_localmount)
+  {
+    if (!PHYSFS_mount((pchar)(userdirectory), "/", false))
     {
-        userpathsdl = SDL_GetBasePath();
-        basepathsdl = SDL_GetBasePath();
+      showmessage(("Could not load base game archive (game directory)."));
+      return;
     }
+  }
+  else
+  {
+    if (!PHYSFS_mount((basedirectory + "/soldat.smod").c_str(), "/", false))
+    {
+      showmessage(("Could not load base game archive (soldat.smod). Try to reinstall the game."));
+      return;
+    }
+
+    GS::GetGame().SetGameModChecksum(sha1file(basedirectory + "/soldat.smod"));
+  }
+
+  moddir = "";
+
+  if (CVar::fs_mod != "")
+  {
+    LogDebugG("[PhysFS] Mounting mods/{}.smod", lowercase(CVar::fs_mod));
+    if (!PHYSFS_mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod").c_str(),
+                      (std::string("mods/") + lowercase(CVar::fs_mod) + "/").c_str(), false))
+    {
+      showmessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
+      return;
+    }
+    moddir = std::string("mods/") + lowercase(CVar::fs_mod) + '/';
+    GS::GetGame().SetCustomModChecksum(
+      sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"));
+  }
+
+  loadinterfacearchives(userdirectory + "custom-interfaces/");
+
+  PhysFS_CopyFileFromArchive("configs/client.cfg", userdirectory + "/configs/client.cfg");
+
+  loadconfig("client.cfg");
+
+  // these might change so keep a backup to avoid changing the settings file
+  screenwidth = CVar::r_screenwidth;
+  screenheight = CVar::r_screenheight;
+  renderheight = CVar::r_renderheight;
+  renderwidth = CVar::r_renderwidth;
+
+  SDL_Init(SDL_INIT_VIDEO);
+  SDL_GetCurrentDisplayMode(0, &currentdisplay);
+
+  if ((screenwidth == 0) || (screenheight == 0))
+  {
+    screenwidth = currentdisplay.w;
+    screenheight = currentdisplay.h;
+  }
+
+  if ((renderwidth == 0) || (renderheight == 0))
+  {
+    renderwidth = screenwidth;
+    renderheight = screenheight;
+  }
+
+  // Calculcate FOV to check for too high/low vision
+  fov = (float)(renderwidth) / renderheight;
+  if (fov > max_fov)
+  {
+    renderwidth = ceil(renderheight * max_fov);
+    fov = max_fov;
+  }
+  else if (fov < min_fov)
+  {
+    renderheight = ceil((float)(renderwidth) / min_fov);
+    fov = min_fov;
+  }
+
+  // Calulcate internal game width based on the fov and internal height
+  gamewidth = round(fov * gameheight);
+  gamewidthhalf = (float)(gamewidth) / 2;
+  gameheighthalf = (float)(gameheight) / 2;
+
+  if (CVar::r_fullscreen == 0)
+  {
+    // avoid black bars in windowed mode
+    if (((float)(screenwidth) / screenheight) >= ((float)(renderwidth) / renderheight))
+      screenwidth = round(screenheight * ((float)(renderwidth) / renderheight));
     else
-    {
-        userpathsdl = SDL_GetPrefPath("Soldat", "Soldat");
-        basepathsdl = SDL_GetBasePath();
-    }
+      screenheight = round(screenwidth * ((float)(renderheight) / renderwidth));
+  }
 
-    initclientcommands();
+  // window size equals "screen" size except in windowed fullscreen
+  windowwidth = screenwidth;
+  windowheight = screenheight;
 
-    parsecommandline(argc, argv);
-    if (argc == 1)
-    {
-        parseinput("join 127.0.0.1 23073");
-    }
+  if (CVar::r_fullscreen == 2)
+  {
+    ;
+    //  WindowWidth := Screen.Width;
+    //  WindowHeight := Screen.Height;
+  }
 
-    if (CVar::fs_portable)
-    {
-        GS::GetGame().SetUserDirectory(basepathsdl);
-        basedirectory = basepathsdl;
-        LogDebugG("[FS] Portable mode enabled.");
-    }
-    else
-    {
-        if (CVar::fs_userpath == "")
-            GS::GetGame().SetUserDirectory(basepathsdl);
-        if (CVar::fs_basepath == "")
-            basedirectory = basepathsdl;
-    }
-    SDL_free(basepathsdl);
-    SDL_free(userpathsdl);
-    basepathsdl = nullptr;
-    userpathsdl = nullptr;
+  LogInfo("gfx", "Window size: {}x{}", windowwidth, windowheight);
+  LogInfo("gfx", "Target resolution: {}x{}", screenwidth, screenheight);
+  LogInfo("gfx", "Internal resolution: {}x{}", renderwidth, renderheight);
 
-    const auto &userdirectory = GS::GetGame().GetUserDirectory();
+  // even windowed mode can behave as fullscreen with the right size
+  // IsFullscreen := (WindowWidth = Screen.Width) and (WindowHeight = Screen.Height);
 
-    LogDebugG("[FS] userdirectory: {}", userdirectory);
-    LogDebugG("[FS] basedirectory: {}", basedirectory);
+  // interface is hard-coded to work on 4:3 aspect ratio,
+  // but luckily for us the interface rendering code
+  // translates the points using _RScala scale factor
+  // above, so all we floatly need to do to make interace
+  // work for widescreens is translate those points to a wider
+  // area, which we can do by using the 640/480 as scale factors
+  // even in widescreen resolutions. The interface code does NOT
+  // use the _RScala to scale the interface, so this won't make
+  // it look distorted.
+  if (CVar::r_scaleinterface)
+  {
+    _rscala.x = 1;
+    _rscala.y = 1;
 
-    // Create the basic folder structure
-    createdirifmissing(userdirectory + "/configs");
-    createdirifmissing(userdirectory + "/screens");
-    createdirifmissing(userdirectory + "/demos");
-    createdirifmissing(userdirectory + "/logs");
-    createdirifmissing(userdirectory + "/logs/kills");
-    createdirifmissing(userdirectory + "/maps");
-    createdirifmissing(userdirectory + "/mods");
+    _iscala.x = (float)(gamewidth) / default_width;
+    _iscala.y = 1;
 
-    newlogfiles(userdirectory);
+    fragx = floor(gamewidthhalf - 300) - 25;
+  }
+  else
+  {
+    _rscala.x = (float)(renderwidth) / gamewidth;
+    _rscala.y = (float)(renderheight) / gameheight;
 
-    GetMainConsole().countmax = round(15 * _rscala.y);
-    GetMainConsole().scrolltickmax = 150;
-    GetMainConsole().newmessagewait = 150;
-    GetMainConsole().alphacount = 255;
-    GetMainConsole().count = 0;
-    GetMainConsole().countmax = round(CVar::ui_console_length * _rscala.y);
+    _iscala.x = (float)(renderwidth) / 640;
+    _iscala.y = (float)(renderheight) / 480;
 
-    if (GetMainConsole().countmax > 254)
-    {
-        GetMainConsole().countmax = 254;
-    }
+    fragx = floor((float)(renderwidth) / 2 - 300) - 25;
 
-    // TODO remove HWIDs, replace by Fae auth tickets
-    hwid = "00000000000";
+    if (renderheight > gameheight)
+      fragy = round(10 * _rscala.y);
+  }
 
-    initing = 0;
+  gamerenderingparams.interfacename = CVar::ui_style;
 
-    LogDebugG("[PhysFS] Initializing system");
+  resetframetiming();
 
-    if (not PhysFS_InitThreadSafe())
-    {
-        showmessage(("Could not initialize PhysFS. Try to reinstall the game."));
-        return;
-    }
+  gfxlog("Loading game graphics");
 
-    LogDebugG("[PhysFS] Mounting game archive");
-    if (CVar::fs_localmount)
-    {
-        if (!PHYSFS_mount((pchar)(userdirectory), "/", false))
-        {
-            showmessage(("Could not load base game archive (game directory)."));
-            return;
-        }
-    }
-    else
-    {
-        if (!PHYSFS_mount((basedirectory + "/soldat.smod").c_str(), "/", false))
-        {
-            showmessage(
-                ("Could not load base game archive (soldat.smod). Try to reinstall the game."));
-            return;
-        }
+  if (!initgamegraphics())
+  {
+    showmessage(std::string("The required OpenGL functionality isn't supported. ") +
+                "Please, update your video drivers and try again.");
+    // ExitButtonClick(nullptr);
+    return;
+  }
 
-        GS::GetGame().SetGameModChecksum(sha1file(basedirectory + "/soldat.smod"));
-    }
+  windowready = true;
 
-    moddir = "";
-
-    if (CVar::fs_mod != "")
-    {
-        LogDebugG("[PhysFS] Mounting mods/{}.smod", lowercase(CVar::fs_mod));
-        if (!PHYSFS_mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod").c_str(),
-                          (std::string("mods/") + lowercase(CVar::fs_mod) + "/").c_str(), false))
-        {
-            showmessage(
-                (std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
-            return;
-        }
-        moddir = std::string("mods/") + lowercase(CVar::fs_mod) + '/';
-        GS::GetGame().SetCustomModChecksum(
-            sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"));
-    }
-
-    loadinterfacearchives(userdirectory + "custom-interfaces/");
-
-    PhysFS_CopyFileFromArchive("configs/client.cfg", userdirectory + "/configs/client.cfg");
-
-    loadconfig("client.cfg");
-
-    // these might change so keep a backup to avoid changing the settings file
-    screenwidth = CVar::r_screenwidth;
-    screenheight = CVar::r_screenheight;
-    renderheight = CVar::r_renderheight;
-    renderwidth = CVar::r_renderwidth;
-
-    SDL_Init(SDL_INIT_VIDEO);
-    SDL_GetCurrentDisplayMode(0, &currentdisplay);
-
-    if ((screenwidth == 0) || (screenheight == 0))
-    {
-        screenwidth = currentdisplay.w;
-        screenheight = currentdisplay.h;
-    }
-
-    if ((renderwidth == 0) || (renderheight == 0))
-    {
-        renderwidth = screenwidth;
-        renderheight = screenheight;
-    }
-
-    // Calculcate FOV to check for too high/low vision
-    fov = (float)(renderwidth) / renderheight;
-    if (fov > max_fov)
-    {
-        renderwidth = ceil(renderheight * max_fov);
-        fov = max_fov;
-    }
-    else if (fov < min_fov)
-    {
-        renderheight = ceil((float)(renderwidth) / min_fov);
-        fov = min_fov;
-    }
-
-    // Calulcate internal game width based on the fov and internal height
-    gamewidth = round(fov * gameheight);
-    gamewidthhalf = (float)(gamewidth) / 2;
-    gameheighthalf = (float)(gameheight) / 2;
-
-    if (CVar::r_fullscreen == 0)
-    {
-        // avoid black bars in windowed mode
-        if (((float)(screenwidth) / screenheight) >= ((float)(renderwidth) / renderheight))
-            screenwidth = round(screenheight * ((float)(renderwidth) / renderheight));
-        else
-            screenheight = round(screenwidth * ((float)(renderheight) / renderwidth));
-    }
-
-    // window size equals "screen" size except in windowed fullscreen
-    windowwidth = screenwidth;
-    windowheight = screenheight;
-
-    if (CVar::r_fullscreen == 2)
-    {
-        ;
-        //  WindowWidth := Screen.Width;
-        //  WindowHeight := Screen.Height;
-    }
-
-    LogInfo("gfx", "Window size: {}x{}", windowwidth, windowheight);
-    LogInfo("gfx", "Target resolution: {}x{}", screenwidth, screenheight);
-    LogInfo("gfx", "Internal resolution: {}x{}", renderwidth, renderheight);
-
-    // even windowed mode can behave as fullscreen with the right size
-    // IsFullscreen := (WindowWidth = Screen.Width) and (WindowHeight = Screen.Height);
-
-    // interface is hard-coded to work on 4:3 aspect ratio,
-    // but luckily for us the interface rendering code
-    // translates the points using _RScala scale factor
-    // above, so all we floatly need to do to make interace
-    // work for widescreens is translate those points to a wider
-    // area, which we can do by using the 640/480 as scale factors
-    // even in widescreen resolutions. The interface code does NOT
-    // use the _RScala to scale the interface, so this won't make
-    // it look distorted.
-    if (CVar::r_scaleinterface)
-    {
-        _rscala.x = 1;
-        _rscala.y = 1;
-
-        _iscala.x = (float)(gamewidth) / default_width;
-        _iscala.y = 1;
-
-        fragx = floor(gamewidthhalf - 300) - 25;
-    }
-    else
-    {
-        _rscala.x = (float)(renderwidth) / gamewidth;
-        _rscala.y = (float)(renderheight) / gameheight;
-
-        _iscala.x = (float)(renderwidth) / 640;
-        _iscala.y = (float)(renderheight) / 480;
-
-        fragx = floor((float)(renderwidth) / 2 - 300) - 25;
-
-        if (renderheight > gameheight)
-            fragy = round(10 * _rscala.y);
-    }
-
-    gamerenderingparams.interfacename = CVar::ui_style;
-
-    resetframetiming();
-
-    gfxlog("Loading game graphics");
-
-    if (!initgamegraphics())
-    {
-        showmessage(std::string("The required OpenGL functionality isn't supported. ") +
-                    "Please, update your video drivers and try again.");
-        // ExitButtonClick(nullptr);
-        return;
-    }
-
-    windowready = true;
-
-    if (CVar::cl_lang != "")
-    {
-        systemlang = CVar::cl_lang;
-    }
-    else
-    {
-        NotImplemented("localization");
+  if (CVar::cl_lang != "")
+  {
+    systemlang = CVar::cl_lang;
+  }
+  else
+  {
+    NotImplemented("localization");
 #if 0
         getlanguageids(systemlang, systemfallbacklang);
 #endif
-    }
+  }
 
-    if (inittranslation(moddir + "/txt/" + systemlang + ".mo"))
-        LogDebugG("Game captions loaded from {}/txt/{}", moddir, systemlang);
-    else
-        LogDebugG("Game captions not found");
+  if (inittranslation(moddir + "/txt/" + systemlang + ".mo"))
+    LogDebugG("Game captions loaded from {}/txt/{}", moddir, systemlang);
+  else
+    LogDebugG("Game captions not found");
 
-    addlinetologfile(GetGameLog(), "Initializing Sound Library.", GetGameLogFilename());
-    // Init Sound Library
-    if (!initsound())
-    {
-        addlinetologfile(GetGameLog(), "Failed to initialize Sound Library.", GetGameLogFilename());
-        // Let the player know that he has no sound (no popup window)
-    }
+  addlinetologfile(GetGameLog(), "Initializing Sound Library.", GetGameLogFilename());
+  // Init Sound Library
+  if (!initsound())
+  {
+    addlinetologfile(GetGameLog(), "Failed to initialize Sound Library.", GetGameLogFilename());
+    // Let the player know that he has no sound (no popup window)
+  }
 
-    loadsounds("");
-    if (length(moddir) > 0)
-        loadsounds(moddir.c_str());
+  loadsounds("");
+  if (length(moddir) > 0)
+    loadsounds(moddir.c_str());
 
-    addlinetologfile(GetGameLog(), "Creating network interface.", GetGameLogFilename());
+  addlinetologfile(GetGameLog(), "Creating network interface.", GetGameLogFilename());
 
-    // Create Consoles
-    GetMainConsole().countmax = round(CVar::ui_console_length * _rscala.y);
-    GetMainConsole().scrolltickmax = 150;
-    GetMainConsole().newmessagewait = 150;
-    GetMainConsole().alphacount = 255;
-    GetMainConsole().count = 0;
-    if (GetMainConsole().countmax > 254)
-        GetMainConsole().countmax = 254;
+  // Create Consoles
+  GetMainConsole().countmax = round(CVar::ui_console_length * _rscala.y);
+  GetMainConsole().scrolltickmax = 150;
+  GetMainConsole().newmessagewait = 150;
+  GetMainConsole().alphacount = 255;
+  GetMainConsole().count = 0;
+  if (GetMainConsole().countmax > 254)
+    GetMainConsole().countmax = 254;
 
-    GetBigConsole().countmax =
-        floor((0.85 * renderheight) / (CVar::font_consolelineheight * fontstylesize(font_small)));
-    GetBigConsole().scrolltickmax = 1500000;
-    GetBigConsole().newmessagewait = 0;
-    GetBigConsole().alphacount = 255;
-    GetBigConsole().count = 0;
-    if (GetBigConsole().countmax > 254)
-        GetBigConsole().countmax = 254;
+  GetBigConsole().countmax =
+    floor((0.85 * renderheight) / (CVar::font_consolelineheight * fontstylesize(font_small)));
+  GetBigConsole().scrolltickmax = 1500000;
+  GetBigConsole().newmessagewait = 0;
+  GetBigConsole().alphacount = 255;
+  GetBigConsole().count = 0;
+  if (GetBigConsole().countmax > 254)
+    GetBigConsole().countmax = 254;
 
-    GetKillConsole().countmax = round(CVar::ui_killconsole_length * _rscala.y);
-    GetKillConsole().scrolltickmax = 240;
-    GetKillConsole().newmessagewait = 70;
+  GetKillConsole().countmax = round(CVar::ui_killconsole_length * _rscala.y);
+  GetKillConsole().scrolltickmax = 240;
+  GetKillConsole().newmessagewait = 70;
 
-    // Create static player objects
-    for (auto &s : SpriteSystem::Get().GetSprites())
-    {
-        s.player = new tplayer();
-    }
+  // Create static player objects
+  for (auto &s : SpriteSystem::Get().GetSprites())
+  {
+    s.player = new tplayer();
+  }
 
-    AnimationSystem::Get().LoadAnimObjects("");
-    if (length(moddir) > 0)
-        AnimationSystem::Get().LoadAnimObjects(moddir);
+  AnimationSystem::Get().LoadAnimObjects("");
+  if (length(moddir) > 0)
+    AnimationSystem::Get().LoadAnimObjects(moddir);
 
-    // greet!
-    // GetMainConsole().console(("Welcome to Soldat ") + soldat_version, default_message_color);
-    GetMainConsole().console(("Welcome to Soldat "), default_message_color);
+  // greet!
+  // GetMainConsole().console(("Welcome to Soldat ") + soldat_version, default_message_color);
+  GetMainConsole().console(("Welcome to Soldat "), default_message_color);
 
-    // Load weapon display names
-    loadweaponnames();
-    createweaponsbase(GS::GetWeaponSystem().GetGuns());
+  // Load weapon display names
+  loadweaponnames();
+  createweaponsbase(GS::GetWeaponSystem().GetGuns());
 
-    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
+  GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
-    playernamesshow = true;
+  playernamesshow = true;
 
-    cursortext = "";
+  cursortext = "";
 
-    initgamemenus();
+  initgamemenus();
 
-    {
-        TIniFile ini{PhysFS_ReadAsStream("txt/radiomenu-default.ini")};
-        ini.ReadSectionValues("OPTIONS", radiomenu);
-    }
+  {
+    TIniFile ini{PhysFS_ReadAsStream("txt/radiomenu-default.ini")};
+    ini.ReadSectionValues("OPTIONS", radiomenu);
+  }
 
-    // Play demo
-    freecam = 1;
-    notexts = 0;
-    shotdistanceshow = -1;
+  // Play demo
+  freecam = 1;
+  notexts = 0;
+  shotdistanceshow = -1;
 
-    if (CVar::r_compatibility)
-        CVar::cl_actionsnap = false;
+  if (CVar::r_compatibility)
+    CVar::cl_actionsnap = false;
 
-    writelogfile(GetGameLog(), GetGameLogFilename());
-    rundeferredcommands();
+  writelogfile(GetGameLog(), GetGameLogFilename());
+  rundeferredcommands();
 }
 
 void shutdown()
 {
-    exittomenu();
+  exittomenu();
 
-    if (abnormalterminate)
-        return;
+  if (abnormalterminate)
+    return;
 
-    addlinetologfile(GetGameLog(), "Freeing sprites.", GetGameLogFilename());
+  addlinetologfile(GetGameLog(), "Freeing sprites.", GetGameLogFilename());
 
-    // Free GFX
-    destroygamegraphics();
+  // Free GFX
+  destroygamegraphics();
 
-    for (auto &s : SpriteSystem::Get().GetSprites())
-    {
-        delete s.player;
-        s.player = nullptr;
-    }
+  for (auto &s : SpriteSystem::Get().GetSprites())
+  {
+    delete s.player;
+    s.player = nullptr;
+  }
 
-    SDL_Quit();
+  SDL_Quit();
 
-    deinittranslation();
+  deinittranslation();
 
-    addlinetologfile(GetGameLog(), "UDP closing.", GetGameLogFilename());
+  addlinetologfile(GetGameLog(), "UDP closing.", GetGameLogFilename());
 
-    NotImplemented("network");
+  NotImplemented("network");
 #if 0
     freeandnullptr(udp);
 #endif
 
-    addlinetologfile(GetGameLog(), "Sound closing.", GetGameLogFilename());
+  addlinetologfile(GetGameLog(), "Sound closing.", GetGameLogFilename());
 
-    closesound();
+  closesound();
 
-    addlinetologfile(GetGameLog(), "PhysFS closing.", GetGameLogFilename());
+  addlinetologfile(GetGameLog(), "PhysFS closing.", GetGameLogFilename());
 
-    PHYSFS_deinit();
+  PHYSFS_deinit();
 
-    commanddeinit();
+  commanddeinit();
 
-    addlinetologfile(GetGameLog(), "   End of Log.", GetGameLogFilename());
+  addlinetologfile(GetGameLog(), "   End of Log.", GetGameLogFilename());
 
-    writelogfile(GetGameLog(), GetGameLogFilename());
+  writelogfile(GetGameLog(), GetGameLogFilename());
 
-    gamelooprun = false;
+  gamelooprun = false;
 }
 
 void startgameloop()
 {
-    while (gamelooprun)
+  while (gamelooprun)
+  {
+    auto begin = std::chrono::system_clock::now();
+    GetNetwork()->processloop();
+    gameinput();
+    if (!gamelooprun)
     {
-        auto begin = std::chrono::system_clock::now();
-        GetNetwork()->processloop();
-        gameinput();
-        if (!gamelooprun)
-        {
-            break;
-        }
-        gameloop();
-        auto end = std::chrono::system_clock::now();
-        constexpr auto frameTime = std::chrono::seconds(1) / 60.f;
-        {
-            ZoneScopedN("WaitingForNextFrame");
-            std::this_thread::sleep_for(frameTime - (end - begin));
-        }
-        FrameMarkNamed("ClientFrame");
+      break;
     }
+    gameloop();
+    auto end = std::chrono::system_clock::now();
+    constexpr auto frameTime = std::chrono::seconds(1) / 60.f;
+    {
+      ZoneScopedN("WaitingForNextFrame");
+      std::this_thread::sleep_for(frameTime - (end - begin));
+    }
+    FrameMarkNamed("ClientFrame");
+  }
 }
 
 void joinserver()
 {
-    resetframetiming();
+  resetframetiming();
 
-    initing += 1;
-    if (initing > 10)
-        initing = 10;
+  initing += 1;
+  if (initing > 10)
+    initing = 10;
 
-    gClientServerIP = trim(joinip);
+  gClientServerIP = trim(joinip);
 
-    NotImplemented( "No error checking");
+  NotImplemented("No error checking");
 #if 0
     if (!trystrtoint(trim(joinport), serverport))
         return;
 #endif
 
-    initgamegraphics();
-    dotextureloading(true);
+  initgamegraphics();
+  dotextureloading(true);
 
-    InitClientNetwork();
-    // DEMO
-    if (joinport == "0")
+  InitClientNetwork();
+  // DEMO
+  if (joinport == "0")
+  {
+    demoplayer.opendemo(GS::GetGame().GetUserDirectory() + "demos/" + joinip + ".sdm");
+    demoplayer.processdemo();
+    progready = true;
+    gamelooprun = true;
+    rendergameinfo(("Loading"));
+    startgameloop();
+  }
+  else
+  {
+
+    rendergameinfo(("Connecting to " + gClientServerIP + ":" + std::to_string(gClientServerPort)));
+
+    if (GetNetwork()->connect(gClientServerIP, gClientServerPort))
     {
-        demoplayer.opendemo(GS::GetGame().GetUserDirectory() + "demos/" + joinip + ".sdm");
-        demoplayer.processdemo();
-        progready = true;
-        gamelooprun = true;
-        rendergameinfo(("Loading"));
-        startgameloop();
+      progready = true;
+      gamelooprun = true;
+      rendergameinfo(("Loading"));
+      clientrequestgame();
+      startgameloop();
     }
     else
     {
-
-        rendergameinfo(
-            ("Connecting to " + gClientServerIP + ":" + std::to_string(gClientServerPort)));
-
-        if (GetNetwork()->connect(gClientServerIP, gClientServerPort))
-        {
-            progready = true;
-            gamelooprun = true;
-            rendergameinfo(("Loading"));
-            clientrequestgame();
-            startgameloop();
-        }
-        else
-        {
-            rendergameinfo(("Connection timed out."));
-            return;
-        }
+      rendergameinfo(("Connection timed out."));
+      return;
     }
+  }
 }
 
 void showmessage(const std::string &message)
 {
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message.c_str(), nullptr);
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message.c_str(), nullptr);
 };

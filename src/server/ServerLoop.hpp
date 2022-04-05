@@ -1,6 +1,4 @@
 #pragma once
 
-
-  void updateframe();
-  void apponidle();
-
+void updateframe();
+void apponidle();

@@ -17,39 +17,39 @@
 /*$scopedenums on*/
 enum taction
 {
-    none,
-    left,
-    right,
-    taction_jump,
-    taction_crouch,
-    fire,
-    jet,
-    taction_reload,
-    changeweapon,
-    voicechat,
-    throwgrenade,
-    dropweapon,
-    taction_prone,
-    flagthrow,
-    statsmenu,
-    gamestats,
-    minimap,
-    playername,
-    fragslist,
-    sniperline,
-    radio,
-    recorddemo,
-    volumeup,
-    volumedown,
-    mousesensitivityup,
-    mousesensitivitydown,
-    cmd,
-    chat,
-    teamchat,
-    snap,
-    weapons,
-    bind,
-    last_taction
+  none,
+  left,
+  right,
+  taction_jump,
+  taction_crouch,
+  fire,
+  jet,
+  taction_reload,
+  changeweapon,
+  voicechat,
+  throwgrenade,
+  dropweapon,
+  taction_prone,
+  flagthrow,
+  statsmenu,
+  gamestats,
+  minimap,
+  playername,
+  fragslist,
+  sniperline,
+  radio,
+  recorddemo,
+  volumeup,
+  volumedown,
+  mousesensitivityup,
+  mousesensitivitydown,
+  cmd,
+  chat,
+  teamchat,
+  snap,
+  weapons,
+  bind,
+  last_taction
 };
 
 taction GetActionEnum(const std::string_view &name);
@@ -57,10 +57,10 @@ taction GetActionEnum(const std::string_view &name);
 typedef struct tbind *pbind;
 struct tbind
 {
-    taction action;
-    std::uint32_t keyid;
-    std::uint32_t keymod;
-    std::string command;
+  taction action;
+  std::uint32_t keyid;
+  std::uint32_t keymod;
+  std::string command;
 };
 
 constexpr std::int32_t km_none = 0;
