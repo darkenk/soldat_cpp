@@ -71,3 +71,12 @@ void TSpriteSystem<TSprite>::UpdateSpriteParts()
 }
 
 template class TSpriteSystem<>;
+
+#include <doctest/doctest.h>
+TEST_CASE("Test for CreateSprite")
+{
+  SpriteSystem::Init();
+  auto &sprite = SpriteSystem::Get().CreateSprite();
+  CHECK(sprite.num == 1);
+  SpriteSystem::Deinit();
+}

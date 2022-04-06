@@ -2,6 +2,7 @@ add_executable(SoldatGame main.cpp)
 target_include_directories(SoldatGame PRIVATE
     ${ROOT_DIR}/src
     ${TRACY_INCLUDE_DIR}
+    ${DOCTEST_INCLUDE_DIR}
 )
 target_link_libraries(SoldatGame
     SoldatClientLib

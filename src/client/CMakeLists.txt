@@ -62,6 +62,7 @@ target_include_directories(SoldatClientLib PRIVATE
     ${FREETYPE_INCLUDE_DIRS}
     ${SOLOUD_INCLUDE_DIR}
     ${TRACY_INCLUDE_DIR}
+    ${DOCTEST_INCLUDE_DIR}
 )
 target_link_libraries(SoldatClientLib
     SDL2::SDL2main
