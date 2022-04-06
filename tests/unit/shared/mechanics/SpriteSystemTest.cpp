@@ -27,15 +27,21 @@ TEST_F(SpriteSystemTest, GetActiveSprites)
   EXPECT_THAT(sprites, Each(Field("Active", &tsprite::active, Eq(true))));
 }
 
+TEST_F(SpriteSystemTest, IdMatchesRequestedSprite)
+{
+  auto &system = SpriteSystem::Get();
+  auto &sprite = system.GetSprite(3);
+  EXPECT_EQ(sprite.num, 3);
+}
+
 TEST_F(SpriteSystemTest, GetActiveSpritesDoubleCheck)
 {
   auto &system = SpriteSystem::Get();
-  auto &sprite = system.GetSprite(1);
+  auto &sprite = system.CreateSprite();
   sprite.active = true;
-  sprite.num = 199; // just fake id
 
   auto &sprites = SpriteSystem::Get().GetActiveSprites();
 
   EXPECT_THAT(sprites, Each(Field("Active", &tsprite::active, Eq(true))));
-  EXPECT_THAT(sprites, Each(Field("Num", &tsprite::num, Eq(199))));
+  EXPECT_THAT(sprites, Each(Field("Num", &tsprite::num, Eq(1))));
 }

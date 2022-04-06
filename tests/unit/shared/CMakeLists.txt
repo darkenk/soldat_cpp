@@ -34,14 +34,9 @@ target_link_libraries(AnimsTest ${LIB_DIRS})
 gtest_discover_tests(AnimsTest)
 
 add_executable(SharedTest
-    ${ROOT_DIR}/src/common/misc/PortUtils.cpp
-    ${ROOT_DIR}/src/common/Parts.cpp
-    ${ROOT_DIR}/src/common/Vector.cpp
-    ${ROOT_DIR}/src/common/PhysFSExt.cpp
     mechanics/SpriteSystemTest.cpp ${ROOT_DIR}/src/shared/mechanics/SpriteSystem.cpp
-    #${ROOT_DIR}/src/shared/mechanics/Sprites.cpp
     #mechanics/SpriteTest.cpp ${ROOT_DIR}/src/shared/mechanics/Sprites.cpp
     )
 target_include_directories(SharedTest PRIVATE ${INC_DIRS})
-target_link_libraries(SharedTest ${LIB_DIRS})
+target_link_libraries(SharedTest CommonLib ${LIB_DIRS})
 gtest_discover_tests(SharedTest)

@@ -6,20 +6,23 @@ using PortUtilities::NotImplemented::GetArea;
 using PortUtilities::NotImplemented::IsDisabled;
 
 // Some compile time tests
+// NOLINTNEXTLINE
 static_assert(sizeof(StringLiteral("audio").value) == 6);
 static_assert(GetArea() == "GENERIC");
 static_assert(GetArea("AUDIO") == "AUDIO");
 static_assert(GetArea("AUDIO", "some description") == "AUDIO");
 static_assert(IsDisabled("AUDIO_TEST") == true);
 static_assert(IsDisabled("GENERIC") == false);
-static_assert(IsDisabled("SOME_DUMMY_NAME") == false);
+static_assert(not IsDisabled("SOME_DUMMY_NAME"));
 
 using NIHandler = decltype(&PortUtilities::NotImplemented::DefaultShowNotImplementedMessage);
 
+// NOLINTBEGIN
 static thread_local std::function<void(const std::string_view, const std::string_view,
                                        const source_location &)>
   gNIHandler = nullptr;
 
+// NOLINTEND
 void TestShowNotImplementedMessage(const std::string_view area, const std::string_view msg,
                                    const source_location &location)
 {

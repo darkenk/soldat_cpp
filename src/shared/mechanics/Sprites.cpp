@@ -54,27 +54,9 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
   auto &map = GS::GetGame().GetMap();
   LogDebug(LOG, "CreateSprite");
 
-  if (n == 255)
-  {
-    for (i = 1; i <= max_sprites; i++)
-    {
-      if (i == max_sprites)
-      {
-        result = -1;
-        return result;
-      }
-      if (!SpriteSystem::Get().GetSprite(i).active)
-        break;
-    }
-  }
-  else
-  {
-    i = n; // i is now the active sprite
-  }
-
-  result = i;
-
-  auto &sprite = SpriteSystem::Get().GetSprite(i);
+  auto &sprite = SpriteSystem::Get().CreateSprite(n);
+  i = sprite.num;
+  result = sprite.num;
 
   // replace player object
   if (sprite.player != nullptr)
@@ -96,7 +78,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
 
   sprite.active = true;
   sprite.style = sstyle;
-  sprite.num = i;
+  SoldatAssert(sprite.num == i);
   sprite.deadmeat = false;
   sprite.respawncounter = 0;
   sprite.ceasefirecounter = GS::GetGame().GetCeasefiretime();
@@ -3795,8 +3777,8 @@ void Sprite<M>::changeteam(std::int32_t team)
 #ifdef SERVER
     player->applyshirtcolorfromteam();
 #endif
-    num = createsprite(a, b, 1, num, player, isplayerobjectowner);
-
+    auto ret = createsprite(a, b, 1, num, player, isplayerobjectowner);
+    SoldatAssert(ret == num);
     if (holdedthing > 0)
       if (things[holdedthing].style < object_ussocom)
       {
@@ -4833,12 +4815,6 @@ template <Config::Module M>
 bool Sprite<M>::isspectator()
 {
   return player->team == team_spectator;
-}
-
-template <Config::Module M>
-bool Sprite<M>::isnotspectator()
-{
-  return player->team != team_spectator;
 }
 
 template <Config::Module M>

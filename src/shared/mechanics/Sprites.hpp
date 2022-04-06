@@ -105,12 +105,14 @@ template <Config::Module M = Config::GetModule()>
 class Sprite
 {
 public:
-  Sprite() = default;
-  Sprite(const Sprite &s) = delete;
+  Sprite(const std::uint8_t _num) : num{_num}
+  {
+  }
+  Sprite(const Sprite &s) = default;
   bool active = false;
   bool deadmeat, dummy;
   std::uint8_t style;
-  std::uint8_t num;
+  const std::uint8_t num;
   std::uint8_t visible;
   bool onground, ongroundforlaw;
   bool ongroundlastframe;
@@ -215,7 +217,10 @@ public:
   bool isnotsolo();
   bool isinteam();
   bool isspectator();
-  bool isnotspectator();
+  bool isnotspectator()
+  {
+    return player->team != team_spectator;
+  }
   bool isinsameteam(const Sprite &otherplayer);
   bool isnotinsameteam(const Sprite &otherplayer);
   bool canrespawn(bool deadmeatbeforerespawn);

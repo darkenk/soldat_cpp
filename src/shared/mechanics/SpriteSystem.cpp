@@ -4,12 +4,36 @@
 template <class TSprite>
 TSpriteSystem<TSprite>::TSpriteSystem() : ActiveSprites(Sprites)
 {
+  Sprites.reserve(max_sprites);
+  for (auto i = 0; i < max_sprites; i++)
+  {
+    Sprites.emplace_back(i + 1);
+  }
 }
 
 template <class TSprite>
-TSprite &TSpriteSystem<TSprite>::GetSprite(int32_t i)
+TSprite &TSpriteSystem<TSprite>::CreateSprite(const SpriteId reuseSpriteId)
 {
-  return Sprites[i];
+  if (reuseSpriteId != SpriteId::Invalid())
+  {
+    return GetSprite(reuseSpriteId);
+  }
+
+  for (auto i = 0; i < max_sprites; i++)
+  {
+    if (!Sprites[i].active)
+    {
+      return Sprites[i];
+    }
+  }
+  NotImplemented("Sprites");
+  std::abort();
+}
+
+template <class TSprite>
+TSprite &TSpriteSystem<TSprite>::GetSprite(const SpriteId id)
+{
+  return Sprites[id.GetId() - 1];
 }
 
 template <class TSprite>

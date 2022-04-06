@@ -5,13 +5,47 @@
 #include <array>
 
 template <class TSprite = tsprite>
+class TSpriteSystem;
+
+class SpriteId
+{
+public:
+  constexpr SpriteId(const SpriteId &ref) : Id{ref.Id}
+  {
+  }
+
+  constexpr SpriteId(const std::uint8_t id) : Id{id}
+  {
+  }
+
+  static constexpr SpriteId Invalid()
+  {
+    return SpriteId{255};
+  }
+
+  constexpr bool operator==(const SpriteId &ref)
+  {
+    return ref.Id == Id;
+  }
+
+private:
+  const std::uint8_t Id;
+
+  auto GetId() const -> decltype(Id)
+  {
+    return Id;
+  }
+  friend class TSpriteSystem<>;
+};
+
+template <class TSprite>
 class TSpriteSystem : public GlobalSubsystem<TSpriteSystem<TSprite>>
 {
 public:
-  using ActiveSpritesStorage = PascalArray<TSprite, 1, max_sprites>;
+  using ActiveSpritesStorage = std::vector<TSprite>;
   class TActiveSprites
   {
-    using InternalIterator = typename std::array<TSprite, max_sprites>::iterator;
+    using InternalIterator = typename ActiveSpritesStorage::iterator;
 
   public:
     class Iterator;
@@ -78,9 +112,11 @@ public:
     ActiveSpritesStorage &Sprites;
   };
 
-  TSprite &GetSprite(std::int32_t i);
+  TSprite &CreateSprite(const SpriteId reuseSpriteId = SpriteId::Invalid());
 
-  PascalArray<TSprite, 1, max_sprites> &GetSprites()
+  TSprite &GetSprite(const SpriteId id);
+
+  std::vector<TSprite> &GetSprites()
   {
     return Sprites;
   }
@@ -122,7 +158,7 @@ protected:
   TSpriteSystem();
 
 private:
-  PascalArray<TSprite, 1, max_sprites> Sprites;
+  std::vector<TSprite> Sprites;
   TActiveSprites ActiveSprites;
   particlesystem spriteparts;
 
