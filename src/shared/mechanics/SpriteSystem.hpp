@@ -112,7 +112,7 @@ public:
     ActiveSpritesStorage &Sprites;
   };
 
-  TSprite &CreateSprite(const SpriteId reuseSpriteId = SpriteId::Invalid());
+  auto CreateSprite(const SpriteId reuseSpriteId = SpriteId::Invalid()) -> TSprite &;
 
   TSprite &GetSprite(const SpriteId id);
 

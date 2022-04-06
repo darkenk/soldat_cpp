@@ -12,19 +12,18 @@ TSpriteSystem<TSprite>::TSpriteSystem() : ActiveSprites(Sprites)
 }
 
 template <class TSprite>
-TSprite &TSpriteSystem<TSprite>::CreateSprite(const SpriteId reuseSpriteId)
+auto TSpriteSystem<TSprite>::CreateSprite(const SpriteId reuseSpriteId) -> TSprite &
 {
   if (reuseSpriteId != SpriteId::Invalid())
   {
     return GetSprite(reuseSpriteId);
   }
 
-  for (auto i = 0; i < max_sprites; i++)
+  auto it =
+    std::find_if(std::begin(Sprites), std::end(Sprites), [](const auto &s) { return !s.active; });
+  if (it != std::end(Sprites))
   {
-    if (!Sprites[i].active)
-    {
-      return Sprites[i];
-    }
+    return *it;
   }
   NotImplemented("Sprites");
   std::abort();
@@ -73,10 +72,27 @@ void TSpriteSystem<TSprite>::UpdateSpriteParts()
 template class TSpriteSystem<>;
 
 #include <doctest/doctest.h>
-TEST_CASE("Test for CreateSprite")
+
+class SpriteSystemFixture
 {
-  SpriteSystem::Init();
+public:
+  SpriteSystemFixture()
+  {
+    SpriteSystem::Init();
+  }
+  ~SpriteSystemFixture()
+  {
+    SpriteSystem::Deinit();
+  }
+};
+
+TEST_CASE_FIXTURE(SpriteSystemFixture, "Test for CreateSprite")
+{
   auto &sprite = SpriteSystem::Get().CreateSprite();
+  sprite.active = true;
   CHECK(sprite.num == 1);
-  SpriteSystem::Deinit();
+  auto &sprite2 = SpriteSystem::Get().CreateSprite(sprite.num);
+  CHECK(sprite2.num == 1);
+  auto &sprite3 = SpriteSystem::Get().CreateSprite();
+  CHECK(sprite3.num == 2);
 }
