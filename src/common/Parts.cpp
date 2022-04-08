@@ -140,7 +140,8 @@ void particlesystem::satisfyconstraintsfor(std::int32_t i)
   }
 }
 
-void particlesystem::createpart(tvector2 start, tvector2 vel, float mass, std::int32_t num)
+void particlesystem::createpart(const tvector2 &start, const tvector2 &vel, const float mass,
+                                const std::int32_t num)
 {
   // Num is now the active Part
   active[num] = true;

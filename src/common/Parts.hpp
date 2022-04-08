@@ -36,7 +36,7 @@ public:
   void doverlettimestepfor(std::int32_t i, std::int32_t j);
   void doeulertimestep();
   void doeulertimestepfor(std::int32_t i);
-  void createpart(tvector2 start, tvector2 vel, float mass, std::int32_t num);
+  void createpart(const tvector2 &start, const tvector2 &vel, const float mass, const int32_t num);
   void makeconstraint(std::int32_t pa, std::int32_t pb, float rest);
   void clone(const particlesystem &other);
   void loadpoobject(const std::string &filename, float scale);

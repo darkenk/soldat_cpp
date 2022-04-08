@@ -179,7 +179,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
 {
   tmsg_playerslist *playerslistmsg;
   std::int32_t i;
-  tvector2 pos, vel, b;
+  tvector2 pos, vel;
   tplayer *newplayer;
   std::string downloadurl;
   tsha1digest checksum;
@@ -316,8 +316,6 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
   GS::GetGame().SetPlayersNum(playerslistmsg->players);
   GS::GetGame().SetTimelimitcounter(playerslistmsg->currenttime);
 
-  b.x = 0;
-  b.y = 0;
   for (i = 0; i < max_sprites; i++)
   {
     if (strcmp(playerslistmsg->name[i].data(), "0 ") != 0)
@@ -364,7 +362,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
       if ((playerslistmsg->look[i] & B8) == B8)
         newplayer->chain = 2;
 
-      createsprite(pos, b, 1, iplus1, newplayer, false);
+      createsprite(pos, 1, iplus1, newplayer, false);
 
       auto &spriteVelocity =
         SpriteSystem::Get().GetVelocity(SpriteSystem::Get().GetSprite(iplus1).num);

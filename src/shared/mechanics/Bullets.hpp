@@ -12,7 +12,7 @@ template <Config::Module M = Config::GetModule()>
 class Bullet
 {
 public:
-  bool active;
+  bool active = false;
 #ifndef SERVER
   bool hashit;
 #endif
@@ -38,7 +38,8 @@ public:
 #ifdef SERVER
   bool dontcheat;
 #else
-  std::int16_t pingadd, pingaddstart;
+  std::int16_t pingadd = 0;
+  std::int16_t pingaddstart = 0;
 #endif
   //  public
   void update();

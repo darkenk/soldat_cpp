@@ -143,7 +143,7 @@ public:
   {
     return spriteparts.forces[spriteId];
   }
-  void CreateSpritePart(const tvector2 &start, tvector2 &vel, const float mass,
+  void CreateSpritePart(const tvector2 &start, const tvector2 &vel, const float mass,
                         const std::int32_t num);
   void DestroySpritePart(const std::int32_t spriteId)
   {

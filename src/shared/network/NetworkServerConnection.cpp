@@ -166,7 +166,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
   bool playernameunused;
   std::int32_t suffixlen;
   std::int32_t i, j;
-  tvector2 a, b;
+  tvector2 a;
 #ifdef SCRIPT
   std::int8_t newteam;
 #endif
@@ -371,7 +371,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
 
   // create sprite and assign it our player object
   randomizestart(a, playerinfomsg->team);
-  createsprite(a, b, 1, 255, player, false); // assigns Player.SpriteNum
+  createsprite(a, 1, 255, player, false); // assigns Player.SpriteNum
 
   // respawn holded thing if is
   // FIXME english

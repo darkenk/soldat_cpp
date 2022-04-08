@@ -42,7 +42,7 @@ typename TSpriteSystem<TSprite>::TActiveSprites &TSpriteSystem<TSprite>::GetActi
 }
 
 template <class TSprite>
-void TSpriteSystem<TSprite>::CreateSpritePart(const tvector2 &start, tvector2 &vel,
+void TSpriteSystem<TSprite>::CreateSpritePart(const tvector2 &start, const tvector2 &vel,
                                               const float mass, const int32_t num)
 {
   spriteparts.createpart(start, vel, mass, num);
@@ -76,6 +76,7 @@ template class TSpriteSystem<>;
 class SpriteSystemFixture
 {
 public:
+  SpriteSystemFixture(const SpriteSystemFixture &) = default;
   SpriteSystemFixture()
   {
     SpriteSystem::Init();

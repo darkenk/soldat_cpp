@@ -248,8 +248,8 @@ private:
 using tsprite = Sprite<Config::GetModule()>;
 
 template <Config::Module M = Config::GetModule()>
-std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t sstyle, std::uint8_t n,
-                          tplayer *player, bool transferownership);
+std::int32_t createsprite(tvector2 &spos, std::uint8_t sstyle, std::uint8_t n, tplayer *player,
+                          bool transferownership);
 
 template <Config::Module M = Config::GetModule()>
 bool teamcollides(const PolygonType poly, const std::int32_t team, const bool bullet);

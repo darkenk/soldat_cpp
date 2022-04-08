@@ -21,7 +21,7 @@
 void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
 {
   tmsg_newplayer *newplayermsg;
-  tvector2 a, b;
+  tvector2 a;
   std::int32_t i, d;
 
   if (!verifypacket(sizeof(tmsg_newplayer), netmessage->m_cbSize, msgid_newplayer))
@@ -32,8 +32,6 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
   if ((i < 1) || (i > max_sprites))
     return;
 
-  b.x = 0;
-  b.y = 0;
   auto &player = *SpriteSystem::Get().GetSprite(i).player; // reuse object
   player.name = returnfixedplayername(newplayermsg->name.data());
   player.shirtcolor = newplayermsg->shirtcolor & 0xffffff;
@@ -73,7 +71,7 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
     player.chain = 2;
 
   a = newplayermsg->pos;
-  i = createsprite(a, b, 1, i, &player, false);
+  i = createsprite(a, 1, i, &player, false);
   d = 0;
 
   // The NewPlayer message doubles as confirmation that a player object was

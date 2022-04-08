@@ -612,7 +612,7 @@ void loadweapons(const std::string &Filename)
 
 std::int8_t addbotplayer(std::string name, std::int32_t team)
 {
-  tvector2 a, b;
+  tvector2 a;
   std::int32_t p;
   TServerPlayer *NewPlayer;
   std::string TempStr = "";
@@ -631,7 +631,7 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
   NewPlayer->applyshirtcolorfromteam();
 
   randomizestart(a, team);
-  p = createsprite(a, b, 1, 255, NewPlayer, true);
+  p = createsprite(a, 1, 255, NewPlayer, true);
   Result = p;
 
   auto &guns = GS::GetWeaponSystem().GetGuns();

@@ -44,19 +44,14 @@ bool weaponscleaned = false;
 }
 
 template <Config::Module M>
-std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t sstyle, std::uint8_t n,
-                          tplayer *player, bool transferownership)
+std::int32_t createsprite(tvector2 &spos, std::uint8_t sstyle, std::uint8_t n, tplayer *player,
+                          bool transferownership)
 {
-  std::int32_t i, j;
-  std::int32_t secwep;
-
-  std::int32_t result;
+  tvector2 svelocity;
   auto &map = GS::GetGame().GetMap();
   LogDebug(LOG, "CreateSprite");
 
   auto &sprite = SpriteSystem::Get().CreateSprite(n);
-  i = sprite.num;
-  result = sprite.num;
 
   // replace player object
   if (sprite.player != nullptr)
@@ -73,18 +68,19 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
 #else
   sprite.player = player;
 #endif
-  sprite.player->spritenum = i;
+  sprite.player->spritenum = sprite.num;
   sprite.isplayerobjectowner = transferownership;
 
   sprite.active = true;
   sprite.style = sstyle;
-  SoldatAssert(sprite.num == i);
   sprite.deadmeat = false;
   sprite.respawncounter = 0;
   sprite.ceasefirecounter = GS::GetGame().GetCeasefiretime();
 
   if (CVar::sv_survivalmode)
+  {
     sprite.ceasefirecounter = sprite.ceasefirecounter * 3;
+  }
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
@@ -100,8 +96,9 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
   sprite.idletime = default_idletime;
   sprite.idlerandom = -1;
   sprite.position = pos_stand;
-  sprite.bodyanimation = AnimationSystem::Get().GetAnimation(AnimationType::Stand);
-  sprite.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::Stand);
+  auto &anim = AnimationSystem::Get();
+  sprite.bodyanimation = anim.GetAnimation(AnimationType::Stand);
+  sprite.legsanimation = anim.GetAnimation(AnimationType::Stand);
   sprite.onfire = 0;
   sprite.holdedthing = 0;
   sprite.selweapon = 0;
@@ -125,7 +122,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
   }
 
   // activate sprite part
-  SpriteSystem::Get().CreateSpritePart(spos, svelocity, 1, i);
+  SpriteSystem::Get().CreateSpritePart(spos, svelocity, 1, sprite.num);
 
   // create skeleton
   sprite.skeleton.timestep = 1;
@@ -138,17 +135,15 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
 
   sprite.SetFirstWeapon(guns[noweapon]);
 
-  secwep = sprite.player->secwep + 1;
+  const std::int32_t secwep = sprite.player->secwep + 1;
   auto &weaponSystem = GS::GetWeaponSystem();
+  auto secGun = noweapon;
   if ((secwep >= 1) && (secwep <= secondary_weapons) &&
       (weaponSystem.IsEnabled(primary_weapons + secwep)))
   {
-    sprite.SetSecondWeapon(guns[primary_weapons + secwep]);
+    secGun = primary_weapons + secwep;
   }
-  else
-  {
-    sprite.SetSecondWeapon(guns[noweapon]);
-  }
+  sprite.SetSecondWeapon(guns[secGun]);
 
   sprite.jetscount = map.startjet;
 #ifndef SERVER
@@ -158,7 +153,9 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
 
   sprite.wearhelmet = 1;
   if (sprite.player->headcap == 0)
+  {
     sprite.wearhelmet = 0;
+  }
 
   sprite.brain.targetnum = 1;
   sprite.brain.waypointtimeoutcounter = waypointtimeout;
@@ -166,6 +163,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
   sprite.deadcollidecount = 0;
 
 #ifndef SERVER
+  const std::int32_t i = sprite.num;
   sprite.reloadsoundchannel = i - 1;
   sprite.jetssoundchannel = 1 * max_sprites + i - 1;
   sprite.gattlingsoundchannel = 2 * max_sprites + i - 1;
@@ -176,7 +174,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
 #endif
 
   // clear push wait list
-  for (j = 0; j <= max_pushtick; j++)
+  for (auto j = 0; j <= max_pushtick; j++)
   {
     sprite.nextpush[j].x = 0;
     sprite.nextpush[j].y = 0;
@@ -186,7 +184,7 @@ std::int32_t createsprite(tvector2 &spos, tvector2 &svelocity, std::uint8_t ssty
   sprite.freecontrols();
 
   GS::GetGame().sortplayers(); // sort the players frag list
-  return result;
+  return sprite.num;
 }
 
 template <Config::Module M>
@@ -3714,7 +3712,7 @@ void Sprite<M>::changeteam(std::int32_t team)
 #endif
 {
   std::int32_t i;
-  tvector2 a, b;
+  tvector2 a;
 #ifdef SERVER
   std::vector<std::int32_t> teamscount{6};
 #endif
@@ -3777,19 +3775,23 @@ void Sprite<M>::changeteam(std::int32_t team)
 #ifdef SERVER
     player->applyshirtcolorfromteam();
 #endif
-    auto ret = createsprite(a, b, 1, num, player, isplayerobjectowner);
+    auto ret = createsprite(a, 1, num, player, isplayerobjectowner);
     SoldatAssert(ret == num);
     if (holdedthing > 0)
+    {
       if (things[holdedthing].style < object_ussocom)
       {
         things[holdedthing].respawn();
         holdedthing = 0;
       }
+    }
 
     for (i = 1; i <= max_things; i++)
     {
       if (things[i].holdingsprite == num)
+      {
         things[i].respawn();
+      }
     }
     respawn();
 
@@ -4751,46 +4753,35 @@ template <Config::Module M>
 tvector2 Sprite<M>::getcursoraimdirection()
 {
   tvector2 mouseaim;
-  tvector2 aimdirection;
 
-  tvector2 result;
   mouseaim.x = control.mouseaimx;
   mouseaim.y = control.mouseaimy;
 
-  aimdirection = vec2subtract(mouseaim, skeleton.pos[15]);
+  tvector2 aimdirection = vec2subtract(mouseaim, skeleton.pos[15]);
   vec2normalize(aimdirection, aimdirection);
 
-  result = aimdirection;
-  return result;
+  return aimdirection;
 }
 
 template <Config::Module M>
 tvector2 Sprite<M>::gethandsaimdirection()
 {
-  tvector2 aimdirection;
-
-  tvector2 result;
-  aimdirection = vec2subtract(skeleton.pos[15], skeleton.pos[16]);
+  tvector2 aimdirection = vec2subtract(skeleton.pos[15], skeleton.pos[16]);
   vec2normalize(aimdirection, aimdirection);
 
-  result = aimdirection;
-  return result;
+  return aimdirection;
 }
 
 template <Config::Module M>
 bool Sprite<M>::issolo()
 {
-  bool result;
-  result = player->team == team_none;
-  return result;
+  return player->team == team_none;
 }
 
 template <Config::Module M>
 bool Sprite<M>::isnotsolo()
 {
-  bool result;
-  result = player->team != team_none;
-  return result;
+  return player->team != team_none;
 }
 
 template <Config::Module M>
@@ -4820,17 +4811,13 @@ bool Sprite<M>::isspectator()
 template <Config::Module M>
 bool Sprite<M>::isinsameteam(const Sprite &otherplayer)
 {
-  bool result;
-  result = player->team == otherplayer.player->team;
-  return result;
+  return player->team == otherplayer.player->team;
 }
 
 template <Config::Module M>
 bool Sprite<M>::isnotinsameteam(const Sprite &otherplayer)
 {
-  bool result;
-  result = player->team != otherplayer.player->team;
-  return result;
+  return player->team != otherplayer.player->team;
 }
 
 template <Config::Module M>
@@ -4879,7 +4866,9 @@ void Sprite<M>::CopyOldSpritePos()
   ZoneScopedN("CopyOldSpritePos");
   // Ping Impr
   for (auto i = max_oldpos; i >= 1; i--)
+  {
     oldspritepos[i] = oldspritepos[i - 1];
+  }
 
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
 
@@ -4889,14 +4878,45 @@ void Sprite<M>::CopyOldSpritePos()
 template <Config::Module M>
 tvector2 Sprite<M>::GetOldSpritePos(int32_t idx)
 {
-  tvector2 result;
+  auto i = max_oldpos - 1;
   if (idx < max_oldpos)
-    result = oldspritepos[idx];
-  else
-    result = oldspritepos[max_oldpos - 1];
-  return result;
+  {
+    i = idx;
+  }
+  return oldspritepos[i];
 }
 
 template class Sprite<>;
 template bool teamcollides(PolygonType polytype, std::int32_t team, const bool bullet);
 template class BackgroundState<>;
+
+#include "common/PhysFSExt.hpp"
+#include <doctest/doctest.h>
+
+class SpritesFixture
+{
+public:
+  SpritesFixture()
+  {
+    PhysFS_InitThreadSafe();
+    GS::Init();
+    AnimationSystem::Get().LoadAnimObjects("");
+  }
+  ~SpritesFixture()
+  {
+    GS::Deinit();
+    PHYSFS_deinit();
+  }
+  SpritesFixture(const SpritesFixture &) = delete;
+};
+
+TEST_CASE_FIXTURE(SpritesFixture, "CreateSprite")
+{
+  tvector2 spos; // out
+  std::uint8_t sstyle = 0;
+  std::uint8_t spriteId = 255;
+  auto player = std::make_unique<tplayer>();
+  bool transferownership = false;
+  auto retSpriteId = createsprite(spos, sstyle, spriteId, player.get(), transferownership);
+  CHECK(retSpriteId == 1);
+}
