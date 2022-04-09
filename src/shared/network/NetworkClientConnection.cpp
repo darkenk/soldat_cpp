@@ -180,7 +180,6 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
   tmsg_playerslist *playerslistmsg;
   std::int32_t i;
   tvector2 pos, vel;
-  tplayer *newplayer;
   std::string downloadurl;
   tsha1digest checksum;
   bool forcegraphicsreload = false;
@@ -322,7 +321,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
     {
       [[deprecated("conversion from 0 to 1")]] auto iplus1 =
         i + 1; // convert from indexing from 0 to indexing from 1
-      newplayer = SpriteSystem::Get().GetSprite(iplus1).player; // reuse object
+      auto newplayer = SpriteSystem::Get().GetSprite(iplus1).player; // reuse object
       newplayer->name = returnfixedplayername(playerslistmsg->name[i].data());
       newplayer->shirtcolor = playerslistmsg->shirtcolor[i] | 0xff000000;
       newplayer->pantscolor = playerslistmsg->pantscolor[i] | 0xff000000;
@@ -362,7 +361,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
       if ((playerslistmsg->look[i] & B8) == B8)
         newplayer->chain = 2;
 
-      createsprite(pos, 1, iplus1, newplayer, false);
+      createsprite(pos, 1, iplus1, newplayer);
 
       auto &spriteVelocity =
         SpriteSystem::Get().GetVelocity(SpriteSystem::Get().GetSprite(iplus1).num);

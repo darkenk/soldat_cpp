@@ -102,7 +102,6 @@ void tservernetwork::ProcessLoop()
 void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo)
 {
   std::array<char, 128> info;
-  TServerPlayer *Player = nullptr;
   TIPString TempIP;
 #ifdef DEVELOPMENT
   Debug("[NET] Received SteamNetConnectionStatusChangedCallback_t ",
@@ -125,7 +124,7 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
     // NOTE that this is not called for ordinary disconnects, where we use enet"s
     // disconnect_now, which does not generate additional events. Cleanup of Player is still
     // performed explicitly.
-    Player = reinterpret_cast<TServerPlayer *>(pInfo->m_info.m_nUserData);
+    auto Player = reinterpret_cast<TServerPlayer *>(pInfo->m_info.m_nUserData);
 
     if (Player == nullptr)
     {
@@ -142,8 +141,7 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
       ScrptDispatcher.OnLeaveGame(Player->spritenum, false);
 #endif
       SpriteSystem::Get().GetSprite(Player->spritenum).kill();
-      delete SpriteSystem::Get().GetSprite(Player->spritenum).player;
-      SpriteSystem::Get().GetSprite(Player->spritenum).player = new TServerPlayer;
+      SpriteSystem::Get().GetSprite(Player->spritenum).player = std::make_shared<TServerPlayer>();
     }
 
     LogWarn(LOG_NET, "Connection lost {} {}", pInfo->m_info.m_eEndReason,
@@ -151,7 +149,9 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
 
     // call destructor; this releases any additional resources managed for the connection, such
     // as anti-cheat handles etc.
-    players.erase(std::remove(players.begin(), players.end(), Player), players.end());
+    players.erase(std::remove_if(players.begin(), players.end(),
+                                 [&Player](const auto &v) { return Player == v.get(); }),
+                  players.end());
     delete Player;
 
     NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
@@ -184,7 +184,7 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
   case k_ESteamNetworkingConnectionState_Connected: {
     // if pInfo->m_eOldState = k_ESteamNetworkingConnectionState_Connecting then
     {
-      Player = new TServerPlayer();
+      auto Player = std::make_shared<TServerPlayer>();
       Player->peer = pInfo->m_hConn;
       pInfo->m_info.m_addrRemote.ToString(TempIP.data(), 128, false);
       Player->ip = TempIP.data();
@@ -193,7 +193,7 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
       Player->SteamID = TSteamID(pInfo->m_info.m_identityRemote.GetSteamID64);
 #endif
       NotImplemented("network", "Pointer cast is probably wrong");
-      NetworkingSockets->SetConnectionUserData(pInfo->m_hConn, (std::uint64_t)Player);
+      NetworkingSockets->SetConnectionUserData(pInfo->m_hConn, (std::uint64_t)Player.get());
       LogInfo(LOG_NET, "Connection  accepted {}", pInfo->m_info.m_szConnectionDescription);
       players.push_back(Player);
     }
@@ -245,7 +245,7 @@ void tservernetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 
   // all the following commands can only be issued after the player has joined the game.
   if ((Player->spritenum == 0) or
-      (SpriteSystem::Get().GetSprite(Player->spritenum).player != Player))
+      (SpriteSystem::Get().GetSprite(Player->spritenum).player.get() != Player))
   {
     IncomingMsg->Release();
     return;
@@ -323,7 +323,6 @@ tservernetwork::~tservernetwork()
     NetworkingSockets->DestroyPollGroup(FPollGroup);
   }
 
-  std::for_each(std::begin(players), std::end(players), [](auto &v) { delete v; });
   players.clear();
 }
 

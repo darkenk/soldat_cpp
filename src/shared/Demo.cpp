@@ -132,9 +132,9 @@ std::int32_t tdemorecorder<M>::createdemoplayer()
 {
   std::int32_t p;
 #if SERVER
-  TServerPlayer player;
+  auto player = std::make_shared<TServerPlayer>();
 #else
-  tplayer player;
+  auto player = std::make_shared<tplayer>();
 #endif
   tvector2 a;
 
@@ -149,20 +149,20 @@ std::int32_t tdemorecorder<M>::createdemoplayer()
     return createdemoplayer_result;
   }
 
-  player.demoplayer = true;
-  player.name = "Demo Recorder";
-  player.team = team_spectator;
-  player.controlmethod = human;
+  player->demoplayer = true;
+  player->name = "Demo Recorder";
+  player->team = team_spectator;
+  player->controlmethod = human;
 
 #ifdef SERVER
-  player.peer = std::numeric_limits<std::uint32_t>::max();
+  player->peer = std::numeric_limits<std::uint32_t>::max();
 #endif
   auto &map = GS::GetGame().GetMap();
 
   a.x = min_sectorz * map.GetSectorsDivision() * 0.7;
   a.y = min_sectorz * map.GetSectorsDivision() * 0.7;
 
-  p = createsprite(a, 1, max_sprites, &player, true);
+  p = createsprite(a, 1, max_sprites, player);
   if ((p > 0) && (p < max_sprites + 1))
   {
     NotImplemented("network");

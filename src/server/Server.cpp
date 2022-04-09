@@ -286,7 +286,7 @@ void ActivateServer(int argc, const char *argv[])
   // Initialize player dummy objects (cf. DummyPlayer definition for documentation)
   for (auto &s : SpriteSystem::Get().GetSprites())
   {
-    s.player = new TServerPlayer();
+    s.player = std::make_shared<TServerPlayer>();
   }
 
   // Create Consoles
@@ -538,7 +538,6 @@ void ShutDown()
 
   for (auto &s : SpriteSystem::Get().GetSprites())
   {
-    delete s.player;
     s.player = nullptr;
   }
 
@@ -614,7 +613,6 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
 {
   tvector2 a;
   std::int32_t p;
-  TServerPlayer *NewPlayer;
   std::string TempStr = "";
   LogDebugG("AddBotPlayer");
   std::int8_t Result = 0;
@@ -626,12 +624,12 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
     return Result;
   }
 
-  NewPlayer = new TServerPlayer();
+  auto NewPlayer = std::make_shared<TServerPlayer>();
   NewPlayer->team = team;
   NewPlayer->applyshirtcolorfromteam();
 
   randomizestart(a, team);
-  p = createsprite(a, 1, 255, NewPlayer, true);
+  p = createsprite(a, 1, 255, NewPlayer);
   Result = p;
 
   auto &guns = GS::GetWeaponSystem().GetGuns();

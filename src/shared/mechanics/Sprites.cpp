@@ -44,8 +44,8 @@ bool weaponscleaned = false;
 }
 
 template <Config::Module M>
-std::int32_t createsprite(tvector2 &spos, std::uint8_t sstyle, std::uint8_t n, tplayer *player,
-                          bool transferownership)
+std::int32_t createsprite(tvector2 &spos, std::uint8_t sstyle, std::uint8_t n,
+                          std::shared_ptr<tplayer> player)
 {
   tvector2 svelocity;
   auto &map = GS::GetGame().GetMap();
@@ -57,19 +57,13 @@ std::int32_t createsprite(tvector2 &spos, std::uint8_t sstyle, std::uint8_t n, t
   if (sprite.player != nullptr)
   {
     sprite.player->spritenum = 0;
-    if (sprite.isplayerobjectowner)
-    {
-      delete sprite.player;
-      sprite.player = nullptr;
-    }
   }
 #if SERVER
-  sprite.player = reinterpret_cast<TServerPlayer *>(player);
+  sprite.player = std::static_pointer_cast<TServerPlayer>(player);
 #else
   sprite.player = player;
 #endif
   sprite.player->spritenum = sprite.num;
-  sprite.isplayerobjectowner = transferownership;
 
   sprite.active = true;
   sprite.style = sstyle;
@@ -3775,7 +3769,7 @@ void Sprite<M>::changeteam(std::int32_t team)
 #ifdef SERVER
     player->applyshirtcolorfromteam();
 #endif
-    auto ret = createsprite(a, 1, num, player, isplayerobjectowner);
+    auto ret = createsprite(a, 1, num, player);
     SoldatAssert(ret == num);
     if (holdedthing > 0)
     {
@@ -4915,8 +4909,7 @@ TEST_CASE_FIXTURE(SpritesFixture, "CreateSprite")
   tvector2 spos; // out
   std::uint8_t sstyle = 0;
   std::uint8_t spriteId = 255;
-  auto player = std::make_unique<tplayer>();
-  bool transferownership = false;
-  auto retSpriteId = createsprite(spos, sstyle, spriteId, player.get(), transferownership);
+  auto player = std::make_shared<tplayer>();
+  auto retSpriteId = createsprite(spos, sstyle, spriteId, player);
   CHECK(retSpriteId == 1);
 }

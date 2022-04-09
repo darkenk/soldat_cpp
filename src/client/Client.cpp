@@ -618,7 +618,7 @@ void startgame(int argc, const char *argv[])
   // Create static player objects
   for (auto &s : SpriteSystem::Get().GetSprites())
   {
-    s.player = new tplayer();
+    s.player = std::make_shared<tplayer>();
   }
 
   AnimationSystem::Get().LoadAnimObjects("");
@@ -672,7 +672,6 @@ void shutdown()
 
   for (auto &s : SpriteSystem::Get().GetSprites())
   {
-    delete s.player;
     s.player = nullptr;
   }
 

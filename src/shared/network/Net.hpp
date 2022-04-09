@@ -88,7 +88,7 @@ public:
   void applyshirtcolorfromteam(); // TODO remove, see comment before Name
 };
 
-using TPlayers = std::vector<TServerPlayer *>;
+using TPlayers = std::vector<std::shared_ptr<TServerPlayer>>;
 extern TPlayers players;
 #endif
 

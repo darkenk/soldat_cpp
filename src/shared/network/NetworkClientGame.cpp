@@ -32,46 +32,62 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
   if ((i < 1) || (i > max_sprites))
     return;
 
-  auto &player = *SpriteSystem::Get().GetSprite(i).player; // reuse object
-  player.name = returnfixedplayername(newplayermsg->name.data());
-  player.shirtcolor = newplayermsg->shirtcolor & 0xffffff;
-  player.pantscolor = newplayermsg->pantscolor & 0xffffff;
-  player.skincolor = newplayermsg->skincolor & 0xffffff;
-  player.haircolor = newplayermsg->haircolor & 0xffffff;
-  player.jetcolor = newplayermsg->jetcolor;
-  player.team = newplayermsg->team;
+  auto player = SpriteSystem::Get().GetSprite(i).player; // reuse object
+  player->name = returnfixedplayername(newplayermsg->name.data());
+  player->shirtcolor = newplayermsg->shirtcolor & 0xffffff;
+  player->pantscolor = newplayermsg->pantscolor & 0xffffff;
+  player->skincolor = newplayermsg->skincolor & 0xffffff;
+  player->haircolor = newplayermsg->haircolor & 0xffffff;
+  player->jetcolor = newplayermsg->jetcolor;
+  player->team = newplayermsg->team;
 
 #ifdef STEAM
   player.steamid = tsteamid(newplayermsg->steamid);
   player.steamfriend = steamapi.friends.hasfriend(player.steamid, ord(k_efriendflagimmediate));
 #endif
 
-  player.controlmethod = human;
+  player->controlmethod = human;
 
-  player.hairstyle = 0;
+  player->hairstyle = 0;
   if ((newplayermsg->look & B1) == B1)
-    player.hairstyle = 1;
+  {
+    player->hairstyle = 1;
+  }
   if ((newplayermsg->look & B2) == B2)
-    player.hairstyle = 2;
+  {
+    player->hairstyle = 2;
+  }
   if ((newplayermsg->look & B3) == B3)
-    player.hairstyle = 3;
+  {
+    player->hairstyle = 3;
+  }
   if ((newplayermsg->look & B4) == B4)
-    player.hairstyle = 4;
+  {
+    player->hairstyle = 4;
+  }
 
-  player.headcap = 0;
+  player->headcap = 0;
   if ((newplayermsg->look & B5) == B5)
-    player.headcap = GFX::GOSTEK_HELM;
+  {
+    player->headcap = GFX::GOSTEK_HELM;
+  }
   if ((newplayermsg->look & B6) == B6)
-    player.headcap = GFX::GOSTEK_KAP;
+  {
+    player->headcap = GFX::GOSTEK_KAP;
+  }
 
-  player.chain = 0;
+  player->chain = 0;
   if ((newplayermsg->look & B7) == B7)
-    player.chain = 1;
+  {
+    player->chain = 1;
+  }
   if ((newplayermsg->look & B8) == B8)
-    player.chain = 2;
+  {
+    player->chain = 2;
+  }
 
   a = newplayermsg->pos;
-  i = createsprite(a, 1, i, &player, false);
+  i = createsprite(a, 1, i, player);
   d = 0;
 
   // The NewPlayer message doubles as confirmation that a player object was
@@ -95,7 +111,7 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
     SpriteSystem::Get().GetSprite(mysprite).bulletcount =
       Random(std::numeric_limits<std::uint16_t>::max());
 
-    if (player.team == team_spectator)
+    if (player->team == team_spectator)
     {
       camerafollowsprite = 0;
       camerafollowsprite = getcameratarget();
@@ -146,27 +162,27 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
     switch (newplayermsg->team)
     {
     case team_none:
-      GetMainConsole().console(wideformat(_("{} has joined the game"), (player.name)),
+      GetMainConsole().console(wideformat(_("{} has joined the game"), (player->name)),
                                enter_message_color);
       break;
     case team_alpha:
-      GetMainConsole().console(wideformat(_("{} has joined alpha team"), (player.name)),
+      GetMainConsole().console(wideformat(_("{} has joined alpha team"), (player->name)),
                                alphaj_message_color);
       break;
     case team_bravo:
-      GetMainConsole().console(wideformat(_("{} has joined bravo team"), (player.name)),
+      GetMainConsole().console(wideformat(_("{} has joined bravo team"), (player->name)),
                                bravoj_message_color);
       break;
     case team_charlie:
-      GetMainConsole().console(wideformat(_("{} has joined charlie team"), (player.name)),
+      GetMainConsole().console(wideformat(_("{} has joined charlie team"), (player->name)),
                                charliej_message_color);
       break;
     case team_delta:
-      GetMainConsole().console(wideformat(_("{} has joined delta team"), (player.name)),
+      GetMainConsole().console(wideformat(_("{} has joined delta team"), (player->name)),
                                deltaj_message_color);
       break;
     case team_spectator:
-      GetMainConsole().console(wideformat(_("{} has joined as spectator"), (player.name)),
+      GetMainConsole().console(wideformat(_("{} has joined as spectator"), (player->name)),
                                deltaj_message_color);
       break;
     }

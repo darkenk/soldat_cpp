@@ -371,7 +371,10 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
 
   // create sprite and assign it our player object
   randomizestart(a, playerinfomsg->team);
-  createsprite(a, 1, 255, player, false); // assigns Player.SpriteNum
+  auto it = std::find_if(players.begin(), players.end(),
+                         [&player](const auto &v) { return v.get() == player; });
+  SoldatAssert(it != players.end());
+  createsprite(a, 1, 255, *it); // assigns Player.SpriteNum
 
   // respawn holded thing if is
   // FIXME english
