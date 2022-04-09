@@ -629,7 +629,7 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
   NewPlayer->applyshirtcolorfromteam();
 
   randomizestart(a, team);
-  p = createsprite(a, 1, 255, NewPlayer);
+  p = createsprite(a, 255, NewPlayer);
   Result = p;
 
   auto &guns = GS::GetWeaponSystem().GetGuns();

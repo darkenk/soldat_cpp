@@ -44,8 +44,8 @@ bool weaponscleaned = false;
 }
 
 template <Config::Module M>
-std::int32_t createsprite(tvector2 &spos, std::uint8_t sstyle, std::uint8_t n,
-                          std::shared_ptr<tplayer> player)
+std::int32_t createsprite(tvector2 &spos, std::uint8_t n, std::shared_ptr<tplayer> player,
+                          const tsprite::Style style)
 {
   tvector2 svelocity;
   auto &map = GS::GetGame().GetMap();
@@ -66,7 +66,7 @@ std::int32_t createsprite(tvector2 &spos, std::uint8_t sstyle, std::uint8_t n,
   sprite.player->spritenum = sprite.num;
 
   sprite.active = true;
-  sprite.style = sstyle;
+  sprite.style = style;
   sprite.deadmeat = false;
   sprite.respawncounter = 0;
   sprite.ceasefirecounter = GS::GetGame().GetCeasefiretime();
@@ -607,7 +607,7 @@ void Sprite<M>::update()
     ZoneScopedN("DoAnimation");
     switch (style)
     {
-    case 1: {
+    case tsprite::Style::Default: {
       bodyanimation.doanimation();
       legsanimation.doanimation();
 
@@ -1140,7 +1140,10 @@ void Sprite<M>::update()
 #endif
     }
     break; // 1
-    }      // case
+    default:
+      NotImplemented("generic", "I think this is not used");
+      break;
+    } // switch
   }
 
   if (deadmeat)
@@ -3769,7 +3772,7 @@ void Sprite<M>::changeteam(std::int32_t team)
 #ifdef SERVER
     player->applyshirtcolorfromteam();
 #endif
-    auto ret = createsprite(a, 1, num, player);
+    auto ret = createsprite(a, num, player);
     SoldatAssert(ret == num);
     if (holdedthing > 0)
     {
@@ -4907,9 +4910,19 @@ public:
 TEST_CASE_FIXTURE(SpritesFixture, "CreateSprite")
 {
   tvector2 spos; // out
-  std::uint8_t sstyle = 0;
   std::uint8_t spriteId = 255;
   auto player = std::make_shared<tplayer>();
-  auto retSpriteId = createsprite(spos, sstyle, spriteId, player);
+  auto retSpriteId = createsprite(spos, spriteId, player);
   CHECK(retSpriteId == 1);
+}
+
+TEST_CASE_FIXTURE(SpritesFixture, "CreateSpriteCheckDefaultValues")
+{
+  tvector2 spos; // out
+  std::uint8_t spriteId = 255;
+  auto player = std::make_shared<tplayer>();
+  auto retSpriteId = createsprite(spos, spriteId, player);
+  const auto &sprite = SpriteSystem::Get().GetSprite(retSpriteId);
+  CHECK(retSpriteId == 1);
+  CHECK(sprite.style == tsprite::Style::Default);
 }

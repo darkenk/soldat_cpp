@@ -87,7 +87,7 @@ void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
   }
 
   a = newplayermsg->pos;
-  i = createsprite(a, 1, i, player);
+  i = createsprite(a, i, player);
   d = 0;
 
   // The NewPlayer message doubles as confirmation that a player object was

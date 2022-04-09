@@ -162,7 +162,7 @@ std::int32_t tdemorecorder<M>::createdemoplayer()
   a.x = min_sectorz * map.GetSectorsDivision() * 0.7;
   a.y = min_sectorz * map.GetSectorsDivision() * 0.7;
 
-  p = createsprite(a, 1, max_sprites, player);
+  p = createsprite(a, max_sprites, player);
   if ((p > 0) && (p < max_sprites + 1))
   {
     NotImplemented("network");

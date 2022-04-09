@@ -217,7 +217,8 @@ void rendergostek(tsprite &soldier)
   float x1, y1, x2, y2, cx, cy, r, sx, sy;
   std::int32_t tex, team2offset;
 
-  if ((soldier.style != 1) || (soldier.ceasefirecounter > GS::GetGame().GetCeasefiretime() - 5) ||
+  if ((soldier.style != tsprite::Style::Default) ||
+      (soldier.ceasefirecounter > GS::GetGame().GetCeasefiretime() - 5) ||
       ((CVar::sv_realisticmode) && (soldier.visible == 0)) or (soldier.isspectator()) or
       (soldier.player->name == "") or (soldier.player->demoplayer))
     return;

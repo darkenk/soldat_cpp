@@ -98,7 +98,7 @@ void controlsprite(tsprite &spritec)
 
   switch (spritec.style)
   {
-  case 1: // Gostek
+  case tsprite::Style::Default: // Gostek
   {
     // safety
     if ((spritec.weapon.ammocount > spritec.weapon.ammo) ||

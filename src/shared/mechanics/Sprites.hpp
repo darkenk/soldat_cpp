@@ -105,13 +105,18 @@ template <Config::Module M = Config::GetModule()>
 class Sprite
 {
 public:
+  enum class Style
+  {
+    Default = 1,
+    All
+  };
   Sprite(const std::uint8_t _num) : num{_num}
   {
   }
   Sprite(const Sprite &s) = default;
   bool active = false;
   bool deadmeat, dummy;
-  std::uint8_t style;
+  Style style = Style::Default;
   const std::uint8_t num;
   std::uint8_t visible;
   bool onground, ongroundforlaw;
@@ -247,8 +252,8 @@ private:
 using tsprite = Sprite<Config::GetModule()>;
 
 template <Config::Module M = Config::GetModule()>
-std::int32_t createsprite(tvector2 &spos, std::uint8_t sstyle, std::uint8_t n,
-                          std::shared_ptr<tplayer> player);
+std::int32_t createsprite(tvector2 &spos, std::uint8_t n, std::shared_ptr<tplayer> player,
+                          const tsprite::Style style = tsprite::Style::Default);
 
 template <Config::Module M = Config::GetModule()>
 bool teamcollides(const PolygonType poly, const std::int32_t team, const bool bullet);

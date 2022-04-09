@@ -361,7 +361,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
       if ((playerslistmsg->look[i] & B8) == B8)
         newplayer->chain = 2;
 
-      createsprite(pos, 1, iplus1, newplayer);
+      createsprite(pos, iplus1, newplayer);
 
       auto &spriteVelocity =
         SpriteSystem::Get().GetVelocity(SpriteSystem::Get().GetSprite(iplus1).num);

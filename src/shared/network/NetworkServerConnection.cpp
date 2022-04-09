@@ -374,7 +374,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
   auto it = std::find_if(players.begin(), players.end(),
                          [&player](const auto &v) { return v.get() == player; });
   SoldatAssert(it != players.end());
-  createsprite(a, 1, 255, *it); // assigns Player.SpriteNum
+  createsprite(a, 255, *it); // assigns Player.SpriteNum
 
   // respawn holded thing if is
   // FIXME english
