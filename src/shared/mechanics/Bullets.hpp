@@ -1,12 +1,14 @@
 #pragma once
 
 #include "../Constants.hpp"
-#include "Sprites.hpp"
 #include "Things.hpp"
 #include "common/MapFile.hpp"
 #include "common/Parts.hpp"
 #include "common/Weapons.hpp"
 #include <vector>
+
+using tspriteindexes = PascalArray<std::int32_t, 1, Constants::MAX_SPRITES>;
+using tspritedistances = PascalArray<float, 1, Constants::MAX_SPRITES>;
 
 template <Config::Module M = Config::GetModule()>
 class Bullet

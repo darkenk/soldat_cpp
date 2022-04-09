@@ -1,7 +1,10 @@
 #pragma once
 
-#include "mechanics/Sprites.hpp"
 #include <cstdint>
+template <Config::Module M>
+class Sprite;
+
+class twaypoints;
 
 constexpr std::int32_t dist_away = 731;
 constexpr std::int32_t dist_too_far = 730;
@@ -17,4 +20,4 @@ constexpr std::int32_t dist_stop_prone = 25;
 std::int32_t checkdistance(float posa, float posb);
 void simpledecision(std::uint8_t snum, const twaypoints &botpath);
 void gotothing(std::uint8_t snum, std::uint8_t tnum);
-void controlbot(tsprite &spritec, const twaypoints &botpath);
+void controlbot(Sprite<Config::GetModule()> &spritec, const twaypoints &botpath);

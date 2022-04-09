@@ -74,7 +74,7 @@ void playradiosound(std::uint8_t RadioID)
 #endif
 
 template <Config::Module M>
-void encodekeys(tsprite &SpriteC, std::uint16_t &Keys16)
+void encodekeys(Sprite<M> &SpriteC, std::uint16_t &Keys16)
 {
   auto &Controls = SpriteC.control;
 
@@ -109,7 +109,7 @@ void encodekeys(tsprite &SpriteC, std::uint16_t &Keys16)
 }
 
 template <Config::Module M>
-void decodekeys(tsprite &SpriteC, uint16_t Keys16)
+void decodekeys(Sprite<M> &SpriteC, uint16_t Keys16)
 {
   auto &Controls = SpriteC.control;
 
@@ -450,8 +450,8 @@ void stringtoarray(char *c, std::string s)
 }
 
 template std::string fixplayername(const char *);
-template void encodekeys(tsprite &SpriteC, std::uint16_t &Keys16);
-template void decodekeys(tsprite &SpriteC, uint16_t Keys16);
+template void encodekeys(Sprite<Config::GetModule()> &SpriteC, std::uint16_t &Keys16);
+template void decodekeys(Sprite<Config::GetModule()> &SpriteC, uint16_t Keys16);
 template void stringtoarray(char *c, std::string s);
 template bool iswronggameversion<Config::GetModule()>(std::string RequestVersion);
 template bool verifypacket<Config::GetModule()>(

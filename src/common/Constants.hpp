@@ -383,4 +383,10 @@ constexpr std::int32_t OBJECT_CHAINSAW = 25;
 constexpr std::int32_t OBJECT_LAW = 26;
 constexpr std::int32_t OBJECT_STATIONARY_GUN = 27;
 
+constexpr auto MAX_PLAYERS = 32;
+constexpr auto MAX_SPRITES = 32;
+constexpr auto MAX_BULLETS = 254;
+constexpr auto MAX_SPARKS = 558;
+constexpr auto MAX_THINGS = 90;
+
 }; // namespace Constants

@@ -1,5 +1,6 @@
 #pragma once
 
-#include "Sprites.hpp"
+template <Config::Module M>
+class Sprite;
 
-void controlsprite(tsprite &spritec);
+void controlsprite(Sprite<Config::GetModule()> &spritec);

@@ -2,16 +2,17 @@
 
 #include "common/Vector.hpp"
 #include "shared/Constants.hpp"
-#include "shared/mechanics/Sprites.hpp"
 
 #include <array>
 #include <cstdint>
 #include <string>
 
+auto constexpr MAX_CHAT_SIZE = 32;
+
 // Chat stuff
-extern PascalArray<std::string, 1, max_sprites> chatmessage;
-extern PascalArray<bool, 1, max_sprites> chatteam;
-extern PascalArray<std::int32_t, 1, max_sprites> chatdelay;
+extern PascalArray<std::string, 1, MAX_CHAT_SIZE> chatmessage;
+extern PascalArray<bool, 1, MAX_CHAT_SIZE> chatteam;
+extern PascalArray<std::int32_t, 1, MAX_CHAT_SIZE> chatdelay;
 
 // Big Text
 extern std::array<std::string, max_big_messages> bigtext;

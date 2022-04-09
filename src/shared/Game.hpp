@@ -8,7 +8,6 @@
 #include "common/misc/GlobalSubsystem.hpp"
 #include "mechanics/Bullets.hpp"
 #include "mechanics/Sparks.hpp"
-#include "mechanics/Sprites.hpp"
 #include "mechanics/Things.hpp"
 
 struct tkillsort
@@ -28,13 +27,13 @@ extern float gameheighthalf; // / 2;
 #endif
 
 #ifndef SERVER
-extern PascalArray<tkillsort, 1, max_sprites> sortedteamscore;
+extern PascalArray<tkillsort, 1, Constants::MAX_PLAYERS> sortedteamscore;
 
 extern std::int32_t heartbeattime, heartbeattimewarnings;
 #endif
 
 #ifndef SERVER
-extern PascalArray<tspark, 1, max_sparks> spark; // spark game handling sprite
+extern PascalArray<tspark, 1, Constants::MAX_SPARKS> spark; // spark game handling sprite
 #endif
 
 template <Config::Module M = Config::GetModule()>
@@ -399,7 +398,7 @@ public:
     return sortedplayers[idx];
   }
 
-  PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, max_sprites> &GetWeaponsel()
+  PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, Constants::MAX_PLAYERS> &GetWeaponsel()
   {
     return weaponsel;
   }
@@ -416,8 +415,8 @@ private:
   std::int32_t VoteTimeRemaining = -1;
   std::uint8_t VoteNumVotes = 0;
   std::uint8_t VoteMaxVotes = 0;
-  PascalArray<bool, 1, max_sprites> VoteHasVoted;
-  PascalArray<bool, 1, max_sprites> VoteCooldown;
+  PascalArray<bool, 1, Constants::MAX_PLAYERS> VoteHasVoted;
+  PascalArray<bool, 1, Constants::MAX_PLAYERS> VoteCooldown;
   std::string UserDirectory;
   twaypoints botpath;
   Polymap map;
@@ -456,8 +455,8 @@ private:
   tsha1digest custommodchecksum;
   tsha1digest gamemodchecksum;
   tsha1digest mapchecksum;
-  PascalArray<tkillsort, 1, max_sprites> sortedplayers;
-  PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, max_sprites> weaponsel;
+  PascalArray<tkillsort, 1, Constants::MAX_PLAYERS> sortedplayers;
+  PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, Constants::MAX_PLAYERS> weaponsel;
 
   friend GlobalSubsystem<Game<M>>;
 };

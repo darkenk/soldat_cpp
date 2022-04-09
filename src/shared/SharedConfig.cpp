@@ -10,6 +10,7 @@
 #include "common/gfx.hpp"
 #include "common/misc/TIniFile.hpp"
 #include "network/Net.hpp"
+#include "shared/mechanics/Sprites.hpp"
 #include <sstream>
 
 namespace

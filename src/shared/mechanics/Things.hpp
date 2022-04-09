@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Sprites.hpp"
+#include "BackgroundState.hpp"
 #include "common/MapFile.hpp"
 #include "common/Parts.hpp"
 #include <array>

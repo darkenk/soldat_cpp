@@ -47,11 +47,14 @@ template <Config::Module M>
 std::int32_t createsprite(tvector2 &spos, std::uint8_t n, std::shared_ptr<tplayer> player,
                           const tsprite::Style style)
 {
-  tvector2 svelocity;
-  auto &map = GS::GetGame().GetMap();
   LogDebug(LOG, "CreateSprite");
+  auto &game = GS::GetGame();
+  auto &map = game.GetMap();
+  auto &anim = AnimationSystem::Get();
+  auto &weapon = GS::GetWeaponSystem();
+  auto &spriteSystem = SpriteSystem::Get();
 
-  auto &sprite = SpriteSystem::Get().CreateSprite(n);
+  auto &sprite = spriteSystem.CreateSprite(n);
 
   // replace player object
   if (sprite.player != nullptr)
@@ -64,50 +67,22 @@ std::int32_t createsprite(tvector2 &spos, std::uint8_t n, std::shared_ptr<tplaye
   sprite.player = player;
 #endif
   sprite.player->spritenum = sprite.num;
-
-  sprite.active = true;
-  sprite.style = style;
-  sprite.deadmeat = false;
-  sprite.respawncounter = 0;
-  sprite.ceasefirecounter = GS::GetGame().GetCeasefiretime();
+  sprite.ceasefirecounter = game.GetCeasefiretime();
 
   if (CVar::sv_survivalmode)
   {
     sprite.ceasefirecounter = sprite.ceasefirecounter * 3;
   }
 
-  auto &guns = GS::GetWeaponSystem().GetGuns();
-
-  sprite.alpha = 255;
+  auto &guns = weapon.GetGuns();
   sprite.brain.pissedoff = 0;
-  sprite.vest = 0;
-  sprite.bonusstyle = bonus_none;
-  sprite.bonustime = 0;
-  sprite.multikills = 0;
-  sprite.multikilltime = 0;
   sprite.SetThirdWeapon(guns[fraggrenade]);
-  sprite.hascigar = 0;
-  sprite.idletime = default_idletime;
-  sprite.idlerandom = -1;
-  sprite.position = pos_stand;
-  auto &anim = AnimationSystem::Get();
+
   sprite.bodyanimation = anim.GetAnimation(AnimationType::Stand);
   sprite.legsanimation = anim.GetAnimation(AnimationType::Stand);
-  sprite.onfire = 0;
-  sprite.holdedthing = 0;
-  sprite.selweapon = 0;
-  sprite.stat = 0;
-
-#ifndef SERVER
-  sprite.olddeadmeat = false;
-  sprite.halfdead = false;
-#endif
 
   sprite.bgstate.backgroundstatus = background_transition;
   sprite.bgstate.backgroundpoly = background_poly_unknown;
-
-  svelocity.x = 0;
-  svelocity.y = 0;
 
   if (sprite.player->team == team_spectator)
   {
@@ -116,24 +91,20 @@ std::int32_t createsprite(tvector2 &spos, std::uint8_t n, std::shared_ptr<tplaye
   }
 
   // activate sprite part
-  SpriteSystem::Get().CreateSpritePart(spos, svelocity, 1, sprite.num);
+  spriteSystem.CreateSpritePart(spos, tvector2(0.f, 0.f), 1, sprite.num);
 
   // create skeleton
-  sprite.skeleton.timestep = 1;
-  sprite.skeleton.gravity = 1.06 * grav;
-  sprite.skeleton = AnimationSystem::Get().GetSkeleton(Gostek);
+  sprite.skeleton = anim.GetSkeleton(Gostek);
   sprite.skeleton.vdamping = 0.9945;
 
-  sprite.SetHealth(GS::GetGame().GetStarthealth());
-  sprite.aimdistcoef = defaultaimdist;
+  sprite.SetHealth(game.GetStarthealth());
 
   sprite.SetFirstWeapon(guns[noweapon]);
 
   const std::int32_t secwep = sprite.player->secwep + 1;
-  auto &weaponSystem = GS::GetWeaponSystem();
   auto secGun = noweapon;
   if ((secwep >= 1) && (secwep <= secondary_weapons) &&
-      (weaponSystem.IsEnabled(primary_weapons + secwep)))
+      (weapon.IsEnabled(primary_weapons + secwep)))
   {
     secGun = primary_weapons + secwep;
   }
@@ -145,7 +116,6 @@ std::int32_t createsprite(tvector2 &spos, std::uint8_t n, std::shared_ptr<tplaye
 #endif
   sprite.tertiaryweapon.ammocount = CVar::sv_maxgrenades / 2;
 
-  sprite.wearhelmet = 1;
   if (sprite.player->headcap == 0)
   {
     sprite.wearhelmet = 0;
@@ -153,8 +123,6 @@ std::int32_t createsprite(tvector2 &spos, std::uint8_t n, std::shared_ptr<tplaye
 
   sprite.brain.targetnum = 1;
   sprite.brain.waypointtimeoutcounter = waypointtimeout;
-
-  sprite.deadcollidecount = 0;
 
 #ifndef SERVER
   const std::int32_t i = sprite.num;
@@ -167,17 +135,9 @@ std::int32_t createsprite(tvector2 &spos, std::uint8_t n, std::shared_ptr<tplaye
   sprite.moveskeleton(0, 0, false);
 #endif
 
-  // clear push wait list
-  for (auto j = 0; j <= max_pushtick; j++)
-  {
-    sprite.nextpush[j].x = 0;
-    sprite.nextpush[j].y = 0;
-  }
-
   sprite.bulletcount = Random(std::numeric_limits<std::uint16_t>::max()); // FIXME wat?
-  sprite.freecontrols();
 
-  GS::GetGame().sortplayers(); // sort the players frag list
+  game.sortplayers(); // sort the players frag list
   return sprite.num;
 }
 
@@ -233,6 +193,18 @@ bool teamcollides(PolygonType polytype, std::int32_t team, const bool bullet)
   if (polytype == poly_type_non_flagger_collides)
     result = false;
   return result;
+}
+
+template <Config::Module M>
+Sprite<M>::Sprite(const uint8_t _num, bool _active) : active{_active}, num{_num}
+{
+  // clear push wait list
+  for (auto j = 0; j <= max_pushtick; j++)
+  {
+    nextpush[j].x = 0;
+    nextpush[j].y = 0;
+  }
+  freecontrols();
 }
 
 template <Config::Module M>
@@ -4921,8 +4893,39 @@ TEST_CASE_FIXTURE(SpritesFixture, "CreateSpriteCheckDefaultValues")
   tvector2 spos; // out
   std::uint8_t spriteId = 255;
   auto player = std::make_shared<tplayer>();
+  {
+    // make sprite dirty
+    spriteId = createsprite(spos, spriteId, player);
+    auto &sprite = SpriteSystem::Get().GetSprite(spriteId);
+
+    CHECK(spriteId == 1);
+    sprite.active = false;
+    sprite.player = nullptr;
+    sprite.deadmeat = true;
+  }
   auto retSpriteId = createsprite(spos, spriteId, player);
   const auto &sprite = SpriteSystem::Get().GetSprite(retSpriteId);
+
   CHECK(retSpriteId == 1);
   CHECK(sprite.style == tsprite::Style::Default);
+  CHECK(sprite.active == true);
+  CHECK(sprite.deadmeat == false);
+  CHECK(sprite.respawncounter == 0);
+  CHECK(sprite.alpha == 255);
+  CHECK(sprite.brain.pissedoff == 0);
+  CHECK(sprite.vest == 0);
+  CHECK(sprite.bonusstyle == bonus_none);
+  CHECK(sprite.bonustime == 0);
+  CHECK(sprite.multikills == 0);
+  CHECK(sprite.multikilltime == 0);
+  CHECK(sprite.hascigar == 0);
+  CHECK(sprite.idletime == default_idletime);
+  CHECK(sprite.idlerandom == -1);
+  CHECK(sprite.position == pos_stand);
+  // CHECK(sprite.bodyanimation == anim.GetAnimation(AnimationType::Stand));
+  // CHECK(sprite.legsanimation == anim.GetAnimation(AnimationType::Stand));
+  CHECK(sprite.onfire == 0);
+  CHECK(sprite.holdedthing == 0);
+  CHECK(sprite.selweapon == 0);
+  CHECK(sprite.stat == 0);
 }

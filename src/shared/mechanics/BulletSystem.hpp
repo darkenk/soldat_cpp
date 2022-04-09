@@ -7,14 +7,14 @@ class TBulletSystem
 public:
   TBulletSystem();
 
-  PascalArray<Bullet, 1, max_bullets> &GetBullets()
+  PascalArray<Bullet, 1, Constants::MAX_BULLETS> &GetBullets()
   {
     return Bullets;
   }
 
   void KillAll()
   {
-    for (auto i = 1; i <= max_bullets; i++)
+    for (auto i = 1; i <= Constants::MAX_BULLETS; i++)
     {
       Bullets[i].kill();
     }
@@ -22,7 +22,7 @@ public:
 
 private:
   TBulletSystem(const TBulletSystem &) = delete;
-  PascalArray<Bullet, 1, max_bullets> Bullets;
+  PascalArray<Bullet, 1, Constants::MAX_BULLETS> Bullets;
 };
 
 using BulletSystem = TBulletSystem<>;

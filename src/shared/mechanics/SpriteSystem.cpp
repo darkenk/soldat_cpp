@@ -16,6 +16,8 @@ auto TSpriteSystem<TSprite>::CreateSprite(const SpriteId reuseSpriteId) -> TSpri
 {
   if (reuseSpriteId != SpriteId::Invalid())
   {
+    auto &s = GetSprite(reuseSpriteId);
+    new (&s) TSprite(reuseSpriteId.GetId(), true);
     return GetSprite(reuseSpriteId);
   }
 
@@ -96,4 +98,10 @@ TEST_CASE_FIXTURE(SpriteSystemFixture, "Test for CreateSprite")
   CHECK(sprite2.num == 1);
   auto &sprite3 = SpriteSystem::Get().CreateSprite();
   CHECK(sprite3.num == 2);
+}
+
+TEST_CASE_FIXTURE(SpriteSystemFixture, "All sprites are inactive at the beggining")
+{
+  auto &active = SpriteSystem::Get().GetActiveSprites();
+  CHECK(std::count_if(active.begin(), active.end(), [](const auto &) { return true; }) == 0);
 }

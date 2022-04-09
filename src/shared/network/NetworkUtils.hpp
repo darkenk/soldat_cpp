@@ -1,8 +1,10 @@
 #pragma once
 
-#include "../mechanics/Sprites.hpp"
 #include "common/misc/PortUtils.hpp"
 #include <string>
+
+template <Config::Module M>
+class Sprite;
 
 template <Config::Module M = Config::GetModule()>
 bool iswronggameversion(std::string RequestVersion);
@@ -21,9 +23,9 @@ extern bool isadminpassword(std::string Password);
 #endif
 
 template <Config::Module M = Config::GetModule()>
-void encodekeys(tsprite &SpriteC, std::uint16_t &Keys16);
+void encodekeys(Sprite<M> &SpriteC, std::uint16_t &Keys16);
 template <Config::Module M = Config::GetModule()>
-void decodekeys(tsprite &SpriteC, std::uint16_t Keys16);
+void decodekeys(Sprite<M> &SpriteC, std::uint16_t Keys16);
 
 template <Config::Module M = Config::GetModule()>
 std::string fixplayername(const char *);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../mechanics/Sprites.hpp"
+#include "../Constants.hpp"
 #include "NetworkServer.hpp"
 #include <array>
 #include <cstdint>
@@ -18,13 +18,18 @@ void serverhandleclientspritesnapshot_dead(SteamNetworkingMessage_t *netmessage)
 void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage);
 void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage);
 
-extern std::array<std::array<tmsg_serverspritedelta_movement, max_sprites>, max_sprites>
+extern std::array<std::array<tmsg_serverspritedelta_movement, Constants::MAX_SPRITES>,
+                  Constants::MAX_SPRITES>
   oldmovementmsg;
-extern std::array<std::array<tmsg_serverspritedelta_mouseaim, max_sprites>, max_sprites>
+extern std::array<std::array<tmsg_serverspritedelta_mouseaim, Constants::MAX_SPRITES>,
+                  Constants::MAX_SPRITES>
   oldmouseaimmsg;
-extern std::array<std::array<tmsg_serverspritedelta_weapons, max_sprites>, max_sprites>
+extern std::array<std::array<tmsg_serverspritedelta_weapons, Constants::MAX_SPRITES>,
+                  Constants::MAX_SPRITES>
   oldweaponsmsg;
-extern std::array<std::array<tmsg_serverspritedelta_helmet, max_sprites>, max_sprites> oldhelmetmsg;
-extern std::array<tmsg_serverspritesnapshot, max_sprites> oldspritesnapshotmsg;
-extern std::array<std::int32_t, max_sprites> time_spritesnapshot;
-extern std::array<std::int32_t, max_sprites> time_spritesnapshot_mov;
+extern std::array<std::array<tmsg_serverspritedelta_helmet, Constants::MAX_SPRITES>,
+                  Constants::MAX_SPRITES>
+  oldhelmetmsg;
+extern std::array<tmsg_serverspritesnapshot, Constants::MAX_SPRITES> oldspritesnapshotmsg;
+extern std::array<std::int32_t, Constants::MAX_SPRITES> time_spritesnapshot;
+extern std::array<std::int32_t, Constants::MAX_SPRITES> time_spritesnapshot_mov;

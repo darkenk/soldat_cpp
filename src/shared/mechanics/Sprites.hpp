@@ -3,6 +3,7 @@
 #include "../AnimationSystem.hpp"
 #include "../Constants.hpp"
 #include "../network/Net.hpp"
+#include "BackgroundState.hpp"
 #include "common/Parts.hpp"
 #include "common/PolyMap.hpp"
 #include "common/Vector.hpp"
@@ -86,22 +87,6 @@ struct tbotdata
 };
 
 template <Config::Module M = Config::GetModule()>
-class BackgroundState
-{
-public:
-  std::uint8_t backgroundstatus;
-  std::int16_t backgroundpoly;
-  bool backgroundtestresult;
-  bool backgroundtest(const PolyMapSector::Poly &poly);
-  void backgroundtestbigpolycenter(const tvector2 &pos);
-  std::int16_t backgroundfindcurrentpoly(const tvector2 &pos);
-  void backgroundtestprepare();
-  void backgroundtestreset();
-};
-
-using tbackgroundstate = BackgroundState<Config::GetModule()>;
-
-template <Config::Module M = Config::GetModule()>
 class Sprite
 {
 public:
@@ -110,12 +95,11 @@ public:
     Default = 1,
     All
   };
-  Sprite(const std::uint8_t _num) : num{_num}
-  {
-  }
+  Sprite(const std::uint8_t _num, bool _active = false);
   Sprite(const Sprite &s) = default;
   bool active = false;
-  bool deadmeat, dummy;
+  bool deadmeat = false;
+  bool dummy;
   Style style = Style::Default;
   const std::uint8_t num;
   std::uint8_t visible;
@@ -123,32 +107,36 @@ public:
   bool ongroundlastframe;
   bool ongroundpermanent;
   std::int16_t direction, olddirection;
-  std::uint8_t holdedthing;
+  std::uint8_t holdedthing = 0;
   std::int32_t flaggrabcooldown;
-  float aimdistcoef;
+  float aimdistcoef = defaultaimdist;
   std::uint8_t fired;
-  std::uint8_t alpha;
+  std::uint8_t alpha = 255;
   float jetscountfloat;
   std::int16_t jetscount, jetscountprev;
-  std::uint8_t wearhelmet;
-  std::uint8_t hascigar;
+  std::uint8_t wearhelmet = 1;
+  std::uint8_t hascigar = 0;
   bool canmercy;
-  std::int16_t respawncounter, ceasefirecounter;
-  std::uint8_t selweapon;
-  std::int32_t bonusstyle, bonustime;
-  std::int32_t multikilltime, multikills;
-  float vest;
-  std::int32_t idletime;
-  std::int8_t idlerandom;
+  std::int16_t respawncounter = 0;
+  std::int16_t ceasefirecounter;
+  std::uint8_t selweapon = 0;
+  std::int32_t bonusstyle = bonus_none;
+  std::int32_t bonustime = 0;
+  std::int32_t multikilltime = 0;
+  std::int32_t multikills = 0;
+  float vest = 0.0f;
+  std::int32_t idletime = default_idletime;
+  std::int8_t idlerandom = -1;
   std::uint8_t burstcount;
-  std::uint8_t position;
-  std::uint8_t onfire;
+  std::uint8_t position = pos_stand;
+  std::uint8_t onfire = 0;
   std::uint8_t colliderdistance;
-  std::int32_t deadcollidecount;
+  std::int32_t deadcollidecount = 0;
   std::int32_t deadtime;
-  std::uint8_t para, stat;
+  std::uint8_t para;
+  std::uint8_t stat = 0;
   std::int16_t usetime;
-  bool halfdead;
+  bool halfdead = false;
   float lastweaponhm, lastweaponspeed;
   std::uint8_t lastweaponstyle;
   std::uint64_t lastweaponfire, lastweaponreload;
@@ -172,7 +160,7 @@ public:
   float targetx, targety;
 #else
   std::uint32_t gattlingsoundchannel2, reloadsoundchannel, jetssoundchannel, gattlingsoundchannel;
-  bool olddeadmeat;
+  bool olddeadmeat = false;
   bool muted;
 #endif
   bool dontdrop;

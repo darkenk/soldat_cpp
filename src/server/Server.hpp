@@ -1,8 +1,8 @@
 #pragma once
 
 #include "shared/Console.hpp"
+#include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
-#include "shared/mechanics/Sprites.hpp"
 #include "shared/network/NetworkServer.hpp"
 
 extern bool progready;
@@ -15,8 +15,8 @@ extern std::string lastwepmod;
 
 extern tstringlist mapslist;
 extern std::int8_t lastplayer;
-extern std::array<std::int8_t, max_sprites> cheattag;
-extern std::array<std::int8_t, max_sprites> bulletwarningcount;
+extern std::array<std::int8_t, max_players> cheattag;
+extern std::array<std::int8_t, max_players> bulletwarningcount;
 extern std::int32_t waverespawntime, waverespawncounter;
 extern tstringlist remoteips, adminips;
 extern std::array<std::string, 1000> floodip;

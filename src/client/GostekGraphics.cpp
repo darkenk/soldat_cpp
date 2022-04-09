@@ -8,6 +8,7 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
+#include "shared/mechanics/Sprites.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>
 #include <array>
