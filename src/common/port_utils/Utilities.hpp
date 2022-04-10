@@ -9,7 +9,7 @@
 #if __has_attribute(always_inline)
 #define PU_ALWAYS_INLINE __attribute__((always_inline))
 #else
-#define PU_ALWAYS_INLINE
+#define PU_ALWAYS_INLINE inline
 #endif
 
 namespace PortUtilities
@@ -18,10 +18,7 @@ namespace PortUtilities
 template <std::size_t N>
 struct StringLiteral
 {
-  constexpr StringLiteral(const char (&str)[N])
-  {
-    std::copy_n(str, N, value);
-  }
+  constexpr StringLiteral(const char (&str)[N]) { std::copy_n(str, N, value); }
 
   char value[N];
 };

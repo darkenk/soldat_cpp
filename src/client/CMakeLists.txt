@@ -17,6 +17,8 @@ set(SRC
     GostekGraphics.cpp
     ControlGame.cpp
     CVarClient.cpp
+    debug/DebugWindow.cpp
+    debug/ImguiSrc.cpp
 )
 
 set(SHARED_SRC
@@ -63,6 +65,7 @@ target_include_directories(SoldatClientLib PRIVATE
     ${SOLOUD_INCLUDE_DIR}
     ${TRACY_INCLUDE_DIR}
     ${DOCTEST_INCLUDE_DIR}
+    ${IMGUI_INCLUDE_DIR}
 )
 target_link_libraries(SoldatClientLib
     SDL2::SDL2main
