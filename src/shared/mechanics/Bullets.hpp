@@ -19,7 +19,7 @@ public:
   bool hashit;
 #endif
   std::uint8_t style;
-  std::int16_t num;
+  std::int16_t num = 0;
   std::uint8_t owner;
   std::uint8_t ownerweapon;
   float timeoutfloat;

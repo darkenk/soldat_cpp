@@ -19,6 +19,7 @@ set(SRC
     CVarClient.cpp
     debug/DebugWindow.cpp
     debug/ImguiSrc.cpp
+    SdlApp.cpp
 )
 
 set(SHARED_SRC
