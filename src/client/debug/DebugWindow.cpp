@@ -2,29 +2,18 @@
 // clang-format off
 #include <glad/glad.h>
 // clang-format on
+#include "client/SdlApp.hpp"
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_sdl.h>
 #include <imgui.h>
 
-DebugWindow::DebugWindow(SDL_Window *window, SDL_GLContext context)
+DebugWindow::DebugWindow(SdlApp &app)
 {
   ImGui::CreateContext();
-  ImGui_ImplSDL2_InitForOpenGL(window, context);
+  ImGui_ImplSDL2_InitForOpenGL(app.GetWindow(), app.GetContext());
   ImGui_ImplOpenGL3_Init("#version 100");
   ImGui::StyleColorsLight();
-}
-
-void DebugWindow::BeginFrame()
-{
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplSDL2_NewFrame();
-  ImGui::NewFrame();
-}
-
-void DebugWindow::EndFrame()
-{
-  ImGui::Render();
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  app.RegisterEventInterception([](SDL_Event &evt) { ImGui_ImplSDL2_ProcessEvent(&evt); });
 }
 
 DebugWindow::~DebugWindow()
@@ -34,8 +23,23 @@ DebugWindow::~DebugWindow()
   ImGui::DestroyContext();
 }
 
+void DebugWindow::Draw(ImGuiDrawFunction func) { PendingDrawCalls.push_back(func); }
+
+void DebugWindow::DrawEverything()
+{
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplSDL2_NewFrame();
+  ImGui::NewFrame();
+  for (auto &drawImGui : PendingDrawCalls)
+  {
+    drawImGui();
+  }
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  PendingDrawCalls.clear();
+}
+
 // tests
-#include "client/SdlApp.hpp"
 #include <doctest/doctest.h>
 
 class DebugWindowFixture
@@ -51,18 +55,18 @@ protected:
 TEST_CASE_FIXTURE(DebugWindowFixture, "Check whether debug window is displayed")
 {
   SdlApp app("Test Window");
-  app.RegisterEventInterception([](SDL_Event &evt) { ImGui_ImplSDL2_ProcessEvent(&evt); });
-  DebugWindow dw(app.GetWindow(), app.GetContext());
+  DebugWindow dw(app);
   auto i = 1024;
   while (i--)
   {
     glClear(GL_COLOR_BUFFER_BIT);
     app.ProcessEvents();
-    dw.BeginFrame();
-    ImGui::Begin("Hello, world!");
-    ImGui::Text("This is some useful text.");
-    ImGui::End();
-    dw.EndFrame();
-    SDL_GL_SwapWindow(app.GetWindow());
+    dw.Draw([]() {
+      ImGui::Begin("Hello, world!");
+      ImGui::Text("This is some useful text.");
+      ImGui::End();
+    });
+    dw.DrawEverything();
+    app.Present();
   }
 }
