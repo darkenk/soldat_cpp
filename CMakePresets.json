@@ -5,7 +5,11 @@
             "name": "default",
             "displayName": "Default Config",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build/out"
+            "binaryDir": "${sourceDir}/build/out/soldat",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++"
+            }
         }
     ],
     "buildPresets": [
