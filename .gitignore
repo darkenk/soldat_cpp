@@ -1,3 +1,4 @@
 out/
 .clangd/*
 CMakeLists.txt.user
+CMakeUserPresets.json
