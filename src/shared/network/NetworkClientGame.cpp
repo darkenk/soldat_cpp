@@ -452,7 +452,7 @@ void clienthandlemapchange(SteamNetworkingMessage_t *netmessage)
 
   if (demoplayer.active())
   {
-    GS::GetGame().showmapchangescoreboard(0);
+    GS::GetGame().showmapchangescoreboard("");
 
     demoplayer.stopdemo();
     return;

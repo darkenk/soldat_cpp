@@ -13,6 +13,9 @@ public:
   DebugWindow(SdlApp &app);
   ~DebugWindow();
 
+  template<typename ServiceLocator>
+  static void DrawStatic(ImGuiDrawFunction func) {ServiceLocator::Get().DebugWindow().Draw(func);}
+
   void Draw(ImGuiDrawFunction func);
   void DrawEverything();
 

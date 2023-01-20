@@ -559,7 +559,7 @@ void clienthandleserverdisconnect(SteamNetworkingMessage_t *netmessage)
   if (!verifypacket(sizeof(tmsg_serverdisconnect), netmessage->m_cbSize, msgid_serverdisconnect))
     return;
 
-  GS::GetGame().showmapchangescoreboard(0);
+  GS::GetGame().showmapchangescoreboard("");
 
   if (!demoplayer.active())
     GetMainConsole().console(_("Server disconnected"), server_message_color);

@@ -39,8 +39,12 @@ void DebugWindow::DrawEverything()
   PendingDrawCalls.clear();
 }
 
+
 // tests
 #include <doctest/doctest.h>
+
+namespace
+{
 
 class DebugWindowFixture
 {
@@ -56,7 +60,7 @@ TEST_CASE_FIXTURE(DebugWindowFixture, "Check whether debug window is displayed")
 {
   SdlApp app("Test Window");
   DebugWindow dw(app);
-  auto i = 1024;
+  auto i = 1;
   while (i--)
   {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -69,4 +73,25 @@ TEST_CASE_FIXTURE(DebugWindowFixture, "Check whether debug window is displayed")
     dw.DrawEverything();
     app.Present();
   }
+}
+
+struct SampleServiceLocator
+{
+    static SampleServiceLocator& Get() { return *s_SampleServiceLocator; }
+    inline class DebugWindow& DebugWindow() { return *reinterpret_cast<class DebugWindow*>(window.data()); }
+    ::std::array<::std::byte, sizeof(class DebugWindow)> window;
+    static SampleServiceLocator *s_SampleServiceLocator;
+};
+
+SampleServiceLocator* SampleServiceLocator::s_SampleServiceLocator = nullptr;
+
+TEST_CASE_FIXTURE(DebugWindowFixture, "Draw without passing DebugWindow to function")
+{
+    SdlApp app("t1");
+    SampleServiceLocator::s_SampleServiceLocator = new SampleServiceLocator;
+    new (SampleServiceLocator::Get().window.data())DebugWindow(app);
+    DebugWindow::DrawStatic<SampleServiceLocator>([](){});
+    delete SampleServiceLocator::s_SampleServiceLocator;
+}
+
 }

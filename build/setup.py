@@ -87,7 +87,7 @@ def SetupGameNetworkingSockets(platform, config):
 
     subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + GNS_DIR + '/out',
                         GetCmakeArgBuildType(config), '-DUSE_CRYPTO=LibreSSL',
-                           '-DUSE_CRYPTO25519=libsodium', '-DCMAKE_PREFIX_PATH=' + GetLibreSSLOutDir(platform, config) +'/out/;' + GetProtobufOutDir(platform, config) + '/out/',
+                           '-DUSE_CRYPTO25519=Reference', '-DCMAKE_PREFIX_PATH=' + GetLibreSSLOutDir(platform, config) +'/out/;' + GetProtobufOutDir(platform, config) + '/out/',
                            '-Dprotobuf_BUILD_TESTS=OFF', '-Dprotobuf_BUILD_SHARED_LIBS=OFF',
                            '-DProtobuf_USE_STATIC_LIBS=ON',
                         GNS_SRC], cwd=GNS_DIR)
@@ -172,7 +172,6 @@ def SetupTracy(platform, config):
 
 #SetupTracy(PLATFORM, CONFIG)
 
-#SetupLibsodium(PLATFORM, CONFIG)
 SetupLibressl(PLATFORM, CONFIG)
 SetupProtobuf(PLATFORM, CONFIG)
 SetupGameNetworkingSockets(PLATFORM, CONFIG)

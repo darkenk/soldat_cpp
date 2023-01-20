@@ -20,6 +20,7 @@ set(SRC
     Waypoints.cpp
     Weapons.cpp
     WeaponSystem.cpp
+    FileUtility.cpp
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -36,6 +37,7 @@ target_link_libraries(CommonLib
 target_include_directories(CommonLib PRIVATE
     ${TRACY_INCLUDE_DIR}
     ${PHYSFS_INC}
+    ${DOCTEST_INCLUDE_DIR}
 )
 
 target_precompile_headers(CommonLib PRIVATE

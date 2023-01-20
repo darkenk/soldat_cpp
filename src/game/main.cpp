@@ -1,5 +1,6 @@
 #include "client/Client.hpp"
 #include "common/Logging.hpp"
+#include "common/FileUtility.hpp"
 #include "platform/include/Threads.hpp"
 #include "server/Server.hpp"
 #include "shared/misc/GlobalSystems.hpp"
@@ -26,6 +27,9 @@ void RunTests(int argc, const char *argv[])
 
 int main(int argc, const char *argv[])
 {
+  {
+  FileUtility fu;
+  }
   InitLogging();
   RunTests(argc, argv);
   GlobalSystems<Config::CLIENT_MODULE>::Init();
