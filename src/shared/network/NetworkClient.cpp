@@ -389,7 +389,8 @@ namespace
 tclientnetwork *gUDP = nullptr;
 }
 
-void DeinitClientNetwork()
+template <Config::Module M>
+void DeinitClientNetwork() requires(Config::IsClient())
 {
   delete gUDP;
   gUDP = nullptr;
@@ -401,9 +402,14 @@ tclientnetwork *GetNetwork() requires(Config::IsClient())
   return gUDP;
 }
 
-template tclientnetwork *GetNetwork<Config::GetModule()>();
-
-void InitClientNetwork()
+template <Config::Module M>
+void InitClientNetwork() requires(Config::IsClient())
 {
   gUDP = new tclientnetwork();
 }
+
+template tclientnetwork *GetNetwork<Config::GetModule()>();
+#ifndef SERVER
+template void InitClientNetwork<Config::GetModule()>();
+template void DeinitClientNetwork<Config::GetModule()>();
+#endif

@@ -32,7 +32,9 @@ public:
                 const source_location &location = source_location::current());
 };
 
+template <Config::Module M = Config::GetModule()>
 void InitClientNetwork() requires(Config::IsClient());
 template <Config::Module M = Config::GetModule()>
 tclientnetwork *GetNetwork() requires(Config::IsClient());
+template <Config::Module M = Config::GetModule()>
 void DeinitClientNetwork() requires(Config::IsClient());

@@ -219,6 +219,8 @@
 #ifndef _INCLUDE_PHYSFS_H_
 #define _INCLUDE_PHYSFS_H_
 
+#define DK_MOD (1) // use to mark changes which are not in mainline repo
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -3195,6 +3197,13 @@ typedef struct PHYSFS_Io
      */
     void (*destroy)(struct PHYSFS_Io *io);
 } PHYSFS_Io;
+
+#if DK_MOD
+
+// the same as PHYSFS_setWriteDir function, but can be used with some virtual filesystem
+PHYSFS_DECL int PHYSFS_setWriteDirIo(struct PHYSFS_Io* io, const char* newDir);
+
+#endif
 
 
 /**

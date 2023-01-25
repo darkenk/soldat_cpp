@@ -40,6 +40,7 @@ private:
   HSteamNetPollGroup FPollGroup;
 };
 
-bool InitNetworkServer(const std::string &Host, std::uint32_t Port) requires(Config::IsServer());
+
+bool InitNetworkServer(const std::string &Host, std::uint32_t Port);
 tservernetwork *GetServerNetwork();
-bool DeinitServerNetwork() requires(Config::IsServer());
+bool DeinitServerNetwork();

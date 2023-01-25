@@ -7,15 +7,31 @@
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/out/soldat",
             "cacheVariables": {
+                "CMAKE_BUILD_TYPE":"RelWithDebInfo",
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++"
             }
+        },
+        {
+            "name": "debug",
+            "displayName": "Debug",
+            "inherits": "default",
+            "binaryDir": "${sourceDir}/build/out/soldat_debug",
+            "cacheVariables":{
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+
         }
+
     ],
     "buildPresets": [
         {
             "name": "default",
             "configurePreset": "default"
+        },
+        {
+            "name": "debug",
+            "configurePreset": "debug"
         }
     ]
 }

@@ -1683,6 +1683,32 @@ int PHYSFS_setWriteDir(const char *newDir)
     return retval;
 } /* PHYSFS_setWriteDir */
 
+#if DK_MOD
+int PHYSFS_setWriteDirIo(struct PHYSFS_Io* io, const char* newDir)
+{
+    int retval = 1;
+
+    __PHYSFS_platformGrabMutex(stateLock);
+
+    if (writeDir != NULL)
+    {
+        BAIL_IF_MUTEX_ERRPASS(!freeDirHandle(writeDir, openWriteList),
+                            stateLock, 0);
+        writeDir = NULL;
+    } /* if */
+
+    if (newDir != NULL)
+    {
+        writeDir = createDirHandle(io, newDir, NULL, 1);
+        retval = (writeDir != NULL);
+    } /* if */
+
+    __PHYSFS_platformReleaseMutex(stateLock);
+
+    return retval;
+} /* PHYSFS_setWriteDirIo */
+#endif
+
 
 static int doMount(PHYSFS_Io *io, const char *fname,
                    const char *mountPoint, int appendToPath)

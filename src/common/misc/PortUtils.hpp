@@ -19,14 +19,22 @@ public:
   const source_location &location;
 };
 
-void AssertImpl(const bool condition, const MsgLineWrapper &msg = "") requires(Config::IsDebug());
+void AssertImpl(const bool condition, const MsgLineWrapper &msg);
 
-inline void AssertImpl(const bool /*condition*/,
-                       const char * /*msg*/ = "") requires(Config::IsRelease())
+template<bool enable>
+void Assert(const bool condition, const MsgLineWrapper &msg = "")
 {
+  if constexpr(enable)
+  {
+    if (condition)
+    {
+      return;
+    }
+    AssertImpl(condition, msg);
+  }
 }
 
 } // namespace PortUtils
 
-#define SoldatAssert(condition) PortUtils::AssertImpl(condition, #condition)
-#define AssertL(condition, location) PortUtils::AssertImpl(condition, {#condition, location})
+#define SoldatAssert(condition) PortUtils::Assert<Config::IsDebug()>(condition, #condition)
+#define AssertL(condition, location) PortUtils::Assert<Config::IsDebug()>(condition, {#condition, location})

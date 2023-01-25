@@ -20,12 +20,14 @@ void addlinetologfile(tstringlist *f, const std::string &s, const std::string &n
 template <Config::Module M = Config::GetModule()>
 void newlogfiles(const std::string &userdirectory);
 
+template <Config::Module M = Config::GetModule()>
 constexpr tstringlist &GetKillLog() requires(Config::IsServer())
 {
   extern tstringlist killlog;
   return killlog;
 }
 
+template <Config::Module M = Config::GetModule()>
 constexpr std::string &GetKillLogFilename() requires(Config::IsServer())
 {
   extern std::string killlogfilename;
