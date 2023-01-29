@@ -2566,6 +2566,68 @@ int PHYSFS_isSymbolicLink(const char *fname)
     return (statbuf.filetype == PHYSFS_FILETYPE_SYMLINK);
 } /* PHYSFS_isSymbolicLink */
 
+#if DK_MOD
+
+PHYSFS_File *doOpenWrite(const char *_fname, int appending)
+{
+    FileHandle *fh = NULL;
+    char *fname;
+    size_t len;
+
+    BAIL_IF(!_fname, PHYSFS_ERR_INVALID_ARGUMENT, 0);
+    len = strlen(_fname) + 1;
+    fname = (char *) __PHYSFS_smallAlloc(len);
+    BAIL_IF(!fname, PHYSFS_ERR_OUT_OF_MEMORY, 0);
+
+    if (sanitizePlatformIndependentPath(_fname, fname))
+    {
+        DirHandle *i = NULL;
+        PHYSFS_Io *io = NULL;
+
+        __PHYSFS_platformGrabMutex(stateLock);
+
+        GOTO_IF(!searchPath, PHYSFS_ERR_NOT_FOUND, openWriteEnd);
+
+        for (i = searchPath; i != NULL; i = i->next)
+        {
+            char *arcfname = fname;
+            if (verifyPath(i, &arcfname, 0))
+            {
+                if (appending)
+                    io = i->funcs->openAppend(i->opaque, arcfname);
+                else
+                    io = i->funcs->openWrite(i->opaque, arcfname);
+                if (io)
+                    break;
+            } /* if */
+        } /* for */
+
+        GOTO_IF_ERRPASS(!io, openWriteEnd);
+
+        fh = (FileHandle *) allocator.Malloc(sizeof (FileHandle));
+        if (fh == NULL)
+        {
+            io->destroy(io);
+            GOTO(PHYSFS_ERR_OUT_OF_MEMORY, openWriteEnd);
+        } /* if */
+
+        memset(fh, '\0', sizeof (FileHandle));
+        fh->io = io;
+        fh->forReading = 0;
+        fh->dirHandle = i;
+        fh->next = openWriteList;
+        openWriteList = fh;
+
+    openWriteEnd:
+        __PHYSFS_platformReleaseMutex(stateLock);
+    } /* if */
+
+    __PHYSFS_smallFree(fname);
+    return ((PHYSFS_File *) fh);
+} /* PHYSFS_openWrite */
+
+
+#else
 
 static PHYSFS_File *doOpenWrite(const char *_fname, int appending)
 {
@@ -2622,6 +2684,7 @@ static PHYSFS_File *doOpenWrite(const char *_fname, int appending)
     return ((PHYSFS_File *) fh);
 } /* doOpenWrite */
 
+#endif
 
 PHYSFS_File *PHYSFS_openWrite(const char *filename)
 {

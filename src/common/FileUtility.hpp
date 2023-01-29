@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 class FileUtility
 {
@@ -24,6 +25,4 @@ public:
   void Close(File *file);
 
 private:
-  class FileUtilityPIMPL;
-  std::unique_ptr<FileUtilityPIMPL> PIMPL;
 };
