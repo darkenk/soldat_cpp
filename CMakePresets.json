@@ -17,21 +17,38 @@
             "displayName": "Debug",
             "inherits": "default",
             "binaryDir": "${sourceDir}/build/out/soldat_debug",
-            "cacheVariables":{
+            "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
-
+        },
+        {
+            "name": "debug-g++",
+            "displayName": "DebugG++",
+            "inherits": "debug",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++"
+            }
         }
-
     ],
     "buildPresets": [
         {
             "name": "default",
-            "configurePreset": "default"
+            "displayName": "Release Clang",
+            "configurePreset": "default",
+            "configuration": "Release Clang"
         },
         {
             "name": "debug",
-            "configurePreset": "debug"
+            "displayName": "Debug Clang",
+            "configurePreset": "debug",
+            "configuration": "Debug Clang"
+        },
+        {
+            "name": "debug g++",
+            "displayName": "Debug G++",
+            "configurePreset": "debug-g++",
+            "configuration": "Debug G++"
         }
     ]
 }

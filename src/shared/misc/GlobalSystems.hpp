@@ -8,7 +8,9 @@
 #include "shared/mechanics/BulletSystem.hpp"
 #include "shared/mechanics/ThingSystem.hpp"
 
-template <Config::Module M = Config::GetModule()>
+class FileUtility;
+
+template <Config::Module M>
 class GlobalSystems final : public GlobalSubsystem<GlobalSystems<M>>
 {
 public:
@@ -37,6 +39,12 @@ public:
     return *GlobalSystems::Get().ThingSystemObject;
   }
 
+  static FileUtility &GetFileSystem()
+  {
+    return *GlobalSystems::Get().FileUtilityObject;
+  }
+
+
 protected:
   GlobalSystems();
   ~GlobalSystems();
@@ -48,6 +56,7 @@ private:
   std::unique_ptr<tdemorecorder<M>> DemoRecorder;
   std::unique_ptr<BulletSystem> BulletSystemObject;
   std::unique_ptr<ThingSystem> ThingSystemObject;
+  std::unique_ptr<FileUtility> FileUtilityObject;
 };
 
-using GS = GlobalSystems<>;
+using GS = GlobalSystems<Config::GetModule()>;

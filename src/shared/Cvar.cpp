@@ -1,4 +1,6 @@
 #include "Cvar.hpp"
+#include "ConfigModule.tweaks.hpp"
+#include "shared/misc/SoldatConfig.hpp"
 #include <cstring>
 #include <map>
 
@@ -48,12 +50,49 @@ bool FromString<float>(const std::string_view &value, float &outValue) noexcept
   outValue = std::atof(value.data());
   return true;
 }
+
+//template <typename T, Config::Module M = Config::GetModule()>
+//CVarBase<T, M> CVarBase<T, M>::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
+
+
+template<>
+CVarInt::Map CVarInt::CVars{};
+
+template<>
+CVarInt CVarInt::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
+
+template<>
+CVarBool::Map CVarBool::CVars{};
+
+template<>
+CVarBool CVarBool::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
+
+template<>
+CVarFloat::Map CVarFloat::CVars{};
+
+template<>
+CVarFloat CVarFloat::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
+
+template<>
+CVarColor::Map CVarColor::CVars{};
+
+template<>
+CVarColor CVarColor::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
+
+template<>
+CVarString::Map CVarString::CVars{};
+
+template<>
+CVarString CVarString::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
+
+
 #ifdef SERVER
 namespace CVarServer
 #else
 namespace CVarClient
 #endif
 {
+
 // clang-format off
 CVarInt log_level{"log_level", "Sets log level", CVarFlags::NONE, 0};
 CVarBool log_enable{"log_enable", "Enables logging to file", CVarFlags::NONE, false};
@@ -109,7 +148,6 @@ CVarColor r_forcebg_color2{"r_forcebg_color2", "Force bg second color", CVarFlag
 CVarBool r_renderui{"r_renderui", "Enables interface rendering", CVarFlags::CLIENT, true};
 CVarFloat r_zoom{"r_zoom", "Sets rendering zoom (only for spectators)", CVarFlags::CLIENT, 0.0};
 CVarInt r_msaa{"r_msaa", "Sets the number of samples for anti-aliasing (MSAA).", CVarFlags::CLIENT | CVarFlags::INITONLY, 0};
-
 // Ui Cvars
 CVarBool ui_playerindicator{"ui_playerindicator", "Enables player indicator", CVarFlags::CLIENT, true};
 CVarInt ui_minimap_transparency{"ui_minimap_transparency", "Transparency of minimap", CVarFlags::CLIENT, 230};

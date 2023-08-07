@@ -114,13 +114,29 @@ std::unique_ptr<TStream> PhysFS_ReadAsStream(const std::string_view &file)
   return ret;
 }
 
-bool PhysFS_InitThreadSafe()
+namespace
 {
-  static std::mutex initMutex;
-  std::lock_guard m(initMutex);
-  if (PHYSFS_isInit())
+  std::mutex sInitMutex;
+  std::atomic<std::uint32_t> sNoOfInstances;
+}
+
+std::uint32_t PhysFS_InitThreadSafe()
+{
+  std::lock_guard m(sInitMutex);
+  if (PHYSFS_isInit() || PHYSFS_init(nullptr))
+  {
+    sNoOfInstances++;
+  }
+  return sNoOfInstances;
+}
+
+bool PhysFS_DeinitThreadSafe()
+{
+  std::lock_guard m(sInitMutex);
+  sNoOfInstances--;
+  if (sNoOfInstances > 0)
   {
     return true;
   }
-  return PHYSFS_init(nullptr);
+  return PHYSFS_deinit();
 }

@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <list>
+#include <locale>
 #include <spdlog/fmt/fmt.h>
 #include <string>
 #include <utility>

@@ -66,7 +66,7 @@ public:
         do
         {
           Iter++;
-        } while (!(*Iter).IsActive() && Iter != End);
+        } while (Iter != End && !(*Iter).IsActive());
         return *this;
       }
       friend bool operator==(const Iterator &a, const Iterator &b)
@@ -86,7 +86,8 @@ public:
       friend class TActiveSprites;
       explicit Iterator(InternalIterator currIter, InternalIterator end) : Iter{currIter}, End{end}
       {
-        while (!(*Iter).IsActive() && Iter != End)
+
+        while (Iter != End && !(*Iter).IsActive())
         {
           Iter++;
         }

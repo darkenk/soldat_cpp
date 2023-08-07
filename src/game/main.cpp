@@ -27,9 +27,6 @@ void RunTests(int argc, const char *argv[])
 
 int main(int argc, const char *argv[])
 {
-  {
-  FileUtility fu;
-  }
   InitLogging();
   RunTests(argc, argv);
   GlobalSystems<Config::CLIENT_MODULE>::Init();

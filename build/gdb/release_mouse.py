@@ -10,7 +10,7 @@
 
 def release_mouse (event):
     gdb.write("GDB/SDL2: Releasing mouse\n")
-    gdb.execute("call SDL_SetRelativeMouseMode(0)")
+    gdb.execute("call (int)SDL_SetRelativeMouseMode(0)")
     pass
      
     # TODO: if you use SDL_SetWindowGrab(), you may have to write

@@ -9,7 +9,8 @@ namespace PortUtilities::NotImplemented
 {
 
 void DefaultShowNotImplementedMessage(const std::string_view area, const std::string_view msg,
-                                      const source_location &location)
+                                      const std::string_view file, const std::string_view function,
+                                      const std::int32_t line)
 {
   auto constexpr LOG_NI = "NotImplemented";
   auto logger = spdlog::get(LOG_NI);
@@ -21,12 +22,11 @@ void DefaultShowNotImplementedMessage(const std::string_view area, const std::st
   }
   if (msg.empty())
   {
-    logger->warn("{}:{}: {}", location.file_name(), location.line(), location.function_name());
+    logger->warn("{}:{}: {}", file, function, line);
   }
   else
   {
-    logger->warn("{}:{}: {}: {}", location.file_name(), location.line(), location.function_name(),
-                 msg);
+    logger->warn("{}:{}: {}: {}", file, function, line, msg);
   }
 }
 

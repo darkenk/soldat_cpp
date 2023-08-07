@@ -2,10 +2,12 @@
 
 #include "misc/FlagSet.hpp"
 #include "misc/SoldatConfig.hpp"
+#include <algorithm>
 #include <cstdint>
 #include <map>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
 template <typename T, Config::Module M = Config::GetModule()>
 bool FromString(const std::string_view &value, T &outValue) noexcept;
@@ -118,9 +120,15 @@ public:
   {
   public:
     // member typedefs provided through inheriting from std::iterator
-    class iterator : public std::iterator<std::input_iterator_tag, CVarBase>
+    class iterator// : public std::iterator<std::input_iterator_tag, CVarBase>
     {
     public:
+      using iterator_category = std::input_iterator_tag;
+      using value_type = CVarBase;
+      using difference_type = int;
+      using pointer = CVarBase*;
+      using reference = CVarBase&;
+
       using InternalIterType = typename std::map<const std::string, CVarBase *>::iterator;
       InternalIterType InternalIter;
       explicit iterator(InternalIterType iter) : InternalIter(iter)
@@ -188,11 +196,11 @@ private:
   static Map CVars;
 };
 
-template <typename T, Config::Module M>
-CVarBase<T, M> CVarBase<T, M>::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
+//template <typename T, Config::Module M>
+//typename CVarBase<T, M>::Map CVarBase<T, M>::CVars{};
 
-template <typename T, Config::Module M>
-typename CVarBase<T, M>::Map CVarBase<T, M>::CVars{};
+//template <typename T, Config::Module M>
+//CVarBase<T, M> CVarBase<T, M>::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
 
 using CVarBool = CVarBase<bool>;
 using CVarString = CVarBase<std::string>;

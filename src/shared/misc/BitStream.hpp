@@ -39,6 +39,7 @@ public:
     Write<T, sizeof(T) * 8>(val);
   }
 
+#if __clang__
   template <>
   void Write<bool>(const bool &val)
   {
@@ -55,6 +56,7 @@ public:
     }
     Write('\0');
   }
+#endif
 
   template <typename T>
   bool Read(T &val)
@@ -62,6 +64,7 @@ public:
     return Read<T, sizeof(T) * 8>(val);
   }
 
+#if __clang__
   template <>
   bool Read<bool>(bool &val)
   {
@@ -85,6 +88,7 @@ public:
     } while (ret && v != 0);
     return ret;
   }
+#endif
 
 private:
   BitBuffer Buffer;
@@ -152,3 +156,48 @@ private:
     }
   }
 };
+
+#if !__clang__
+
+template <>
+inline void BitStream::Write<bool>(const bool &val)
+{
+  std::uint8_t v = val ? 0xFF : 0x00;
+  Write<std::uint8_t, 1>(v);
+}
+
+template <>
+inline void BitStream::Write<std::string>(const std::string &val)
+{
+  for (const auto &v : val)
+  {
+    Write(v);
+  }
+  Write('\0');
+}
+
+template <>
+inline bool BitStream::Read<bool>(bool &val)
+{
+  auto ret = Read<bool, 1>(val);
+  val = *reinterpret_cast<std::uint8_t *>(&val) != 0;
+  return ret;
+}
+
+template <>
+inline bool BitStream::Read<std::string>(std::string &val)
+{
+  char v = 0;
+  bool ret = true;
+  do
+  {
+    ret = Read(v);
+    if (ret != 0)
+    {
+      val.push_back(v);
+    }
+  } while (ret && v != 0);
+  return ret;
+}
+
+#endif

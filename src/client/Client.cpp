@@ -1,7 +1,7 @@
 #include <cstdint>
 
 /*#include "idcompilerdefines.inc"*/
-//#define DEVELOPMENT
+// #define DEVELOPMENT
 
 #include "Client.hpp"
 #include "ClientCommands.hpp"
@@ -14,6 +14,7 @@
 #include "Input.hpp"
 #include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
+#include "common/FileUtility.hpp"
 #include "common/Logging.hpp"
 #include "common/PhysFSExt.hpp"
 #include "common/Util.hpp"
@@ -36,6 +37,7 @@
 #include <Tracy.hpp>
 #include <physfs.h>
 #include <thread>
+
 
 namespace
 {
@@ -319,25 +321,57 @@ void exittomenu()
     redirectdialog();
 }
 
-void startgame(int argc, const char *argv[])
+static void CreateDirectoryStructure(FileUtility &fs)
 {
-  float fov;
-  SDL_DisplayMode currentdisplay;
-  std::string systemlang = "en_US";
-  std::string systemfallbacklang = "en_US";
-  char *basepathsdl;
-  char *userpathsdl;
-  if (Config::IsDebug())
+  SoldatEnsure(fs.MkDir("/user/configs"));
+  SoldatEnsure(fs.MkDir("/user/screens"));
+  SoldatEnsure(fs.MkDir("/user/demos"));
+  SoldatEnsure(fs.MkDir("/user/logs"));
+  SoldatEnsure(fs.MkDir("/user/logs/kills"));
+  SoldatEnsure(fs.MkDir("/user/maps"));
+  SoldatEnsure(fs.MkDir("/user/mods"));
+}
+
+static bool MountAssets(FileUtility &fu, const std::string &userdirectory,
+                        const std::string &basedirectory, tsha1digest& outGameModChecksum, tsha1digest& outCustomModChecksum)
+{
+  LogDebugG("[PhysFS] Mounting game archive");
+  if (CVar::fs_localmount)
   {
-    userpathsdl = SDL_GetBasePath();
-    basepathsdl = SDL_GetBasePath();
+    if (!fu.Mount(userdirectory, "/"))
+    {
+      showmessage(("Could not load base game archive (game directory)."));
+      return false;
+    }
   }
   else
   {
-    userpathsdl = SDL_GetPrefPath("Soldat", "Soldat");
-    basepathsdl = SDL_GetBasePath();
-  }
+    if (!fu.Mount(basedirectory + "/soldat.smod", "/"))
+    {
+      showmessage(("Could not load base game archive (soldat.smod). Try to reinstall the game."));
+      return false;
+    }
 
+    outGameModChecksum = sha1file(basedirectory + "/soldat.smod");
+  }
+  moddir = "";
+  if (CVar::fs_mod != "")
+  {
+    LogDebugG("[PhysFS] Mounting mods/{}.smod", lowercase(CVar::fs_mod));
+    if (!fu.Mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod").c_str(),
+                  (std::string("mods/") + lowercase(CVar::fs_mod) + "/").c_str()))
+    {
+      showmessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
+      return false;
+    }
+    moddir = std::string("mods/") + lowercase(CVar::fs_mod) + '/';
+    outCustomModChecksum = sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod");
+  }
+  return true;
+}
+
+void startgame(int argc, const char *argv[])
+{
   initclientcommands();
 
   parsecommandline(argc, argv);
@@ -346,39 +380,32 @@ void startgame(int argc, const char *argv[])
     parseinput("join 127.0.0.1 23073");
   }
 
-  if (CVar::fs_portable)
-  {
-    GS::GetGame().SetUserDirectory(basepathsdl);
-    basedirectory = basepathsdl;
-    LogDebugG("[FS] Portable mode enabled.");
-  }
-  else
-  {
-    if (CVar::fs_userpath == "")
-      GS::GetGame().SetUserDirectory(basepathsdl);
-    if (CVar::fs_basepath == "")
-      basedirectory = basepathsdl;
-  }
-  SDL_free(basepathsdl);
-  SDL_free(userpathsdl);
-  basepathsdl = nullptr;
-  userpathsdl = nullptr;
+  auto &fs = GS::GetFileSystem();
+  const auto userDirectory = fs.GetPrefPath("client");
+  const auto baseDirectory = fs.GetBasePath();
 
-  const auto &userdirectory = GS::GetGame().GetUserDirectory();
+  LogDebugG("[FS] userDirectory: {}", userDirectory);
+  LogDebugG("[FS] baseDirectory: {}", baseDirectory);
 
-  LogDebugG("[FS] userdirectory: {}", userdirectory);
-  LogDebugG("[FS] basedirectory: {}", basedirectory);
+  fs.Mount(userDirectory, "/user");
 
   // Create the basic folder structure
-  createdirifmissing(userdirectory + "/configs");
-  createdirifmissing(userdirectory + "/screens");
-  createdirifmissing(userdirectory + "/demos");
-  createdirifmissing(userdirectory + "/logs");
-  createdirifmissing(userdirectory + "/logs/kills");
-  createdirifmissing(userdirectory + "/maps");
-  createdirifmissing(userdirectory + "/mods");
+  CreateDirectoryStructure(fs);
 
-  newlogfiles(userdirectory);
+  {
+    tsha1digest gameSha1;
+    tsha1digest modSha1;
+
+    if (!MountAssets(fs, userDirectory, baseDirectory, gameSha1, modSha1))
+    {
+      SoldatAssert(false);
+      return;
+    }
+    GS::GetGame().SetCustomModChecksum(modSha1);
+    GS::GetGame().SetGameModChecksum(gameSha1);
+  }
+
+  newlogfiles(userDirectory);
 
   GetMainConsole().countmax = round(15 * _rscala.y);
   GetMainConsole().scrolltickmax = 150;
@@ -392,6 +419,11 @@ void startgame(int argc, const char *argv[])
     GetMainConsole().countmax = 254;
   }
 
+  float fov;
+  SDL_DisplayMode currentdisplay;
+  std::string systemlang = "en_US";
+  std::string systemfallbacklang = "en_US";
+
   // TODO remove HWIDs, replace by Fae auth tickets
   hwid = "00000000000";
 
@@ -399,51 +431,9 @@ void startgame(int argc, const char *argv[])
 
   LogDebugG("[PhysFS] Initializing system");
 
-  if (not PhysFS_InitThreadSafe())
-  {
-    showmessage(("Could not initialize PhysFS. Try to reinstall the game."));
-    return;
-  }
+  loadinterfacearchives(userDirectory + "custom-interfaces/");
 
-  LogDebugG("[PhysFS] Mounting game archive");
-  if (CVar::fs_localmount)
-  {
-    if (!PHYSFS_mount((pchar)(userdirectory), "/", false))
-    {
-      showmessage(("Could not load base game archive (game directory)."));
-      return;
-    }
-  }
-  else
-  {
-    if (!PHYSFS_mount((basedirectory + "/soldat.smod").c_str(), "/", false))
-    {
-      showmessage(("Could not load base game archive (soldat.smod). Try to reinstall the game."));
-      return;
-    }
-
-    GS::GetGame().SetGameModChecksum(sha1file(basedirectory + "/soldat.smod"));
-  }
-
-  moddir = "";
-
-  if (CVar::fs_mod != "")
-  {
-    LogDebugG("[PhysFS] Mounting mods/{}.smod", lowercase(CVar::fs_mod));
-    if (!PHYSFS_mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod").c_str(),
-                      (std::string("mods/") + lowercase(CVar::fs_mod) + "/").c_str(), false))
-    {
-      showmessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
-      return;
-    }
-    moddir = std::string("mods/") + lowercase(CVar::fs_mod) + '/';
-    GS::GetGame().SetCustomModChecksum(
-      sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"));
-  }
-
-  loadinterfacearchives(userdirectory + "custom-interfaces/");
-
-  PhysFS_CopyFileFromArchive("configs/client.cfg", userdirectory + "/configs/client.cfg");
+  PhysFS_CopyFileFromArchive("configs/client.cfg", userDirectory + "/configs/client.cfg");
 
   loadconfig("client.cfg");
 
@@ -780,3 +770,76 @@ void showmessage(const std::string &message)
 {
   SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message.c_str(), nullptr);
 };
+
+// tests
+#include <doctest/doctest.h>
+#include <fstream>
+#include <filesystem>
+
+namespace
+{
+
+class ClientFixture
+{
+};
+
+TEST_CASE_FIXTURE(ClientFixture, "Mount memory and write file and later read it")
+{
+  FileUtility fu;
+  fu.Mount("tmpfs.memory", "/user");
+  CreateDirectoryStructure(fu);
+  auto f = fu.Open("/user/logs/nice_log.txt", FileUtility::FileMode::Write);
+  CHECK_NE(nullptr, f);
+  fu.Close(f);
+}
+
+TEST_CASE_FIXTURE(ClientFixture, "Mount soldat.smod test")
+{
+  // test soldat.smod, generated with xxd --include soldat.smod
+  // contains:
+  // client/client_test.txt
+  // server/server_test.txt
+  // shared/shared_test.txt
+  unsigned char soldat_smod[] = {
+    0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0x24, 0x33,
+    0x50, 0xf5, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x63, 0x6c,
+    0x69, 0x65, 0x6e, 0x74, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x2b, 0x49, 0x2d,
+    0x2e, 0x89, 0x4f, 0xce, 0xc9, 0x4c, 0xcd, 0x2b, 0xe1, 0x02, 0x00, 0x50, 0x4b, 0x03, 0x04, 0x14,
+    0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xa7, 0xe8, 0x12, 0xba, 0x0e, 0x00, 0x00,
+    0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f,
+    0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x2b, 0x49, 0x2d, 0x2e, 0x89, 0x2f, 0x4e, 0x2d,
+    0x2a, 0x4b, 0x2d, 0xe2, 0x02, 0x00, 0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00,
+    0x00, 0x00, 0x21, 0x00, 0xab, 0x34, 0x36, 0xb2, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00,
+    0x0f, 0x00, 0x00, 0x00, 0x73, 0x68, 0x61, 0x72, 0x65, 0x64, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e,
+    0x74, 0x78, 0x74, 0x2b, 0x49, 0x2d, 0x2e, 0x89, 0x2f, 0xce, 0x48, 0x2c, 0x4a, 0x4d, 0xe1, 0x02,
+    0x00, 0x50, 0x4b, 0x01, 0x02, 0x14, 0x0a, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21,
+    0x00, 0x24, 0x33, 0x50, 0xf5, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63,
+    0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b,
+    0x01, 0x02, 0x14, 0x0a, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xa7, 0xe8,
+    0x12, 0xba, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x00, 0x00, 0x73, 0x65, 0x72, 0x76,
+    0x65, 0x72, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b, 0x01, 0x02, 0x14,
+    0x0a, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xab, 0x34, 0x36, 0xb2, 0x0e,
+    0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x76, 0x00, 0x00, 0x00, 0x73, 0x68, 0x61, 0x72, 0x65, 0x64, 0x5f,
+    0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00,
+    0x03, 0x00, 0x03, 0x00, 0xb7, 0x00, 0x00, 0x00, 0xb1, 0x00, 0x00, 0x00, 0x00, 0x00};
+  unsigned int soldat_smod_len = 382;
+
+  FileUtility fu;
+  auto testDir = fu.GetPrefPath("mount_test", true);
+  std::filesystem::remove_all(testDir);
+  // recreate directory
+  testDir = fu.GetPrefPath("mount_test", true);
+  {
+    std::ofstream s(testDir + "/soldat.smod", std::ios_base::binary | std::ios_base::trunc);
+    s.write((char*)soldat_smod, soldat_smod_len);
+  }
+  tsha1digest customMod;
+  tsha1digest mod;
+  CHECK_EQ(true, MountAssets(fu, "", testDir, mod, customMod));
+  //std::filesystem::remove_all(testDir);
+}
+
+} // namespace

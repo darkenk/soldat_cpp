@@ -2,11 +2,11 @@
 #include "LogFile.hpp"
 #include "Cvar.hpp"
 #include "common/Logging.hpp"
-#include "common/Util.hpp"
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 
 namespace
 {
@@ -163,16 +163,6 @@ void newlogfiles(const std::string &userdirectory)
   std::int32_t j;
   std::string s2;
 
-#ifndef SERVER
-  // avoid I/O 103 erros because of missing folder
-  if (not createdirifmissing(userdirectory + "logs"))
-  {
-    // TODO change to showmessage
-    LogErrorG("Could not create Logs folder - disabled logging");
-    CVar::log_enable = false;
-    return;
-  }
-#endif
   {
     auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::stringstream ss;

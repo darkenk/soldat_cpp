@@ -2106,7 +2106,73 @@ static int verifyPath(DirHandle *h, char **_fname, int allowMissing)
     return retval;
 } /* verifyPath */
 
+#if DK_MOD
+static int doMkdir(const char *_dname, char *dname)
+{
+    DirHandle *h = NULL;
+    char *start;
+    char *end;
+    int retval = 0;
+    int exists = 1;  /* force existance check on first path element. */
 
+    BAIL_IF_ERRPASS(!sanitizePlatformIndependentPath(_dname, dname), 0);
+
+    {
+        DirHandle *i = NULL;
+        PHYSFS_Io *io = NULL;
+
+        __PHYSFS_platformGrabMutex(stateLock);
+
+        BAIL_IF_MUTEX_ERRPASS(!searchPath, stateLock, 0);
+
+        for (i = searchPath; i != NULL; i = i->next)
+        {
+            char *arcfname = dname;
+            if (verifyPath(i, &arcfname, 0))
+            {
+                h = i;
+                break;
+            }
+        }
+    }
+    BAIL_IF_MUTEX_ERRPASS(!h, stateLock, 0);
+    BAIL_IF_MUTEX_ERRPASS(!verifyPath(h, &dname, 1), stateLock, 0);
+
+    start = dname;
+    while (1)
+    {
+        end = strchr(start, '/');
+        if (end != NULL)
+            *end = '\0';
+
+        /* only check for existance if all parent dirs existed, too... */
+        if (exists)
+        {
+            PHYSFS_Stat statbuf;
+            const int rc = h->funcs->stat(h->opaque, dname, &statbuf);
+            if ((!rc) && (currentErrorCode() == PHYSFS_ERR_NOT_FOUND))
+                exists = 0;
+            retval = ((rc) && (statbuf.filetype == PHYSFS_FILETYPE_DIRECTORY));
+        } /* if */
+
+        if (!exists)
+            retval = h->funcs->mkdir(h->opaque, dname);
+
+        if (!retval)
+            break;
+
+        if (end == NULL)
+            break;
+
+        *end = '/';
+        start = end + 1;
+    } /* while */
+
+    __PHYSFS_platformReleaseMutex(stateLock);
+    return retval;
+} /* do_mkdir */
+
+#else
 static int doMkdir(const char *_dname, char *dname)
 {
     DirHandle *h;
@@ -2155,7 +2221,7 @@ static int doMkdir(const char *_dname, char *dname)
     __PHYSFS_platformReleaseMutex(stateLock);
     return retval;
 } /* doMkdir */
-
+#endif
 
 int PHYSFS_mkdir(const char *_dname)
 {

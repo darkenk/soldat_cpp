@@ -4,6 +4,7 @@
 #include "ServerCommands.hpp"
 #include "ServerHelper.hpp"
 #include "ServerLoop.hpp"
+#include "common/FileUtility.hpp"
 #include "common/Logging.hpp"
 #include "common/PhysFSExt.hpp"
 #include "common/Util.hpp"
@@ -42,93 +43,6 @@ std::string basedirectory;
 
 tstringlist killlog;
 std::string killlogfilename;
-
-#if 0
-// Cvars
-CVarInt log_level;
-CVarInt log_filesupdate;
-CVarBool log_timestamp;
-
-CVarString fs_mod;
-CVarBool fs_portable;
-CVarString fs_basepath;
-CVarString fs_userpath;
-
-CVarBool demo_autorecord;
-
-CVarInt sv_dm_limit;
-CVarInt sv_pm_limit;
-CVarInt sv_tm_limit;
-CVarInt sv_rm_limit;
-
-CVarInt sv_inf_limit;
-CVarInt sv_inf_redaward;
-
-CVarInt sv_htf_limit;
-
-CVarInt sv_ctf_limit;
-
-CVarBool sv_spectatorchat;
-CVarString sv_info;
-CVarString sv_pidfilename;
-CVarString sv_lobbyurl;
-
-CVarBool sv_steamonly;
-
-#ifdef STEAM
-CVarBool sv_voicechat;
-CVarBool sv_voicechat_alltalk;
-CVarString sv_setsteamaccount;
-#endif
-
-CVarBool sv_anticheatkick;
-CVarBool sv_botbalance;
-CVarBool sv_echokills;
-CVarInt sv_healthcooldown;
-CVarBool sv_teamcolors;
-
-CVarInt net_port = 23073;
-CVarString net_ip;
-CVarString net_adminip;
-CVarBool net_compression;
-CVarBool net_allowdownload;
-CVarInt net_maxconnections;
-CVarInt net_maxadminconnections;
-
-CVarBool fileserver_enable;
-CVarInt fileserver_port;
-CVarString fileserver_ip;
-
-// syncable cvars
-CVarInt sv_gamemode;
-CVarBool sv_friendlyfire;
-CVarInt sv_timelimit;
-CVarInt sv_maxgrenades;
-CVarBool sv_bullettime;
-CVarBool sv_sniperline;
-CVarBool sv_balanceteams;
-CVarBool sv_survivalmode;
-CVarBool sv_survivalmode_antispy;
-CVarBool sv_survivalmode_clearweapons;
-CVarBool sv_realisticmode;
-CVarBool sv_advancemode;
-CVarInt sv_advancemode_amount;
-CVarBool sv_guns_collide;
-CVarBool sv_kits_collide;
-CVarBool sv_minimap;
-CVarBool sv_advancedspectator;
-CVarBool sv_radio;
-CVarFloat sv_gravity;
-CVarString sv_hostname;
-CVarInt sv_killlimit;
-CVarString sv_downloadurl;
-CVarBool sv_pure;
-CVarString sv_website;
-
-#ifdef ENABLE_FAE
-CVarBool ac_enable;
-#endif
-#endif
 
 // config stuff
 std::string serverip = "127.0.0.1";
@@ -197,10 +111,7 @@ TLobbyThread LobbyThread;
 TSteamGS SteamAPI;
 #endif
 
-static void WriteLn(const std::string &msg)
-{
-  LogDebugG("{}", msg);
-}
+static void WriteLn(const std::string &msg) { LogDebugG("{}", msg); }
 
 static std::string ParamStr(std::int32_t v)
 {
@@ -326,15 +237,8 @@ void ActivateServer(int argc, const char *argv[])
 #if 0
     SetCurrentDir(userdirectory);
 #endif
-
-  if (not PhysFS_InitThreadSafe())
-  {
-    WriteLn("Could not initialize PhysFS.");
-    progready = false;
-    CVar::sc_enable = false;
-    return;
-  }
-  if (not PHYSFS_mount(pchar(basedirectory + "/soldat.smod"), "/", false))
+  auto &fu = GS::GetFileSystem();
+  if (not fu.Mount(basedirectory + "/soldat.smod", "/"))
   {
     WriteLn("Could not load base game archive (soldat.smod).");
     progready = false;
@@ -348,8 +252,8 @@ void ActivateServer(int argc, const char *argv[])
 
   if (CVar::fs_mod != "")
   {
-    if (not PHYSFS_mount(pchar(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
-                         pchar("mods/" + lowercase(CVar::fs_mod) + "/"), false))
+    if (not fu.Mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
+                     ("mods/" + lowercase(CVar::fs_mod) + "/")))
     {
       WriteLn("Could not load mod archive (" + std::string(CVar::fs_mod) + ").");
       progready = false;
@@ -1307,7 +1211,4 @@ void RunServer(int argc, const char *argv[])
   ShutDown();
 }
 
-void ShutdownServer()
-{
-  progready = false;
-}
+void ShutdownServer() { progready = false; }

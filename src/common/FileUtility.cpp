@@ -4,6 +4,7 @@
 #include "port_utils/NotImplemented.hpp"
 #include <filesystem>
 #include <iostream>
+#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -133,8 +134,9 @@ struct Memory
   std::string m_mountPoint;
   PHYSFS_Io *m_io{nullptr};
   std::unordered_map<std::string, std::vector<std::byte>> m_files;
+  std::vector<std::string> m_directories;
 
-  Memory(PHYSFS_Io *io, const char *name) : m_name{name}, m_io{io} {}
+  Memory(PHYSFS_Io *io, const char *name) : m_name{name}, m_io{io} { m_directories.push_back(""); }
 
   static Memory *GetThis(void *opaque) { return reinterpret_cast<Memory *>(opaque); }
 
@@ -181,17 +183,32 @@ struct Memory
   }
   static int Mkdir(void *opaque, const char *filename)
   {
-    NotImplemented("fsMem");
-    return {};
+    auto m = GetThis(opaque);
+    auto &directories = m->m_directories;
+    auto it = std::find(directories.begin(), directories.end(), filename);
+    if (it == std::end(directories))
+    {
+      directories.push_back(filename);
+    }
+    return 1;
   }
   static int Stat(void *opaque, const char *fn, PHYSFS_Stat *stat)
   {
-    auto m = GetThis(opaque);
-    if (m->m_name == (std::string("/") + fn))
+    if (strcmp("", fn) == 0)
     {
       stat->filetype = PHYSFS_FILETYPE_DIRECTORY;
+      return 1;
     }
-    return 1;
+    auto m = GetThis(opaque);
+    auto &directories = m->m_directories;
+    auto it = std::find(directories.begin(), directories.end(), fn);
+    if (it != std::end(directories))
+    {
+      stat->filetype = PHYSFS_FILETYPE_DIRECTORY;
+      return 1;
+    }
+    PHYSFS_setErrorCode(PHYSFS_ERR_NOT_FOUND);
+    return 0;
   }
   static void CloseArchive(void *opaque) { delete GetThis(opaque); }
 };
@@ -220,33 +237,31 @@ FileUtility::FileUtility()
 {
   auto r = PhysFS_InitThreadSafe();
   SoldatAssert(r);
-  r = PHYSFS_registerArchiver(&s_memoryArchiver);
+  if (r == 1)
+  {
+    r = PHYSFS_registerArchiver(&s_memoryArchiver);
+  }
   SoldatAssert(r);
 }
 
 FileUtility::~FileUtility()
 {
-  auto r = PHYSFS_deinit();
+  auto r = PhysFS_DeinitThreadSafe();
   SoldatAssert(r);
 }
 
-void FileUtility::Mount(const std::string_view item, const std::string_view mount_point)
+bool FileUtility::Mount(const std::string_view item, const std::string_view mount_point)
 {
   if (item == "tmpfs.memory")
   {
     auto io = PHYSFS_IoMemory::Create(mount_point.data());
     auto e = PHYSFS_mountIo(io, item.data(), mount_point.data(), 0);
     SoldatAssert(e != 0);
-    return;
+    return e;
   }
-  if (fs::is_directory(item))
-  {
-    auto e = PHYSFS_mount(item.data(), mount_point.data(), 0);
-    SoldatAssert(e != 0);
-    return;
-  }
-
-  SoldatAssert(false);
+  auto e = PHYSFS_mount(item.data(), mount_point.data(), 0);
+  SoldatAssert(e != 0);
+  return e;
 }
 
 FileUtility::File *FileUtility::Open(const std::string_view path, FileUtility::FileMode fm)
@@ -288,6 +303,22 @@ void FileUtility::Close(File *file)
 {
   auto r = PHYSFS_close(reinterpret_cast<PHYSFS_File *>(file));
   SoldatAssert(r != 0);
+}
+
+bool FileUtility::MkDir(const std::string_view dirPath) { return PHYSFS_mkdir(dirPath.data()); }
+
+std::string FileUtility::GetBasePath() { return PHYSFS_getBaseDir(); }
+
+std::string FileUtility::GetPrefPath(const std::string_view postfix, const bool debugBuild)
+{
+  std::string prefPath{debugBuild ? PHYSFS_getBaseDir() : PHYSFS_getPrefDir("Soldat", "Soldat")};
+  prefPath += postfix.data();
+  if (!std::filesystem::exists(prefPath))
+  {
+    SoldatEnsure(std::filesystem::create_directories(prefPath));
+  }
+  SoldatAssert(std::filesystem::is_directory(prefPath));
+  return prefPath;
 }
 
 // tests
@@ -355,6 +386,61 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Mount file system write and read file")
     CHECK_EQ(TEST_DATA_SIZE, r);
     CHECK_EQ(d, testData);
   }
+}
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "FileUtility initialized twice does not crash")
+{
+  FileUtility fu1;
+  FileUtility fu2;
+}
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "Create directory in memory")
+{
+  FileUtility fu;
+  fu.Mount("tmpfs.memory", "/fs_mem");
+  auto created = fu.MkDir("/fs_mem/test_directory");
+  CHECK_EQ(true, created);
+  created = fu.MkDir("/fs_mem/test_directory");
+  CHECK_EQ(true, created);
+}
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "Create two directories in memory")
+{
+  FileUtility fu;
+  fu.Mount("tmpfs.memory", "/fs_mem");
+  auto created = fu.MkDir("/fs_mem/test_directory");
+  CHECK_EQ(true, created);
+  created = fu.MkDir("/fs_mem/test_directory/test_directory2");
+  CHECK_EQ(true, created);
+}
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "Create directory in filesystem")
+{
+  auto testDirectory = fs::temp_directory_path() / "Soldat_test";
+  fs::remove_all(testDirectory);
+  fs::create_directories(testDirectory);
+  FileUtility fu;
+  fu.Mount(testDirectory.c_str(), "/fs_mem");
+  auto created = fu.MkDir("/fs_mem/test_directory");
+  CHECK_EQ(true, created);
+  created = fu.MkDir("/fs_mem/test_directory");
+  CHECK_EQ(true, created);
+}
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "Get base path returns path to directory with with exe")
+{
+  FileUtility fu;
+  auto s = fu.GetBasePath();
+  CHECK_NE("", s);
+  CHECK_EQ(true, std::filesystem::is_directory(s));
+}
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "Get pref data returns path to directory with user settings")
+{
+  FileUtility fu;
+  auto s = fu.GetPrefPath("test_pref");
+  CHECK_EQ(s.substr(s.rfind('/') + 1), "test_pref");
+  CHECK_EQ(true, std::filesystem::is_directory(s));
 }
 
 } // namespace

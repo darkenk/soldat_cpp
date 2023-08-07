@@ -1,0 +1,4 @@
+CompileFlags:
+  Add: ['-std=gnu++2b']
+  Remove: ['-std=gnu++23']
+

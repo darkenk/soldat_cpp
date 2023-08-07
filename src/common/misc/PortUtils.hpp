@@ -34,7 +34,22 @@ void Assert(const bool condition, const MsgLineWrapper &msg = "")
   }
 }
 
+template<bool enable>
+void Ensure(const bool condition)
+{
+  if constexpr(enable)
+  {
+    if (condition)
+    {
+      return;
+    }
+    AssertImpl(condition, "");
+  }
+
+}
+
 } // namespace PortUtils
 
 #define SoldatAssert(condition) PortUtils::Assert<Config::IsDebug()>(condition, #condition)
 #define AssertL(condition, location) PortUtils::Assert<Config::IsDebug()>(condition, {#condition, location})
+#define SoldatEnsure(condition) PortUtils::Ensure<Config::IsDebug()>(condition)

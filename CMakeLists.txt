@@ -1,7 +1,6 @@
 set(CMAKE_CXX_STANDARD 23)
-
+cmake_minimum_required(VERSION 3.27)
 project(SoldatCPP)
-cmake_minimum_required(VERSION 3.18)
 
 set(SOLDAT_PLATFORM linux_x64)
 if (CMAKE_SYSTEM_PROCESSOR MATCHES "^aarch64")
@@ -30,8 +29,10 @@ set(CMAKE_PREFIX_PATH
     ${CMAKE_PREFIX_PATH}
 )
 
-set(PHYSFS_LIB ${THIRD_PARTY_OUT_DIR}/physfs/out/lib/libphysfs.a)
-set(PHYSFS_INC ${THIRD_PARTY_OUT_DIR}/physfs/out/include)
+
+
+set(PHYSFS_LIB ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party/physfs/out/lib/libphysfs.a)
+set(PHYSFS_INC ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party/physfs/out/include)
 set(GLAD_INC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/glad/debug/include)
 # @todo make glad as static lib
 set(GLAD_SRC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/glad/debug/src/glad.c)
@@ -45,7 +46,8 @@ set(TRACY_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8)
 set(DOCTEST_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/doctest-2.4.8)
 set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/imgui-1.87)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace")
 #set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 #set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 #add_definitions(-DTRACY_ENABLE)

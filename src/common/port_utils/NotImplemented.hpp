@@ -2,12 +2,15 @@
 
 #include "SourceLocation.hpp"
 #include "Utilities.hpp"
+#include <array>
+#include <string_view>
 
 namespace PortUtilities::NotImplemented
 {
 
 void DefaultShowNotImplementedMessage(const std::string_view area, const std::string_view msg,
-                                      const source_location &loc);
+                                      const std::string_view file, const std::string_view function,
+                                      const std::int32_t line);
 
 namespace Config
 {
@@ -49,7 +52,7 @@ public:
     }
     fired = true;
     Config::ShowNotImplementedMessage(
-      area, msg, source_location::current(GetRelativePath(file.value), function.value, line));
+      area, msg, GetRelativePath(file.value), function.value, line);
   }
 };
 
