@@ -314,6 +314,15 @@ std::size_t FileUtility::Size(File *file)
   return PHYSFS_fileLength(reinterpret_cast<PHYSFS_File *>(file));
 }
 
+std::size_t FileUtility::Size(const std::string_view path)
+{
+  SoldatAssert(Exists(path));
+  auto f = Open(path, FileMode::Read);
+  auto size = Size(f);
+  Close(f);
+  return size;
+}
+
 void FileUtility::Close(File *file)
 {
   auto r = PHYSFS_close(reinterpret_cast<PHYSFS_File *>(file));
@@ -510,6 +519,9 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Return size of file")
     auto f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
     CHECK_EQ(4, fu.Size(f));
     fu.Close(f);
+  }
+  {
+    CHECK_EQ(4, fu.Size("/fs_mem/valid"));
   }
 }
 

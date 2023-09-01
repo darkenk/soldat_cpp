@@ -419,7 +419,7 @@ void startgame(int argc, const char *argv[])
     GS::GetGame().SetGameModChecksum(gameSha1);
   }
 
-  newlogfiles(userDirectory);
+  newlogfiles(fs);
 
   GS::GetMainConsole().countmax = round(15 * _rscala.y);
   GS::GetMainConsole().scrolltickmax = 150;
@@ -589,11 +589,11 @@ void startgame(int argc, const char *argv[])
   else
     LogDebugG("Game captions not found");
 
-  addlinetologfile(GetGameLog(), "Initializing Sound Library.", GetGameLogFilename());
+  addlinetologfile(fs, GetGameLog(), "Initializing Sound Library.", GetGameLogFilename());
   // Init Sound Library
   if (!initsound())
   {
-    addlinetologfile(GetGameLog(), "Failed to initialize Sound Library.", GetGameLogFilename());
+    addlinetologfile(fs, GetGameLog(), "Failed to initialize Sound Library.", GetGameLogFilename());
     // Let the player know that he has no sound (no popup window)
   }
 
@@ -601,7 +601,7 @@ void startgame(int argc, const char *argv[])
   if (length(moddir) > 0)
     loadsounds(moddir.c_str());
 
-  addlinetologfile(GetGameLog(), "Creating network interface.", GetGameLogFilename());
+  addlinetologfile(fs, GetGameLog(), "Creating network interface.", GetGameLogFilename());
 
   // Create Consoles
   GS::GetMainConsole().countmax = round(CVar::ui_console_length * _rscala.y);
@@ -664,7 +664,7 @@ void startgame(int argc, const char *argv[])
   if (CVar::r_compatibility)
     CVar::cl_actionsnap = false;
 
-  writelogfile(GetGameLog(), GetGameLogFilename());
+  writelogfile(fs, GetGameLog(), GetGameLogFilename());
   rundeferredcommands();
 }
 
@@ -673,9 +673,13 @@ void shutdown()
   exittomenu();
 
   if (abnormalterminate)
+  {
     return;
+  }
 
-  addlinetologfile(GetGameLog(), "Freeing sprites.", GetGameLogFilename());
+  auto& fs = GS::GetFileSystem();
+
+  addlinetologfile(fs, GetGameLog(), "Freeing sprites.", GetGameLogFilename());
 
   // Free GFX
   destroygamegraphics();
@@ -689,26 +693,24 @@ void shutdown()
 
   deinittranslation();
 
-  addlinetologfile(GetGameLog(), "UDP closing.", GetGameLogFilename());
+  addlinetologfile(fs, GetGameLog(), "UDP closing.", GetGameLogFilename());
 
   NotImplemented("network");
 #if 0
     freeandnullptr(udp);
 #endif
 
-  addlinetologfile(GetGameLog(), "Sound closing.", GetGameLogFilename());
+  addlinetologfile(fs, GetGameLog(), "Sound closing.", GetGameLogFilename());
 
   closesound();
 
-  addlinetologfile(GetGameLog(), "PhysFS closing.", GetGameLogFilename());
-
-  PHYSFS_deinit();
+  addlinetologfile(fs, GetGameLog(), "PhysFS closing.", GetGameLogFilename());
 
   commanddeinit();
 
-  addlinetologfile(GetGameLog(), "   End of Log.", GetGameLogFilename());
+  addlinetologfile(fs, GetGameLog(), "   End of Log.", GetGameLogFilename());
 
-  writelogfile(GetGameLog(), GetGameLogFilename());
+  writelogfile(fs, GetGameLog(), GetGameLogFilename());
 
   gamelooprun = false;
 }

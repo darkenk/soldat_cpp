@@ -1,12 +1,8 @@
 // automatically converted
 #include "LogFile.hpp"
 #include "Cvar.hpp"
+#include "common/FileUtility.hpp"
 #include "common/Logging.hpp"
-#include <cstdio>
-#include <filesystem>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
 
 namespace
 {
@@ -14,7 +10,7 @@ std::mutex loglock;
 }
 
 template <Config::Module M>
-void newlogfile(tstringlist *f, const std::string &name)
+void newlogfile(FileUtility& fu, tstringlist *f, const std::string &name)
 {
   if (not CVar::log_enable)
   {
@@ -33,7 +29,7 @@ void newlogfile(tstringlist *f, const std::string &name)
     }
   }
 
-  auto logfile = fopen(name.c_str(), "w");
+  auto logfile = fu.Open(name, FileUtility::FileMode::Write);
   if (logfile != nullptr)
   {
     LogErrorG("File logging error {}", name);
@@ -46,11 +42,11 @@ void newlogfile(tstringlist *f, const std::string &name)
 #endif
 #endif
   }
-  fclose(logfile);
+  fu.Close(logfile);
 }
 
 template <Config::Module M>
-void addlinetologfile(tstringlist *f, const std::string &s, const std::string &name, bool withdate)
+void addlinetologfile(FileUtility& fu, tstringlist *f, const std::string &s, const std::string &name, bool withdate)
 {
   LogTraceG("{}", s);
 
@@ -94,12 +90,12 @@ void addlinetologfile(tstringlist *f, const std::string &s, const std::string &n
 
   if (CVar::log_level > 1)
   {
-    writelogfile(f, name);
+    writelogfile(fu, f, name);
   }
 }
 
 template <Config::Module M>
-void writelogfile(tstringlist *f, const std::string &name)
+void writelogfile(FileUtility& fu, tstringlist *f, const std::string &name)
 {
   if (not CVar::log_enable)
   {
@@ -111,54 +107,26 @@ void writelogfile(tstringlist *f, const std::string &name)
     return;
   }
 
-  std::ofstream logfile(name, std::ios::in | std::ios::ate);
-
-  if (logfile.bad())
-  {
-
-    LogErrorG("File logging error (W1): {}", name);
-// TODO error logging once mainconsole is ready
-#if 0
-#ifdef SERVER
-        output << string() + inttostr(io) << NL;
-#else
-        GS::GetMainConsole().console(string("File logging error (W1): ") + inttostr(io),
-                            debug_message_color);
-#endif
-#endif
-    return;
-  }
-
   if (f->size() > 1000000)
   {
     return;
   }
 
+  auto logfile = fu.Open(name, FileUtility::FileMode::Write);
   {
     std::lock_guard lock(loglock);
     for (auto &line : *f)
     {
-      logfile << line << std::endl;
+      fu.Write(logfile, reinterpret_cast<const std::byte*>(line.c_str()), line.size());
+      fu.Write(logfile, reinterpret_cast<const std::byte*>('\n'), 1);
     }
     f->clear();
   }
-
-  if (logfile.bad())
-  {
-    LogErrorG("File logging error (W3): {}", name);
-#if 0
-#ifdef SERVER
-        output << string("File logging error (W3): ") + inttostr(io) << NL;
-#else
-        GS::GetMainConsole().console(string("File logging error (W3): ") + inttostr(io),
-                            debug_message_color);
-#endif
-#endif
-  }
+  fu.Close(logfile);
 }
 
 template <Config::Module M>
-void newlogfiles(const std::string &userdirectory)
+void newlogfiles(FileUtility &fu)
 {
   std::int32_t j;
   std::string s2;
@@ -170,21 +138,21 @@ void newlogfiles(const std::string &userdirectory)
     s2 = ss.str();
   }
 
-  std::string consolelogfilename = userdirectory + "logs/consolelog-" + s2 + ".txt";
+  std::string consolelogfilename = "/user/logs/consolelog-" + s2 + ".txt";
   j = 1;
-  for (auto i = 1; std::filesystem::exists(consolelogfilename); i++)
+  for (auto i = 1; fu.Exists(consolelogfilename); i++)
   {
-    consolelogfilename = userdirectory + "logs/consolelog-" + s2 + "-" + std::to_string(j) + ".txt";
+    consolelogfilename = "/user/logs/consolelog-" + s2 + "-" + std::to_string(j) + ".txt";
   }
   if (CVar::log_level == 0)
   {
-    consolelogfilename = userdirectory + "logs/consolelog.txt";
+    consolelogfilename = "/user/logs/consolelog.txt";
   }
 
   GetGameLogFilename() = consolelogfilename;
 
-  newlogfile(GetGameLog(), consolelogfilename);
-  addlinetologfile(GetGameLog(), "   Console Log Started", consolelogfilename);
+  newlogfile(fu, GetGameLog(), consolelogfilename);
+  addlinetologfile(fu, GetGameLog(), "   Console Log Started", consolelogfilename);
 
 // TODO error logging once mainconsole is ready
 #ifdef SERVER
@@ -218,11 +186,11 @@ std::string &GetGameLogFilename()
   return filename;
 }
 
-template void newlogfile(tstringlist *f, const std::string &name);
-template void writelogfile(tstringlist *f, const std::string &name);
-template void addlinetologfile(tstringlist *f, const std::string &s, const std::string &name,
+template void newlogfile(FileUtility& fu, tstringlist *f, const std::string &name);
+template void writelogfile(FileUtility& fu, tstringlist *f, const std::string &name);
+template void addlinetologfile(FileUtility& fu, tstringlist *f, const std::string &s, const std::string &name,
                                bool withdate);
-template void newlogfiles(const std::string &userdirectory);
+template void newlogfiles(FileUtility& fu);
 
 template tstringlist *&GetGameLog();
 template std::string &GetGameLogFilename();

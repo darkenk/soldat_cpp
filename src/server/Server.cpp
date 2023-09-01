@@ -191,6 +191,8 @@ void ActivateServer(int argc, const char *argv[])
   WriteLn("");
 #endif
 
+  auto& fs = GS::GetFileSystem();
+
   servertickcounter = 0;
   GS::GetGame().ResetMainTickCounter();
 
@@ -286,7 +288,7 @@ void ActivateServer(int argc, const char *argv[])
     CvarsInitialized = true;
 #endif
 
-  newlogfiles(userdirectory);
+  newlogfiles(fs);
 
   LogDebugG("ActivateServer");
 
@@ -315,7 +317,7 @@ void ActivateServer(int argc, const char *argv[])
 
   GS::GetGame().SetSinusCounter(0);
 
-  addlinetologfile(GetGameLog(), "Loading Maps List", GetGameLogFilename());
+  addlinetologfile(fs, GetGameLog(), "Loading Maps List", GetGameLogFilename());
 
   if (fileexists(userdirectory + "configs/" + std::string(CVar::sv_maplist)))
   {
@@ -384,8 +386,8 @@ void ActivateServer(int argc, const char *argv[])
 
   WriteLn(" Server  name" + std::string(CVar::sv_hostname));
   GS::GetGame().updategamestats();
-  writelogfile(&GetKillLog(), GetKillLogFilename());
-  writelogfile(GetGameLog(), GetGameLogFilename());
+  writelogfile(fs, &GetKillLog(), GetKillLogFilename());
+  writelogfile(fs, GetGameLog(), GetGameLogFilename());
 
   NotImplemented("mixing commands between server and client");
   // rundeferredcommands();
@@ -446,13 +448,15 @@ void ShutDown()
     s.player = nullptr;
   }
 
-  addlinetologfile(GetGameLog(), "   End of Log.", GetGameLogFilename());
+  auto& fs = GS::GetFileSystem();
+
+  addlinetologfile(fs, GetGameLog(), "   End of Log.", GetGameLogFilename());
   LogDebugG("Updating gamestats");
   GS::GetGame().updategamestats();
   LogDebugG("Saving killlog");
-  writelogfile(&GetKillLog(), GetKillLogFilename());
+  writelogfile(fs, &GetKillLog(), GetKillLogFilename());
   LogDebugG("Saving gamelog");
-  writelogfile(GetGameLog(), GetGameLogFilename());
+  writelogfile(fs, GetGameLog(), GetGameLogFilename());
   LogDebugG("Freeing gamelog");
   delete GetGameLog();
   GetGameLog() = nullptr;
@@ -606,6 +610,7 @@ void startserver()
   if (sc_enable)
     ScrptDispatcher.Launch();
 #endif
+  auto& fs= GS::GetFileSystem();
 
   if (not GS::GetGame().isteamgame())
   {
@@ -638,7 +643,7 @@ void startserver()
     GS::GetGame().SetTeamScore(i, 0);
   }
 
-  addlinetologfile(GetGameLog(), "Loading Map.", GetGameLogFilename());
+  addlinetologfile(fs, GetGameLog(), "Loading Map.", GetGameLogFilename());
 
   // playing over internet - optimize
   if (CVar::net_lan == LAN)
@@ -702,7 +707,7 @@ void startserver()
 #endif
 
   // Create Weapons
-  addlinetologfile(GetGameLog(), "Creating Weapons.", GetGameLogFilename());
+  addlinetologfile(fs, GetGameLog(), "Creating Weapons.", GetGameLogFilename());
 
   if (CVar::sv_realisticmode)
   {
@@ -870,7 +875,7 @@ void startserver()
   updatewaverespawntime();
   waverespawncounter = waverespawntime;
 
-  addlinetologfile(GetGameLog(), "Starting Game Server.", GetGameLogFilename());
+  addlinetologfile(fs, GetGameLog(), "Starting Game Server.", GetGameLogFilename());
 
   InitNetworkServer(CVar::net_ip, CVar::net_port);
 

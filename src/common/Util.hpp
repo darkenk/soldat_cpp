@@ -50,7 +50,6 @@ tcolor stringtocolor(const std::string s);
 #endif
 
 std::string numberformat(std::uint32_t num);
-std::int32_t checkfilesize(const std::string &filename);
 
 std::string overridefileext(const std::string &filename, const std::string &ext);
 // function MapExists(MapName: string; RootDirectory: string{$IFNDEF SERVER}; Checksum:

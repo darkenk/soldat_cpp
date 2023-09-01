@@ -1699,11 +1699,12 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 s2 = formatdatetime("yy/mm/dd", get_date());
                 s2 = s2 + ' ' + formatdatetime("hh:nn:ss", get_time());
 #endif
-        addlinetologfile(&GetKillLog(), std::string("--- ") + s2, GetKillLogFilename(), false);
-        addlinetologfile(&GetKillLog(), SpriteSystem::Get().GetSprite(who).player->name,
+        auto& fs = GS::GetFileSystem();
+        addlinetologfile(fs, &GetKillLog(), std::string("--- ") + s2, GetKillLogFilename(), false);
+        addlinetologfile(fs, &GetKillLog(), SpriteSystem::Get().GetSprite(who).player->name,
                          GetKillLogFilename(), false);
-        addlinetologfile(&GetKillLog(), player->name, GetKillLogFilename(), false);
-        addlinetologfile(&GetKillLog(), s, GetKillLogFilename(), false);
+        addlinetologfile(fs, &GetKillLog(), player->name, GetKillLogFilename(), false);
+        addlinetologfile(fs, &GetKillLog(), s, GetKillLogFilename(), false);
       }
 
       // Bot Chat

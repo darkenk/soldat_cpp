@@ -7,18 +7,19 @@
 #include <mutex>
 #include <string>
 
+#include "common/FileUtility.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "misc/SoldatConfig.hpp"
 
 template <Config::Module M = Config::GetModule()>
-void newlogfile(tstringlist *f, const std::string &name);
+void newlogfile(FileUtility& fu, tstringlist *f, const std::string &name);
 template <Config::Module M = Config::GetModule()>
-void writelogfile(tstringlist *f, const std::string &name);
+void writelogfile(FileUtility& fu, tstringlist *f, const std::string &name);
 template <Config::Module M = Config::GetModule()>
-void addlinetologfile(tstringlist *f, const std::string &s, const std::string &name,
+void addlinetologfile(FileUtility& fu, tstringlist *f, const std::string &s, const std::string &name,
                       bool withdate = true);
 template <Config::Module M = Config::GetModule()>
-void newlogfiles(const std::string &userdirectory);
+void newlogfiles(FileUtility& fu);
 
 template <Config::Module M = Config::GetModule()>
 constexpr tstringlist &GetKillLog() requires(Config::IsServer())

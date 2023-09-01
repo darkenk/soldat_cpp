@@ -24,6 +24,7 @@ public:
   bool Write(File *file, const std::byte *data, const std::size_t size);
   bool Exists(const std::string_view path);
   std::size_t Size(File *file);
+  std::size_t Size(const std::string_view path);
   bool MkDir(const std::string_view dirPath);
   bool Copy(const std::string_view src, const std::string_view dst);
 

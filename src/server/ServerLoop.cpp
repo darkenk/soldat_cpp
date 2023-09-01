@@ -455,13 +455,16 @@ void updateframe()
       if (CVar::log_enable)
       {
         GS::GetGame().updategamestats();
+        auto& fs = GS::GetFileSystem();
 
-        writelogfile(&GetKillLog(), GetKillLogFilename());
-        writelogfile(GetGameLog(), GetGameLogFilename());
+        writelogfile(fs, &GetKillLog(), GetKillLogFilename());
+        writelogfile(fs, GetGameLog(), GetGameLogFilename());
 
-        if ((checkfilesize(GetKillLogFilename()) > max_logfilesize) ||
-            (checkfilesize(GetGameLogFilename()) > max_logfilesize))
-          newlogfiles(GS::GetGame().GetUserDirectory());
+        if ((fs.Size(GetKillLogFilename()) > max_logfilesize) ||
+            (fs.Size(GetGameLogFilename()) > max_logfilesize))
+        {
+          newlogfiles(fs);
+        }
       }
     }
 

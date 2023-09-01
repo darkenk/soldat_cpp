@@ -4,17 +4,18 @@
 #include "common/Anims.hpp"
 #include "common/Parts.hpp"
 #include "mechanics/SpriteSystem.hpp"
-#include "physfs.h"
 #include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 // TODO: add file missing checks
 // TODO: translate filenames into english
 template <Config::Module M>
 void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 {
+  auto& fs = GS::GetFileSystem();
   Animations.clear();
-  addlinetologfile(GetGameLog(), std::string("Loading Animations. ") + moddir,
+  addlinetologfile(fs, GetGameLog(), std::string("Loading Animations. ") + moddir,
                    GetGameLogFilename());
   struct AnimData
   {
@@ -82,7 +83,7 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
     a.speed = anim.Speed;
   }
 
-  addlinetologfile(GetGameLog(), "Loading objects.", GetGameLogFilename());
+  addlinetologfile(fs, GetGameLog(), "Loading objects.", GetGameLogFilename());
 
   SpriteSystem::Get().ResetSpriteParts();
 
