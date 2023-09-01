@@ -217,6 +217,7 @@ void ActivateServer(int argc, const char *argv[])
     cvarinit();
 #endif
   initservercommands();
+  commandinit();
   parsecommandline(argc, argv);
 
   if (CVar::fs_basepath == "")
@@ -279,7 +280,7 @@ void ActivateServer(int argc, const char *argv[])
   PhysFS_CopyFileFromArchive("configs/weapons_realistic.ini",
                              userdirectory + "/configs/weapons_realistic.ini");
 
-  loadconfig("server.cfg");
+  loadconfig("server.cfg", GS::GetFileSystem());
 
 #if 0
     CvarsInitialized = true;

@@ -12,6 +12,7 @@
 #include "Game.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/Config.hpp"
+#include "common/FileUtility.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include <filesystem>
@@ -42,7 +43,7 @@ static void commandexec(std::vector<std::string> &args, std::uint8_t sender = 25
     GS::GetMainConsole().console("Usage: exec \"filename.cfg\"", game_message_color);
     return;
   }
-  loadconfig(args[1]);
+  loadconfig(args[1], GS::GetFileSystem());
 }
 
 static void commandtoggle(std::vector<std::string> &args, std::uint8_t sender)
@@ -507,20 +508,29 @@ bool parseinput(const std::string &input, std::uint8_t sender)
 }
 
 template <Config::Module M>
-bool loadconfig(const std::string &configname)
+bool loadconfig(const std::string &configname, FileUtility& fs)
 {
-  std::string path;
   std::string line;
 
   bool result = false;
-  path = GS::GetGame().GetUserDirectory() + "configs/" + configname;
-  if (!std::filesystem::exists(path))
+  auto path = "/user/configs/" + configname;
+  if (!fs.Exists(path))
   {
     GS::GetMainConsole().console(std::string("No such config file: ") + configname,
                              warning_message_color);
     return result;
   }
-  std::ifstream configfile{path.c_str()};
+  std::unique_ptr<std::byte[]> buff;
+  std::size_t fileSize = 0;
+  {
+    auto f = fs.Open(path, FileUtility::FileMode::Read);
+    fileSize = fs.Size(f);
+    buff = std::make_unique<std::byte[]>(fileSize);
+    fs.Read(f, buff.get(), fileSize);
+    fs.Close(f);
+  }
+  std::istringstream configfile;
+  configfile.rdbuf()->pubsetbuf(reinterpret_cast<char*>(buff.get()), fileSize);
   while (configfile.good() && !configfile.eof())
   {
     std::getline(configfile, line);
@@ -532,8 +542,7 @@ bool loadconfig(const std::string &configname)
     }
     parseinput(line);
   }
-  result = true;
-  return result;
+  return true;
 }
 
 template <Config::Module M>
@@ -714,7 +723,7 @@ template void commandinit();
 template void commanddeinit();
 template bool parseinput(const std::string &input);
 template bool parseinput(const std::string &input, std::uint8_t sender);
-template bool loadconfig(const std::string &configname);
+template bool loadconfig(const std::string &configname, FileUtility& fu);
 
 template pcommand commandadd(const std::string &commandnamevar, tcommandfunction commandptr,
                              const std::string &description, tcommandflags flags);

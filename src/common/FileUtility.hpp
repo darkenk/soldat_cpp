@@ -25,6 +25,7 @@ public:
   bool Exists(const std::string_view path);
   std::size_t Size(File *file);
   bool MkDir(const std::string_view dirPath);
+  bool Copy(const std::string_view src, const std::string_view dst);
 
   std::string GetBasePath();
   std::string GetPrefPath(const std::string_view postfix, const bool debugBuild = Config::IsDebug());

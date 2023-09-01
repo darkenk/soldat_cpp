@@ -386,6 +386,7 @@ static bool MountAssets(FileUtility &fu, const std::string &userdirectory,
 void startgame(int argc, const char *argv[])
 {
   initclientcommands();
+  commandinit();
 
   parsecommandline(argc, argv);
   if (argc == 1)
@@ -446,9 +447,15 @@ void startgame(int argc, const char *argv[])
 
   loadinterfacearchives(userDirectory + "custom-interfaces/");
 
-  PhysFS_CopyFileFromArchive("configs/client.cfg", userDirectory + "/configs/client.cfg");
+  fs.Copy("/configs/bindings.cfg", "/user/configs/bindings.cfg");
+  fs.Copy("/configs/client.cfg", "/user/configs/client.cfg");
+  fs.Copy("/configs/controls.cfg", "/user/configs/controls.cfg");
+  fs.Copy("/configs/game.cfg", "/user/configs/game.cfg");
+  fs.Copy("/configs/graphics.cfg", "/user/configs/graphics.cfg");
+  fs.Copy("/configs/player.cfg", "/user/configs/player.cfg");
+  fs.Copy("/configs/sound.cfg", "/user/configs/sound.cfg");
 
-  loadconfig("client.cfg");
+  loadconfig("client.cfg", fs);
 
   // these might change so keep a backup to avoid changing the settings file
   screenwidth = CVar::r_screenwidth;

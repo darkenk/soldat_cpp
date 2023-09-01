@@ -322,6 +322,23 @@ void FileUtility::Close(File *file)
 
 bool FileUtility::MkDir(const std::string_view dirPath) { return PHYSFS_mkdir(dirPath.data()); }
 
+bool FileUtility::Copy(const std::string_view src, const std::string_view dst)
+{
+  if (Exists(dst))
+  {
+    return false;
+  }
+  auto input = Open(src, FileMode::Read);
+  auto output = Open(dst, FileMode::Write);
+  auto inputFileSize = Size(input);
+  auto buffer = std::make_unique<std::byte[]>(inputFileSize);
+  Read(input, buffer.get(), inputFileSize);
+  Write(output, buffer.get(), inputFileSize);
+  Close(output);
+  Close(input);
+  return true;
+}
+
 std::string FileUtility::GetBasePath() { return PHYSFS_getBaseDir(); }
 
 std::string FileUtility::GetPrefPath(const std::string_view postfix, const bool debugBuild)
@@ -490,9 +507,31 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Return size of file")
     CHECK_EQ(true, r);
   }
   {
-  auto f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
-  CHECK_EQ(4, fu.Size(f));
-  fu.Close(f);
+    auto f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
+    CHECK_EQ(4, fu.Size(f));
+    fu.Close(f);
+  }
+}
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "Copy file")
+{
+  FileUtility fu;
+  fu.Mount("tmpfs.memory", "/fs_mem");
+  constexpr auto TEST_DATA_SIZE = 4;
+  std::array<std::byte, TEST_DATA_SIZE> testData = {std::byte(42), std::byte(42), std::byte(42),
+                                                    std::byte(40)};
+  {
+    auto f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
+    auto r = fu.Write(f, testData.data(), TEST_DATA_SIZE);
+    fu.Close(f);
+    CHECK_EQ(true, r);
+  }
+  {
+    auto copied = fu.Copy("/fs_mem/valid", "/fs_mem/copy");
+    CHECK_EQ(true, copied);
+    auto f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
+    CHECK_EQ(4, fu.Size(f));
+    fu.Close(f);
   }
 }
 

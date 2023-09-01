@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/FileUtility.hpp"
 #include "misc/SoldatConfig.hpp"
 #include <string>
 #include <vector>
@@ -13,7 +14,7 @@ bool parseinput(const std::string &input);
 template <Config::Module M = Config::GetModule()>
 bool parseinput(const std::string &input, std::uint8_t sender);
 template <Config::Module M = Config::GetModule()>
-bool loadconfig(const std::string &configname);
+bool loadconfig(const std::string &configname, FileUtility& fs);
 
 constexpr std::int32_t max_commands = 1024;
 
