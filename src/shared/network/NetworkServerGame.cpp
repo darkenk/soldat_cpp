@@ -43,31 +43,31 @@ void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
   switch (SpriteSystem::Get().GetSprite(i).player->team)
   {
   case team_none:
-    GetServerMainConsole().console(
+    GS::GetMainConsole().console(
       SpriteSystem::Get().GetSprite(i).player->name + " has left the game.", enter_message_color);
     break;
   case team_alpha:
-    GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+    GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
                                      " has left alpha team.",
                                    alphaj_message_color);
     break;
   case team_bravo:
-    GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+    GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
                                      " has left bravo team.",
                                    bravoj_message_color);
     break;
   case team_charlie:
-    GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+    GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
                                      " has left charlie team.",
                                    charliej_message_color);
     break;
   case team_delta:
-    GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+    GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
                                      " has left delta team.",
                                    deltaj_message_color);
     break;
   case team_spectator:
-    GetServerMainConsole().console(
+    GS::GetMainConsole().console(
       SpriteSystem::Get().GetSprite(i).player->name + " has left spectators", deltaj_message_color);
     break;
   }
@@ -275,7 +275,7 @@ void serverhandlevotekick(SteamNetworkingMessage_t *netmessage)
       serversendvoteon(GS::GetGame().GetVoteType(), i, inttostr(votekickmsg->num),
                        votekickmsg->reason.data());
       // Show started votekick in admin console
-      GetServerMainConsole().console(
+      GS::GetMainConsole().console(
         SpriteSystem::Get().GetSprite(i).player->name + " started votekick against " +
           SpriteSystem::Get().GetSprite(votekickmsg->num).player->name +
           " - Reason:" + std::string(votekickmsg->reason.data()),

@@ -23,6 +23,7 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/SHA1Helper.hpp"
 #include "common/misc/TIniFile.hpp"
+#include "common/port_utils/NotImplemented.hpp"
 #include "shared/Command.hpp"
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
@@ -168,7 +169,7 @@ void restartgraph()
     mouseprev.y = my;
   }
 
-  GetMainConsole().console(("Graphics restart"), debug_message_color);
+  GS::GetMainConsole().console(("Graphics restart"), debug_message_color);
 }
 
 static void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName = gundisplayname, const std::string& modDir = moddir)
@@ -178,7 +179,8 @@ static void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName = gundispl
 
   const std::string weaponNamesFile = modDir + "txt/weaponnames.txt";
 
-  GetMainConsole().console(std::string("Loading Weapon Names from ") + weaponNamesFile, debug_message_color);
+  //GS::GetMainConsole().console(std::string("Loading Weapon Names from ") + weaponNamesFile, debug_message_color);
+  NotImplemented("console");
   if (!fs.Exists((weaponNamesFile)))
   {
     return;
@@ -418,16 +420,16 @@ void startgame(int argc, const char *argv[])
 
   newlogfiles(userDirectory);
 
-  GetMainConsole().countmax = round(15 * _rscala.y);
-  GetMainConsole().scrolltickmax = 150;
-  GetMainConsole().newmessagewait = 150;
-  GetMainConsole().alphacount = 255;
-  GetMainConsole().count = 0;
-  GetMainConsole().countmax = round(CVar::ui_console_length * _rscala.y);
+  GS::GetMainConsole().countmax = round(15 * _rscala.y);
+  GS::GetMainConsole().scrolltickmax = 150;
+  GS::GetMainConsole().newmessagewait = 150;
+  GS::GetMainConsole().alphacount = 255;
+  GS::GetMainConsole().count = 0;
+  GS::GetMainConsole().countmax = round(CVar::ui_console_length * _rscala.y);
 
-  if (GetMainConsole().countmax > 254)
+  if (GS::GetMainConsole().countmax > 254)
   {
-    GetMainConsole().countmax = 254;
+    GS::GetMainConsole().countmax = 254;
   }
 
   float fov;
@@ -595,13 +597,13 @@ void startgame(int argc, const char *argv[])
   addlinetologfile(GetGameLog(), "Creating network interface.", GetGameLogFilename());
 
   // Create Consoles
-  GetMainConsole().countmax = round(CVar::ui_console_length * _rscala.y);
-  GetMainConsole().scrolltickmax = 150;
-  GetMainConsole().newmessagewait = 150;
-  GetMainConsole().alphacount = 255;
-  GetMainConsole().count = 0;
-  if (GetMainConsole().countmax > 254)
-    GetMainConsole().countmax = 254;
+  GS::GetMainConsole().countmax = round(CVar::ui_console_length * _rscala.y);
+  GS::GetMainConsole().scrolltickmax = 150;
+  GS::GetMainConsole().newmessagewait = 150;
+  GS::GetMainConsole().alphacount = 255;
+  GS::GetMainConsole().count = 0;
+  if (GS::GetMainConsole().countmax > 254)
+    GS::GetMainConsole().countmax = 254;
 
   GetBigConsole().countmax =
     floor((0.85 * renderheight) / (CVar::font_consolelineheight * fontstylesize(font_small)));
@@ -627,8 +629,8 @@ void startgame(int argc, const char *argv[])
     AnimationSystem::Get().LoadAnimObjects(moddir);
 
   // greet!
-  // GetMainConsole().console(("Welcome to Soldat ") + soldat_version, default_message_color);
-  GetMainConsole().console(("Welcome to Soldat "), default_message_color);
+  // GS::GetMainConsole().console(("Welcome to Soldat ") + soldat_version, default_message_color);
+  GS::GetMainConsole().console(("Welcome to Soldat "), default_message_color);
 
   // Load weapon display names
   loadweaponnames(fs);

@@ -28,7 +28,7 @@ void commandbind(std::vector<std::string> &args, std::uint8_t sender)
 
   if (length(args) < 3)
   {
-    GetMainConsole().console("Usage: bind \"key\" \"command\"", game_message_color);
+    GS::GetMainConsole().console("Usage: bind \"key\" \"command\"", game_message_color);
     return;
   }
 
@@ -63,7 +63,7 @@ void commandconnect(std::vector<std::string> &args, std::uint8_t sender)
 
   if (length(args) <= 1)
   {
-    GetMainConsole().console("Usage: connect ip port password", game_message_color);
+    GS::GetMainConsole().console("Usage: connect ip port password", game_message_color);
     return;
   }
   exittomenu();
@@ -110,7 +110,7 @@ void commandsay(std::vector<std::string> &args, std::uint8_t sender)
 {
   if (length(args) <= 1)
   {
-    GetMainConsole().console("Usage: say \"text\"", game_message_color);
+    GS::GetMainConsole().console("Usage: say \"text\"", game_message_color);
     return;
   }
   clientsendstringmessage((args[1]), msgtype_pub);
@@ -120,7 +120,7 @@ void commandsayteam(std::vector<std::string> &args, std::uint8_t sender)
 {
   if (length(args) <= 1)
   {
-    GetMainConsole().console("Usage: say_team \"text\"", game_message_color);
+    GS::GetMainConsole().console("Usage: say_team \"text\"", game_message_color);
     return;
   }
   clientsendstringmessage((args[1]), msgtype_team);
@@ -158,9 +158,9 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
     muteall = !muteall;
 
     if (muteall)
-      GetMainConsole().console(("Everyone is muted"), client_message_color);
+      GS::GetMainConsole().console(("Everyone is muted"), client_message_color);
     else
-      GetMainConsole().console(("Everyone is unmuted"), client_message_color);
+      GS::GetMainConsole().console(("Everyone is unmuted"), client_message_color);
 
     return;
   }
@@ -169,7 +169,7 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
   for (i = 0; i <= high(targets); i++)
   {
     SpriteSystem::Get().GetSprite(targets[i]).muted = true;
-    GetMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name + " is muted",
+    GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name + " is muted",
                              client_message_color);
   }
 }
@@ -177,7 +177,7 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
 void commandunbindall(std::vector<std::string> &args, std::uint8_t sender)
 {
   unbindall();
-  GetMainConsole().console("Unbinded all binds", game_message_color);
+  GS::GetMainConsole().console("Unbinded all binds", game_message_color);
 }
 
 void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
@@ -195,7 +195,7 @@ void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
   for (i = 0; i <= high(targets); i++)
   {
     SpriteSystem::Get().GetSprite(targets[i]).muted = false;
-    GetMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name + " is unmuted",
+    GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name + " is unmuted",
                              client_message_color);
   }
 }
@@ -223,7 +223,7 @@ void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)
                      map.name + "_screenshot.png";
 #endif
 
-    GetMainConsole().console((("Screenshot saved to ") + screenfile), debug_message_color);
+    GS::GetMainConsole().console((("Screenshot saved to ") + screenfile), debug_message_color);
 
     takescreenshot(screenfile);
 
@@ -240,7 +240,7 @@ void commandswitchcam(std::vector<std::string> &args, std::uint8_t sender)
 {
   if (length(args) <= 1)
   {
-    GetMainConsole().console("Usage: switchcam \"id\"", game_message_color);
+    GS::GetMainConsole().console("Usage: switchcam \"id\"", game_message_color);
     return;
   }
   if (SpriteSystem::Get().GetSprite(mysprite).isspectator())
@@ -253,7 +253,7 @@ void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
 
   if (length(args) <= 1)
   {
-    GetMainConsole().console("Usage: switchcamflag \"id\"", game_message_color);
+    GS::GetMainConsole().console("Usage: switchcamflag \"id\"", game_message_color);
     return;
   }
 

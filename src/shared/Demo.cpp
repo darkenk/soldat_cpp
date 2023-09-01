@@ -60,7 +60,7 @@ bool tdemorecorder<M>::startrecord(const string &filename)
     return result;
 #endif
 
-  GetMainConsole().console(("Recording demo: ") + (extractfilename(filename)), info_message_color);
+  GS::GetMainConsole().console(("Recording demo: ") + (extractfilename(filename)), info_message_color);
 
   fname = extractfilename(filename);
   factive = true;
@@ -93,7 +93,7 @@ void tdemorecorder<M>::stoprecord()
   if (!active())
     return;
 
-  GetMainConsole().console(
+  GS::GetMainConsole().console(
 #ifdef SERVER
     string("Demo stopped") +
 #else
@@ -118,7 +118,7 @@ void tdemorecorder<M>::stoprecord()
   fdemofile.savetofile(GS::GetGame().GetUserDirectory() + "demos/" + fname);
   //  except
   //    on e: Exception do
-  //      GetMainConsole().Console('Failed to save demo file: ' + WideString(E.Message),
+  //      GS::GetMainConsole().Console('Failed to save demo file: ' + WideString(E.Message),
   //      INFO_MESSAGE_COLOR);
   //  end;
 
@@ -142,7 +142,7 @@ std::int32_t tdemorecorder<M>::createdemoplayer()
 
   if (SpriteSystem::Get().GetSprite(max_sprites).IsActive())
   {
-    GetMainConsole().console(
+    GS::GetMainConsole().console(
       "Failed to create Demo Recorder player. Demos can be recorded with up to 31 players",
       info_message_color);
     stoprecord();
@@ -272,7 +272,7 @@ bool tdemoplayer::opendemo(const string &filename)
   //  except
   //    on e: Exception do
   //    begin
-  //      GetMainConsole().Console(_('Failed to load demo file: ') + WideString(E.Message),
+  //      GS::GetMainConsole().Console(_('Failed to load demo file: ') + WideString(E.Message),
   //      INFO_MESSAGE_COLOR); Exit;
   //    end;
   //  end;
@@ -280,13 +280,13 @@ bool tdemoplayer::opendemo(const string &filename)
   fdemofile.readbuffer(&fdemoheader, sizeof(fdemoheader));
   if (fdemoheader.header != demo_magic)
   {
-    GetMainConsole().console(_("The provided file is not valid: ") + ' ' + (fname),
+    GS::GetMainConsole().console(_("The provided file is not valid: ") + ' ' + (fname),
                              info_message_color);
     fdemofile.free();
   }
   else if (fdemoheader.version != demo_version)
   {
-    GetMainConsole().console(
+    GS::GetMainConsole().console(
       _(wideformat("Wrong demo version: %d - %d", demo_version, fdemoheader.version)),
       info_message_color);
     fdemofile.free();
@@ -294,7 +294,7 @@ bool tdemoplayer::opendemo(const string &filename)
   else
   {
     fname = extractfilename(filename);
-    GetMainConsole().console(_("Playing demo") + ' ' + (fname), info_message_color);
+    GS::GetMainConsole().console(_("Playing demo") + ' ' + (fname), info_message_color);
     spectator = 1;
     factive = true;
     opendemo_result = true;
@@ -307,7 +307,7 @@ void tdemoplayer::stopdemo()
   if (!factive)
     return;
 
-  GetMainConsole().console("Demo stopped", info_message_color);
+  GS::GetMainConsole().console("Demo stopped", info_message_color);
 
   fdemofile.free();
 
@@ -420,7 +420,7 @@ void tdemoplayer::position(std::int32_t ticks)
       chatteam[i] = false;
     }
 
-    GetMainConsole().count = 0;
+    GS::GetMainConsole().count = 0;
     GetBigConsole().count = 0;
   }
 

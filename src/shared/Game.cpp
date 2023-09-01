@@ -267,7 +267,7 @@ void Game<M>::startvote(std::uint8_t startervote, std::uint8_t typevote, std::st
     if (startervote == mysprite)
       if (VoteType == vote_kick)
       {
-        GetMainConsole().console(("You have voted to kick ") +
+        GS::GetMainConsole().console(("You have voted to kick ") +
                                    (SpriteSystem::Get().GetSprite(kickmenuindex).player->name) +
                                    (" from the game"),
                                  vote_message_color);
@@ -321,7 +321,7 @@ void Game<M>::timervote()
     if (VoteTimeRemaining == 0)
     {
       if (VoteType == vote_map)
-        GetMainConsole().console(
+        GS::GetMainConsole().console(
 #ifdef SERVER
           "No map has been voted",
 #else
@@ -364,9 +364,9 @@ void Game<M>::countvote(std::uint8_t voter)
       {
         if (!preparemapchange(VoteTarget))
         {
-          GetMainConsole().console(string("Map not found (") + VoteTarget + ')',
+          GS::GetMainConsole().console(string("Map not found (") + VoteTarget + ')',
                                    warning_message_color);
-          GetMainConsole().console("No map has been voted", vote_message_color);
+          GS::GetMainConsole().console("No map has been voted", vote_message_color);
         }
       }
       stopvote();
@@ -452,7 +452,7 @@ void Game<M>::changemap()
 
   if (!map.loadmap(mapchange))
   {
-    GetMainConsole().console(string("Error: Could not load map (") + mapchange.name + ')',
+    GS::GetMainConsole().console(string("Error: Could not load map (") + mapchange.name + ')',
                              debug_message_color);
     nextmap();
     return;

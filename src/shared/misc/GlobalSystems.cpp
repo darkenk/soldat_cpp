@@ -1,6 +1,7 @@
 #include "GlobalSystems.hpp"
 #include "common/FileUtility.hpp"
 #include "shared/AnimationSystem.hpp"
+#include "shared/Console.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include <memory>
@@ -9,6 +10,7 @@ template <Config::Module M>
 GlobalSystems<M>::GlobalSystems()
 {
   FileUtilityObject = std::make_unique<FileUtility>();
+  MainConsoleObject = std::make_unique<Console<M>>();
   SpriteSystem::Init();
   AnimationSystem::Init();
   ThingSystemObject = std::make_unique<ThingSystem>();
@@ -21,7 +23,6 @@ GlobalSystems<M>::GlobalSystems()
 template <Config::Module M>
 GlobalSystems<M>::~GlobalSystems()
 {
-  FileUtilityObject.reset();
   Game<M>::Deinit();
   DemoRecorder.reset();
   WeaponSystemObject.reset();
@@ -29,6 +30,8 @@ GlobalSystems<M>::~GlobalSystems()
   ThingSystemObject.reset();
   AnimationSystem::Deinit();
   SpriteSystem::Deinit();
+  MainConsoleObject.reset();
+  FileUtilityObject.reset();
 }
 
 template class GlobalSystems<Config::GetModule()>;

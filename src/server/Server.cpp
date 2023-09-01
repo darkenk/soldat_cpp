@@ -201,15 +201,15 @@ void ActivateServer(int argc, const char *argv[])
   }
 
   // Create Consoles
-  GetServerMainConsole().countmax = 7;
-  GetServerMainConsole().scrolltickmax = 150;
-  GetServerMainConsole().newmessagewait = 150;
-  GetServerMainConsole().alphacount = 255;
+  GS::GetMainConsole().countmax = 7;
+  GS::GetMainConsole().scrolltickmax = 150;
+  GS::GetMainConsole().newmessagewait = 150;
+  GS::GetMainConsole().alphacount = 255;
 
   NotImplemented("Who cares about colors?");
 #if 0
     if GetEnvironmentVariable ("COLORTERM")
-        != "" then GetServerMainConsole().TerminalColors = true;
+        != "" then GS::GetMainConsole().TerminalColors = true;
 #endif
 
   NotImplemented("No cvarinit");
@@ -395,7 +395,7 @@ void ShutDown()
   LogDebugG("ShutDown");
   progready = false;
 
-  GetServerMainConsole().console("Shutting down server...", game_message_color);
+  GS::GetMainConsole().console("Shutting down server...", game_message_color);
   NotImplemented("Missing delete file");
 #if 0
     SysUtils.DeleteFile(userdirectory + "logs/" + sv_pidfilename);
@@ -405,7 +405,7 @@ void ShutDown()
   {
     serverdisconnect();
 
-    GetServerMainConsole().console("Shutting down game networking.", game_message_color);
+    GS::GetMainConsole().console("Shutting down game networking.", game_message_color);
 
     DeinitServerNetwork();
   }
@@ -413,7 +413,7 @@ void ShutDown()
 #ifdef RCON
   if (sv_adminpassword != "")
   {
-    try GetServerMainConsole().console("Shutting down admin server...", GAME_MESSAGE_COLOR);
+    try GS::GetMainConsole().console("Shutting down admin server...", GAME_MESSAGE_COLOR);
     if (AdminServer != nil)
     {
       AdminServer.Active = false;
@@ -500,7 +500,7 @@ void loadweapons(const std::string &Filename)
     if LoadedWMChecksum
         != DefaultWMChecksum then
         {
-            GetServerMainConsole().console("Loaded weapons mod "
+            GS::GetMainConsole().console("Loaded weapons mod "
                                 " + WMName + " v " + WMVersion + "
                                 "",
                                 SERVER_MESSAGE_COLOR);
@@ -523,7 +523,7 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
 
   if (GS::GetGame().GetPlayersNum() == max_players)
   {
-    GetServerMainConsole().console("Bot cannot be added because server is full",
+    GS::GetMainConsole().console("Bot cannot be added because server is full",
                                    warning_message_color);
     return Result;
   }
@@ -544,7 +544,7 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
 
     if (not loadbotconfig(ini, SpriteSystem::Get().GetSprite(p), guns))
     {
-      GetServerMainConsole().console("Bot file " + name + " not found", warning_message_color);
+      GS::GetMainConsole().console("Bot file " + name + " not found", warning_message_color);
       SpriteSystem::Get().GetSprite(p).kill();
       return Result;
     }
@@ -578,7 +578,7 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
     TempStr = "as spectator";
     break;
   }
-  GetServerMainConsole().console(SpriteSystem::Get().GetSprite(p).player->name + " " +
+  GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(p).player->name + " " +
                                    "has joined " + TempStr + ".",
                                  enter_message_color);
 
@@ -661,10 +661,10 @@ void startserver()
   /*
       if (not map.loadmap(StartMap))
       {
-          GetServerMainConsole().console("Could Error not load map maps/" + StartMap.mapname +
+          GS::GetMainConsole().console("Could Error not load map maps/" + StartMap.mapname +
 ".smap", debug_message_color); if (not map.loadmap("Arena"))
           {
-              GetServerMainConsole().console("Could Error not load map maps/ Arena.smap",
+              GS::GetMainConsole().console("Could Error not load map maps/ Arena.smap",
                                   debug_message_color);
               return;
           }
@@ -685,7 +685,7 @@ void startserver()
   {
     if (not map.loadmap(StartMap))
     {
-      GetServerMainConsole().console("Could Error not load map " + StartMap.name,
+      GS::GetMainConsole().console("Could Error not load map " + StartMap.name,
                                      debug_message_color);
       Abort();
       return;
@@ -705,7 +705,7 @@ void startserver()
 
   if (CVar::sv_realisticmode)
   {
-    GetServerMainConsole().console("Realistic Mode ON", mode_message_color);
+    GS::GetMainConsole().console("Realistic Mode ON", mode_message_color);
     GS::GetGame().SetStarthealth(Constants::REALISTIC_HEALTH);
     loadweapons("weapons_realistic");
     lastwepmod = "weapons_realistic";
@@ -737,7 +737,7 @@ void startserver()
         GS::GetGame().GetWeaponsel()[j][i] = 1;
       }
     }
-    GetServerMainConsole().console("Advance Mode ON", mode_message_color);
+    GS::GetMainConsole().console("Advance Mode ON", mode_message_color);
   }
 
   if (CVar::sv_gamemode == Constants::GAMESTYLE_DEATHMATCH)
@@ -811,7 +811,7 @@ void startserver()
   }
   else
   {
-    GetServerMainConsole().console("Survival Mode ON", mode_message_color);
+    GS::GetMainConsole().console("Survival Mode ON", mode_message_color);
   }
 
   // stat gun
@@ -936,7 +936,7 @@ bool preparemapchange(std::string Name)
     GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangetime());
     // s} to client that map changes
     servermapchange(all_players);
-    GetServerMainConsole().console("Next  map" + Status.name, game_message_color);
+    GS::GetMainConsole().console("Next  map" + Status.name, game_message_color);
 #ifdef SCRIPT
     ScrptDispatcher.OnBeforeMapChange(Status.Name);
 #endif
@@ -951,7 +951,7 @@ void nextmap()
 
   if (mapslist.size() < 1)
   {
-    GetServerMainConsole().console("Can"
+    GS::GetMainConsole().console("Can"
                                    "t load maps from mapslist",
                                    game_message_color);
   }
@@ -1071,7 +1071,7 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
     if (isremoteadminip(SpriteSystem::Get().GetSprite(i).player->ip) or
         isadminip(SpriteSystem::Get().GetSprite(i).player->ip))
     {
-      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+      GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
                                        " is admin and cannot be kicked.",
                                      client_message_color);
       return Result;
@@ -1083,31 +1083,31 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
     switch (SpriteSystem::Get().GetSprite(i).player->team)
     {
     case 0:
-      GetServerMainConsole().console(
+      GS::GetMainConsole().console(
         SpriteSystem::Get().GetSprite(i).player->name + " has left the game.", enter_message_color);
       break;
     case 1:
-      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+      GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
                                        " has left alpha team.",
                                      alphaj_message_color);
       break;
     case 2:
-      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+      GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
                                        " has left bravo team.",
                                      bravoj_message_color);
       break;
     case 3:
-      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+      GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
                                        " has left charlie team.",
                                      charliej_message_color);
       break;
     case 4:
-      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+      GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
                                        " has left delta team.",
                                      deltaj_message_color);
       break;
     case 5:
-      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+      GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
                                        " has left spectators",
                                      deltaj_message_color);
       break;
@@ -1116,7 +1116,7 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
 
   if (not Ban and not(why == kick_leftgame) and not(why == kick_silent))
   {
-    GetServerMainConsole().console(
+    GS::GetMainConsole().console(
       SpriteSystem::Get().GetSprite(i).player->name + " has been kicked." +
         iif(SpriteSystem::Get().GetSprite(i).player->controlmethod == bot, std::string(""),
             "(" + SpriteSystem::Get().GetSprite(i).player->ip + ")"),
@@ -1141,13 +1141,13 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
 #if 0
             TimeStr = iif((time + 1) div 3600 > 1439, IntToStr((time + 1) div 5184000) + " days",
                           IntToStr((time + 1) div 3600) + " minutes");
-            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name + " has been kicked and banned for " +
+            GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name + " has been kicked and banned for " +
                                     TimeStr + " (" + Reason + ")",
                                 client_message_color)
 #endif
     }
     else
-      GetServerMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
+      GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
                                        " has been kicked and permanently banned (" + Reason + ")",
                                      client_message_color);
   }

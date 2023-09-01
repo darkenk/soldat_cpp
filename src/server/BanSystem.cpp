@@ -4,6 +4,7 @@
 #include "Server.hpp"
 #include "ServerHelper.hpp"
 #include "shared/Console.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 std::vector<tbanip> bannediplist;
 std::vector<tbanhw> bannedhwlist;
@@ -165,7 +166,7 @@ void updateipbanlist()
       }
       if ((bannediplist[j].time == 0) && !(bannediplist[j].time == permanent))
       {
-        GetServerMainConsole().console(std::string("IP number ") + bannediplist[j].ip + " (" +
+        GS::GetMainConsole().console(std::string("IP number ") + bannediplist[j].ip + " (" +
                                          bannediplist[j].reason + ") unbanned",
                                        client_message_color);
         delbannedip(bannediplist[j].ip);
@@ -324,7 +325,7 @@ void updatehwbanlist()
       }
       if ((bannedhwlist[j].time == 0) && !(bannedhwlist[j].time == permanent))
       {
-        GetServerMainConsole().console(std::string("Hardware ID ") + bannedhwlist[j].hw + " (" +
+        GS::GetMainConsole().console(std::string("Hardware ID ") + bannedhwlist[j].hw + " (" +
                                          bannedhwlist[j].reason + ") unbanned",
                                        client_message_color);
         delbannedhw(bannedhwlist[j].hw);

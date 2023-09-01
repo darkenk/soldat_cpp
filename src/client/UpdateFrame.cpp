@@ -281,7 +281,7 @@ void update_frame()
         {
           if (game.GetMapchangecounter() == -60)
           {
-            GetMainConsole().console(_("Time Left:") + ' ' +
+            GS::GetMainConsole().console(_("Time Left:") + ' ' +
                                        (inttostr(game.GetTimelimitcounter() / 60)) + ' ' +
                                        _("seconds"),
                                      game_message_color);
@@ -293,7 +293,7 @@ void update_frame()
       {
         if (game.GetTimelimitcounter() % 600 == 0)
         {
-          GetMainConsole().console(_("Time Left:") + ' ' +
+          GS::GetMainConsole().console(_("Time Left:") + ' ' +
                                      (inttostr(game.GetTimelimitcounter() / 60)) + ' ' +
                                      _("seconds"),
                                    game_message_color);
@@ -304,7 +304,7 @@ void update_frame()
       {
         if (game.GetTimelimitcounter() % 3600 == 0)
         {
-          GetMainConsole().console(_("Time Left:") + ' ' +
+          GS::GetMainConsole().console(_("Time Left:") + ' ' +
                                      (inttostr(game.GetTimelimitcounter() / 3600)) + ' ' +
                                      _("minutes"),
                                    game_message_color);
@@ -313,7 +313,7 @@ void update_frame()
       }
       else if (game.GetTimelimitcounter() % 18000 == 0)
       {
-        GetMainConsole().console(_("Time Left:") + ' ' +
+        GS::GetMainConsole().console(_("Time Left:") + ' ' +
                                    (inttostr(game.GetTimelimitcounter() / 3600)) + ' ' +
                                    _("minutes"),
                                  game_message_color);
@@ -343,12 +343,12 @@ void update_frame()
       shotdistanceshow = shotdistanceshow - 1;
 
     // Consoles Update
-    GetMainConsole().scrolltick = GetMainConsole().scrolltick + 1;
-    if (GetMainConsole().scrolltick == GetMainConsole().scrolltickmax)
-      GetMainConsole().scrollconsole();
+    GS::GetMainConsole().scrolltick = GS::GetMainConsole().scrolltick + 1;
+    if (GS::GetMainConsole().scrolltick == GS::GetMainConsole().scrolltickmax)
+      GS::GetMainConsole().scrollconsole();
 
-    if (GetMainConsole().alphacount > 0)
-      GetMainConsole().alphacount = GetMainConsole().alphacount - 1;
+    if (GS::GetMainConsole().alphacount > 0)
+      GS::GetMainConsole().alphacount = GS::GetMainConsole().alphacount - 1;
 
     GetKillConsole().scrolltick = GetKillConsole().scrolltick + 1;
     if (GetKillConsole().scrolltick == GetKillConsole().scrolltickmax)

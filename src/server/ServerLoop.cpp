@@ -131,7 +131,7 @@ void apponidle()
                 ((sprite.player->realping > (CVar::sv_maxping)) ||
                  ((sprite.player->realping < CVar::sv_minping) && (sprite.player->pingtime > 0))))
             {
-              GetServerMainConsole().console(sprite.player->name + " gets a ping warning",
+              GS::GetMainConsole().console(sprite.player->name + " gets a ping warning",
                                              warning_message_color);
               pingwarnings[sprite.num] += 1;
               if (pingwarnings[sprite.num] > CVar::sv_warnings_ping)
@@ -151,7 +151,7 @@ void apponidle()
             ((CVar::net_lan == INTERNET) &&
              (messagesasecnum[j] > CVar::net_floodingpacketsinternet)))
         {
-          GetServerMainConsole().console(sprite.player->name + " is flooding the server",
+          GS::GetMainConsole().console(sprite.player->name + " is flooding the server",
                                          warning_message_color);
           floodwarnings[j] += 1;
           if (floodwarnings[j] > CVar::sv_warnings_flood)
@@ -264,7 +264,7 @@ void apponidle()
         if (noclientupdatetime[j] > disconnection_time)
         {
           serverplayerdisconnect(j, kick_noresponse);
-          GetServerMainConsole().console(sprite.player->name + " could not respond",
+          GS::GetMainConsole().console(sprite.player->name + " could not respond",
                                          warning_message_color);
 #ifdef SCRIPT
           scrptdispatcher.onleavegame(j, false);
@@ -285,7 +285,7 @@ void apponidle()
           if (SpriteSystem::Get().GetSprite(j).player->faeticks > (second * 20))
           {
             // Timeout reached; no valid response for 20 seconds. Boot the player.
-            GetServerMainConsole().console(SpriteSystem::Get().GetSprite(j).player->name +
+            GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(j).player->name +
                                              " no anti-cheat response",
                                            warning_message_color);
             kickplayer(j, false, kick_ac, 0, "No Anti-Cheat Response");
@@ -488,7 +488,7 @@ void updateframe()
 #ifdef SCRIPT
             }
 #endif
-            GetServerMainConsole().console(string("** Detected possible Mass-Flag cheating from ") +
+            GS::GetMainConsole().console(string("** Detected possible Mass-Flag cheating from ") +
                                              sprite.player->name,
                                            warning_message_color);
           }
@@ -534,7 +534,7 @@ void updateframe()
           (lastreqip[1] == lastreqip[2]) && (lastreqip[2] == lastreqip[3]))
       {
         dropip = lastreqip[0];
-        GetServerMainConsole().console(string("Firewalled IP ") + dropip, 0);
+        GS::GetMainConsole().console(string("Firewalled IP ") + dropip, 0);
       }
 
     if (GS::GetGame().GetMainTickCounter() % (second * 3) == 0)
@@ -605,14 +605,14 @@ void updateframe()
       if (GS::GetGame().GetTimelimitcounter() < five_minutes + 1)
       {
         if (GS::GetGame().GetTimelimitcounter() % minute == 0)
-          GetServerMainConsole().console(string("Time Left: ") +
+          GS::GetMainConsole().console(string("Time Left: ") +
                                            inttostr(GS::GetGame().GetTimelimitcounter() / minute) +
                                            " minutes",
                                          game_message_color);
       }
       else if (GS::GetGame().GetTimelimitcounter() % five_minutes == 0)
       {
-        GetServerMainConsole().console(string("Time Left: ") +
+        GS::GetMainConsole().console(string("Time Left: ") +
                                          inttostr(GS::GetGame().GetTimelimitcounter() / minute) +
                                          " minutes",
                                        game_message_color);
@@ -625,12 +625,12 @@ void updateframe()
     GS::GetGame().timervote();
 
     // Consoles Update
-    GetServerMainConsole().scrolltick = GetServerMainConsole().scrolltick + 1;
-    if (GetServerMainConsole().scrolltick == GetServerMainConsole().scrolltickmax)
-      GetServerMainConsole().scrollconsole();
+    GS::GetMainConsole().scrolltick = GS::GetMainConsole().scrolltick + 1;
+    if (GS::GetMainConsole().scrolltick == GS::GetMainConsole().scrolltickmax)
+      GS::GetMainConsole().scrollconsole();
 
-    if (GetServerMainConsole().alphacount > 0)
-      GetServerMainConsole().alphacount = GetServerMainConsole().alphacount - 1;
+    if (GS::GetMainConsole().alphacount > 0)
+      GS::GetMainConsole().alphacount = GS::GetMainConsole().alphacount - 1;
 
     if (!CVar::sv_advancemode)
       for (j = 1; j <= max_sprites; j++)

@@ -374,7 +374,7 @@ void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
   {
     thebot = randombot();
     parseinput(std::string("addbot2 ") + thebot, 1);
-    GetServerMainConsole().console(thebot + " has joined bravo team. (Bot Balance)",
+    GS::GetMainConsole().console(thebot + " has joined bravo team. (Bot Balance)",
                                    enter_message_color);
     return;
   }
@@ -382,7 +382,7 @@ void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
   {
     thebot = randombot();
     parseinput(std::string("addbot1 ") + thebot, 1);
-    GetServerMainConsole().console(thebot + " has joined alpha team. (Bot Balance)",
+    GS::GetMainConsole().console(thebot + " has joined alpha team. (Bot Balance)",
                                    enter_message_color);
     return;
   }

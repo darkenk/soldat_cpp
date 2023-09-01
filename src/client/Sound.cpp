@@ -10,6 +10,7 @@
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <SDL2/SDL.h>
 #include <array>
 #include <soloud.h>
@@ -500,7 +501,7 @@ void loadsounds(const string &moddir)
   sfxpath = moddir + "sfx/";
 
   // Sound effects
-  GetMainConsole().console("Loading sound effects", debug_message_color);
+  GS::GetMainConsole().console("Loading sound effects", debug_message_color);
 
   for (i = 1U; i < sample_files.size(); i++)
   {
@@ -508,7 +509,7 @@ void loadsounds(const string &moddir)
     {
       samp[i] = loadsample((sfxpath + sample_files[i].data()), samp[i]);
       if (!samp[i].loaded)
-        GetMainConsole().console(string("Unable to load file ") + sfxpath + sample_files[i].data(),
+        GS::GetMainConsole().console(string("Unable to load file ") + sfxpath + sample_files[i].data(),
                                  debug_message_color);
     }
   }

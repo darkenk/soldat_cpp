@@ -154,7 +154,7 @@ bool verifypacket(std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t
   }
   if (CVar::log_level > 1)
   {
-    GetMainConsole().console("[NET] Received Packet (" + inttostr(PacketId) +
+    GS::GetMainConsole().console("[NET] Received Packet (" + inttostr(PacketId) +
                                ") Size:" + inttostr(ReceiveSize) + Dropped,
                              debug_message_color);
   }
@@ -176,7 +176,7 @@ bool verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
   }
   if (CVar::log_level > 1)
   {
-    GetMainConsole().console("[NET] Received Packet (" + inttostr(PacketId) +
+    GS::GetMainConsole().console("[NET] Received Packet (" + inttostr(PacketId) +
                                ") Size:" + inttostr(ReceiveSize) + Dropped,
                              debug_message_color);
   }
@@ -401,7 +401,7 @@ std::int32_t updateantiflood(std::string SrcIP)
     if (floodnum[FloodID] > floodip_max)
     {
       addbannedip(SrcIP, "Flooding", Constants::TWENTY_MINUTES);
-      GetMainConsole().console("IP number " + SrcIP + " banned for flooding", client_message_color);
+      GS::GetMainConsole().console("IP number " + SrcIP + " banned for flooding", client_message_color);
     }
   }
   return FloodID;

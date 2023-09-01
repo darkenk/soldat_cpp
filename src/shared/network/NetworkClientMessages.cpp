@@ -9,6 +9,7 @@
 #include "NetworkUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <codecvt>
 #include <locale>
 
@@ -72,7 +73,7 @@ void clienthandlechatmessage(SteamNetworkingMessage_t *netmessage)
   // chat from server
   if (i == 255)
   {
-    GetMainConsole().console(_("*SERVER*: ") + cs, server_message_color);
+    GS::GetMainConsole().console(_("*SERVER*: ") + cs, server_message_color);
     return;
   }
 
@@ -106,13 +107,13 @@ void clienthandlechatmessage(SteamNetworkingMessage_t *netmessage)
   }
 
   if (length(cs) < morechattext)
-    GetMainConsole().console(
+    GS::GetMainConsole().console(
       prefix + "[" + (SpriteSystem::Get().GetSprite(i).player->name) + "] " + cs, col);
   else
   {
-    GetMainConsole().console(prefix + "[" + (SpriteSystem::Get().GetSprite(i).player->name) + "] ",
+    GS::GetMainConsole().console(prefix + "[" + (SpriteSystem::Get().GetSprite(i).player->name) + "] ",
                              col);
-    GetMainConsole().console(std::string(" ") + cs, col);
+    GS::GetMainConsole().console(std::string(" ") + cs, col);
   }
 
   /*if Radio and
@@ -132,7 +133,7 @@ void clienthandlespecialmessage(SteamNetworkingMessage_t *netmessage)
 
   if (specialmessage->msgtype == 0) // console
   {
-    GetMainConsole().console(cs, specialmessage->color);
+    GS::GetMainConsole().console(cs, specialmessage->color);
   }
   else if (specialmessage->msgtype == 1) // big text
   {

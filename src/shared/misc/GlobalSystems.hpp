@@ -7,6 +7,8 @@
 #include "shared/Game.hpp"
 #include "shared/mechanics/BulletSystem.hpp"
 #include "shared/mechanics/ThingSystem.hpp"
+#include "shared/Console.hpp"
+#include <memory>
 
 class FileUtility;
 
@@ -44,6 +46,11 @@ public:
     return *GlobalSystems::Get().FileUtilityObject;
   }
 
+  static Console<M> &GetMainConsole()
+  {
+    return *GlobalSystems::Get().MainConsoleObject;
+  }
+
 
 protected:
   GlobalSystems();
@@ -57,6 +64,7 @@ private:
   std::unique_ptr<BulletSystem> BulletSystemObject;
   std::unique_ptr<ThingSystem> ThingSystemObject;
   std::unique_ptr<FileUtility> FileUtilityObject;
+  std::unique_ptr<Console<M>> MainConsoleObject;
 };
 
 using GS = GlobalSystems<Config::GetModule()>;

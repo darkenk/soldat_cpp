@@ -903,13 +903,13 @@ void Thing<M>::update()
 
                 GS::GetGame().sortplayers();
 #ifdef SERVER
-                GetMainConsole().console(SpriteSystem::Get().GetSprite(holdingsprite).player->name +
+                GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(holdingsprite).player->name +
                                            ' ' + "scores for Alpha Team",
                                          alpha_message_color);
                 SpriteSystem::Get().GetSprite(holdingsprite).player->scorespersecond += 1;
 #else
                 bigmessage(_("Alpha Team Scores!"), capturectfmessagewait, alpha_message_color);
-                GetMainConsole().console(
+                GS::GetMainConsole().console(
                   wideformat(
                     _("{} scores for Alpha Team"),
                     set::of(SpriteSystem::Get().GetSprite(holdingsprite).player->name, eos)),
@@ -936,13 +936,13 @@ void Thing<M>::update()
 
                 GS::GetGame().sortplayers();
 #ifdef SERVER
-                GetMainConsole().console(SpriteSystem::Get().GetSprite(holdingsprite).player->name +
+                GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(holdingsprite).player->name +
                                            ' ' + "scores for Bravo Team",
                                          bravo_message_color);
                 SpriteSystem::Get().GetSprite(holdingsprite).player->scorespersecond += 1;
 #else
                 bigmessage(_("Bravo Team Scores!"), capturectfmessagewait, bravo_message_color);
-                GetMainConsole().console(
+                GS::GetMainConsole().console(
                   wideformat(
                     _("{} scores for Bravo Team"),
                     set::of(SpriteSystem::Get().GetSprite(holdingsprite).player->name, eos)),
@@ -2117,12 +2117,12 @@ std::int32_t Thing<M>::checkspritecollision()
 
 #ifdef SERVER
           if (smallcaptextstr != "")
-            GetMainConsole().console(smallcaptextstr, capcolor);
+            GS::GetMainConsole().console(smallcaptextstr, capcolor);
 #else
           if (smallcaptext != "")
           {
             bigmessage(bigcaptext, capturemessagewait, capcolor);
-            GetMainConsole().console(
+            GS::GetMainConsole().console(
               wideformat(smallcaptext, set::of(SpriteSystem::Get().GetSprite(j).player->name, eos)),
               capcolor);
           }

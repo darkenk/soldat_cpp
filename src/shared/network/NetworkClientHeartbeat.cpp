@@ -75,7 +75,7 @@ void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
 
   if (badmapidcount < 1)
   {
-    GetMainConsole().console(_("Wrong map version detected"), server_message_color);
+    GS::GetMainConsole().console(_("Wrong map version detected"), server_message_color);
     clientdisconnect();
     GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
     return;

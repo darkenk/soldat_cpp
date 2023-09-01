@@ -9,6 +9,7 @@
 #include "common/Logging.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <clocale>
 #include <cuchar>
 #include <steam/isteamnetworkingmessages.h>
@@ -60,7 +61,7 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
   if (SpriteSystem::Get().GetSprite(from).player->controlmethod == bot)
   {
     auto msg = iif(msgtype == msgtype_team, std::string("(TEAM)"), std::string(""));
-    GetServerMainConsole().console(msg + "[" + SpriteSystem::Get().GetSprite(from).player->name +
+    GS::GetMainConsole().console(msg + "[" + SpriteSystem::Get().GetSprite(from).player->name +
                                      "] " + text,
                                    teamchat_message_color);
   }
@@ -122,7 +123,7 @@ void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage)
     if (scrptdispatcher.onplayercommand(player.spritenum, std::string(cs)))
       return;
 #endif
-    GetServerMainConsole().console(cs + "(" + (player->ip) + "[" + (player->name) + "]" + ")",
+    GS::GetMainConsole().console(cs + "(" + (player->ip) + "[" + (player->name) + "]" + ")",
                                    default_message_color);
     parseinput(std::string(cs), player->spritenum);
     return;
@@ -137,7 +138,7 @@ void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage)
   if (player->muted == 1)
     cschat = std::string("(MUTED) ") + cschat;
 
-  GetServerMainConsole().console(cschat, chat_message_color);
+  GS::GetMainConsole().console(cschat, chat_message_color);
 
   if (player->muted == 1)
     serversendstringmessage("(Muted)", all_players, player->spritenum, msgtype_pub);

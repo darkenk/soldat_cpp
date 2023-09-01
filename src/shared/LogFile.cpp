@@ -42,7 +42,7 @@ void newlogfile(tstringlist *f, const std::string &name)
 #ifdef SERVER
         output << string("File logging error (N): ") + inttostr(i) << NL;
 #else
-        GetMainConsole().console(string("File logging error (N): ") + inttostr(i), debug_message_color);
+        GS::GetMainConsole().console(string("File logging error (N): ") + inttostr(i), debug_message_color);
 #endif
 #endif
   }
@@ -122,7 +122,7 @@ void writelogfile(tstringlist *f, const std::string &name)
 #ifdef SERVER
         output << string() + inttostr(io) << NL;
 #else
-        GetMainConsole().console(string("File logging error (W1): ") + inttostr(io),
+        GS::GetMainConsole().console(string("File logging error (W1): ") + inttostr(io),
                             debug_message_color);
 #endif
 #endif
@@ -150,7 +150,7 @@ void writelogfile(tstringlist *f, const std::string &name)
 #ifdef SERVER
         output << string("File logging error (W3): ") + inttostr(io) << NL;
 #else
-        GetMainConsole().console(string("File logging error (W3): ") + inttostr(io),
+        GS::GetMainConsole().console(string("File logging error (W3): ") + inttostr(io),
                             debug_message_color);
 #endif
 #endif

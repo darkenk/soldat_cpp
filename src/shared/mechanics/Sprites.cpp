@@ -1437,7 +1437,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
           !(player->name == SpriteSystem::Get().GetSprite(who).player->name))
       {
         SpriteSystem::Get().GetSprite(who).player->tkwarnings += 1;
-        GetMainConsole().console(
+        GS::GetMainConsole().console(
           SpriteSystem::Get().GetSprite(who).player->name + " Team Killed " + player->name +
             " (Warning #" + inttostr(SpriteSystem::Get().GetSprite(who).player->tkwarnings) + ')',
           game_message_color);
@@ -1675,7 +1675,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     // console message for kills
     if ((CVar::sv_echokills) && !(SpriteSystem::Get().GetSprite(who).player->name == player->name))
     {
-      GetMainConsole().console(std::string("(") +
+      GS::GetMainConsole().console(std::string("(") +
                                  inttostr(SpriteSystem::Get().GetSprite(who).player->team) + ") " +
                                  SpriteSystem::Get().GetSprite(who).player->name + " killed (" +
                                  inttostr(player->team) + ") " + player->name + " with " + s,
@@ -1935,7 +1935,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifndef SERVER
         if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
 #endif
-          GetMainConsole().console(
+          GS::GetMainConsole().console(
 #ifdef SERVER
             std::string("Players left: ") +
 #else
@@ -1954,7 +1954,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         if (mysprite > 0)
           if (isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
             if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
-              GetMainConsole().console(_("Players left on your team:") + ' ' +
+              GS::GetMainConsole().console(_("Players left on your team:") + ' ' +
                                          (inttostr(GS::GetGame().GetTeamAliveNum(
                                            SpriteSystem::Get().GetSprite(mysprite).player->team))),
                                        game_message_color);
@@ -1997,7 +1997,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifndef SERVER
         if ((things[i].style == object_alpha_flag) || (things[i].style == object_bravo_flag))
         {
-          GetMainConsole().console(
+          GS::GetMainConsole().console(
             wideformat(_("{} dropped the {} Flag"), player->name,
                        iif(player->team == team_alpha, _("Blue"), _("Red"))),
             iif(player->team == team_alpha, bravo_message_color, alpha_message_color));
@@ -3779,42 +3779,42 @@ void Sprite<M>::changeteam(std::int32_t team)
     {
 #ifdef SERVER
     case team_none:
-      GetMainConsole().console(player->name + " has joined the game.", enter_message_color);
+      GS::GetMainConsole().console(player->name + " has joined the game.", enter_message_color);
       break;
     case team_alpha:
-      GetMainConsole().console(player->name + " has joined alpha team.", alphaj_message_color);
+      GS::GetMainConsole().console(player->name + " has joined alpha team.", alphaj_message_color);
       break;
     case team_bravo:
-      GetMainConsole().console(player->name + " has joined bravo team.", bravoj_message_color);
+      GS::GetMainConsole().console(player->name + " has joined bravo team.", bravoj_message_color);
       break;
     case team_charlie:
-      GetMainConsole().console(player->name + " has joined charlie team.", charliej_message_color);
+      GS::GetMainConsole().console(player->name + " has joined charlie team.", charliej_message_color);
       break;
     case team_delta:
-      GetMainConsole().console(player->name + " has joined delta team.", deltaj_message_color);
+      GS::GetMainConsole().console(player->name + " has joined delta team.", deltaj_message_color);
       break;
     case team_spectator:
-      GetMainConsole().console(player->name + " has joined spectators.", deltaj_message_color);
+      GS::GetMainConsole().console(player->name + " has joined spectators.", deltaj_message_color);
       break;
 #else
     case team_none:
-      GetMainConsole().console(wideformat(_("%s has joined the game."), player->name),
+      GS::GetMainConsole().console(wideformat(_("%s has joined the game."), player->name),
                                enter_message_color);
       break;
     case team_alpha:
-      GetMainConsole().console(wideformat(_("%s has joined alpha team"), player->name),
+      GS::GetMainConsole().console(wideformat(_("%s has joined alpha team"), player->name),
                                alphaj_message_color);
       break;
     case team_bravo:
-      GetMainConsole().console(wideformat(_("%s has joined bravo team"), player->name),
+      GS::GetMainConsole().console(wideformat(_("%s has joined bravo team"), player->name),
                                bravoj_message_color);
       break;
     case team_charlie:
-      GetMainConsole().console(wideformat(_("%s has joined charlie team"), player->name),
+      GS::GetMainConsole().console(wideformat(_("%s has joined charlie team"), player->name),
                                charliej_message_color);
       break;
     case team_delta:
-      GetMainConsole().console(wideformat(_("%s has joined delta team"), player->name),
+      GS::GetMainConsole().console(wideformat(_("%s has joined delta team"), player->name),
                                deltaj_message_color);
       break;
 #endif

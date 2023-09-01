@@ -300,11 +300,11 @@ void gameloop()
         {
           if (noheartbeattime > disconnection_time)
           {
-            GetMainConsole().console(("Connection timeout"), warning_message_color);
+            GS::GetMainConsole().console(("Connection timeout"), warning_message_color);
           }
           else
           {
-            GetMainConsole().console(("Connection problem"), warning_message_color);
+            GS::GetMainConsole().console(("Connection problem"), warning_message_color);
           }
         }
 
@@ -317,7 +317,7 @@ void gameloop()
 
         gamemenushow(teammenu, false);
 
-        GetMainConsole().console(("Connection timeout"), warning_message_color);
+        GS::GetMainConsole().console(("Connection timeout"), warning_message_color);
 
         clientdisconnect();
       }

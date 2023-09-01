@@ -1470,7 +1470,7 @@ void renderconsoletexts(float w)
   }
   else
   {
-    console = &GetMainConsole();
+    console = &GS::GetMainConsole();
   }
 
   l = CVar::font_consolelineheight * pixelsize.y * fontstylesize(font_small);
@@ -1479,7 +1479,7 @@ void renderconsoletexts(float w)
 
   if (fragsmenushow || statsmenushow or teammenu->active or
       ((console == &GetBigConsole()) && limbomenu->active) or
-      ((console == &GetMainConsole()) && escmenu->active && noobshow))
+      ((console == &GS::GetMainConsole()) && escmenu->active && noobshow))
     alpha = 60;
 
   for (i = 1; i <= console->count; i++)

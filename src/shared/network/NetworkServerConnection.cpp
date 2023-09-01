@@ -78,7 +78,7 @@ void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
   else if (isadminpassword((pmsg_requestgame(netmessage->m_pData)->password.data())))
   {
     if (addiptoremoteadmins(player->ip))
-      GetServerMainConsole().console(player->ip + " added to Game Admins via Request password",
+      GS::GetMainConsole().console(player->ip + " added to Game Admins via Request password",
                                      server_message_color);
     state = ok;
   }
@@ -119,7 +119,7 @@ void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
       state = steam_only;
 #endif
 
-  GetServerMainConsole().console(
+  GS::GetMainConsole().console(
     player->ip + ':' + inttostr(player->port) +
       //    '|' + {$IFDEF
       //    STEAM}TSteamID(Player.SteamID).GetAsString{$ELSE}RequestMsg.HardwareID{$ENDIF} +
@@ -254,7 +254,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
     }
   } while (!playernameunused);
 
-  GetServerMainConsole().console(finalplayername + " joining game (" + player->ip + ':' +
+  GS::GetMainConsole().console(finalplayername + " joining game (" + player->ip + ':' +
                                    inttostr(player->port) + ") HWID:" +
 #ifdef STEAM
                                    Player.SteamID.GetAsString()
@@ -427,23 +427,23 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
   switch (player->team)
   {
   case team_none:
-    GetServerMainConsole().console(player->name + " has joined the game.", enter_message_color);
+    GS::GetMainConsole().console(player->name + " has joined the game.", enter_message_color);
     break;
   case team_alpha:
-    GetServerMainConsole().console(player->name + " has joined alpha team.", alphaj_message_color);
+    GS::GetMainConsole().console(player->name + " has joined alpha team.", alphaj_message_color);
     break;
   case team_bravo:
-    GetServerMainConsole().console(player->name + " has joined bravo team.", bravoj_message_color);
+    GS::GetMainConsole().console(player->name + " has joined bravo team.", bravoj_message_color);
     break;
   case team_charlie:
-    GetServerMainConsole().console(player->name + " has joined charlie team.",
+    GS::GetMainConsole().console(player->name + " has joined charlie team.",
                                    charliej_message_color);
     break;
   case team_delta:
-    GetServerMainConsole().console(player->name + " has joined delta team.", deltaj_message_color);
+    GS::GetMainConsole().console(player->name + " has joined delta team.", deltaj_message_color);
     break;
   case team_spectator:
-    GetServerMainConsole().console(player->name + " has joined as spectator.",
+    GS::GetMainConsole().console(player->name + " has joined as spectator.",
                                    deltaj_message_color);
     break;
   }

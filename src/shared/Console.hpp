@@ -47,12 +47,6 @@ public:
 using tconsole = Console<Config::GetModule()>;
 
 template <Config::Module M = Config::GetModule()>
-Console<M> &GetMainConsole();
-
-constexpr auto GetServerMainConsole = GetMainConsole<Config::SERVER_MODULE>;
-constexpr auto GetClientMainConsole = GetMainConsole<Config::CLIENT_MODULE>;
-
-template <Config::Module M = Config::GetModule()>
 Console<M> &GetBigConsole();
 template <Config::Module M = Config::GetModule()>
 Console<M> &GetKillConsole();

@@ -4,6 +4,7 @@
 #include "common/Logging.hpp"
 #include "network/Net.hpp"
 #include "network/NetworkServerMessages.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 #include <locale>
 
@@ -97,7 +98,7 @@ void Console<M>::console(const std::string &what, std::int32_t col) // overload;
   }
   if constexpr (Config::IsClient(M))
   {
-    GetMainConsole().consoleadd(what, col);
+    GS::GetMainConsole().consoleadd(what, col);
     GetBigConsole().consoleadd(what, col);
   }
 }
@@ -132,13 +133,5 @@ Console<M> &GetKillConsole()
   return killconsole;
 }
 
-template <Config::Module M>
-Console<M> &GetMainConsole()
-{
-  static Console<M> gMainConsole;
-  return gMainConsole;
-}
-
-template tconsole &GetMainConsole<Config::GetModule()>();
 template tconsole &GetKillConsole<Config::GetModule()>();
 template tconsole &GetBigConsole<Config::GetModule()>();
