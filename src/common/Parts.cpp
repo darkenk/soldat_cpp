@@ -2,6 +2,7 @@
 
 #include "Parts.hpp"
 #include "PhysFSExt.hpp"
+#include "misc/GlobalSystemsCommon.hpp"
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 #include <Tracy.hpp>
@@ -205,8 +206,12 @@ void particlesystem::loadpoobject(const std::string &filename, float scale)
   std::int32_t pa, pb;
   std::int32_t i;
 
-  if (!PHYSFS_exists((pchar)(filename)))
+  auto& fs = GSC::GetFileSystem();
+
+  if (!fs.Exists(filename))
+  {
     return;
+  }
   v.x = 0;
   v.y = 0;
   i = 0;

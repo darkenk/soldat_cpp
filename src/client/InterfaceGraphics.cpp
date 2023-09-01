@@ -268,6 +268,8 @@ bool loadinterfacedata(const std::string &interfacename)
   tinterface addrrec;
   const char custom_interface_dir[] = "custom-intercases/";
 
+  auto& fs = GSC::GetFileSystem();
+
   bool loadinterfacedata_result = false;
   intalign.weapon = 0;
   intalign.bullets = 0;
@@ -285,7 +287,7 @@ bool loadinterfacedata(const std::string &interfacename)
     return loadinterfacedata_result;
   }
 
-  if (!PHYSFS_exists((pchar)(moddir + custom_interface_dir + interfacename + "/setup.sif")))
+  if (!fs.Exists(moddir + custom_interface_dir + interfacename + "/setup.sif"))
   {
     showmessage(("Could not find setup.sif. Loading default interface instead."));
     loaddefaultinterfacedata();
@@ -299,7 +301,7 @@ bool loadinterfacedata(const std::string &interfacename)
   addrrec = *(pinterface)(&addrfile[0]);
   int_ = addrrec;
 
-  if (PHYSFS_exists((pchar)(moddir + custom_interface_dir + interfacename + "/health.bmp")))
+  if (fs.Exists(moddir + custom_interface_dir + interfacename + "/health.bmp"))
   {
     relinfo.healthbar_rel_x = int_.healthico_x;
     relinfo.healthbar_rel_y = int_.healthico_y;
@@ -313,7 +315,7 @@ bool loadinterfacedata(const std::string &interfacename)
     relinfo.nadesbar_rel_y = int_.healthico_y;
   }
 
-  if (PHYSFS_exists((pchar)(moddir + custom_interface_dir + interfacename + "/jet.bmp")))
+  if (fs.Exists(moddir + custom_interface_dir + interfacename + "/jet.bmp"))
   {
     relinfo.healthbar_rel_x = int_.jetico_x;
     relinfo.healthbar_rel_y = int_.jetico_y;
@@ -327,7 +329,7 @@ bool loadinterfacedata(const std::string &interfacename)
     relinfo.nadesbar_rel_y = int_.jetico_y;
   }
 
-  if (PHYSFS_exists((pchar)(moddir + custom_interface_dir + interfacename + "/ammo.bmp")))
+  if (fs.Exists(moddir + custom_interface_dir + interfacename + "/ammo.bmp"))
   {
     relinfo.healthbar_rel_x = int_.ammoico_x;
     relinfo.healthbar_rel_y = int_.ammoico_y;
@@ -341,19 +343,19 @@ bool loadinterfacedata(const std::string &interfacename)
     relinfo.nadesbar_rel_y = int_.ammoico_y;
   }
 
-  if (PHYSFS_exists((pchar)(moddir + custom_interface_dir + interfacename + "/health.bmp")))
+  if (fs.Exists(moddir + custom_interface_dir + interfacename + "/health.bmp"))
   {
     relinfo.healthbar_rel_x = int_.healthico_x;
     relinfo.healthbar_rel_y = int_.healthico_y;
   }
 
-  if (PHYSFS_exists((pchar)(moddir + custom_interface_dir + interfacename + "/jet.bmp")))
+  if (fs.Exists(moddir + custom_interface_dir + interfacename + "/jet.bmp"))
   {
     relinfo.jetbar_rel_x = int_.jetico_x;
     relinfo.jetbar_rel_y = int_.jetico_y;
   }
 
-  if (PHYSFS_exists((pchar)(moddir + custom_interface_dir + interfacename + "/ammo.bmp")))
+  if (fs.Exists(moddir + custom_interface_dir + interfacename + "/ammo.bmp"))
   {
     relinfo.ammobar_rel_x = int_.ammoico_x;
     relinfo.ammobar_rel_y = int_.ammoico_y;

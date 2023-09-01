@@ -1,4 +1,5 @@
 set(SRC
+    misc/GlobalSystemsCommon.cpp
     misc/PortUtils.cpp
     misc/RandomGenerator.cpp
     misc/SHA1.cpp
@@ -10,6 +11,8 @@ set(SRC
     port_utils/NotImplemented.cpp
     Anims.cpp
     Calc.cpp
+    FileUtility.cpp
+
     Logging.cpp
     MapFile.cpp
     Parts.cpp
@@ -20,7 +23,7 @@ set(SRC
     Waypoints.cpp
     Weapons.cpp
     WeaponSystem.cpp
-    FileUtility.cpp
+
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

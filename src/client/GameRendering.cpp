@@ -256,6 +256,8 @@ void loadmaintextures()
   tgfxcolor color;
   float scale;
 
+  auto& fs = GSC::GetFileSystem();
+
   count = 0;
 
   count = std::count_if(GFXData.begin(), GFXData.end(),
@@ -276,7 +278,7 @@ void loadmaintextures()
 
       path = pngoverride(moddir + std::string(GFXData[i].Path));
 
-      if (!PHYSFS_exists((pchar)(path)))
+      if (!fs.Exists(path))
         path = pngoverride(GFXData[i].Path);
 
       imagescale[id] = getimagescale(path);
@@ -296,17 +298,15 @@ void loadinterfacetextures(const std::string interfacename)
 {
   const std::int32_t custom_first = GFX::INTERFACE_CURSOR;
   const std::int32_t custom_last = GFX::INTERFACE_TITLE_R;
-  std::int32_t i, count;
-  std::int32_t cutlength;
+  std::int32_t i;
+  std::int32_t count = 0;
+  std::int32_t cutlength = 0;
   std::string prefix;
   std::string path;
   tgfxcolor color;
   float scale;
-  bool iscustom;
-
-  count = 0;
-  cutlength = 0;
-  iscustom = !isdefaultinterface(interfacename);
+  bool iscustom = !isdefaultinterface(interfacename);
+  auto& fs = GSC::GetFileSystem();
 
   if (iscustom)
   {
@@ -345,15 +345,19 @@ void loadinterfacetextures(const std::string interfacename)
         path = prefix + std::string(GFXData[i].Path.data() + cutlength + 1);
         path = pngoverride(path);
 
-        if (!PHYSFS_exists((pchar)(path)))
+        if (!fs.Exists(path))
+        {
           path = pngoverride(GFXData[i].Path);
+        }
       }
       else
       {
         path = pngoverride(moddir + std::string(GFXData[i].Path));
 
-        if (!PHYSFS_exists((pchar)(path)))
+        if (!fs.Exists(path))
+        {
           path = pngoverride(GFXData[i].Path);
+        }
       }
 
       imagescale[id] = getimagescale(path);

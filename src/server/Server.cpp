@@ -191,7 +191,7 @@ void ActivateServer(int argc, const char *argv[])
   WriteLn("");
 #endif
 
-  auto& fs = GS::GetFileSystem();
+  auto& fs = GSC::GetFileSystem();
 
   servertickcounter = 0;
   GS::GetGame().ResetMainTickCounter();
@@ -240,7 +240,7 @@ void ActivateServer(int argc, const char *argv[])
 #if 0
     SetCurrentDir(userdirectory);
 #endif
-  auto &fu = GS::GetFileSystem();
+  auto &fu = GSC::GetFileSystem();
   if (not fu.Mount(basedirectory + "/soldat.smod", "/"))
   {
     WriteLn("Could not load base game archive (soldat.smod).");
@@ -282,7 +282,7 @@ void ActivateServer(int argc, const char *argv[])
   PhysFS_CopyFileFromArchive("configs/weapons_realistic.ini",
                              userdirectory + "/configs/weapons_realistic.ini");
 
-  loadconfig("server.cfg", GS::GetFileSystem());
+  loadconfig("server.cfg", GSC::GetFileSystem());
 
 #if 0
     CvarsInitialized = true;
@@ -448,7 +448,7 @@ void ShutDown()
     s.player = nullptr;
   }
 
-  auto& fs = GS::GetFileSystem();
+  auto& fs = GSC::GetFileSystem();
 
   addlinetologfile(fs, GetGameLog(), "   End of Log.", GetGameLogFilename());
   LogDebugG("Updating gamestats");
@@ -610,7 +610,7 @@ void startserver()
   if (sc_enable)
     ScrptDispatcher.Launch();
 #endif
-  auto& fs= GS::GetFileSystem();
+  auto& fs= GSC::GetFileSystem();
 
   if (not GS::GetGame().isteamgame())
   {

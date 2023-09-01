@@ -1,6 +1,7 @@
 // automatically converted
 #include "MapFile.hpp"
 #include "PhysFSExt.hpp"
+#include "misc/GlobalSystemsCommon.hpp"
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 #include <cassert>
@@ -64,14 +65,14 @@ std::uint32_t crc32(std::uint32_t crc, std::uint8_t *data, std::int32_t len)
 
 bool readallbytes(const tmapinfo &map, tfilebuffer &buffer)
 {
-  bool result;
-  result = false;
+  bool result = false;
+  auto& fs = GSC::GetFileSystem();
 
   if (map.name == "")
     return result;
 
   // Load default map from base archive
-  if (PHYSFS_exists((std::string("maps/") + map.name + ".pms").c_str()))
+  if (fs.Exists(std::string("maps/") + map.name + ".pms"))
   {
     buffer.data = PhysFS_readBuffer((std::string("maps/") + map.name + ".pms").c_str());
   }

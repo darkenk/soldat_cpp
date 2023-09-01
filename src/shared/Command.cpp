@@ -43,7 +43,7 @@ static void commandexec(std::vector<std::string> &args, std::uint8_t sender = 25
     GS::GetMainConsole().console("Usage: exec \"filename.cfg\"", game_message_color);
     return;
   }
-  loadconfig(args[1], GS::GetFileSystem());
+  loadconfig(args[1], GSC::GetFileSystem());
 }
 
 static void commandtoggle(std::vector<std::string> &args, std::uint8_t sender)

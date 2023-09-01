@@ -213,7 +213,7 @@ void update_frame()
     {
       if (CVar::log_enable)
       {
-        auto& fs = GS::GetFileSystem();
+        auto& fs = GSC::GetFileSystem();
         if (fs.Size(GetGameLogFilename()) > max_logfilesize)
         {
           newlogfiles(fs);

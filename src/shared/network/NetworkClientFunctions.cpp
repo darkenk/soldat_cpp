@@ -202,13 +202,14 @@ void clienthandleplaysound(SteamNetworkingMessage_t *netmessage)
 {
   tmsg_playsound *playsoundmsg;
   std::int32_t i;
+  auto& fs = GSC::GetFileSystem();
 
   if (!verifypacket(sizeof(tmsg_playsound), netmessage->m_cbSize, msgid_playsound))
     return;
 
   playsoundmsg = pmsg_playsound(netmessage->m_pData);
 
-  if (PHYSFS_exists((pchar)(std::string(moddir) + std::string("sfx/") + playsoundmsg->name.data())))
+  if (fs.Exists(std::string(moddir) + std::string("sfx/") + playsoundmsg->name.data()))
   {
     // Name to ID, for easy use for scripters
     i = soundnametoid(playsoundmsg->name.data());

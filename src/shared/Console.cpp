@@ -70,7 +70,7 @@ void Console<M>::console(const std::string &what, std::int32_t col) // overload;
   {
     return;
   }
-  auto& fs = GS::GetFileSystem();
+  auto& fs = GSC::GetFileSystem();
   addlinetologfile(fs, GetGameLog(), what, GetGameLogFilename());
 
   if constexpr (Config::IsServer(M))

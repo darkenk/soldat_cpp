@@ -9,7 +9,6 @@
 template <Config::Module M>
 GlobalSystems<M>::GlobalSystems()
 {
-  FileUtilityObject = std::make_unique<FileUtility>();
   MainConsoleObject = std::make_unique<Console<M>>();
   SpriteSystem::Init();
   AnimationSystem::Init();

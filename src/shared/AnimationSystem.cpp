@@ -13,7 +13,7 @@
 template <Config::Module M>
 void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 {
-  auto& fs = GS::GetFileSystem();
+  auto& fs = GSC::GetFileSystem();
   Animations.clear();
   addlinetologfile(fs, GetGameLog(), std::string("Loading Animations. ") + moddir,
                    GetGameLogFilename());

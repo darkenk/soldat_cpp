@@ -394,7 +394,7 @@ void startgame(int argc, const char *argv[])
     parseinput("join 127.0.0.1 23073");
   }
 
-  auto &fs = GS::GetFileSystem();
+  auto &fs = GSC::GetFileSystem();
   const auto userDirectory = fs.GetPrefPath("client");
   const auto baseDirectory = fs.GetBasePath();
 
@@ -585,9 +585,13 @@ void startgame(int argc, const char *argv[])
   }
 
   if (inittranslation(moddir + "/txt/" + systemlang + ".mo"))
+  {
     LogDebugG("Game captions loaded from {}/txt/{}", moddir, systemlang);
+  }
   else
+  {
     LogDebugG("Game captions not found");
+  }
 
   addlinetologfile(fs, GetGameLog(), "Initializing Sound Library.", GetGameLogFilename());
   // Init Sound Library
@@ -677,7 +681,7 @@ void shutdown()
     return;
   }
 
-  auto& fs = GS::GetFileSystem();
+  auto& fs = GSC::GetFileSystem();
 
   addlinetologfile(fs, GetGameLog(), "Freeing sprites.", GetGameLogFilename());
 

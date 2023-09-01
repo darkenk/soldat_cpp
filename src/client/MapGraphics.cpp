@@ -22,6 +22,7 @@ tgfximage *loadmaptexture(const string &texname, tgfxcolor colorkey)
 {
   std::array<string, 3> s;
   std::string filename;
+  auto& fs = GSC::GetFileSystem();
 
   tgfximage *result;
   result = nullptr;
@@ -29,7 +30,7 @@ tgfximage *loadmaptexture(const string &texname, tgfxcolor colorkey)
   s[0] = moddir + "textures/" + texname;
   s[1] = string("current_map/textures/") + texname;
 
-  if (!PHYSFS_exists((pchar)(pngoverride(s[2]))))
+  if (!fs.Exists(pngoverride(s[2])))
     s[1] = string("textures/") + texname;
 
   if (texname.substr(1, 6) == "edges/")
@@ -41,7 +42,7 @@ tgfximage *loadmaptexture(const string &texname, tgfxcolor colorkey)
   {
     filename = pngoverride(v);
 
-    if (PHYSFS_exists((pchar)(filename)))
+    if (fs.Exists(filename))
     {
       result = new tgfximage(filename, colorkey);
 
@@ -192,6 +193,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
   std::vector<std::int32_t> scenerycounters;
   std::vector<tvector2> scenerymaxsize;
   std::vector<std::int32_t> scenerysheetindex;
+  auto& fs = GSC::GetFileSystem();
 
   tmapgraphics &mg = mapgfx;
   destroymapgraphics();
@@ -340,7 +342,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
       {
 
         auto str = pngoverride("current_map/scenery-gfx" + mapfile.scenery[i].filename);
-        if (not PHYSFS_exists(str.data()))
+        if (not fs.Exists(str.data()))
         {
           str = pngoverride("scenery-gfx/" + mapfile.scenery[i].filename);
         }

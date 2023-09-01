@@ -458,7 +458,7 @@ void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
     sprite.player->grabspersecond = 0;
   }
 
-  loadconfig(name, GS::GetFileSystem());
+  loadconfig(name, GSC::GetFileSystem());
   GS::GetMainConsole().console(string("Config reloaded ") + currentconf, client_message_color,
                                  sender);
   startserver();

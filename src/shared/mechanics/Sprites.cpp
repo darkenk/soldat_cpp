@@ -1699,7 +1699,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 s2 = formatdatetime("yy/mm/dd", get_date());
                 s2 = s2 + ' ' + formatdatetime("hh:nn:ss", get_time());
 #endif
-        auto& fs = GS::GetFileSystem();
+        auto& fs = GSC::GetFileSystem();
         addlinetologfile(fs, &GetKillLog(), std::string("--- ") + s2, GetKillLogFilename(), false);
         addlinetologfile(fs, &GetKillLog(), SpriteSystem::Get().GetSprite(who).player->name,
                          GetKillLogFilename(), false);
@@ -4869,13 +4869,14 @@ public:
   SpritesFixture()
   {
     PhysFS_InitThreadSafe();
+    GSC::Init();
     GS::Init();
     AnimationSystem::Get().LoadAnimObjects("");
   }
   ~SpritesFixture()
   {
     GS::Deinit();
-    PHYSFS_deinit();
+    GSC::Deinit();
   }
   SpritesFixture(const SpritesFixture &) = delete;
 };

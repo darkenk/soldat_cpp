@@ -1,6 +1,7 @@
 #include "Anims.hpp"
 #include "Logging.hpp"
 #include "PhysFSExt.hpp"
+#include "misc/GlobalSystemsCommon.hpp"
 
 // comes from Constants.cpp.h
 constexpr auto scale = 3;
@@ -28,15 +29,19 @@ void tanimation::doanimation()
 
 void tanimation::loadfromfile(const std::string &filename)
 {
+  auto& fs = GSC::GetFileSystem();
+
+  if (!fs.Exists(filename))
+  {
+    return;
+  }
+
   PHYSFS_File *f;
   std::string r1;
   std::string r2;
   std::string r3;
   std::string r4;
   std::int32_t p;
-
-  if (!PHYSFS_exists((pchar)(filename)))
-    return;
 
   numframes = 1;
 

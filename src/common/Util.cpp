@@ -1,5 +1,6 @@
 // automatically converted
 #include "Util.hpp"
+#include "misc/GlobalSystemsCommon.hpp"
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 #include <filesystem>
@@ -65,6 +66,7 @@ std::string numberformat(std::uint32_t num)
 
 std::string overridefileext(const std::string &filename, const std::string &ext)
 {
+  auto& fs = GSC::GetFileSystem();
   auto result = filename;
   auto dotPos = filename.find_last_of('.');
   if (dotPos == std::string::npos)
@@ -74,7 +76,7 @@ std::string overridefileext(const std::string &filename, const std::string &ext)
   if (filename.substr(dotPos) != ext)
   {
     result.replace(dotPos, result.length(), ext);
-    if (not PHYSFS_exists(result.c_str()))
+    if (not fs.Exists(result))
     {
       result = filename;
     }
@@ -160,7 +162,8 @@ bool verifymapchecksum(const tmapinfo &map, const tsha1digest &checksum,
 
 tsha1digest getmapchecksum(const tmapinfo &map, const tsha1digest &defaultgamemodchecksum)
 {
-  if (PHYSFS_exists((pchar)(std::string("maps/") + map.mapname + ".pms")))
+  auto& fs = GSC::GetFileSystem();
+  if (fs.Exists(std::string("maps/") + map.mapname + ".pms"))
   {
     return defaultgamemodchecksum;
   }
@@ -197,6 +200,7 @@ bool getmapinfo(const std::string &mapname, const std::string &directory,
 
   bool result;
   result = false;
+  auto& fs = GSC::GetFileSystem();
 
   if (mapname.rfind("workshop/") == 0)
   {
@@ -219,7 +223,7 @@ bool getmapinfo(const std::string &mapname, const std::string &directory,
   }
   else
   {
-    if (PHYSFS_exists((pchar)(std::string("maps/") + mapname + ".pms")))
+    if (fs.Exists(std::string("maps/") + mapname + ".pms"))
     {
       mapinfo.name = mapname;
       mapinfo.mapname = mapname;
