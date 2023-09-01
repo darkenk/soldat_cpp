@@ -220,7 +220,7 @@ public:
   void SetHealth(float health);
   float GetHealth();
 
-  bool IsActive()
+  bool IsActive() const
   {
     return active;
   }

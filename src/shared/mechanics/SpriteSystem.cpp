@@ -22,9 +22,10 @@ auto TSpriteSystem<TSprite>::CreateSprite(const SpriteId reuseSpriteId) -> TSpri
   }
 
   auto it =
-    std::find_if(std::begin(Sprites), std::end(Sprites), [](const auto &s) { return !s.active; });
+    std::find_if(std::begin(Sprites), std::end(Sprites), [](const auto &s) { return !s.IsActive(); });
   if (it != std::end(Sprites))
   {
+    it->active = true;
     return *it;
   }
   NotImplemented("Sprites");
