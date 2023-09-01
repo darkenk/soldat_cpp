@@ -35,6 +35,7 @@
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include <Tracy.hpp>
+#include <memory>
 #include <physfs.h>
 #include <thread>
 
@@ -92,7 +93,7 @@ PascalArray<tweaponstat, 1, 20> wepstats;
 std::uint8_t wepstatsnum = 0;
 
 // FIXME skipped item at index 0
-std::array<std::string, 17> gundisplayname;
+GunArray gundisplayname;
 
 std::uint8_t gamethingtarget;
 std::int32_t grenadeeffecttimer = 0;
@@ -170,22 +171,32 @@ void restartgraph()
   GetMainConsole().console(("Graphics restart"), debug_message_color);
 }
 
-void loadweaponnames()
+static void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName = gundisplayname, const std::string& modDir = moddir)
 {
+  SoldatAssert(gunDisplayName.size() == double_weapons);
   std::int32_t i;
 
-  GetMainConsole().console(std::string("Loading Weapon Names from ") + moddir +
-                             "txt/weaponnames.txt",
-                           debug_message_color);
-  if (PHYSFS_exists((pchar)(moddir + "txt/weaponnames.txt")))
+  const std::string weaponNamesFile = modDir + "txt/weaponnames.txt";
+
+  GetMainConsole().console(std::string("Loading Weapon Names from ") + weaponNamesFile, debug_message_color);
+  if (!fs.Exists((weaponNamesFile)))
   {
-    PHYSFS_File *tf;
-    tf = PHYSFS_openRead((pchar)(moddir + "txt/weaponnames.txt"));
-    for (i = 0; i <= double_weapons - 1; i++)
-    {
-      PhysFS_ReadLn(tf, gundisplayname[weaponnumexternaltointernal(i)]);
-    }
-    PHYSFS_close(tf);
+    return;
+  }
+  std::unique_ptr<std::byte[]> buff;
+  std::size_t fileSize = 0;
+  {
+    auto f = fs.Open(weaponNamesFile, FileUtility::FileMode::Read);
+    fileSize = fs.Size(f);
+    buff = std::make_unique<std::byte[]>(fileSize);
+    fs.Read(f, buff.get(), fileSize);
+    fs.Close(f);
+  }
+  std::istringstream sd;
+  sd.rdbuf()->pubsetbuf(reinterpret_cast<char*>(buff.get()), fileSize);
+  for (i = 0; i < double_weapons; i++)
+  {
+    std::getline(sd, gunDisplayName[weaponnumexternaltointernal(i)]);
   }
 }
 
@@ -620,7 +631,7 @@ void startgame(int argc, const char *argv[])
   GetMainConsole().console(("Welcome to Soldat "), default_message_color);
 
   // Load weapon display names
-  loadweaponnames();
+  loadweaponnames(fs);
   createweaponsbase(GS::GetWeaponSystem().GetGuns());
 
   GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
@@ -840,6 +851,37 @@ TEST_CASE_FIXTURE(ClientFixture, "Mount soldat.smod test")
   tsha1digest mod;
   CHECK_EQ(true, MountAssets(fu, "", testDir, mod, customMod));
   //std::filesystem::remove_all(testDir);
+}
+
+TEST_CASE_FIXTURE(ClientFixture, "loadweaponnamesRefactorToUseVirtualFileSystem")
+{
+  FileUtility fs;
+  GunArray ga;
+  const auto userDirectory = fs.GetPrefPath("client");
+  const auto baseDirectory = fs.GetBasePath();
+  tsha1digest checksum1;
+  tsha1digest checksum2;
+  auto ret = MountAssets(fs, userDirectory, baseDirectory, checksum1, checksum2);
+  CHECK_EQ(true, ret);
+  loadweaponnames(fs, ga);
+  CHECK_EQ("USSOCOM", ga[0]);
+  CHECK_EQ("Desert Eagles", ga[1]);
+  CHECK_EQ("HK MP5", ga[2]);
+  CHECK_EQ("Ak-74", ga[3]);
+  CHECK_EQ("Steyr AUG", ga[4]);
+  CHECK_EQ("Spas-12", ga[5]);
+  CHECK_EQ("Ruger 77", ga[6]);
+  CHECK_EQ("M79", ga[7]);
+  CHECK_EQ("Barrett M82A1", ga[8]);
+  CHECK_EQ("FN Minimi", ga[9]);
+  CHECK_EQ("XM214 Minigun", ga[10]);
+  CHECK_EQ("Combat Knife", ga[11]);
+  CHECK_EQ("Chainsaw", ga[12]);
+  CHECK_EQ("M72 LAW", ga[13]);
+  CHECK_EQ("Flamer", ga[14]);
+  CHECK_EQ("Rambo Bow", ga[15]);
+  CHECK_EQ("Flamed Arrows", ga[16]);
+
 }
 
 } // namespace

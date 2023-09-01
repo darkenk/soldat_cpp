@@ -62,7 +62,9 @@ extern std::uint8_t mysprite;
 extern PascalArray<tweaponstat, 1, 20> wepstats;
 extern std::uint8_t wepstatsnum;
 
-extern std::array<std::string, 17> gundisplayname;
+// FIXME skipped item at index 0
+using GunArray = std::array<std::string, 17>;
+extern GunArray gundisplayname;
 
 extern std::uint8_t gamethingtarget;
 extern std::int32_t grenadeeffecttimer;

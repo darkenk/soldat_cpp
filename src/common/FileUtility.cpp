@@ -1,6 +1,7 @@
 #include "FileUtility.hpp"
 #include "PhysFSExt.hpp"
 #include "misc/PortUtils.hpp"
+#include "physfs.h"
 #include "port_utils/NotImplemented.hpp"
 #include <filesystem>
 #include <iostream>
@@ -82,8 +83,8 @@ struct PHYSFS_IoMemory
   }
   static PHYSFS_sint64 Length(struct PHYSFS_Io *io)
   {
-    NotImplemented("fsMem");
-    return {};
+    auto t = GetThis(io);
+    return t->m_content->size();
   }
 
   static struct PHYSFS_Io *Duplicate(struct PHYSFS_Io *io)
@@ -200,13 +201,17 @@ struct Memory
       return 1;
     }
     auto m = GetThis(opaque);
-    auto &directories = m->m_directories;
-    auto it = std::find(directories.begin(), directories.end(), fn);
-    if (it != std::end(directories))
+    if (std::end(m->m_directories) != std::find(m->m_directories.begin(), m->m_directories.end(), fn))
     {
       stat->filetype = PHYSFS_FILETYPE_DIRECTORY;
       return 1;
     }
+    if (std::end(m->m_files) != m->m_files.find(fn))
+    {
+      stat->filetype = PHYSFS_FILETYPE_REGULAR;
+      return 1;
+    }
+
     PHYSFS_setErrorCode(PHYSFS_ERR_NOT_FOUND);
     return 0;
   }
@@ -297,6 +302,16 @@ bool FileUtility::Write(File *file, const std::byte *data, const std::size_t siz
   SoldatAssert(bytesWritten > 0);
   SoldatAssert(bytesWritten == size);
   return bytesWritten == size;
+}
+
+bool FileUtility::Exists(const std::string_view path)
+{
+  return PHYSFS_exists(path.data()) != 0;
+}
+
+std::size_t FileUtility::Size(File *file)
+{
+  return PHYSFS_fileLength(reinterpret_cast<PHYSFS_File *>(file));
 }
 
 void FileUtility::Close(File *file)
@@ -441,6 +456,44 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Get pref data returns path to directory w
   auto s = fu.GetPrefPath("test_pref");
   CHECK_EQ(s.substr(s.rfind('/') + 1), "test_pref");
   CHECK_EQ(true, std::filesystem::is_directory(s));
+}
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "Exists return false if file does not exist")
+{
+  FileUtility fu;
+  fu.Mount("tmpfs.memory", "/fs_mem");
+  constexpr auto TEST_DATA_SIZE = 4;
+  std::array<std::byte, TEST_DATA_SIZE> testData = {std::byte(42), std::byte(42), std::byte(42),
+                                                    std::byte(40)};
+  {
+    auto f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
+    auto r = fu.Write(f, testData.data(), TEST_DATA_SIZE);
+    fu.Close(f);
+    CHECK_EQ(true, r);
+  }
+  CHECK_EQ(true, fu.Exists("/fs_mem/valid"));
+  CHECK_EQ(false, fu.Exists("/fs_mem/invalid"));
+}
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "Return size of file")
+{
+  FileUtility fu;
+  fu.Mount("tmpfs.memory", "/fs_mem");
+  constexpr auto TEST_DATA_SIZE = 4;
+  std::array<std::byte, TEST_DATA_SIZE> testData = {std::byte(42), std::byte(42), std::byte(42),
+                                                    std::byte(40)};
+
+  {
+    auto f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
+    auto r = fu.Write(f, testData.data(), TEST_DATA_SIZE);
+    fu.Close(f);
+    CHECK_EQ(true, r);
+  }
+  {
+  auto f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
+  CHECK_EQ(4, fu.Size(f));
+  fu.Close(f);
+  }
 }
 
 } // namespace

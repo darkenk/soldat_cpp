@@ -22,6 +22,8 @@ public:
   void Close(File *file);
   std::size_t Read(File *file, std::byte *data, const std::size_t size);
   bool Write(File *file, const std::byte *data, const std::size_t size);
+  bool Exists(const std::string_view path);
+  std::size_t Size(File *file);
   bool MkDir(const std::string_view dirPath);
 
   std::string GetBasePath();
