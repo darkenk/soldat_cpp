@@ -585,7 +585,7 @@ void startgame(int argc, const char *argv[])
 #endif
   }
 
-  if (inittranslation(moddir + "/txt/" + systemlang + ".mo"))
+  if (inittranslation(ReadAsFileStream(fs, moddir + "/txt/" + systemlang + ".mo").get()))
   {
     LogDebugG("Game captions loaded from {}/txt/{}", moddir, systemlang);
   }

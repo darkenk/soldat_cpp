@@ -9,23 +9,17 @@
 tmofile translationfile;
 #endif
 
-bool inittranslation(const std::string &filename)
+bool inittranslation(TStream* stream)
 {
 #if ENABLE_STUBS
   NotImplemented("localization");
   return false;
 #else
-  tstream translationstream;
 
   bool inittranslation_result;
   result = false;
-  translationstream = PhysFS_ReadAsStream((pchar)(filename));
-  if (translationstream == nullptr)
-  {
-    return inittranslation_result;
-  }
   //  try
-  translationfile = tmofile.create(translationstream);
+  translationfile = tmofile.create(stream);
   result = true;
   //  except
   result = false;
