@@ -24,6 +24,7 @@
 // clang-format on
 #include "common/PhysFSExt.hpp"
 #include "shared/misc/MemoryUtils.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>
 #include <algorithm>
 #include <glad/glad.h>
@@ -2226,9 +2227,9 @@ void applycolorkey(std::uint8_t *data, std::int32_t w, std::int32_t h, tgfxcolor
 
 tgfximage::tgfximage(const std::string &filename, tgfxcolor colorkey)
 {
-  PhysFS_Buffer filebuffer;
+  auto& fs = GS::GetFileSystem();
 
-  filebuffer = PhysFS_readBuffer(filename);
+  auto filebuffer = fs.ReadFile(filename);
   if (length(filebuffer) > 0)
   {
     fdata = stbi_load_from_memory(&filebuffer[0], length(filebuffer), &fwidth, &fheight,

@@ -1,7 +1,6 @@
 #include "Anims.hpp"
 #include "Logging.hpp"
 #include "PhysFSExt.hpp"
-#include "misc/GlobalSystemsCommon.hpp"
 
 // comes from Constants.cpp.h
 constexpr auto scale = 3;
@@ -27,16 +26,8 @@ void tanimation::doanimation()
   }
 }
 
-void tanimation::loadfromfile(const std::string &filename)
+void tanimation::loadfromfile(TStream &stream)
 {
-  auto& fs = GSC::GetFileSystem();
-
-  if (!fs.Exists(filename))
-  {
-    return;
-  }
-
-  PHYSFS_File *f;
   std::string r1;
   std::string r2;
   std::string r3;
@@ -50,16 +41,14 @@ void tanimation::loadfromfile(const std::string &filename)
   speed = 1;
   count = 0;
 
-  f = PHYSFS_openRead((pchar)(filename));
-
-  PhysFS_ReadLn(f, r1);
+  stream.ReadLine(r1);
   while (r1 != "ENDFILE")
   {
     if (r1 == "NEXTFRAME")
     {
       if (numframes == max_frames_index)
       {
-        LogWarnG("Corrupted frame index: {}", filename);
+        LogWarnG("Corrupted frame index");
         break;
       }
 
@@ -67,9 +56,9 @@ void tanimation::loadfromfile(const std::string &filename)
     }
     else
     {
-      PhysFS_ReadLn(f, r2); // X
-      PhysFS_ReadLn(f, r3); // Y
-      PhysFS_ReadLn(f, r4); // Z
+      stream.ReadLine(r2); // X
+      stream.ReadLine(r3); // Y
+      stream.ReadLine(r4); // Z
 
       p = strtointdef(r1, 0);
       if ((p >= 1) && (p <= max_pos_index))
@@ -80,13 +69,11 @@ void tanimation::loadfromfile(const std::string &filename)
       }
       else
       {
-        LogWarnG("Corrupted Index ({}): {}", r1, filename);
+        LogWarnG("Corrupted Index ({})", r1);
       }
     }
-
-    PhysFS_ReadLn(f, r1);
+    stream.ReadLine(r1);
   }
-  PHYSFS_close(f);
   currframe = 1;
 }
 

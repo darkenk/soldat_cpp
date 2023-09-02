@@ -9,6 +9,14 @@
 template <Config::Module M>
 GlobalSystems<M>::GlobalSystems()
 {
+  if constexpr (Config::IsServer(M))
+  {
+    FileUtilityObject = std::make_unique<FileUtility>("/server");
+  }
+  else
+  {
+    FileUtilityObject = std::make_unique<FileUtility>("/client");
+  }
   MainConsoleObject = std::make_unique<Console<M>>();
   SpriteSystem::Init();
   AnimationSystem::Init();

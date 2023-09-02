@@ -50,4 +50,9 @@ void InitLogging()
     auto log = spdlog::stdout_color_mt("gfx");
     log->set_level(spdlog::level::info);
   }
+
+  {
+    auto log = spdlog::stdout_color_mt("fs");
+    log->set_level(spdlog::level::info);
+  }
 }

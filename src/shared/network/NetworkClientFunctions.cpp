@@ -202,7 +202,7 @@ void clienthandleplaysound(SteamNetworkingMessage_t *netmessage)
 {
   tmsg_playsound *playsoundmsg;
   std::int32_t i;
-  auto& fs = GSC::GetFileSystem();
+  auto& fs = GS::GetFileSystem();
 
   if (!verifypacket(sizeof(tmsg_playsound), netmessage->m_cbSize, msgid_playsound))
     return;

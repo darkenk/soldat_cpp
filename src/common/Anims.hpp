@@ -2,6 +2,7 @@
 
 #include "Vector.hpp"
 #include "misc/PortUtilsSoldat.hpp"
+#include "misc/TStream.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -77,6 +78,6 @@ public:
   std::int32_t currframe;
   bool loop;
   void doanimation();
-  void loadfromfile(const std::string &filename);
+  void loadfromfile(TStream &stream);
   std::int32_t checksum();
 };

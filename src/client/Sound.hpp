@@ -196,8 +196,8 @@ inline SfxEffect operator+(const SfxEffect &c, const std::uint32_t &value)
 
 struct tsoundsample
 {
-  bool loaded;
-  std::uint32_t buffer;
+  bool loaded = false;
+  std::uint32_t buffer = 0;
 };
 
 struct tscriptsound

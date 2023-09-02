@@ -264,11 +264,11 @@ void loaddefaultinterfacedata()
 // result is true if it loaded a custom interface
 bool loadinterfacedata(const std::string &interfacename)
 {
-  PhysFS_Buffer addrfile;
+  std::vector<std::uint8_t> addrfile;
   tinterface addrrec;
   const char custom_interface_dir[] = "custom-intercases/";
 
-  auto& fs = GSC::GetFileSystem();
+  auto& fs = GS::GetFileSystem();
 
   bool loadinterfacedata_result = false;
   intalign.weapon = 0;
@@ -296,7 +296,7 @@ bool loadinterfacedata(const std::string &interfacename)
 
   loadinterfacedata_result = true;
 
-  addrfile = PhysFS_readBuffer(moddir + custom_interface_dir + interfacename + "/setup.sif");
+  addrfile = fs.ReadFile(moddir + custom_interface_dir + interfacename + "/setup.sif");
 
   addrrec = *(pinterface)(&addrfile[0]);
   int_ = addrrec;

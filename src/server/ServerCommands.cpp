@@ -75,7 +75,7 @@ void commandmap(std::vector<std::string> &args, std::uint8_t sender)
   if (length(args[1]) < 1)
     return;
 
-  if (getmapinfo(args[1], GS::GetGame().GetUserDirectory(), status))
+  if (getmapinfo(GS::GetFileSystem(), args[1], GS::GetGame().GetUserDirectory(), status))
   {
     preparemapchange(args[1]);
   }
@@ -458,7 +458,7 @@ void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
     sprite.player->grabspersecond = 0;
   }
 
-  loadconfig(name, GSC::GetFileSystem());
+  loadconfig(name, GS::GetFileSystem());
   GS::GetMainConsole().console(string("Config reloaded ") + currentconf, client_message_color,
                                  sender);
   startserver();

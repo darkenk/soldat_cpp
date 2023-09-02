@@ -1,9 +1,9 @@
 // automatically converted
 #include "MapFile.hpp"
 #include "PhysFSExt.hpp"
-#include "misc/GlobalSystemsCommon.hpp"
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
+#include "port_utils/NotImplemented.hpp"
 #include <cassert>
 
 /******************************************************************************/
@@ -63,21 +63,22 @@ std::uint32_t crc32(std::uint32_t crc, std::uint8_t *data, std::int32_t len)
   return result;
 }
 
-bool readallbytes(const tmapinfo &map, tfilebuffer &buffer)
+bool readallbytes(FileUtility &fs, const tmapinfo &map, tfilebuffer &buffer)
 {
   bool result = false;
-  auto& fs = GSC::GetFileSystem();
 
   if (map.name == "")
     return result;
 
   // Load default map from base archive
-  if (fs.Exists(std::string("maps/") + map.name + ".pms"))
+  auto mapFile = std::string("/maps/") + map.name + ".pms";
+  if (fs.Exists(mapFile))
   {
-    buffer.data = PhysFS_readBuffer((std::string("maps/") + map.name + ".pms").c_str());
+    buffer.data = fs.ReadFile(mapFile);
   }
   else
   {
+    NotImplemented("map", "Missing code for map loading");
     // Unmount previous map
     PHYSFS_unmount("/current_map");
     // Mount new map
@@ -86,8 +87,7 @@ bool readallbytes(const tmapinfo &map, tfilebuffer &buffer)
       return result;
     }
     // Read PMS file
-    buffer.data =
-      PhysFS_readBuffer((std::string("current_map/maps/") + map.mapname + ".pms").c_str());
+    buffer.data = fs.ReadFile(std::string("/current_map/maps/") + map.mapname + ".pms");
   }
 
   if (buffer.data.size() == 0)
@@ -203,14 +203,14 @@ tmapcolor mapcolor(std::uint32_t color)
 /*                                LoadMapFile                                 */
 /******************************************************************************/
 
-bool loadmapfile(const tmapinfo &mapinfo, tmapfile &map)
+bool loadmapfile(FileUtility &fs, const tmapinfo &mapinfo, tmapfile &map)
 {
   tfilebuffer bf;
   std::int32_t i, j, n, m;
 
   bool result = false;
 
-  if (!readallbytes(mapinfo, bf))
+  if (!readallbytes(fs, mapinfo, bf))
   {
     return result;
   }

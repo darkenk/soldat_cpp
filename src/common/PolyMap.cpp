@@ -203,14 +203,14 @@ bool Polymap::loadmap(const tmapfile &mapfile)
   return true;
 }
 
-bool Polymap::loadmap(const tmapinfo &map)
+bool Polymap::loadmap(FileUtility &fs, const tmapinfo &map)
 {
   tmapfile mapfile;
 
   bool result = false;
   this->initialize();
 
-  if (loadmapfile(map, mapfile))
+  if (loadmapfile(fs, map, mapfile))
   {
     this->filename = map.name;
     this->loaddata(mapfile);
@@ -221,7 +221,7 @@ bool Polymap::loadmap(const tmapinfo &map)
   return result;
 }
 
-bool Polymap::loadmap(const tmapinfo &map, bool bgforce, std::uint32_t bgcolortop,
+bool Polymap::loadmap(FileUtility &fs, const tmapinfo &map, bool bgforce, std::uint32_t bgcolortop,
                       std::uint32_t bgcolorbtm)
 {
   tmapfile mapfile;
@@ -236,7 +236,7 @@ bool Polymap::loadmap(const tmapinfo &map, bool bgforce, std::uint32_t bgcolorto
   result = false;
   this->initialize();
 
-  if (loadmapfile(map, mapfile))
+  if (loadmapfile(fs, map, mapfile))
   {
     this->filename = map.name;
     this->loaddata(mapfile);

@@ -2,9 +2,9 @@
 
 #include "Parts.hpp"
 #include "PhysFSExt.hpp"
-#include "misc/GlobalSystemsCommon.hpp"
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
+#include "misc/TFileStream.hpp"
 #include <Tracy.hpp>
 #include <physfs.h>
 
@@ -193,9 +193,8 @@ void particlesystem::clone(const particlesystem &other)
   }
 }
 
-void particlesystem::loadpoobject(const std::string &filename, float scale)
+void particlesystem::loadpoobject(FileUtility &fs, const std::string &filename, float scale)
 {
-  PHYSFS_File *f;
   std::string nm = "";
   std::string x = "";
   std::string y = "";
@@ -206,8 +205,6 @@ void particlesystem::loadpoobject(const std::string &filename, float scale)
   std::int32_t pa, pb;
   std::int32_t i;
 
-  auto& fs = GSC::GetFileSystem();
-
   if (!fs.Exists(filename))
   {
     return;
@@ -217,20 +214,16 @@ void particlesystem::loadpoobject(const std::string &filename, float scale)
   i = 0;
   constraintcount = 0;
 
-  /*$I-*/
-  f = PHYSFS_openRead((pchar)(filename));
-
-  if (f == nullptr)
-    return;
+  auto stream = ReadAsFileStream(fs, filename);
 
   do
   {
-    PhysFS_ReadLn(f, nm); // name
+    stream->ReadLine(nm); // name
     if (nm != "CONSTRAINTS")
     {
-      PhysFS_ReadLn(f, x); // X
-      PhysFS_ReadLn(f, y); // Y
-      PhysFS_ReadLn(f, z); // Z
+      stream->ReadLine(x); // X
+      stream->ReadLine(y); // Y
+      stream->ReadLine(z); // Z
 
       // make object
       p.x = -strtofloat(x) * scale / 1.2;
@@ -245,11 +238,11 @@ void particlesystem::loadpoobject(const std::string &filename, float scale)
 
   do
   {                      // CONSTRAINTS
-    PhysFS_ReadLn(f, a); // Part A
+    stream->ReadLine(a); // Part A
     if (a == "ENDFILE")
       break;
 
-    PhysFS_ReadLn(f, b); // Part B
+    stream->ReadLine(b); // Part B
     a.erase(0, 1);
     b.erase(0, 1);
     pa = strtoint(a);
@@ -258,9 +251,6 @@ void particlesystem::loadpoobject(const std::string &filename, float scale)
     delta = vec2subtract(pos[pa], pos[pb]);
     makeconstraint(pa, pb, sqrt(vec2dot(delta, delta)));
   } while (!(a == "ENDFILE"));
-
-  PHYSFS_close(f);
-  /*$I+*/
 }
 
 void particlesystem::stopallparts()

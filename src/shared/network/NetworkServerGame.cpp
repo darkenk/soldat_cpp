@@ -113,7 +113,7 @@ void servermapchange(std::uint8_t id)
   mapchangemsg.counter = GS::GetGame().GetMapchangecounter();
   strcpy(mapchangemsg.mapname.data(), GS::GetGame().GetMapchange().name.data());
   auto mapchecksum =
-    getmapchecksum(GS::GetGame().GetMapchange(), GS::GetGame().GetGameModChecksum());
+    getmapchecksum(GS::GetFileSystem(), GS::GetGame().GetMapchange(), GS::GetGame().GetGameModChecksum());
   mapchangemsg.mapchecksum = mapchecksum;
   GS::GetGame().SetMapChecksum(mapchecksum);
 

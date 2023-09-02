@@ -450,7 +450,7 @@ void Game<M>::changemap()
     w.pathnum = 0;
   }
 
-  if (!map.loadmap(mapchange))
+  if (!map.loadmap(GS::GetFileSystem(), mapchange))
   {
     GS::GetMainConsole().console(string("Error: Could not load map (") + mapchange.name + ')',
                              debug_message_color);
@@ -461,11 +461,12 @@ void Game<M>::changemap()
 #ifndef SERVER
   mapchanged = true;
   GS::GetDemoRecorder().stoprecord();
+  auto& fs = GS::GetFileSystem();
 
-  if (getmapinfo(mapchangename, UserDirectory, mapchangestatus) &&
-      verifymapchecksum(mapchangestatus, mapchangechecksum, gamemodchecksum))
+  if (getmapinfo(fs, mapchangename, UserDirectory, mapchangestatus) &&
+      verifymapchecksum(fs, mapchangestatus, mapchangechecksum, gamemodchecksum))
   {
-    if (!map.loadmap(mapchangestatus, CVar::r_forcebg, CVar::r_forcebg_color1,
+    if (!map.loadmap(fs, mapchangestatus, CVar::r_forcebg, CVar::r_forcebg_color1,
                      CVar::r_forcebg_color2))
     {
       rendergameinfo(("Could not load map: ") + (mapchangename));

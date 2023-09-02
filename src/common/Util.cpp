@@ -1,6 +1,6 @@
 // automatically converted
 #include "Util.hpp"
-#include "misc/GlobalSystemsCommon.hpp"
+#include "FileUtility.hpp"
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 #include <filesystem>
@@ -64,9 +64,8 @@ std::string numberformat(std::uint32_t num)
   return std::to_string(num);
 }
 
-std::string overridefileext(const std::string &filename, const std::string &ext)
+std::string overridefileext(FileUtility& fs, const std::string &filename, const std::string &ext)
 {
-  auto& fs = GSC::GetFileSystem();
   auto result = filename;
   auto dotPos = filename.find_last_of('.');
   if (dotPos == std::string::npos)
@@ -154,15 +153,14 @@ std::string getsize(std::int64_t bytes)
   return std::to_string(filesize) + " Kb";
 }
 
-bool verifymapchecksum(const tmapinfo &map, const tsha1digest &checksum,
+bool verifymapchecksum(FileUtility &fs, const tmapinfo &map, const tsha1digest &checksum,
                        const tsha1digest &defaultgamemodchecksum)
 {
-  return getmapchecksum(map, defaultgamemodchecksum) == checksum;
+  return getmapchecksum(fs, map, defaultgamemodchecksum) == checksum;
 }
 
-tsha1digest getmapchecksum(const tmapinfo &map, const tsha1digest &defaultgamemodchecksum)
+tsha1digest getmapchecksum(FileUtility &fs, const tmapinfo &map, const tsha1digest &defaultgamemodchecksum)
 {
-  auto& fs = GSC::GetFileSystem();
   if (fs.Exists(std::string("maps/") + map.mapname + ".pms"))
   {
     return defaultgamemodchecksum;
@@ -192,7 +190,7 @@ std::vector<std::string> split_string(std::string s, std::string delimiter)
   return res;
 }
 
-bool getmapinfo(const std::string &mapname, const std::string &directory,
+bool getmapinfo(FileUtility& fs, const std::string &mapname, const std::string &directory,
                 tmapinfo &mapinfo) // dk out MapInfo
 {
   tstringarray split;
@@ -200,7 +198,6 @@ bool getmapinfo(const std::string &mapname, const std::string &directory,
 
   bool result;
   result = false;
-  auto& fs = GSC::GetFileSystem();
 
   if (mapname.rfind("workshop/") == 0)
   {

@@ -229,7 +229,6 @@ public:
 
   tsoundsample LoadSample(const std::string_view &name, const tsoundsample &samp)
   {
-    PhysFS_Buffer filebuffer;
 
     tsoundsample result;
     if (!samp.loaded)
@@ -237,7 +236,7 @@ public:
     else
       result = samp;
 
-    filebuffer = PhysFS_readBuffer(name);
+    auto filebuffer = GS::GetFileSystem().ReadFile(name);
     if (filebuffer.empty())
     {
       LogWarn(AUDIO, "Empty audio {}", name);

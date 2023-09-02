@@ -1,3 +1,4 @@
+#include "common/FileUtility.hpp"
 #include "common/Util.hpp"
 #include "gtest/gtest.h"
 
@@ -38,9 +39,10 @@ TEST(UtilTest, PosEx)
 
 TEST(UtilTest, OverrideFileExt)
 {
+  FileUtility fs;
   // crashes due to PhysFS_exists
   // EXPECT_EQ("file.png", overridefileext("file.txt", "png"));
-  EXPECT_EQ("filetxt", overridefileext("filetxt", "png"));
+  EXPECT_EQ("filetxt", overridefileext(fs, "filetxt", "png"));
 }
 
 TEST(UtilTest, GetSize)

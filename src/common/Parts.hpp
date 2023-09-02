@@ -2,6 +2,7 @@
 
 #include "Vector.hpp"
 #include "misc/PortUtilsSoldat.hpp"
+#include "FileUtility.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -39,7 +40,7 @@ public:
   void createpart(const tvector2 &start, const tvector2 &vel, const float mass, const int32_t num);
   void makeconstraint(std::int32_t pa, std::int32_t pb, float rest);
   void clone(const particlesystem &other);
-  void loadpoobject(const std::string &filename, float scale);
+  void loadpoobject(FileUtility &fs, const std::string &filename, float scale);
   void stopallparts();
   void destroy();
   void satisfyconstraints();

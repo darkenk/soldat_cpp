@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FileUtility.hpp"
 #include "Util.hpp"
 #include "Vector.hpp"
 #include "Waypoints.hpp"
@@ -114,6 +115,6 @@ struct tmapfile
   std::vector<twaypoint> waypoints;
 };
 
-bool loadmapfile(const tmapinfo &mapinfo, tmapfile &map);
+bool loadmapfile(FileUtility& fs, const tmapinfo &mapinfo, tmapfile &map);
 tmapcolor mapcolor(std::uint32_t color);
 bool ispropactive(tmapfile &map, std::int32_t index);

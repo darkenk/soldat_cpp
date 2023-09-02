@@ -13,6 +13,7 @@
 #include "common/Vector.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/TFileStream.hpp"
 #include "common/misc/TIniFile.hpp"
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
@@ -28,6 +29,7 @@
 #include <Tracy.hpp>
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <filesystem>
 #include <physfs.h>
 #include <set>
@@ -120,21 +122,23 @@ void loadmodinfo()
 
   // load required ini's
 
-  auto rootinistream = PhysFS_ReadAsStream("mod.ini");
+  auto& fs = GS::GetFileSystem();
+
+  auto rootinistream = ReadAsFileStream(fs, "/mod.ini");
 
   if (gostekdata.empty() or scaledata.root.empty())
   {
     rootini = std::make_unique<TIniFile>(std::move(rootinistream));
   }
 
-  auto modinistream = PhysFS_ReadAsStream(moddir + "mod.ini");
+  auto modinistream = ReadAsFileStream(fs, moddir + "mod.ini");
 
   if (gostekdata.empty() or scaledata.currentmod.empty())
   {
     modini = std::make_unique<TIniFile>(std::move(modinistream));
   }
 
-  auto interfaceinistream = PhysFS_ReadAsStream(
+  auto interfaceinistream = ReadAsFileStream(fs,
     (string("custom-interfaces/") + gamerenderingparams.interfacename + "/mod.ini"));
 
   if (interfaceinistream)
@@ -187,7 +191,7 @@ float getimagescale(const std::string &imagepath)
   std::string intdir, scale, key;
   std::string path;
 
-  intdir = string("custom-interfaces/") + lowercase(gamerenderingparams.interfacename) + '/';
+  intdir = string("/custom-interfaces/") + lowercase(gamerenderingparams.interfacename) + '/';
 
   data = &scaledata.root;
   path = lowercase(imagepath);
@@ -239,14 +243,14 @@ string pngoverride(const std::string_view &filename)
   std::string f{filename};
   std::replace(f.begin(), f.end(), '\\', '/');
 
-  return overridefileext(f, ".png");
+  return overridefileext(GS::GetFileSystem(), f, ".png");
 }
 
 string pngoverride(const std::string &filename)
 {
   std::string f{filename};
   std::replace(f.begin(), f.end(), '\\', '/');
-  return overridefileext(f, ".png");
+  return overridefileext(GS::GetFileSystem(), f, ".png");
 }
 
 void loadmaintextures()
@@ -256,7 +260,7 @@ void loadmaintextures()
   tgfxcolor color;
   float scale;
 
-  auto& fs = GSC::GetFileSystem();
+  auto& fs = GS::GetFileSystem();
 
   count = 0;
 
@@ -306,7 +310,7 @@ void loadinterfacetextures(const std::string interfacename)
   tgfxcolor color;
   float scale;
   bool iscustom = !isdefaultinterface(interfacename);
-  auto& fs = GSC::GetFileSystem();
+  auto& fs = GS::GetFileSystem();
 
   if (iscustom)
   {
@@ -490,7 +494,7 @@ bool initgamegraphics()
 {
   std::uint32_t windowflags;
   SDL_RWops *iconfile;
-  PhysFS_Buffer filebuffer;
+  std::vector<std::uint8_t> filebuffer;
 
   bool result;
   result = true;
@@ -519,7 +523,8 @@ bool initgamegraphics()
   gamewindow = SDL_CreateWindow("Soldat", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                 windowwidth, windowheight, windowflags);
 
-  filebuffer = PhysFS_readBuffer("icon.bmp");
+  auto& fs = GS::GetFileSystem();
+  filebuffer = fs.ReadFile("/icon.bmp");
 
   iconfile = SDL_RWFromMem(&filebuffer[0], length(filebuffer));
 
@@ -619,7 +624,7 @@ void reloadgraphics()
   loadinterface();
   dotextureloading(true);
 
-  loadmapfile(mapinfo, mapfile);
+  loadmapfile(GS::GetFileSystem(), mapinfo, mapfile);
   loadmapgraphics(mapfile, bgforce, color[0], color[1]);
 }
 

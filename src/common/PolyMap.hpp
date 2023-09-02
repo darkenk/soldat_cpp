@@ -4,6 +4,7 @@
 #include "Util.hpp"
 #include "Vector.hpp"
 #include "Waypoints.hpp"
+#include "FileUtility.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 
 // Polygon constants go here
@@ -134,8 +135,8 @@ public:
 
   Polymap(twaypoints &botpath) : botpath{botpath} {};
   bool loadmap(const tmapfile &mapfile);
-  bool loadmap(const tmapinfo &map);
-  bool loadmap(const tmapinfo &map, bool bgforce, std::uint32_t bgcolortop,
+  bool loadmap(FileUtility &fs, const tmapinfo &map);
+  bool loadmap(FileUtility &fs, const tmapinfo &map, bool bgforce, std::uint32_t bgcolortop,
                std::uint32_t bgcolorbtm);
   bool pointinpolyedges(float x, float y, std::int32_t i);
   bool pointinpoly(const tvector2 &p, const tmappolygon &poly);

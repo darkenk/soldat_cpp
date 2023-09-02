@@ -455,7 +455,7 @@ void updateframe()
       if (CVar::log_enable)
       {
         GS::GetGame().updategamestats();
-        auto& fs = GSC::GetFileSystem();
+        auto& fs = GS::GetFileSystem();
 
         writelogfile(fs, &GetKillLog(), GetKillLogFilename());
         writelogfile(fs, GetGameLog(), GetGameLogFilename());

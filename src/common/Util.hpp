@@ -1,6 +1,7 @@
 #pragma once
 
 #include "misc/SHA1Helper.hpp"
+#include "FileUtility.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -51,7 +52,7 @@ tcolor stringtocolor(const std::string s);
 
 std::string numberformat(std::uint32_t num);
 
-std::string overridefileext(const std::string &filename, const std::string &ext);
+std::string overridefileext(FileUtility& fs, const std::string &filename, const std::string &ext);
 // function MapExists(MapName: string; RootDirectory: string{$IFNDEF SERVER}; Checksum:
 // TSHA1Digest{$ENDIF}): Boolean;
 #if 0 // not now
@@ -60,10 +61,10 @@ std::string md5stringhelper(std::string text);
 bool createdirifmissing(const std::string &dir);
 bool createfileifmissing(const std::string &filename);
 std::string getsize(int64_t bytes);
-tsha1digest getmapchecksum(const tmapinfo &map, const tsha1digest &defaultgamemodchecksum);
-bool getmapinfo(const std::string &mapname, const std::string &directory,
+tsha1digest getmapchecksum(FileUtility &fs, const tmapinfo &map, const tsha1digest &defaultgamemodchecksum);
+bool getmapinfo(FileUtility& fs, const std::string &mapname, const std::string &directory,
                 tmapinfo &mapinfo); // dk out MapInfo
-bool verifymapchecksum(const tmapinfo &map, const tsha1digest &checksum,
+bool verifymapchecksum(FileUtility &fs, const tmapinfo &map, const tsha1digest &checksum,
                        const tsha1digest &defaultgamemodchecksum);
 #ifdef DEVELOPMENT
 void tostr(const void *avalue, ptypeinfo atypeinfo);

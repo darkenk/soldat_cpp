@@ -22,6 +22,7 @@
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/SHA1Helper.hpp"
+#include "common/misc/TFileStream.hpp"
 #include "common/misc/TIniFile.hpp"
 #include "common/port_utils/NotImplemented.hpp"
 #include "shared/Command.hpp"
@@ -156,7 +157,7 @@ void restartgraph()
   auto &map = GS::GetGame().GetMap();
 
   // Load Map
-  map.loadmap(GS::GetGame().GetMapchange(), CVar::r_forcebg, CVar::r_forcebg_color1,
+  map.loadmap(GS::GetFileSystem(), GS::GetGame().GetMapchange(), CVar::r_forcebg, CVar::r_forcebg_color1,
               CVar::r_forcebg_color2);
 
   windowready = true;
@@ -377,7 +378,7 @@ static bool MountAssets(FileUtility &fu, const std::string &userdirectory,
       showmessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
       return false;
     }
-    moddir = std::string("mods/") + lowercase(CVar::fs_mod) + '/';
+    moddir = std::string("/mods/") + lowercase(CVar::fs_mod) + '/';
     outCustomModChecksum = sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod");
   }
   return true;
@@ -394,7 +395,7 @@ void startgame(int argc, const char *argv[])
     parseinput("join 127.0.0.1 23073");
   }
 
-  auto &fs = GSC::GetFileSystem();
+  auto &fs = GS::GetFileSystem();
   const auto userDirectory = fs.GetPrefPath("client");
   const auto baseDirectory = fs.GetBasePath();
 
@@ -656,7 +657,7 @@ void startgame(int argc, const char *argv[])
   initgamemenus();
 
   {
-    TIniFile ini{PhysFS_ReadAsStream("txt/radiomenu-default.ini")};
+    TIniFile ini{ReadAsFileStream(fs, "txt/radiomenu-default.ini")};
     ini.ReadSectionValues("OPTIONS", radiomenu);
   }
 
@@ -681,7 +682,7 @@ void shutdown()
     return;
   }
 
-  auto& fs = GSC::GetFileSystem();
+  auto& fs = GS::GetFileSystem();
 
   addlinetologfile(fs, GetGameLog(), "Freeing sprites.", GetGameLogFilename());
 
@@ -823,9 +824,9 @@ TEST_CASE_FIXTURE(ClientFixture, "Mount soldat.smod test")
 {
   // test soldat.smod, generated with xxd --include soldat.smod
   // contains:
-  // client/client_test.txt
-  // server/server_test.txt
-  // shared/shared_test.txt
+  // client_test.txt
+  // server_test.txt
+  // shared_test.txt
   unsigned char soldat_smod[] = {
     0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0x24, 0x33,
     0x50, 0xf5, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x63, 0x6c,

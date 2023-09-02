@@ -151,7 +151,7 @@ void clientdisconnect()
 
     GetNetwork()->senddata(&playermsg, sizeof(playermsg), k_nSteamNetworkingSend_Reliable);
 
-    auto& fs= GSC::GetFileSystem();
+    auto& fs= GS::GetFileSystem();
 
     addlinetologfile(fs, GetGameLog(),
                      string("Client Disconnect from ") +
@@ -235,7 +235,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
           showmessage(_(string("Could not load mod archive (") + modname + ")."));
           return;
         }
-        moddir = string("mods/") + modname + '/';
+        moddir = string("/mods/") + modname + '/';
         GS::GetGame().SetCustomModChecksum(checksum);
         AnimationSystem::Get().LoadAnimObjects(moddir);
         loadsounds(moddir);
@@ -269,10 +269,11 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
 
   // Initialize Map
   auto &map = GS::GetGame().GetMap();
-  if (getmapinfo(mapname, GS::GetGame().GetUserDirectory(), mapstatus) /*&&
-        verifymapchecksum(mapstatus, playerslistmsg->mapchecksum)*/)
+  auto& fs = GS::GetFileSystem();
+  if (getmapinfo(fs, mapname, GS::GetGame().GetUserDirectory(), mapstatus) /*&&
+        verifymapchecksum(fs, mapstatus, playerslistmsg->mapchecksum)*/)
   {
-    if (!map.loadmap(mapstatus, CVar::r_forcebg, CVar::r_forcebg_color1, CVar::r_forcebg_color2))
+    if (!map.loadmap(fs, mapstatus, CVar::r_forcebg, CVar::r_forcebg_color1, CVar::r_forcebg_color2))
     {
       rendergameinfo(_("Could not load map: ") + (mapname));
       exittomenu();
@@ -509,7 +510,7 @@ void clienthandleunaccepted(SteamNetworkingMessage_t *netmessage)
     text = "";
 
 
-  auto& fs = GSC::GetFileSystem();
+  auto& fs = GS::GetFileSystem();
 
   addlinetologfile(fs, GetGameLog(), string("*UA ") + inttostr(unacceptedmsg->state),
                    GetGameLogFilename());

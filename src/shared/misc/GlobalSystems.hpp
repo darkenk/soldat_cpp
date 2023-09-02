@@ -1,8 +1,8 @@
 #pragma once
 #include "SoldatConfig.hpp"
+#include "common/FileUtility.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/misc/GlobalSubsystem.hpp"
-#include "common/misc/GlobalSystemsCommon.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
@@ -45,6 +45,11 @@ public:
   static Console<M> &GetMainConsole()
   {
     return *GlobalSystems::Get().MainConsoleObject;
+  }
+
+  static FileUtility &GetFileSystem()
+  {
+    return *GlobalSystems::Get().FileUtilityObject;
   }
 
 

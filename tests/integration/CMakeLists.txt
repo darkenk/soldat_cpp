@@ -30,8 +30,3 @@ target_link_libraries(SoundTest ${SOLOUD_LIBRARY})
 target_include_directories(SoundTest PRIVATE ${SOLOUD_INCLUDE_DIR})
 
 gtest_discover_tests(SoundTest)
-
-add_executable(TFileStreamTest
-    fs/TFileStreamTest.cpp ${SRC_DIR}/common/misc/TFileStream.cpp)
-
-gtest_discover_tests(TFileStreamTest)

@@ -6,7 +6,6 @@
 #include "ServerLoop.hpp"
 #include "common/FileUtility.hpp"
 #include "common/Logging.hpp"
-#include "common/PhysFSExt.hpp"
 #include "common/Util.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
@@ -36,10 +35,6 @@
 // constexpr auto PATH_MAX = 4095;
 
 bool progready = false;
-namespace
-{
-std::string basedirectory;
-}
 
 tstringlist killlog;
 std::string killlogfilename;
@@ -163,6 +158,16 @@ void DaemonizeProgram()
 }
 #endif // MSWINDOWS
 
+static void CreateDirectoryStructure(FileUtility &fs)
+{
+  SoldatEnsure(fs.MkDir("/user/configs"));
+  SoldatEnsure(fs.MkDir("/user/demos"));
+  SoldatEnsure(fs.MkDir("/user/logs"));
+  SoldatEnsure(fs.MkDir("/user/logs/kills"));
+  SoldatEnsure(fs.MkDir("/user/maps"));
+  SoldatEnsure(fs.MkDir("/user/mods"));
+}
+
 void ActivateServer(int argc, const char *argv[])
 {
   std::int32_t i;
@@ -191,7 +196,7 @@ void ActivateServer(int argc, const char *argv[])
   WriteLn("");
 #endif
 
-  auto& fs = GSC::GetFileSystem();
+  auto& fs = GS::GetFileSystem();
 
   servertickcounter = 0;
   GS::GetGame().ResetMainTickCounter();
@@ -222,41 +227,29 @@ void ActivateServer(int argc, const char *argv[])
   commandinit();
   parsecommandline(argc, argv);
 
-  if (CVar::fs_basepath == "")
-  {
-    basedirectory = ExtractFilePath(ParamStr(0));
-  }
-  if (CVar::fs_userpath == "")
-  {
-    GS::GetGame().SetUserDirectory(ParamStr(0));
-  }
+  const auto userDirectory = fs.GetPrefPath("server");
+  const auto baseDirectory = fs.GetBasePath();
 
-  const auto &userdirectory = GS::GetGame().GetUserDirectory();
+  LogDebugG("[FS]  userdirectory {}", userDirectory);
+  LogDebugG("[FS]  basedirectory {}", baseDirectory);
 
-  LogDebugG("[FS]  userdirectory {}", userdirectory);
-  LogDebugG("[FS]  basedirectory {}", basedirectory);
-
-  NotImplemented("No set current dir");
-#if 0
-    SetCurrentDir(userdirectory);
-#endif
-  auto &fu = GSC::GetFileSystem();
-  if (not fu.Mount(basedirectory + "/soldat.smod", "/"))
+  if (not fs.Mount(baseDirectory + "/soldat_server.smod", "/"))
   {
     WriteLn("Could not load base game archive (soldat.smod).");
     progready = false;
     CVar::sc_enable = false;
     return;
   }
+  fs.Mount(userDirectory, "/user");
 
-  GS::GetGame().SetGameModChecksum(sha1file(basedirectory + "/soldat.smod"));
+  GS::GetGame().SetGameModChecksum(sha1file(baseDirectory + "/soldat_server.smod"));
 
   ModDir = "";
 
   if (CVar::fs_mod != "")
   {
-    if (not fu.Mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
-                     ("mods/" + lowercase(CVar::fs_mod) + "/")))
+    if (not fs.Mount((userDirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
+                     ("/mods/" + lowercase(CVar::fs_mod) + "/")))
     {
       WriteLn("Could not load mod archive (" + std::string(CVar::fs_mod) + ").");
       progready = false;
@@ -265,24 +258,19 @@ void ActivateServer(int argc, const char *argv[])
     }
     ModDir = "mods/" + lowercase(CVar::fs_mod) + "/";
     GS::GetGame().SetCustomModChecksum(
-      sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"));
+      sha1file(userDirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"));
   }
 
   // Create the basic folder structure
-  createdirifmissing(userdirectory + "/configs");
-  createdirifmissing(userdirectory + "/demos");
-  createdirifmissing(userdirectory + "/logs");
-  createdirifmissing(userdirectory + "/logs/kills");
-  createdirifmissing(userdirectory + "/maps");
-  createdirifmissing(userdirectory + "/mods");
+  CreateDirectoryStructure(fs);
+
 
   // Copy default configs if they are missing
-  PhysFS_CopyFileFromArchive("configs/server.cfg", userdirectory + "/configs/server.cfg");
-  PhysFS_CopyFileFromArchive("configs/weapons.ini", userdirectory + "/configs/weapons.ini");
-  PhysFS_CopyFileFromArchive("configs/weapons_realistic.ini",
-                             userdirectory + "/configs/weapons_realistic.ini");
+  fs.Copy("/configs/server.cfg", "/user/configs/server.cfg");
+  fs.Copy("/configs/weapons.ini", "/user/configs/weapons.ini");
+  fs.Copy("/configs/weapons_realistic.ini", "/user/configs/weapons_realistic.ini");
 
-  loadconfig("server.cfg", GSC::GetFileSystem());
+  loadconfig("server.cfg", fs);
 
 #if 0
     CvarsInitialized = true;
@@ -319,9 +307,9 @@ void ActivateServer(int argc, const char *argv[])
 
   addlinetologfile(fs, GetGameLog(), "Loading Maps List", GetGameLogFilename());
 
-  if (fileexists(userdirectory + "configs/" + std::string(CVar::sv_maplist)))
+  if (fileexists(userDirectory + "configs/" + std::string(CVar::sv_maplist)))
   {
-    mapslist.loadfromfile(userdirectory + "configs/" + std::string(CVar::sv_maplist));
+    mapslist.loadfromfile(userDirectory + "configs/" + std::string(CVar::sv_maplist));
     auto it = std::remove(mapslist.begin(), mapslist.end(), "");
     mapslist.erase(it, mapslist.end());
   }
@@ -343,20 +331,20 @@ void ActivateServer(int argc, const char *argv[])
 #endif
 
   // Banned IPs text file
-  if (not createfileifmissing(userdirectory + "configs/banned.txt"))
+  if (not createfileifmissing(userDirectory + "configs/banned.txt"))
   {
     NotImplemented("Failed to create configs/banned.txt");
   }
 
-  if (not createfileifmissing(userdirectory + "configs/bannedhw.txt"))
+  if (not createfileifmissing(userDirectory + "configs/bannedhw.txt"))
   {
     NotImplemented("Failed to create configs/bannedhw.txt");
   }
 
-  loadbannedlist(userdirectory + "configs/banned.txt");
-  loadbannedlisthw(userdirectory + "configs/bannedhw.txt");
+  loadbannedlist(userDirectory + "configs/banned.txt");
+  loadbannedlisthw(userDirectory + "configs/bannedhw.txt");
 
-  if (fileexists(userdirectory + "configs/remote.txt"))
+  if (fileexists(userDirectory + "configs/remote.txt"))
   {
     NotImplemented();
 #if 0
@@ -448,7 +436,7 @@ void ShutDown()
     s.player = nullptr;
   }
 
-  auto& fs = GSC::GetFileSystem();
+  auto& fs = GS::GetFileSystem();
 
   addlinetologfile(fs, GetGameLog(), "   End of Log.", GetGameLogFilename());
   LogDebugG("Updating gamestats");
@@ -486,8 +474,9 @@ void loadweapons(const std::string &Filename)
     DefaultWMChecksum = CreateWMChecksum();
 #endif
   {
+    auto& fs = GS::GetFileSystem();
     TIniFile ini{
-      ReadAsFileStream(GS::GetGame().GetUserDirectory() + "configs/" + Filename + ".ini")};
+      ReadAsFileStream(fs, "/user/configs/" + Filename + ".ini")};
     if (loadweaponsconfig(ini, wmname, wmversion, guns))
     {
       buildweapons(guns);
@@ -544,8 +533,9 @@ std::int8_t addbotplayer(std::string name, std::int32_t team)
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
   {
+    auto& fs = GS::GetFileSystem();
     TIniFile ini(
-      ReadAsFileStream(GS::GetGame().GetUserDirectory() + "configs/bots/" + name + ".bot"));
+      ReadAsFileStream(fs, "/user/configs/bots/" + name + ".bot"));
 
     if (not loadbotconfig(ini, SpriteSystem::Get().GetSprite(p), guns))
     {
@@ -610,7 +600,7 @@ void startserver()
   if (sc_enable)
     ScrptDispatcher.Launch();
 #endif
-  auto& fs= GSC::GetFileSystem();
+  auto& fs= GS::GetFileSystem();
 
   if (not GS::GetGame().isteamgame())
   {
@@ -687,9 +677,9 @@ void startserver()
 #endif
   */
 
-  if (getmapinfo(mapslist[mapindex], GS::GetGame().GetUserDirectory(), StartMap))
+  if (getmapinfo(fs, mapslist[mapindex], GS::GetGame().GetUserDirectory(), StartMap))
   {
-    if (not map.loadmap(StartMap))
+    if (not map.loadmap(GS::GetFileSystem(), StartMap))
     {
       GS::GetMainConsole().console("Could Error not load map " + StartMap.name,
                                      debug_message_color);
@@ -936,7 +926,7 @@ bool preparemapchange(std::string Name)
 {
   tmapinfo Status;
   bool Result = false;
-  if (getmapinfo(Name, GS::GetGame().GetUserDirectory(), Status))
+  if (getmapinfo(GS::GetFileSystem(), Name, GS::GetGame().GetUserDirectory(), Status))
   {
     GS::GetGame().SetMapchange(Status);
     GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangetime());

@@ -22,7 +22,7 @@ tgfximage *loadmaptexture(const string &texname, tgfxcolor colorkey)
 {
   std::array<string, 3> s;
   std::string filename;
-  auto& fs = GSC::GetFileSystem();
+  auto& fs = GS::GetFileSystem();
 
   tgfximage *result;
   result = nullptr;
@@ -193,7 +193,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
   std::vector<std::int32_t> scenerycounters;
   std::vector<tvector2> scenerymaxsize;
   std::vector<std::int32_t> scenerysheetindex;
-  auto& fs = GSC::GetFileSystem();
+  auto& fs = GS::GetFileSystem();
 
   tmapgraphics &mg = mapgfx;
   destroymapgraphics();

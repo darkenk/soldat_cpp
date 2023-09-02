@@ -3,6 +3,7 @@
 #include "LogFile.hpp"
 #include "common/Anims.hpp"
 #include "common/Parts.hpp"
+#include "common/misc/TFileStream.hpp"
 #include "mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
@@ -13,7 +14,7 @@
 template <Config::Module M>
 void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 {
-  auto& fs = GSC::GetFileSystem();
+  auto& fs = GS::GetFileSystem();
   Animations.clear();
   addlinetologfile(fs, GetGameLog(), std::string("Loading Animations. ") + moddir,
                    GetGameLogFilename());
@@ -78,7 +79,11 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
   {
     auto &a = Animations.emplace_back();
     a.id = anim.AnimType;
-    a.loadfromfile(moddir + anim.Filename);
+    auto stream = ReadAsFileStream(fs, moddir + anim.Filename);
+    if (stream)
+    {
+      a.loadfromfile(*stream);
+    }
     a.loop = anim.Loop;
     a.speed = anim.Speed;
   }
@@ -91,48 +96,48 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 
   // Gostek
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/gostek.po", scale);
+  Skeletons.back().loadpoobject(fs, "objects/gostek.po", scale);
   Skeletons.back().timestep = 1;
   Skeletons.back().gravity = 1.06 * grav;
   Skeletons.back().vdamping = 0.997;
 
   // Box
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/kit.po", 2.15);
+  Skeletons.back().loadpoobject(fs, "objects/kit.po", 2.15);
   Skeletons.back().timestep = 1;
 
   // Flag
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/flag.po", 4.0);
+  Skeletons.back().loadpoobject(fs, "objects/flag.po", 4.0);
 
   // Para
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/para.po", 5.0);
+  Skeletons.back().loadpoobject(fs, "objects/para.po", 5.0);
   // Stat
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/stat.po", 4.0);
+  Skeletons.back().loadpoobject(fs, "objects/stat.po", 4.0);
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/karabin.po", 1.0);
+  Skeletons.back().loadpoobject(fs, "objects/karabin.po", 1.0);
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/karabin.po", 1.1);
+  Skeletons.back().loadpoobject(fs, "objects/karabin.po", 1.1);
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/karabin.po", 1.8);
+  Skeletons.back().loadpoobject(fs, "objects/karabin.po", 1.8);
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/karabin.po", 2.2);
+  Skeletons.back().loadpoobject(fs, "objects/karabin.po", 2.2);
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/karabin.po", 2.8);
+  Skeletons.back().loadpoobject(fs, "objects/karabin.po", 2.8);
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/karabin.po", 3.6);
+  Skeletons.back().loadpoobject(fs, "objects/karabin.po", 3.6);
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/karabin.po", 3.7);
+  Skeletons.back().loadpoobject(fs, "objects/karabin.po", 3.7);
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/karabin.po", 3.9);
+  Skeletons.back().loadpoobject(fs, "objects/karabin.po", 3.9);
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/karabin.po", 4.3);
+  Skeletons.back().loadpoobject(fs, "objects/karabin.po", 4.3);
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/karabin.po", 5.0);
+  Skeletons.back().loadpoobject(fs, "objects/karabin.po", 5.0);
   Skeletons.emplace_back();
-  Skeletons.back().loadpoobject("objects/karabin.po", 5.5);
+  Skeletons.back().loadpoobject(fs, "objects/karabin.po", 5.5);
 
   GetBulletParts().destroy();
   GetBulletParts().timestep = 1;

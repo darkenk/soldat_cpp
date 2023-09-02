@@ -1,4 +1,5 @@
 #include "FileUtility.hpp"
+#include "Logging.hpp"
 #include "PhysFSExt.hpp"
 #include "misc/PortUtils.hpp"
 #include "physfs.h"
@@ -13,6 +14,7 @@ namespace fs = std::filesystem;
 
 namespace
 {
+auto LOG = "fs";
 
 struct PHYSFS_IoMemory
 {
@@ -238,7 +240,7 @@ struct FileUtility::File
 {
 };
 
-FileUtility::FileUtility()
+FileUtility::FileUtility(const std::string_view rootPrefix): RootPrefix{rootPrefix}
 {
   auto r = PhysFS_InitThreadSafe();
   SoldatAssert(r);
@@ -257,28 +259,35 @@ FileUtility::~FileUtility()
 
 bool FileUtility::Mount(const std::string_view item, const std::string_view mount_point)
 {
+  auto mp = ApplyRootPrefix(mount_point);
   if (item == "tmpfs.memory")
   {
-    auto io = PHYSFS_IoMemory::Create(mount_point.data());
-    auto e = PHYSFS_mountIo(io, item.data(), mount_point.data(), 0);
+    auto io = PHYSFS_IoMemory::Create(mp.c_str());
+    auto e = PHYSFS_mountIo(io, item.data(), mp.c_str(), 0);
     SoldatAssert(e != 0);
     return e;
   }
-  auto e = PHYSFS_mount(item.data(), mount_point.data(), 0);
+  auto e = PHYSFS_mount(item.data(), mp.c_str(), 0);
   SoldatAssert(e != 0);
+
+  std::string_view nmp = PHYSFS_getMountPoint(item.data());
+  SoldatAssert(nmp.size() >= mount_point.size());
+  nmp.remove_suffix(mount_point.size());
+  RootPrefix = nmp;
   return e;
 }
 
 FileUtility::File *FileUtility::Open(const std::string_view path, FileUtility::FileMode fm)
 {
   PHYSFS_File *f = nullptr;
+  auto p = ApplyRootPrefix(path);
   switch (fm)
   {
   case FileMode::Read:
-    f = PHYSFS_openRead(path.data());
+    f = PHYSFS_openRead(p.c_str());
     break;
   case FileMode::Write:
-    f = PHYSFS_openWrite(path.data());
+    f = PHYSFS_openWrite(p.c_str());
     break;
   }
   SoldatAssert(f != nullptr);
@@ -306,7 +315,7 @@ bool FileUtility::Write(File *file, const std::byte *data, const std::size_t siz
 
 bool FileUtility::Exists(const std::string_view path)
 {
-  return PHYSFS_exists(path.data()) != 0;
+  return PHYSFS_exists(ApplyRootPrefix(path).c_str()) != 0;
 }
 
 std::size_t FileUtility::Size(File *file)
@@ -316,8 +325,9 @@ std::size_t FileUtility::Size(File *file)
 
 std::size_t FileUtility::Size(const std::string_view path)
 {
-  SoldatAssert(Exists(path));
-  auto f = Open(path, FileMode::Read);
+  auto p = ApplyRootPrefix(path);
+  SoldatAssert(Exists(p.c_str()));
+  auto f = Open(p.c_str(), FileMode::Read);
   auto size = Size(f);
   Close(f);
   return size;
@@ -329,7 +339,7 @@ void FileUtility::Close(File *file)
   SoldatAssert(r != 0);
 }
 
-bool FileUtility::MkDir(const std::string_view dirPath) { return PHYSFS_mkdir(dirPath.data()); }
+bool FileUtility::MkDir(const std::string_view dirPath) { return PHYSFS_mkdir(ApplyRootPrefix(dirPath).c_str()); }
 
 bool FileUtility::Copy(const std::string_view src, const std::string_view dst)
 {
@@ -348,6 +358,29 @@ bool FileUtility::Copy(const std::string_view src, const std::string_view dst)
   return true;
 }
 
+std::vector<std::uint8_t> FileUtility::ReadFile(const std::string_view path)
+{
+  SoldatAssert(not path.empty());
+  LogDebug(LOG, "Loading file {}", path);
+  std::vector<std::uint8_t> result;
+  if (!Exists(path.data()))
+  {
+    LogWarn(LOG, "File does not exist {}", path);
+    return result;
+  }
+  auto fh = Open(path, FileMode::Read);
+  auto length = Size(fh);
+  result.resize(length);
+  auto read = Read(fh, reinterpret_cast<std::byte*>(result.data()), length);
+  Close(fh);
+  if (read == -1)
+  {
+    LogError(LOG, "Error while reading data");
+    result.resize(0);
+  }
+  return result;
+}
+
 std::string FileUtility::GetBasePath() { return PHYSFS_getBaseDir(); }
 
 std::string FileUtility::GetPrefPath(const std::string_view postfix, const bool debugBuild)
@@ -364,6 +397,7 @@ std::string FileUtility::GetPrefPath(const std::string_view postfix, const bool 
 
 // tests
 #include <doctest/doctest.h>
+#include <fstream>
 
 namespace
 {
@@ -545,6 +579,92 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Copy file")
     CHECK_EQ(4, fu.Size(f));
     fu.Close(f);
   }
+}
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "Filesystem does not leak between two different FileUtility objects")
+{
+  FileUtility fu("/test1");
+  fu.Mount("tmpfs.memory", "/fs_mem");
+  constexpr auto TEST_DATA_SIZE = 4;
+  std::array<std::byte, TEST_DATA_SIZE> testData = {std::byte(42), std::byte(42), std::byte(42),
+                                                    std::byte(40)};
+  auto f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
+  auto r = fu.Write(f, testData.data(), TEST_DATA_SIZE);
+  fu.Close(f);
+  FileUtility fu2("/test2");
+  fu2.Mount("tmpfs.memory", "/fs_mem");
+
+  CHECK_EQ(true, fu.Exists("/fs_mem/valid"));
+  CHECK_EQ(false, fu2.Exists("/fs_mem/valid"));
+}
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "The same file can be mounted twice in different objects")
+{
+  // test soldat.smod, generated with xxd --include soldat.smod
+  // contains:
+  // client_test.txt
+  // server_test.txt
+  // shared_test.txt
+  unsigned char soldat_smod[] = {
+                                 0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0x24, 0x33,
+                                 0x50, 0xf5, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x63, 0x6c,
+                                 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x2b, 0x49, 0x2d,
+                                 0x2e, 0x89, 0x4f, 0xce, 0xc9, 0x4c, 0xcd, 0x2b, 0xe1, 0x02, 0x00, 0x50, 0x4b, 0x03, 0x04, 0x14,
+                                 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xa7, 0xe8, 0x12, 0xba, 0x0e, 0x00, 0x00,
+                                 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f,
+                                 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x2b, 0x49, 0x2d, 0x2e, 0x89, 0x2f, 0x4e, 0x2d,
+                                 0x2a, 0x4b, 0x2d, 0xe2, 0x02, 0x00, 0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00,
+                                 0x00, 0x00, 0x21, 0x00, 0xab, 0x34, 0x36, 0xb2, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00,
+                                 0x0f, 0x00, 0x00, 0x00, 0x73, 0x68, 0x61, 0x72, 0x65, 0x64, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e,
+                                 0x74, 0x78, 0x74, 0x2b, 0x49, 0x2d, 0x2e, 0x89, 0x2f, 0xce, 0x48, 0x2c, 0x4a, 0x4d, 0xe1, 0x02,
+                                 0x00, 0x50, 0x4b, 0x01, 0x02, 0x14, 0x0a, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21,
+                                 0x00, 0x24, 0x33, 0x50, 0xf5, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00,
+                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63,
+                                 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b,
+                                 0x01, 0x02, 0x14, 0x0a, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xa7, 0xe8,
+                                 0x12, 0xba, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x00, 0x00, 0x73, 0x65, 0x72, 0x76,
+                                 0x65, 0x72, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b, 0x01, 0x02, 0x14,
+                                 0x0a, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xab, 0x34, 0x36, 0xb2, 0x0e,
+                                 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x76, 0x00, 0x00, 0x00, 0x73, 0x68, 0x61, 0x72, 0x65, 0x64, 0x5f,
+                                 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00,
+                                 0x03, 0x00, 0x03, 0x00, 0xb7, 0x00, 0x00, 0x00, 0xb1, 0x00, 0x00, 0x00, 0x00, 0x00};
+  unsigned int soldat_smod_len = 382;
+
+  FileUtility fu("/t1");
+  auto testDir = fu.GetPrefPath("mount_test", true);
+  std::filesystem::remove_all(testDir);
+  // recreate directory
+  testDir = fu.GetPrefPath("mount_test", true);
+  {
+    std::ofstream s(testDir + "/soldat.smod", std::ios_base::binary | std::ios_base::trunc);
+    s.write((char*)soldat_smod, soldat_smod_len);
+  }
+
+  CHECK_EQ(true, fu.Mount(testDir + "/soldat.smod", "/"));
+  CHECK_EQ(true, fu.Exists("/client_test.txt"));
+  FileUtility fu2("/t2");
+  CHECK_EQ(true, fu2.Mount(testDir + "/soldat.smod", "/"));
+  CHECK_EQ(true, fu2.Exists("/client_test.txt"));
+}
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "Filesystem does not leak between two different FileUtility objects")
+{
+  FileUtility fu("/test1");
+  fu.Mount("tmpfs.memory", "/fs_mem");
+  constexpr auto TEST_DATA_SIZE = 4;
+  std::array<std::uint8_t, TEST_DATA_SIZE> testData = {42, 42, 42, 40};
+  auto f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
+  auto r = fu.Write(f, reinterpret_cast<std::byte*>(testData.data()), TEST_DATA_SIZE);
+  fu.Close(f);
+
+  auto data = fu.ReadFile("/fs_mem/valid");
+  CHECK_EQ(testData.size(), data.size());
+  CHECK_EQ(testData[0], data[0]);
+  CHECK_EQ(testData[1], data[1]);
+  CHECK_EQ(testData[2], data[2]);
+  CHECK_EQ(testData[3], data[3]);
 }
 
 } // namespace

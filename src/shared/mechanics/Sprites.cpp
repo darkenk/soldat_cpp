@@ -1699,7 +1699,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 s2 = formatdatetime("yy/mm/dd", get_date());
                 s2 = s2 + ' ' + formatdatetime("hh:nn:ss", get_time());
 #endif
-        auto& fs = GSC::GetFileSystem();
+        auto& fs = GS::GetFileSystem();
         addlinetologfile(fs, &GetKillLog(), std::string("--- ") + s2, GetKillLogFilename(), false);
         addlinetologfile(fs, &GetKillLog(), SpriteSystem::Get().GetSprite(who).player->name,
                          GetKillLogFilename(), false);
@@ -4860,7 +4860,6 @@ template class Sprite<>;
 template bool teamcollides(PolygonType polytype, std::int32_t team, const bool bullet);
 template class BackgroundState<>;
 
-#include "common/PhysFSExt.hpp"
 #include <doctest/doctest.h>
 
 class SpritesFixture
@@ -4868,15 +4867,12 @@ class SpritesFixture
 public:
   SpritesFixture()
   {
-    PhysFS_InitThreadSafe();
-    GSC::Init();
     GS::Init();
     AnimationSystem::Get().LoadAnimObjects("");
   }
   ~SpritesFixture()
   {
     GS::Deinit();
-    GSC::Deinit();
   }
   SpritesFixture(const SpritesFixture &) = delete;
 };

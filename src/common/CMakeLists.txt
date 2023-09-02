@@ -1,5 +1,4 @@
 set(SRC
-    misc/GlobalSystemsCommon.cpp
     misc/PortUtils.cpp
     misc/RandomGenerator.cpp
     misc/SHA1.cpp
@@ -12,7 +11,6 @@ set(SRC
     Anims.cpp
     Calc.cpp
     FileUtility.cpp
-
     Logging.cpp
     MapFile.cpp
     Parts.cpp
