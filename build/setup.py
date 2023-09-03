@@ -13,13 +13,14 @@ JOBS = str(os.cpu_count())
 class Platform(Enum):
     LINUX_x64 = 'linux_x64'
     LINUX_aarch64 = 'linux_aarch64'
+    WEBASSEMBLY = 'webassembly'
 
 class Config(Enum):
     Release = 'release'
     Debug = 'debug'
 
 # current configuration
-PLATFORM = Platform.LINUX_x64
+PLATFORM = Platform.WEBASSEMBLY
 CONFIG = Config.Release
 
 if platform.machine() == 'aarch64':
@@ -44,6 +45,13 @@ def GetCmakeArgBuildType(config):
     else:
         return '-DCMAKE_BUILD_TYPE=Debug'
 
+def GetAdditionalConfigs(platform: Platform):
+    if platform == Platform.WEBASSEMBLY:
+        return ["-DCMAKE_TOOLCHAIN_FILE=/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake"]
+    return []
+
+
+
 print(BASE_DIR)
 
 # 3rdparty library compilation instructions
@@ -54,9 +62,13 @@ def SetupProtobuf(platform, config):
     os.makedirs(PTB_DIR, exist_ok = True)
     print("Build protobuf in " + PTB_DIR, flush=True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + PTB_DIR + '/out',
-        GetCmakeArgBuildType(config), '-Dprotobuf_BUILD_SHARED_LIBS=OFF',
-        '-Dprotobuf_BUILD_TESTS=OFF', '-DCMAKE_POSITION_INDEPENDENT_CODE=ON', PTB_SRC + '/cmake'],cwd=PTB_DIR)
+    cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + PTB_DIR + '/out',
+      GetCmakeArgBuildType(config), '-Dprotobuf_BUILD_SHARED_LIBS=OFF',
+      '-Dprotobuf_BUILD_TESTS=OFF', '-DCMAKE_POSITION_INDEPENDENT_CODE=ON']
+    cmake_config = cmake_config + GetAdditionalConfigs(platform)
+    cmake_config.append(PTB_SRC + '/cmake')
+
+    subprocess.check_call(cmake_config, cwd=PTB_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=PTB_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=PTB_DIR)
 
@@ -74,9 +86,13 @@ def SetupLibressl(platform, config):
     SSL_DIR = GetThirdPartyOutDir(platform, config) + 'libressl'
     os.makedirs(SSL_DIR, exist_ok = True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + SSL_DIR + '/out',
-        GetCmakeArgBuildType(config), '-DLIBRESSL_APPS=OFF', '-DLIBRESSL_TESTS=OFF',
-        SSL_SRC], cwd=SSL_DIR)
+    cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + SSL_DIR + '/out',
+      GetCmakeArgBuildType(config), '-DLIBRESSL_APPS=OFF', '-DLIBRESSL_TESTS=OFF',
+    ]
+    cmake_config = cmake_config + GetAdditionalConfigs(platform)
+    cmake_config.append(SSL_SRC)
+
+    subprocess.check_call(cmake_config, cwd=SSL_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=SSL_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=SSL_DIR)
 
@@ -85,12 +101,21 @@ def SetupGameNetworkingSockets(platform, config):
     GNS_DIR = GetThirdPartyOutDir(platform, config) + 'gamenetworkingsockets'
     os.makedirs(GNS_DIR, exist_ok = True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + GNS_DIR + '/out',
-                        GetCmakeArgBuildType(config), '-DUSE_CRYPTO=LibreSSL',
-                           '-DUSE_CRYPTO25519=Reference', '-DCMAKE_PREFIX_PATH=' + GetLibreSSLOutDir(platform, config) +'/out/;' + GetProtobufOutDir(platform, config) + '/out/',
-                           '-Dprotobuf_BUILD_TESTS=OFF', '-Dprotobuf_BUILD_SHARED_LIBS=OFF',
-                           '-DProtobuf_USE_STATIC_LIBS=ON',
-                        GNS_SRC], cwd=GNS_DIR)
+    cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + GNS_DIR + '/out',
+                             GetCmakeArgBuildType(config), '-DUSE_CRYPTO=LibreSSL',
+                             '-DUSE_CRYPTO25519=Reference', '-DCMAKE_PREFIX_PATH=' + GetLibreSSLOutDir(platform, config) +'/out/;' + GetProtobufOutDir(platform, config) + '/out/',
+                             '-Dprotobuf_BUILD_TESTS=OFF', '-Dprotobuf_BUILD_SHARED_LIBS=OFF',
+                             '-DProtobuf_USE_STATIC_LIBS=ON',
+                             '-DLIGHT_TESTS=OFF',
+                             '-DGAMENETWORKINGSOCKETS_BUILD_EXAMPLES=OFF',
+                             '-DGAMENETWORKINGSOCKETS_BUILD_TESTS=OFF',
+                             '-DProtobuf_PROTOC_EXECUTABLE='+ GetProtobufOutDir(Platform.LINUX_x64, config) + '/out/bin/protoc',
+                             '-DCMAKE_PROGRAM_PATH='+ GetProtobufOutDir(Platform.LINUX_x64, config) + '/out/',
+                             '-DCMAKE_FIND_ROOT_PATH=' + GetLibreSSLOutDir(platform, config) +'/out/;' + GetProtobufOutDir(platform, config) + '/out/']
+    cmake_config = cmake_config + GetAdditionalConfigs(platform)
+    cmake_config.append(GNS_SRC)
+
+    subprocess.check_call(cmake_config, cwd=GNS_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=GNS_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=GNS_DIR)
 
@@ -101,7 +126,11 @@ def SetupSDL(platform, config):
 
     print("Build sdl in " + SDL_DIR, flush=True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + SDL_DIR + '/out', '-DSDL_SHARED=False', GetCmakeArgBuildType(config), SDL_SRC], cwd=SDL_DIR)
+    cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + SDL_DIR + '/out', '-DSDL_SHARED=False', GetCmakeArgBuildType(config)]
+    cmake_config = cmake_config + GetAdditionalConfigs(platform)
+    cmake_config.append(SDL_SRC)
+
+    subprocess.check_call(cmake_config, cwd=SDL_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=SDL_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=SDL_DIR)
 
@@ -112,9 +141,12 @@ def SetupSoLoud(platform, config):
     os.makedirs(SoLD_DIR, exist_ok = True)
 
     print("Build SoLoud in " + SoLD_DIR, flush=True)
+    cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + SoLD_DIR + '/out', GetCmakeArgBuildType(config),
+                                '-DCMAKE_PREFIX_PATH=' + SDL_DIR + '/out']
+    cmake_config = cmake_config + GetAdditionalConfigs(platform)
+    cmake_config.append(SoLD_SRC)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + SoLD_DIR + '/out', GetCmakeArgBuildType(config),
-                            '-DCMAKE_PREFIX_PATH=' + SDL_DIR + '/out', SoLD_SRC], cwd=SoLD_DIR)
+    subprocess.check_call(cmake_config, cwd=SoLD_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=SoLD_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=SoLD_DIR)
 
@@ -125,7 +157,11 @@ def SetupSpdlog(platform, config):
 
     print("Build spdlog in " + SPD_DIR, flush=True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + SPD_DIR + '/out', GetCmakeArgBuildType(config), SPD_SRC], cwd=SPD_DIR)
+    cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + SPD_DIR + '/out', GetCmakeArgBuildType(config)]
+    cmake_config = cmake_config + GetAdditionalConfigs(platform)
+    cmake_config.append(SPD_SRC)
+
+    subprocess.check_call(cmake_config, cwd=SPD_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=SPD_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=SPD_DIR)
 
@@ -134,7 +170,11 @@ def SetupPhysFS(platform, config):
     PFS_DIR = GetThirdPartyOutDir(platform, config) + 'physfs'
     os.makedirs(PFS_DIR, exist_ok = True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + PFS_DIR + '/out', '-DPHYSFS_BUILD_SHARED=False', '-DPHYSFS_BUILD_TEST=False', GetCmakeArgBuildType(config), PFS_SRC], cwd=PFS_DIR)
+    cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + PFS_DIR + '/out', '-DPHYSFS_BUILD_SHARED=False', '-DPHYSFS_BUILD_TEST=False', GetCmakeArgBuildType(config)]
+    cmake_config = cmake_config + GetAdditionalConfigs(platform)
+    cmake_config.append(PFS_SRC)
+
+    subprocess.check_call(cmake_config, cwd=PFS_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=PFS_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=PFS_DIR)
 
@@ -152,14 +192,17 @@ def SetupFreetype(platform, config):
     FT_DIR = GetThirdPartyOutDir(platform, config) + 'freetype'
     os.makedirs(FT_DIR, exist_ok = True)
 
-    subprocess.check_call(['cmake', '-DCMAKE_INSTALL_PREFIX=' + FT_DIR + '/out',
-        GetCmakeArgBuildType(config),
-        "-DDISABLE_PNG=ON",
-        "-DDISABLE_HARFBUZ=ON",
-        "-DDISABLE_ZLIB=ON",
-        "-DCMAKE_DISABLE_FIND_PACKAGE_BZip2=TRUE",
-        "-DCMAKE_DISABLE_FIND_PACKAGE_BrotliDec=TRUE",
-        FT_SRC], cwd=FT_DIR)
+    cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + FT_DIR + '/out',
+            GetCmakeArgBuildType(config),
+            "-DDISABLE_PNG=ON",
+            "-DDISABLE_HARFBUZ=ON",
+            "-DDISABLE_ZLIB=ON",
+            "-DCMAKE_DISABLE_FIND_PACKAGE_BZip2=TRUE",
+            "-DCMAKE_DISABLE_FIND_PACKAGE_BrotliDec=TRUE"]
+    cmake_config = cmake_config + GetAdditionalConfigs(platform)
+    cmake_config.append(FT_SRC)
+
+    subprocess.check_call(cmake_config, cwd=FT_DIR)
     subprocess.check_call(['cmake', '--build', '.', '--parallel', JOBS], cwd=FT_DIR)
     subprocess.check_call(['cmake', '--install', '.'], cwd=FT_DIR)
 
@@ -179,5 +222,5 @@ SetupSDL(PLATFORM, CONFIG)
 SetupSoLoud(PLATFORM, CONFIG)
 SetupSpdlog(PLATFORM, CONFIG)
 SetupPhysFS(PLATFORM, Config.Debug)
-SetupGTest(PLATFORM, CONFIG)
+#SetupGTest(PLATFORM, CONFIG)
 SetupFreetype(PLATFORM, CONFIG)

@@ -156,9 +156,11 @@ if(USE_CRYPTO STREQUAL "LibreSSL")
 	find_package(LibreSSL REQUIRED)
 endif()
 
+if(NOT CMAKE_SYSTEM_NAME MATCHES Emscripten)
 # We always need at least sse2 on x86
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|x86_64.*|AMD64.*|i686.*|i386.*|x86.*")
        set(TARGET_ARCH_FLAGS "-msse2")
+endif()
 endif()
 
 function(set_target_common_gns_properties TGT)
@@ -171,6 +173,8 @@ function(set_target_common_gns_properties TGT)
 
 	if(CMAKE_SYSTEM_NAME MATCHES Linux)
 		target_compile_definitions(${TGT} PUBLIC POSIX LINUX)
+  elseif(CMAKE_SYSTEM_NAME MATCHES Emscripten)
+    target_compile_definitions(${TGT} PUBLIC POSIX LINUX)
 	elseif(CMAKE_SYSTEM_NAME MATCHES Darwin)
 		target_compile_definitions(${TGT} PUBLIC POSIX OSX)
 	elseif(CMAKE_SYSTEM_NAME MATCHES FreeBSD)

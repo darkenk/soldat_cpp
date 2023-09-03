@@ -660,11 +660,14 @@ void destroygamegraphics()
   initialized = false;
 }
 
-// float lerp(float a, float b, float x)
-//{
 
-//    return a + (b - a) * x;
-//}
+#if __EMSCRIPTEN__
+float lerp(float a, float b, float x)
+{
+  return a + (b - a) * x;
+}
+
+#endif
 
 inline constexpr tvector2 lerp(const tvector2 &a, const tvector2 &b, float x)
 {

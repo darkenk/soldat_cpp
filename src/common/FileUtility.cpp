@@ -243,6 +243,10 @@ struct FileUtility::File
 FileUtility::FileUtility(const std::string_view rootPrefix): RootPrefix{rootPrefix}
 {
   auto r = PhysFS_InitThreadSafe();
+  if (!r)
+  {
+    LogError(LOG, "FS init failed {}", PHYSFS_getLastErrorCode());
+  }
   SoldatAssert(r);
   if (r == 1)
   {

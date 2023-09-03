@@ -3,6 +3,7 @@
 #include "Cvar.hpp"
 #include "common/FileUtility.hpp"
 #include "common/Logging.hpp"
+#include <sstream>
 
 namespace
 {
@@ -78,7 +79,11 @@ void addlinetologfile(FileUtility& fu, tstringlist *f, const std::string &s, con
 
       auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
       std::stringstream ss;
+#if __EMSCRIPTEN__
+      NotImplemented("wasm");
+#else
       ss << std::put_time(std::localtime(&now), "%y/%m/%d %H:%M:%S");
+#endif
       s2 = s2 + ' ' + ss.str();
       f->push_back(s2 + ' ' + s);
     }
@@ -134,7 +139,11 @@ void newlogfiles(FileUtility &fu)
   {
     auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::stringstream ss;
+#if __EMSCRIPTEN__
+    NotImplemented("wasm");
+#else
     ss << std::put_time(std::localtime(&now), "%y-%m-%d");
+#endif
     s2 = ss.str();
   }
 

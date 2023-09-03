@@ -29,6 +29,15 @@
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++"
             }
+        },
+        {
+            "name": "debug-emcc",
+            "displayName": "DebugEmcc",
+            "inherits": "debug",
+            "binaryDir": "${sourceDir}/build/out/soldat_emcc_debug",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+            }
         }
     ],
     "buildPresets": [
@@ -49,6 +58,12 @@
             "displayName": "Debug G++",
             "configurePreset": "debug-g++",
             "configuration": "Debug G++"
+        },
+        {
+            "name": "debug emcc",
+            "displayName": "Debug emcc",
+            "configurePreset": "debug-emcc+",
+            "configuration": "Debug emcc"
         }
     ]
 }

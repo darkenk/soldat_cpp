@@ -40,6 +40,7 @@
 #include <memory>
 #include <physfs.h>
 #include <thread>
+#include <sstream>
 
 
 namespace

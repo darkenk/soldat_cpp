@@ -27,7 +27,7 @@ extern void SteamDatagramGame_AssertFailed( bool bFmt, const char* pstrFile, uns
 #include <signal.h>
 #endif // POSIX
 
-#ifdef LINUX
+#if defined(LINUX) && not defined(__EMSCRIPTEN__)
 #include <sys/ptrace.h>
 #endif
 
@@ -51,7 +51,7 @@ bool Plat_IsInDebugSession()
 	info.kp_proc.p_flag = 0;
 	sysctl(mib,4,&info,&size,NULL,0);
 	return ((info.kp_proc.p_flag & P_TRACED) == P_TRACED);
-#elif defined(LINUX)
+#elif defined(LINUX) && not defined(__EMSCRIPTEN__)
 	static FILE *fp;
 	if ( !fp )
 	{

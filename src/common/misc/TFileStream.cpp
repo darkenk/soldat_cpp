@@ -1,9 +1,7 @@
 #include "TFileStream.hpp"
 #include "TStream.hpp"
 #include "../FileUtility.hpp"
-#include <filesystem>
-#include <fstream>
-#include <iostream>
+#include <sstream>
 #include <memory>
 
 class TFileStream : public TStream

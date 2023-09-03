@@ -1,8 +1,9 @@
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 cmake_minimum_required(VERSION 3.27)
 project(SoldatCPP)
 
-set(SOLDAT_PLATFORM linux_x64)
+#set(SOLDAT_PLATFORM linux_x64)
+set(SOLDAT_PLATFORM webassembly)
 if (CMAKE_SYSTEM_PROCESSOR MATCHES "^aarch64")
   set(SOLDAT_PLATFORM linux_aarch64)
   link_directories(/opt/vc/lib)
@@ -11,6 +12,8 @@ endif()
 set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(THIRD_PARTY_OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/release/third_party)
 message(STATUS "Using third party: ${THIRD_PARTY_OUT_DIR}")
+
+include(CMakePrintHelpers)
 
 set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/libsodium-1.0.18/contrib
@@ -29,6 +32,22 @@ set(CMAKE_PREFIX_PATH
     ${CMAKE_PREFIX_PATH}
 )
 
+set(CMAKE_FIND_ROOT_PATH
+  ${THIRD_PARTY_OUT_DIR}/gamenetworkingsockets/out/
+  ${THIRD_PARTY_OUT_DIR}/libsodium/out/
+  ${THIRD_PARTY_OUT_DIR}/sdl/out/
+  ${THIRD_PARTY_OUT_DIR}/freetype/out/
+  ${THIRD_PARTY_OUT_DIR}/openal/out/
+  ${THIRD_PARTY_OUT_DIR}/spdlog/out/
+  ${THIRD_PARTY_OUT_DIR}/gtest/out/
+  ${THIRD_PARTY_OUT_DIR}/libressl/out/
+  ${CMAKE_FIND_ROOT_PATH}
+)
+
+cmake_print_variables(CMAKE_FIND_ROOT_PATH)
+
+set(LIBRESSL_ROOT_DIR ${THIRD_PARTY_OUT_DIR}/libressl/out/)
+
 
 
 set(PHYSFS_LIB ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party/physfs/out/lib/libphysfs.a)
@@ -46,7 +65,7 @@ set(TRACY_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8)
 set(DOCTEST_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/doctest-2.4.8)
 set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/imgui-1.87)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace")
 #set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 #set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
@@ -73,7 +92,7 @@ add_subdirectory(src/server)
 add_subdirectory(src/game)
 add_subdirectory(src/samples)
 
-find_package(GTest REQUIRED)
-enable_testing()
+#find_package(GTest REQUIRED)
+#enable_testing()
 
-add_subdirectory(tests)
+#add_subdirectory(tests)
