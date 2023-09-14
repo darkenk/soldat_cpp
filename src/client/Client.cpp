@@ -196,10 +196,15 @@ static void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName = gundispl
     fs.Read(f, buff.get(), fileSize);
     fs.Close(f);
   }
+#if __EMSCRIPTEN__
+  std::istringstream sd(std::string(reinterpret_cast<char*>(buff.get()), fileSize));
+#else
   std::istringstream sd;
   sd.rdbuf()->pubsetbuf(reinterpret_cast<char*>(buff.get()), fileSize);
+#endif
   for (i = 0; i < double_weapons; i++)
   {
+    SoldatAssert(sd.good());
     std::getline(sd, gunDisplayName[weaponnumexternaltointernal(i)]);
   }
 }
@@ -361,6 +366,7 @@ static bool MountAssets(FileUtility &fu, const std::string &userdirectory,
   }
   else
   {
+
     if (!fu.Mount(basedirectory + "/soldat.smod", "/"))
     {
       showmessage(("Could not load base game archive (soldat.smod). Try to reinstall the game."));
@@ -399,6 +405,7 @@ void startgame(int argc, const char *argv[])
   auto &fs = GS::GetFileSystem();
   const auto userDirectory = fs.GetPrefPath("client");
   const auto baseDirectory = fs.GetBasePath();
+
 
   LogDebugG("[FS] userDirectory: {}", userDirectory);
   LogDebugG("[FS] baseDirectory: {}", baseDirectory);

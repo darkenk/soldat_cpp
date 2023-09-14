@@ -34,7 +34,9 @@ static SDL_GLContext CreateOpenGLContext(SDL_Window *window)
   constexpr std::array versions{
     OpenGLVersion{SDL_GL_CONTEXT_PROFILE_CORE, 4, 3},
     OpenGLVersion{SDL_GL_CONTEXT_PROFILE_CORE, 3, 0},
+    OpenGLVersion{SDL_GL_CONTEXT_PROFILE_CORE, 2, 0},
     OpenGLVersion{SDL_GL_CONTEXT_PROFILE_ES, 3, 0},
+    OpenGLVersion{SDL_GL_CONTEXT_PROFILE_ES, 2, 0},
   };
 
   for (const auto &v : versions)
@@ -69,7 +71,11 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
   AbortIf(Context == nullptr, "Failed to create gl context");
 
   glad_set_post_callback(OpenGLGladDebug);
+#if __EMSCRIPTEN__ && 0
+  AbortIf(not gladLoadGLES2Loader((GLADloadproc)SDL_GL_GetProcAddress), "Failed to initialize GLAD");
+#else
   AbortIf(not gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress), "Failed to initialize GLAD");
+#endif
 
   SDL_GL_MakeCurrent(Window, Context);
   SDL_GL_SetSwapInterval(1);

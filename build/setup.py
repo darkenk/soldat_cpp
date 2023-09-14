@@ -21,7 +21,7 @@ class Config(Enum):
 
 # current configuration
 PLATFORM = Platform.WEBASSEMBLY
-CONFIG = Config.Release
+CONFIG = Config.Debug
 
 if platform.machine() == 'aarch64':
     PLATFORM = Platform.LINUX_aarch64
@@ -47,7 +47,8 @@ def GetCmakeArgBuildType(config):
 
 def GetAdditionalConfigs(platform: Platform):
     if platform == Platform.WEBASSEMBLY:
-        return ["-DCMAKE_TOOLCHAIN_FILE=/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake"]
+        return ["-DCMAKE_TOOLCHAIN_FILE=/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+                "-DCMAKE_CXX_FLAGS=-pthread", "-DCMAKE_C_FLAGS=-pthread"]
     return []
 
 
@@ -109,7 +110,7 @@ def SetupGameNetworkingSockets(platform, config):
                              '-DLIGHT_TESTS=OFF',
                              '-DGAMENETWORKINGSOCKETS_BUILD_EXAMPLES=OFF',
                              '-DGAMENETWORKINGSOCKETS_BUILD_TESTS=OFF',
-                             '-DProtobuf_PROTOC_EXECUTABLE='+ GetProtobufOutDir(Platform.LINUX_x64, config) + '/out/bin/protoc',
+                             '-DProtobuf_PROTOC_EXECUTABLE='+ GetProtobufOutDir(Platform.LINUX_x64, Config.Release) + '/out/bin/protoc',
                              '-DCMAKE_PROGRAM_PATH='+ GetProtobufOutDir(Platform.LINUX_x64, config) + '/out/',
                              '-DCMAKE_FIND_ROOT_PATH=' + GetLibreSSLOutDir(platform, config) +'/out/;' + GetProtobufOutDir(platform, config) + '/out/']
     cmake_config = cmake_config + GetAdditionalConfigs(platform)
@@ -142,7 +143,9 @@ def SetupSoLoud(platform, config):
 
     print("Build SoLoud in " + SoLD_DIR, flush=True)
     cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + SoLD_DIR + '/out', GetCmakeArgBuildType(config),
-                                '-DCMAKE_PREFIX_PATH=' + SDL_DIR + '/out']
+                                '-DCMAKE_PREFIX_PATH=' + SDL_DIR + '/out',
+                                '-DSDL2_ROOT={SDL_DIR}/out',
+                                f'-DCMAKE_FIND_ROOT_PATH={SDL_DIR}/out']
     cmake_config = cmake_config + GetAdditionalConfigs(platform)
     cmake_config.append(SoLD_SRC)
 

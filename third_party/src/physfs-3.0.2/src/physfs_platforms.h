@@ -64,7 +64,7 @@
 #  define PHYSFS_PLATFORM_POSIX 1
 #elif defined(__EMSCRIPTEN__)
 #  define PHYSFS_NO_CDROM_SUPPORT 1
-#  define PHYSFS_PLATFORM_UNIX 1
+#  define PHYSFS_PLATFORM_EMSCRIPTEN 1
 #  define PHYSFS_PLATFORM_POSIX 1
 #elif defined(__QNX__)
 #  define PHYSFS_PLATFORM_QNX 1

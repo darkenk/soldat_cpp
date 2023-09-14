@@ -3,7 +3,13 @@
 #include <glad/glad.h>
 // clang-format on
 #include "client/SdlApp.hpp"
+
+#define DK_ES2 0
+#if __EMSCRIPTEN__ && DK_ES2
+#include <backends/imgui_impl_opengl2.h>
+#else
 #include <backends/imgui_impl_opengl3.h>
+#endif
 #include <backends/imgui_impl_sdl.h>
 #include <imgui.h>
 
@@ -11,14 +17,22 @@ DebugWindow::DebugWindow(SdlApp &app)
 {
   ImGui::CreateContext();
   ImGui_ImplSDL2_InitForOpenGL(app.GetWindow(), app.GetContext());
+#if __EMSCRIPTEN__ && DK_ES2
+  ImGui_ImplOpenGL2_Init();
+#else
   ImGui_ImplOpenGL3_Init("#version 100");
+#endif
   ImGui::StyleColorsLight();
   app.RegisterEventInterception([](SDL_Event &evt) { ImGui_ImplSDL2_ProcessEvent(&evt); });
 }
 
 DebugWindow::~DebugWindow()
 {
+#if __EMSCRIPTEN__ && DK_ES2
+  ImGui_ImplOpenGL2_Shutdown();
+#else
   ImGui_ImplOpenGL3_Shutdown();
+#endif
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
 }
@@ -27,7 +41,11 @@ void DebugWindow::Draw(ImGuiDrawFunction func) { PendingDrawCalls.push_back(func
 
 void DebugWindow::DrawEverything()
 {
+#if __EMSCRIPTEN__ && DK_ES2
+  ImGui_ImplOpenGL2_NewFrame();
+#else
   ImGui_ImplOpenGL3_NewFrame();
+#endif
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();
   for (auto &drawImGui : PendingDrawCalls)
@@ -35,7 +53,11 @@ void DebugWindow::DrawEverything()
     drawImGui();
   }
   ImGui::Render();
+#if __EMSCRIPTEN__ && DK_ES2
+  ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+#else
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
   PendingDrawCalls.clear();
 }
 

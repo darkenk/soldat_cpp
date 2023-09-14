@@ -73,6 +73,7 @@ set(PHYSFS_SRCS
     src/physfs_unicode.c
     src/physfs_platform_posix.c
     src/physfs_platform_unix.c
+    src/physfs_platform_emscripten.c
     src/physfs_platform_windows.c
     src/physfs_platform_os2.c
     src/physfs_platform_qnx.c

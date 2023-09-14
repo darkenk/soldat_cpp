@@ -529,8 +529,13 @@ bool loadconfig(const std::string &configname, FileUtility& fs)
     fs.Read(f, buff.get(), fileSize);
     fs.Close(f);
   }
+
+#if __EMSCRIPTEN__
+  std::istringstream configfile(std::string(reinterpret_cast<char*>(buff.get()), fileSize));
+#else
   std::istringstream configfile;
   configfile.rdbuf()->pubsetbuf(reinterpret_cast<char*>(buff.get()), fileSize);
+#endif
   while (configfile.good() && !configfile.eof())
   {
     std::getline(configfile, line);

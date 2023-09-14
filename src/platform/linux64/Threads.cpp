@@ -13,8 +13,8 @@ extern "C" {
   int pthread_setschedparam (pthread_t __target_thread, int __policy,
                             const struct sched_param *__param) { return 0;}
 
-  int sched_get_priority_min (int __algorithm) { return 0; }
-  int sched_get_priority_max (int __algorithm) { return 0; }
+  //int sched_get_priority_min (int __algorithm) { return 0; }
+  //int sched_get_priority_max (int __algorithm) { return 0; }
 }
 
 bool SetCurrentThreadName(const std::string_view name)

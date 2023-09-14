@@ -16,7 +16,13 @@ public:
     fs.Read(f, buff.get(), fileSize);
     fs.Close(f);
 
+#if __EMSCRIPTEN__
+    Stream.str(std::string(reinterpret_cast<char*>(buff.get()), fileSize));
+#else
     Stream.rdbuf()->pubsetbuf(reinterpret_cast<char*>(buff.get()), fileSize);
+#endif
+
+
   }
 
   ~TFileStream()

@@ -385,7 +385,11 @@ std::vector<std::uint8_t> FileUtility::ReadFile(const std::string_view path)
   return result;
 }
 
+#if __EMSCRIPTEN__
+std::string FileUtility::GetBasePath() { return "/game"; }
+#else
 std::string FileUtility::GetBasePath() { return PHYSFS_getBaseDir(); }
+#endif
 
 std::string FileUtility::GetPrefPath(const std::string_view postfix, const bool debugBuild)
 {
