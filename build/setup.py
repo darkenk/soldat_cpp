@@ -220,7 +220,7 @@ def SetupTracy(platform, config):
 
 SetupLibressl(PLATFORM, CONFIG)
 SetupProtobuf(PLATFORM, CONFIG)
-SetupGameNetworkingSockets(PLATFORM, CONFIG)
+SetupGameNetworkingSockets(PLATFORM, CONFIG.Debug)
 SetupSDL(PLATFORM, CONFIG)
 SetupSoLoud(PLATFORM, CONFIG)
 SetupSpdlog(PLATFORM, CONFIG)

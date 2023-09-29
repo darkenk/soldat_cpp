@@ -6,7 +6,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   set(SOLDAT_PLATFORM webassembly)
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-  set (CMAKE_EXE_LINKER_FLAGS_DEBUG "-g ${CMAKE_EXE_LINKER_FLAGS_DEBUG} -sPTHREAD_POOL_SIZE=9 --preload-file game/soldat.smod -g  -gsplit-dwarf -gdwarf-5 -O0 -sFULL_ES3 -pthread")
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-g ${CMAKE_EXE_LINKER_FLAGS_DEBUG} -sPTHREAD_POOL_SIZE=10 \
+      --preload-file game/soldat.smod --embed-file game/play-regular.ttf@play-regular.ttf \
+      --preload-file game/soldat_server.smod \
+      -gsplit-dwarf -gdwarf-5 -O0 -sFULL_ES3 -pthread -sALLOW_MEMORY_GROWTH \
+      -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=['$autoResumeAudioContext','$dynCall'] \
+      -s TOTAL_MEMORY=128MB \
+      -lopenal \
+      ")
   set(THIRD_PARTY_OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party)
 else()
   set(SOLDAT_PLATFORM linux_x64)
@@ -29,8 +36,9 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/GameNetworkingSockets-1.3.0/cmake
     ${CMAKE_MODULE_PATH}
 )
+#     ${THIRD_PARTY_OUT_DIR}/gamenetworkingsockets/out/
 set(CMAKE_PREFIX_PATH
-    ${THIRD_PARTY_OUT_DIR}/gamenetworkingsockets/out/
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party/gamenetworkingsockets/out/
     ${THIRD_PARTY_OUT_DIR}/libsodium/out/
     ${THIRD_PARTY_OUT_DIR}/sdl/out/
     ${THIRD_PARTY_OUT_DIR}/freetype/out/
@@ -42,7 +50,7 @@ set(CMAKE_PREFIX_PATH
 )
 
 set(CMAKE_FIND_ROOT_PATH
-  ${THIRD_PARTY_OUT_DIR}/gamenetworkingsockets/out/
+  ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party/gamenetworkingsockets/out/
   ${THIRD_PARTY_OUT_DIR}/libsodium/out/
   ${THIRD_PARTY_OUT_DIR}/sdl/out/
   ${THIRD_PARTY_OUT_DIR}/freetype/out/

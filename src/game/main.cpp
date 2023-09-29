@@ -10,10 +10,6 @@
 #include <doctest/doctest.h>
 // clang-format on
 
-#if not defined(__EMSCRIPTEN_PTHREADS__)
-#error Missing threads
-#endif
-
 void RunTests(int argc, const char *argv[])
 {
   doctest::Context ctx;

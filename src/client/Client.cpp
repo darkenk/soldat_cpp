@@ -728,26 +728,39 @@ void shutdown()
   gamelooprun = false;
 }
 
+static void loop()
+{
+  auto begin = std::chrono::system_clock::now();
+  GetNetwork()->processloop();
+  gameinput();
+  if (!gamelooprun)
+  {
+    return;
+  }
+  gameloop();
+  auto end = std::chrono::system_clock::now();
+  constexpr auto frameTime = std::chrono::seconds(1) / 60.f;
+  {
+    ZoneScopedN("WaitingForNextFrame");
+    std::this_thread::sleep_for(frameTime - (end - begin));
+  }
+  FrameMarkNamed("ClientFrame");
+}
+
+#if __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 void startgameloop()
 {
+#if __EMSCRIPTEN__
+  emscripten_set_main_loop(loop, 30, 1);
+#else
   while (gamelooprun)
   {
-    auto begin = std::chrono::system_clock::now();
-    GetNetwork()->processloop();
-    gameinput();
-    if (!gamelooprun)
-    {
-      break;
-    }
-    gameloop();
-    auto end = std::chrono::system_clock::now();
-    constexpr auto frameTime = std::chrono::seconds(1) / 60.f;
-    {
-      ZoneScopedN("WaitingForNextFrame");
-      std::this_thread::sleep_for(frameTime - (end - begin));
-    }
-    FrameMarkNamed("ClientFrame");
+    loop();
   }
+#endif
 }
 
 void joinserver()
