@@ -50,6 +50,333 @@
 
 #include <tier0/memdbgon.h>
 
+#if defined(DK_EMULATE_SOCKETS)
+// poor socket emulation
+
+#include "tier0/platform.h"
+#include <chrono>
+#include <unordered_map>
+#include <signal.h>
+#include <queue>
+
+namespace
+{
+
+using socklen_t = std::uint32_t;
+
+struct pollfd
+{
+  std::int32_t fd;
+  std::int16_t events;
+  std::int16_t revents;
+};
+constexpr auto POLLRDNORM = 0x040;
+constexpr auto FIONBIO = 0x5421;
+
+struct sockaddr_storage
+{
+  std::uint16_t ss_family;
+  std::uint8_t ss_padding[126];
+};
+
+struct in6_addr
+{
+  union
+  {
+    std::uint8_t	__u6_addr8[16];
+    std::uint16_t __u6_addr16[8];
+    std::uint32_t __u6_addr32[4];
+  } __in6_u;
+#define s6_addr			__in6_u.__u6_addr8
+};
+
+struct sockaddr_in6
+{
+  std::uint16_t sin6_family;
+  std::uint16_t sin6_port;
+  std::uint32_t sin6_flowinfo;
+  struct in6_addr sin6_addr;
+  std::uint32_t sin6_scope_id;
+};
+
+struct msghdr
+{
+  void *msg_name;
+  std::uint32_t msg_namelen;
+  iovec *msg_iov;
+  std::size_t msg_iovlen;
+  void *msg_control;
+  std::size_t msg_controllen;
+  std::int32_t msg_flags;
+};
+
+struct sockaddr
+{
+  std::uint16_t sa_family;
+  std::uint8_t sa_data[14];
+};
+
+struct in_addr
+{
+  std::uint32_t s_addr;
+};
+
+struct sockaddr_in
+{
+  std::uint16_t sin_family;
+  std::uint16_t sin_port;
+  in_addr sin_addr;
+
+  unsigned char sin_zero[sizeof(sockaddr) - sizeof(std::uint16_t) - sizeof(std::uint16_t) - sizeof(in_addr)];
+};
+
+constexpr auto SOCK_STREAM = 1;
+constexpr auto SOCK_DGRAM = 2;
+constexpr auto SOCK_CLOEXEC = 02000000;
+constexpr auto SOCK_NONBLOCK = 00004000;
+
+constexpr auto SOL_SOCKET = 1;
+constexpr auto SO_SNDBUF = 7;
+constexpr auto SO_RCVBUF = 8;
+constexpr auto IPPROTO_UDP = 17;
+constexpr auto IPPROTO_IPV6 = 41;
+constexpr auto IPV6_V6ONLY = 26;
+constexpr auto AF_INET = 2;
+constexpr auto AF_INET6 = 10;
+constexpr auto AF_LOCAL = 1;
+
+std::atomic<int> dk_SocketNumber{0};
+std::atomic<int> dk_FakePort{1};
+
+struct DKSocket
+{
+  std::queue<char> ReadBuffer;
+  sockaddr SocketAddress;
+  int SocketPair = -1;
+};
+std::mutex dk_SocketsMutex;
+std::unordered_map<int, DKSocket> dk_Sockets;
+
+std::int32_t poll(pollfd *fds, std::uint32_t nfds, std::int32_t timeout)
+{
+  do
+  {
+    {
+      std::lock_guard<std::mutex> g(dk_SocketsMutex);
+      for (auto i = 0; i < nfds; i++)
+      {
+        auto e = dk_Sockets.at(fds[i].fd).ReadBuffer.empty();
+        if (!e)
+        {
+          fds[i].revents |= POLLRDNORM;
+          timeout = 0;
+        }
+      }
+    }
+    if (timeout > 0)
+    {
+      using namespace std::chrono_literals;
+      std::this_thread::sleep_for(30ms);
+      timeout -= 30;
+    }
+  } while(timeout > 0);
+  return 0;
+}
+
+std::int32_t setsockopt(std::int32_t socket, std::int32_t level, std::int32_t option_name, const void *option_value, std::uint32_t option_len)
+{
+  //std::lock_guard<std::mutex> g(dk_SocketsMutex);
+  //auto& s = dk_Sockets.at(socket);
+  switch(option_name) {
+  case SO_SNDBUF:
+    //s.WriteBuffer.resize(*reinterpret_cast<const int*>(option_value));
+    break;
+  case SO_RCVBUF:
+    //s.ReadBuffer.resize(*reinterpret_cast<const int*>(option_value));
+    break;
+  default:
+    raise(SIGTRAP);
+  }
+  return 0;
+}
+
+std::int32_t getsockname(std::int32_t sockfd, sockaddr *addr, socklen_t *addrlen)
+{
+  Assert(sizeof(sockaddr) <= *addrlen);
+  std::lock_guard<std::mutex> g(dk_SocketsMutex);
+  auto& s = dk_Sockets.at(sockfd);
+  std::memcpy(addr, &s.SocketAddress, sizeof(sockaddr));
+  return 0;
+}
+
+ssize_t recvfrom(std::int32_t fd, void * buf, size_t n, std::int32_t flags, sockaddr * addr, std::uint32_t* addr_len)
+{
+  std::lock_guard<std::mutex> g(dk_SocketsMutex);
+  auto& s = dk_Sockets.at(fd);
+  if (s.ReadBuffer.empty())
+  {
+    return -1;
+  }
+  std::uint32_t noOfSendBytes = 0;
+  for (auto i = 0; i < sizeof(noOfSendBytes); i++)
+  {
+    *(reinterpret_cast<char*>(&noOfSendBytes) + i) = s.ReadBuffer.front();
+    s.ReadBuffer.pop();
+  }
+  Assert(noOfSendBytes <= s.ReadBuffer.size());
+  Assert(noOfSendBytes <= n);
+  auto i = 0;
+  for (i = 0; i < noOfSendBytes; i++)
+  {
+    *(reinterpret_cast<char*>(buf) + i) = s.ReadBuffer.front();
+    s.ReadBuffer.pop();
+  }
+
+  auto* saddr = reinterpret_cast<sockaddr_in*>(addr);
+  saddr->sin_family = AF_INET;
+  saddr->sin_port = reinterpret_cast<sockaddr_in*>(&dk_Sockets.at(s.SocketPair).SocketAddress)->sin_port;
+  saddr->sin_addr.s_addr = 0x0100007f; //127.0.0.1
+  return i;
+}
+
+ssize_t recv(std::int32_t fd, void *buf, size_t n, std::int32_t flags)
+{
+  std::lock_guard<std::mutex> g(dk_SocketsMutex);
+  auto& s = dk_Sockets.at(fd);
+  if (s.ReadBuffer.empty())
+  {
+    return -1;
+  }
+  auto i = 0;
+  for (i = 0; i < n && !s.ReadBuffer.empty(); i++)
+  {
+    *(reinterpret_cast<char*>(buf) +i) = s.ReadBuffer.front();
+    s.ReadBuffer.pop();
+  }
+  return i;
+}
+
+ssize_t sendmsg(std::int32_t fd, const msghdr *message, std::int32_t flags)
+{
+  Assert(sizeof(sockaddr_in) == message->msg_namelen);
+  auto* socketAddr = reinterpret_cast<const sockaddr_in*>(message->msg_name);
+  Assert(socketAddr->sin_family == AF_INET);
+  std::lock_guard<std::mutex> g(dk_SocketsMutex);
+  auto& s = dk_Sockets.at(fd);
+  if (s.SocketPair == -1)
+  {
+    auto it = std::find_if(std::begin(dk_Sockets), std::end(dk_Sockets), [socketAddr, fd](auto& v) {
+      if (v.second.SocketPair != -1) { return false; }
+      if (v.second.SocketPair == fd) { return false; }
+      auto* addr = reinterpret_cast<sockaddr_in*>(&v.second.SocketAddress);
+      if (socketAddr->sin_family != addr->sin_family) { return false; }
+      return socketAddr->sin_port == addr->sin_port;
+    });
+    if (it == std::end(dk_Sockets))
+    {
+      return 0;
+    }
+    s.SocketPair = it->first;
+    it->second.SocketPair = fd;
+  }
+  auto& dst = dk_Sockets.at(s.SocketPair);
+  std::uint32_t noOfSendBytes = 0;
+  for (auto i = 0; i < message->msg_iovlen; i++)
+  {
+    auto* iov = (message->msg_iov + i);
+    noOfSendBytes += iov->iov_len;
+  }
+  for (auto j = 0; j < sizeof(noOfSendBytes); j++)
+  {
+    dst.ReadBuffer.push(*(reinterpret_cast<const char*>(&noOfSendBytes) + j));
+  }
+  for (auto i = 0; i < message->msg_iovlen; i++)
+  {
+    auto* iov = (message->msg_iov + i);
+    for (auto j = 0; j < iov->iov_len; j++)
+    {
+      dst.ReadBuffer.push(*(reinterpret_cast<const char*>(iov->iov_base) + j));
+    }
+  }
+  return noOfSendBytes;
+}
+
+ssize_t send(std::int32_t fd, const void *buf, size_t n, std::int32_t flags)
+{
+  std::lock_guard<std::mutex> g(dk_SocketsMutex);
+  auto& s = dk_Sockets.at(fd);
+  Assert(s.SocketPair != -1);
+  auto& dst = dk_Sockets.at(s.SocketPair);
+  for (auto i = 0; i < n; i++)
+  {
+    dst.ReadBuffer.push(*(reinterpret_cast<const char*>(buf) + i));
+  }
+  return n;
+}
+
+std::int32_t socket(std::int32_t domain, std::int32_t type, std::int32_t protocol)
+{
+  if (domain == AF_INET6)
+  {
+    return INVALID_SOCKET;
+  }
+  Assert(domain == AF_INET);
+  Assert(protocol == IPPROTO_UDP);
+  auto s = dk_SocketNumber++;
+  std::lock_guard<std::mutex> g(dk_SocketsMutex);
+  dk_Sockets[s];
+  return s;
+}
+
+std::int32_t socketpair(std::int32_t domain, std::int32_t type, std::int32_t protocol, std::int32_t fds[2])
+{
+  Assert(domain == AF_LOCAL);
+  fds[0] = dk_SocketNumber++;
+  fds[1] = dk_SocketNumber++;
+  std::lock_guard<std::mutex> g(dk_SocketsMutex);
+  dk_Sockets[fds[0]].SocketPair = fds[1];
+  dk_Sockets[fds[1]].SocketPair = fds[0];
+  return 0;
+}
+
+std::int32_t bind(std::int32_t fd, const sockaddr* addr, socklen_t len)
+{
+  Assert(sizeof(sockaddr) == len);
+  std::lock_guard<std::mutex> g(dk_SocketsMutex);
+  auto& s = dk_Sockets.at(fd);
+  std::memcpy(&s.SocketAddress, addr, len);
+  if (s.SocketAddress.sa_family == AF_INET)
+  {
+    auto& saddr = reinterpret_cast<sockaddr_in&>(s.SocketAddress);
+    if (saddr.sin_port == 0)
+    {
+      saddr.sin_port = dk_FakePort++;
+    }
+  }
+  return 0;
+}
+
+// random
+std::int32_t closesocket(std::int32_t fd)
+{
+  std::lock_guard<std::mutex> g(dk_SocketsMutex);
+  auto&s = dk_Sockets.at(fd);
+  if (s.SocketPair != -1) {
+    dk_Sockets.at(s.SocketPair).SocketPair = -1;
+  }
+  dk_Sockets.erase(fd);
+  return 0;
+}
+
+std::int32_t ioctlsocket(std::int32_t fd, unsigned long request, ...)
+{
+  Assert(request == FIONBIO);
+  return 0;
+}
+
+}
+#endif
+
 namespace SteamNetworkingSocketsLib {
 
 constexpr int k_msMaxPollWait = 1000;

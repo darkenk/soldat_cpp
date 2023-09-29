@@ -19,6 +19,7 @@
 #elif defined( NN_NINTENDO_SDK )
 	// Sorry, but this code is covered under NDA with Nintendo, and
 	// we don't have permission to distribute it.
+#elif ( DK_EMULATE_SOCKETS )
 #else
 	#include <sys/types.h>
 	#include <sys/socket.h>
