@@ -1,6 +1,5 @@
 #include "Anims.hpp"
 #include "Logging.hpp"
-#include "PhysFSExt.hpp"
 
 // comes from Constants.cpp.h
 constexpr auto scale = 3;

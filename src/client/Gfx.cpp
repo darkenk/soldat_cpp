@@ -22,7 +22,6 @@
 #include <stb_image_resize.h>
 #include <stb_image_write.h>
 // clang-format on
-#include "common/PhysFSExt.hpp"
 #include "shared/misc/MemoryUtils.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>

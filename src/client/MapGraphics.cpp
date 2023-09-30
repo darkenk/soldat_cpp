@@ -11,7 +11,6 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <array>
 #include <cmath>
-#include <physfs.h>
 #include <set>
 
 using string = std::string;

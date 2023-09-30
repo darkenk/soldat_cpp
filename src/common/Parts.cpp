@@ -1,12 +1,10 @@
 // automatically converted
 
 #include "Parts.hpp"
-#include "PhysFSExt.hpp"
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 #include "misc/TFileStream.hpp"
 #include <Tracy.hpp>
-#include <physfs.h>
 
 void particlesystem::doverlettimestep()
 {

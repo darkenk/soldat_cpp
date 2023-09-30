@@ -8,7 +8,6 @@
 #include "InterfaceGraphics.hpp"
 #include "MapGraphics.hpp"
 #include "common/Logging.hpp"
-#include "common/PhysFSExt.hpp"
 #include "common/Util.hpp"
 #include "common/Vector.hpp"
 #include "common/misc/PortUtils.hpp"
@@ -31,7 +30,6 @@
 #include <array>
 #include <cstdint>
 #include <filesystem>
-#include <physfs.h>
 #include <set>
 #include <string>
 

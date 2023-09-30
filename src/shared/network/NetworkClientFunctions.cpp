@@ -12,7 +12,6 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <physfs.h>
 
 void clienthandlevoteon(SteamNetworkingMessage_t *netmessage)
 {

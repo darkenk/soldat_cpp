@@ -16,7 +16,6 @@
 #include "Sound.hpp"
 #include "common/FileUtility.hpp"
 #include "common/Logging.hpp"
-#include "common/PhysFSExt.hpp"
 #include "common/Util.hpp"
 #include "common/misc/Config.hpp"
 #include "common/misc/PortUtils.hpp"
@@ -38,7 +37,6 @@
 #include "shared/network/NetworkClientConnection.hpp"
 #include <Tracy.hpp>
 #include <memory>
-#include <physfs.h>
 #include <thread>
 #include <sstream>
 
@@ -355,7 +353,7 @@ static void CreateDirectoryStructure(FileUtility &fs)
 static bool MountAssets(FileUtility &fu, const std::string &userdirectory,
                         const std::string &basedirectory, tsha1digest& outGameModChecksum, tsha1digest& outCustomModChecksum)
 {
-  LogDebugG("[PhysFS] Mounting game archive");
+  LogDebugG("[FS] Mounting game archive");
   if (CVar::fs_localmount)
   {
     if (!fu.Mount(userdirectory, "/"))
@@ -378,7 +376,7 @@ static bool MountAssets(FileUtility &fu, const std::string &userdirectory,
   moddir = "";
   if (CVar::fs_mod != "")
   {
-    LogDebugG("[PhysFS] Mounting mods/{}.smod", lowercase(CVar::fs_mod));
+    LogDebugG("[FS] Mounting mods/{}.smod", lowercase(CVar::fs_mod));
     if (!fu.Mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod").c_str(),
                   (std::string("mods/") + lowercase(CVar::fs_mod) + "/").c_str()))
     {
@@ -452,9 +450,9 @@ void startgame(int argc, const char *argv[])
 
   initing = 0;
 
-  LogDebugG("[PhysFS] Initializing system");
+  LogDebugG("[FS] Initializing system");
 
-  loadinterfacearchives(userDirectory + "custom-interfaces/");
+  loadinterfacearchives(userDirectory + "/custom-interfaces/");
 
   fs.Copy("/configs/bindings.cfg", "/user/configs/bindings.cfg");
   fs.Copy("/configs/client.cfg", "/user/configs/client.cfg");
@@ -717,7 +715,7 @@ void shutdown()
 
   closesound();
 
-  addlinetologfile(fs, GetGameLog(), "PhysFS closing.", GetGameLogFilename());
+  addlinetologfile(fs, GetGameLog(), "FS closing.", GetGameLogFilename());
 
   commanddeinit();
 

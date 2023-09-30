@@ -433,7 +433,7 @@ private:
 
   std::int32_t ceasefiretime = default_ceasefire_time;
   std::int32_t mapchangetime = default_mapchange_time;
-  std::int32_t mapchangecounter;
+  std::int32_t mapchangecounter = 0;
   std::string mapchangename;
   tmapinfo mapchange;
   std::uint64_t mapchangeitemid;
@@ -449,8 +449,8 @@ private:
   std::int32_t spectatorsnum;
   PascalArray<std::int32_t, 1, 4> playersteamnum;
 
-  std::array<std::int32_t, 5> teamscore;
-  std::array<std::int32_t, 4> teamflag;
+  std::array<std::int32_t, 5> teamscore = {0};
+  std::array<std::int32_t, 4> teamflag = {0};
   float sinuscounter = 0.0f;
   tsha1digest custommodchecksum;
   tsha1digest gamemodchecksum;

@@ -1,10 +1,6 @@
 #pragma once
 
 #include <string>
-
-/*#include "GetText.h"*/
-/*#include "Classes.h"*/
-/*#include "PhysFS.h"*/
 #include <common/misc/TStream.hpp>
 
 bool inittranslation(TStream *stream);

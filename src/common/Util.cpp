@@ -5,7 +5,6 @@
 #include "misc/PortUtilsSoldat.hpp"
 #include <filesystem>
 #include <fstream>
-#include <physfs.h>
 
 std::int32_t charcount(const char character, const std::string &str1)
 {
