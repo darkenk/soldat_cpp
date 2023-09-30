@@ -1918,7 +1918,16 @@ tgfxfont gfxcreatefont(const string &filename, std::int32_t w, std::int32_t h)
 
   gfxlog(string("Loading font (") + filename + ')');
 
-  if (FT_New_Face(gfxcontext.ftlibrary, filename.c_str(), 0, &fonthandle) != 0)
+  auto loadFont = [&]() {
+    if (filename == "play-regular.ttf")
+    {
+      extern unsigned char sDefaultFont[];
+      extern unsigned int sDefaultFont_len;
+      return FT_New_Memory_Face(gfxcontext.ftlibrary, sDefaultFont, sDefaultFont_len, 0, &fonthandle);
+    }
+    return FT_New_Face(gfxcontext.ftlibrary, filename.c_str(), 0, &fonthandle);
+  };
+  if (loadFont() != 0)
   {
     gfxlog(string("Failed to load font (") + filename + ')');
     return gfxcreatefont_result;

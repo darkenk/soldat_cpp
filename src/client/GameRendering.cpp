@@ -397,8 +397,11 @@ string getfontpath(string fontfile)
 
 string getfontpath(string fallback, string &fontfile)
 {
-
   std::string result = "";
+  if (fontfile == "play-regular.ttf")
+  {
+    return "play-regular.ttf";
+  }
 
   if (fontfile != "")
     result = getfontpath(fontfile);

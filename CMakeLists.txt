@@ -6,8 +6,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   set(SOLDAT_PLATFORM webassembly)
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-g ${CMAKE_EXE_LINKER_FLAGS_DEBUG} -sPTHREAD_POOL_SIZE=10 \
-      --preload-file game/soldat.smod --embed-file game/play-regular.ttf@play-regular.ttf \
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -sPTHREAD_POOL_SIZE=10 \
+      --preload-file game/soldat.smod \
       --preload-file game/soldat_server.smod \
       -gsplit-dwarf -gdwarf-5 -O0 -sFULL_ES3 -pthread -sALLOW_MEMORY_GROWTH \
       -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=['$autoResumeAudioContext','$dynCall'] \
@@ -88,9 +88,6 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace")
 #set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 #set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-set (CMAKE_LINKER_FLAGS_DEBUG "-g ${CMAKE_LINKER_FLAGS_DEBUG} -g")
-set (CMAKE_CXX_FLAGS_DEBUG "-g ${CMAKE_CXX_FLAGS_DEBUG} -g")
 #add_definitions(-DTRACY_ENABLE)
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON")
