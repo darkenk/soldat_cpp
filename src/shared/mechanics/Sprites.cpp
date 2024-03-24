@@ -580,8 +580,8 @@ void Sprite<M>::update()
     switch (style)
     {
     case tsprite::Style::Default: {
-      bodyanimation.doanimation();
-      legsanimation.doanimation();
+      bodyanimation.DoAnimation();
+      legsanimation.DoAnimation();
 
       checkoutofbounds();
 

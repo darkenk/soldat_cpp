@@ -2,7 +2,7 @@
 
 #include "SharedConfig.hpp"
 #include "../server/Server.hpp"
-#include "Constants.hpp"
+#include "common/Constants.hpp"
 #include "Game.hpp"
 #include "common/Logging.hpp"
 #include "common/Util.hpp"
@@ -128,7 +128,7 @@ bool loadbotconfig(TIniFile &ini, tsprite &spritec, GunsDescription &guns)
     ReadConfColor(conf, "Color2", spritec.player->pantscolor);
     ReadConfColor(conf, "Skin_Color", spritec.player->skincolor);
     ReadConfColor(conf, "Hair_Color", spritec.player->haircolor);
-    spritec.player->jetcolor = (default_jetcolor & 0xffffff) + color_transparency_bot;
+    spritec.player->jetcolor = (Constants::DEFAULT_JETCOLOR & 0xffffff) + color_transparency_bot;
 
     ReadConf(conf, "Hair", spritec.player->hairstyle);
 

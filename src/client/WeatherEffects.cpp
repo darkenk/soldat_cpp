@@ -2,11 +2,8 @@
 
 #include "WeatherEffects.hpp"
 
-#include <cstdint>
-
 #include "Client.hpp"
 #include "Sound.hpp"
-#include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/Sprites.hpp"

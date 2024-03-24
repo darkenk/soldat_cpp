@@ -4,6 +4,7 @@
 #include "misc/SoldatConfig.hpp"
 #include <string>
 #include <vector>
+#include <cstdint>
 
 template <Config::Module M = Config::GetModule()>
 void commandinit();
@@ -48,4 +49,4 @@ void parsecommandline(int argc, const char *argv[]);
 template <Config::Module M = Config::GetModule()>
 void rundeferredcommands();
 template <Config::Module M = Config::GetModule()>
-tcommandtargets commandtarget(std::string target, std::uint8_t sender);
+tcommandtargets commandtarget(const std::string& target, std::uint8_t sender);

@@ -23,7 +23,7 @@ public:
   void Push(const tbprect &rect);
   void Remove(std::int32_t index);
 
-  std::int32_t Size()
+  std::int32_t Size() const
   {
     return fsize;
   };

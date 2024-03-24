@@ -255,7 +255,7 @@ void update_frame()
           else
             idlecounter = 0;
 
-          if (idlecounter > idle_kick)
+          if (idlecounter > Constants::IDLE_KICK)
           {
             clientdisconnect();
             exittomenu();

@@ -408,7 +408,6 @@ void commandloadwep(std::vector<std::string> &args, std::uint8_t sender)
   else
     name = args[1];
 
-  lastwepmod = name;
   loadweapons(name);
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())

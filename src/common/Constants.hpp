@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string_view>
+#include <cstdint>
 
 namespace Constants
 {
@@ -214,7 +215,7 @@ constexpr std::int32_t MELEE_DIST = 12;
 // 'Phased-plasma rifle in the forty watt range',
 /* 'Hey, just what you see, pal', 'just what you see, pal...'); */
 
-constexpr std::int32_t DEFAULT_JETCOLOR = 0xFFFFBD24;
+constexpr std::uint32_t DEFAULT_JETCOLOR = 0xFFFFBD24;
 
 constexpr std::int32_t IDLE_KICK = MINUTE * 3;
 constexpr std::int32_t MENU_TIME = SECOND;
@@ -231,10 +232,10 @@ constexpr std::int32_t HORIZONTAL = 1;
 constexpr std::int32_t VERTICAL = 2;
 
 // Colors
-constexpr std::int32_t DEFAULT_MESSAGE_COLOR = 0xEECCFFAA;
-constexpr std::int32_t DEBUG_MESSAGE_COLOR = 0xEEFF8989;
-constexpr std::int32_t GAME_MESSAGE_COLOR = 0xEE71F981;
-constexpr std::int32_t WARNING_MESSAGE_COLOR = 0xEEE36952;
+constexpr std::uint32_t DEFAULT_MESSAGE_COLOR = 0xEECCFFAA;
+constexpr std::uint32_t DEBUG_MESSAGE_COLOR = 0xEEFF8989;
+constexpr std::uint32_t GAME_MESSAGE_COLOR = 0xEE71F981;
+constexpr std::uint32_t WARNING_MESSAGE_COLOR = 0xEEE36952;
 
 constexpr std::int32_t SERVER_MESSAGE_COLOR = 0xF9FBDA22;
 constexpr std::int32_t CLIENT_MESSAGE_COLOR = 0xF9FCD822;

@@ -11,7 +11,6 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/TFileStream.hpp"
 #include "shared/Command.hpp"
-#include "shared/Console.hpp"
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
@@ -56,9 +55,6 @@ PascalArray<std::string, 1, max_players> mutename;
 PascalArray<std::string, 1, max_players> tklist;      // IP
 PascalArray<std::int8_t, 1, max_players> tklistkills; // TK Warnings
 
-std::int32_t TCPBytesSent64;
-std::int32_t TCPBytesReceived64;
-
 tstringlist remoteips, adminips;
 
 std::array<std::string, 1000> floodip;
@@ -66,9 +62,8 @@ std::array<std::int32_t, 1000> floodnum;
 
 std::array<std::string, 4> lastreqip; // last 4 IP"s to request game
 std::int8_t lastreqid = 0;
-std::string dropip = "";
+std::string dropip;
 
-std::array<std::string, Constants::MAX_ADMIN_FLOOD_IPS> adminfloodip;
 std::array<std::string, Constants::MAX_LAST_ADMIN_IPS> lastadminips;
 std::int32_t mapindex;
 
@@ -88,15 +83,14 @@ std::int32_t htftime = Constants::HTF_SEC_POINT;
 std::string currentconf = "soldat.ini";
 
 std::string wmname, wmversion;
-std::string lastwepmod;
 
-std::string ModDir = "";
+std::string ModDir;
 
 // DK_TODO replace tservernetwork with tservernetowrk<SERVER>
 #if 0
 tservernetwork<Config::GetModule()> *UDP;
 #endif
-tservernetwork *GetServerNetwork();
+
 #if 0
 TLobbyThread LobbyThread;
 #endif
@@ -107,18 +101,6 @@ TSteamGS SteamAPI;
 #endif
 
 static void WriteLn(const std::string &msg) { LogDebugG("{}", msg); }
-
-static std::string ParamStr(std::int32_t v)
-{
-  NotImplemented();
-  return "./";
-}
-
-static std::string ExtractFilePath(const std::string &path)
-{
-  NotImplemented();
-  return "./";
-}
 
 #ifndef MSWINDOWS
 // from lazdaemon package
@@ -287,7 +269,7 @@ void ActivateServer(int argc, const char *argv[])
 
   progready = true;
 
-  CVar::sc_enable = 0;
+  CVar::sc_enable = false;
 
   auto &weaponSystem = GS::GetWeaponSystem();
 
@@ -314,7 +296,7 @@ void ActivateServer(int argc, const char *argv[])
     mapslist.erase(it, mapslist.end());
   }
 
-  if (mapslist.size() == 0)
+  if (mapslist.empty())
   {
     WriteLn("");
     WriteLn("  No maps list found (adding default). Please add maps in configs/mapslist.txt");
@@ -507,7 +489,7 @@ void loadweapons(const std::string &Filename)
   }
 }
 
-std::int8_t addbotplayer(std::string name, std::int32_t team)
+std::int8_t addbotplayer(const std::string& name, std::int32_t team)
 {
   tvector2 a;
   std::int32_t p;
@@ -704,13 +686,11 @@ void startserver()
     GS::GetMainConsole().console("Realistic Mode ON", mode_message_color);
     GS::GetGame().SetStarthealth(Constants::REALISTIC_HEALTH);
     loadweapons("weapons_realistic");
-    lastwepmod = "weapons_realistic";
   }
   else
   {
     GS::GetGame().SetStarthealth(Constants::DEFAULT_HEALTH);
     loadweapons("weapons");
-    lastwepmod = "weapons";
   }
 
   // Weapons

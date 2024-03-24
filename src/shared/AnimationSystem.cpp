@@ -20,8 +20,8 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
                    GetGameLogFilename());
   struct AnimData
   {
-    AnimationType AnimType;
-    const char *Filename;
+    AnimationType AnimType = AnimationType::Last;
+    const char *Filename = nullptr;
     bool Loop = false;
     std::int32_t Speed = 1;
   };

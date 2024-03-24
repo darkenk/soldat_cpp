@@ -7,10 +7,8 @@
 #include "../network/NetworkServer.hpp"
 #include "../network/NetworkServerBullet.hpp"
 #else
-#include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
 #include "../../client/GameRendering.hpp"
-#include "../../client/Gfx.hpp"
 #include "../../client/Sound.hpp"
 #include "../network/NetworkClientBullet.hpp"
 #endif

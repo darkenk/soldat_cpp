@@ -6,7 +6,7 @@
 #include "common/Parts.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/Constants.hpp"
+#include "common/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"

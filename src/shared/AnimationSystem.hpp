@@ -35,7 +35,7 @@ public:
 
   tanimation &GetAnimation(AnimationType type);
 
-  const particlesystem &GetSkeleton(const SkeletonType type) const;
+  [[nodiscard]] const particlesystem &GetSkeleton(const SkeletonType type) const;
 
 private:
   std::vector<tanimation> Animations;

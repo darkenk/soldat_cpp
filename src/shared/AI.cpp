@@ -1,7 +1,6 @@
 // automatically converted
 
 #include "AI.hpp"
-#include "../../server/Server.hpp"
 #include "Game.hpp"
 #include "common/Calc.hpp"
 #include "common/Vector.hpp"
@@ -15,6 +14,11 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>
 
+constexpr std::int16_t sround(float v)
+{
+  return static_cast<std::int16_t>(std::roundf(v));
+}
+
 // Checks the distance on one axis
 std::int32_t checkdistance(float posa, float posb)
 {
@@ -23,7 +27,7 @@ std::int32_t checkdistance(float posa, float posb)
   std::int32_t result;
   result = dist_away;
 
-  distance = fabs(posa - posb);
+  distance = std::fabs(posa - posb);
 
   if (distance <= dist_too_close)
     result = dist_too_close;
@@ -380,16 +384,16 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
     vec2scale(tv, targetVelocity, 10);
     vec2add(t, tv);
 
-    with.control.mouseaimx = round(t.x);
+    with.control.mouseaimx = sround(t.x);
     if (disttotargetx < dist_far)
-      with.control.mouseaimy = round(t.y - (0.5 * disttotargetx / (with.weapon.speed)) -
+      with.control.mouseaimy = sround(t.y - (0.5f * disttotargetx / (with.weapon.speed)) -
                                      with.brain.accuracy + Random(with.brain.accuracy));
     else
-      with.control.mouseaimy = round(t.y - (1.75 * disttotargetx / (with.weapon.speed)) -
+      with.control.mouseaimy = sround(t.y - (1.75f * disttotargetx / (with.weapon.speed)) -
                                      with.brain.accuracy + Random(with.brain.accuracy));
 
     if (SpriteSystem::Get().GetSprite(snum).stat > 0)
-      with.control.mouseaimy = round(t.y - (0.5 * disttotargetx / (30)) - with.brain.accuracy +
+      with.control.mouseaimy = sround(t.y - (0.5f * disttotargetx / (30.f)) - with.brain.accuracy +
                                      Random(with.brain.accuracy));
 
     // impossible
@@ -398,16 +402,16 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
           (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num == ruger77_num))
       {
         dist = round(sqrt(sqr(m.x - t.x) + sqr(m.y - t.y)));
-        with.control.mouseaimx = round(t.x);
-        with.control.mouseaimy = round(t.y);
+        with.control.mouseaimx = sround(t.x);
+        with.control.mouseaimy = sround(t.y);
 
         for (i = 1; i <= round(((float)(dist) /
                                 SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.speed) *
                                1.0);
              i++)
         {
-          with.control.mouseaimx = with.control.mouseaimx + round(targetVelocity.x);
-          with.control.mouseaimy = with.control.mouseaimy + round(targetVelocity.y);
+          with.control.mouseaimx = with.control.mouseaimx + sround(targetVelocity.x);
+          with.control.mouseaimy = with.control.mouseaimy + sround(targetVelocity.y);
         }
 
         if (with.weapon.fireintervalcount < 3)
@@ -431,7 +435,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
       }
 
     if (CVar::sv_realisticmode)
-      with.control.mouseaimy = with.control.mouseaimy - with.burstcount * 3;
+      with.control.mouseaimy = with.control.mouseaimy - with.burstcount * 3.f;
   }
 }
 
@@ -479,9 +483,13 @@ void gotothing(std::uint8_t snum, std::uint8_t tnum)
         }
 
         if (SpriteSystem::Get().GetSprite(thing.holdingsprite).control.jetpack)
+        {
           with.control.jetpack = true;
+        }
         else
+        {
           with.control.jetpack = false;
+        }
       }
 
     // Y - Distance
@@ -736,8 +744,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
                   botpath.waypoint[spritec.brain.currentwaypoint].connections[k];
 
                 // face target
-                spritec.control.mouseaimx = round(botpath.waypoint[spritec.brain.nextwaypoint].x);
-                spritec.control.mouseaimy = round(botpath.waypoint[spritec.brain.nextwaypoint].y);
+                spritec.control.mouseaimx = sround(botpath.waypoint[spritec.brain.nextwaypoint].x);
+                spritec.control.mouseaimy = sround(botpath.waypoint[spritec.brain.nextwaypoint].y);
               }
             }
 
@@ -785,7 +793,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
               {
                 auto &spritePartsPos =
                   SpriteSystem::Get().GetSpritePartsPos(spritec.brain.pissedoff);
-                spritec.control.mouseaimx = round(spritePartsPos.x);
+                spritec.control.mouseaimx = sround(spritePartsPos.x);
                 spritec.control.mouseaimy =
                   round(spritePartsPos.y - (1.75 * 100 / spritec.weapon.speed) -
                         spritec.brain.accuracy + Random(spritec.brain.accuracy));

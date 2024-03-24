@@ -80,7 +80,7 @@ public:
     return FromString<T>(value, Value);
   }
 
-  std::string ValueAsString() const noexcept
+  [[nodiscard]] std::string ValueAsString() const noexcept
   {
     return std::to_string(Value);
   }
@@ -106,12 +106,12 @@ public:
     return *(it->second);
   }
 
-  bool IsValid() const
+  [[nodiscard]] bool IsValid() const
   {
     return this != &InvalidCVar;
   }
 
-  bool IsSyncable() const
+  [[nodiscard]] bool IsSyncable() const
   {
     return Flags.Test(CVarFlags::SYNC);
   }
@@ -173,12 +173,12 @@ public:
     return AllCVars();
   }
 
-  std::uint8_t GetId() const
+  [[nodiscard]] std::uint8_t GetId() const
   {
     return Id;
   }
 
-  const std::string &GetName() const
+  [[nodiscard]] const std::string &GetName() const
   {
     return Name;
   }

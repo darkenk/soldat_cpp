@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shared/Constants.hpp"
+#include "common/Constants.hpp"
 #include <cstdint>
 #include <string>
 #include <vector>

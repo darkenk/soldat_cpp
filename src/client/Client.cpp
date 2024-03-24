@@ -25,7 +25,7 @@
 #include "common/misc/TIniFile.hpp"
 #include "common/port_utils/NotImplemented.hpp"
 #include "shared/Command.hpp"
-#include "shared/Constants.hpp"
+#include "common/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"

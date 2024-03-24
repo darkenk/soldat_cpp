@@ -7,10 +7,8 @@
 #include "../network/NetworkServerGame.hpp"
 #include "../network/NetworkServerSprite.hpp"
 #else
-#include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
 #include "../../client/GameMenus.hpp"
-#include "../../client/Input.hpp"
 #include "../../client/Sound.hpp"
 #include "../network/NetworkClientGame.hpp"
 #include "../network/NetworkClientMessages.hpp"
@@ -779,7 +777,7 @@ void controlsprite(tsprite &spritec)
         vec2scale(playervelocity, spriteVelocity, guns[thrownknife].inheritedvelocity);
 
         d = (float)(min(max(spritec.bodyanimation.currframe, 8), 16)) / 16;
-        vec2scale(b, b, guns[thrownknife].speed * 1.5 * d);
+        vec2scale(b, b, guns[thrownknife].speed * 1.5f * d);
         b = vec2add(b, playervelocity);
         a = spritec.skeleton.pos[16];
         createbullet(a, b, guns[thrownknife].num, spritec.num, 255, guns[thrownknife].hitmultiply,
@@ -799,9 +797,9 @@ void controlsprite(tsprite &spritec)
           (spritec.bodyanimation.currframe == 11) && (spritec.weapon.num != law_num) &&
           (spritec.weapon.num != m79_num))
       {
-        a.x = spritec.skeleton.pos[16].x + 2 * spritec.direction;
-        a.y = spritec.skeleton.pos[16].y + 3;
-        b.x = spritec.direction * 0.1;
+        a.x = spritec.skeleton.pos[16].x + 2.f * spritec.direction;
+        a.y = spritec.skeleton.pos[16].y + 3.f;
+        b.x = spritec.direction * 0.1f;
         b.y = 0;
         createbullet(a, b, spritec.weapon.num, spritec.num, 255, spritec.weapon.hitmultiply, true,
                      false);
@@ -2192,5 +2190,8 @@ void controlsprite(tsprite &spritec)
 #endif
   }
   break;
+  default:
+    SoldatAssert(false);
   }
+
 }

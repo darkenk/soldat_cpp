@@ -1,7 +1,4 @@
 #include "Cvar.hpp"
-#include "ConfigModule.tweaks.hpp"
-#include "shared/misc/SoldatConfig.hpp"
-#include <cstring>
 #include <map>
 
 template <>

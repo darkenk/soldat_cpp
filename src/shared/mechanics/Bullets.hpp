@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Constants.hpp"
+#include "common/Constants.hpp"
 #include "Things.hpp"
 #include "common/MapFile.hpp"
 #include "common/Parts.hpp"

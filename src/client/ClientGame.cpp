@@ -111,15 +111,15 @@ void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col)
   setfontstyle(font_big);
 
   w = rectwidth(gfxtextmetrics(text));
-  s = 4.8 * ((float)(renderheight) / 480);
+  s = 4.8f * ((float)(renderheight) / 480.f);
 
   bigx[1] = 0;
   bigtext[1] = text;
   bigdelay[1] = delay;
-  bigscale[1] = std::fmin(1 / 4.8, (0.7 * renderwidth / w) / s);
+  bigscale[1] = std::fmin(1.f / 4.8f, (0.7f * renderwidth / w) / s);
   bigcolor[1] = col;
-  bigposx[1] = (float)((renderwidth - s * w * bigscale[1])) / 2;
-  bigposy[1] = 420 * _iscala.y;
+  bigposx[1] = (float)((renderwidth - s * w * bigscale[1])) / 2.f;
+  bigposy[1] = 420.f * _iscala.y;
 
   if (CVar::r_scaleinterface)
     bigposx[1] = bigposx[1] * ((float)(gamewidth) / renderwidth);

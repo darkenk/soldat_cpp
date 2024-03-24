@@ -11,7 +11,6 @@ extern std::int32_t bonusfreq;
 extern std::string serverip;
 extern std::int32_t serverport;
 extern std::string wmname, wmversion;
-extern std::string lastwepmod;
 
 extern tstringlist mapslist;
 extern std::int8_t lastplayer;
@@ -36,7 +35,6 @@ extern PascalArray<std::string, 1, max_players> mutename;
 extern PascalArray<std::string, 1, max_players> tklist;      // IP
 extern PascalArray<std::int8_t, 1, max_players> tklistkills; // TK Warnings
 
-extern std::array<std::string, Constants::MAX_ADMIN_FLOOD_IPS> adminfloodip;
 extern std::array<std::string, Constants::MAX_LAST_ADMIN_IPS> lastadminips;
 extern std::int32_t mapindex;
 
@@ -45,7 +43,7 @@ void nextmap();
 bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
                 std::string Reason = "");
 bool preparemapchange(std::string Name);
-std::int8_t addbotplayer(std::string name, std::int32_t team);
+std::int8_t addbotplayer(const std::string& name, std::int32_t team);
 void loadweapons(const std::string &Filename);
 void startserver();
 void ActivateServer(int argc, const char *argv[]);

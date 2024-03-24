@@ -77,7 +77,7 @@ static void commandalias(std::vector<std::string> &args, std::uint8_t sender)
 
   if (length(args) == 1)
   {
-    GS::GetMainConsole().console("Usage: alias \"name\" \"command\"", game_message_color);
+    GS::GetMainConsole().console(R"(Usage: alias "name" "command")", game_message_color);
     return;
   }
   aliasname = args[1];
@@ -553,20 +553,20 @@ bool loadconfig(const std::string &configname, FileUtility& fs)
 template <Config::Module M>
 void parsecommandline(int argc, const char *argv[])
 {
-  std::vector<std::string> commands;
+  std::vector<std::string> args;
   std::int32_t i;
 
   for (i = 1; i < argc; i++)
   {
     if (argv[i][0] == '-')
     {
-      commands.push_back(argv[i] + 1);
+      args.emplace_back(argv[i] + 1);
       continue;
     }
-    commands.back() += " ";
-    commands.back() += argv[i];
+    args.back() += " ";
+    args.back() += argv[i];
   }
-  for (const auto &c : commands)
+  for (const auto &c : args)
   {
     parseinput(c);
   }
@@ -579,7 +579,7 @@ static void addplayer(std::uint8_t id, std::vector<std::uint8_t> &players)
 }
 
 template <Config::Module M>
-tcommandtargets commandtarget(std::string target, std::uint8_t sender)
+tcommandtargets commandtarget(const std::string& target, std::uint8_t sender)
 {
   std::vector<std::uint8_t> players;
   std::int32_t targetid;
@@ -734,4 +734,4 @@ template pcommand commandadd(const std::string &commandnamevar, tcommandfunction
                              const std::string &description, tcommandflags flags);
 template void parsecommandline(int argc, const char *argv[]);
 template void rundeferredcommands();
-template tcommandtargets commandtarget(std::string target, std::uint8_t sender);
+template tcommandtargets commandtarget(const std::string& target, std::uint8_t sender);

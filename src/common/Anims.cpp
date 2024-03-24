@@ -4,7 +4,7 @@
 // comes from Constants.cpp.h
 constexpr auto scale = 3;
 
-void tanimation::doanimation()
+void tanimation::DoAnimation()
 {
   count += 1;
   if (count == speed)
@@ -63,7 +63,7 @@ void tanimation::loadfromfile(TStream &stream)
       if ((p >= 1) && (p <= max_pos_index))
       {
         // TODO: check if this is correct
-        frames[numframes].pos[p].x = -scale * strtofloat(r2) / 1.1;
+        frames[numframes].pos[p].x = -scale * strtofloat(r2) / 1.1f;
         frames[numframes].pos[p].y = -scale * strtofloat(r4);
       }
       else
@@ -91,5 +91,5 @@ std::int32_t tanimation::checksum()
       chk = chk + frames[i].pos[j].z;
     }
 
-  return trunc(chk);
+  return std::truncf(chk);
 }

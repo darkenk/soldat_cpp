@@ -1,5 +1,4 @@
 #include "NetworkServer.hpp"
-#include "../../server/Server.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "NetworkServerBullet.hpp"

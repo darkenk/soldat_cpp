@@ -77,7 +77,7 @@ public:
   std::int32_t speed, count;
   std::int32_t currframe;
   bool loop;
-  void doanimation();
+  void DoAnimation();
   void loadfromfile(TStream &stream);
   std::int32_t checksum();
 };

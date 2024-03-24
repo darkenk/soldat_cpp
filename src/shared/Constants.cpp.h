@@ -232,9 +232,6 @@ constexpr std::array<const char *, 16> multikillmessage = {
      "MERCY!!!!!!!!!!", "CHEATER!!!!!!!!", "Phased-plasma rifle in the forty watt range",
      "Hey, just what you see, pal", "just what you see, pal..."}};
 
-constexpr std::int32_t default_jetcolor = 0xffffbd24;
-
-constexpr std::int32_t idle_kick = minute * 3;
 constexpr std::int32_t menu_time = second;
 constexpr std::int32_t lessbleed_time = second * 2;
 constexpr std::int32_t nobleed_time = second * 5;
