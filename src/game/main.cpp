@@ -27,7 +27,7 @@ void RunTests(int argc, const char *argv[])
 int main(int argc, const char *argv[])
 {
   InitLogging();
-  //RunTests(argc, argv);
+  RunTests(argc, argv);
   GlobalSystems<Config::CLIENT_MODULE>::Init();
   GlobalSystems<Config::SERVER_MODULE>::Init();
   std::thread t1([=]() { RunServer(argc, argv); });

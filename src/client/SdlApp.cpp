@@ -71,11 +71,7 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
   AbortIf(Context == nullptr, "Failed to create gl context");
 
   glad_set_post_callback(OpenGLGladDebug);
-#if __EMSCRIPTEN__ && 0
-  AbortIf(not gladLoadGLES2Loader((GLADloadproc)SDL_GL_GetProcAddress), "Failed to initialize GLAD");
-#else
   AbortIf(not gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress), "Failed to initialize GLAD");
-#endif
 
   SDL_GL_MakeCurrent(Window, Context);
   SDL_GL_SetSwapInterval(1);
