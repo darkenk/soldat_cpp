@@ -48,9 +48,9 @@ bool FromString<float>(const std::string_view &value, float &outValue) noexcept
   return true;
 }
 
-//template <typename T, Config::Module M = Config::GetModule()>
-//CVarBase<T, M> CVarBase<T, M>::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
-
+#if 0 // __EMSCRIPTEN__?
+template <typename T, Config::Module M = Config::GetModule()>
+CVarBase<T, M> CVarBase<T, M>::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
 
 template<>
 CVarInt::Map CVarInt::CVars{};
@@ -81,7 +81,7 @@ CVarString::Map CVarString::CVars{};
 
 template<>
 CVarString CVarString::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
-
+#endif
 
 #ifdef SERVER
 namespace CVarServer
@@ -107,9 +107,6 @@ CVarBool ac_enable{
 
 CVarBool fs_localmount{"fs_localmount", "Mount game directory as game mod", CVarFlags::CLIENT | CVarFlags::INITONLY, false};
 CVarString fs_mod{"fs_mod", "File name of mod placed in mods directory (without .smod extension)", CVarFlags::CLIENT | CVarFlags::INITONLY, ""};
-CVarBool fs_portable{"fs_portable", "Enables portable mode", CVarFlags::CLIENT | CVarFlags::INITONLY, true};
-CVarString fs_basepath{"fs_basepath", "Path to base game directory", CVarFlags::CLIENT | CVarFlags::INITONLY, ""};
-CVarString fs_userpath{"fs_userpath", "Path to user game directory", CVarFlags::CLIENT | CVarFlags::INITONLY,""};
 
 CVarBool demo_autorecord{"demo_autorecord", "Auto record demos", CVarFlags::CLIENT, false};
 
@@ -158,7 +155,6 @@ CVarInt ui_console_length{"ui_console_length", "Sets length of main console", CV
 CVarBool ui_killconsole{"ui_killconsole", "Enables kill console", CVarFlags::CLIENT, true};
 CVarInt ui_killconsole_length{"ui_killconsole_length", "Sets length of kill console", CVarFlags::CLIENT, 15};
 CVarBool ui_hidespectators{"ui_hidespectators", "Hides spectators from the fragsmenu",  CVarFlags::CLIENT, false};
-CVarBool ui_sniperline{"ui_sniperline", "Draws a line between the player and the cursor", CVarFlags::CLIENT, false};
 
 // Client cvars
 CVarFloat cl_sensitivity{"cl_sensitivity", "Mouse sensitivity", CVarFlags::CLIENT, 1.0f};
@@ -181,7 +177,6 @@ CVarInt cl_player_hairstyle{"cl_player_hairstyle", "Player hair style", CVarFlag
 CVarInt cl_player_headstyle{"cl_player_headstyle", "Player head style", CVarFlags::CLIENT, 0};
 CVarInt cl_player_chainstyle{"cl_player_chainstyle", "Player chain style", CVarFlags::CLIENT, 0};
 CVarInt cl_player_secwep{"cl_player_secwep", "Player secondary weapon", CVarFlags::CLIENT, 0};
-CVarInt cl_player_wep{"cl_player_wep", "Player primary weapon", CVarFlags::CLIENT, 0};
 
 CVarInt cl_runs{"cl_runs", "Game runs", CVarFlags::CLIENT, 0};
 CVarString cl_lang{"cl_lang", "Game language", CVarFlags::CLIENT | CVarFlags::INITONLY, ""};
@@ -196,20 +191,12 @@ CVarInt snd_volume{"snd_volume", "Sets sound volume", CVarFlags::CLIENT, 50};
 CVarBool snd_effects_battle{"snd_effects_battle", "Enables battle sound effects", CVarFlags::CLIENT, false};
 CVarBool snd_effects_explosions{"snd_effects_explosions", "Enables sound explosions effects", CVarFlags::CLIENT, false};
 
-// Matchmaking cvars
-CVarBool mm_ranked{"mm_ranked", "Disable certain menu items in ranked matchmaking", CVarFlags::CLIENT, false};
-
 // TODO: Remove
 CVarInt sv_respawntime{"sv_respawntime", "Respawn time in ticks (60 ticks = 1 second)", CVarFlags::SERVER_FLAG, 60};
-//CVarInt sv_inf_redaward{"sv_inf_redaward", "Infiltration: Points awarded for a flag capture", CVarFlags::SERVER_FLAG, 30};
-CVarBool net_compression{"net_compression", "Enables/Disables compression of packets", CVarFlags::SERVER_FLAG, true};
-CVarBool net_allowdownload{"net_allowdownload", "Enables/Disables file transfers", CVarFlags::SERVER_FLAG, true};
 
-CVarString font_1_name{"font_1_name", "First font name", CVarFlags::CLIENT, "Play"};
 CVarString font_1_filename{"font_1_filename", "First font filename", CVarFlags::CLIENT, "play-regular.ttf"};
 CVarInt font_1_scale{"font_1_scalex", "First font scale", CVarFlags::CLIENT, 150};
 
-CVarString font_2_name{"font_2_name", "Second font name",  CVarFlags::CLIENT, "Lucida Console"};
 CVarString font_2_filename{"font_2_filename", "Second font filename",  CVarFlags::CLIENT, "play-regular.ttf"};
 CVarInt font_2_scale{"font_2_scalex", "Second font scale", CVarFlags::CLIENT, 125};
 
@@ -221,7 +208,6 @@ CVarInt font_consolesmallsize{"font_consolesmallsize", "Console small font size"
 CVarFloat font_consolelineheight{"font_consolelineheight", "Console line height", CVarFlags::CLIENT, 1.5f};
 CVarInt font_bigsize{"font_bigsize", "Big message font size", CVarFlags::CLIENT, 28};
 CVarInt font_weaponmenusize{"font_weaponmenusize", "Weapon menu font size", CVarFlags::CLIENT, 8};
-CVarInt font_killconsolenamespace{"font_killconsolenamespace", "Kill console namespace size", CVarFlags::CLIENT, 8};
 
 #else // Server cvars
 CVarInt sv_respawntime{"sv_respawntime", "Respawn time in ticks (60 ticks = 1 second)", CVarFlags::SERVER_FLAG, 360};
@@ -367,7 +353,6 @@ CVarBool sv_minimap{"sv_minimap", "Enables/disables minimap", CVarFlags::SERVER_
 CVarBool sv_advancedspectator{"sv_advancedspectator", "Enables/disables advanced spectator mode", CVarFlags::SERVER_FLAG | CVarFlags::SYNC, true, 16};
 CVarBool sv_radio{"sv_radio", "Enables/disables radio chat", CVarFlags::SERVER_FLAG | CVarFlags::SYNC, false, 17};
 CVarString sv_info{"sv_info", "A website or e-mail address, or any other short text describing your server", CVarFlags::SERVER_FLAG | CVarFlags::SYNC, "", 18};
-CVarFloat sv_gravity{"sv_gravity", "Gravity", CVarFlags::SERVER_FLAG | CVarFlags::SYNC, 0.06f, 19};
 CVarString sv_hostname{"sv_hostname", "Name of the server", CVarFlags::SERVER_FLAG | CVarFlags::SYNC, "Soldat Server", 20};
 CVarString sv_website{"sv_website", "Server website", CVarFlags::SERVER_FLAG | CVarFlags::SYNC, "", 21};
 
@@ -376,3 +361,172 @@ CVarString sv_downloadurl{"sv_downloadurl", "URL from which clients can download
 CVarBool sv_pure{"sv_pure","Requires clients to use the same game files (.smod) as the server", CVarFlags::SERVER_FLAG | CVarFlags::SYNC, true, 24};
 // clang-format-on
 };
+
+#include <doctest/doctest.h>
+
+namespace
+{
+
+class CVarFixture
+{
+};
+
+TEST_CASE_FIXTURE(CVarFixture, "ParseAndSetValueCorrectValue")
+{
+  CVarInt test{"t1", "", CVarFlags::NONE, 0};
+  auto ret = test.ParseAndSetValue("12");
+  CHECK_EQ(12, test);
+  CHECK_EQ(true, ret);
+}
+
+TEST_CASE_FIXTURE(CVarFixture, "ParseAndDontSetWrongValue")
+{
+  CVarInt test{"t2", "", CVarFlags::NONE, 11};
+  auto ret = test.ParseAndSetValue("aa");
+  CHECK_EQ(11, test);
+  CHECK_EQ(false, ret);
+}
+
+TEST_CASE_FIXTURE(CVarFixture, "ParseAndSetBoolValue")
+{
+  {
+    CVarBool test{"b1", "", CVarFlags::NONE, false};
+    auto ret = test.ParseAndSetValue("true");
+    CHECK_EQ(true, test);
+    CHECK_EQ(true, ret);
+  }
+  {
+    CVarBool test{"b2", "", CVarFlags::NONE, false};
+    auto ret = test.ParseAndSetValue("True");
+    CHECK_EQ(true, test);
+    CHECK_EQ(true, ret);
+  }
+  {
+    CVarBool test{"b3", "", CVarFlags::NONE, true};
+    auto ret = test.ParseAndSetValue("False");
+    CHECK_EQ(false, test);
+    CHECK_EQ(true, ret);
+  }
+  {
+    CVarBool test{"b4", "", CVarFlags::NONE, true};
+    auto ret = test.ParseAndSetValue("false");
+    CHECK_EQ(false, test);
+    CHECK_EQ(true, ret);
+  }
+}
+
+TEST_CASE_FIXTURE(CVarFixture, "ParseAndDontSetBoolValue")
+{
+  {
+    CVarBool test{"b5", "", CVarFlags::NONE, false};
+    auto ret = test.ParseAndSetValue("fas");
+    CHECK_EQ(false, test);
+    CHECK_EQ(false, ret);
+  }
+  {
+    CVarBool test{"b6", "", CVarFlags::NONE, true};
+    auto ret = test.ParseAndSetValue("FalseFalse");
+    CHECK_EQ(true, test);
+    CHECK_EQ(false, ret);
+  }
+}
+
+TEST_CASE_FIXTURE(CVarFixture, "ParseAndSetStringCorrectValue")
+{
+  CVarString test{"s1", "", CVarFlags::NONE, ""};
+  auto ret = test.ParseAndSetValue("random string");
+  CHECK_EQ("random string", doctest::String(test.ValueAsString().c_str()));
+  CHECK_EQ(true, ret);
+}
+
+TEST_CASE_FIXTURE(CVarFixture, "ParseAndSetFloatCorretValue")
+{
+  {
+    CVarFloat test{"f1", "", CVarFlags::NONE, 11.0f};
+    auto ret = test.ParseAndSetValue("12.0");
+    CHECK_EQ(12.0f, test);
+    CHECK_EQ(true, ret);
+  }
+  {
+    CVarFloat test{"f2", "", CVarFlags::NONE, 11.0f};
+    auto ret = test.ParseAndSetValue("12.1f");
+    CHECK_EQ(12.1f, test);
+    CHECK_EQ(true, ret);
+  }
+  {
+    CVarFloat test{"f3", "", CVarFlags::NONE, 11.0f};
+    auto ret = test.ParseAndSetValue("12");
+    CHECK_EQ(12.0f, test);
+    CHECK_EQ(true, ret);
+  }
+}
+
+TEST_CASE_FIXTURE(CVarFixture, "ParseAndDontSetFloatWrongValue")
+{
+  CVarFloat test{"f4", "", CVarFlags::NONE, 12.0f};
+  auto ret = test.ParseAndSetValue("aa");
+  CHECK_EQ(12.0f, test);
+  CHECK_EQ(false, ret);
+}
+
+TEST_CASE_FIXTURE(CVarFixture, "ValueAsString")
+{
+  CVarInt test{"t3", "", CVarFlags::NONE, 12};
+  auto ret = test.ValueAsString();
+  CHECK_EQ("12", doctest::String(ret.c_str()));
+}
+
+TEST_CASE_FIXTURE(CVarFixture, "FindCreatedCVar")
+{
+  CVarInt test{"test", "some test description", CVarFlags::NONE, 12};
+
+  auto &ref = CVarInt::Find("test");
+  CHECK_EQ(true, ref.IsValid());
+  CHECK_EQ(12, ref);
+}
+
+TEST_CASE_FIXTURE(CVarFixture, "DoNotCreateCVarTwice")
+{
+  CVarInt test{"test1", "some test description", CVarFlags::NONE, 12};
+  auto func = []() {CVarInt test1("test1", "some test description", CVarFlags::NONE, 12);};
+  CHECK_THROWS(func());
+}
+
+TEST_CASE_FIXTURE(CVarFixture, "AssingOneCVarToAnother")
+{
+  CVarInt t1{"t4", "", CVarFlags::NONE, 12};
+  CVarInt t2{"t5", "", CVarFlags::NONE, 13};
+  t1 = t2;
+  CHECK_EQ(13, t1);
+}
+
+TEST_CASE_FIXTURE(CVarFixture, "IterateOverAllCVars")
+{
+  struct Dummy
+  {
+    Dummy(std::int32_t v) : value{v}
+    {
+    }
+    std::int32_t value;
+    bool operator==(const Dummy &other) const
+    {
+      return value == other.value;
+    }
+  };
+  using CVarDummy = CVarBase<Dummy>;
+
+  // random order
+  CVarDummy cv1{"dummy1", "", CVarFlags::NONE, 1};
+  CVarDummy cv2{"dummy2", "", CVarFlags::NONE, 2};
+
+  CHECK_EQ(1, std::count(CVarDummy::GetAllCVars().begin(), CVarDummy::GetAllCVars().end(), 1));
+
+  std::int32_t n = 1;
+  for (const auto &cv : CVarDummy::GetAllCVars())
+  {
+    CHECK_EQ(n++, cv);
+  }
+}
+
+
+}

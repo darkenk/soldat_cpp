@@ -31,7 +31,7 @@ add_executable(UnitTests
     unit/VectorTest.cpp ../src/common/Vector.cpp
     unit/CalcTest.cpp ../src/common/Calc.cpp
     unit/UtilTests.cpp ../src/common/Util.cpp ../src/common/misc/SHA1.cpp ../src/common/misc/SHA1Helper.cpp
-    unit/CVarTests.cpp ../src/shared/Cvar.cpp
+        ../src/shared/Cvar.cpp
     unit/TIniFileTest.cpp ../src/common/misc/TIniFile.cpp
     ../src/common/misc/PortUtils.cpp
     unit/common/notimplemented/NotImplementedTests.cpp ../src/common/port_utils/NotImplemented.cpp

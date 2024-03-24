@@ -82,7 +82,14 @@ public:
 
   [[nodiscard]] std::string ValueAsString() const noexcept
   {
-    return std::to_string(Value);
+    if constexpr(std::is_same<T, std::string>())
+    {
+      return Value;
+    }
+    else
+    {
+      return std::to_string(Value);
+    }
   }
 
   static CVarBase &Find(const std::string &cvarName) noexcept
@@ -196,11 +203,11 @@ private:
   static Map CVars;
 };
 
-//template <typename T, Config::Module M>
-//typename CVarBase<T, M>::Map CVarBase<T, M>::CVars{};
+template <typename T, Config::Module M>
+typename CVarBase<T, M>::Map CVarBase<T, M>::CVars{};
 
-//template <typename T, Config::Module M>
-//CVarBase<T, M> CVarBase<T, M>::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
+template <typename T, Config::Module M>
+CVarBase<T, M> CVarBase<T, M>::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
 
 using CVarBool = CVarBase<bool>;
 using CVarString = CVarBase<std::string>;
@@ -220,9 +227,6 @@ extern CVarInt log_filesupdate;
 
 extern CVarBool fs_localmount;
 extern CVarString fs_mod;
-extern CVarBool fs_portable;
-extern CVarString fs_userpath;
-extern CVarString fs_basepath;
 
 extern CVarInt r_fullscreen;
 extern CVarBool r_weathereffects;
@@ -283,7 +287,6 @@ extern CVarInt cl_player_hairstyle;
 extern CVarInt cl_player_headstyle;
 extern CVarInt cl_player_chainstyle;
 extern CVarInt cl_player_secwep;
-extern CVarInt cl_player_wep;
 
 extern CVarInt cl_runs;
 extern CVarString cl_lang;
@@ -297,10 +300,8 @@ extern CVarInt snd_volume;
 extern CVarBool snd_effects_battle;
 extern CVarBool snd_effects_explosions;
 
-extern CVarString font_1_name;
 extern CVarString font_1_filename;
 extern CVarInt font_1_scale;
-extern CVarString font_2_name;
 extern CVarString font_2_filename;
 extern CVarInt font_2_scale;
 extern CVarInt font_menusize;
@@ -309,16 +310,11 @@ extern CVarInt font_consolesmallsize;
 extern CVarFloat font_consolelineheight;
 extern CVarInt font_bigsize;
 extern CVarInt font_weaponmenusize;
-extern CVarInt font_killconsolenamespace;
-
-// Matchhmaking cvars
-extern CVarBool mm_ranked;
 
 extern CVarInt sv_respawntime;   // TODO: Remove
 extern CVarInt sv_inf_redaward;  // TODO: Remove
 extern CVarInt net_contype;      // TODO: Remove
-extern CVarBool net_compression; // TODO: Remove
-extern CVarBool net_allowdownload;
+// TODO: Remove
 extern CVarInt sv_gamemode;
 extern CVarBool sv_friendlyfire;
 extern CVarInt sv_timelimit;
@@ -338,7 +334,6 @@ extern CVarBool sv_minimap;
 extern CVarBool sv_advancedspectator;
 extern CVarBool sv_radio;
 extern CVarString sv_info;
-extern CVarFloat sv_gravity;
 extern CVarString sv_hostname;
 extern CVarInt sv_killlimit;
 extern CVarString sv_downloadurl;
