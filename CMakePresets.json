@@ -62,7 +62,7 @@
         {
             "name": "debug emcc",
             "displayName": "Debug emcc",
-            "configurePreset": "debug-emcc+",
+            "configurePreset": "debug-emcc",
             "configuration": "Debug emcc"
         }
     ]

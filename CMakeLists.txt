@@ -1,6 +1,6 @@
-set(CMAKE_CXX_STANDARD 20)
 cmake_minimum_required(VERSION 3.27)
 project(SoldatCPP)
+set(CMAKE_CXX_STANDARD 20)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   set(SOLDAT_PLATFORM webassembly)
@@ -40,7 +40,7 @@ set(CMAKE_MODULE_PATH
 set(CMAKE_PREFIX_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party/gamenetworkingsockets/out/
     ${THIRD_PARTY_OUT_DIR}/libsodium/out/
-    ${THIRD_PARTY_OUT_DIR}/sdl/out/
+    ${THIRD_PARTY_OUT_DIR}/sdl/out
     ${THIRD_PARTY_OUT_DIR}/freetype/out/
     ${THIRD_PARTY_OUT_DIR}/openal/out/
     ${THIRD_PARTY_OUT_DIR}/spdlog/out/
@@ -90,10 +90,24 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 #set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 #add_definitions(-DTRACY_ENABLE)
 
-set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON")
+# Add Library
+add_library(LibreSSL::Crypto UNKNOWN IMPORTED)
 
+# Set Properties
+set_target_properties(
+        LibreSSL::Crypto
+        PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${THIRD_PARTY_OUT_DIR}/libressl/out/include"
+        IMPORTED_LINK_INTERFACE_LANGUAGES "C"
+        IMPORTED_LOCATION "${THIRD_PARTY_OUT_DIR}/libressl/out/lib/libcrypto.a"
+        INTERFACE_LINK_LIBRARIES LibreSSL::Crypto
+)
+
+set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON")
+set(SDL2_DIR ${THIRD_PARTY_OUT_DIR}/sdl/out)
+#set(LibreSSL_DIR ${THIRD_PARTY_OUT_DIR}/libressl/out)
 find_package(SDL2 REQUIRED)
-find_package(LibreSSL REQUIRED)
+#find_package(LibreSSL 3.4.3 REQUIRED EXACT)
 find_package(Freetype REQUIRED)
 find_package(GameNetworkingSockets REQUIRED)
 find_package(spdlog REQUIRED)

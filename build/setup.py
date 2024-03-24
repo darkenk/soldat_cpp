@@ -20,7 +20,7 @@ class Config(Enum):
     Debug = 'debug'
 
 # current configuration
-PLATFORM = Platform.WEBASSEMBLY
+PLATFORM = Platform.LINUX_x64
 CONFIG = Config.Debug
 
 if platform.machine() == 'aarch64':
@@ -64,7 +64,7 @@ def SetupProtobuf(platform, config):
     print("Build protobuf in " + PTB_DIR, flush=True)
 
     cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + PTB_DIR + '/out',
-      GetCmakeArgBuildType(config), '-Dprotobuf_BUILD_SHARED_LIBS=OFF',
+      GetCmakeArgBuildType(config), '-DBUILD_SHARED_LIBS=OFF',
       '-Dprotobuf_BUILD_TESTS=OFF', '-DCMAKE_POSITION_INDEPENDENT_CODE=ON']
     cmake_config = cmake_config + GetAdditionalConfigs(platform)
     cmake_config.append(PTB_SRC + '/cmake')
@@ -88,7 +88,7 @@ def SetupLibressl(platform, config):
     os.makedirs(SSL_DIR, exist_ok = True)
 
     cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + SSL_DIR + '/out',
-      GetCmakeArgBuildType(config), '-DLIBRESSL_APPS=OFF', '-DLIBRESSL_TESTS=OFF',
+      GetCmakeArgBuildType(config), '-DLIBRESSL_APPS=OFF', '-DLIBRESSL_TESTS=OFF', -DBUILD_SHARED_LIBS=ON
     ]
     cmake_config = cmake_config + GetAdditionalConfigs(platform)
     cmake_config.append(SSL_SRC)
@@ -106,7 +106,7 @@ def SetupGameNetworkingSockets(platform, config):
                              GetCmakeArgBuildType(config), '-DUSE_CRYPTO=LibreSSL',
                              '-DUSE_CRYPTO25519=Reference', '-DCMAKE_PREFIX_PATH=' + GetLibreSSLOutDir(platform, config) +'/out/;' + GetProtobufOutDir(platform, config) + '/out/',
                              '-Dprotobuf_BUILD_TESTS=OFF', '-Dprotobuf_BUILD_SHARED_LIBS=OFF',
-                             '-DProtobuf_USE_STATIC_LIBS=ON',
+                             '-Dprotobuf_USE_STATIC_LIBS=ON',
                              '-DLIGHT_TESTS=OFF',
                              '-DGAMENETWORKINGSOCKETS_BUILD_EXAMPLES=OFF',
                              '-DGAMENETWORKINGSOCKETS_BUILD_TESTS=OFF',
