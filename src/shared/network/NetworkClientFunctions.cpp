@@ -1,7 +1,6 @@
 // automatically converted
 #include "NetworkClientFunctions.hpp"
 
-#include "../../client/Client.hpp"
 #include "../../client/GameMenus.hpp"
 #include "../../client/InterfaceGraphics.hpp"
 #include "../../client/Sound.hpp"

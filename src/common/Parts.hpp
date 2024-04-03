@@ -8,7 +8,6 @@
 #include <string>
 
 constexpr std::int32_t num_particles = 560;
-constexpr float rkv = 0.98;
 
 struct constraint
 {

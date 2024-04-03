@@ -349,7 +349,6 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
       if ((playerslistmsg->look[i] & B3) == B3)
         newplayer->hairstyle = 3;
       if ((playerslistmsg->look[i] & B4) == B4)
-
         newplayer->hairstyle = 4;
 
       newplayer->headcap = 0;
@@ -488,7 +487,6 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
   my = gameheighthalf;
   mouseprev.x = mx;
   mouseprev.y = my;
-  windowready = true;
 #endif
 }
 

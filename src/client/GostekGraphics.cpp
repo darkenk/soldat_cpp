@@ -110,8 +110,6 @@ void loadgostekdata(const TIniFile::Entries &data)
   }
 }
 
-void applygostekconstraints();
-
 static float texwidth(std::int32_t index)
 {
   return fabs(textures[index]->width * textures[index]->scale);

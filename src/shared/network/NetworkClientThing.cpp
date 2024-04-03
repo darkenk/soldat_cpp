@@ -1,14 +1,11 @@
 // automatically converted
 #include "NetworkClientThing.hpp"
 
-#include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
 #include "../../client/Sound.hpp"
 #include "../Cvar.hpp"
-#include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
-#include "../mechanics/Things.hpp"
 #include "NetworkClientSprite.hpp"
 #include "NetworkUtils.hpp"
 #include "common/Calc.hpp"

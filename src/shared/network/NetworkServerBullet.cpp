@@ -1,9 +1,7 @@
 // automatically converted
 #include "NetworkServerBullet.hpp"
 
-#include "../../server/Server.hpp"
 #include "../Game.hpp"
-#include "../mechanics/Bullets.hpp"
 #include "NetworkUtils.hpp"
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"

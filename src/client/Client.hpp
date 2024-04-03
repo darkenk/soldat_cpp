@@ -32,9 +32,7 @@ extern std::string joinpassword; // server passsword
 extern std::string joinport;     // join port to server
 extern std::string joinip;       // join ip to server
 
-extern bool windowready;
 extern std::uint8_t initing;
-extern bool graphicsinitialized;
 
 extern std::string basedirectory;
 

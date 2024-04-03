@@ -1,4 +1,3 @@
-#include <cstdint>
 
 /*#include "idcompilerdefines.inc"*/
 // #define DEVELOPMENT
@@ -16,7 +15,6 @@
 #include "Sound.hpp"
 #include "common/FileUtility.hpp"
 #include "common/Logging.hpp"
-#include "common/Util.hpp"
 #include "common/misc/Config.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
@@ -36,7 +34,6 @@
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include <Tracy.hpp>
-#include <memory>
 #include <thread>
 #include <sstream>
 
@@ -46,16 +43,6 @@ namespace
 bool progready;
 } // namespace
 
-// Game.hpp
-extern std::int32_t gamewidth;
-extern std::int32_t gameheight;
-
-extern float gamewidthhalf;
-extern float gameheighthalf;
-
-// ClientGame.hpp
-extern bool mapchanged;
-
 // Client.cpp variables
 bool gamelooprun;
 
@@ -63,9 +50,7 @@ std::string joinpassword;         // server password
 std::string joinport = "23073";   // join port to server
 std::string joinip = "127.0.0.1"; // join ip to server
 
-bool windowready = false;
 std::uint8_t initing;
-bool graphicsinitialized = false;
 
 std::string basedirectory;
 
@@ -149,8 +134,6 @@ std::int32_t shotricochet;
 
 void restartgraph()
 {
-  windowready = false;
-
   dotextureloading(true);
 
   auto &map = GS::GetGame().GetMap();
@@ -159,7 +142,6 @@ void restartgraph()
   map.loadmap(GS::GetFileSystem(), GS::GetGame().GetMapchange(), CVar::r_forcebg, CVar::r_forcebg_color1,
               CVar::r_forcebg_color2);
 
-  windowready = true;
 
   if (!escmenu->active)
   {
@@ -364,7 +346,6 @@ static bool MountAssets(FileUtility &fu, const std::string &userdirectory,
   }
   else
   {
-
     if (!fu.Mount(basedirectory + "/soldat.smod", "/"))
     {
       showmessage(("Could not load base game archive (soldat.smod). Try to reinstall the game."));
@@ -377,8 +358,8 @@ static bool MountAssets(FileUtility &fu, const std::string &userdirectory,
   if (CVar::fs_mod != "")
   {
     LogDebugG("[FS] Mounting mods/{}.smod", lowercase(CVar::fs_mod));
-    if (!fu.Mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod").c_str(),
-                  (std::string("mods/") + lowercase(CVar::fs_mod) + "/").c_str()))
+    if (!fu.Mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
+                  (std::string("mods/") + lowercase(CVar::fs_mod) + "/")))
     {
       showmessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
       return false;
@@ -403,7 +384,6 @@ void startgame(int argc, const char *argv[])
   auto &fs = GS::GetFileSystem();
   const auto userDirectory = fs.GetPrefPath("client");
   const auto baseDirectory = fs.GetBasePath();
-
 
   LogDebugG("[FS] userDirectory: {}", userDirectory);
   LogDebugG("[FS] baseDirectory: {}", baseDirectory);
@@ -577,8 +557,6 @@ void startgame(int argc, const char *argv[])
     return;
   }
 
-  windowready = true;
-
   if (CVar::cl_lang != "")
   {
     systemlang = CVar::cl_lang;
@@ -610,7 +588,7 @@ void startgame(int argc, const char *argv[])
 
   loadsounds("");
   if (length(moddir) > 0)
-    loadsounds(moddir.c_str());
+    loadsounds(moddir);
 
   addlinetologfile(fs, GetGameLog(), "Creating network interface.", GetGameLogFilename());
 
