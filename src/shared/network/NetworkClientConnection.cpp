@@ -28,7 +28,7 @@ namespace
 } // namespace
 
 // REQUEST GAME FROM SERVER
-void clientrequestgame()
+void clientrequestgame(tclientnetwork& network)
 {
   pmsg_requestgame requestmsg;
   std::int32_t size;
@@ -60,7 +60,7 @@ void clientrequestgame()
   std::strcpy(requestmsg->hardwareid.data(), hwid.data());
 
   std::strcpy(requestmsg->password.data(), joinpassword.data());
-  GetNetwork()->senddata((std::byte *)(requestmsg), size, k_nSteamNetworkingSend_Reliable);
+  network.senddata((std::byte *)(requestmsg), size, k_nSteamNetworkingSend_Reliable);
   // udp->senddata(requestmsg, size, k_nSteamNetworkingSend_Reliable);
   requestinggame = true;
 }

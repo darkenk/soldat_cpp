@@ -26,7 +26,7 @@ public:
   void ProcessLoop();
   void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);
   template <typename T>
-  bool senddata(const T *Data, std::int32_t Size, HSteamNetConnection peer, std::int32_t Flags)
+  inline bool senddata(const T *Data, std::int32_t Size, HSteamNetConnection peer, std::int32_t Flags)
   {
     return senddata(reinterpret_cast<const std::byte *>(Data), Size, peer, Flags);
   }

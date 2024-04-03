@@ -779,7 +779,7 @@ void joinserver()
       progready = true;
       gamelooprun = true;
       rendergameinfo(("Loading"));
-      clientrequestgame();
+      clientrequestgame(*GetNetwork());
       startgameloop();
     }
     else

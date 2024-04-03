@@ -101,7 +101,7 @@ void tclientnetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
     }
     case k_ESteamNetworkingConnectionState_Connected: {
       LogInfo(LOG_NET, "[NET] Connected to the server");
-      clientrequestgame();
+      clientrequestgame(*this);
       break;
     }
     default:

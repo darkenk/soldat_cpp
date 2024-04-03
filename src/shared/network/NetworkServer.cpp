@@ -328,13 +328,11 @@ tservernetwork::~tservernetwork()
 bool tservernetwork::senddata(const std::byte *Data, std::int32_t Size, HSteamNetConnection Peer,
                               std::int32_t Flags)
 {
-  auto Result = false;
-
   if (Size < sizeof(tmsgheader))
-    return Result;
+    return false;
 
   if (FHost == k_HSteamNetConnection_Invalid)
-    return Result;
+    return false;
 
   if (GS::GetDemoRecorder().active())
   {
@@ -343,10 +341,8 @@ bool tservernetwork::senddata(const std::byte *Data, std::int32_t Size, HSteamNe
       GS::GetDemoRecorder().saverecord(Data, Size);
   }
 
-  NetworkingSockets->SendMessageToConnection(Peer, Data, Size, Flags, nullptr);
-
-  Result = true;
-  return Result;
+  auto ret = NetworkingSockets->SendMessageToConnection(Peer, Data, Size, Flags, nullptr);
+  return ret == k_EResultOK;
 }
 
 void tservernetwork::UpdateNetworkStats(std::uint8_t Player)

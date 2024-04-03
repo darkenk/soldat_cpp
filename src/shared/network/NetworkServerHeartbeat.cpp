@@ -2,16 +2,13 @@
 
 #include "NetworkServerHeartbeat.hpp"
 
-#include "../../server/Server.hpp"
-#include "../Cvar.hpp"
 #include "../Demo.hpp"
-#include "../Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include <steam/isteamnetworkingmessages.h>
 
-// HEARTBEAT
-void serverheartbeat()
+template<class TSprite, Config::Module M>
+void serverheartbeat(tservernetwork& transport, TSpriteSystem<TSprite>& spriteSystem, Game<M>& game)
 {
   tmsg_heartbeat heartbeatmsg;
   heartbeatmsg.header.id = msgid_heartbeat;
@@ -24,41 +21,118 @@ void serverheartbeat()
   std::fill(std::begin(heartbeatmsg.flags), std::end(heartbeatmsg.flags), 0);
   std::fill(std::begin(heartbeatmsg.ping), std::end(heartbeatmsg.ping), 255);
 
-  auto c = 0;
-  for (auto &s : SpriteSystem::Get().GetActiveSprites())
+  for (auto c = 0; auto &s : spriteSystem.GetActiveSprites())
   {
+    auto& player = *s.player;
     heartbeatmsg.active[c] = s.active;
-    heartbeatmsg.kills[c] = s.player->kills;
-    heartbeatmsg.caps[c] = s.player->flags;
-    heartbeatmsg.deaths[c] = s.player->deaths;
-    heartbeatmsg.team[c] = s.player->team;
-    heartbeatmsg.flags[c] = s.player->flags;
-    heartbeatmsg.ping[c] = s.player->pingticks;
-    heartbeatmsg.realping[c] = s.player->realping;
-    heartbeatmsg.connectionquality[c] = s.player->connectionquality;
+    heartbeatmsg.kills[c] = player.kills;
+    heartbeatmsg.caps[c] = player.flags;
+    heartbeatmsg.deaths[c] = player.deaths;
+    heartbeatmsg.team[c] = player.team;
+    heartbeatmsg.flags[c] = player.flags;
+    heartbeatmsg.ping[c] = player.pingticks;
+    heartbeatmsg.realping[c] = player.realping;
+    heartbeatmsg.connectionquality[c] = player.connectionquality;
     c++;
   }
 
   for (auto j = team_alpha; j <= team_delta; j++)
   {
     [[deprecated("indexing")]] auto jminus1 = j - 1;
-    heartbeatmsg.teamscore[jminus1] = GS::GetGame().GetTeamScore(j);
+    heartbeatmsg.teamscore[jminus1] = game.GetTeamScore(j);
   }
-  auto &map = GS::GetGame().GetMap();
+  auto &map = game.GetMap();
   heartbeatmsg.mapid = map.mapid;
-  if (GS::GetGame().GetMapchangecounter() > 0)
-    heartbeatmsg.mapid = 0;
-  if ((CVar::sv_timelimit - GS::GetGame().GetTimelimitcounter()) < 600)
-    heartbeatmsg.mapid = 0;
-  if ((GS::GetGame().GetTimelimitcounter()) < 600)
-    heartbeatmsg.mapid = 0;
-
-  for (auto &s : SpriteSystem::Get().GetActiveSprites())
+  if (game.GetMapchangecounter() > 0)
   {
-    if (s.player->controlmethod == human)
-    {
-      GetServerNetwork()->senddata(&heartbeatmsg, sizeof(heartbeatmsg), s.player->peer,
-                                   k_nSteamNetworkingSend_Unreliable);
-    }
+    heartbeatmsg.mapid = 0;
   }
+  if ((CVar::sv_timelimit - game.GetTimelimitcounter()) < 600)
+  {
+    heartbeatmsg.mapid = 0;
+  }
+  if (game.GetTimelimitcounter() < 600)
+  {
+    heartbeatmsg.mapid = 0;
+  }
+
+  for (auto &s : spriteSystem.GetActiveSprites())
+  {
+    if (s.player->controlmethod != human)
+    {
+      continue;
+    }
+    [[maybe_unused]] auto ret = transport.senddata(&heartbeatmsg, sizeof(heartbeatmsg), s.player->peer, k_nSteamNetworkingSend_Unreliable);
+    SoldatAssert(ret == true);
+  }
+
 }
+// tests
+#include <doctest/doctest.h>
+#include "NetworkClient.hpp"
+
+namespace
+{
+
+class LogBumper
+{
+public:
+  inline LogBumper(std::string_view logger, spdlog::level::level_enum lv = spdlog::level::trace):
+    Logger(logger)
+  {
+    PreviousLevel = spdlog::get(Logger)->level();
+    spdlog::get(Logger)->set_level(lv);
+  }
+  inline ~LogBumper() { spdlog::get(Logger)->set_level(PreviousLevel); }
+private:
+  std::string Logger;
+  spdlog::level::level_enum PreviousLevel;
+};
+
+class NetworkServerHeartbeatFixture
+{
+public:
+  NetworkServerHeartbeatFixture(): LogBumperNetMsg("net_msg"), LogBumperNetworkMsg("network")
+  {
+    GlobalSystems<Config::CLIENT_MODULE>::Init();
+    GlobalSystems<Config::SERVER_MODULE>::Init();
+    AnimationSystem::Get().LoadAnimObjects("");
+  }
+  ~NetworkServerHeartbeatFixture()
+  {
+    GlobalSystems<Config::SERVER_MODULE>::Deinit();
+    GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+  }
+
+protected:
+  LogBumper LogBumperNetMsg;
+  LogBumper LogBumperNetworkMsg;
+  NetworkServerHeartbeatFixture(const NetworkServerHeartbeatFixture &) = delete;
+};
+
+TEST_CASE_FIXTURE(NetworkServerHeartbeatFixture, "Initial test for heartbeat" * doctest::skip(true))
+{
+  auto &spriteSystem = SpriteSystem::Get();
+  auto &game = GS::GetGame();
+  auto server = std::make_unique<tservernetwork>("0.0.0.0", 23073);
+  auto client = std::make_unique<tclientnetwork>();
+  client->connect("127.0.0.1", 23073);
+  while(players.empty())
+  {
+    client->FlushMsg();
+    server->FlushMsg();
+    client->processloop();
+    server->ProcessLoop();
+  }
+  SoldatAssert(players.size() == 1);
+  auto player = players.at(0);
+  player->controlmethod = human;
+  tvector2 spos; // out
+  std::uint8_t spriteId = 255;
+  createsprite(spos, spriteId, player);
+
+  serverheartbeat(*server, spriteSystem, game);
+
+}
+
+} // namespace

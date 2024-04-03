@@ -194,7 +194,7 @@ void apponidle()
         serverskeletonsnapshot(netw);
 
       if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(59 * adjust) == 0)
-        serverheartbeat();
+        serverheartbeat(*GetServerNetwork(), SpriteSystem::Get(), GS::GetGame());
 
       if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(4 * adjust) == 0) &&
           (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) != 0) &&
@@ -232,7 +232,7 @@ void apponidle()
       if (GS::GetGame().GetMainTickCounter() %
             (std::int32_t)round(CVar::net_t1_heartbeat * adjust) ==
           0)
-        serverheartbeat();
+        serverheartbeat(*GetServerNetwork(), SpriteSystem::Get(), GS::GetGame());
 
       if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(CVar::net_t1_delta * adjust) ==
            0) &&
