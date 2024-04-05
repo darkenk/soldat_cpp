@@ -31,42 +31,37 @@ void ProcessEventsCallback(PSteamNetConnectionStatusChangedCallback_t pInfo)
 }
 } // namespace
 
-tservernetwork::tservernetwork(std::string Host, std::uint32_t Port)
+tservernetwork::tservernetwork(const std::string &Host, std::uint32_t Port)
 {
   SteamNetworkingIPAddr ServerAddress;
   SteamNetworkingConfigValue_t InitSettings[2];
-  // std::array<Char, 128> TempIP;
-  if (FInit)
+
+  ServerAddress.Clear();
+  ServerAddress.ParseString(pchar(Host + ":" + inttostr(Port)));
+  InitSettings[0].SetInt32(k_ESteamNetworkingConfig_IP_AllowWithoutAuth, 1);
+  InitSettings[1].SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged,
+                         (void *)&ProcessEventsCallback);
+  //#ifdef STEAM
+  // if sv_steamonly.Value then
+  //  InitSettings.m_int32 = 0
+  // else
+  //#endif
+  FHost = NetworkingSockets->CreateListenSocketIP(ServerAddress, 1, InitSettings);
+
+  if (FHost == k_HSteamListenSocket_Invalid)
   {
-    ServerAddress.Clear();
-    ServerAddress.ParseString(pchar(Host + ":" + inttostr(Port)));
-    InitSettings[0].m_eValue = k_ESteamNetworkingConfig_IP_AllowWithoutAuth;
-    InitSettings[0].m_eDataType = k_ESteamNetworkingConfig_Int32;
-    InitSettings[0].m_val.m_int32 = 1;
-    InitSettings[1].SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged,
-                           (void *)&ProcessEventsCallback);
-    //#ifdef STEAM
-    // if sv_steamonly.Value then
-    //  InitSettings.m_int32 = 0
-    // else
-    //#endif
-    FHost = NetworkingSockets->CreateListenSocketIP(ServerAddress, 1, InitSettings);
+    return;
+  }
 
-    if (FHost == k_HSteamListenSocket_Invalid)
-    {
-      return;
-    }
-
-    FPollGroup = NetworkingSockets->CreatePollGroup();
-    if (FPollGroup == k_HSteamNetPollGroup_Invalid)
-    {
-      LogWarn(LOG_NET, "Failed to create poll group");
-      return;
-    }
-    else
-    {
-      NetworkingSockets->GetListenSocketAddress(FHost, &FAddress);
-    }
+  FPollGroup = NetworkingSockets->CreatePollGroup();
+  if (FPollGroup == k_HSteamNetPollGroup_Invalid)
+  {
+    LogWarn(LOG_NET, "Failed to create poll group");
+    return;
+  }
+  else
+  {
+    NetworkingSockets->GetListenSocketAddress(FHost, &FAddress);
   }
 
   if (FHost != k_HSteamNetPollGroup_Invalid)
@@ -77,39 +72,30 @@ tservernetwork::tservernetwork(std::string Host, std::uint32_t Port)
 
 void tservernetwork::ProcessLoop()
 {
-  std::int32_t NumMsgs;
   PSteamNetworkingMessage_t IncomingMsg;
   RunCallbacks();
 
-  NumMsgs = NetworkingSockets->ReceiveMessagesOnPollGroup(FPollGroup, &IncomingMsg, 1);
+  auto NumMsgs = NetworkingSockets->ReceiveMessagesOnPollGroup(FPollGroup, &IncomingMsg, 1);
 
   if (NumMsgs == 0)
   {
     return;
   }
-  else if (NumMsgs < 0)
+  if (NumMsgs < 0)
   {
     LogWarn(LOG_NET, "Failed to poll messages");
     return;
   }
-  else
-  {
-    HandleMessages(IncomingMsg);
-  }
+  HandleMessages(IncomingMsg);
 }
 
 void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo)
 {
-  std::array<char, 128> info;
-  TIPString TempIP;
-#ifdef DEVELOPMENT
-  Debug("[NET] Received SteamNetConnectionStatusChangedCallback_t ",
-        ToStr(pInfo ^, TypeInfo(SteamNetConnectionStatusChangedCallback_t)));
-#endif
+  LogDebug(LOG_NET, "Server: Process Events {}", pInfo->m_info.m_eState);
+
   switch (pInfo->m_info.m_eState)
   {
   case k_ESteamNetworkingConnectionState_None: {
-    FPeer = k_HSteamNetConnection_Invalid;
     LogInfo(LOG_NET, "Destroying peer handle");
     break;
   }
@@ -175,24 +161,19 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
           return;
         }
         NetworkingSockets->AcceptConnection(pInfo->m_hConn);
-        pInfo->m_info.m_identityRemote.ToString(info.data(), 1024);
       }
     }
     break;
   }
   case k_ESteamNetworkingConnectionState_Connected: {
-    // if pInfo->m_eOldState = k_ESteamNetworkingConnectionState_Connecting then
     {
+      std::array<char, 128> tmp; // NOLINT
       auto Player = std::make_shared<TServerPlayer>();
       Player->peer = pInfo->m_hConn;
-      pInfo->m_info.m_addrRemote.ToString(TempIP.data(), 128, false);
-      Player->ip = TempIP.data();
+      pInfo->m_info.m_addrRemote.ToString(tmp.data(), tmp.size(), false);
+      Player->ip = tmp.data();
       Player->port = pInfo->m_info.m_addrRemote.m_port;
-#ifdef STEAM
-      Player->SteamID = TSteamID(pInfo->m_info.m_identityRemote.GetSteamID64);
-#endif
-      NotImplemented("network", "Pointer cast is probably wrong");
-      NetworkingSockets->SetConnectionUserData(pInfo->m_hConn, (std::uint64_t)Player.get());
+      NetworkingSockets->SetConnectionUserData(pInfo->m_hConn, reinterpret_cast<std::int64_t>(Player.get()));
       LogInfo(LOG_NET, "Connection  accepted {}", pInfo->m_info.m_szConnectionDescription);
       players.push_back(Player);
     }
@@ -205,22 +186,20 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
 
 void tservernetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 {
-  TServerPlayer *Player;
-  pmsgheader PacketHeader;
   if (IncomingMsg->m_cbSize < sizeof(tmsgheader))
   {
     IncomingMsg->Release();
     return; // truncated packet
   }
 
-  if (IncomingMsg->m_nConnUserData == -1)
+  if (IncomingMsg->GetConnectionUserData() == -1)
   {
     IncomingMsg->Release();
     return;
   }
 
-  Player = reinterpret_cast<TServerPlayer *>(IncomingMsg->m_nConnUserData);
-  PacketHeader = pmsgheader(IncomingMsg->m_pData);
+  auto Player = reinterpret_cast<TServerPlayer *>(IncomingMsg->GetConnectionUserData());
+  auto PacketHeader = pmsgheader(IncomingMsg->m_pData);
 
   switch (PacketHeader->id)
   {
@@ -347,8 +326,7 @@ bool tservernetwork::senddata(const std::byte *Data, std::int32_t Size, HSteamNe
 
 void tservernetwork::UpdateNetworkStats(std::uint8_t Player)
 {
-  SteamNetworkingQuickConnectionStatus Stats;
-  Stats = GetQuickConnectionStatus(SpriteSystem::Get().GetSprite(Player).player->peer);
+  SteamNetworkingQuickConnectionStatus Stats = GetQuickConnectionStatus(SpriteSystem::Get().GetSprite(Player).player->peer);
   SpriteSystem::Get().GetSprite(Player).player->realping = Stats.m_nPing;
   if (Stats.m_flConnectionQualityLocal > 0.0)
   {
@@ -363,21 +341,15 @@ void tservernetwork::UpdateNetworkStats(std::uint8_t Player)
 
 bool tservernetwork::disconnect(bool now)
 {
-  if (FHost != k_HSteamNetPollGroup_Invalid)
+  if (FHost == k_HSteamNetPollGroup_Invalid)
   {
-    for (auto &DstPlayer : players)
-    {
-      if (FPeer != 0)
-      {
-        if (now)
-          NetworkingSockets->CloseConnection(DstPlayer->peer, 0, "", false);
-        else
-          NetworkingSockets->CloseConnection(DstPlayer->peer, 0, "", true);
-      }
-    }
-    return true;
+    return false;
   }
-  return false;
+  for (const auto &DstPlayer : players)
+  {
+    NetworkingSockets->CloseConnection(DstPlayer->peer, 0, "", !now);
+  }
+  return true;
 }
 
 namespace
@@ -402,3 +374,53 @@ bool DeinitServerNetwork()
   gUDP = nullptr;
   return true;
 }
+
+// tests
+#include <doctest/doctest.h>
+#include "NetworkClient.hpp"
+
+namespace
+{
+
+class NetworkServerFixture
+{
+public:
+  NetworkServerFixture() {}
+  ~NetworkServerFixture() {}
+  NetworkServerFixture(const NetworkServerFixture &) = delete;
+
+protected:
+};
+//--exit -tc=Sample*
+TEST_CASE_FIXTURE(NetworkServerFixture, "Sample test" * doctest::skip(true))
+{
+  auto server = std::make_unique<tservernetwork>("0.0.0.0", 23073);
+  auto client = std::make_unique<tclientnetwork>();
+  client->connect("127.0.0.1", 23073);
+  while(!client->IsConnected())
+  {
+    client->FlushMsg();
+    server->FlushMsg();
+    client->processloop();
+    server->ProcessLoop();
+  }
+
+  server->disconnect(true);
+  while(!client->IsDisconnected())
+  {
+    client->FlushMsg();
+    server->FlushMsg();
+    server->ProcessLoop();
+    client->processloop();
+  }
+  client->FlushMsg();
+  server->FlushMsg();
+  server->ProcessLoop();
+  client->processloop();
+  auto ret = client->GetQuickConnectionStatus(client->Peer());
+  client->disconnect(true);
+  //CHECK_EQ(true, false);
+}
+
+
+} // namespace

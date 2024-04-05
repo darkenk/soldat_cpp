@@ -212,7 +212,6 @@ public:
   }
 
 protected:
-  bool FInit;
   bool FActive;
   SteamNetworkingIPAddr FAddress;
 
@@ -238,7 +237,6 @@ private:
 };
 
 using TStatsString = std::array<char, 2048>;
-using TIPString = std::array<char, 128>;
 
 #pragma pack(push, 1)
 struct tmsgheader

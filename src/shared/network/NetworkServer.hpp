@@ -21,7 +21,7 @@ class tservernetwork : public TNetwork
 {
 public:
   void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
-  tservernetwork(std::string Host, std::uint32_t Port);
+  tservernetwork(const std::string &Host, std::uint32_t Port);
   ~tservernetwork();
   void ProcessLoop();
   void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);

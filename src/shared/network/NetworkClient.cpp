@@ -1,5 +1,4 @@
 #include "NetworkClient.hpp"
-#include "../../client/Client.hpp"
 #include "../../client/GameRendering.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
@@ -63,54 +62,51 @@ void tclientnetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
     LogWarn(LOG_NET, "Invalid connection handle");
     return;
   }
-#ifdef DEVELOPMENT
-  Debug("[NET] Received SteamNetConnectionStatusChangedCallback_t ",
-        ToStr(pInfo ^, TypeInfo(SteamNetConnectionStatusChangedCallback_t)));
-#endif
+  LogDebug(LOG_NET, "Client: Process Events {}",  pInfo->m_info.m_eState);
+
   // Make sure it"s for us
-  if (pInfo->m_hConn == FPeer)
+  if (pInfo->m_hConn != FPeer)
   {
-    switch (pInfo->m_info.m_eState)
+    return;
+  }
+  switch (pInfo->m_info.m_eState)
+  {
+  case k_ESteamNetworkingConnectionState_None: {
+    FPeer = k_HSteamNetConnection_Invalid;
+  }
+  break;
+  case k_ESteamNetworkingConnectionState_ClosedByPeer:
+  case k_ESteamNetworkingConnectionState_ProblemDetectedLocally: {
+    if (pInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connecting)
     {
-    case k_ESteamNetworkingConnectionState_None: {
-      FPeer = k_HSteamNetConnection_Invalid;
+      LogInfo(LOG_NET, "[NET] Connection error #1 {}", pInfo->m_info.m_szEndDebug);
+    }
+    else if (pInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ProblemDetectedLocally)
+    {
+      LogInfo(LOG_NET, "[NET] Connection error #2 {}", pInfo->m_info.m_szEndDebug);
+    }
+    else
+    {
+      LogInfo(LOG_NET, "[NET] Connection error #3 {}", pInfo->m_info.m_szEndDebug);
+    }
+    NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
+    if (mDisconnectionCallback)
+    {
+      mDisconnectionCallback(pInfo->m_info.m_szEndDebug);
     }
     break;
-    case k_ESteamNetworkingConnectionState_ClosedByPeer:
-    case k_ESteamNetworkingConnectionState_ProblemDetectedLocally: {
-      if (pInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connecting)
-      {
-        LogInfo(LOG_NET, "[NET] Connection error #1 {}", pInfo->m_info.m_szEndDebug);
-      }
-      else if (pInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ProblemDetectedLocally)
-      {
-        LogInfo(LOG_NET, "[NET] Connection error #2 {}", pInfo->m_info.m_szEndDebug);
-      }
-      else
-      {
-        LogInfo(LOG_NET, "[NET] Connection error #3 {}", pInfo->m_info.m_szEndDebug);
-      }
-
-      rendergameinfo(std::string("Network  error ") + pInfo->m_info.m_szEndDebug);
-      NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
-      break;
-    }
-    case k_ESteamNetworkingConnectionState_Connecting: {
-      LogInfo(LOG_NET, "[NET] Connection request from {}", pInfo->m_info.m_szConnectionDescription);
-      break;
-    }
-    case k_ESteamNetworkingConnectionState_Connected: {
-      LogInfo(LOG_NET, "[NET] Connected to the server");
-      clientrequestgame(*this);
-      break;
-    }
-    default:
-      break;
-    }
   }
-  else
-  {
-    // break;
+  case k_ESteamNetworkingConnectionState_Connecting: {
+    LogInfo(LOG_NET, "[NET] Connection request from {}", pInfo->m_info.m_szConnectionDescription);
+    break;
+  }
+  case k_ESteamNetworkingConnectionState_Connected: {
+    LogInfo(LOG_NET, "[NET] Connected to the server");
+    clientrequestgame(*this);
+    break;
+  }
+  default:
+    break;
   }
 }
 
@@ -118,25 +114,21 @@ tclientnetwork::tclientnetwork()
 {
 }
 
-bool tclientnetwork::connect(std::string Host, std::uint32_t Port)
+bool tclientnetwork::connect(const std::string& Host, std::uint32_t Port)
 {
-  SteamNetworkingIPAddr ServerAddress;
+  SteamNetworkingIPAddr ServerAddress; // NOLINT
   SteamNetworkingConfigValue_t InitSettings[2];
 
   LogInfo(LOG_NET, "Connecting to {}:{}", Host, Port);
-
-  auto Result = true;
 
   ServerAddress.Clear();
   ServerAddress.ParseString(pchar(Host + ":" + inttostr(Port)));
 
   NetworkingSockets->InitAuthentication();
 
-  InitSettings[0].m_eValue = k_ESteamNetworkingConfig_IP_AllowWithoutAuth;
-  InitSettings[0].m_eDataType = k_ESteamNetworkingConfig_Int32;
-  InitSettings[0].m_val.m_int32 = 1;
+  InitSettings[0].SetInt32(k_ESteamNetworkingConfig_IP_AllowWithoutAuth, 1);
   InitSettings[1].SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged,
-                         (void *)&ProcessEventsCallback);
+                         reinterpret_cast<void*>(&ProcessEventsCallback));
 
   {
     std::lock_guard m(TNetwork::sNetworksMutex);
@@ -148,25 +140,35 @@ bool tclientnetwork::connect(std::string Host, std::uint32_t Port)
     GS::GetMainConsole().console("[NET] Failed to connect to  server" +
                                GetNetwork()->GetStringAddress(&ServerAddress, true),
                              warning_message_color);
-    Result = false;
-    return Result;
+    return false;
   }
 
   FAddress = ServerAddress;
-  return Result;
+  return true;
 }
+
+bool tclientnetwork::IsConnected()
+{
+  auto status = GetQuickConnectionStatus(FPeer);
+  return status.m_eState == k_ESteamNetworkingConnectionState_Connected;
+}
+
+bool tclientnetwork::IsDisconnected()
+{
+  auto status = GetQuickConnectionStatus(FPeer);
+  return status.m_eState != k_ESteamNetworkingConnectionState_Connected && status.m_eState != k_ESteamNetworkingConnectionState_Connecting;
+}
+
 
 void tclientnetwork::handlemessages(PSteamNetworkingMessage_t IncomingMsg)
 {
-  pmsgheader PacketHeader;
-
   if (IncomingMsg->m_cbSize < sizeof(tmsgheader))
   {
     IncomingMsg->Release();
     return; // truncated packet
   }
 
-  PacketHeader = pmsgheader(IncomingMsg->m_pData);
+  auto PacketHeader = pmsgheader(IncomingMsg->m_pData);
 
   if (GS::GetDemoRecorder().active())
   {
@@ -368,20 +370,17 @@ void tclientnetwork::handlemessages(PSteamNetworkingMessage_t IncomingMsg)
 bool tclientnetwork::senddata(const std::byte *Data, std::int32_t Size, std::int32_t Flags,
                               const source_location &location)
 {
-  auto Result = false;
-
   if (Size < sizeof(tmsgheader))
-    return Result; // truncated packet
+    return false; // truncated packet
 
   LogDebug(NETMSG, "Senddata {} from {}", reinterpret_cast<const tmsgheader *>(Data)->id,
            location.function_name());
 
   if (FPeer == k_HSteamNetConnection_Invalid)
-    return Result; // not connected
+    return false; // not connected
 
   NetworkingSockets->SendMessageToConnection(FPeer, Data, Size, Flags, nullptr);
-  Result = true;
-  return Result;
+  return true;
 }
 
 namespace

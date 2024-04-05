@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Net.hpp"
+#include <functional>
 
 extern std::int32_t clienttickcount, lastheartbeatcounter;
 extern std::int32_t clientplayerreceivedcounter;
@@ -19,7 +20,10 @@ public:
   virtual ~tclientnetwork()
   {
   }
-  bool connect(std::string Host, std::uint32_t Port);
+  bool connect(const std::string& Host, std::uint32_t Port);
+  bool IsConnected();
+  bool IsDisconnected();
+  void SetDisconnectionCallback(const std::function<void(const char*)>& callback) { mDisconnectionCallback = callback;}
   void processloop();
   void handlemessages(PSteamNetworkingMessage_t IncomingMsg);
   template <typename T>
@@ -30,6 +34,8 @@ public:
   }
   bool senddata(const std::byte *Data, std::int32_t Size, std::int32_t Flags,
                 const source_location &location = source_location::current());
+private:
+  std::function<void(const char*)> mDisconnectionCallback;
 };
 
 template <Config::Module M = Config::GetModule()>

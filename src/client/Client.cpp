@@ -759,6 +759,7 @@ void joinserver()
   dotextureloading(true);
 
   InitClientNetwork();
+  GetNetwork()->SetDisconnectionCallback([](const char* msg){rendergameinfo(std::string("Network  error ") + msg);});
   // DEMO
   if (joinport == "0")
   {
