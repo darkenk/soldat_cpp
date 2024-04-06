@@ -34,6 +34,7 @@ public:
   }
   bool senddata(const std::byte *Data, std::int32_t Size, std::int32_t Flags,
                 const source_location &location = source_location::current());
+  bool disconnect(bool now) { NotImplemented("network", "Is this function needed?"); return true; }
 private:
   std::function<void(const char*)> mDisconnectionCallback;
 };

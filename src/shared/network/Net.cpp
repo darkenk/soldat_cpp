@@ -15,7 +15,6 @@
 #endif
 
 #ifdef SERVER
-TPlayers players;
 
 void TServerPlayer::applyshirtcolorfromteam()
 {

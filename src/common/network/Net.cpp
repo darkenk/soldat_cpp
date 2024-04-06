@@ -50,7 +50,7 @@ TNetwork::TNetwork()
 
   NetworkingSockets = SteamNetworkingSockets();
   NetworkingUtils = SteamNetworkingUtils();
-  NetworkingUtils->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Everything, &DebugNet);
+  NetworkingUtils->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg, &DebugNet);
 
   std::lock_guard m(sNetworksMutex);
   NetworkingUtils->SetGlobalCallback_SteamNetConnectionStatusChanged(NetworksGlobalCallback);
@@ -67,20 +67,12 @@ TNetwork::~TNetwork()
       sNetworks.erase(n);
     }
   }
-  disconnect(true);
 #ifndef STEAM
   NotImplemented("network");
 #if 0
     NetworkingSockets->Destroy;
 #endif
 #endif
-}
-
-bool TNetwork::disconnect(bool Now)
-{
-  auto Result = false;
-
-  return Result;
 }
 
 void TNetwork::FlushMsg()
@@ -91,24 +83,19 @@ void TNetwork::FlushMsg()
   }
 }
 
-std::string TNetwork::GetDetailedConnectionStatus(HSteamNetConnection hConn)
+std::string TNetwork::GetDetailedConnectionStatus(HSteamNetConnection hConn) const
 {
-  TStatsString StatsText;
-  std::string Result;
-  if (NetworkingSockets->GetDetailedConnectionStatus(hConn, StatsText.data(), 2048) == 0)
+  std::array<char, 2048> buf; // NOLINT
+  if (NetworkingSockets->GetDetailedConnectionStatus(hConn, buf.data(), buf.size()) == 0)
   {
-    Result = StatsText.data();
+    return buf.data();
   }
-  else
-  {
-    Result = "";
-  }
-  return Result;
+  return std::string{};
 }
 
-SteamNetworkingQuickConnectionStatus TNetwork::GetQuickConnectionStatus(HSteamNetConnection hConn)
+SteamNetworkingQuickConnectionStatus TNetwork::GetQuickConnectionStatus(HSteamNetConnection hConn) const
 {
-  SteamNetworkingQuickConnectionStatus Result;
+  SteamNetworkingQuickConnectionStatus Result; // NOLINT
   NetworkingSockets->GetQuickConnectionStatus(hConn, &Result);
   return Result;
 }
@@ -118,10 +105,10 @@ void TNetwork::setconnectionname(HSteamNetConnection hConn, std::string Name)
   NetworkingSockets->SetConnectionName(hConn, pchar(Name));
 }
 
-std::string TNetwork::GetStringAddress(PSteamNetworkingIPAddr pAddress, bool Port)
+std::string TNetwork::GetStringAddress(PSteamNetworkingIPAddr pAddress, bool Port) const
 {
-  std::array<char, 128> TempIP;
-  pAddress->ToString(TempIP.data(), 128, Port);
+  std::array<char, 128> TempIP; // NOLINT
+  pAddress->ToString(TempIP.data(), TempIP.size(), Port);
   return TempIP.data();
 }
 

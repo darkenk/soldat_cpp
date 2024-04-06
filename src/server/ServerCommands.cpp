@@ -755,6 +755,7 @@ void commandnetstats(std::vector<std::string> &args, std::uint8_t sender)
         output << statstext << NL;
 #endif
   }
+  auto players = GetServerNetwork()->GetPlayers();
   for (auto &dstplayer : players)
   {
     if (GetServerNetwork()->NetworkingSocket().GetDetailedConnectionStatus(

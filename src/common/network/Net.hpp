@@ -4,7 +4,6 @@
 #include "../Util.hpp"
 #include "../Weapons.hpp"
 #include "../misc/PortUtilsSoldat.hpp"
-//#include "shared/Version.hpp"
 #include <array>
 #include <cstdint>
 #include <mutex>
@@ -161,55 +160,26 @@ using PSteamNetworkingMessage_t = SteamNetworkingMessage_t *;
 class TNetwork
 {
 public:
-  bool Active()
-  {
-    return FActive;
-  }
-  void SetActive(bool active)
-  {
-    FActive = active;
-  }
   TNetwork();
   virtual ~TNetwork();
 
-  virtual bool disconnect(bool Now);
   void FlushMsg();
   virtual void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) = 0;
-
-  std::string GetDetailedConnectionStatus(HSteamNetConnection hConn);
-  SteamNetworkingQuickConnectionStatus GetQuickConnectionStatus(HSteamNetConnection hConn);
+  [[nodiscard]] bool Active() const { return FActive; }
+  void SetActive(bool active) { FActive = active; }
+  [[nodiscard]] std::string GetDetailedConnectionStatus(HSteamNetConnection hConn) const;
+  [[nodiscard]] SteamNetworkingQuickConnectionStatus GetQuickConnectionStatus(HSteamNetConnection hConn) const;
   void setconnectionname(HSteamNetConnection hConn, std::string Name);
-  std::string GetStringAddress(PSteamNetworkingIPAddr pAddress, bool Port);
+  [[nodiscard]] std::string GetStringAddress(PSteamNetworkingIPAddr pAddress, bool Port) const;
 
-  HSteamListenSocket Host()
-  {
-    return FHost;
-  }
-  HSteamNetConnection Peer()
-  {
-    return FPeer;
-  }
-  ISteamNetworkingSockets &NetworkingSocket()
-  {
-    return *NetworkingSockets;
-  }
-  ISteamNetworkingUtils &NetworkingUtil()
-  {
-    return *NetworkingUtils;
-  }
+  [[nodiscard]] HSteamListenSocket Host() const { return FHost; }
+  [[nodiscard]] HSteamNetConnection Peer() const { return FPeer; }
+  [[nodiscard]] ISteamNetworkingSockets &NetworkingSocket() const { return *NetworkingSockets; }
+  [[nodiscard]] ISteamNetworkingUtils &NetworkingUtil() const { return *NetworkingUtils; }
 
-  std::uint32_t Port()
-  {
-    return FAddress.m_port;
-  }
-  void SetPort(std::uint32_t port)
-  {
-    FAddress.m_port = port;
-  }
-  SteamNetworkingIPAddr &Address()
-  {
-    return FAddress;
-  }
+  [[nodiscard]] std::uint32_t Port() const { return FAddress.m_port; }
+  void SetPort(std::uint32_t port) { FAddress.m_port = port; }
+  [[nodiscard]] SteamNetworkingIPAddr &Address() { return FAddress; }
 
 protected:
   bool FActive;
@@ -235,8 +205,6 @@ private:
   std::mutex QueueMutex;
   std::queue<SteamNetConnectionStatusChangedCallback_t> QuedCallbacks;
 };
-
-using TStatsString = std::array<char, 2048>;
 
 #pragma pack(push, 1)
 struct tmsgheader

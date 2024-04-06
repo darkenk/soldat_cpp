@@ -434,7 +434,7 @@ void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
                     msgid_clientspritesnapshot))
     return;
   clientmsg = pmsg_clientspritesnapshot(netmessage->m_pData);
-  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  player = GetServerNetwork()->GetPlayer(netmessage);
   i = player->spritenum;
 
   auto &sprite = SpriteSystem::Get().GetSprite(i);
@@ -508,7 +508,7 @@ void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage)
     return;
 
   tmsg_clientspritesnapshot_mov &clientmovmsg = *pmsg_clientspritesnapshot_mov(netmessage->m_pData);
-  tplayer &player = *reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  tplayer &player = *GetServerNetwork()->GetPlayer(netmessage);
   i = player.spritenum;
 
   messagesasecnum[i] += 1;
@@ -555,7 +555,7 @@ void serverhandleclientspritesnapshot_dead(SteamNetworkingMessage_t *netmessage)
                     msgid_clientspritesnapshot_dead))
     return;
   clientdeadmsg = pmsg_clientspritesnapshot_dead(netmessage->m_pData);
-  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  player = GetServerNetwork()->GetPlayer(netmessage);
   i = player->spritenum;
 
   messagesasecnum[i] += 1;

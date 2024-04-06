@@ -1,5 +1,6 @@
 // automatically converted
 #include "NetworkServerGame.hpp"
+#include "NetworkServer.hpp"
 #include "../../server/Server.hpp"
 #include "../../server/ServerHelper.hpp"
 #include "../Game.hpp"
@@ -21,7 +22,7 @@ void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
     return;
 
   playermsg = pmsg_playerdisconnect(netmessage->m_pData);
-  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  player = GetServerNetwork()->GetPlayer(netmessage);
   i = player->spritenum;
 
   for (j = 0; j <= SpriteSystem::Get().GetSprite(i).bulletcheckamount; j++)
@@ -95,6 +96,7 @@ void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
   SpriteSystem::Get().GetSprite(i).kill();
   SpriteSystem::Get().GetSprite(i).player = std::make_shared<TServerPlayer>();
   NotImplemented("Check if &player is used properly to remove player");
+  auto players = GetServerNetwork()->GetPlayers();
   players.erase(std::remove_if(players.begin(), players.end(),
                                [&player](const auto &v) { return v.get() == player; }),
                 players.end());
@@ -224,7 +226,7 @@ void serverhandlevotekick(SteamNetworkingMessage_t *netmessage)
     return;
 
   votekickmsg = pmsg_votekick(netmessage->m_pData);
-  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  player = GetServerNetwork()->GetPlayer(netmessage);
   i = player->spritenum;
 
   if (GS::GetGame().IsVoteActive())
@@ -295,7 +297,7 @@ void serverhandlevotemap(SteamNetworkingMessage_t *netmessage)
     return;
 
   votemapmsg = pmsg_votemap(netmessage->m_pData);
-  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  player = GetServerNetwork()->GetPlayer(netmessage);
   i = player->spritenum;
 
   if (votemapmsg->mapid > mapslist.size() - 1)
@@ -319,7 +321,7 @@ void serverhandlechangeteam(SteamNetworkingMessage_t *netmessage)
   if (!verifypacket(sizeof(tmsg_changeteam), netmessage->m_cbSize, msgid_changeteam))
     return;
   changeteammsg = pmsg_changeteam(netmessage->m_pData);
-  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  player = GetServerNetwork()->GetPlayer(netmessage);
   i = player->spritenum;
   SpriteSystem::Get().GetSprite(i).changeteam(changeteammsg->team);
 }

@@ -62,6 +62,7 @@ void clientrequestgame(tclientnetwork& network)
   std::strcpy(requestmsg->password.data(), joinpassword.data());
   network.senddata((std::byte *)(requestmsg), size, k_nSteamNetworkingSend_Reliable);
   // udp->senddata(requestmsg, size, k_nSteamNetworkingSend_Reliable);
+
   requestinggame = true;
 }
 

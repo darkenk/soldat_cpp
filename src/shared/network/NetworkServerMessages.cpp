@@ -6,6 +6,7 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../misc/MemoryUtils.hpp"
+#include "NetworkServer.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
@@ -88,7 +89,7 @@ void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage)
   std::uint8_t msgtype;
   TServerPlayer *player;
 
-  player = reinterpret_cast<TServerPlayer *>(netmessage->m_nConnUserData);
+  player = GetServerNetwork()->GetPlayer(netmessage);
 
   if (player->spritenum == 0)
     return;

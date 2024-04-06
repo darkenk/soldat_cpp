@@ -4,6 +4,7 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "NetworkUtils.hpp"
+#include "NetworkServer.hpp"
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
@@ -213,7 +214,7 @@ void serverhandlerequestthing(SteamNetworkingMessage_t *netmessage)
   if (!verifypacket(sizeof(tmsg_requestthing), netmessage->m_cbSize, msgid_requestthing))
     return;
   msg = pmsg_requestthing(netmessage->m_pData);
-  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  player = GetServerNetwork()->GetPlayer(netmessage);
   serverthingmustsnapshotonconnectto(msg->thingid, player->spritenum);
 }
 #endif

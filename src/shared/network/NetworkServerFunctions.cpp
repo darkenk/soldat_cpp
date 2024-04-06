@@ -2,7 +2,7 @@
 
 #include "NetworkServerFunctions.hpp"
 
-#include "../../server/Server.hpp"
+#include "NetworkServer.hpp"
 #include "../Game.hpp"
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
@@ -194,7 +194,7 @@ void serverhandleclientfreecam(SteamNetworkingMessage_t *netmessage)
   if (!verifypacket(sizeof(tmsg_clientfreecam), netmessage->m_cbSize, msgid_clientfreecam))
     return;
   freecammsg = pmsg_clientfreecam(netmessage->m_pData);
-  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  player = GetServerNetwork()->GetPlayer(netmessage);
   i = player->spritenum;
   SpriteSystem::Get().GetSprite(i).targetx = freecammsg->targetpos.x;
   SpriteSystem::Get().GetSprite(i).targety = freecammsg->targetpos.y;

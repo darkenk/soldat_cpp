@@ -1,5 +1,6 @@
 // automatically converted
 #include "NetworkServerConnection.hpp"
+#include "NetworkServer.hpp"
 #include "../../server/BanSystem.hpp"
 #include "../../server/Server.hpp"
 #include "../../server/ServerHelper.hpp"
@@ -41,7 +42,8 @@ void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
     return;
 
   // Player := TPlayer(NetMessage^.m_pData);
-  player = reinterpret_cast<TServerPlayer *>(netmessage->m_nConnUserData);
+
+  player = GetServerNetwork()->GetPlayer(netmessage);
   banindex = 0;
   banhw = false;
   banreason = "";
@@ -177,7 +179,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
   auto &things = GS::GetThingSystem().GetThings();
 
   playerinfomsg = pmsg_playerinfo(netmessage->m_pData);
-  player = reinterpret_cast<TServerPlayer *>(netmessage->m_nConnUserData);
+  player = GetServerNetwork()->GetPlayer(netmessage);
   SoldatAssert(player->spritenum == 0);
 
 #ifdef ENABLE_FAE
@@ -371,6 +373,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
 
   // create sprite and assign it our player object
   randomizestart(a, playerinfomsg->team);
+  auto players = GetServerNetwork()->GetPlayers();
   auto it = std::find_if(players.begin(), players.end(),
                          [&player](const auto &v) { return v.get() == player; });
   SoldatAssert(it != players.end());
@@ -707,6 +710,7 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
   // NOTE we also send to pending players to avoid desynchronization of the players list
   if (!SpriteSystem::Get().GetSprite(num).player->demoplayer)
   {
+    auto players = GetServerNetwork()->GetPlayers();
     for (auto &player : players)
     {
       newplayer.adoptspriteid = num == player->spritenum;
@@ -744,6 +748,7 @@ void serverdisconnect()
   servermsg.header.id = msgid_serverdisconnect;
 
   // NOTE send to pending like above
+  auto players = GetServerNetwork()->GetPlayers();
   for (const auto &dstplayer : players)
   {
     GetServerNetwork()->senddata(&servermsg, sizeof(servermsg), dstplayer->peer,
@@ -769,6 +774,7 @@ void serverplayerdisconnect(std::uint8_t num, std::uint8_t why)
   playermsg.why = why;
 
   // NOTE send to pending like above
+  auto players = GetServerNetwork()->GetPlayers();
   for (const auto &dstplayer : players)
   {
     GetServerNetwork()->senddata(&playermsg, sizeof(playermsg), dstplayer->peer,
@@ -929,7 +935,7 @@ void serverhandlepong(SteamNetworkingMessage_t *netmessage)
     return;
 
   pongmsg = pmsg_pong(netmessage->m_pData);
-  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  player = GetServerNetwork()->GetPlayer(netmessage);
   i = player->spritenum;
 
   messagesasecnum[i] += 1;

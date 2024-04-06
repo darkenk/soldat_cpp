@@ -31,25 +31,21 @@ void ProcessEventsCallback(PSteamNetConnectionStatusChangedCallback_t pInfo)
 }
 } // namespace
 
-tservernetwork::tservernetwork(const std::string &Host, std::uint32_t Port)
+ServerNetwork::ServerNetwork(const std::string_view host, std::uint32_t port)
 {
-  SteamNetworkingIPAddr ServerAddress;
-  SteamNetworkingConfigValue_t InitSettings[2];
+  SteamNetworkingIPAddr ServerAddress; // NOLINT
+  std::array<SteamNetworkingConfigValue_t, 2> InitSettings; // NOLINT
 
   ServerAddress.Clear();
-  ServerAddress.ParseString(pchar(Host + ":" + inttostr(Port)));
+  ServerAddress.ParseString((std::string(host) + ":" + std::to_string(port)).c_str());
   InitSettings[0].SetInt32(k_ESteamNetworkingConfig_IP_AllowWithoutAuth, 1);
   InitSettings[1].SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged,
-                         (void *)&ProcessEventsCallback);
-  //#ifdef STEAM
-  // if sv_steamonly.Value then
-  //  InitSettings.m_int32 = 0
-  // else
-  //#endif
-  FHost = NetworkingSockets->CreateListenSocketIP(ServerAddress, 1, InitSettings);
+                         reinterpret_cast<void*>(&ProcessEventsCallback));
+  FHost = NetworkingSockets->CreateListenSocketIP(ServerAddress, 1, InitSettings.data());
 
   if (FHost == k_HSteamListenSocket_Invalid)
   {
+    LogWarn(LOG_NET, "Cannot listen {}:{}", host, port);
     return;
   }
 
@@ -59,10 +55,7 @@ tservernetwork::tservernetwork(const std::string &Host, std::uint32_t Port)
     LogWarn(LOG_NET, "Failed to create poll group");
     return;
   }
-  else
-  {
-    NetworkingSockets->GetListenSocketAddress(FHost, &FAddress);
-  }
+  NetworkingSockets->GetListenSocketAddress(FHost, &FAddress);
 
   if (FHost != k_HSteamNetPollGroup_Invalid)
   {
@@ -70,7 +63,21 @@ tservernetwork::tservernetwork(const std::string &Host, std::uint32_t Port)
   }
 }
 
-void tservernetwork::ProcessLoop()
+ServerNetwork::~ServerNetwork()
+{
+  ServerNetwork::disconnect(true);
+  if (FHost != k_HSteamNetConnection_Invalid)
+  {
+    NetworkingSockets->CloseListenSocket(FHost);
+  }
+
+  if (FPollGroup != k_HSteamNetPollGroup_Invalid)
+  {
+    NetworkingSockets->DestroyPollGroup(FPollGroup);
+  }
+}
+
+void ServerNetwork::ProcessLoop()
 {
   PSteamNetworkingMessage_t IncomingMsg;
   RunCallbacks();
@@ -89,7 +96,7 @@ void tservernetwork::ProcessLoop()
   HandleMessages(IncomingMsg);
 }
 
-void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo)
+void ServerNetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo)
 {
   LogDebug(LOG_NET, "Server: Process Events {}", pInfo->m_info.m_eState);
 
@@ -101,18 +108,16 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
   }
   case k_ESteamNetworkingConnectionState_ClosedByPeer:
   case k_ESteamNetworkingConnectionState_ProblemDetectedLocally: {
-    if (pInfo->m_info.m_nUserData == 0)
-    {
-      NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
-      return;
-    }
     // NOTE that this is not called for ordinary disconnects, where we use enet"s
     // disconnect_now, which does not generate additional events. Cleanup of Player is still
     // performed explicitly.
-    auto Player = reinterpret_cast<TServerPlayer *>(pInfo->m_info.m_nUserData);
+    auto it = mConnectionMap.find(pInfo->m_hConn);
+    SoldatAssert(it != mConnectionMap.end());
+    auto Player = it->second.get();
 
     if (Player == nullptr)
     {
+      // DK: hm?
       NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
       return;
     }
@@ -134,48 +139,49 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
 
     // call destructor; this releases any additional resources managed for the connection, such
     // as anti-cheat handles etc.
-    players.erase(std::remove_if(players.begin(), players.end(),
+    mPlayers.erase(std::remove_if(mPlayers.begin(), mPlayers.end(),
                                  [&Player](const auto &v) { return Player == v.get(); }),
-                  players.end());
+                  mPlayers.end());
     delete Player;
+    mConnectionMap.erase(it);
 
     NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
     break;
   }
   case k_ESteamNetworkingConnectionState_Connecting: {
-    if (pInfo->m_info.m_hListenSocket != 0)
-    {
-      LogWarn(LOG_NET, "Connection request from {}", pInfo->m_info.m_szConnectionDescription);
+    SoldatAssert(pInfo->m_info.m_hListenSocket != 0);
+    LogWarn(LOG_NET, "Connection request from {}", pInfo->m_info.m_szConnectionDescription);
 
-      //  A new connection arrives on a listen socket. m_info.m_hListenSocket will be set,
-      //  m_eOldState = k_ESteamNetworkingConnectionState_None,
-      // and m_info.m_eState = k_ESteamNetworkingConnectionState_Connecting. See
-      // AcceptConnection.
-      //  and (pInfo->m_info.m_eState = k_ESteamNetworkingConnectionState_Connecting)
-      if (pInfo->m_eOldState == k_ESteamNetworkingConnectionState_None)
+    //  A new connection arrives on a listen socket. m_info.m_hListenSocket will be set,
+    //  m_eOldState = k_ESteamNetworkingConnectionState_None,
+    // and m_info.m_eState = k_ESteamNetworkingConnectionState_Connecting. See
+    // AcceptConnection.
+    //  and (pInfo->m_info.m_eState = k_ESteamNetworkingConnectionState_Connecting)
+    if (pInfo->m_eOldState == k_ESteamNetworkingConnectionState_None)
+    {
+      if (not NetworkingSockets->SetConnectionPollGroup(pInfo->m_hConn, FPollGroup))
       {
-        if (not NetworkingSockets->SetConnectionPollGroup(pInfo->m_hConn, FPollGroup))
-        {
-          LogWarn(LOG_NET, "Failed to set poll group for user");
-          NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
-          return;
-        }
-        NetworkingSockets->AcceptConnection(pInfo->m_hConn);
+        LogWarn(LOG_NET, "Failed to set poll group for user");
+        NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
+        return;
       }
+      NetworkingSockets->AcceptConnection(pInfo->m_hConn);
     }
     break;
   }
   case k_ESteamNetworkingConnectionState_Connected: {
     {
       std::array<char, 128> tmp; // NOLINT
-      auto Player = std::make_shared<TServerPlayer>();
-      Player->peer = pInfo->m_hConn;
+      auto player = std::make_shared<TServerPlayer>();
+      player->peer = pInfo->m_hConn;
       pInfo->m_info.m_addrRemote.ToString(tmp.data(), tmp.size(), false);
-      Player->ip = tmp.data();
-      Player->port = pInfo->m_info.m_addrRemote.m_port;
-      NetworkingSockets->SetConnectionUserData(pInfo->m_hConn, reinterpret_cast<std::int64_t>(Player.get()));
+      player->ip = tmp.data();
+      player->port = pInfo->m_info.m_addrRemote.m_port;
+      NetworkingSockets->SetConnectionUserData(pInfo->m_hConn, reinterpret_cast<std::int64_t>(player.get()));
       LogInfo(LOG_NET, "Connection  accepted {}", pInfo->m_info.m_szConnectionDescription);
-      players.push_back(Player);
+      mPlayers.push_back(player);
+      SoldatAssert(!mConnectionMap.contains(pInfo->m_hConn));
+      mConnectionMap[pInfo->m_hConn] = player;
     }
     break;
   }
@@ -184,7 +190,7 @@ void tservernetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pI
   }
 }
 
-void tservernetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
+void ServerNetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 {
   if (IncomingMsg->m_cbSize < sizeof(tmsgheader))
   {
@@ -192,13 +198,7 @@ void tservernetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
     return; // truncated packet
   }
 
-  if (IncomingMsg->GetConnectionUserData() == -1)
-  {
-    IncomingMsg->Release();
-    return;
-  }
-
-  auto Player = reinterpret_cast<TServerPlayer *>(IncomingMsg->GetConnectionUserData());
+  auto Player = GetPlayer(IncomingMsg);
   auto PacketHeader = pmsgheader(IncomingMsg->m_pData);
 
   switch (PacketHeader->id)
@@ -288,23 +288,7 @@ void tservernetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
   IncomingMsg->Release();
 }
 
-tservernetwork::~tservernetwork()
-{
-  tservernetwork::disconnect(true);
-  if (FHost != k_HSteamNetConnection_Invalid)
-  {
-    NetworkingSockets->CloseListenSocket(FHost);
-  }
-
-  if (FPollGroup != k_HSteamNetPollGroup_Invalid)
-  {
-    NetworkingSockets->DestroyPollGroup(FPollGroup);
-  }
-
-  players.clear();
-}
-
-bool tservernetwork::senddata(const std::byte *Data, std::int32_t Size, HSteamNetConnection Peer,
+bool ServerNetwork::senddata(const std::byte *Data, std::int32_t Size, HSteamNetConnection Peer,
                               std::int32_t Flags)
 {
   if (Size < sizeof(tmsgheader))
@@ -324,7 +308,7 @@ bool tservernetwork::senddata(const std::byte *Data, std::int32_t Size, HSteamNe
   return ret == k_EResultOK;
 }
 
-void tservernetwork::UpdateNetworkStats(std::uint8_t Player)
+void ServerNetwork::UpdateNetworkStats(std::uint8_t Player)
 {
   SteamNetworkingQuickConnectionStatus Stats = GetQuickConnectionStatus(SpriteSystem::Get().GetSprite(Player).player->peer);
   SpriteSystem::Get().GetSprite(Player).player->realping = Stats.m_nPing;
@@ -339,31 +323,33 @@ void tservernetwork::UpdateNetworkStats(std::uint8_t Player)
   }
 }
 
-bool tservernetwork::disconnect(bool now)
+bool ServerNetwork::disconnect(bool now)
 {
   if (FHost == k_HSteamNetPollGroup_Invalid)
   {
     return false;
   }
-  for (const auto &DstPlayer : players)
+
+  for (const auto &DstPlayer : mPlayers)
   {
     NetworkingSockets->CloseConnection(DstPlayer->peer, 0, "", !now);
   }
+  mPlayers.clear();
   return true;
 }
 
 namespace
 {
-tservernetwork *gUDP;
+ServerNetwork *gUDP;
 }
 
 bool InitNetworkServer(const std::string &Host, uint32_t Port)
 {
-  gUDP = new tservernetwork(Host, Port);
+  gUDP = new ServerNetwork(Host, Port);
   return gUDP != nullptr;
 }
 
-tservernetwork *GetServerNetwork()
+ServerNetwork *GetServerNetwork()
 {
   return gUDP;
 }
@@ -391,36 +377,62 @@ public:
 
 protected:
 };
-//--exit -tc=Sample*
-TEST_CASE_FIXTURE(NetworkServerFixture, "Sample test" * doctest::skip(true))
+
+//--exit -ts=NetworkServer*
+TEST_SUITE("NetworkServer")
 {
-  auto server = std::make_unique<tservernetwork>("0.0.0.0", 23073);
-  auto client = std::make_unique<tclientnetwork>();
-  client->connect("127.0.0.1", 23073);
-  while(!client->IsConnected())
+  TEST_CASE_FIXTURE(NetworkServerFixture, "Test recreation of server" * doctest::skip(true))
   {
-    client->FlushMsg();
-    server->FlushMsg();
-    client->processloop();
-    server->ProcessLoop();
+    {
+      auto server = std::make_unique<ServerNetwork>("0.0.0.0", 23073);
+    }
+    {
+      auto server = std::make_unique<ServerNetwork>("0.0.0.0", 23073);
+    }
   }
 
-  server->disconnect(true);
-  while(!client->IsDisconnected())
+  TEST_CASE_FIXTURE(NetworkServerFixture, "First initial test" * doctest::skip(true))
   {
+    auto server = std::make_unique<ServerNetwork>("0.0.0.0", 23073);
+    auto client = std::make_unique<tclientnetwork>();
+    client->connect("127.0.0.1", 23073);
+    auto iterations = 0;
+    while(!client->IsConnected())
+    {
+      client->FlushMsg();
+      server->FlushMsg();
+      client->processloop();
+      server->ProcessLoop();
+      iterations++;
+    }
+    LogDebug(LOG_NET, "Iters1 {}", iterations);
+    client->FlushMsg();
+    server->FlushMsg();
+    client->processloop();
+    server->ProcessLoop();
+    iterations++;
+    LogDebug(LOG_NET, "Iters2 {}", iterations);
+    server->disconnect(true);
+    while(!client->IsDisconnected())
+    {
+      client->FlushMsg();
+      server->FlushMsg();
+      server->ProcessLoop();
+      client->processloop();
+      iterations++;
+    }
+    LogDebug(LOG_NET, "Iters3 {}", iterations);
     client->FlushMsg();
     server->FlushMsg();
     server->ProcessLoop();
     client->processloop();
+    iterations++;
+    LogDebug(LOG_NET, "Iters4 {}", iterations);
+    auto ret = client->GetQuickConnectionStatus(client->Peer());
+    client->disconnect(true);
+    CHECK_EQ(true, server->GetPlayers().empty());
   }
-  client->FlushMsg();
-  server->FlushMsg();
-  server->ProcessLoop();
-  client->processloop();
-  auto ret = client->GetQuickConnectionStatus(client->Peer());
-  client->disconnect(true);
-  //CHECK_EQ(true, false);
-}
+} // TEST_SUITE(NetworkServer)
 
 
 } // namespace

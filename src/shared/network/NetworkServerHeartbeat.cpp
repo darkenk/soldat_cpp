@@ -1,14 +1,14 @@
 // automatically converted
 
 #include "NetworkServerHeartbeat.hpp"
-
+#include "NetworkServer.hpp"
 #include "../Demo.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include <steam/isteamnetworkingmessages.h>
 
 template<class TSprite, Config::Module M>
-void serverheartbeat(tservernetwork& transport, TSpriteSystem<TSprite>& spriteSystem, Game<M>& game)
+void serverheartbeat(ServerNetwork& transport, TSpriteSystem<TSprite>& spriteSystem, Game<M>& game)
 {
   tmsg_heartbeat heartbeatmsg;
   heartbeatmsg.header.id = msgid_heartbeat;
@@ -114,18 +114,18 @@ TEST_CASE_FIXTURE(NetworkServerHeartbeatFixture, "Initial test for heartbeat" * 
 {
   auto &spriteSystem = SpriteSystem::Get();
   auto &game = GS::GetGame();
-  auto server = std::make_unique<tservernetwork>("0.0.0.0", 23073);
+  auto server = std::make_unique<ServerNetwork>("0.0.0.0", 23073);
   auto client = std::make_unique<tclientnetwork>();
   client->connect("127.0.0.1", 23073);
-  while(players.empty())
+  while(server->GetPlayers().empty())
   {
     client->FlushMsg();
     server->FlushMsg();
     client->processloop();
     server->ProcessLoop();
   }
-  SoldatAssert(players.size() == 1);
-  auto player = players.at(0);
+  SoldatAssert(server->GetPlayers().size() == 1);
+  auto player = server->GetPlayers().at(0);
   player->controlmethod = human;
   tvector2 spos; // out
   std::uint8_t spriteId = 255;

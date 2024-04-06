@@ -379,7 +379,13 @@ bool tclientnetwork::senddata(const std::byte *Data, std::int32_t Size, std::int
   if (FPeer == k_HSteamNetConnection_Invalid)
     return false; // not connected
 
-  NetworkingSockets->SendMessageToConnection(FPeer, Data, Size, Flags, nullptr);
+  auto ret = NetworkingSockets->SendMessageToConnection(FPeer, Data, Size, Flags, nullptr);
+  SoldatAssert(ret == EResult::k_EResultOK);
+  if (ret != EResult::k_EResultOK)
+  {
+    LogWarn(LOG_NET, "Cannot send message: {}", ret);
+    return false;
+  }
   return true;
 }
 

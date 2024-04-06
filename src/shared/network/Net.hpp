@@ -89,7 +89,6 @@ public:
 };
 
 using TPlayers = std::vector<std::shared_ptr<TServerPlayer>>;
-extern TPlayers players;
 #endif
 
 #ifdef SCRIPT

@@ -10,6 +10,7 @@
 #include "../../client/Sound.hpp"
 #else
 #include "../../server/Server.hpp"
+#include "../network/NetworkServer.hpp"
 #include "../network/NetworkServerGame.hpp"
 #include "../network/NetworkServerMessages.hpp"
 #include "../network/NetworkServerThing.hpp"

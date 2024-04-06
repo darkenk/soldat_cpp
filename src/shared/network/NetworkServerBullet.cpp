@@ -3,6 +3,7 @@
 
 #include "../Game.hpp"
 #include "NetworkUtils.hpp"
+#include "NetworkServer.hpp"
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
@@ -74,7 +75,7 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
     return;
 
   bulletsnap = pmsg_clientbulletsnapshot(netmessage->m_pData);
-  player = reinterpret_cast<tplayer *>(netmessage->m_nConnUserData);
+  player = GetServerNetwork()->GetPlayer(netmessage);
   p = player->spritenum;
 
   auto &guns = GS::GetWeaponSystem().GetGuns();

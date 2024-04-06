@@ -3,7 +3,9 @@
 #include "shared/Console.hpp"
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
-#include "shared/network/NetworkServer.hpp"
+
+#include <common/network/Net.hpp>
+// #include "shared/network/NetworkServer.hpp"
 
 extern bool progready;
 extern std::int32_t bonusfreq;
