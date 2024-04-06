@@ -88,7 +88,7 @@ def SetupLibressl(platform, config):
     os.makedirs(SSL_DIR, exist_ok = True)
 
     cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + SSL_DIR + '/out',
-      GetCmakeArgBuildType(config), '-DLIBRESSL_APPS=OFF', '-DLIBRESSL_TESTS=OFF', -DBUILD_SHARED_LIBS=ON
+      GetCmakeArgBuildType(config), '-DLIBRESSL_APPS=OFF', '-DLIBRESSL_TESTS=OFF', '-DBUILD_SHARED_LIBS=ON'
     ]
     cmake_config = cmake_config + GetAdditionalConfigs(platform)
     cmake_config.append(SSL_SRC)

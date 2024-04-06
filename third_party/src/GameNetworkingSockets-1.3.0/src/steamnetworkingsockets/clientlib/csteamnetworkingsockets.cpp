@@ -1955,7 +1955,7 @@ bool CSteamNetworkingUtils::SetConfigValue( ESteamNetworkingConfigValue eValue,
 				return false;
 
 			// Set the data, possibly fixing up existing queued messages, etc
-			pConn->SetUserData( pConn->m_connectionConfig.m_ConnectionUserData.m_data );
+			pConn->SetUserData( newData ); // darkenk: fix initial connection userdata loading: https://github.com/ValveSoftware/GameNetworkingSockets/commit/657fb7a7fe57e3e4fcf406998a6242591c35bb2d
 			return true;
 		}
 
