@@ -7,7 +7,6 @@
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <steam/isteamnetworkingmessages.h>
 
 void serversendfreecam(std::uint8_t tonum, bool freecam, tvector2 pos)
 {

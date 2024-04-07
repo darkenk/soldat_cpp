@@ -16,6 +16,7 @@
 #include "NetworkUtils.hpp"
 #include "common/Logging.hpp"
 #include "common/gfx.hpp"
+#include "shared/Version.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 

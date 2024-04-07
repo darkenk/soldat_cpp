@@ -28,7 +28,6 @@
 #include "shared/network/NetworkUtils.hpp"
 #include <Tracy.hpp>
 #include <array>
-#include <steam/steamnetworkingsockets.h>
 #include <thread>
 
 // constexpr auto PATH_MAX = 4095;

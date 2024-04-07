@@ -6,6 +6,7 @@
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
 #include "../misc/MemoryUtils.hpp"
+#include "NetworkClient.hpp"
 #include "NetworkUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
@@ -49,11 +50,11 @@ void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
   memcpy(&pchatmessage->text, text16.data(), text16.size() * 2);
   memset(&pchatmessage->text + text16.size() * 2, 0, 2);
 
-  GetNetwork()->SendData(pchatmessage, size, k_nSteamNetworkingSend_Reliable);
+  GetNetwork()->SendData(pchatmessage, size, true);
   freemem(pchatmessage);
 }
 
-void clienthandlechatmessage(SteamNetworkingMessage_t *netmessage)
+void clienthandlechatmessage(NetworkContext *netmessage)
 {
   std::string cs = "";
   std::string prefix = "";
@@ -123,7 +124,7 @@ void clienthandlechatmessage(SteamNetworkingMessage_t *netmessage)
   end;*/
 }
 
-void clienthandlespecialmessage(SteamNetworkingMessage_t *netmessage)
+void clienthandlespecialmessage(NetworkContext *netmessage)
 {
   tmsg_serverspecialmessage *specialmessage;
   std::string cs;

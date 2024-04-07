@@ -4,15 +4,15 @@
 #include "../../client/GameMenus.hpp"
 #include "../../client/InterfaceGraphics.hpp"
 #include "../../client/Sound.hpp"
-#include "../Demo.hpp"
 #include "../Game.hpp"
+#include "NetworkClient.hpp"
 #include "NetworkClientConnection.hpp"
 #include "NetworkUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-void clienthandlevoteon(SteamNetworkingMessage_t *netmessage)
+void clienthandlevoteon(NetworkContext *netmessage)
 {
   tmsg_voteon *voteonmsg;
   std::int32_t i;
@@ -35,7 +35,7 @@ void clienthandlevoteoff()
   GS::GetGame().stopvote();
 }
 
-void clienthandleserversyncmsg(SteamNetworkingMessage_t *netmessage)
+void clienthandleserversyncmsg(NetworkContext *netmessage)
 {
   tmsg_serversyncmsg *syncmsg;
 
@@ -63,7 +63,7 @@ void clienthandleserversyncmsg(SteamNetworkingMessage_t *netmessage)
   }
 }
 
-void clienthandleforceposition(SteamNetworkingMessage_t *netmessage)
+void clienthandleforceposition(NetworkContext *netmessage)
 {
   tmsg_forceposition *forceposition;
 
@@ -78,7 +78,7 @@ void clienthandleforceposition(SteamNetworkingMessage_t *netmessage)
   SpriteSystem::Get().SetSpritePartsOldPos(forceposition->playerid, spritePartsPos);
 }
 
-void clienthandleforcevelocity(SteamNetworkingMessage_t *netmessage)
+void clienthandleforcevelocity(NetworkContext *netmessage)
 {
   tmsg_forcevelocity *forcevelocity;
 
@@ -91,7 +91,7 @@ void clienthandleforcevelocity(SteamNetworkingMessage_t *netmessage)
   spriteVelocity = forcevelocity->vel;
 }
 
-void clienthandleforceweapon(SteamNetworkingMessage_t *netmessage)
+void clienthandleforceweapon(NetworkContext *netmessage)
 {
   tmsg_forceweapon *forceweapon;
 
@@ -109,7 +109,7 @@ void clienthandleforceweapon(SteamNetworkingMessage_t *netmessage)
   }
 }
 
-void clienthandleweaponactivemessage(SteamNetworkingMessage_t *netmessage)
+void clienthandleweaponactivemessage(NetworkContext *netmessage)
 {
   tmsg_weaponactivemessage *wactivemessage;
   std::int32_t i;
@@ -136,7 +136,7 @@ void clienthandleweaponactivemessage(SteamNetworkingMessage_t *netmessage)
   }
 }
 
-void clienthandleclientfreecam(SteamNetworkingMessage_t *netmessage)
+void clienthandleclientfreecam(NetworkContext *netmessage)
 {
   tmsg_clientfreecam *freecammsg;
 
@@ -167,7 +167,7 @@ void clienthandleclientfreecam(SteamNetworkingMessage_t *netmessage)
 }
 
 // Server tells client to join another server
-void clienthandlejoinserver(SteamNetworkingMessage_t *netmessage)
+void clienthandlejoinserver(NetworkContext *netmessage)
 {
   tmsg_joinserver *joinservermsg;
 
@@ -196,7 +196,7 @@ void clienthandlejoinserver(SteamNetworkingMessage_t *netmessage)
   exittomenu();
 }
 
-void clienthandleplaysound(SteamNetworkingMessage_t *netmessage)
+void clienthandleplaysound(NetworkContext *netmessage)
 {
   tmsg_playsound *playsoundmsg;
   std::int32_t i;

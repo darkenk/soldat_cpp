@@ -1,5 +1,6 @@
 #pragma once
 
+#include "shared/misc/SoldatConfig.hpp"
 #include "common/misc/TIniFile.hpp"
 
 template <Config::Module M>

@@ -11,15 +11,17 @@
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
 #include "../misc/BitStream.hpp"
+#include "NetworkClient.hpp"
 #include "NetworkClientSprite.hpp"
 #include "NetworkUtils.hpp"
 #include "common/Logging.hpp"
 #include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
+#include "shared/LogFile.hpp"
+#include "shared/Version.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include <physfs.h>
-#include <shared/Cvar.hpp>
 
 using string = std::string;
 
@@ -60,8 +62,8 @@ void clientrequestgame(NetworkClient& network)
   std::strcpy(requestmsg->hardwareid.data(), hwid.data());
 
   std::strcpy(requestmsg->password.data(), joinpassword.data());
-  network.SendData((std::byte *)(requestmsg), size, k_nSteamNetworkingSend_Reliable);
-  // udp->senddata(requestmsg, size, k_nSteamNetworkingSend_Reliable);
+  network.SendData(requestmsg, size, true);
+  // udp->senddata(requestmsg, size, true);
 
   requestinggame = true;
 }
@@ -94,7 +96,7 @@ void clientsendplayerinfo()
   {
     changemsg.header.id = msgid_changeteam;
     changemsg.team = selteam;
-    GetNetwork()->SendData(&changemsg, sizeof(changemsg), k_nSteamNetworkingSend_Reliable);
+    GetNetwork()->SendData(&changemsg, sizeof(changemsg), true);
     return;
   }
 
@@ -136,7 +138,7 @@ void clientsendplayerinfo()
   playerinfo.gamemodchecksum.Dummy[4] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[4]);
   playerinfo.custommodchecksum = GS::GetGame().GetCustomModChecksum();
 
-  GetNetwork()->SendData(&playerinfo, sizeof(playerinfo), k_nSteamNetworkingSend_Reliable);
+  GetNetwork()->SendData(&playerinfo, sizeof(playerinfo), true);
   clientplayersent = true;
   clientplayerreceivedcounter = clientplayerrecieved_time;
 }
@@ -150,7 +152,7 @@ void clientdisconnect()
     playermsg.header.id = msgid_playerdisconnect;
     playermsg.num = mysprite;
 
-    GetNetwork()->SendData(&playermsg, sizeof(playermsg), k_nSteamNetworkingSend_Reliable);
+    GetNetwork()->SendData(&playermsg, sizeof(playermsg), true);
 
     auto& fs= GS::GetFileSystem();
 
@@ -175,10 +177,10 @@ void clientpong(std::uint8_t pingnum)
   pongmsg.header.id = msgid_pong;
   pongmsg.pingnum = pingnum;
 
-  GetNetwork()->SendData(&pongmsg, sizeof(pongmsg), k_nSteamNetworkingSend_Reliable);
+  GetNetwork()->SendData(&pongmsg, sizeof(pongmsg), true);
 }
 
-void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
+void clienthandleplayerslist(NetworkContext *netmessage)
 {
   tmsg_playerslist *playerslistmsg;
   std::int32_t i;
@@ -491,7 +493,7 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
 #endif
 }
 
-void clienthandleunaccepted(SteamNetworkingMessage_t *netmessage)
+void clienthandleunaccepted(NetworkContext *netmessage)
 {
   pmsg_unaccepted unacceptedmsg;
   std::string text;
@@ -559,7 +561,7 @@ void clienthandleunaccepted(SteamNetworkingMessage_t *netmessage)
   exittomenu();
 }
 
-void clienthandleserverdisconnect(SteamNetworkingMessage_t *netmessage)
+void clienthandleserverdisconnect(NetworkContext *netmessage)
 {
   if (!verifypacket(sizeof(tmsg_serverdisconnect), netmessage->m_cbSize, msgid_serverdisconnect))
     return;
@@ -572,7 +574,7 @@ void clienthandleserverdisconnect(SteamNetworkingMessage_t *netmessage)
     demoplayer.stopdemo();
 }
 
-void clienthandleping(SteamNetworkingMessage_t *netmessage)
+void clienthandleping(NetworkContext *netmessage)
 {
   if (!verifypacket(sizeof(tmsg_ping), netmessage->m_cbSize, msgid_ping))
     return;
@@ -594,7 +596,7 @@ void clienthandleping(SteamNetworkingMessage_t *netmessage)
   noheartbeattime = 0;
 }
 
-void clienthandleservervars(SteamNetworkingMessage_t *netmessage)
+void clienthandleservervars(NetworkContext *netmessage)
 {
   tmsg_servervars *varsmsg;
   std::int32_t i;
@@ -687,7 +689,7 @@ bool ReadAndSetValue(BitStream &bs, std::uint8_t cvarid)
   return true;
 }
 
-void clienthandlesynccvars(SteamNetworkingMessage_t *netmessage)
+void clienthandlesynccvars(NetworkContext *netmessage)
 {
   tmsg_serversynccvars *varsmsg;
   std::int32_t size;

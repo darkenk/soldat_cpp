@@ -10,7 +10,6 @@
 #include "MapGraphics.hpp"
 #include "common/Calc.hpp"
 #include "common/Logging.hpp"
-#include "common/PhysFSExt.hpp"
 #include "common/Util.hpp"
 #include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
@@ -20,6 +19,7 @@
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "shared/network/NetworkClient.hpp"
 #include <filesystem>
 #include <physfs.h>
 #include <set>

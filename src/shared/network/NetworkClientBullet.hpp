@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <steam/isteamnetworkingmessages.h>
+
+struct NetworkContext;
 
 void clientsendbullet(std::uint8_t i);
-void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage);
+void clienthandlebulletsnapshot(NetworkContext *netmessage);

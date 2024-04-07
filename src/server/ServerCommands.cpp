@@ -8,6 +8,7 @@
 #include "shared/Command.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
+#include "shared/Version.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkServer.hpp"

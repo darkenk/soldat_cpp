@@ -10,7 +10,6 @@
 #include "NetworkClientThing.hpp"
 #include "common/Logging.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <steam/isteamnetworkingutils.h>
 #include <steam/isteamnetworkingsockets.h>
 
 static std::string_view NETMSG = "net_msg";
@@ -175,18 +174,20 @@ void NetworkClient::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
     GS::GetDemoRecorder().saverecord(IncomingMsg->m_pData, IncomingMsg->m_cbSize);
   }
 
+  NetworkContext nc{nullptr, PacketHeader, IncomingMsg->m_cbSize, *this};
+
   switch (PacketHeader->id)
   {
   case msgid_playerslist:
-    clienthandleplayerslist(IncomingMsg);
+    clienthandleplayerslist(&nc);
     break;
 
   case msgid_unaccepted:
-    clienthandleunaccepted(IncomingMsg);
+    clienthandleunaccepted(&nc);
     break;
 
   case msgid_newplayer:
-    clienthandlenewplayer(IncomingMsg);
+    clienthandlenewplayer(&nc);
     break;
 
 #ifdef ENABLE_FAE
@@ -197,123 +198,123 @@ void NetworkClient::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
     // PLAYING GAME MESSAGES
 
   case msgid_serverspritesnapshot:
-    clienthandleserverspritesnapshot(IncomingMsg);
+    clienthandleserverspritesnapshot(&nc);
     break;
 
   case msgid_serverspritesnapshot_major:
-    clienthandleserverspritesnapshot_major(IncomingMsg);
+    clienthandleserverspritesnapshot_major(&nc);
     break;
 
   case msgid_serverskeletonsnapshot:
-    clienthandleserverskeletonsnapshot(IncomingMsg);
+    clienthandleserverskeletonsnapshot(&nc);
     break;
 
   case msgid_bulletsnapshot:
-    clienthandlebulletsnapshot(IncomingMsg);
+    clienthandlebulletsnapshot(&nc);
     break;
 
   case msgid_heartbeat:
-    clienthandleheartbeat(IncomingMsg);
+    clienthandleheartbeat(&nc);
     break;
 
   case msgid_serverthingsnapshot:
-    clienthandleserverthingsnapshot(IncomingMsg);
+    clienthandleserverthingsnapshot(&nc);
     break;
 
   case msgid_serverthingmustsnapshot:
-    clienthandleserverthingmustsnapshot(IncomingMsg);
+    clienthandleserverthingmustsnapshot(&nc);
     break;
 
   case msgid_thingtaken:
-    clienthandlethingtaken(IncomingMsg);
+    clienthandlethingtaken(&nc);
     break;
 
   case msgid_spritedeath:
-    clienthandlespritedeath(IncomingMsg);
+    clienthandlespritedeath(&nc);
     break;
 
   case msgid_serverdisconnect:
-    clienthandleserverdisconnect(IncomingMsg);
+    clienthandleserverdisconnect(&nc);
     break;
 
   case msgid_playerdisconnect:
-    clienthandleplayerdisconnect(IncomingMsg);
+    clienthandleplayerdisconnect(&nc);
     break;
 
   case msgid_delta_movement:
-    clienthandledelta_movement(IncomingMsg);
+    clienthandledelta_movement(&nc);
     break;
 
   case msgid_delta_mouseaim:
-    clienthandledelta_mouseaim(IncomingMsg);
+    clienthandledelta_mouseaim(&nc);
     break;
 
   case msgid_delta_weapons:
-    clienthandledelta_weapons(IncomingMsg);
+    clienthandledelta_weapons(&nc);
     break;
 
   case msgid_delta_helmet:
-    clienthandledelta_helmet(IncomingMsg);
+    clienthandledelta_helmet(&nc);
     break;
 
   case msgid_chatmessage:
-    clienthandlechatmessage(IncomingMsg);
+    clienthandlechatmessage(&nc);
     break;
 
   case msgid_ping:
-    clienthandleping(IncomingMsg);
+    clienthandleping(&nc);
     break;
 
   case msgid_mapchange:
-    clienthandlemapchange(IncomingMsg);
+    clienthandlemapchange(&nc);
     break;
 
   case msgid_flaginfo:
-    clienthandleflaginfo(IncomingMsg);
+    clienthandleflaginfo(&nc);
     break;
 
   case msgid_idleanimation:
-    clienthandleidleanimation(IncomingMsg);
+    clienthandleidleanimation(&nc);
     break;
 
   case msgid_voteon:
-    clienthandlevoteon(IncomingMsg);
+    clienthandlevoteon(&nc);
     break;
 
   case msgid_clientspritesnapshot_dead:
-    clienthandleclientspritesnapshot_dead(IncomingMsg);
+    clienthandleclientspritesnapshot_dead(&nc);
     break;
 
   case msgid_servervars:
-    clienthandleservervars(IncomingMsg);
+    clienthandleservervars(&nc);
     break;
 
   case msgid_serversyncmsg:
-    clienthandleserversyncmsg(IncomingMsg);
+    clienthandleserversyncmsg(&nc);
     break;
 
   case msgid_forceposition:
-    clienthandleforceposition(IncomingMsg);
+    clienthandleforceposition(&nc);
     break;
 
   case msgid_forcevelocity:
-    clienthandleforcevelocity(IncomingMsg);
+    clienthandleforcevelocity(&nc);
     break;
 
   case msgid_forceweapon:
-    clienthandleforceweapon(IncomingMsg);
+    clienthandleforceweapon(&nc);
     break;
 
   case msgid_specialmessage:
-    clienthandlespecialmessage(IncomingMsg);
+    clienthandlespecialmessage(&nc);
     break;
 
   case msgid_weaponactivemessage:
-    clienthandleweaponactivemessage(IncomingMsg);
+    clienthandleweaponactivemessage(&nc);
     break;
 
   case msgid_clientfreecam:
-    clienthandleclientfreecam(IncomingMsg);
+    clienthandleclientfreecam(&nc);
     break;
 
   case msgid_voteoff:
@@ -321,19 +322,19 @@ void NetworkClient::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
     break;
 
   case msgid_votemapreply:
-    clienthandlevoteresponse(IncomingMsg);
+    clienthandlevoteresponse(&nc);
     break;
 
   case msgid_joinserver:
-    clienthandlejoinserver(IncomingMsg);
+    clienthandlejoinserver(&nc);
     break;
 
   case msgid_playsound:
-    clienthandleplaysound(IncomingMsg);
+    clienthandleplaysound(&nc);
     break;
 
   case msgid_synccvars:
-    clienthandlesynccvars(IncomingMsg);
+    clienthandlesynccvars(&nc);
     break;
 #if 0
     case 92: {
@@ -360,12 +361,12 @@ void NetworkClient::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 
 #ifdef STEAM
   msgid_voicedata:
-    clienthandlevoicedata(IncomingMsg);
+    clienthandlevoicedata(&nc);
 #endif
   }
 }
 
-bool NetworkClient::SendData(const std::byte *data, std::int32_t size, std::int32_t flags,
+bool NetworkClient::SendData(const std::byte *data, std::int32_t size, bool reliable,
                              const source_location &location)
 {
   if (size < sizeof(tmsgheader))
@@ -377,6 +378,7 @@ bool NetworkClient::SendData(const std::byte *data, std::int32_t size, std::int3
   if (mPeer == k_HSteamNetConnection_Invalid)
     return false; // not connected
 
+  auto flags = reliable ? k_nSteamNetworkingSend_Reliable : k_nSteamNetworkingSend_Unreliable;
   auto ret = mNetworkingSockets->SendMessageToConnection(mPeer, data, size, flags, nullptr);
   SoldatAssert(ret == EResult::k_EResultOK);
   if (ret != EResult::k_EResultOK)

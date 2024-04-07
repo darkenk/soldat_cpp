@@ -8,9 +8,9 @@
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "../GameMenus.hpp"
 #include "../GameStrings.hpp"
 #include "../mechanics/Sprites.hpp"
+#include "NetworkClient.hpp"
 #include "NetworkUtils.hpp"
 #include "common/gfx.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
@@ -18,7 +18,7 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <limits>
 
-void clienthandlenewplayer(SteamNetworkingMessage_t *netmessage)
+void clienthandlenewplayer(NetworkContext *netmessage)
 {
   tmsg_newplayer *newplayermsg;
   tvector2 a;
@@ -196,7 +196,7 @@ void clientvotekick(std::uint8_t num, bool ban, std::string reason)
   votemsg.ban = (std::uint8_t)(ban);
   votemsg.num = num;
   stringtoarray(votemsg.reason.data(), reason);
-  GetNetwork()->SendData(&votemsg, sizeof(votemsg), k_nSteamNetworkingSend_Reliable);
+  GetNetwork()->SendData(&votemsg, sizeof(votemsg), true);
 }
 
 void clientvotemap(std::uint32_t mapid)
@@ -205,10 +205,10 @@ void clientvotemap(std::uint32_t mapid)
 
   votemsg.header.id = msgid_votemap;
   votemsg.mapid = mapid;
-  GetNetwork()->SendData(&votemsg, sizeof(votemsg), k_nSteamNetworkingSend_Reliable);
+  GetNetwork()->SendData(&votemsg, sizeof(votemsg), true);
 }
 
-void clienthandlevoteresponse(SteamNetworkingMessage_t *netmessage)
+void clienthandlevoteresponse(NetworkContext *netmessage)
 {
   tmsg_votemapreply *votemsgreply;
 
@@ -229,10 +229,10 @@ void clientfreecamtarget()
   freecammsg.targetpos.x = camerax;
   freecammsg.targetpos.y = cameray;
 
-  GetNetwork()->SendData(&freecammsg, sizeof(freecammsg), k_nSteamNetworkingSend_Reliable);
+  GetNetwork()->SendData(&freecammsg, sizeof(freecammsg), true);
 }
 
-void clienthandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
+void clienthandleplayerdisconnect(NetworkContext *netmessage)
 {
   tmsg_playerdisconnect *playermsg;
 
@@ -417,7 +417,7 @@ void clienthandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
   }
 }
 
-void clienthandlemapchange(SteamNetworkingMessage_t *netmessage)
+void clienthandlemapchange(NetworkContext *netmessage)
 {
   tmsg_mapchange *mapchange;
 
@@ -475,7 +475,7 @@ void clienthandlemapchange(SteamNetworkingMessage_t *netmessage)
     }
 }
 
-void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
+void clienthandleflaginfo(NetworkContext *netmessage)
 {
   std::int32_t j;
   tvector2 a, b;
@@ -580,7 +580,7 @@ void clienthandleflaginfo(SteamNetworkingMessage_t *netmessage)
   }
 }
 
-void clienthandleidleanimation(SteamNetworkingMessage_t *netmessage)
+void clienthandleidleanimation(NetworkContext *netmessage)
 {
   std::int32_t i;
 

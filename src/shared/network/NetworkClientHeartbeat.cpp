@@ -7,12 +7,13 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
+#include "NetworkClient.hpp"
 #include "NetworkClientConnection.hpp"
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage)
+void clienthandleheartbeat(NetworkContext *netmessage)
 {
   tmsg_heartbeat *heartbeat;
   std::int32_t i;

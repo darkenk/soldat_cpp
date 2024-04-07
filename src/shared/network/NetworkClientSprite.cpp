@@ -8,6 +8,7 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
+#include "NetworkClient.hpp"
 #include "NetworkUtils.hpp"
 #include "common/Logging.hpp"
 #include "common/gfx.hpp"
@@ -20,7 +21,7 @@ tmsg_clientspritesnapshot oldclientsnapshotmsg;
 tmsg_clientspritesnapshot_mov oldclientsnapshotmovmsg;
 } // namespace
 
-void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
+void clienthandleserverspritesnapshot(NetworkContext *netmessage)
 {
   tmsg_serverspritesnapshot *spritesnap;
   std::int32_t i, j;
@@ -139,7 +140,7 @@ void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage)
   }
 }
 
-void clienthandleserverspritesnapshot_major(SteamNetworkingMessage_t *netmessage)
+void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
 {
   tmsg_serverspritesnapshot_major *spritesnapmajor;
   std::int32_t i, j;
@@ -224,7 +225,7 @@ void clienthandleserverspritesnapshot_major(SteamNetworkingMessage_t *netmessage
   }
 }
 
-void clienthandleserverskeletonsnapshot(SteamNetworkingMessage_t *netmessage)
+void clienthandleserverskeletonsnapshot(NetworkContext *netmessage)
 {
   tmsg_serverskeletonsnapshot *skeletonsnap;
   std::int32_t i;
@@ -270,7 +271,7 @@ void clientspritesnapshot()
 
   oldclientsnapshotmsg = clientmsg;
 
-  GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), k_nSteamNetworkingSend_Unreliable);
+  GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
 }
 
 // CLIENT SPRITE SNAPSHOT MOV
@@ -310,7 +311,7 @@ void clientspritesnapshotmov()
     oldclientsnapshotmovmsg.mouseaimx = round(mx);
     oldclientsnapshotmovmsg.mouseaimy = round(my);
 
-    GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), k_nSteamNetworkingSend_Unreliable);
+    GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
   }
 }
 
@@ -322,10 +323,10 @@ void clientspritesnapshotdead()
   clientmsg.header.id = msgid_clientspritesnapshot_dead;
   clientmsg.camerafocus = camerafollowsprite;
 
-  GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), k_nSteamNetworkingSend_Unreliable);
+  GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
 }
 
-void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
+void clienthandlespritedeath(NetworkContext *netmessage)
 {
   tmsg_spritedeath *deathsnap;
   std::int32_t i, d, j, k;
@@ -637,7 +638,7 @@ void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage)
   }
 }
 
-void clienthandledelta_movement(SteamNetworkingMessage_t *netmessage)
+void clienthandledelta_movement(NetworkContext *netmessage)
 {
   tmsg_serverspritedelta_movement *deltamov;
   std::int32_t i;
@@ -672,7 +673,7 @@ void clienthandledelta_movement(SteamNetworkingMessage_t *netmessage)
   decodekeys(SpriteSystem::Get().GetSprite(i), deltamov->keys16);
 }
 
-void clienthandledelta_mouseaim(SteamNetworkingMessage_t *netmessage)
+void clienthandledelta_mouseaim(NetworkContext *netmessage)
 {
   std::int32_t i;
   tmsg_serverspritedelta_mouseaim *deltamouse;
@@ -701,7 +702,7 @@ void clienthandledelta_mouseaim(SteamNetworkingMessage_t *netmessage)
   SpriteSystem::Get().GetSprite(i).weapon.fireintervalcount = 0;
 }
 
-void clienthandledelta_weapons(SteamNetworkingMessage_t *netmessage)
+void clienthandledelta_weapons(NetworkContext *netmessage)
 {
   std::int32_t i;
 
@@ -727,7 +728,7 @@ void clienthandledelta_weapons(SteamNetworkingMessage_t *netmessage)
     clientspritesnapshot();
 }
 
-void clienthandledelta_helmet(SteamNetworkingMessage_t *netmessage)
+void clienthandledelta_helmet(NetworkContext *netmessage)
 {
   tmsg_serverspritedelta_helmet *deltahelmet;
   std::int32_t i;
@@ -757,7 +758,7 @@ void clienthandledelta_helmet(SteamNetworkingMessage_t *netmessage)
   SpriteSystem::Get().GetSprite(i).wearhelmet = deltahelmet->wearhelmet;
 }
 
-void clienthandleclientspritesnapshot_dead(SteamNetworkingMessage_t *netmessage)
+void clienthandleclientspritesnapshot_dead(NetworkContext *netmessage)
 {
   if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), netmessage->m_cbSize,
                     msgid_clientspritesnapshot_dead))

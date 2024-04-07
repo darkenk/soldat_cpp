@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/misc/PortUtils.hpp"
+#include "shared/misc/SoldatConfig.hpp"
 #include <string>
 
 template <Config::Module M>

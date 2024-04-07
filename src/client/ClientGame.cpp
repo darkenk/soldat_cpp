@@ -15,6 +15,7 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientSprite.hpp"
+#include "shared/network/NetworkClient.hpp"
 #include <SDL2/SDL.h>
 #include <Tracy.hpp>
 #include <thread>

@@ -6,13 +6,14 @@
 #include "../Cvar.hpp"
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
+#include "NetworkClient.hpp"
 #include "NetworkClientSprite.hpp"
 #include "NetworkUtils.hpp"
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-void clienthandleserverthingsnapshot(SteamNetworkingMessage_t *netmessage)
+void clienthandleserverthingsnapshot(NetworkContext *netmessage)
 {
   tmsg_serverthingsnapshot *thingsnap;
   std::int32_t d;
@@ -107,7 +108,7 @@ void clienthandleserverthingsnapshot(SteamNetworkingMessage_t *netmessage)
     gamethingtarget = i;
 }
 
-void clienthandleserverthingmustsnapshot(SteamNetworkingMessage_t *netmessage)
+void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
 {
   tmsg_serverthingmustsnapshot *thingmustsnap;
   std::int32_t d;
@@ -254,7 +255,7 @@ void clienthandleserverthingmustsnapshot(SteamNetworkingMessage_t *netmessage)
     gamethingtarget = i;
 }
 
-void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
+void clienthandlethingtaken(NetworkContext *netmessage)
 {
   tmsg_serverthingtaken *thingtakensnap;
   std::int32_t j, n;
@@ -294,7 +295,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     requestthingmsg.header.id = msgid_requestthing;
     requestthingmsg.thingid = i;
     GetNetwork()->SendData(&requestthingmsg, sizeof(requestthingmsg),
-                           k_nSteamNetworkingSend_Unreliable);
+                           false);
     return;
   }
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <steam/isteamnetworkingmessages.h>
+struct NetworkContext;
 
-void clienthandleserverthingsnapshot(SteamNetworkingMessage_t *netmessage);
-void clienthandleserverthingmustsnapshot(SteamNetworkingMessage_t *netmessage);
-void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage);
+void clienthandleserverthingsnapshot(NetworkContext *netmessage);
+void clienthandleserverthingmustsnapshot(NetworkContext *netmessage);
+void clienthandlethingtaken(NetworkContext *netmessage);

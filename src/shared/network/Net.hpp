@@ -1,13 +1,8 @@
 #pragma once
 
 #include "../misc/SoldatConfig.hpp"
-#include "common/Util.hpp"
-#include "common/Vector.hpp"
-#include "common/Weapons.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/network/Net.hpp"
-#include "shared/Version.hpp"
-#include <array>
 #include <cstdint>
 #include <string>
 

@@ -13,7 +13,6 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <clocale>
 #include <cuchar>
-#include <steam/isteamnetworkingmessages.h>
 
 void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
                              std::uint8_t msgtype)
@@ -48,7 +47,7 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
                 (((msgtype == msgtype_team) || (msgtype == msgtype_radio)) and
                  SpriteSystem::Get().GetSprite(from).isinsameteam(sprite)))
               GetServerNetwork()->SendData(pchatmessage, size, sprite.player->peer,
-                                           k_nSteamNetworkingSend_Reliable);
+                                           true);
         }
       }
     }
@@ -180,7 +179,7 @@ void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8
     if (sprite.player->controlmethod == human)
       if ((tonum == 0) || (sprite.num == tonum))
         GetServerNetwork()->SendData(pchatmessage, size, sprite.player->peer,
-                                     k_nSteamNetworkingSend_Reliable);
+                                     true);
   }
 
   freemem(pchatmessage);

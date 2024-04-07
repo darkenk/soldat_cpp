@@ -5,6 +5,7 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../mechanics/Bullets.hpp"
+#include "NetworkClient.hpp"
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
@@ -29,7 +30,7 @@ void clientsendbullet(std::uint8_t i)
   bulletmsg.clientticks = clienttickcount;
   bulletmsg.seed = b.seed;
 
-  GetNetwork()->SendData(&bulletmsg, sizeof(bulletmsg), k_nSteamNetworkingSend_Unreliable);
+  GetNetwork()->SendData(&bulletmsg, sizeof(bulletmsg), false);
   NotImplemented("network");
 #if 0
     if (GS::GetDemoRecorder().active())
@@ -37,7 +38,7 @@ void clientsendbullet(std::uint8_t i)
 #endif
 }
 
-void clienthandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
+void clienthandlebulletsnapshot(NetworkContext *netmessage)
 {
   tmsg_bulletsnapshot *bulletsnap;
   tvector2 a, b, bx;

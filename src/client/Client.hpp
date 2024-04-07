@@ -6,9 +6,6 @@
 
 #include "common/Vector.hpp"
 #include "common/Weapons.hpp"
-#include "shared/Console.hpp"
-#include "shared/LogFile.hpp"
-#include "shared/network/NetworkClient.hpp"
 
 void joinserver();
 void startgame(int argc, const char *argv[]);

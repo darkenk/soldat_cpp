@@ -1,5 +1,5 @@
 #pragma once
 
-#include <steam/isteamnetworkingmessages.h>
+struct NetworkContext;
 
-void clienthandleheartbeat(SteamNetworkingMessage_t *netmessage);
+void clienthandleheartbeat(NetworkContext *netmessage);

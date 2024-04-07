@@ -1,17 +1,17 @@
 #pragma once
 
-#include <steam/isteamnetworkingmessages.h>
+struct NetworkContext;
 
 void clientspritesnapshot();
 void clientspritesnapshotmov();
 void clientspritesnapshotdead();
-void clienthandleserverspritesnapshot(SteamNetworkingMessage_t *netmessage);
-void clienthandleserverspritesnapshot_major(SteamNetworkingMessage_t *netmessage);
-void clienthandleserverskeletonsnapshot(SteamNetworkingMessage_t *netmessage);
+void clienthandleserverspritesnapshot(NetworkContext *netmessage);
+void clienthandleserverspritesnapshot_major(NetworkContext *netmessage);
+void clienthandleserverskeletonsnapshot(NetworkContext *netmessage);
 
-void clienthandlespritedeath(SteamNetworkingMessage_t *netmessage);
-void clienthandledelta_movement(SteamNetworkingMessage_t *netmessage);
-void clienthandledelta_mouseaim(SteamNetworkingMessage_t *netmessage);
-void clienthandledelta_weapons(SteamNetworkingMessage_t *netmessage);
-void clienthandledelta_helmet(SteamNetworkingMessage_t *netmessage);
-void clienthandleclientspritesnapshot_dead(SteamNetworkingMessage_t *netmessage);
+void clienthandlespritedeath(NetworkContext *netmessage);
+void clienthandledelta_movement(NetworkContext *netmessage);
+void clienthandledelta_mouseaim(NetworkContext *netmessage);
+void clienthandledelta_weapons(NetworkContext *netmessage);
+void clienthandledelta_helmet(NetworkContext *netmessage);
+void clienthandleclientspritesnapshot_dead(NetworkContext *netmessage);
