@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <steam/isteamnetworkingmessages.h>
+class NetworkServer;
+struct TServerPlayer;
 
 #ifdef SERVER
 void serverthingsnapshot(std::uint8_t tonum);
@@ -11,5 +12,5 @@ void serverthingmustsnapshotonconnect(const uint8_t tonum);
 #ifdef SERVER
 void serverthingmustsnapshotonconnectto(const uint8_t i, const uint8_t tonum);
 void serverthingtaken(const uint8_t i, const uint8_t w);
-void serverhandlerequestthing(SteamNetworkingMessage_t *netmessage);
+void serverhandlerequestthing(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player);
 #endif

@@ -87,6 +87,7 @@ void NetworkServer::ProcessLoop()
     return;
   }
   HandleMessages(IncomingMsg);
+  IncomingMsg->Release();
 }
 
 void NetworkServer::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo)
@@ -172,29 +173,28 @@ void NetworkServer::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
   }
 }
 
-void NetworkServer::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
+void NetworkServer::HandleMessages(SteamNetworkingMessage_t *msg)
 {
-  if (IncomingMsg->m_cbSize < sizeof(tmsgheader))
+  if (msg->m_cbSize < sizeof(tmsgheader))
   {
-    IncomingMsg->Release();
     return; // truncated packet
   }
 
-  auto Player = GetPlayer(IncomingMsg);
-  auto PacketHeader = pmsgheader(IncomingMsg->m_pData);
+  auto player = GetPlayer(msg);
+  auto packet = pmsgheader(msg->m_pData);
 
-  switch (PacketHeader->id)
+  switch (packet->id)
   {
   case msgid_requestgame:
     // only allowed if the player has not yet joined the game
-    if ((Player->spritenum == 0) and (not Player->gamerequested))
-      serverhandlerequestgame(IncomingMsg);
+    if ((player->spritenum == 0) and (not player->gamerequested))
+      serverhandlerequestgame(packet, msg->m_cbSize, *this, player);
     break;
 
   case msgid_playerinfo:
     // allowed once after RequestGame was received, sets spritenum
-    if ((Player->spritenum == 0) and Player->gamerequested)
-      serverhandleplayerinfo(IncomingMsg);
+    if ((player->spritenum == 0) and player->gamerequested)
+      serverhandleplayerinfo(packet, msg->m_cbSize, *this, player);
     break;
 
 #ifdef ENABLE_FAE
@@ -204,61 +204,60 @@ void NetworkServer::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
   }
 
   // all the following commands can only be issued after the player has joined the game.
-  if ((Player->spritenum == 0) or
-      (SpriteSystem::Get().GetSprite(Player->spritenum).player.get() != Player))
+  if ((player->spritenum == 0) or
+      (SpriteSystem::Get().GetSprite(player->spritenum).player.get() != player))
   {
-    IncomingMsg->Release();
     return;
   }
 
-  switch (PacketHeader->id)
+  switch (packet->id)
   {
   case msgid_clientspritesnapshot:
-    serverhandleclientspritesnapshot(IncomingMsg);
+    serverhandleclientspritesnapshot(packet, msg->m_cbSize, *this, player);
     break;
 
   case msgid_clientspritesnapshot_mov:
-    serverhandleclientspritesnapshot_mov(IncomingMsg);
+    serverhandleclientspritesnapshot_mov(packet, msg->m_cbSize, *this, player);
     break;
 
   case msgid_clientspritesnapshot_dead:
-    serverhandleclientspritesnapshot_dead(IncomingMsg);
+    serverhandleclientspritesnapshot_dead(packet, msg->m_cbSize, *this, player);
     break;
 
   case msgid_playerdisconnect:
-    serverhandleplayerdisconnect(IncomingMsg);
+    serverhandleplayerdisconnect(packet, msg->m_cbSize, *this, player);
     break;
 
   case msgid_chatmessage:
-    serverhandlechatmessage(IncomingMsg);
+    serverhandlechatmessage(packet, msg->m_cbSize, *this, player);
     break;
 
   case msgid_pong:
-    serverhandlepong(IncomingMsg);
+    serverhandlepong(packet, msg->m_cbSize, *this, player);
     break;
 
   case msgid_bulletsnapshot:
-    serverhandlebulletsnapshot(IncomingMsg);
+    serverhandlebulletsnapshot(packet, msg->m_cbSize, *this, player);
     break;
 
   case msgid_requestthing:
-    serverhandlerequestthing(IncomingMsg);
+    serverhandlerequestthing(packet, msg->m_cbSize, *this, player);
     break;
 
   case msgid_votekick:
-    serverhandlevotekick(IncomingMsg);
+    serverhandlevotekick(packet, msg->m_cbSize, *this, player);
     break;
 
   case msgid_votemap:
-    serverhandlevotemap(IncomingMsg);
+    serverhandlevotemap(packet, msg->m_cbSize, *this, player);
     break;
 
   case msgid_changeteam:
-    serverhandlechangeteam(IncomingMsg);
+    serverhandlechangeteam(packet, msg->m_cbSize, *this, player);
     break;
 
   case msgid_clientfreecam:
-    serverhandleclientfreecam(IncomingMsg);
+    serverhandleclientfreecam(packet, msg->m_cbSize, *this, player);
     break;
 
 #ifdef STEAM
@@ -266,12 +265,10 @@ void NetworkServer::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
     ServerHandleVoiceData(IncomingMsg);
 #endif
   }
-
-  IncomingMsg->Release();
 }
 
 bool NetworkServer::SendData(const std::byte *data, std::int32_t size, HSoldatNetConnection Peer,
-                             std::int32_t flags)
+                             bool reliable)
 {
   SoldatAssert(size >= sizeof(tmsgheader));
   if (size < sizeof(tmsgheader))
@@ -289,7 +286,7 @@ bool NetworkServer::SendData(const std::byte *data, std::int32_t size, HSoldatNe
     if (Peer == std::numeric_limits<std::uint32_t>::max())
       GS::GetDemoRecorder().saverecord(data, size);
   }
-
+  auto flags = reliable ? k_nSteamNetworkingSend_Reliable : k_nSteamNetworkingSend_Unreliable;
   auto ret = mNetworkingSockets->SendMessageToConnection(Peer, data, size, flags, nullptr);
   return ret == k_EResultOK;
 }

@@ -1,9 +1,11 @@
 #pragma once
 
 #include <cstdint>
-#include <steam/isteamnetworkingmessages.h>
 
-void serverbulletsnapshot(const uint8_t i, std::uint8_t tonum, bool forced);
+class NetworkServer;
+struct TServerPlayer;
+
+void serverbulletsnapshot(const std::uint8_t i, std::uint8_t tonum, bool forced);
 #ifdef SERVER
-void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage);
+void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player);
 #endif

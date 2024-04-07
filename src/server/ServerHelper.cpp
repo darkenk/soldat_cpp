@@ -243,7 +243,7 @@ std::int32_t soldat_getpid()
 #endif
 }
 
-void writeconsole(std::uint8_t id, std::string text, uint32 colour)
+void writeconsole(std::uint8_t id, std::string text, std::uint32_t colour)
 {
   // Write text to the console of ALL Players
   serversendspecialmessage(text, 0, 0, 0, 0, colour, 0, 0, id);

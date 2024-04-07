@@ -5,7 +5,6 @@
 #include "../Demo.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <steam/isteamnetworkingmessages.h>
 
 template<class TSprite, Config::Module M>
 void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSystem, Game<M>& game)
@@ -63,7 +62,7 @@ void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSys
       continue;
     }
     [[maybe_unused]] auto ret = transport.SendData(
-      &heartbeatmsg, sizeof(heartbeatmsg), s.player->peer, k_nSteamNetworkingSend_Unreliable);
+      &heartbeatmsg, sizeof(heartbeatmsg), s.player->peer, false);
     SoldatAssert(ret == true);
   }
 

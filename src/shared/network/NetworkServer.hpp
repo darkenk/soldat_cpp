@@ -17,6 +17,8 @@ extern PascalArray<std::int32_t, 1, max_players> bullettime;
 extern PascalArray<std::int32_t, 1, max_players> grenadetime;
 extern PascalArray<bool, 1, max_players> knifecan;
 
+using HSoldatMessageId = std::uint32_t;
+
 class NetworkServer : public TNetwork
 {
 public:
@@ -27,12 +29,10 @@ public:
   void ProcessLoop();
   template <typename T>
   inline bool SendData(const T *data, std::int32_t size, HSoldatNetConnection peer,
-                       std::int32_t flags)
+                       bool reliable)
   {
-    return SendData(reinterpret_cast<const std::byte *>(data), size, peer, flags);
+    return SendData(reinterpret_cast<const std::byte *>(data), size, peer, reliable);
   }
-  bool SendData(const std::byte *data, std::int32_t size, HSoldatNetConnection peer,
-                std::int32_t flags);
   void UpdateNetworkStats(std::shared_ptr<TServerPlayer>& player) const;
 
   void SetDisconnectionCallback(const DisconnectionCallback& callback) { mDisconnectionCallback = callback; }
@@ -56,7 +56,8 @@ private:
   TPlayers mPlayers;
   DisconnectionCallback mDisconnectionCallback;
 
-  void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);
+  void HandleMessages(SteamNetworkingMessage_t *msg);
+  bool SendData(const std::byte *data, std::int32_t size, HSoldatNetConnection peer, bool reliable);
 };
 
 

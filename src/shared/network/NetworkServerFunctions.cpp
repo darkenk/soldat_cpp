@@ -7,6 +7,7 @@
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include <steam/isteamnetworkingmessages.h>
 
 void serversendfreecam(std::uint8_t tonum, bool freecam, tvector2 pos)
 {
@@ -18,7 +19,7 @@ void serversendfreecam(std::uint8_t tonum, bool freecam, tvector2 pos)
 
   GetServerNetwork()->SendData(&freecammsg, sizeof(freecammsg),
                                SpriteSystem::Get().GetSprite(tonum).player->peer,
-                               k_nSteamNetworkingSend_Reliable);
+                               true);
 }
 
 void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state)
@@ -36,7 +37,7 @@ void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state)
       if (sprite.player->controlmethod == human)
       {
         GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg), sprite.player->peer,
-                                     k_nSteamNetworkingSend_Reliable);
+                                     true);
       }
     }
   }
@@ -44,7 +45,7 @@ void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state)
            (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
     GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg),
                                  SpriteSystem::Get().GetSprite(id).player->peer,
-                                 k_nSteamNetworkingSend_Reliable);
+                                 true);
 }
 
 void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, std::uint8_t ammo,
@@ -75,7 +76,7 @@ void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, 
 
     GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg),
                                  SpriteSystem::Get().GetSprite(id).player->peer,
-                                 k_nSteamNetworkingSend_Reliable);
+                                 true);
   }
 
 #ifdef SCRIPT
@@ -108,7 +109,7 @@ void moveplayer(const std::uint8_t id, float x, float y)
   {
     if (sprite.player->controlmethod == human)
       GetServerNetwork()->SendData(&movemsg, sizeof(movemsg), sprite.player->peer,
-                                   k_nSteamNetworkingSend_Reliable);
+                                   true);
   }
 }
 
@@ -133,12 +134,12 @@ void modifyplayervelocity(const std::uint8_t id, float velx, float vely)
   {
     if (sprite.player->controlmethod == human)
       GetServerNetwork()->SendData(&velmsg, sizeof(velmsg), sprite.player->peer,
-                                   k_nSteamNetworkingSend_Reliable);
+                                   true);
   }
 }
 
-void forwardclient(std::uint8_t id, std::string targetip, std::int32_t targetport,
-                   std::string showmsg)
+void forwardclient(std::uint8_t id, const std::string &targetip, std::int32_t targetport,
+                   const std::string &showmsg)
 {
   tmsg_joinserver joinservermsg;
 
@@ -154,10 +155,10 @@ void forwardclient(std::uint8_t id, std::string targetip, std::int32_t targetpor
       (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
     GetServerNetwork()->SendData(&joinservermsg, sizeof(joinservermsg),
                                  SpriteSystem::Get().GetSprite(id).player->peer,
-                                 k_nSteamNetworkingSend_Reliable);
+                                 true);
 }
 
-void playsound(std::uint8_t id, std::string name, float x, float y)
+void playsound(std::uint8_t id, const std::string &name, float x, float y)
 {
   tmsg_playsound playsoundmsg;
   tvector2 pos;
@@ -176,25 +177,23 @@ void playsound(std::uint8_t id, std::string name, float x, float y)
           (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
         GetServerNetwork()->SendData(&playsoundmsg, sizeof(playsoundmsg),
                                      SpriteSystem::Get().GetSprite(id).player->peer,
-                                     k_nSteamNetworkingSend_Reliable);
+                                     true);
   }
   else if ((SpriteSystem::Get().GetSprite(id).active) &&
            (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
     GetServerNetwork()->SendData(&playsoundmsg, sizeof(playsoundmsg),
                                  SpriteSystem::Get().GetSprite(id).player->peer,
-                                 k_nSteamNetworkingSend_Reliable);
+                                 true);
 }
 
-void serverhandleclientfreecam(SteamNetworkingMessage_t *netmessage)
+void serverhandleclientfreecam(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   tmsg_clientfreecam *freecammsg;
-  tplayer *player;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_clientfreecam), netmessage->m_cbSize, msgid_clientfreecam))
+  if (!verifypacket(sizeof(tmsg_clientfreecam), size, msgid_clientfreecam))
     return;
-  freecammsg = pmsg_clientfreecam(netmessage->m_pData);
-  player = GetServerNetwork()->GetPlayer(netmessage);
+  freecammsg = pmsg_clientfreecam(netmessage);
   i = player->spritenum;
   SpriteSystem::Get().GetSprite(i).targetx = freecammsg->targetpos.x;
   SpriteSystem::Get().GetSprite(i).targety = freecammsg->targetpos.y;

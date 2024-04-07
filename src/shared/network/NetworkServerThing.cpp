@@ -1,6 +1,5 @@
 // automatically converted
 #include "NetworkServerThing.hpp"
-#include "../../server/Server.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "NetworkUtils.hpp"
@@ -62,7 +61,7 @@ void serverthingsnapshot(std::uint8_t tonum)
       {
         GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
                                      SpriteSystem::Get().GetSprite(tonum).player->peer,
-                                     k_nSteamNetworkingSend_Unreliable);
+                                     false);
       }
     }
   }
@@ -101,7 +100,7 @@ void serverthingmustsnapshot(const std::uint8_t i)
     if (sprite.player->controlmethod == human)
     {
       GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg), sprite.player->peer,
-                                   k_nSteamNetworkingSend_Unreliable);
+                                   false);
     }
   }
 }
@@ -140,7 +139,7 @@ void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
 #ifdef SERVER
         GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
                                      SpriteSystem::Get().GetSprite(tonum).player->peer,
-                                     k_nSteamNetworkingSend_Unreliable);
+                                     false);
 #else
         GS::GetDemoRecorder().saverecord(thingmsg, sizeof(thingmsg));
 #endif
@@ -179,7 +178,7 @@ void serverthingmustsnapshotonconnectto(const std::uint8_t i, const std::uint8_t
 
   GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
                                SpriteSystem::Get().GetSprite(tonum).player->peer,
-                               k_nSteamNetworkingSend_Unreliable);
+                               false);
 }
 
 void serverthingtaken(const std::uint8_t i, const std::uint8_t w)
@@ -201,20 +200,18 @@ void serverthingtaken(const std::uint8_t i, const std::uint8_t w)
     if (sprite.player->controlmethod == human)
     {
       GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg), sprite.player->peer,
-                                   k_nSteamNetworkingSend_Unreliable);
+                                   false);
     }
   }
 }
 
-void serverhandlerequestthing(SteamNetworkingMessage_t *netmessage)
+void serverhandlerequestthing(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   pmsg_requestthing msg;
-  tplayer *player;
 
-  if (!verifypacket(sizeof(tmsg_requestthing), netmessage->m_cbSize, msgid_requestthing))
+  if (!verifypacket(sizeof(tmsg_requestthing), size, msgid_requestthing))
     return;
-  msg = pmsg_requestthing(netmessage->m_pData);
-  player = GetServerNetwork()->GetPlayer(netmessage);
+  msg = pmsg_requestthing(netmessage);
   serverthingmustsnapshotonconnectto(msg->thingid, player->spritenum);
 }
 #endif

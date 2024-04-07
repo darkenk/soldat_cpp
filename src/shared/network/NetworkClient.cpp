@@ -38,6 +38,7 @@ void NetworkClient::ProcessLoop()
   while ((numMsgs = mNetworkingSockets->ReceiveMessagesOnConnection(mPeer, &IncomingMsg, 1)) > 0)
   {
     HandleMessages(IncomingMsg);
+    IncomingMsg->Release();
   }
 
   if (numMsgs < 0)
@@ -159,11 +160,11 @@ void NetworkClient::FlushMsg()
   }
   mNetworkingSockets->FlushMessagesOnConnection(mPeer);
 }
+
 void NetworkClient::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 {
   if (IncomingMsg->m_cbSize < sizeof(tmsgheader))
   {
-    IncomingMsg->Release();
     return; // truncated packet
   }
 
@@ -362,23 +363,21 @@ void NetworkClient::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
     clienthandlevoicedata(IncomingMsg);
 #endif
   }
-
-  IncomingMsg->Release();
 }
 
-bool NetworkClient::SendData(const std::byte *Data, std::int32_t Size, std::int32_t Flags,
-                              const source_location &location)
+bool NetworkClient::SendData(const std::byte *data, std::int32_t size, std::int32_t flags,
+                             const source_location &location)
 {
-  if (Size < sizeof(tmsgheader))
+  if (size < sizeof(tmsgheader))
     return false; // truncated packet
 
-  LogDebug(NETMSG, "Senddata {} from {}", reinterpret_cast<const tmsgheader *>(Data)->id,
+  LogDebug(NETMSG, "Senddata {} from {}", reinterpret_cast<const tmsgheader *>(data)->id,
            location.function_name());
 
   if (mPeer == k_HSteamNetConnection_Invalid)
     return false; // not connected
 
-  auto ret = mNetworkingSockets->SendMessageToConnection(mPeer, Data, Size, Flags, nullptr);
+  auto ret = mNetworkingSockets->SendMessageToConnection(mPeer, data, size, flags, nullptr);
   SoldatAssert(ret == EResult::k_EResultOK);
   if (ret != EResult::k_EResultOK)
   {

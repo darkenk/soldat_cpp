@@ -28,12 +28,12 @@ public:
   void SetDisconnectionCallback(const DisconnectionCallback& callback) { mDisconnectionCallback = callback; }
   void ProcessLoop();
   template <typename T>
-  bool SendData(const T *Data, std::int32_t Size, std::int32_t Flags,
+  bool SendData(const T *data, std::int32_t size, std::int32_t flags,
                 const source_location &location = source_location::current())
   {
-    return SendData(reinterpret_cast<const std::byte *>(Data), Size, Flags, location);
+    return SendData(reinterpret_cast<const std::byte *>(data), size, flags, location);
   }
-  bool SendData(const std::byte *Data, std::int32_t Size, std::int32_t Flags,
+  bool SendData(const std::byte *data, std::int32_t size, std::int32_t flags,
                 const source_location &location = source_location::current());
   [[nodiscard]] HSoldatNetConnection Peer() const { return mPeer; }
   void FlushMsg();

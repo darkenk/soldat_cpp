@@ -1,31 +1,15 @@
 #pragma once
 
-/*#include "delphi.h"*/
-/*#include "and.h"*/
-/*#include "system.h"*/
-/*#include "units.h"*/
-/*#include "SysUtils.h"*/
-/*#include "Classes.h"*/
-/*#include "helper.h"*/
-/*#include "units.h"*/
-/*#include "Util.h"*/
-/*#include "ScriptDispatcher.h"*/
-/*#include "soldat.h"*/
-/*#include "units.h"*/
-/*#include "Net.h"*/
-/*#include "GameNetworkingSockets.h"*/
-/*#include "Sprites.h"*/
-/*#include "Command.h"*/
-/*#include "Constants.h"*/
-#include "../misc/SoldatConfig.hpp"
-#include <steam/isteamnetworkingmessages.h>
 #include <string>
+
+class NetworkServer;
+struct TServerPlayer;
 
 void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
                              std::uint8_t msgtype);
 
-void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage);
+void serverhandlechatmessage(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player);
 
 void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8_t layerid,
-                              std::int32_t delay, float scale, uint32 color, float x, float y,
+                              std::int32_t delay, float scale, std::uint32_t color, float x, float y,
                               std::uint8_t tonum);

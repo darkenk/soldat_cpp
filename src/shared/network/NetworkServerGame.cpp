@@ -12,17 +12,15 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <string>
 
-void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
+void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   tmsg_playerdisconnect *playermsg;
-  tplayer *player;
   std::int32_t i, j;
 
-  if (!verifypacket(sizeof(tmsg_playerdisconnect), netmessage->m_cbSize, msgid_playerdisconnect))
+  if (!verifypacket(sizeof(tmsg_playerdisconnect), size, msgid_playerdisconnect))
     return;
 
-  playermsg = pmsg_playerdisconnect(netmessage->m_pData);
-  player = GetServerNetwork()->GetPlayer(netmessage);
+  playermsg = pmsg_playerdisconnect(netmessage);
   i = player->spritenum;
 
   for (j = 0; j <= SpriteSystem::Get().GetSprite(i).bulletcheckamount; j++)
@@ -97,11 +95,12 @@ void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
   SpriteSystem::Get().GetSprite(i).player = std::make_shared<TServerPlayer>();
   NotImplemented("Check if &player is used properly to remove player");
   auto players = GetServerNetwork()->GetPlayers();
+  auto peer = player->peer;
   players.erase(std::remove_if(players.begin(), players.end(),
                                [&player](const auto &v) { return v.get() == player; }),
                 players.end());
 
-  GetServerNetwork()->CloseConnection(netmessage->m_conn, true);
+  GetServerNetwork()->CloseConnection(peer, true);
 
   dobalancebots(1, SpriteSystem::Get().GetSprite(i).player->team);
 }
@@ -141,7 +140,7 @@ void servermapchange(std::uint8_t id)
            (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
     GetServerNetwork()->SendData(&mapchangemsg, sizeof(mapchangemsg),
                                  SpriteSystem::Get().GetSprite(id).player->peer,
-                                 k_nSteamNetworkingSend_Reliable);
+                                 true);
 }
 
 void serverflaginfo(std::uint8_t style, std::uint8_t who)
@@ -155,8 +154,7 @@ void serverflaginfo(std::uint8_t style, std::uint8_t who)
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     if (sprite.player->controlmethod == human)
-      GetServerNetwork()->SendData(&flagmsg, sizeof(flagmsg), sprite.player->peer,
-                                   k_nSteamNetworkingSend_Reliable);
+      GetServerNetwork()->SendData(&flagmsg, sizeof(flagmsg), sprite.player->peer, true);
   }
 }
 
@@ -172,8 +170,7 @@ void serveridleanimation(std::uint8_t num, std::int16_t style)
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->SendData(&idlemsg, sizeof(idlemsg), sprite.player->peer,
-                                   k_nSteamNetworkingSend_Reliable);
+      GetServerNetwork()->SendData(&idlemsg, sizeof(idlemsg), sprite.player->peer, true);
     }
   }
 }
@@ -194,8 +191,7 @@ void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string ta
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->SendData(&votemsg, sizeof(votemsg), sprite.player->peer,
-                                   k_nSteamNetworkingSend_Reliable);
+      GetServerNetwork()->SendData(&votemsg, sizeof(votemsg), sprite.player->peer, true);
     }
   }
 }
@@ -210,23 +206,20 @@ void serversendvoteoff()
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->SendData(&votemsg, sizeof(votemsg), sprite.player->peer,
-                                   k_nSteamNetworkingSend_Reliable);
+      GetServerNetwork()->SendData(&votemsg, sizeof(votemsg), sprite.player->peer, true);
     }
   }
 }
 
-void serverhandlevotekick(SteamNetworkingMessage_t *netmessage)
+void serverhandlevotekick(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   tmsg_votekick *votekickmsg;
-  tplayer *player;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_votekick), netmessage->m_cbSize, msgid_votekick))
+  if (!verifypacket(sizeof(tmsg_votekick), size, msgid_votekick))
     return;
 
-  votekickmsg = pmsg_votekick(netmessage->m_pData);
-  player = GetServerNetwork()->GetPlayer(netmessage);
+  votekickmsg = pmsg_votekick(netmessage);
   i = player->spritenum;
 
   if (GS::GetGame().IsVoteActive())
@@ -286,18 +279,16 @@ void serverhandlevotekick(SteamNetworkingMessage_t *netmessage)
   }
 }
 
-void serverhandlevotemap(SteamNetworkingMessage_t *netmessage)
+void serverhandlevotemap(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   tmsg_votemap *votemapmsg;
   tmsg_votemapreply votemapreplymsg;
-  tplayer *player;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_votemap), netmessage->m_cbSize, msgid_votemap))
+  if (!verifypacket(sizeof(tmsg_votemap), size, msgid_votemap))
     return;
 
-  votemapmsg = pmsg_votemap(netmessage->m_pData);
-  player = GetServerNetwork()->GetPlayer(netmessage);
+  votemapmsg = pmsg_votemap(netmessage);
   i = player->spritenum;
 
   if (votemapmsg->mapid > mapslist.size() - 1)
@@ -308,20 +299,17 @@ void serverhandlevotemap(SteamNetworkingMessage_t *netmessage)
   strcpy(votemapreplymsg.mapname.data(), mapslist[votemapmsg->mapid].data());
 
   GetServerNetwork()->SendData(&votemapreplymsg, sizeof(votemapreplymsg),
-                               SpriteSystem::Get().GetSprite(i).player->peer,
-                               k_nSteamNetworkingSend_Reliable);
+                               SpriteSystem::Get().GetSprite(i).player->peer, true);
 }
 
-void serverhandlechangeteam(SteamNetworkingMessage_t *netmessage)
+void serverhandlechangeteam(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   tmsg_changeteam *changeteammsg;
-  tplayer *player;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_changeteam), netmessage->m_cbSize, msgid_changeteam))
+  if (!verifypacket(sizeof(tmsg_changeteam), size, msgid_changeteam))
     return;
-  changeteammsg = pmsg_changeteam(netmessage->m_pData);
-  player = GetServerNetwork()->GetPlayer(netmessage);
+  changeteammsg = pmsg_changeteam(netmessage);
   i = player->spritenum;
   SpriteSystem::Get().GetSprite(i).changeteam(changeteammsg->team);
 }
@@ -343,8 +331,7 @@ void serversyncmsg(std::int32_t tonum)
     {
       if (sprite.player->controlmethod == human)
       {
-        GetServerNetwork()->SendData(&syncmsg, sizeof(syncmsg), sprite.player->peer,
-                                     k_nSteamNetworkingSend_Reliable);
+        GetServerNetwork()->SendData(&syncmsg, sizeof(syncmsg), sprite.player->peer, true);
       }
     }
   }

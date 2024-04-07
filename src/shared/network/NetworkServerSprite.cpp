@@ -7,7 +7,6 @@
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <steam/isteamnetworkingmessages.h>
 
 std::array<std::array<tmsg_serverspritedelta_movement, max_sprites>, max_sprites> oldmovementmsg;
 std::array<std::array<tmsg_serverspritedelta_mouseaim, max_sprites>, max_sprites> oldmouseaimmsg;
@@ -90,7 +89,7 @@ void serverspritesnapshot(std::uint8_t r)
             if (sprite.player->controlmethod == human)
             {
               GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), sprite.player->peer,
-                                           k_nSteamNetworkingSend_Unreliable);
+                                           false);
             }
           }
       }
@@ -143,7 +142,7 @@ void serverspritesnapshotmajor(std::uint8_t r)
           {
             if (sprite.player->controlmethod == human)
               GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), sprite.player->peer,
-                                           k_nSteamNetworkingSend_Unreliable);
+                                           false);
           }
         }
       }
@@ -189,7 +188,7 @@ void serverspritesnapshotmajorfloat(const std::uint8_t who, std::uint8_t r)
       if (sprite.player->controlmethod == human)
       {
         GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), sprite.player->peer,
-                                     k_nSteamNetworkingSend_Unreliable);
+                                     false);
       }
     }
   }
@@ -228,7 +227,7 @@ void serverskeletonsnapshot(std::uint8_t r)
           if (sprite.player->controlmethod == human)
           {
             GetServerNetwork()->SendData(&skeletonmsg, sizeof(skeletonmsg), sprite.player->peer,
-                                         k_nSteamNetworkingSend_Unreliable);
+                                         false);
           }
         }
       }
@@ -312,7 +311,7 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
     if (sprite.player->controlmethod == human)
     {
       GetServerNetwork()->SendData(&spritedeathmsg, sizeof(spritedeathmsg), sprite.player->peer,
-                                   k_nSteamNetworkingSend_Unreliable);
+                                   false);
     }
   }
 }
@@ -368,7 +367,7 @@ void serverspritedeltas(const std::uint8_t i)
         {
           GetServerNetwork()->SendData(&movementmsg, sizeof(movementmsg),
                                        SpriteSystem::Get().GetSprite(j).player->peer,
-                                       k_nSteamNetworkingSend_Unreliable);
+                                       false);
           oldmovementmsg[j][i] = movementmsg;
         }
       }
@@ -385,7 +384,7 @@ void serverspritedeltas(const std::uint8_t i)
             (sprite.isspectator() && (sprite.player->port == 0))) // visible to sprite
         {
           GetServerNetwork()->SendData(&weaponsmsg, sizeof(weaponsmsg), sprite.player->peer,
-                                       k_nSteamNetworkingSend_Unreliable);
+                                       false);
           oldweaponsmsg[j][i] = weaponsmsg;
         }
   }
@@ -397,7 +396,7 @@ void serverspritedeltas(const std::uint8_t i)
       if (helmetmsg.wearhelmet != oldhelmetmsg[j][i].wearhelmet)
       {
         GetServerNetwork()->SendData(&helmetmsg, sizeof(helmetmsg), sprite.player->peer,
-                                     k_nSteamNetworkingSend_Unreliable);
+                                     false);
         oldhelmetmsg[j][i] = helmetmsg;
       }
   }
@@ -418,23 +417,21 @@ void serverspritedeltasmouse(std::uint8_t i)
     if ((sprite.player->controlmethod == human) && (j != i))
     {
       GetServerNetwork()->SendData(&mouseaimmsg, sizeof(mouseaimmsg), sprite.player->peer,
-                                   k_nSteamNetworkingSend_Unreliable);
+                                   false);
       oldmouseaimmsg[j][i] = mouseaimmsg;
     }
   }
 }
 
-void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
+void serverhandleclientspritesnapshot(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   pmsg_clientspritesnapshot clientmsg;
-  tplayer *player;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_clientspritesnapshot), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_clientspritesnapshot), size,
                     msgid_clientspritesnapshot))
     return;
-  clientmsg = pmsg_clientspritesnapshot(netmessage->m_pData);
-  player = GetServerNetwork()->GetPlayer(netmessage);
+  clientmsg = pmsg_clientspritesnapshot(netmessage);
   i = player->spritenum;
 
   auto &sprite = SpriteSystem::Get().GetSprite(i);
@@ -499,17 +496,16 @@ void serverhandleclientspritesnapshot(SteamNetworkingMessage_t *netmessage)
 
   time_spritesnapshot[i] = GS::GetGame().GetMainTickCounter();
 }
-void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage)
+void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_clientspritesnapshot_mov), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_clientspritesnapshot_mov), size,
                     msgid_clientspritesnapshot_mov))
     return;
 
-  tmsg_clientspritesnapshot_mov &clientmovmsg = *pmsg_clientspritesnapshot_mov(netmessage->m_pData);
-  tplayer &player = *GetServerNetwork()->GetPlayer(netmessage);
-  i = player.spritenum;
+  tmsg_clientspritesnapshot_mov &clientmovmsg = *pmsg_clientspritesnapshot_mov(netmessage);
+  i = player->spritenum;
 
   messagesasecnum[i] += 1;
 
@@ -545,17 +541,15 @@ void serverhandleclientspritesnapshot_mov(SteamNetworkingMessage_t *netmessage)
   time_spritesnapshot_mov[i] = GS::GetGame().GetMainTickCounter();
 }
 
-void serverhandleclientspritesnapshot_dead(SteamNetworkingMessage_t *netmessage)
+void serverhandleclientspritesnapshot_dead(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   pmsg_clientspritesnapshot_dead clientdeadmsg;
-  tplayer *player;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), size,
                     msgid_clientspritesnapshot_dead))
     return;
-  clientdeadmsg = pmsg_clientspritesnapshot_dead(netmessage->m_pData);
-  player = GetServerNetwork()->GetPlayer(netmessage);
+  clientdeadmsg = pmsg_clientspritesnapshot_dead(netmessage);
   i = player->spritenum;
 
   messagesasecnum[i] += 1;

@@ -2,29 +2,32 @@
 
 #include "../misc/SoldatConfig.hpp"
 #include <cstdint>
-#include <steam/steamnetworkingtypes.h>
 #include <string>
 
+class NetworkServer;
+struct tmsg_header;
+struct TServerPlayer;
+
 #ifdef SERVER
-void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage);
-void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage);
+void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player);
+void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player);
 #endif
 
-void serversendplaylist(HSteamNetConnection peer);
+void serversendplaylist(HSoldatNetConnection peer);
 void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype);
 #ifdef SERVER
 std::string getbanstrforindex(std::int32_t banindex,
                               bool banhw = false); // TODO move?
-void serversendunaccepted(HSteamNetConnection peer, std::uint8_t state,
-                          std::string message = "");
+void serversendunaccepted(HSoldatNetConnection peer, std::uint8_t state,
+                          const std::string &message = "");
 void serverdisconnect();
 #endif
 void serverplayerdisconnect(std::uint8_t num, std::uint8_t why);
 
 void serverping(std::uint8_t tonum);
-void serversynccvars(std::uint8_t tonum, HSteamNetConnection peer, bool fullsync = false);
+void serversynccvars(std::uint8_t tonum, HSoldatNetConnection peer, bool fullsync = false);
 void servervars(std::uint8_t tonum);
 
-void serverhandlepong(SteamNetworkingMessage_t *netmessage);
+void serverhandlepong(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player);
 
 void serverplayerdisconnect(std::uint8_t num, std::uint8_t why);

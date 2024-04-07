@@ -83,13 +83,10 @@ static inline std::string U16toString(const std::u16string &wstr)
   return str;
 }
 
-void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage)
+void serverhandlechatmessage(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   std::string cs, cschat;
   std::uint8_t msgtype;
-  TServerPlayer *player;
-
-  player = GetServerNetwork()->GetPlayer(netmessage);
 
   if (player->spritenum == 0)
     return;
@@ -97,9 +94,9 @@ void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage)
   messagesasecnum[player->spritenum] += 1;
 
   char16_t *v = reinterpret_cast<char16_t *>(
-    &(reinterpret_cast<pmsg_stringmessage>(netmessage->m_pData)->text));
+    &(reinterpret_cast<pmsg_stringmessage>(netmessage)->text));
   cs = U16toString(v);
-  msgtype = pmsg_stringmessage(netmessage->m_pData)->msgtype;
+  msgtype = pmsg_stringmessage(netmessage)->msgtype;
 
   LogDebug("net_msg", "Message {}", cs);
 
@@ -158,7 +155,7 @@ void serverhandlechatmessage(SteamNetworkingMessage_t *netmessage)
 }
 
 void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8_t layerid,
-                              std::int32_t delay, float scale, uint32 color, float x, float y,
+                              std::int32_t delay, float scale, std::uint32_t color, float x, float y,
                               std::uint8_t tonum)
 {
   pmsg_serverspecialmessage pchatmessage;

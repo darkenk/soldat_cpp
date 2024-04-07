@@ -7,6 +7,7 @@
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include <steam/steamnetworkingtypes.h>
 
 namespace
 {
@@ -45,7 +46,7 @@ void serverbulletsnapshot(const std::uint8_t i, std::uint8_t tonum, bool forced)
             forced)
         {
           GetServerNetwork()->SendData(&bulletmsg, sizeof(bulletmsg), sprite.player->peer,
-                                       k_nSteamNetworkingSend_Unreliable);
+                                       false);
         }
   }
 #else
@@ -54,10 +55,9 @@ void serverbulletsnapshot(const std::uint8_t i, std::uint8_t tonum, bool forced)
 }
 
 #ifdef SERVER
-void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
+void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   tmsg_clientbulletsnapshot *bulletsnap;
-  tplayer *player;
   std::int32_t p, d;
   float k;
   std::int32_t i;
@@ -71,11 +71,10 @@ void serverhandlebulletsnapshot(SteamNetworkingMessage_t *netmessage)
   float bulletspread;
   auto &map = GS::GetGame().GetMap();
 
-  if (!verifypacket(sizeof(tmsg_clientbulletsnapshot), netmessage->m_cbSize, msgid_bulletsnapshot))
+  if (!verifypacket(sizeof(tmsg_clientbulletsnapshot), size, msgid_bulletsnapshot))
     return;
 
-  bulletsnap = pmsg_clientbulletsnapshot(netmessage->m_pData);
-  player = GetServerNetwork()->GetPlayer(netmessage);
+  bulletsnap = pmsg_clientbulletsnapshot(netmessage);
   p = player->spritenum;
 
   auto &guns = GS::GetWeaponSystem().GetGuns();

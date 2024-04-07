@@ -28,9 +28,8 @@ std::array<std::uint8_t, max_players> pingsendcount;
 #endif
 
 #ifdef SERVER
-void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
+void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
-  TServerPlayer *player;
   tmsg_requestgame *requestmsg;
   std::uint32_t state;
   std::int32_t banindex;
@@ -38,12 +37,9 @@ void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
   std::string banreason;
   bool banhw;
 
-  if (!verifypacketlargerorequal(sizeof(tmsg_requestgame), netmessage->m_cbSize, msgid_requestgame))
+  if (!verifypacketlargerorequal(sizeof(tmsg_requestgame), size, msgid_requestgame))
     return;
 
-  // Player := TPlayer(NetMessage^.m_pData);
-
-  player = GetServerNetwork()->GetPlayer(netmessage);
   banindex = 0;
   banhw = false;
   banreason = "";
@@ -53,13 +49,13 @@ void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
   if (isfloodid(id))
     return;
 
-  requestmsg = pmsg_requestgame(netmessage->m_pData);
+  requestmsg = pmsg_requestgame(netmessage);
 
   // Begin by checking the client's version
   if (iswronggameversion(requestmsg->version.data()))
   {
     state = wrong_version;
-    serversendunaccepted(netmessage->m_conn, state);
+    serversendunaccepted(player->peer, state);
     return;
   }
 
@@ -77,7 +73,7 @@ void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
     state = server_full;
   else if (isremoteadminip(player->ip))
     state = ok;
-  else if (isadminpassword((pmsg_requestgame(netmessage->m_pData)->password.data())))
+  else if (isadminpassword(requestmsg->password.data()))
   {
     if (addiptoremoteadmins(player->ip))
       GS::GetMainConsole().console(player->ip + " added to Game Admins via Request password",
@@ -106,7 +102,7 @@ void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
         banhw = true;
         banreason = std::string(" (") + bannedhwlist[banindex].reason + ')';
       }
-      else if (iswronggamepassword((pmsg_requestgame(netmessage->m_pData)->password.data())))
+      else if (iswronggamepassword(requestmsg->password.data()))
         state = wrong_password;
       else if (isserverfull())
         state = server_full;
@@ -150,20 +146,19 @@ void serverhandlerequestgame(SteamNetworkingMessage_t *netmessage)
     if (CVar::ac_enable)
       serversendfaechallenge(netmessage->m_conn, true);
 #endif
-    serversynccvars(0, netmessage->m_conn, true);
-    serversendplaylist(netmessage->m_conn);
+    serversynccvars(0, player->peer, true);
+    serversendplaylist(player->peer);
   }
   else
   {
     LogInfoG("Request rejected: {}", state);
-    serversendunaccepted(netmessage->m_conn, state, getbanstrforindex(banindex, banhw));
+    serversendunaccepted(player->peer, state, getbanstrforindex(banindex, banhw));
   }
 }
 
-void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
+void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   pmsg_playerinfo playerinfomsg;
-  TServerPlayer *player;
   std::string fixedplayername, finalplayername;
   bool playernameunused;
   std::int32_t suffixlen;
@@ -173,13 +168,12 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
   std::int8_t newteam;
 #endif
 
-  if (!verifypacket(sizeof(tmsg_playerinfo), netmessage->m_cbSize, msgid_playerinfo))
+  if (!verifypacket(sizeof(tmsg_playerinfo), size, msgid_playerinfo))
     return;
 
   auto &things = GS::GetThingSystem().GetThings();
 
-  playerinfomsg = pmsg_playerinfo(netmessage->m_pData);
-  player = GetServerNetwork()->GetPlayer(netmessage);
+  playerinfomsg = pmsg_playerinfo(netmessage);
   SoldatAssert(player->spritenum == 0);
 
 #ifdef ENABLE_FAE
@@ -498,7 +492,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
 }
 #endif
 
-void serversendplaylist(HSteamNetConnection peer)
+void serversendplaylist(HSoldatNetConnection peer)
 {
   tmsg_playerslist playerslist;
 
@@ -584,8 +578,7 @@ void serversendplaylist(HSteamNetConnection peer)
   }
 
 #ifdef SERVER
-  GetServerNetwork()->SendData(&playerslist, sizeof(playerslist), peer,
-                               k_nSteamNetworkingSend_Reliable);
+  GetServerNetwork()->SendData(&playerslist, sizeof(playerslist), peer, true);
 #else
   GS::GetDemoRecorder().saverecord(playerslist, sizeof(playerslist));
 #endif
@@ -643,7 +636,7 @@ std::string getbanstrforindex(std::int32_t banindex, bool banhw)
   return result;
 }
 
-void serversendunaccepted(HSteamNetConnection peer, std::uint8_t state, std::string message)
+void serversendunaccepted(HSoldatNetConnection peer, std::uint8_t state, const std::string &message)
 {
   pmsg_unaccepted unaccepted;
   std::int32_t size;
@@ -660,7 +653,7 @@ void serversendunaccepted(HSteamNetConnection peer, std::uint8_t state, std::str
   std::strcpy(unaccepted->version.data(), soldat_version);
   strcpy(unaccepted->text.data(), message.data());
 
-  GetServerNetwork()->SendData(&unaccepted, size, peer, k_nSteamNetworkingSend_Reliable);
+  GetServerNetwork()->SendData(&unaccepted, size, peer, true);
   GetServerNetwork()->CloseConnection(peer, false);
 }
 #endif
@@ -714,7 +707,7 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
     {
       newplayer.adoptspriteid = num == player->spritenum;
       GetServerNetwork()->SendData(&newplayer, sizeof(newplayer), player->peer,
-                                   k_nSteamNetworkingSend_Reliable);
+                                   true);
     }
   }
   else
@@ -751,7 +744,7 @@ void serverdisconnect()
   for (const auto &dstplayer : players)
   {
     GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), dstplayer->peer,
-                                 k_nSteamNetworkingSend_Reliable);
+                                 true);
   }
 
   for (auto &s : SpriteSystem::Get().GetActiveSprites())
@@ -777,7 +770,7 @@ void serverplayerdisconnect(std::uint8_t num, std::uint8_t why)
   for (const auto &dstplayer : players)
   {
     GetServerNetwork()->SendData(&playermsg, sizeof(playermsg), dstplayer->peer,
-                                 k_nSteamNetworkingSend_Reliable);
+                                 true);
   }
 
   NotImplemented("No time functions");
@@ -806,7 +799,7 @@ void serverping(std::uint8_t tonum)
 
   GetServerNetwork()->SendData(&pingmsg, sizeof(pingmsg),
                                SpriteSystem::Get().GetSprite(tonum).player->peer,
-                               k_nSteamNetworkingSend_Reliable);
+                               true);
 }
 #endif
 
@@ -829,7 +822,7 @@ std::uint8_t CopyCVarsToBuffer(BitStream &bs, bool fullsync)
   return fieldcount;
 }
 
-void serversynccvars(std::uint8_t tonum, HSteamNetConnection peer, bool fullsync)
+void serversynccvars(std::uint8_t tonum, HSoldatNetConnection peer, bool fullsync)
 {
   pmsg_serversynccvars varsmsg;
   std::uint8_t fieldcount = 0;
@@ -859,13 +852,13 @@ void serversynccvars(std::uint8_t tonum, HSteamNetConnection peer, bool fullsync
       if ((tonum == 0) || (sprite.num == tonum))
         if (sprite.player->controlmethod == human)
           GetServerNetwork()->SendData(varsmsg, sizeof(tmsg_serversynccvars) + buffersize,
-                                       sprite.player->peer, k_nSteamNetworkingSend_Reliable);
+                                       sprite.player->peer, true);
     }
   }
   else
   {
     GetServerNetwork()->SendData(varsmsg, sizeof(tmsg_serversynccvars) + buffersize, peer,
-                                 k_nSteamNetworkingSend_Reliable);
+                                 true);
   }
 #else
   GS::GetDemoRecorder().saverecord(varsmsg, sizeof(varsmsg) + buffersize);
@@ -917,24 +910,22 @@ void servervars(std::uint8_t tonum)
 #ifdef SERVER
   GetServerNetwork()->SendData(&varsmsg, sizeof(varsmsg),
                                SpriteSystem::Get().GetSprite(tonum).player->peer,
-                               k_nSteamNetworkingSend_Reliable);
+                               true);
 #else
   GS::GetDemoRecorder().saverecord(varsmsg, sizeof(varsmsg));
 #endif
 }
 
 #ifdef SERVER
-void serverhandlepong(SteamNetworkingMessage_t *netmessage)
+void serverhandlepong(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   tmsg_pong *pongmsg;
-  tplayer *player;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_pong), netmessage->m_cbSize, msgid_pong))
+  if (!verifypacket(sizeof(tmsg_pong), size, msgid_pong))
     return;
 
-  pongmsg = pmsg_pong(netmessage->m_pData);
-  player = GetServerNetwork()->GetPlayer(netmessage);
+  pongmsg = pmsg_pong(netmessage);
   i = player->spritenum;
 
   messagesasecnum[i] += 1;
