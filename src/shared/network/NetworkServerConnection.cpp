@@ -584,7 +584,7 @@ void serversendplaylist(HSteamNetConnection peer)
   }
 
 #ifdef SERVER
-  GetServerNetwork()->senddata(&playerslist, sizeof(playerslist), peer,
+  GetServerNetwork()->SendData(&playerslist, sizeof(playerslist), peer,
                                k_nSteamNetworkingSend_Reliable);
 #else
   GS::GetDemoRecorder().saverecord(playerslist, sizeof(playerslist));
@@ -660,7 +660,7 @@ void serversendunaccepted(HSteamNetConnection peer, std::uint8_t state, std::str
   std::strcpy(unaccepted->version.data(), soldat_version);
   strcpy(unaccepted->text.data(), message.data());
 
-  GetServerNetwork()->senddata(&unaccepted, size, peer, k_nSteamNetworkingSend_Reliable);
+  GetServerNetwork()->SendData(&unaccepted, size, peer, k_nSteamNetworkingSend_Reliable);
 
   GetServerNetwork()->NetworkingSocket().CloseConnection(peer, 0, "", true);
 }
@@ -714,7 +714,7 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
     for (auto &player : players)
     {
       newplayer.adoptspriteid = num == player->spritenum;
-      GetServerNetwork()->senddata(&newplayer, sizeof(newplayer), player->peer,
+      GetServerNetwork()->SendData(&newplayer, sizeof(newplayer), player->peer,
                                    k_nSteamNetworkingSend_Reliable);
     }
   }
@@ -751,7 +751,7 @@ void serverdisconnect()
   auto players = GetServerNetwork()->GetPlayers();
   for (const auto &dstplayer : players)
   {
-    GetServerNetwork()->senddata(&servermsg, sizeof(servermsg), dstplayer->peer,
+    GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), dstplayer->peer,
                                  k_nSteamNetworkingSend_Reliable);
   }
 
@@ -777,7 +777,7 @@ void serverplayerdisconnect(std::uint8_t num, std::uint8_t why)
   auto players = GetServerNetwork()->GetPlayers();
   for (const auto &dstplayer : players)
   {
-    GetServerNetwork()->senddata(&playermsg, sizeof(playermsg), dstplayer->peer,
+    GetServerNetwork()->SendData(&playermsg, sizeof(playermsg), dstplayer->peer,
                                  k_nSteamNetworkingSend_Reliable);
   }
 
@@ -805,7 +805,7 @@ void serverping(std::uint8_t tonum)
 
   pingmsg.pingnum = pingsendcount[tonum];
 
-  GetServerNetwork()->senddata(&pingmsg, sizeof(pingmsg),
+  GetServerNetwork()->SendData(&pingmsg, sizeof(pingmsg),
                                SpriteSystem::Get().GetSprite(tonum).player->peer,
                                k_nSteamNetworkingSend_Reliable);
 }
@@ -859,13 +859,13 @@ void serversynccvars(std::uint8_t tonum, HSteamNetConnection peer, bool fullsync
 
       if ((tonum == 0) || (sprite.num == tonum))
         if (sprite.player->controlmethod == human)
-          GetServerNetwork()->senddata(varsmsg, sizeof(tmsg_serversynccvars) + buffersize,
+          GetServerNetwork()->SendData(varsmsg, sizeof(tmsg_serversynccvars) + buffersize,
                                        sprite.player->peer, k_nSteamNetworkingSend_Reliable);
     }
   }
   else
   {
-    GetServerNetwork()->senddata(varsmsg, sizeof(tmsg_serversynccvars) + buffersize, peer,
+    GetServerNetwork()->SendData(varsmsg, sizeof(tmsg_serversynccvars) + buffersize, peer,
                                  k_nSteamNetworkingSend_Reliable);
   }
 #else
@@ -916,7 +916,7 @@ void servervars(std::uint8_t tonum)
   }
 
 #ifdef SERVER
-  GetServerNetwork()->senddata(&varsmsg, sizeof(varsmsg),
+  GetServerNetwork()->SendData(&varsmsg, sizeof(varsmsg),
                                SpriteSystem::Get().GetSprite(tonum).player->peer,
                                k_nSteamNetworkingSend_Reliable);
 #else

@@ -89,7 +89,7 @@ void serverspritesnapshot(std::uint8_t r)
           {
             if (sprite.player->controlmethod == human)
             {
-              GetServerNetwork()->senddata(&servermsg, sizeof(servermsg), sprite.player->peer,
+              GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), sprite.player->peer,
                                            k_nSteamNetworkingSend_Unreliable);
             }
           }
@@ -142,7 +142,7 @@ void serverspritesnapshotmajor(std::uint8_t r)
           for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
           {
             if (sprite.player->controlmethod == human)
-              GetServerNetwork()->senddata(&servermsg, sizeof(servermsg), sprite.player->peer,
+              GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), sprite.player->peer,
                                            k_nSteamNetworkingSend_Unreliable);
           }
         }
@@ -188,7 +188,7 @@ void serverspritesnapshotmajorfloat(const std::uint8_t who, std::uint8_t r)
     {
       if (sprite.player->controlmethod == human)
       {
-        GetServerNetwork()->senddata(&servermsg, sizeof(servermsg), sprite.player->peer,
+        GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), sprite.player->peer,
                                      k_nSteamNetworkingSend_Unreliable);
       }
     }
@@ -227,7 +227,7 @@ void serverskeletonsnapshot(std::uint8_t r)
         {
           if (sprite.player->controlmethod == human)
           {
-            GetServerNetwork()->senddata(&skeletonmsg, sizeof(skeletonmsg), sprite.player->peer,
+            GetServerNetwork()->SendData(&skeletonmsg, sizeof(skeletonmsg), sprite.player->peer,
                                          k_nSteamNetworkingSend_Unreliable);
           }
         }
@@ -311,7 +311,7 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->senddata(&spritedeathmsg, sizeof(spritedeathmsg), sprite.player->peer,
+      GetServerNetwork()->SendData(&spritedeathmsg, sizeof(spritedeathmsg), sprite.player->peer,
                                    k_nSteamNetworkingSend_Unreliable);
     }
   }
@@ -366,7 +366,7 @@ void serverspritedeltas(const std::uint8_t i)
             (((vec2length(a) > posdelta) || (vec2length(b) > veldelta)) &&
              (movementmsg.keys16 != oldmovementmsg[j][i].keys16)))
         {
-          GetServerNetwork()->senddata(&movementmsg, sizeof(movementmsg),
+          GetServerNetwork()->SendData(&movementmsg, sizeof(movementmsg),
                                        SpriteSystem::Get().GetSprite(j).player->peer,
                                        k_nSteamNetworkingSend_Unreliable);
           oldmovementmsg[j][i] = movementmsg;
@@ -384,7 +384,7 @@ void serverspritedeltas(const std::uint8_t i)
                                        sprite.player->camera) or
             (sprite.isspectator() && (sprite.player->port == 0))) // visible to sprite
         {
-          GetServerNetwork()->senddata(&weaponsmsg, sizeof(weaponsmsg), sprite.player->peer,
+          GetServerNetwork()->SendData(&weaponsmsg, sizeof(weaponsmsg), sprite.player->peer,
                                        k_nSteamNetworkingSend_Unreliable);
           oldweaponsmsg[j][i] = weaponsmsg;
         }
@@ -396,7 +396,7 @@ void serverspritedeltas(const std::uint8_t i)
     if ((sprite.player->controlmethod == human) && (j != i))
       if (helmetmsg.wearhelmet != oldhelmetmsg[j][i].wearhelmet)
       {
-        GetServerNetwork()->senddata(&helmetmsg, sizeof(helmetmsg), sprite.player->peer,
+        GetServerNetwork()->SendData(&helmetmsg, sizeof(helmetmsg), sprite.player->peer,
                                      k_nSteamNetworkingSend_Unreliable);
         oldhelmetmsg[j][i] = helmetmsg;
       }
@@ -417,7 +417,7 @@ void serverspritedeltasmouse(std::uint8_t i)
     const auto j = sprite.num;
     if ((sprite.player->controlmethod == human) && (j != i))
     {
-      GetServerNetwork()->senddata(&mouseaimmsg, sizeof(mouseaimmsg), sprite.player->peer,
+      GetServerNetwork()->SendData(&mouseaimmsg, sizeof(mouseaimmsg), sprite.player->peer,
                                    k_nSteamNetworkingSend_Unreliable);
       oldmouseaimmsg[j][i] = mouseaimmsg;
     }

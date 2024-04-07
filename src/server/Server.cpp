@@ -843,7 +843,20 @@ void startserver()
 
   addlinetologfile(fs, GetGameLog(), "Starting Game Server.", GetGameLogFilename());
 
-  InitNetworkServer(CVar::net_ip, CVar::net_port);
+  InitNetworkServer(std::string(CVar::net_ip), CVar::net_port);
+  GetServerNetwork()->SetDisconnectionCallback([](std::shared_ptr<TServerPlayer> player) {
+    // the sprite may be zero if we"re still in the setup phase
+    if (player->spritenum != 0)
+    {
+      GS::GetMainConsole().console(player->name + " could not respond", warning_message_color);
+      serverplayerdisconnect(player->spritenum, kick_noresponse);
+    #ifdef SCRIPT
+      ScrptDispatcher.OnLeaveGame(Player->spritenum, false);
+    #endif
+      SpriteSystem::Get().GetSprite(player->spritenum).kill();
+      SpriteSystem::Get().GetSprite(player->spritenum).player = std::make_shared<TServerPlayer>();
+    }
+  });
 
   if (GetServerNetwork()->Active() == true)
   {

@@ -73,13 +73,13 @@ void NetworkServer::ProcessLoop()
   PSteamNetworkingMessage_t IncomingMsg;
   RunCallbacks();
 
-  auto NumMsgs = NetworkingSockets->ReceiveMessagesOnPollGroup(FPollGroup, &IncomingMsg, 1);
+  auto numMsgs = NetworkingSockets->ReceiveMessagesOnPollGroup(FPollGroup, &IncomingMsg, 1);
 
-  if (NumMsgs == 0)
+  if (numMsgs == 0)
   {
     return;
   }
-  if (NumMsgs < 0)
+  if (numMsgs < 0)
   {
     LogWarn(LOG_NET, "Failed to poll messages");
     return;
@@ -113,16 +113,9 @@ void NetworkServer::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
       return;
     }
 
-    // the sprite may be zero if we"re still in the setup phase
-    if (Player->spritenum != 0)
+    if (mDisconnectionCallback)
     {
-      GS::GetMainConsole().console(Player->name + " could not respond", warning_message_color);
-      serverplayerdisconnect(Player->spritenum, kick_noresponse);
-#ifdef SCRIPT
-      ScrptDispatcher.OnLeaveGame(Player->spritenum, false);
-#endif
-      SpriteSystem::Get().GetSprite(Player->spritenum).kill();
-      SpriteSystem::Get().GetSprite(Player->spritenum).player = std::make_shared<TServerPlayer>();
+      mDisconnectionCallback(it->second);
     }
 
     LogWarn(LOG_NET, "Connection lost {} {}", pInfo->m_info.m_eEndReason,
@@ -275,11 +268,15 @@ void NetworkServer::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
   IncomingMsg->Release();
 }
 
-bool NetworkServer::senddata(const std::byte *Data, std::int32_t Size, HSteamNetConnection Peer,
+bool NetworkServer::SendData(const std::byte *Data, std::int32_t Size, HSteamNetConnection Peer,
                               std::int32_t Flags)
 {
+  SoldatAssert(Size >= sizeof(tmsgheader));
   if (Size < sizeof(tmsgheader))
+  {
+    LogWarn(LOG_NET, "Packet is too small: {}", Size);
     return false;
+  }
 
   if (FHost == k_HSteamNetConnection_Invalid)
     return false;
@@ -295,18 +292,14 @@ bool NetworkServer::senddata(const std::byte *Data, std::int32_t Size, HSteamNet
   return ret == k_EResultOK;
 }
 
-void NetworkServer::UpdateNetworkStats(std::uint8_t Player)
+void NetworkServer::UpdateNetworkStats(std::shared_ptr<TServerPlayer> &player) const
 {
-  SteamNetworkingQuickConnectionStatus Stats = GetQuickConnectionStatus(SpriteSystem::Get().GetSprite(Player).player->peer);
-  SpriteSystem::Get().GetSprite(Player).player->realping = Stats.m_nPing;
+  SteamNetworkingQuickConnectionStatus Stats = GetQuickConnectionStatus(player->peer);
+  player->realping = Stats.m_nPing;
+  player->connectionquality = 0;
   if (Stats.m_flConnectionQualityLocal > 0.0)
   {
-    SpriteSystem::Get().GetSprite(Player).player->connectionquality =
-      Stats.m_flConnectionQualityLocal * 100;
-  }
-  else
-  {
-    SpriteSystem::Get().GetSprite(Player).player->connectionquality = 0;
+    player->connectionquality = Stats.m_flConnectionQualityLocal * 100;
   }
 }
 
@@ -317,9 +310,9 @@ bool NetworkServer::Disconnect(bool now)
     return false;
   }
 
-  for (const auto &DstPlayer : mPlayers)
+  for (const auto &player : mPlayers)
   {
-    NetworkingSockets->CloseConnection(DstPlayer->peer, 0, "", !now);
+    NetworkingSockets->CloseConnection(player->peer, 0, "", !now);
   }
   mPlayers.clear();
   return true;
@@ -337,9 +330,9 @@ namespace
 NetworkServer *gUDP;
 }
 
-bool InitNetworkServer(const std::string &Host, uint32_t Port)
+bool InitNetworkServer(const std::string_view &host, uint32_t port)
 {
-  gUDP = new NetworkServer(Host, Port);
+  gUDP = new NetworkServer(host, port);
   return gUDP != nullptr;
 }
 
@@ -433,6 +426,8 @@ TEST_SUITE("NetworkServer")
     }
     CHECK_EQ(true, server->GetPlayers().empty());
   }
+
+
 
 
 

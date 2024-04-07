@@ -60,7 +60,7 @@ void serverthingsnapshot(std::uint8_t tonum)
 
       if (send)
       {
-        GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
+        GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
                                      SpriteSystem::Get().GetSprite(tonum).player->peer,
                                      k_nSteamNetworkingSend_Unreliable);
       }
@@ -100,7 +100,7 @@ void serverthingmustsnapshot(const std::uint8_t i)
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite.player->peer,
+      GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg), sprite.player->peer,
                                    k_nSteamNetworkingSend_Unreliable);
     }
   }
@@ -138,7 +138,7 @@ void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
         thingmsg.holdingsprite = thing.holdingsprite;
 
 #ifdef SERVER
-        GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
+        GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
                                      SpriteSystem::Get().GetSprite(tonum).player->peer,
                                      k_nSteamNetworkingSend_Unreliable);
 #else
@@ -177,7 +177,7 @@ void serverthingmustsnapshotonconnectto(const std::uint8_t i, const std::uint8_t
   thingmsg.style = thing.style;
   thingmsg.holdingsprite = thing.holdingsprite;
 
-  GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg),
+  GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
                                SpriteSystem::Get().GetSprite(tonum).player->peer,
                                k_nSteamNetworkingSend_Unreliable);
 }
@@ -200,7 +200,7 @@ void serverthingtaken(const std::uint8_t i, const std::uint8_t w)
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->senddata(&thingmsg, sizeof(thingmsg), sprite.player->peer,
+      GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg), sprite.player->peer,
                                    k_nSteamNetworkingSend_Unreliable);
     }
   }

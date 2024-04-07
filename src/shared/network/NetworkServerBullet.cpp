@@ -44,7 +44,7 @@ void serverbulletsnapshot(const std::uint8_t i, std::uint8_t tonum, bool forced)
                           sprite.player->camera, GetBulletParts().velocity[i].x) or
             forced)
         {
-          GetServerNetwork()->senddata(&bulletmsg, sizeof(bulletmsg), sprite.player->peer,
+          GetServerNetwork()->SendData(&bulletmsg, sizeof(bulletmsg), sprite.player->peer,
                                        k_nSteamNetworkingSend_Unreliable);
         }
   }

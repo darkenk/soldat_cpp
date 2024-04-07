@@ -20,18 +20,21 @@ extern PascalArray<bool, 1, max_players> knifecan;
 class NetworkServer : public TNetwork
 {
 public:
+  using DisconnectionCallback = std::function<void(std::shared_ptr<TServerPlayer>)>;
+
   NetworkServer(const std::string_view host, std::uint32_t port);
   ~NetworkServer() override;
   void ProcessLoop();
   template <typename T>
-  inline bool senddata(const T *Data, std::int32_t Size, HSteamNetConnection peer, std::int32_t Flags)
+  inline bool SendData(const T *Data, std::int32_t Size, HSteamNetConnection peer, std::int32_t Flags)
   {
-    return senddata(reinterpret_cast<const std::byte *>(Data), Size, peer, Flags);
+    return SendData(reinterpret_cast<const std::byte *>(Data), Size, peer, Flags);
   }
-  bool senddata(const std::byte *Data, std::int32_t Size, HSteamNetConnection peer,
+  bool SendData(const std::byte *Data, std::int32_t Size, HSteamNetConnection peer,
                 std::int32_t Flags);
-  void UpdateNetworkStats(std::uint8_t Player);
+  void UpdateNetworkStats(std::shared_ptr<TServerPlayer> &player) const;
 
+  void SetDisconnectionCallback(const DisconnectionCallback& callback) { mDisconnectionCallback = callback; }
   bool Disconnect(bool now);
 
   inline TServerPlayer* GetPlayer(const SteamNetworkingMessage_t * msg)
@@ -52,12 +55,13 @@ private:
   HSteamNetPollGroup FPollGroup;
   std::map<HSteamNetConnection, std::shared_ptr<TServerPlayer>> mConnectionMap;
   TPlayers mPlayers;
+  DisconnectionCallback mDisconnectionCallback;
 
   void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);
 
 };
 
 
-bool InitNetworkServer(const std::string &Host, std::uint32_t Port);
+bool InitNetworkServer(const std::string_view &host, std::uint32_t port);
 NetworkServer *GetServerNetwork();
 bool DeinitServerNetwork();

@@ -16,7 +16,7 @@ void serversendfreecam(std::uint8_t tonum, bool freecam, tvector2 pos)
   freecammsg.freecamon = (std::uint8_t)(freecam);
   freecammsg.targetpos = pos;
 
-  GetServerNetwork()->senddata(&freecammsg, sizeof(freecammsg),
+  GetServerNetwork()->SendData(&freecammsg, sizeof(freecammsg),
                                SpriteSystem::Get().GetSprite(tonum).player->peer,
                                k_nSteamNetworkingSend_Reliable);
 }
@@ -35,14 +35,14 @@ void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state)
     {
       if (sprite.player->controlmethod == human)
       {
-        GetServerNetwork()->senddata(&wepmsg, sizeof(wepmsg), sprite.player->peer,
+        GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg), sprite.player->peer,
                                      k_nSteamNetworkingSend_Reliable);
       }
     }
   }
   else if ((SpriteSystem::Get().GetSprite(id).active) &&
            (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
-    GetServerNetwork()->senddata(&wepmsg, sizeof(wepmsg),
+    GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg),
                                  SpriteSystem::Get().GetSprite(id).player->peer,
                                  k_nSteamNetworkingSend_Reliable);
 }
@@ -73,7 +73,7 @@ void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, 
     wepmsg.ammocount = ammo;
     wepmsg.secammocount = secammo;
 
-    GetServerNetwork()->senddata(&wepmsg, sizeof(wepmsg),
+    GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg),
                                  SpriteSystem::Get().GetSprite(id).player->peer,
                                  k_nSteamNetworkingSend_Reliable);
   }
@@ -107,7 +107,7 @@ void moveplayer(const std::uint8_t id, float x, float y)
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     if (sprite.player->controlmethod == human)
-      GetServerNetwork()->senddata(&movemsg, sizeof(movemsg), sprite.player->peer,
+      GetServerNetwork()->SendData(&movemsg, sizeof(movemsg), sprite.player->peer,
                                    k_nSteamNetworkingSend_Reliable);
   }
 }
@@ -132,7 +132,7 @@ void modifyplayervelocity(const std::uint8_t id, float velx, float vely)
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     if (sprite.player->controlmethod == human)
-      GetServerNetwork()->senddata(&velmsg, sizeof(velmsg), sprite.player->peer,
+      GetServerNetwork()->SendData(&velmsg, sizeof(velmsg), sprite.player->peer,
                                    k_nSteamNetworkingSend_Reliable);
   }
 }
@@ -152,7 +152,7 @@ void forwardclient(std::uint8_t id, std::string targetip, std::int32_t targetpor
 
   if ((SpriteSystem::Get().GetSprite(id).active) &&
       (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
-    GetServerNetwork()->senddata(&joinservermsg, sizeof(joinservermsg),
+    GetServerNetwork()->SendData(&joinservermsg, sizeof(joinservermsg),
                                  SpriteSystem::Get().GetSprite(id).player->peer,
                                  k_nSteamNetworkingSend_Reliable);
 }
@@ -174,13 +174,13 @@ void playsound(std::uint8_t id, std::string name, float x, float y)
     for (id = 1; id <= max_players; id++)
       if ((SpriteSystem::Get().GetSprite(id).active) &&
           (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
-        GetServerNetwork()->senddata(&playsoundmsg, sizeof(playsoundmsg),
+        GetServerNetwork()->SendData(&playsoundmsg, sizeof(playsoundmsg),
                                      SpriteSystem::Get().GetSprite(id).player->peer,
                                      k_nSteamNetworkingSend_Reliable);
   }
   else if ((SpriteSystem::Get().GetSprite(id).active) &&
            (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
-    GetServerNetwork()->senddata(&playsoundmsg, sizeof(playsoundmsg),
+    GetServerNetwork()->SendData(&playsoundmsg, sizeof(playsoundmsg),
                                  SpriteSystem::Get().GetSprite(id).player->peer,
                                  k_nSteamNetworkingSend_Reliable);
 }

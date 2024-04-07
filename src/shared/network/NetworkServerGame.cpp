@@ -139,7 +139,7 @@ void servermapchange(std::uint8_t id)
   }
   else if ((SpriteSystem::Get().GetSprite(id).active) &&
            (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
-    GetServerNetwork()->senddata(&mapchangemsg, sizeof(mapchangemsg),
+    GetServerNetwork()->SendData(&mapchangemsg, sizeof(mapchangemsg),
                                  SpriteSystem::Get().GetSprite(id).player->peer,
                                  k_nSteamNetworkingSend_Reliable);
 }
@@ -155,7 +155,7 @@ void serverflaginfo(std::uint8_t style, std::uint8_t who)
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     if (sprite.player->controlmethod == human)
-      GetServerNetwork()->senddata(&flagmsg, sizeof(flagmsg), sprite.player->peer,
+      GetServerNetwork()->SendData(&flagmsg, sizeof(flagmsg), sprite.player->peer,
                                    k_nSteamNetworkingSend_Reliable);
   }
 }
@@ -172,7 +172,7 @@ void serveridleanimation(std::uint8_t num, std::int16_t style)
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->senddata(&idlemsg, sizeof(idlemsg), sprite.player->peer,
+      GetServerNetwork()->SendData(&idlemsg, sizeof(idlemsg), sprite.player->peer,
                                    k_nSteamNetworkingSend_Reliable);
     }
   }
@@ -194,7 +194,7 @@ void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string ta
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->senddata(&votemsg, sizeof(votemsg), sprite.player->peer,
+      GetServerNetwork()->SendData(&votemsg, sizeof(votemsg), sprite.player->peer,
                                    k_nSteamNetworkingSend_Reliable);
     }
   }
@@ -210,7 +210,7 @@ void serversendvoteoff()
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->senddata(&votemsg, sizeof(votemsg), sprite.player->peer,
+      GetServerNetwork()->SendData(&votemsg, sizeof(votemsg), sprite.player->peer,
                                    k_nSteamNetworkingSend_Reliable);
     }
   }
@@ -307,7 +307,7 @@ void serverhandlevotemap(SteamNetworkingMessage_t *netmessage)
   votemapreplymsg.count = mapslist.size();
   strcpy(votemapreplymsg.mapname.data(), mapslist[votemapmsg->mapid].data());
 
-  GetServerNetwork()->senddata(&votemapreplymsg, sizeof(votemapreplymsg),
+  GetServerNetwork()->SendData(&votemapreplymsg, sizeof(votemapreplymsg),
                                SpriteSystem::Get().GetSprite(i).player->peer,
                                k_nSteamNetworkingSend_Reliable);
 }
@@ -343,7 +343,7 @@ void serversyncmsg(std::int32_t tonum)
     {
       if (sprite.player->controlmethod == human)
       {
-        GetServerNetwork()->senddata(&syncmsg, sizeof(syncmsg), sprite.player->peer,
+        GetServerNetwork()->SendData(&syncmsg, sizeof(syncmsg), sprite.player->peer,
                                      k_nSteamNetworkingSend_Reliable);
       }
     }

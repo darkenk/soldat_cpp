@@ -47,7 +47,7 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
             if ((!((msgtype == msgtype_team) || (msgtype == msgtype_radio)) || (from == 255)) or
                 (((msgtype == msgtype_team) || (msgtype == msgtype_radio)) and
                  SpriteSystem::Get().GetSprite(from).isinsameteam(sprite)))
-              GetServerNetwork()->senddata(pchatmessage, size, sprite.player->peer,
+              GetServerNetwork()->SendData(pchatmessage, size, sprite.player->peer,
                                            k_nSteamNetworkingSend_Reliable);
         }
       }
@@ -182,7 +182,7 @@ void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8
   {
     if (sprite.player->controlmethod == human)
       if ((tonum == 0) || (sprite.num == tonum))
-        GetServerNetwork()->senddata(pchatmessage, size, sprite.player->peer,
+        GetServerNetwork()->SendData(pchatmessage, size, sprite.player->peer,
                                      k_nSteamNetworkingSend_Reliable);
   }
 

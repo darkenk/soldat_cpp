@@ -166,7 +166,7 @@ void apponidle()
     {
       for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
       {
-        GetServerNetwork()->UpdateNetworkStats(sprite.num);
+        GetServerNetwork()->UpdateNetworkStats(sprite.player);
       }
     }
 
