@@ -28,7 +28,7 @@ namespace
 } // namespace
 
 // REQUEST GAME FROM SERVER
-void clientrequestgame(tclientnetwork& network)
+void clientrequestgame(NetworkClient& network)
 {
   pmsg_requestgame requestmsg;
   std::int32_t size;
@@ -60,7 +60,7 @@ void clientrequestgame(tclientnetwork& network)
   std::strcpy(requestmsg->hardwareid.data(), hwid.data());
 
   std::strcpy(requestmsg->password.data(), joinpassword.data());
-  network.senddata((std::byte *)(requestmsg), size, k_nSteamNetworkingSend_Reliable);
+  network.SendData((std::byte *)(requestmsg), size, k_nSteamNetworkingSend_Reliable);
   // udp->senddata(requestmsg, size, k_nSteamNetworkingSend_Reliable);
 
   requestinggame = true;
@@ -94,7 +94,7 @@ void clientsendplayerinfo()
   {
     changemsg.header.id = msgid_changeteam;
     changemsg.team = selteam;
-    GetNetwork()->senddata(&changemsg, sizeof(changemsg), k_nSteamNetworkingSend_Reliable);
+    GetNetwork()->SendData(&changemsg, sizeof(changemsg), k_nSteamNetworkingSend_Reliable);
     return;
   }
 
@@ -136,7 +136,7 @@ void clientsendplayerinfo()
   playerinfo.gamemodchecksum.Dummy[4] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[4]);
   playerinfo.custommodchecksum = GS::GetGame().GetCustomModChecksum();
 
-  GetNetwork()->senddata(&playerinfo, sizeof(playerinfo), k_nSteamNetworkingSend_Reliable);
+  GetNetwork()->SendData(&playerinfo, sizeof(playerinfo), k_nSteamNetworkingSend_Reliable);
   clientplayersent = true;
   clientplayerreceivedcounter = clientplayerrecieved_time;
 }
@@ -150,7 +150,7 @@ void clientdisconnect()
     playermsg.header.id = msgid_playerdisconnect;
     playermsg.num = mysprite;
 
-    GetNetwork()->senddata(&playermsg, sizeof(playermsg), k_nSteamNetworkingSend_Reliable);
+    GetNetwork()->SendData(&playermsg, sizeof(playermsg), k_nSteamNetworkingSend_Reliable);
 
     auto& fs= GS::GetFileSystem();
 
@@ -158,12 +158,12 @@ void clientdisconnect()
                      string("Client Disconnect from ") +
                        GetNetwork()->GetStringAddress(&GetNetwork()->Address(), true),
                      GetGameLogFilename());
-    GetNetwork()->processloop();
-    GetNetwork()->disconnect(false);
+    GetNetwork()->ProcessLoop();
+    GetNetwork()->Disconnect(false);
   }
   else
   {
-    GetNetwork()->disconnect(true);
+    GetNetwork()->Disconnect(true);
     exittomenu();
   }
 }
@@ -175,7 +175,7 @@ void clientpong(std::uint8_t pingnum)
   pongmsg.header.id = msgid_pong;
   pongmsg.pingnum = pingnum;
 
-  GetNetwork()->senddata(&pongmsg, sizeof(pongmsg), k_nSteamNetworkingSend_Reliable);
+  GetNetwork()->SendData(&pongmsg, sizeof(pongmsg), k_nSteamNetworkingSend_Reliable);
 }
 
 void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)

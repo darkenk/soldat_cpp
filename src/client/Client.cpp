@@ -257,7 +257,7 @@ void exittomenu()
   }
   if (GetNetwork())
   {
-    GetNetwork()->disconnect(true);
+    GetNetwork()->Disconnect(true);
   }
 
   stopsound(channel_weather);
@@ -707,7 +707,7 @@ void shutdown()
 static void loop()
 {
   auto begin = std::chrono::system_clock::now();
-  GetNetwork()->processloop();
+  GetNetwork()->ProcessLoop();
   gameinput();
   if (!gamelooprun)
   {
@@ -760,6 +760,7 @@ void joinserver()
 
   InitClientNetwork();
   GetNetwork()->SetDisconnectionCallback([](const char* msg){rendergameinfo(std::string("Network  error ") + msg);});
+  GetNetwork()->SetConnectionCallback([](NetworkClient& nc) { clientrequestgame(nc);} );
   // DEMO
   if (joinport == "0")
   {
@@ -775,7 +776,7 @@ void joinserver()
 
     rendergameinfo(("Connecting to " + gClientServerIP + ":" + std::to_string(gClientServerPort)));
 
-    if (GetNetwork()->connect(gClientServerIP, gClientServerPort))
+    if (GetNetwork()->Connect(gClientServerIP, gClientServerPort))
     {
       progready = true;
       gamelooprun = true;
@@ -785,6 +786,9 @@ void joinserver()
     }
     else
     {
+      GS::GetMainConsole().console("[NET] Failed to connect to  server" +
+                           GetNetwork()->GetStringAddress(&GetNetwork()->Address(), true),
+                         warning_message_color);
       rendergameinfo(("Connection timed out."));
       return;
     }

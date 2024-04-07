@@ -29,7 +29,7 @@ void clientsendbullet(std::uint8_t i)
   bulletmsg.clientticks = clienttickcount;
   bulletmsg.seed = b.seed;
 
-  GetNetwork()->senddata(&bulletmsg, sizeof(bulletmsg), k_nSteamNetworkingSend_Unreliable);
+  GetNetwork()->SendData(&bulletmsg, sizeof(bulletmsg), k_nSteamNetworkingSend_Unreliable);
   NotImplemented("network");
 #if 0
     if (GS::GetDemoRecorder().active())

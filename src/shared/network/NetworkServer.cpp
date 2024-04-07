@@ -23,25 +23,16 @@ PascalArray<bool, 1, max_players> knifecan;
 
 auto LOG_NET = "network";
 
-namespace
+NetworkServer::NetworkServer(const std::string_view host, std::uint32_t port)
 {
-void ProcessEventsCallback(PSteamNetConnectionStatusChangedCallback_t pInfo)
-{
-  GetServerNetwork()->ProcessEvents(pInfo);
-}
-} // namespace
+  SteamNetworkingIPAddr serverAddress; // NOLINT
+  std::array<SteamNetworkingConfigValue_t, 2> initSettings; // NOLINT
 
-ServerNetwork::ServerNetwork(const std::string_view host, std::uint32_t port)
-{
-  SteamNetworkingIPAddr ServerAddress; // NOLINT
-  std::array<SteamNetworkingConfigValue_t, 2> InitSettings; // NOLINT
-
-  ServerAddress.Clear();
-  ServerAddress.ParseString((std::string(host) + ":" + std::to_string(port)).c_str());
-  InitSettings[0].SetInt32(k_ESteamNetworkingConfig_IP_AllowWithoutAuth, 1);
-  InitSettings[1].SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged,
-                         reinterpret_cast<void*>(&ProcessEventsCallback));
-  FHost = NetworkingSockets->CreateListenSocketIP(ServerAddress, 1, InitSettings.data());
+  serverAddress.Clear();
+  serverAddress.ParseString((std::string(host) + ":" + std::to_string(port)).c_str());
+  initSettings[0].SetInt32(k_ESteamNetworkingConfig_IP_AllowWithoutAuth, 1);
+  initSettings[1].SetInt64(k_ESteamNetworkingConfig_ConnectionUserData, reinterpret_cast<std::int64_t>(this));
+  FHost = NetworkingSockets->CreateListenSocketIP(serverAddress, initSettings.size(), initSettings.data());
 
   if (FHost == k_HSteamListenSocket_Invalid)
   {
@@ -55,7 +46,7 @@ ServerNetwork::ServerNetwork(const std::string_view host, std::uint32_t port)
     LogWarn(LOG_NET, "Failed to create poll group");
     return;
   }
-  NetworkingSockets->GetListenSocketAddress(FHost, &FAddress);
+  NetworkingSockets->GetListenSocketAddress(FHost, &mAddress);
 
   if (FHost != k_HSteamNetPollGroup_Invalid)
   {
@@ -63,9 +54,9 @@ ServerNetwork::ServerNetwork(const std::string_view host, std::uint32_t port)
   }
 }
 
-ServerNetwork::~ServerNetwork()
+NetworkServer::~NetworkServer()
 {
-  ServerNetwork::disconnect(true);
+  Disconnect(true);
   if (FHost != k_HSteamNetConnection_Invalid)
   {
     NetworkingSockets->CloseListenSocket(FHost);
@@ -77,7 +68,7 @@ ServerNetwork::~ServerNetwork()
   }
 }
 
-void ServerNetwork::ProcessLoop()
+void NetworkServer::ProcessLoop()
 {
   PSteamNetworkingMessage_t IncomingMsg;
   RunCallbacks();
@@ -96,7 +87,7 @@ void ServerNetwork::ProcessLoop()
   HandleMessages(IncomingMsg);
 }
 
-void ServerNetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo)
+void NetworkServer::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo)
 {
   LogDebug(LOG_NET, "Server: Process Events {}", pInfo->m_info.m_eState);
 
@@ -117,7 +108,7 @@ void ServerNetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
 
     if (Player == nullptr)
     {
-      // DK: hm?
+      // darkenk: hm?
       NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
       return;
     }
@@ -139,10 +130,7 @@ void ServerNetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
 
     // call destructor; this releases any additional resources managed for the connection, such
     // as anti-cheat handles etc.
-    mPlayers.erase(std::remove_if(mPlayers.begin(), mPlayers.end(),
-                                 [&Player](const auto &v) { return Player == v.get(); }),
-                  mPlayers.end());
-    delete Player;
+    std::erase_if(mPlayers, [&Player](const auto &v) { return Player == v.get(); });
     mConnectionMap.erase(it);
 
     NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
@@ -177,7 +165,6 @@ void ServerNetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
       pInfo->m_info.m_addrRemote.ToString(tmp.data(), tmp.size(), false);
       player->ip = tmp.data();
       player->port = pInfo->m_info.m_addrRemote.m_port;
-      NetworkingSockets->SetConnectionUserData(pInfo->m_hConn, reinterpret_cast<std::int64_t>(player.get()));
       LogInfo(LOG_NET, "Connection  accepted {}", pInfo->m_info.m_szConnectionDescription);
       mPlayers.push_back(player);
       SoldatAssert(!mConnectionMap.contains(pInfo->m_hConn));
@@ -190,7 +177,7 @@ void ServerNetwork::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
   }
 }
 
-void ServerNetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
+void NetworkServer::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 {
   if (IncomingMsg->m_cbSize < sizeof(tmsgheader))
   {
@@ -288,7 +275,7 @@ void ServerNetwork::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
   IncomingMsg->Release();
 }
 
-bool ServerNetwork::senddata(const std::byte *Data, std::int32_t Size, HSteamNetConnection Peer,
+bool NetworkServer::senddata(const std::byte *Data, std::int32_t Size, HSteamNetConnection Peer,
                               std::int32_t Flags)
 {
   if (Size < sizeof(tmsgheader))
@@ -308,7 +295,7 @@ bool ServerNetwork::senddata(const std::byte *Data, std::int32_t Size, HSteamNet
   return ret == k_EResultOK;
 }
 
-void ServerNetwork::UpdateNetworkStats(std::uint8_t Player)
+void NetworkServer::UpdateNetworkStats(std::uint8_t Player)
 {
   SteamNetworkingQuickConnectionStatus Stats = GetQuickConnectionStatus(SpriteSystem::Get().GetSprite(Player).player->peer);
   SpriteSystem::Get().GetSprite(Player).player->realping = Stats.m_nPing;
@@ -323,7 +310,7 @@ void ServerNetwork::UpdateNetworkStats(std::uint8_t Player)
   }
 }
 
-bool ServerNetwork::disconnect(bool now)
+bool NetworkServer::Disconnect(bool now)
 {
   if (FHost == k_HSteamNetPollGroup_Invalid)
   {
@@ -337,19 +324,26 @@ bool ServerNetwork::disconnect(bool now)
   mPlayers.clear();
   return true;
 }
+void NetworkServer::FlushMsg()
+{
+  for (const auto& player  : mPlayers)
+  {
+    NetworkingSockets->FlushMessagesOnConnection(player->peer);
+  }
+}
 
 namespace
 {
-ServerNetwork *gUDP;
+NetworkServer *gUDP;
 }
 
 bool InitNetworkServer(const std::string &Host, uint32_t Port)
 {
-  gUDP = new ServerNetwork(Host, Port);
+  gUDP = new NetworkServer(Host, Port);
   return gUDP != nullptr;
 }
 
-ServerNetwork *GetServerNetwork()
+NetworkServer *GetServerNetwork()
 {
   return gUDP;
 }
@@ -378,60 +372,70 @@ public:
 protected:
 };
 
+inline void sHelperProcessMessages(std::unique_ptr<NetworkServer>& server, std::unique_ptr<NetworkClient>& client)
+{
+  client->FlushMsg();
+  server->FlushMsg();
+  client->ProcessLoop();
+  server->ProcessLoop();
+}
+
+
 //--exit -ts=NetworkServer*
 TEST_SUITE("NetworkServer")
 {
-  TEST_CASE_FIXTURE(NetworkServerFixture, "Test recreation of server" * doctest::skip(true))
+  TEST_CASE_FIXTURE(NetworkServerFixture, "Test recreation of server")
   {
     {
-      auto server = std::make_unique<ServerNetwork>("0.0.0.0", 23073);
+      auto server = std::make_unique<NetworkServer>("0.0.0.0", 23073);
     }
     {
-      auto server = std::make_unique<ServerNetwork>("0.0.0.0", 23073);
+      auto server = std::make_unique<NetworkServer>("0.0.0.0", 23073);
     }
   }
 
-  TEST_CASE_FIXTURE(NetworkServerFixture, "First initial test" * doctest::skip(true))
+  TEST_CASE_FIXTURE(NetworkServerFixture, "First initial test")
   {
-    auto server = std::make_unique<ServerNetwork>("0.0.0.0", 23073);
-    auto client = std::make_unique<tclientnetwork>();
-    client->connect("127.0.0.1", 23073);
-    auto iterations = 0;
+    auto server = std::make_unique<NetworkServer>("0.0.0.0", 23073);
+    auto client = std::make_unique<NetworkClient>();
+    client->Connect("127.0.0.1", 23073);
     while(!client->IsConnected())
     {
-      client->FlushMsg();
-      server->FlushMsg();
-      client->processloop();
-      server->ProcessLoop();
-      iterations++;
+      sHelperProcessMessages(server, client);
     }
-    LogDebug(LOG_NET, "Iters1 {}", iterations);
-    client->FlushMsg();
-    server->FlushMsg();
-    client->processloop();
-    server->ProcessLoop();
-    iterations++;
-    LogDebug(LOG_NET, "Iters2 {}", iterations);
-    server->disconnect(true);
+    sHelperProcessMessages(server, client);
+    server->Disconnect(true);
     while(!client->IsDisconnected())
     {
-      client->FlushMsg();
-      server->FlushMsg();
-      server->ProcessLoop();
-      client->processloop();
-      iterations++;
+      sHelperProcessMessages(server, client);
     }
-    LogDebug(LOG_NET, "Iters3 {}", iterations);
-    client->FlushMsg();
-    server->FlushMsg();
-    server->ProcessLoop();
-    client->processloop();
-    iterations++;
-    LogDebug(LOG_NET, "Iters4 {}", iterations);
+    sHelperProcessMessages(server, client);
     auto ret = client->GetQuickConnectionStatus(client->Peer());
-    client->disconnect(true);
     CHECK_EQ(true, server->GetPlayers().empty());
   }
+
+  TEST_CASE_FIXTURE(NetworkServerFixture, "Client disconnects first")
+  {
+    auto server = std::make_unique<NetworkServer>("0.0.0.0", 23073);
+    auto client = std::make_unique<NetworkClient>();
+    client->Connect("127.0.0.1", 23073);
+    while(!client->IsConnected())
+    {
+      sHelperProcessMessages(server, client);
+    }
+    CHECK_EQ(false, server->GetPlayers().empty());
+    sHelperProcessMessages(server, client);
+    client->Disconnect(true);
+    sHelperProcessMessages(server, client);
+    while(!server->GetPlayers().empty())
+    {
+      sHelperProcessMessages(server, client);
+    }
+    CHECK_EQ(true, server->GetPlayers().empty());
+  }
+
+
+
 } // TEST_SUITE(NetworkServer)
 
 

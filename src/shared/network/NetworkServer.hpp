@@ -17,14 +17,12 @@ extern PascalArray<std::int32_t, 1, max_players> bullettime;
 extern PascalArray<std::int32_t, 1, max_players> grenadetime;
 extern PascalArray<bool, 1, max_players> knifecan;
 
-class ServerNetwork : public TNetwork
+class NetworkServer : public TNetwork
 {
 public:
-  ServerNetwork(const std::string_view host, std::uint32_t port);
-  ~ServerNetwork() override;
-  void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
+  NetworkServer(const std::string_view host, std::uint32_t port);
+  ~NetworkServer() override;
   void ProcessLoop();
-  void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);
   template <typename T>
   inline bool senddata(const T *Data, std::int32_t Size, HSteamNetConnection peer, std::int32_t Flags)
   {
@@ -34,7 +32,7 @@ public:
                 std::int32_t Flags);
   void UpdateNetworkStats(std::uint8_t Player);
 
-  bool disconnect(bool now);
+  bool Disconnect(bool now);
 
   inline TServerPlayer* GetPlayer(const SteamNetworkingMessage_t * msg)
   {
@@ -46,14 +44,20 @@ public:
   }
 
   inline TPlayers& GetPlayers() { return mPlayers; }
+  void FlushMsg();
 
+protected:
+  void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
 private:
   HSteamNetPollGroup FPollGroup;
   std::map<HSteamNetConnection, std::shared_ptr<TServerPlayer>> mConnectionMap;
   TPlayers mPlayers;
+
+  void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);
+
 };
 
 
 bool InitNetworkServer(const std::string &Host, std::uint32_t Port);
-ServerNetwork *GetServerNetwork();
+NetworkServer *GetServerNetwork();
 bool DeinitServerNetwork();

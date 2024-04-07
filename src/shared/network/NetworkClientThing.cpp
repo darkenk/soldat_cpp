@@ -293,7 +293,7 @@ void clienthandlethingtaken(SteamNetworkingMessage_t *netmessage)
     // request the new thing if not active
     requestthingmsg.header.id = msgid_requestthing;
     requestthingmsg.thingid = i;
-    GetNetwork()->senddata(&requestthingmsg, sizeof(requestthingmsg),
+    GetNetwork()->SendData(&requestthingmsg, sizeof(requestthingmsg),
                            k_nSteamNetworkingSend_Unreliable);
     return;
   }

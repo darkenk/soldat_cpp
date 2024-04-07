@@ -9,7 +9,6 @@
 #include "shared/Version.hpp"
 #include <array>
 #include <cstdint>
-#include <steam/isteamnetworkingutils.h>
 #include <steam/steamnetworkingsockets.h>
 #include <string>
 

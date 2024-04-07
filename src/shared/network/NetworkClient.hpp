@@ -12,36 +12,45 @@ extern std::int32_t noheartbeattime;
 extern std::string votemapname;
 extern std::uint32_t votemapcount;
 
-class tclientnetwork : public TNetwork
+class NetworkClient : public TNetwork
 {
 public:
-  void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
-  tclientnetwork();
-  virtual ~tclientnetwork()
-  {
-  }
-  bool connect(const std::string& Host, std::uint32_t Port);
+  using ConnectionCallback = std::function<void(NetworkClient&)>;
+  using DisconnectionCallback = std::function<void(const char*)>;
+
+  NetworkClient() = default;
+  ~NetworkClient() override = default;
+  bool Connect(const std::string_view host, std::uint32_t port);
+  bool Disconnect(bool now);
   bool IsConnected();
   bool IsDisconnected();
-  void SetDisconnectionCallback(const std::function<void(const char*)>& callback) { mDisconnectionCallback = callback;}
-  void processloop();
-  void handlemessages(PSteamNetworkingMessage_t IncomingMsg);
+  void SetConnectionCallback(const ConnectionCallback& callback) { mConnectionCallback = callback; }
+  void SetDisconnectionCallback(const DisconnectionCallback& callback) { mDisconnectionCallback = callback; }
+  void ProcessLoop();
   template <typename T>
-  bool senddata(const T *Data, std::int32_t Size, std::int32_t Flags,
+  bool SendData(const T *Data, std::int32_t Size, std::int32_t Flags,
                 const source_location &location = source_location::current())
   {
-    return senddata(reinterpret_cast<const std::byte *>(Data), Size, Flags, location);
+    return SendData(reinterpret_cast<const std::byte *>(Data), Size, Flags, location);
   }
-  bool senddata(const std::byte *Data, std::int32_t Size, std::int32_t Flags,
+  bool SendData(const std::byte *Data, std::int32_t Size, std::int32_t Flags,
                 const source_location &location = source_location::current());
-  bool disconnect(bool now) { NotImplemented("network", "Is this function needed?"); return true; }
+  [[nodiscard]] HSteamNetConnection Peer() const { return mPeer; }
+  void FlushMsg();
+
+protected:
+  void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
+
 private:
-  std::function<void(const char*)> mDisconnectionCallback;
+  void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);
+  DisconnectionCallback mDisconnectionCallback;
+  ConnectionCallback mConnectionCallback;
+  HSteamNetConnection mPeer = k_HSteamNetConnection_Invalid;
 };
 
 template <Config::Module M = Config::GetModule()>
 void InitClientNetwork() requires(Config::IsClient());
 template <Config::Module M = Config::GetModule()>
-tclientnetwork *GetNetwork() requires(Config::IsClient());
+NetworkClient *GetNetwork() requires(Config::IsClient());
 template <Config::Module M = Config::GetModule()>
 void DeinitClientNetwork() requires(Config::IsClient());

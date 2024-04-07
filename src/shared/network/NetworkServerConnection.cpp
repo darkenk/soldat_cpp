@@ -267,7 +267,7 @@ void serverhandleplayerinfo(SteamNetworkingMessage_t *netmessage)
                                  server_message_color);
 
   // Set a network name for debugging purposes
-  GetServerNetwork()->setconnectionname(player->peer, finalplayername);
+  GetServerNetwork()->SetConnectionName(player->peer, finalplayername);
 
   player->name = finalplayername;
   player->shirtcolor = playerinfomsg->shirtcolor & 0xffffff;

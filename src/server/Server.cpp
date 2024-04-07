@@ -409,10 +409,6 @@ void ShutDown()
   SteamAPI.GameServer.Shutdown;
 #endif
 
-#ifndef STEAM
-  GameNetworkingSockets_Kill();
-#endif
-
   for (auto &s : SpriteSystem::Get().GetSprites())
   {
     s.player = nullptr;

@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <steam/isteamnetworkingmessages.h>
 
-void clientrequestgame(tclientnetwork& network);
+void clientrequestgame(NetworkClient& network);
 void clientdisconnect();
 void clientsendplayerinfo();
 void clientpong(std::uint8_t pingnum);

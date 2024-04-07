@@ -196,7 +196,7 @@ void clientvotekick(std::uint8_t num, bool ban, std::string reason)
   votemsg.ban = (std::uint8_t)(ban);
   votemsg.num = num;
   stringtoarray(votemsg.reason.data(), reason);
-  GetNetwork()->senddata(&votemsg, sizeof(votemsg), k_nSteamNetworkingSend_Reliable);
+  GetNetwork()->SendData(&votemsg, sizeof(votemsg), k_nSteamNetworkingSend_Reliable);
 }
 
 void clientvotemap(std::uint32_t mapid)
@@ -205,7 +205,7 @@ void clientvotemap(std::uint32_t mapid)
 
   votemsg.header.id = msgid_votemap;
   votemsg.mapid = mapid;
-  GetNetwork()->senddata(&votemsg, sizeof(votemsg), k_nSteamNetworkingSend_Reliable);
+  GetNetwork()->SendData(&votemsg, sizeof(votemsg), k_nSteamNetworkingSend_Reliable);
 }
 
 void clienthandlevoteresponse(SteamNetworkingMessage_t *netmessage)
@@ -229,7 +229,7 @@ void clientfreecamtarget()
   freecammsg.targetpos.x = camerax;
   freecammsg.targetpos.y = cameray;
 
-  GetNetwork()->senddata(&freecammsg, sizeof(freecammsg), k_nSteamNetworkingSend_Reliable);
+  GetNetwork()->SendData(&freecammsg, sizeof(freecammsg), k_nSteamNetworkingSend_Reliable);
 }
 
 void clienthandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)

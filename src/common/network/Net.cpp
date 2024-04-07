@@ -9,63 +9,43 @@
 
 auto constexpr LOG_MSG = "net_msg";
 
-std::mutex TNetwork::sNetworksMutex;
-std::vector<TNetwork *> TNetwork::sNetworks;
-
-void NetworksGlobalCallback(PSteamNetConnectionStatusChangedCallback_t pInfo)
+void NetworksGlobalCallback(SteamNetConnectionStatusChangedCallback_t* pInfo)
 {
-  std::lock_guard m(TNetwork::sNetworksMutex);
-  auto n =
-    std::find_if(std::begin(TNetwork::sNetworks), std::end(TNetwork::sNetworks), [pInfo](auto &v) {
-      if (v->FPeer != k_HSteamNetConnection_Invalid && pInfo->m_hConn == v->FPeer)
-      {
-        return true;
-      }
-      if (v->FHost != k_HSteamListenSocket_Invalid && pInfo->m_info.m_hListenSocket == v->FHost)
-      {
-        return true;
-      }
-      return false;
-    });
-  SoldatAssert(n != std::end(TNetwork::sNetworks));
-
-  std::lock_guard m2((*n)->QueueMutex);
-  (*n)->QuedCallbacks.emplace(*pInfo);
+  auto network = reinterpret_cast<TNetwork*>(pInfo->m_info.m_nUserData);
+  network->EmplaceSteamNetConnectionStatusChangeMessage(pInfo);
 }
 
-void DebugNet(ESteamNetworkingSocketsDebugOutputType nType, const char *pszMsg)
+static void sDebugNet(ESteamNetworkingSocketsDebugOutputType nType, const char *pszMsg)
 {
   LogDebug("network", "{}", pszMsg);
 }
 
+static std::atomic<std::int64_t> sNetworkCount = 0;
+static std::mutex sNetworkGNSInit;
+
 TNetwork::TNetwork()
 {
-  FPeer = k_HSteamNetConnection_Invalid;
-
-  SteamNetworkingErrMsg error;
-  if (not GameNetworkingSockets_Init(nullptr, error))
+  if (std::lock_guard m(sNetworkGNSInit); ++sNetworkCount == 1)
   {
-    LogDebug("network", "Game networking sockets failed {}", error);
+    SteamNetworkingErrMsg error; // NOLINT
+    if (not GameNetworkingSockets_Init(nullptr, error))
+    {
+      LogCritical("network", "Game networking sockets failed {}", error);
+    }
   }
 
   NetworkingSockets = SteamNetworkingSockets();
   NetworkingUtils = SteamNetworkingUtils();
-  NetworkingUtils->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg, &DebugNet);
+  NetworkingUtils->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg, &sDebugNet);
 
-  std::lock_guard m(sNetworksMutex);
   NetworkingUtils->SetGlobalCallback_SteamNetConnectionStatusChanged(NetworksGlobalCallback);
-  sNetworks.emplace_back(this);
 }
 
 TNetwork::~TNetwork()
 {
+  if (std::lock_guard m(sNetworkGNSInit); --sNetworkCount == 0)
   {
-    std::lock_guard m(sNetworksMutex);
-    auto n = std::find(std::begin(sNetworks), std::end(sNetworks), this);
-    if (n != std::end(sNetworks))
-    {
-      sNetworks.erase(n);
-    }
+    GameNetworkingSockets_Kill();
   }
 #ifndef STEAM
   NotImplemented("network");
@@ -73,14 +53,6 @@ TNetwork::~TNetwork()
     NetworkingSockets->Destroy;
 #endif
 #endif
-}
-
-void TNetwork::FlushMsg()
-{
-  if (FPeer != k_HSteamNetConnection_Invalid)
-  {
-    NetworkingSockets->FlushMessagesOnConnection(FPeer);
-  }
 }
 
 std::string TNetwork::GetDetailedConnectionStatus(HSteamNetConnection hConn) const
@@ -95,17 +67,17 @@ std::string TNetwork::GetDetailedConnectionStatus(HSteamNetConnection hConn) con
 
 SteamNetworkingQuickConnectionStatus TNetwork::GetQuickConnectionStatus(HSteamNetConnection hConn) const
 {
-  SteamNetworkingQuickConnectionStatus Result; // NOLINT
-  NetworkingSockets->GetQuickConnectionStatus(hConn, &Result);
-  return Result;
+  SteamNetworkingQuickConnectionStatus ret; // NOLINT
+  NetworkingSockets->GetQuickConnectionStatus(hConn, &ret);
+  return ret;
 }
 
-void TNetwork::setconnectionname(HSteamNetConnection hConn, std::string Name)
+void TNetwork::SetConnectionName(const HSteamNetConnection hConn, const std::string_view name)
 {
-  NetworkingSockets->SetConnectionName(hConn, pchar(Name));
+  NetworkingSockets->SetConnectionName(hConn, name.data());
 }
 
-std::string TNetwork::GetStringAddress(PSteamNetworkingIPAddr pAddress, bool Port) const
+std::string TNetwork::GetStringAddress(PSteamNetworkingIPAddr pAddress, bool Port)
 {
   std::array<char, 128> TempIP; // NOLINT
   pAddress->ToString(TempIP.data(), TempIP.size(), Port);
@@ -115,12 +87,18 @@ std::string TNetwork::GetStringAddress(PSteamNetworkingIPAddr pAddress, bool Por
 void TNetwork::RunCallbacks()
 {
   NetworkingSockets->RunCallbacks();
-  std::lock_guard m(QueueMutex);
-  while (!QuedCallbacks.empty())
+  std::lock_guard m(mQueueMutex);
+  while (!mQueuedCallbacks.empty())
   {
-    ProcessEvents(&QuedCallbacks.front());
-    QuedCallbacks.pop();
+    ProcessEvents(&mQueuedCallbacks.front());
+    mQueuedCallbacks.pop();
   }
+}
+void TNetwork::EmplaceSteamNetConnectionStatusChangeMessage(
+  SteamNetConnectionStatusChangedCallback_t *pInfo)
+{
+  std::lock_guard m(mQueueMutex);
+  mQueuedCallbacks.emplace(*pInfo);
 }
 
 template <>

@@ -8,7 +8,7 @@
 #include <steam/isteamnetworkingmessages.h>
 
 template<class TSprite, Config::Module M>
-void serverheartbeat(ServerNetwork& transport, TSpriteSystem<TSprite>& spriteSystem, Game<M>& game)
+void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSystem, Game<M>& game)
 {
   tmsg_heartbeat heartbeatmsg;
   heartbeatmsg.header.id = msgid_heartbeat;
@@ -114,14 +114,14 @@ TEST_CASE_FIXTURE(NetworkServerHeartbeatFixture, "Initial test for heartbeat" * 
 {
   auto &spriteSystem = SpriteSystem::Get();
   auto &game = GS::GetGame();
-  auto server = std::make_unique<ServerNetwork>("0.0.0.0", 23073);
-  auto client = std::make_unique<tclientnetwork>();
-  client->connect("127.0.0.1", 23073);
+  auto server = std::make_unique<NetworkServer>("0.0.0.0", 23073);
+  auto client = std::make_unique<NetworkClient>();
+  client->Connect("127.0.0.1", 23073);
   while(server->GetPlayers().empty())
   {
     client->FlushMsg();
     server->FlushMsg();
-    client->processloop();
+    client->ProcessLoop();
     server->ProcessLoop();
   }
   SoldatAssert(server->GetPlayers().size() == 1);
