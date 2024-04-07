@@ -18,7 +18,7 @@ public:
   using ConnectionCallback = std::function<void(NetworkClient&)>;
   using DisconnectionCallback = std::function<void(const char*)>;
 
-  NetworkClient() = default;
+  NetworkClient();
   ~NetworkClient() override = default;
   bool Connect(const std::string_view host, std::uint32_t port);
   bool Disconnect(bool now);
@@ -35,7 +35,7 @@ public:
   }
   bool SendData(const std::byte *Data, std::int32_t Size, std::int32_t Flags,
                 const source_location &location = source_location::current());
-  [[nodiscard]] HSteamNetConnection Peer() const { return mPeer; }
+  [[nodiscard]] HSoldatNetConnection Peer() const { return mPeer; }
   void FlushMsg();
 
 protected:
@@ -45,7 +45,7 @@ private:
   void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);
   DisconnectionCallback mDisconnectionCallback;
   ConnectionCallback mConnectionCallback;
-  HSteamNetConnection mPeer = k_HSteamNetConnection_Invalid;
+  HSoldatNetConnection mPeer;
 };
 
 template <Config::Module M = Config::GetModule()>

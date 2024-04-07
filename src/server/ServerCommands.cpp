@@ -744,31 +744,17 @@ void commandbanlist(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandnetstats(std::vector<std::string> &args, std::uint8_t sender)
 {
-  std::array<char, 2048> statstext;
-  tplayer dstplayer;
-
-  if (GetServerNetwork()->NetworkingSocket().GetDetailedConnectionStatus(1, statstext.data(),
-                                                                         2048) == 0)
   {
-    NotImplemented();
-#if 0
-        output << statstext << NL;
-#endif
+    auto statstext = GetServerNetwork()->GetDetailedConnectionStatus(1);
+    LogInfo("network", "{}", statstext);
   }
   auto players = GetServerNetwork()->GetPlayers();
   for (auto &dstplayer : players)
   {
-    if (GetServerNetwork()->NetworkingSocket().GetDetailedConnectionStatus(
-          dstplayer->peer, statstext.data(), 2048) == 0)
+    auto statstext = GetServerNetwork()->GetDetailedConnectionStatus(dstplayer->peer);
     {
-      NotImplemented();
-#if 0
-            output << "----------------" << NL;
-            output << dstplayer.name << NL;
-            output << dstplayer.peer << NL;
-            output << statstext << NL;
-            output << "----------------" << NL;
-#endif
+      LogInfo("network", "----------------\n{}\n{}\n{}\n----------------",
+        dstplayer->name, dstplayer->peer, statstext);
     }
   }
 }

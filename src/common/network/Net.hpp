@@ -7,8 +7,6 @@
 #include <cstdint>
 #include <mutex>
 #include <queue>
-#include <steam/isteamnetworkingutils.h>
-#include <steam/steamnetworkingsockets.h>
 #include <string>
 
 // Binary ops
@@ -155,9 +153,13 @@ auto constexpr msgtype_radio = 3;
 struct SteamNetConnectionStatusChangedCallback_t;
 struct SteamNetworkingIPAddr;
 struct SteamNetworkingMessage_t;
+class ISteamNetworkingSockets;
+
 using PSteamNetConnectionStatusChangedCallback_t = SteamNetConnectionStatusChangedCallback_t *;
 using PSteamNetworkingIPAddr = SteamNetworkingIPAddr *;
 using PSteamNetworkingMessage_t = SteamNetworkingMessage_t *;
+
+using HSoldatNetConnection = std::uint32_t;
 
 class TNetwork
 {
@@ -165,31 +167,21 @@ public:
   TNetwork();
   virtual ~TNetwork();
 
-
-  [[nodiscard]] bool Active() const { return FActive; }
-  void SetActive(bool active) { FActive = active; }
-  [[nodiscard]] std::string GetDetailedConnectionStatus(HSteamNetConnection hConn) const;
-  [[nodiscard]] SteamNetworkingQuickConnectionStatus GetQuickConnectionStatus(HSteamNetConnection hConn) const;
-  void SetConnectionName(const HSteamNetConnection hConn, const std::string_view name);
-  [[nodiscard]] static std::string GetStringAddress(PSteamNetworkingIPAddr pAddress, bool Port);
-
-  [[nodiscard]] HSteamListenSocket Host() const { return FHost; }
-  [[nodiscard]] ISteamNetworkingSockets &NetworkingSocket() const { return *NetworkingSockets; }
-  [[nodiscard]] ISteamNetworkingUtils &NetworkingUtil() const { return *NetworkingUtils; }
-
-  [[nodiscard]] std::uint32_t Port() const { return mAddress.m_port; }
-  void SetPort(std::uint32_t port) { mAddress.m_port = port; }
-  [[nodiscard]] SteamNetworkingIPAddr &Address() { return mAddress; }
+  [[nodiscard]] bool IsActive() const { return mActive; }
+  void SetActive(bool active) { mActive = active; }
+  [[nodiscard]] std::string GetDetailedConnectionStatus(HSoldatNetConnection hConn) const;
+  void SetConnectionName(const HSoldatNetConnection hConn, const std::string_view name);
+  [[nodiscard]] std::string GetStringAddress(bool withPort);
+  [[nodiscard]] std::uint32_t Port() const { return mPort; }
 
 protected:
-  bool FActive;
-  SteamNetworkingIPAddr mAddress;
-  HSteamListenSocket FHost;
-  ISteamNetworkingSockets *NetworkingSockets;
-  ISteamNetworkingUtils *NetworkingUtils;
+  bool mActive;
+  ISteamNetworkingSockets *mNetworkingSockets;
+  std::string mIpAddress;
+  std::uint32_t mPort;
 
   void RunCallbacks();
-  virtual void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) = 0;
+  virtual void ProcessEvents(SteamNetConnectionStatusChangedCallback_t* pInfo) = 0;
 
   friend void NetworksGlobalCallback(SteamNetConnectionStatusChangedCallback_t* pInfo);
 

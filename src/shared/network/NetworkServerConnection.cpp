@@ -661,8 +661,7 @@ void serversendunaccepted(HSteamNetConnection peer, std::uint8_t state, std::str
   strcpy(unaccepted->text.data(), message.data());
 
   GetServerNetwork()->SendData(&unaccepted, size, peer, k_nSteamNetworkingSend_Reliable);
-
-  GetServerNetwork()->NetworkingSocket().CloseConnection(peer, 0, "", true);
+  GetServerNetwork()->CloseConnection(peer, false);
 }
 #endif
 

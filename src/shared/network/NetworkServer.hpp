@@ -26,39 +26,37 @@ public:
   ~NetworkServer() override;
   void ProcessLoop();
   template <typename T>
-  inline bool SendData(const T *Data, std::int32_t Size, HSteamNetConnection peer, std::int32_t Flags)
+  inline bool SendData(const T *data, std::int32_t size, HSoldatNetConnection peer,
+                       std::int32_t flags)
   {
-    return SendData(reinterpret_cast<const std::byte *>(Data), Size, peer, Flags);
+    return SendData(reinterpret_cast<const std::byte *>(data), size, peer, flags);
   }
-  bool SendData(const std::byte *Data, std::int32_t Size, HSteamNetConnection peer,
-                std::int32_t Flags);
-  void UpdateNetworkStats(std::shared_ptr<TServerPlayer> &player) const;
+  bool SendData(const std::byte *data, std::int32_t size, HSoldatNetConnection peer,
+                std::int32_t flags);
+  void UpdateNetworkStats(std::shared_ptr<TServerPlayer>& player) const;
 
   void SetDisconnectionCallback(const DisconnectionCallback& callback) { mDisconnectionCallback = callback; }
   bool Disconnect(bool now);
-
-  inline TServerPlayer* GetPlayer(const SteamNetworkingMessage_t * msg)
-  {
-    if (const auto it = mConnectionMap.find(msg->GetConnection()); it != mConnectionMap.end())
-    {
-      return it->second.get();
-    }
-    return nullptr;
-  }
-
-  inline TPlayers& GetPlayers() { return mPlayers; }
+  // darkenk: should be changed to Disconnect?
+  void CloseConnection(HSoldatNetConnection peer, bool now);
   void FlushMsg();
+
+  TServerPlayer *GetPlayer(const SteamNetworkingMessage_t *msg);
+  inline TPlayers& GetPlayers() { return mPlayers; }
 
 protected:
   void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
+
 private:
-  HSteamNetPollGroup FPollGroup;
-  std::map<HSteamNetConnection, std::shared_ptr<TServerPlayer>> mConnectionMap;
+  using HSoldatListenSocket = std::uint32_t;
+  using HSoldatNetPollGroup = std::uint32_t;
+  HSoldatListenSocket mHost;
+  HSoldatNetPollGroup FPollGroup;
+  std::map<HSoldatNetConnection, std::shared_ptr<TServerPlayer>> mConnectionMap;
   TPlayers mPlayers;
   DisconnectionCallback mDisconnectionCallback;
 
   void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);
-
 };
 
 

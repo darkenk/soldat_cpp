@@ -156,7 +156,7 @@ void clientdisconnect()
 
     addlinetologfile(fs, GetGameLog(),
                      string("Client Disconnect from ") +
-                       GetNetwork()->GetStringAddress(&GetNetwork()->Address(), true),
+                       GetNetwork()->GetStringAddress( true),
                      GetGameLogFilename());
     GetNetwork()->ProcessLoop();
     GetNetwork()->Disconnect(false);
@@ -202,10 +202,10 @@ void clienthandleplayerslist(SteamNetworkingMessage_t *netmessage)
 
   if (!demoplayer.active())
     GS::GetMainConsole().console(_("Connection accepted to") + ' ' +
-                               (GetNetwork()->GetStringAddress(&GetNetwork()->Address(), true)),
+                               (GetNetwork()->GetStringAddress(true)),
                              client_message_color);
 
-  gClientServerIP = GetNetwork()->GetStringAddress(&GetNetwork()->Address(), false);
+  gClientServerIP = GetNetwork()->GetStringAddress(false);
   NotImplemented("network", "no sha1 checks");
 #if 1
   mapname = trim(playerslistmsg->mapname.data());

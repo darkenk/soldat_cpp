@@ -5,7 +5,11 @@
 #include <array>
 #include <numeric>
 #include <string>
-#include <vector>
+#include <steam/steamnetworkingsockets.h>
+#include <steam/isteamnetworkingutils.h>
+
+static_assert(sizeof(HSoldatNetConnection) == sizeof(HSteamNetConnection));
+static_assert(std::is_same_v<HSoldatNetConnection, HSteamNetConnection> == true);
 
 auto constexpr LOG_MSG = "net_msg";
 
@@ -34,11 +38,9 @@ TNetwork::TNetwork()
     }
   }
 
-  NetworkingSockets = SteamNetworkingSockets();
-  NetworkingUtils = SteamNetworkingUtils();
-  NetworkingUtils->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg, &sDebugNet);
-
-  NetworkingUtils->SetGlobalCallback_SteamNetConnectionStatusChanged(NetworksGlobalCallback);
+  mNetworkingSockets = SteamNetworkingSockets();
+  SteamNetworkingUtils()->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg, &sDebugNet);
+  SteamNetworkingUtils()->SetGlobalCallback_SteamNetConnectionStatusChanged(NetworksGlobalCallback);
 }
 
 TNetwork::~TNetwork()
@@ -55,38 +57,33 @@ TNetwork::~TNetwork()
 #endif
 }
 
-std::string TNetwork::GetDetailedConnectionStatus(HSteamNetConnection hConn) const
+std::string TNetwork::GetDetailedConnectionStatus(HSoldatNetConnection hConn) const
 {
   std::array<char, 2048> buf; // NOLINT
-  if (NetworkingSockets->GetDetailedConnectionStatus(hConn, buf.data(), buf.size()) == 0)
+  if (mNetworkingSockets->GetDetailedConnectionStatus(hConn, buf.data(), buf.size()) == 0)
   {
     return buf.data();
   }
   return std::string{};
 }
 
-SteamNetworkingQuickConnectionStatus TNetwork::GetQuickConnectionStatus(HSteamNetConnection hConn) const
+void TNetwork::SetConnectionName(const HSoldatNetConnection hConn, const std::string_view name)
 {
-  SteamNetworkingQuickConnectionStatus ret; // NOLINT
-  NetworkingSockets->GetQuickConnectionStatus(hConn, &ret);
-  return ret;
+  mNetworkingSockets->SetConnectionName(hConn, name.data());
 }
 
-void TNetwork::SetConnectionName(const HSteamNetConnection hConn, const std::string_view name)
+std::string TNetwork::GetStringAddress(bool withPort)
 {
-  NetworkingSockets->SetConnectionName(hConn, name.data());
-}
-
-std::string TNetwork::GetStringAddress(PSteamNetworkingIPAddr pAddress, bool Port)
-{
-  std::array<char, 128> TempIP; // NOLINT
-  pAddress->ToString(TempIP.data(), TempIP.size(), Port);
-  return TempIP.data();
+  if (!withPort)
+  {
+    return mIpAddress;
+  }
+  return mIpAddress + ":" + std::to_string(mPort);
 }
 
 void TNetwork::RunCallbacks()
 {
-  NetworkingSockets->RunCallbacks();
+  mNetworkingSockets->RunCallbacks();
   std::lock_guard m(mQueueMutex);
   while (!mQueuedCallbacks.empty())
   {

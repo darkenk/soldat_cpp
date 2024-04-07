@@ -101,7 +101,7 @@ void serverhandleplayerdisconnect(SteamNetworkingMessage_t *netmessage)
                                [&player](const auto &v) { return v.get() == player; }),
                 players.end());
 
-  GetServerNetwork()->NetworkingSocket().CloseConnection(netmessage->m_conn, 0, "", false);
+  GetServerNetwork()->CloseConnection(netmessage->m_conn, true);
 
   dobalancebots(1, SpriteSystem::Get().GetSprite(i).player->team);
 }

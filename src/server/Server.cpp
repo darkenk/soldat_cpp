@@ -858,11 +858,10 @@ void startserver()
     }
   });
 
-  if (GetServerNetwork()->Active() == true)
+  if (GetServerNetwork()->IsActive() == true)
   {
     WriteLn("[NET] Game networking initialized.");
-    auto addr = GetServerNetwork()->Address();
-    WriteLn("[NET] Server is listening on " + GetServerNetwork()->GetStringAddress(&addr, true));
+    WriteLn("[NET] Server is listening on " + GetServerNetwork()->GetStringAddress(true));
   }
   else
   {

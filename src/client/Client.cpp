@@ -787,7 +787,7 @@ void joinserver()
     else
     {
       GS::GetMainConsole().console("[NET] Failed to connect to  server" +
-                           GetNetwork()->GetStringAddress(&GetNetwork()->Address(), true),
+                           GetNetwork()->GetStringAddress(true),
                          warning_message_color);
       rendergameinfo(("Connection timed out."));
       return;

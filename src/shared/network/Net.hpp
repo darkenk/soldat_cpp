@@ -9,7 +9,6 @@
 #include "shared/Version.hpp"
 #include <array>
 #include <cstdint>
-#include <steam/steamnetworkingsockets.h>
 #include <string>
 
 #pragma pack(push, 1)
@@ -66,7 +65,7 @@ public:
   TFaeSecret FaeSecret;
 #endif
 
-  HSteamNetConnection peer;
+  HSoldatNetConnection peer;
   std::string hwid;
   std::int32_t playtime;
   bool gamerequested = false;
@@ -81,8 +80,6 @@ public:
   bool grabbedinbase;            // to prevent false accusations
   std::uint8_t standingpolytype; // testing
   std::uint8_t knifewarnings;
-
-  ~TServerPlayer();
 
   void applyshirtcolorfromteam(); // TODO remove, see comment before Name
 };

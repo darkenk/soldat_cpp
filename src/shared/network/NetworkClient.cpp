@@ -10,6 +10,8 @@
 #include "NetworkClientThing.hpp"
 #include "common/Logging.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include <steam/isteamnetworkingutils.h>
+#include <steam/isteamnetworkingsockets.h>
 
 static std::string_view NETMSG = "net_msg";
 auto constexpr LOG_NET = "network";
@@ -33,7 +35,7 @@ void NetworkClient::ProcessLoop()
     return;
   }
 
-  while ((numMsgs = NetworkingSockets->ReceiveMessagesOnConnection(mPeer, &IncomingMsg, 1)) > 0)
+  while ((numMsgs = mNetworkingSockets->ReceiveMessagesOnConnection(mPeer, &IncomingMsg, 1)) > 0)
   {
     HandleMessages(IncomingMsg);
   }
@@ -52,7 +54,7 @@ void NetworkClient::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
     LogWarn(LOG_NET, "Invalid connection handle");
     return;
   }
-  LogDebug(LOG_NET, "Client: Process Events {}",  pInfo->m_info.m_eState);
+  LogDebug(LOG_NET, "Client: Process Events {}", pInfo->m_info.m_eState);
 
   // Make sure it"s for us
   if (pInfo->m_hConn != mPeer)
@@ -79,7 +81,7 @@ void NetworkClient::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
     {
       LogInfo(LOG_NET, "[NET] Connection error #3 {}", pInfo->m_info.m_szEndDebug);
     }
-    NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
+    mNetworkingSockets->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
     if (mDisconnectionCallback)
     {
       mDisconnectionCallback(pInfo->m_info.m_szEndDebug);
@@ -103,21 +105,26 @@ void NetworkClient::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
   }
 }
 
+NetworkClient::NetworkClient(): mPeer(k_HSteamNetConnection_Invalid) {}
+
 bool NetworkClient::Connect(const std::string_view host, std::uint32_t port)
 {
+  SteamNetworkingIPAddr address; // NOLINT
   std::array<SteamNetworkingConfigValue_t, 2> initSettings; // NOLINT
 
   LogInfo(LOG_NET, "Connecting to {}:{}", host, port);
 
-  mAddress.Clear();
-  mAddress.ParseString((std::string(host.data()) + ":" + std::to_string(port)).c_str());
+  address.Clear();
+  address.ParseString((std::string(host.data()) + ":" + std::to_string(port)).c_str());
 
-  NetworkingSockets->InitAuthentication();
+  mNetworkingSockets->InitAuthentication();
 
   initSettings[0].SetInt32(k_ESteamNetworkingConfig_IP_AllowWithoutAuth, 1);
   initSettings[1].SetInt64(k_ESteamNetworkingConfig_ConnectionUserData, reinterpret_cast<std::int64_t>(this));
 
-  mPeer = NetworkingSockets->ConnectByIPAddress(mAddress, initSettings.size(), initSettings.data());
+  mPeer = mNetworkingSockets->ConnectByIPAddress(address, initSettings.size(), initSettings.data());
+  mIpAddress = host;
+  mPort = port;
   return mPeer != k_HSteamNetConnection_Invalid;
 }
 
@@ -127,7 +134,8 @@ bool NetworkClient::IsConnected()
   {
     return false;
   }
-  auto status = GetQuickConnectionStatus(mPeer);
+  SteamNetworkingQuickConnectionStatus status; // NOLINT
+  mNetworkingSockets->GetQuickConnectionStatus(mPeer, &status);
   return status.m_eState == k_ESteamNetworkingConnectionState_Connected;
 }
 
@@ -137,7 +145,8 @@ bool NetworkClient::IsDisconnected()
   {
     return true;
   }
-  auto status = GetQuickConnectionStatus(mPeer);
+  SteamNetworkingQuickConnectionStatus status; // NOLINT
+  mNetworkingSockets->GetQuickConnectionStatus(mPeer, &status);
   return status.m_eState != k_ESteamNetworkingConnectionState_Connected &&
          status.m_eState != k_ESteamNetworkingConnectionState_Connecting;
 }
@@ -148,7 +157,7 @@ void NetworkClient::FlushMsg()
   {
     return;
   }
-  NetworkingSockets->FlushMessagesOnConnection(mPeer);
+  mNetworkingSockets->FlushMessagesOnConnection(mPeer);
 }
 void NetworkClient::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 {
@@ -369,7 +378,7 @@ bool NetworkClient::SendData(const std::byte *Data, std::int32_t Size, std::int3
   if (mPeer == k_HSteamNetConnection_Invalid)
     return false; // not connected
 
-  auto ret = NetworkingSockets->SendMessageToConnection(mPeer, Data, Size, Flags, nullptr);
+  auto ret = mNetworkingSockets->SendMessageToConnection(mPeer, Data, Size, Flags, nullptr);
   SoldatAssert(ret == EResult::k_EResultOK);
   if (ret != EResult::k_EResultOK)
   {
@@ -381,7 +390,7 @@ bool NetworkClient::SendData(const std::byte *Data, std::int32_t Size, std::int3
 
 bool NetworkClient::Disconnect(bool now)
 {
-  NetworkingSockets->CloseConnection(mPeer, 0, "", !now);
+  mNetworkingSockets->CloseConnection(mPeer, 0, "", !now);
   mPeer = k_HSteamNetConnection_Invalid;
   return true;
 }

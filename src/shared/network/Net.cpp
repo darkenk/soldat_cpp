@@ -38,7 +38,4 @@ void TServerPlayer::applyshirtcolorfromteam()
   }
 }
 
-TServerPlayer::~TServerPlayer()
-{
-}
 #endif

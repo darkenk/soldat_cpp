@@ -1,6 +1,5 @@
 #include "NetworkServer.hpp"
 #include "../Demo.hpp"
-#include "../Game.hpp"
 #include "NetworkServerBullet.hpp"
 #include "NetworkServerConnection.hpp"
 #include "NetworkServerFunctions.hpp"
@@ -11,6 +10,7 @@
 #include "common/Logging.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include <steam/isteamnetworkingsockets.h>
 
 std::int32_t servertickcounter;
 PascalArray<std::int32_t, 1, max_players> noclientupdatetime;
@@ -25,6 +25,9 @@ auto LOG_NET = "network";
 
 NetworkServer::NetworkServer(const std::string_view host, std::uint32_t port)
 {
+  static_assert(std::is_same_v<HSoldatListenSocket, HSteamListenSocket> == true);
+  static_assert(std::is_same_v<HSoldatNetPollGroup, HSteamNetPollGroup> == true);
+
   SteamNetworkingIPAddr serverAddress; // NOLINT
   std::array<SteamNetworkingConfigValue_t, 2> initSettings; // NOLINT
 
@@ -32,39 +35,38 @@ NetworkServer::NetworkServer(const std::string_view host, std::uint32_t port)
   serverAddress.ParseString((std::string(host) + ":" + std::to_string(port)).c_str());
   initSettings[0].SetInt32(k_ESteamNetworkingConfig_IP_AllowWithoutAuth, 1);
   initSettings[1].SetInt64(k_ESteamNetworkingConfig_ConnectionUserData, reinterpret_cast<std::int64_t>(this));
-  FHost = NetworkingSockets->CreateListenSocketIP(serverAddress, initSettings.size(), initSettings.data());
+  mHost = mNetworkingSockets->CreateListenSocketIP(serverAddress, initSettings.size(), initSettings.data());
 
-  if (FHost == k_HSteamListenSocket_Invalid)
+  if (mHost == k_HSteamListenSocket_Invalid)
   {
     LogWarn(LOG_NET, "Cannot listen {}:{}", host, port);
     return;
   }
 
-  FPollGroup = NetworkingSockets->CreatePollGroup();
+  FPollGroup = mNetworkingSockets->CreatePollGroup();
   if (FPollGroup == k_HSteamNetPollGroup_Invalid)
   {
     LogWarn(LOG_NET, "Failed to create poll group");
     return;
   }
-  NetworkingSockets->GetListenSocketAddress(FHost, &mAddress);
-
-  if (FHost != k_HSteamNetPollGroup_Invalid)
-  {
-    SetActive(true);
-  }
+  SteamNetworkingIPAddr mAddress; // NOLINT
+  mNetworkingSockets->GetListenSocketAddress(mHost, &mAddress);
+  SetActive(mHost != k_HSteamNetPollGroup_Invalid);
+  mPort = mAddress.m_port;
+  mIpAddress = host;
 }
 
 NetworkServer::~NetworkServer()
 {
   Disconnect(true);
-  if (FHost != k_HSteamNetConnection_Invalid)
+  if (mHost != k_HSteamNetConnection_Invalid)
   {
-    NetworkingSockets->CloseListenSocket(FHost);
+    mNetworkingSockets->CloseListenSocket(mHost);
   }
 
   if (FPollGroup != k_HSteamNetPollGroup_Invalid)
   {
-    NetworkingSockets->DestroyPollGroup(FPollGroup);
+    mNetworkingSockets->DestroyPollGroup(FPollGroup);
   }
 }
 
@@ -73,7 +75,7 @@ void NetworkServer::ProcessLoop()
   PSteamNetworkingMessage_t IncomingMsg;
   RunCallbacks();
 
-  auto numMsgs = NetworkingSockets->ReceiveMessagesOnPollGroup(FPollGroup, &IncomingMsg, 1);
+  auto numMsgs = mNetworkingSockets->ReceiveMessagesOnPollGroup(FPollGroup, &IncomingMsg, 1);
 
   if (numMsgs == 0)
   {
@@ -109,7 +111,7 @@ void NetworkServer::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
     if (Player == nullptr)
     {
       // darkenk: hm?
-      NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
+      mNetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
       return;
     }
 
@@ -126,7 +128,7 @@ void NetworkServer::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
     std::erase_if(mPlayers, [&Player](const auto &v) { return Player == v.get(); });
     mConnectionMap.erase(it);
 
-    NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
+    mNetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
     break;
   }
   case k_ESteamNetworkingConnectionState_Connecting: {
@@ -140,13 +142,13 @@ void NetworkServer::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
     //  and (pInfo->m_info.m_eState = k_ESteamNetworkingConnectionState_Connecting)
     if (pInfo->m_eOldState == k_ESteamNetworkingConnectionState_None)
     {
-      if (not NetworkingSockets->SetConnectionPollGroup(pInfo->m_hConn, FPollGroup))
+      if (not mNetworkingSockets->SetConnectionPollGroup(pInfo->m_hConn, FPollGroup))
       {
         LogWarn(LOG_NET, "Failed to set poll group for user");
-        NetworkingSockets->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
+        mNetworkingSockets->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
         return;
       }
-      NetworkingSockets->AcceptConnection(pInfo->m_hConn);
+      mNetworkingSockets->AcceptConnection(pInfo->m_hConn);
     }
     break;
   }
@@ -268,60 +270,75 @@ void NetworkServer::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
   IncomingMsg->Release();
 }
 
-bool NetworkServer::SendData(const std::byte *Data, std::int32_t Size, HSteamNetConnection Peer,
-                              std::int32_t Flags)
+bool NetworkServer::SendData(const std::byte *data, std::int32_t size, HSoldatNetConnection Peer,
+                             std::int32_t flags)
 {
-  SoldatAssert(Size >= sizeof(tmsgheader));
-  if (Size < sizeof(tmsgheader))
+  SoldatAssert(size >= sizeof(tmsgheader));
+  if (size < sizeof(tmsgheader))
   {
-    LogWarn(LOG_NET, "Packet is too small: {}", Size);
+    LogWarn(LOG_NET, "Packet is too small: {}", size);
     return false;
   }
 
-  if (FHost == k_HSteamNetConnection_Invalid)
+  if (mHost == k_HSteamNetConnection_Invalid)
     return false;
 
   if (GS::GetDemoRecorder().active())
   {
     NotImplemented("network", "check peer comparision");
     if (Peer == std::numeric_limits<std::uint32_t>::max())
-      GS::GetDemoRecorder().saverecord(Data, Size);
+      GS::GetDemoRecorder().saverecord(data, size);
   }
 
-  auto ret = NetworkingSockets->SendMessageToConnection(Peer, Data, Size, Flags, nullptr);
+  auto ret = mNetworkingSockets->SendMessageToConnection(Peer, data, size, flags, nullptr);
   return ret == k_EResultOK;
 }
 
 void NetworkServer::UpdateNetworkStats(std::shared_ptr<TServerPlayer> &player) const
 {
-  SteamNetworkingQuickConnectionStatus Stats = GetQuickConnectionStatus(player->peer);
-  player->realping = Stats.m_nPing;
+  SteamNetworkingQuickConnectionStatus status; // NOLINT
+  mNetworkingSockets->GetQuickConnectionStatus(player->peer, &status);
+  player->realping = status.m_nPing;
   player->connectionquality = 0;
-  if (Stats.m_flConnectionQualityLocal > 0.0)
+  if (status.m_flConnectionQualityLocal > 0.0)
   {
-    player->connectionquality = Stats.m_flConnectionQualityLocal * 100;
+    player->connectionquality = status.m_flConnectionQualityLocal * 100;
   }
 }
 
 bool NetworkServer::Disconnect(bool now)
 {
-  if (FHost == k_HSteamNetPollGroup_Invalid)
+  if (mHost == k_HSteamNetPollGroup_Invalid)
   {
     return false;
   }
 
   for (const auto &player : mPlayers)
   {
-    NetworkingSockets->CloseConnection(player->peer, 0, "", !now);
+    mNetworkingSockets->CloseConnection(player->peer, 0, "", !now);
   }
   mPlayers.clear();
   return true;
 }
+void NetworkServer::CloseConnection(HSoldatNetConnection peer, bool now)
+{
+  mNetworkingSockets->CloseConnection(peer, 0, "", !now);
+}
+
+TServerPlayer *NetworkServer::GetPlayer(const SteamNetworkingMessage_t *msg)
+{
+  if (const auto it = mConnectionMap.find(msg->GetConnection()); it != mConnectionMap.end())
+  {
+    return it->second.get();
+  }
+  return nullptr;
+}
+
 void NetworkServer::FlushMsg()
 {
   for (const auto& player  : mPlayers)
   {
-    NetworkingSockets->FlushMessagesOnConnection(player->peer);
+    mNetworkingSockets->FlushMessagesOnConnection(player->peer);
   }
 }
 
@@ -403,7 +420,6 @@ TEST_SUITE("NetworkServer")
       sHelperProcessMessages(server, client);
     }
     sHelperProcessMessages(server, client);
-    auto ret = client->GetQuickConnectionStatus(client->Peer());
     CHECK_EQ(true, server->GetPlayers().empty());
   }
 
@@ -427,11 +443,13 @@ TEST_SUITE("NetworkServer")
     CHECK_EQ(true, server->GetPlayers().empty());
   }
 
-
-
-
+  TEST_CASE_FIXTURE(NetworkServerFixture, "Get string address")
+  {
+    auto server = std::make_unique<NetworkServer>("0.0.0.0", 23073);
+    CHECK_EQ("0.0.0.0:23073", server->GetStringAddress(true));
+    CHECK_EQ("0.0.0.0", server->GetStringAddress(false));
+  }
 
 } // TEST_SUITE(NetworkServer)
-
 
 } // namespace

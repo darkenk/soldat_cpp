@@ -62,7 +62,8 @@ void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSys
     {
       continue;
     }
-    [[maybe_unused]] auto ret = transport.SendData(&heartbeatmsg, sizeof(heartbeatmsg), s.player->peer, k_nSteamNetworkingSend_Unreliable);
+    [[maybe_unused]] auto ret = transport.SendData(
+      &heartbeatmsg, sizeof(heartbeatmsg), s.player->peer, k_nSteamNetworkingSend_Unreliable);
     SoldatAssert(ret == true);
   }
 
