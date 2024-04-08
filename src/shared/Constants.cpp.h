@@ -322,14 +322,6 @@ constexpr std::int32_t spectator_c_message_color = 0xf5df7ab0;
 // 0 represents in some cases all players
 constexpr std::int32_t all_players = 0;
 
-// Player teams
-constexpr std::int32_t team_none = 0;
-constexpr std::int32_t team_alpha = 1;
-constexpr std::int32_t team_bravo = 2;
-constexpr std::int32_t team_charlie = 3;
-constexpr std::int32_t team_delta = 4;
-constexpr std::int32_t team_spectator = 5;
-
 // Game styles
 constexpr std::int32_t gamestyle_deathmatch = 0;
 constexpr std::int32_t gamestyle_pointmatch = 1;

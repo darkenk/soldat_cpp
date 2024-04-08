@@ -9,16 +9,16 @@
 template<class TSprite, Config::Module M>
 void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSystem, Game<M>& game)
 {
-  tmsg_heartbeat heartbeatmsg;
+  tmsg_heartbeat heartbeatmsg; // NOLINT
   heartbeatmsg.header.id = msgid_heartbeat;
 
-  std::fill(std::begin(heartbeatmsg.active), std::end(heartbeatmsg.active), false);
-  std::fill(std::begin(heartbeatmsg.kills), std::end(heartbeatmsg.kills), 0);
-  std::fill(std::begin(heartbeatmsg.caps), std::end(heartbeatmsg.caps), 0);
-  std::fill(std::begin(heartbeatmsg.team), std::end(heartbeatmsg.team), 0);
-  std::fill(std::begin(heartbeatmsg.deaths), std::end(heartbeatmsg.deaths), 0);
-  std::fill(std::begin(heartbeatmsg.flags), std::end(heartbeatmsg.flags), 0);
-  std::fill(std::begin(heartbeatmsg.ping), std::end(heartbeatmsg.ping), 255);
+  std::ranges::fill(heartbeatmsg.active, false);
+  std::ranges::fill(heartbeatmsg.kills, 0);
+  std::ranges::fill(heartbeatmsg.caps, 0);
+  std::ranges::fill(heartbeatmsg.team, 0);
+  std::ranges::fill(heartbeatmsg.deaths, 0);
+  std::ranges::fill(heartbeatmsg.flags, 0);
+  std::ranges::fill(heartbeatmsg.ping, 255);
 
   for (auto c = 0; auto &s : spriteSystem.GetActiveSprites())
   {
@@ -34,12 +34,11 @@ void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSys
     heartbeatmsg.connectionquality[c] = player.connectionquality;
     c++;
   }
+  heartbeatmsg.teamscore[0] = game.GetTeamScore(team_alpha);
+  heartbeatmsg.teamscore[1] = game.GetTeamScore(team_bravo);
+  heartbeatmsg.teamscore[2] = game.GetTeamScore(team_charlie);
+  heartbeatmsg.teamscore[3] = game.GetTeamScore(team_delta);
 
-  for (auto j = team_alpha; j <= team_delta; j++)
-  {
-    [[deprecated("indexing")]] auto jminus1 = j - 1;
-    heartbeatmsg.teamscore[jminus1] = game.GetTeamScore(j);
-  }
   auto &map = game.GetMap();
   heartbeatmsg.mapid = map.mapid;
   if (game.GetMapchangecounter() > 0)

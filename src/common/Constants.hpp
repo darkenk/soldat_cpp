@@ -391,3 +391,14 @@ constexpr auto MAX_SPARKS = 558;
 constexpr auto MAX_THINGS = 90;
 
 }; // namespace Constants
+
+// Player teams
+enum PlayerTeam : std::int32_t
+{
+  team_none = 0,
+  team_alpha = 1,
+  team_bravo = 2,
+  team_charlie = 3,
+  team_delta = 4,
+  team_spectator = 5
+};
