@@ -118,6 +118,8 @@ set(CommonPCH
     "$<$<COMPILE_LANGUAGE:CXX>:${ROOT_DIR}/src/common/misc/PortUtilsSoldat.hpp>"
 )
 
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror")
+
 #shared library must be compiled with client or server defines
 #add_subdirectory(src/shared)
 add_subdirectory(src/platform)

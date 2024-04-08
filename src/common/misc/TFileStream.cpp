@@ -74,7 +74,7 @@ TestEntry=1.0
 )";
     FS.Mount("tmpfs.memory", "/fs_mem");
     auto f = FS.Open(TestFile, FileUtility::FileMode::Write);
-    auto r = FS.Write(f, reinterpret_cast<const std::byte*>(testData.data()), testData.size());
+    FS.Write(f, reinterpret_cast<const std::byte*>(testData.data()), testData.size());
     FS.Close(f);
   }
   ~TFileStreamFixture() {

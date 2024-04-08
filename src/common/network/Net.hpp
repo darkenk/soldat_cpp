@@ -191,12 +191,39 @@ private:
   std::queue<SteamNetConnectionStatusChangedCallback_t> mQueuedCallbacks;
 };
 
+enum class SoldatNetMessageType
+{
+  Reliable,
+  Unreliable
+};
+
 #pragma pack(push, 1)
 struct tmsgheader
 {
   std::uint8_t id;
 };
+
+static_assert(sizeof(tmsgheader) == 1);
 using pmsgheader = tmsgheader *;
+
+template<typename T, std::uint32_t MsgId, SoldatNetMessageType Type>
+struct SoldatConstSizeMessage
+{
+  static constexpr std::uint32_t GetSize() { return sizeof(T); }
+  static consteval std::uint8_t sGetMsgId() { return MsgId; }
+  static consteval bool sIsReliableMessage() { return Type == SoldatNetMessageType::Reliable; }
+  SoldatConstSizeMessage(): header{MsgId} {}
+  const tmsgheader header;
+};
+
+template<typename T, std::uint32_t MsgId, SoldatNetMessageType Type>
+struct SoldatVariableSizeMessage
+{
+  static consteval std::uint8_t sGetMsgId() { return MsgId; }
+  static consteval bool sIsReliableMessage() { return Type == SoldatNetMessageType::Reliable; }
+  SoldatVariableSizeMessage(): header{MsgId} {}
+  const tmsgheader header;
+};
 
 struct tmsg_stringmessage
 {
@@ -225,9 +252,8 @@ using pmsg_pong = tmsg_pong *;
 // heartbeat type
 // - every while information about frags, server status etc.
 
-struct tmsg_heartbeat
+struct tmsg_heartbeat : SoldatConstSizeMessage<tmsg_heartbeat, msgid_heartbeat, SoldatNetMessageType::Unreliable>
 {
-  tmsgheader header;
   std::uint32_t mapid;
   std::array<std::uint16_t, 4> teamscore;
   std::array<bool, max_players> active;

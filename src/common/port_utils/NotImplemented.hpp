@@ -61,7 +61,7 @@ consteval std::string_view GetArea()
   return "GENERIC";
 }
 
-consteval std::string_view GetArea(const std::string_view area, auto &...args)
+consteval std::string_view GetArea(const std::string_view area, [[maybe_unused]] auto &...args)
 {
   return area;
 }

@@ -35,10 +35,6 @@ public:
   void console(const std::string &what, std::int32_t col,
                std::uint8_t sender) requires(Config::IsServer(M));
   void console(const std::string &what, std::int32_t col);
-#if 0
-    void console(const std::string &what, std::int32_t col);
-    void console(variant what, std::int32_t col);
-#endif
 
   void consoleadd(const std::string &what, std::int32_t col);
   void consolenum(const std::string &what, std::int32_t col, std::int32_t num);

@@ -25,22 +25,16 @@
 
 using string = std::string;
 
-namespace
-{
-} // namespace
-
 // REQUEST GAME FROM SERVER
 void clientrequestgame(NetworkClient& network)
 {
-  pmsg_requestgame requestmsg;
-  std::int32_t size;
   std::vector<std::uint8_t> sendbuffer;
 
-  size = sizeof(tmsg_requestgame) + length(joinpassword) + 1;
+  std::int32_t size = sizeof(tmsg_requestgame) + length(joinpassword) + 1;
 
   setlength(sendbuffer, size);
 
-  requestmsg = pmsg_requestgame(sendbuffer.data());
+  tmsg_requestgame *requestmsg = pmsg_requestgame(sendbuffer.data());
 
   requestmsg->header.id = msgid_requestgame;
   std::strcpy(requestmsg->version.data(), soldat_version);
@@ -183,14 +177,11 @@ void clientpong(std::uint8_t pingnum)
 void clienthandleplayerslist(NetworkContext *netmessage)
 {
   tmsg_playerslist *playerslistmsg;
-  std::int32_t i;
   tvector2 pos, vel;
   std::string downloadurl;
-  tsha1digest checksum;
   bool forcegraphicsreload = false;
   std::string modname;
   std::string mapname;
-  tmapinfo mapstatus;
 
   if (!verifypacket(sizeof(*playerslistmsg), netmessage->size, msgid_playerslist))
     return;
@@ -200,7 +191,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
 
   requestinggame = false;
 
-  playerslistmsg = pmsg_playerslist(netmessage->packet);
+  playerslistmsg = reinterpret_cast<pmsg_playerslist>(netmessage->packet);
 
   if (!demoplayer.active())
     GS::GetMainConsole().console(_("Connection accepted to") + ' ' +
@@ -227,10 +218,11 @@ void clienthandleplayerslist(NetworkContext *netmessage)
 
   if (CVar::cl_servermods)
   {
-    if (modname != "")
+    if (!modname.empty())
     {
-      checksum = sha1file(GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod");
-      if (playerslistmsg->modchecksum == checksum)
+      if (const tsha1digest checksum =
+            sha1file(GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod");
+          playerslistmsg->modchecksum == checksum)
       {
         if (!PHYSFS_mount((pchar)(GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod"),
                           (pchar)(string("mods/") + modname + '/'), false))
@@ -273,7 +265,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
   // Initialize Map
   auto &map = GS::GetGame().GetMap();
   auto& fs = GS::GetFileSystem();
-  if (getmapinfo(fs, mapname, GS::GetGame().GetUserDirectory(), mapstatus) /*&&
+  if (tmapinfo mapstatus ;getmapinfo(fs, mapname, GS::GetGame().GetUserDirectory(), mapstatus) /*&&
         verifymapchecksum(fs, mapstatus, playerslistmsg->mapchecksum)*/)
   {
     if (!map.loadmap(fs, mapstatus, CVar::r_forcebg, CVar::r_forcebg_color1, CVar::r_forcebg_color2))
@@ -321,7 +313,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
   GS::GetGame().SetPlayersNum(playerslistmsg->players);
   GS::GetGame().SetTimelimitcounter(playerslistmsg->currenttime);
 
-  for (i = 0; i < max_sprites; i++)
+  for (std::int32_t i = 0; i < max_sprites; i++)
   {
     if (strcmp(playerslistmsg->name[i].data(), "0 ") != 0)
     {
@@ -497,13 +489,12 @@ void clienthandleunaccepted(NetworkContext *netmessage)
 {
   pmsg_unaccepted unacceptedmsg;
   std::string text;
-  std::int32_t textlen;
 
   if (!verifypacketlargerorequal(sizeof(unacceptedmsg), netmessage->size, msgid_unaccepted))
     return;
 
-  unacceptedmsg = pmsg_unaccepted(netmessage->packet);
-  textlen = netmessage->size - sizeof(tmsg_unaccepted);
+  unacceptedmsg = reinterpret_cast<pmsg_unaccepted>(netmessage->packet);
+  std::int32_t textlen = netmessage->size - sizeof(tmsg_unaccepted);
 
   if ((textlen > 0) && (unacceptedmsg->text[textlen - 1] == '\0'))
     text = unacceptedmsg->text.data();
@@ -584,10 +575,9 @@ void clienthandleping(NetworkContext *netmessage)
 
   if (mysprite != 0)
   {
-    SpriteSystem::Get().GetSprite(mysprite).player->pingticks =
-      pmsg_ping(netmessage->packet)->pingticks;
-    SpriteSystem::Get().GetSprite(mysprite).player->pingtime =
-      SpriteSystem::Get().GetSprite(mysprite).player->pingticks * 1000 / 60;
+    auto& player = SpriteSystem::Get().GetSprite(mysprite).player;
+    player->pingticks = pmsg_ping(netmessage->packet)->pingticks;
+    player->pingtime = player->pingticks * 1000 / 60;
   }
 
   clientpong(pmsg_ping(netmessage->packet)->pingnum);
@@ -598,20 +588,16 @@ void clienthandleping(NetworkContext *netmessage)
 
 void clienthandleservervars(NetworkContext *netmessage)
 {
-  tmsg_servervars *varsmsg;
-  std::int32_t i;
-  std::int32_t weaponindex;
-
   if (!verifypacket(sizeof(tmsg_servervars), netmessage->size, msgid_servervars))
     return;
 
-  varsmsg = pmsg_servervars(netmessage->packet);
+  const auto *varsmsg = pmsg_servervars(netmessage->packet);
 
   clientvarsrecieved = true;
 
   auto &weaponSystem = GS::GetWeaponSystem();
 
-  for (i = 1; i <= main_weapons; i++)
+  for (std::int32_t i = 1; i <= main_weapons; i++)
   {
     weaponSystem.EnableWeapon(i, varsmsg->weaponactive[i - 1] == 1);
     limbomenu->button[i - 1].active = weaponSystem.IsEnabled(i);
@@ -627,7 +613,7 @@ void clienthandleservervars(NetworkContext *netmessage)
                        GS::GetWeaponSystem().GetDefaultGuns());
   GS::GetWeaponSystem().SetDefaultWMChecksum(createwmchecksum(GS::GetWeaponSystem().GetGuns()));
 
-  for (weaponindex = 0; weaponindex < original_weapons; weaponindex++)
+  for (std::int32_t weaponindex = 0; weaponindex < original_weapons; weaponindex++)
   {
     auto &gun = GS::GetWeaponSystem().GetGuns()[weaponindex + 1];
     gun.hitmultiply = varsmsg->damage[weaponindex];
@@ -691,16 +677,12 @@ bool ReadAndSetValue(BitStream &bs, std::uint8_t cvarid)
 
 void clienthandlesynccvars(NetworkContext *netmessage)
 {
-  tmsg_serversynccvars *varsmsg;
-  std::int32_t size;
-
-  if (!verifypacketlargerorequal(sizeof(tmsg_serversynccvars), netmessage->size,
-                                 msgid_synccvars))
+  if (!verifypacketlargerorequal(sizeof(tmsg_serversynccvars), netmessage->size, msgid_synccvars))
     return;
 
-  varsmsg = pmsg_serversynccvars(netmessage->packet);
-  size = netmessage->size - (sizeof(varsmsg->header) + sizeof(varsmsg->itemcount));
-  std::uint8_t *data = reinterpret_cast<std::uint8_t *>(&varsmsg->data);
+  auto varsmsg = reinterpret_cast<pmsg_serversynccvars>(netmessage->packet);
+  std::int32_t size = netmessage->size - (sizeof(varsmsg->header) + sizeof(varsmsg->itemcount));
+  auto *data = reinterpret_cast<std::uint8_t *>(&varsmsg->data);
   BitStream bs(data, size);
 
   LogDebug("net_msg", "Read sync variables. Count {}", varsmsg->itemcount);

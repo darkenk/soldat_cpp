@@ -33,6 +33,12 @@ public:
   {
     return SendData(reinterpret_cast<const std::byte *>(data), size, peer, reliable);
   }
+
+  template<typename T>
+  inline bool SendData(const T& data, HSoldatNetConnection peer)
+  {
+    return SendData(reinterpret_cast<const std::byte *>(&data), data.GetSize(), peer, T::sIsReliableMessage());
+  }
   void UpdateNetworkStats(std::shared_ptr<TServerPlayer>& player) const;
 
   void SetDisconnectionCallback(const DisconnectionCallback& callback) { mDisconnectionCallback = callback; }

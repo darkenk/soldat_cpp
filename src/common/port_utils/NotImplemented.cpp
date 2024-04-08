@@ -8,7 +8,7 @@
 namespace PortUtilities::NotImplemented
 {
 
-void DefaultShowNotImplementedMessage(const std::string_view area, const std::string_view msg,
+void DefaultShowNotImplementedMessage([[maybe_unused]] const std::string_view area, const std::string_view msg,
                                       const std::string_view file, const std::string_view function,
                                       const std::int32_t line)
 {

@@ -11,7 +11,7 @@ std::vector<tbanhw> bannedhwlist;
 std::string lastban;
 std::string lastbanhw;
 
-static bool matchesmask(const std::string &v, const std::string &mask)
+static bool matchesmask([[maybe_unused]] const std::string &v, [[maybe_unused]] const std::string &mask)
 {
   NotImplemented();
   return false;

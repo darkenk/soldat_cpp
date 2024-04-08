@@ -10,7 +10,6 @@ template<class TSprite, Config::Module M>
 void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSystem, Game<M>& game)
 {
   tmsg_heartbeat heartbeatmsg; // NOLINT
-  heartbeatmsg.header.id = msgid_heartbeat;
 
   std::ranges::fill(heartbeatmsg.active, false);
   std::ranges::fill(heartbeatmsg.kills, 0);
@@ -60,8 +59,7 @@ void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSys
     {
       continue;
     }
-    [[maybe_unused]] auto ret = transport.SendData(
-      &heartbeatmsg, sizeof(heartbeatmsg), s.player->peer, false);
+    [[maybe_unused]] auto ret = transport.SendData(heartbeatmsg, s.player->peer);
     SoldatAssert(ret == true);
   }
 
