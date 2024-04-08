@@ -192,7 +192,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
   std::string mapname;
   tmapinfo mapstatus;
 
-  if (!verifypacket(sizeof(*playerslistmsg), netmessage->m_cbSize, msgid_playerslist))
+  if (!verifypacket(sizeof(*playerslistmsg), netmessage->size, msgid_playerslist))
     return;
 
   if (!(requestinggame || demoplayer.active()))
@@ -200,7 +200,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
 
   requestinggame = false;
 
-  playerslistmsg = pmsg_playerslist(netmessage->m_pData);
+  playerslistmsg = pmsg_playerslist(netmessage->packet);
 
   if (!demoplayer.active())
     GS::GetMainConsole().console(_("Connection accepted to") + ' ' +
@@ -499,11 +499,11 @@ void clienthandleunaccepted(NetworkContext *netmessage)
   std::string text;
   std::int32_t textlen;
 
-  if (!verifypacketlargerorequal(sizeof(unacceptedmsg), netmessage->m_cbSize, msgid_unaccepted))
+  if (!verifypacketlargerorequal(sizeof(unacceptedmsg), netmessage->size, msgid_unaccepted))
     return;
 
-  unacceptedmsg = pmsg_unaccepted(netmessage->m_pData);
-  textlen = netmessage->m_cbSize - sizeof(tmsg_unaccepted);
+  unacceptedmsg = pmsg_unaccepted(netmessage->packet);
+  textlen = netmessage->size - sizeof(tmsg_unaccepted);
 
   if ((textlen > 0) && (unacceptedmsg->text[textlen - 1] == '\0'))
     text = unacceptedmsg->text.data();
@@ -563,7 +563,7 @@ void clienthandleunaccepted(NetworkContext *netmessage)
 
 void clienthandleserverdisconnect(NetworkContext *netmessage)
 {
-  if (!verifypacket(sizeof(tmsg_serverdisconnect), netmessage->m_cbSize, msgid_serverdisconnect))
+  if (!verifypacket(sizeof(tmsg_serverdisconnect), netmessage->size, msgid_serverdisconnect))
     return;
 
   GS::GetGame().showmapchangescoreboard("");
@@ -576,7 +576,7 @@ void clienthandleserverdisconnect(NetworkContext *netmessage)
 
 void clienthandleping(NetworkContext *netmessage)
 {
-  if (!verifypacket(sizeof(tmsg_ping), netmessage->m_cbSize, msgid_ping))
+  if (!verifypacket(sizeof(tmsg_ping), netmessage->size, msgid_ping))
     return;
 
   if (demoplayer.active())
@@ -585,12 +585,12 @@ void clienthandleping(NetworkContext *netmessage)
   if (mysprite != 0)
   {
     SpriteSystem::Get().GetSprite(mysprite).player->pingticks =
-      pmsg_ping(netmessage->m_pData)->pingticks;
+      pmsg_ping(netmessage->packet)->pingticks;
     SpriteSystem::Get().GetSprite(mysprite).player->pingtime =
       SpriteSystem::Get().GetSprite(mysprite).player->pingticks * 1000 / 60;
   }
 
-  clientpong(pmsg_ping(netmessage->m_pData)->pingnum);
+  clientpong(pmsg_ping(netmessage->packet)->pingnum);
 
   clientstopmovingcounter = clientstopmove_retrys;
   noheartbeattime = 0;
@@ -602,10 +602,10 @@ void clienthandleservervars(NetworkContext *netmessage)
   std::int32_t i;
   std::int32_t weaponindex;
 
-  if (!verifypacket(sizeof(tmsg_servervars), netmessage->m_cbSize, msgid_servervars))
+  if (!verifypacket(sizeof(tmsg_servervars), netmessage->size, msgid_servervars))
     return;
 
-  varsmsg = pmsg_servervars(netmessage->m_pData);
+  varsmsg = pmsg_servervars(netmessage->packet);
 
   clientvarsrecieved = true;
 
@@ -694,12 +694,12 @@ void clienthandlesynccvars(NetworkContext *netmessage)
   tmsg_serversynccvars *varsmsg;
   std::int32_t size;
 
-  if (!verifypacketlargerorequal(sizeof(tmsg_serversynccvars), netmessage->m_cbSize,
+  if (!verifypacketlargerorequal(sizeof(tmsg_serversynccvars), netmessage->size,
                                  msgid_synccvars))
     return;
 
-  varsmsg = pmsg_serversynccvars(netmessage->m_pData);
-  size = netmessage->m_cbSize - (sizeof(varsmsg->header) + sizeof(varsmsg->itemcount));
+  varsmsg = pmsg_serversynccvars(netmessage->packet);
+  size = netmessage->size - (sizeof(varsmsg->header) + sizeof(varsmsg->itemcount));
   std::uint8_t *data = reinterpret_cast<std::uint8_t *>(&varsmsg->data);
   BitStream bs(data, size);
 

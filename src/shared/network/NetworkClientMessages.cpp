@@ -66,8 +66,8 @@ void clienthandlechatmessage(NetworkContext *netmessage)
 #if 0
     cs = pmsg_stringmessage(netmessage->m_pData)->text.data();
 #endif
-  i = pmsg_stringmessage(netmessage->m_pData)->num;
-  msgtype = pmsg_stringmessage(netmessage->m_pData)->msgtype;
+  i = pmsg_stringmessage(netmessage->packet)->num;
+  msgtype = pmsg_stringmessage(netmessage->packet)->msgtype;
 
   if (msgtype > msgtype_radio)
     return;
@@ -129,8 +129,8 @@ void clienthandlespecialmessage(NetworkContext *netmessage)
   tmsg_serverspecialmessage *specialmessage;
   std::string cs;
 
-  specialmessage = pmsg_serverspecialmessage(netmessage->m_pData);
-  cs = pmsg_serverspecialmessage(netmessage->m_pData)->text.data();
+  specialmessage = pmsg_serverspecialmessage(netmessage->packet);
+  cs = pmsg_serverspecialmessage(netmessage->packet)->text.data();
 
   if (specialmessage->msgtype == 0) // console
   {

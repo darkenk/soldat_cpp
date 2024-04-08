@@ -17,10 +17,10 @@ void clienthandlevoteon(NetworkContext *netmessage)
   tmsg_voteon *voteonmsg;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_voteon), netmessage->m_cbSize, msgid_voteon))
+  if (!verifypacket(sizeof(tmsg_voteon), netmessage->size, msgid_voteon))
     return;
 
-  voteonmsg = pmsg_voteon(netmessage->m_pData);
+  voteonmsg = pmsg_voteon(netmessage->packet);
 
   i = voteonmsg->who;
 
@@ -39,10 +39,10 @@ void clienthandleserversyncmsg(NetworkContext *netmessage)
 {
   tmsg_serversyncmsg *syncmsg;
 
-  if (!verifypacket(sizeof(tmsg_serversyncmsg), netmessage->m_cbSize, msgid_serversyncmsg))
+  if (!verifypacket(sizeof(tmsg_serversyncmsg), netmessage->size, msgid_serversyncmsg))
     return;
 
-  syncmsg = pmsg_serversyncmsg(netmessage->m_pData);
+  syncmsg = pmsg_serversyncmsg(netmessage->packet);
 
   GS::GetGame().SetTimelimitcounter(syncmsg->time);
   if (syncmsg->pause == 1)
@@ -67,10 +67,10 @@ void clienthandleforceposition(NetworkContext *netmessage)
 {
   tmsg_forceposition *forceposition;
 
-  if (!verifypacket(sizeof(tmsg_forceposition), netmessage->m_cbSize, msgid_forceposition))
+  if (!verifypacket(sizeof(tmsg_forceposition), netmessage->size, msgid_forceposition))
     return;
 
-  forceposition = pmsg_forceposition(netmessage->m_pData);
+  forceposition = pmsg_forceposition(netmessage->packet);
 
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(forceposition->playerid);
 
@@ -82,10 +82,10 @@ void clienthandleforcevelocity(NetworkContext *netmessage)
 {
   tmsg_forcevelocity *forcevelocity;
 
-  if (!verifypacket(sizeof(tmsg_forcevelocity), netmessage->m_cbSize, msgid_forcevelocity))
+  if (!verifypacket(sizeof(tmsg_forcevelocity), netmessage->size, msgid_forcevelocity))
     return;
 
-  forcevelocity = pmsg_forcevelocity(netmessage->m_pData);
+  forcevelocity = pmsg_forcevelocity(netmessage->packet);
 
   auto &spriteVelocity = SpriteSystem::Get().GetVelocity(forcevelocity->playerid);
   spriteVelocity = forcevelocity->vel;
@@ -95,10 +95,10 @@ void clienthandleforceweapon(NetworkContext *netmessage)
 {
   tmsg_forceweapon *forceweapon;
 
-  if (!verifypacket(sizeof(tmsg_forceweapon), netmessage->m_cbSize, msgid_forceweapon))
+  if (!verifypacket(sizeof(tmsg_forceweapon), netmessage->size, msgid_forceweapon))
     return;
 
-  forceweapon = pmsg_forceweapon(netmessage->m_pData);
+  forceweapon = pmsg_forceweapon(netmessage->packet);
 
   if (mysprite > 0)
   {
@@ -114,11 +114,11 @@ void clienthandleweaponactivemessage(NetworkContext *netmessage)
   tmsg_weaponactivemessage *wactivemessage;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_weaponactivemessage), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_weaponactivemessage), netmessage->size,
                     msgid_weaponactivemessage))
     return;
 
-  wactivemessage = pmsg_weaponactivemessage(netmessage->m_pData);
+  wactivemessage = pmsg_weaponactivemessage(netmessage->packet);
   auto &weaponSystem = GS::GetWeaponSystem();
   auto &weaponsel = GS::GetGame().GetWeaponsel();
 
@@ -140,10 +140,10 @@ void clienthandleclientfreecam(NetworkContext *netmessage)
 {
   tmsg_clientfreecam *freecammsg;
 
-  if (!verifypacket(sizeof(tmsg_clientfreecam), netmessage->m_cbSize, msgid_clientfreecam))
+  if (!verifypacket(sizeof(tmsg_clientfreecam), netmessage->size, msgid_clientfreecam))
     return;
 
-  freecammsg = pmsg_clientfreecam(netmessage->m_pData);
+  freecammsg = pmsg_clientfreecam(netmessage->packet);
 
   if (mysprite > 0)
   {
@@ -171,10 +171,10 @@ void clienthandlejoinserver(NetworkContext *netmessage)
 {
   tmsg_joinserver *joinservermsg;
 
-  if (!verifypacket(sizeof(tmsg_joinserver), netmessage->m_cbSize, msgid_joinserver))
+  if (!verifypacket(sizeof(tmsg_joinserver), netmessage->size, msgid_joinserver))
     return;
 
-  joinservermsg = pmsg_joinserver(netmessage->m_pData);
+  joinservermsg = pmsg_joinserver(netmessage->packet);
   NotImplemented("network");
 #if 0
     GS::GetMainConsole().console(std::string("Redirecting to... ") +
@@ -191,7 +191,7 @@ void clienthandlejoinserver(NetworkContext *netmessage)
     redirectip = netaddrtostr(in_addr(joinservermsg->ip));
 #endif
   redirectport = joinservermsg->port;
-  redirectmsg = trim((pmsg_joinserver(netmessage->m_pData)->showmsg.data()));
+  redirectmsg = trim((pmsg_joinserver(netmessage->packet)->showmsg.data()));
 
   exittomenu();
 }
@@ -202,10 +202,10 @@ void clienthandleplaysound(NetworkContext *netmessage)
   std::int32_t i;
   auto& fs = GS::GetFileSystem();
 
-  if (!verifypacket(sizeof(tmsg_playsound), netmessage->m_cbSize, msgid_playsound))
+  if (!verifypacket(sizeof(tmsg_playsound), netmessage->size, msgid_playsound))
     return;
 
-  playsoundmsg = pmsg_playsound(netmessage->m_pData);
+  playsoundmsg = pmsg_playsound(netmessage->packet);
 
   if (fs.Exists(std::string(moddir) + std::string("sfx/") + playsoundmsg->name.data()))
   {

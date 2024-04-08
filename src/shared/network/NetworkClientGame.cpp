@@ -24,10 +24,10 @@ void clienthandlenewplayer(NetworkContext *netmessage)
   tvector2 a;
   std::int32_t i, d;
 
-  if (!verifypacket(sizeof(tmsg_newplayer), netmessage->m_cbSize, msgid_newplayer))
+  if (!verifypacket(sizeof(tmsg_newplayer), netmessage->size, msgid_newplayer))
     return;
 
-  newplayermsg = pmsg_newplayer(netmessage->m_pData);
+  newplayermsg = pmsg_newplayer(netmessage->packet);
   i = newplayermsg->num;
   if ((i < 1) || (i > max_sprites))
     return;
@@ -212,10 +212,10 @@ void clienthandlevoteresponse(NetworkContext *netmessage)
 {
   tmsg_votemapreply *votemsgreply;
 
-  if (!verifypacket(sizeof(tmsg_votemapreply), netmessage->m_cbSize, msgid_votemapreply))
+  if (!verifypacket(sizeof(tmsg_votemapreply), netmessage->size, msgid_votemapreply))
     return;
 
-  votemsgreply = pmsg_votemapreply(netmessage->m_pData);
+  votemsgreply = pmsg_votemapreply(netmessage->packet);
   votemapname = votemsgreply->mapname.data();
   votemapcount = votemsgreply->count;
 }
@@ -236,10 +236,10 @@ void clienthandleplayerdisconnect(NetworkContext *netmessage)
 {
   tmsg_playerdisconnect *playermsg;
 
-  if (!verifypacket(sizeof(tmsg_playerdisconnect), netmessage->m_cbSize, msgid_playerdisconnect))
+  if (!verifypacket(sizeof(tmsg_playerdisconnect), netmessage->size, msgid_playerdisconnect))
     return;
 
-  playermsg = pmsg_playerdisconnect(netmessage->m_pData);
+  playermsg = pmsg_playerdisconnect(netmessage->packet);
   if ((playermsg->num < 1) || (playermsg->num > max_sprites))
     return;
 
@@ -421,10 +421,10 @@ void clienthandlemapchange(NetworkContext *netmessage)
 {
   tmsg_mapchange *mapchange;
 
-  if (!verifypacket(sizeof(tmsg_mapchange), netmessage->m_cbSize, msgid_mapchange))
+  if (!verifypacket(sizeof(tmsg_mapchange), netmessage->size, msgid_mapchange))
     return;
 
-  mapchange = pmsg_mapchange(netmessage->m_pData);
+  mapchange = pmsg_mapchange(netmessage->packet);
 
   std::string mapchangename;
   mapchangename.resize(mapchange->mapnamelength, '0');
@@ -481,14 +481,14 @@ void clienthandleflaginfo(NetworkContext *netmessage)
   tvector2 a, b;
   auto &things = GS::GetThingSystem().GetThings();
 
-  if (!verifypacket(sizeof(tmsg_serverflaginfo), netmessage->m_cbSize, msgid_flaginfo))
+  if (!verifypacket(sizeof(tmsg_serverflaginfo), netmessage->size, msgid_flaginfo))
     return;
 
-  if ((pmsg_serverflaginfo(netmessage->m_pData)->who < 1) ||
-      (pmsg_serverflaginfo(netmessage->m_pData)->who > max_sprites))
+  if ((pmsg_serverflaginfo(netmessage->packet)->who < 1) ||
+      (pmsg_serverflaginfo(netmessage->packet)->who > max_sprites))
     return;
 
-  if (pmsg_serverflaginfo(netmessage->m_pData)->style == returnred)
+  if (pmsg_serverflaginfo(netmessage->packet)->style == returnred)
     if (CVar::sv_gamemode == gamestyle_ctf)
     {
       playsound(SfxEffect::capture);
@@ -497,13 +497,13 @@ void clienthandleflaginfo(NetworkContext *netmessage)
       GS::GetMainConsole().console(
         wideformat(_("{} returned the Red Flag"),
                    (SpriteSystem::Get()
-                      .GetSprite(pmsg_serverflaginfo(netmessage->m_pData)->who)
+                      .GetSprite(pmsg_serverflaginfo(netmessage->packet)->who)
                       .player->name)),
         alpha_message_color);
       if (GS::GetGame().GetTeamFlag(1) > 0)
         things[GS::GetGame().GetTeamFlag(1)].respawn();
     }
-  if (pmsg_serverflaginfo(netmessage->m_pData)->style == returnblue)
+  if (pmsg_serverflaginfo(netmessage->packet)->style == returnblue)
     if (CVar::sv_gamemode == gamestyle_ctf)
     {
       playsound(SfxEffect::capture);
@@ -512,18 +512,18 @@ void clienthandleflaginfo(NetworkContext *netmessage)
       GS::GetMainConsole().console(
         wideformat(_("{} returned the Blue Flag"),
                    (SpriteSystem::Get()
-                      .GetSprite(pmsg_serverflaginfo(netmessage->m_pData)->who)
+                      .GetSprite(pmsg_serverflaginfo(netmessage->packet)->who)
                       .player->name)),
         bravo_message_color);
       if (GS::GetGame().GetTeamFlag(2) > 0)
         things[GS::GetGame().GetTeamFlag(2)].respawn();
     }
-  if (pmsg_serverflaginfo(netmessage->m_pData)->style == capturered)
+  if (pmsg_serverflaginfo(netmessage->packet)->style == capturered)
   {
     bigmessage(_("Alpha Team Scores!"), capturectfmessagewait, alpha_message_color);
     GS::GetMainConsole().console(wideformat(_("{} scores for Alpha Team"),
                                         (SpriteSystem::Get()
-                                           .GetSprite(pmsg_serverflaginfo(netmessage->m_pData)->who)
+                                           .GetSprite(pmsg_serverflaginfo(netmessage->packet)->who)
                                            .player->name)),
                              alpha_message_color);
 
@@ -550,19 +550,19 @@ void clienthandleflaginfo(NetworkContext *netmessage)
 
     // cap spark
     createspark(things[GS::GetGame().GetTeamFlag(1)].skeleton.pos[2], b, 61,
-                pmsg_serverflaginfo(netmessage->m_pData)->who, 18);
+                pmsg_serverflaginfo(netmessage->packet)->who, 18);
 
     if (CVar::sv_survivalmode)
     {
       GS::GetGame().SetSurvivalendround(true);
     }
   }
-  if (pmsg_serverflaginfo(netmessage->m_pData)->style == captureblue)
+  if (pmsg_serverflaginfo(netmessage->packet)->style == captureblue)
   {
     bigmessage(_("Bravo Team Scores!"), capturectfmessagewait, bravo_message_color);
     GS::GetMainConsole().console(wideformat(_("{} scores for Bravo Team"),
                                         (SpriteSystem::Get()
-                                           .GetSprite(pmsg_serverflaginfo(netmessage->m_pData)->who)
+                                           .GetSprite(pmsg_serverflaginfo(netmessage->packet)->who)
                                            .player->name)),
                              bravo_message_color);
     playsound(SfxEffect::ctf);
@@ -571,7 +571,7 @@ void clienthandleflaginfo(NetworkContext *netmessage)
 
     // cap spark
     createspark(things[GS::GetGame().GetTeamFlag(2)].skeleton.pos[2], b, 61,
-                pmsg_serverflaginfo(netmessage->m_pData)->who, 18);
+                pmsg_serverflaginfo(netmessage->packet)->who, 18);
 
     if (CVar::sv_survivalmode)
     {
@@ -584,14 +584,14 @@ void clienthandleidleanimation(NetworkContext *netmessage)
 {
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_idleanimation), netmessage->m_cbSize, msgid_idleanimation))
+  if (!verifypacket(sizeof(tmsg_idleanimation), netmessage->size, msgid_idleanimation))
     return;
 
-  i = pmsg_idleanimation(netmessage->m_pData)->num;
+  i = pmsg_idleanimation(netmessage->packet)->num;
 
   if (!SpriteSystem::Get().GetSprite(i).active)
     return;
 
   SpriteSystem::Get().GetSprite(i).idletime = 1;
-  SpriteSystem::Get().GetSprite(i).idlerandom = pmsg_idleanimation(netmessage->m_pData)->idlerandom;
+  SpriteSystem::Get().GetSprite(i).idlerandom = pmsg_idleanimation(netmessage->packet)->idlerandom;
 }

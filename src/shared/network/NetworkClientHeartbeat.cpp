@@ -18,10 +18,10 @@ void clienthandleheartbeat(NetworkContext *netmessage)
   tmsg_heartbeat *heartbeat;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_heartbeat), netmessage->m_cbSize, msgid_heartbeat))
+  if (!verifypacket(sizeof(tmsg_heartbeat), netmessage->size, msgid_heartbeat))
     return;
 
-  heartbeat = pmsg_heartbeat(netmessage->m_pData);
+  heartbeat = pmsg_heartbeat(netmessage->packet);
 
   auto &map = GS::GetGame().GetMap();
 

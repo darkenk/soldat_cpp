@@ -19,11 +19,11 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
   std::int32_t d;
   tvector2 a;
 
-  if (!verifypacket(sizeof(tmsg_serverthingsnapshot), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_serverthingsnapshot), netmessage->size,
                     msgid_serverthingsnapshot))
     return;
 
-  thingsnap = pmsg_serverthingsnapshot(netmessage->m_pData);
+  thingsnap = pmsg_serverthingsnapshot(netmessage->packet);
 
   // assign received Thing info to thing
   const auto i = thingsnap->num;
@@ -116,11 +116,11 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
   tsprite *spritethingowner;
   std::int32_t weaponthing;
 
-  if (!verifypacket(sizeof(tmsg_serverthingmustsnapshot), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_serverthingmustsnapshot), netmessage->size,
                     msgid_serverthingmustsnapshot))
     return;
 
-  thingmustsnap = pmsg_serverthingmustsnapshot(netmessage->m_pData);
+  thingmustsnap = pmsg_serverthingmustsnapshot(netmessage->packet);
 
   // assign received Thing info to thing
   const auto i = thingmustsnap->num;
@@ -265,12 +265,12 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   std::string bigcaptext;
   std::string smallcaptext;
 
-  if (!verifypacket(sizeof(tmsg_serverthingtaken), netmessage->m_cbSize, msgid_thingtaken))
+  if (!verifypacket(sizeof(tmsg_serverthingtaken), netmessage->size, msgid_thingtaken))
     return;
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
-  thingtakensnap = pmsg_serverthingtaken(netmessage->m_pData);
+  thingtakensnap = pmsg_serverthingtaken(netmessage->packet);
 
   const auto i = thingtakensnap->num;
   if ((i < 1) || (i > max_things))

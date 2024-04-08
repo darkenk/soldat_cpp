@@ -17,10 +17,11 @@ class NetworkClient;
 struct NetworkContext
 {
   NetworkContext(tplayer* player, tmsgheader* packet, std::int32_t size, NetworkClient& nc):
-    player{player}, m_pData{packet}, m_cbSize{size}, networkClient{nc} {}
+    player{player}, packet{packet}, size{size}, networkClient{nc} {}
+
   tplayer* player;
-  tmsgheader* m_pData;
-  std::int32_t m_cbSize;
+  tmsgheader* packet;
+  std::int32_t size;
   NetworkClient& networkClient;
 };
 

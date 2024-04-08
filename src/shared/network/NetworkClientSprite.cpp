@@ -26,11 +26,11 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
   tmsg_serverspritesnapshot *spritesnap;
   std::int32_t i, j;
 
-  if (!verifypacket(sizeof(tmsg_serverspritesnapshot), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_serverspritesnapshot), netmessage->size,
                     msgid_serverspritesnapshot))
     return;
 
-  spritesnap = pmsg_serverspritesnapshot(netmessage->m_pData);
+  spritesnap = pmsg_serverspritesnapshot(netmessage->packet);
   auto &things = GS::GetThingSystem().GetThings();
 
   // assign received sprite info to sprite
@@ -145,11 +145,11 @@ void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
   tmsg_serverspritesnapshot_major *spritesnapmajor;
   std::int32_t i, j;
 
-  if (!verifypacket(sizeof(tmsg_serverspritesnapshot_major), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_serverspritesnapshot_major), netmessage->size,
                     msgid_serverspritesnapshot_major))
     return;
 
-  spritesnapmajor = pmsg_serverspritesnapshot_major(netmessage->m_pData);
+  spritesnapmajor = pmsg_serverspritesnapshot_major(netmessage->packet);
 
   // assign received sprite info to sprite
   i = spritesnapmajor->num;
@@ -230,11 +230,11 @@ void clienthandleserverskeletonsnapshot(NetworkContext *netmessage)
   tmsg_serverskeletonsnapshot *skeletonsnap;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_serverskeletonsnapshot), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_serverskeletonsnapshot), netmessage->size,
                     msgid_serverskeletonsnapshot))
     return;
 
-  skeletonsnap = pmsg_serverskeletonsnapshot(netmessage->m_pData);
+  skeletonsnap = pmsg_serverskeletonsnapshot(netmessage->packet);
 
   // assign received Skeleton info to skeleton
   i = skeletonsnap->num;
@@ -336,10 +336,10 @@ void clienthandlespritedeath(NetworkContext *netmessage)
 
   auto &map = GS::GetGame().GetMap();
 
-  if (!verifypacket(sizeof(tmsg_spritedeath), netmessage->m_cbSize, msgid_spritedeath))
+  if (!verifypacket(sizeof(tmsg_spritedeath), netmessage->size, msgid_spritedeath))
     return;
 
-  deathsnap = pmsg_spritedeath(netmessage->m_pData);
+  deathsnap = pmsg_spritedeath(netmessage->packet);
 
   i = deathsnap->num;
 
@@ -644,11 +644,11 @@ void clienthandledelta_movement(NetworkContext *netmessage)
   std::int32_t i;
   // a: TVector2;
 
-  if (!verifypacket(sizeof(tmsg_serverspritedelta_movement), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_serverspritedelta_movement), netmessage->size,
                     msgid_delta_movement))
     return;
 
-  deltamov = pmsg_serverspritedelta_movement(netmessage->m_pData);
+  deltamov = pmsg_serverspritedelta_movement(netmessage->packet);
 
   // Older than Heartbeat Drop the Packet
   if (!demoplayer.active() && (deltamov->servertick < lastheartbeatcounter))
@@ -678,11 +678,11 @@ void clienthandledelta_mouseaim(NetworkContext *netmessage)
   std::int32_t i;
   tmsg_serverspritedelta_mouseaim *deltamouse;
 
-  if (!verifypacket(sizeof(tmsg_serverspritedelta_mouseaim), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_serverspritedelta_mouseaim), netmessage->size,
                     msgid_delta_mouseaim))
     return;
 
-  deltamouse = pmsg_serverspritedelta_mouseaim(netmessage->m_pData);
+  deltamouse = pmsg_serverspritedelta_mouseaim(netmessage->packet);
 
   i = deltamouse->num;
   if ((i < 1) || (i > max_sprites))
@@ -706,11 +706,11 @@ void clienthandledelta_weapons(NetworkContext *netmessage)
 {
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_serverspritedelta_weapons), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_serverspritedelta_weapons), netmessage->size,
                     msgid_delta_weapons))
     return;
 
-  i = pmsg_serverspritedelta_weapons(netmessage->m_pData)->num;
+  i = pmsg_serverspritedelta_weapons(netmessage->packet)->num;
 
   if ((i < 1) || (i > max_sprites))
     return;
@@ -718,11 +718,11 @@ void clienthandledelta_weapons(NetworkContext *netmessage)
     return;
 
   SpriteSystem::Get().GetSprite(i).applyweaponbynum(
-    pmsg_serverspritedelta_weapons(netmessage->m_pData)->weaponnum, 1);
+    pmsg_serverspritedelta_weapons(netmessage->packet)->weaponnum, 1);
   SpriteSystem::Get().GetSprite(i).applyweaponbynum(
-    pmsg_serverspritedelta_weapons(netmessage->m_pData)->secondaryweaponnum, 2);
+    pmsg_serverspritedelta_weapons(netmessage->packet)->secondaryweaponnum, 2);
   SpriteSystem::Get().GetSprite(i).weapon.ammocount =
-    pmsg_serverspritedelta_weapons(netmessage->m_pData)->ammocount;
+    pmsg_serverspritedelta_weapons(netmessage->packet)->ammocount;
 
   if ((i == mysprite) && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
     clientspritesnapshot();
@@ -733,11 +733,11 @@ void clienthandledelta_helmet(NetworkContext *netmessage)
   tmsg_serverspritedelta_helmet *deltahelmet;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_serverspritedelta_helmet), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_serverspritedelta_helmet), netmessage->size,
                     msgid_delta_helmet))
     return;
 
-  deltahelmet = pmsg_serverspritedelta_helmet(netmessage->m_pData);
+  deltahelmet = pmsg_serverspritedelta_helmet(netmessage->packet);
 
   i = deltahelmet->num;
 
@@ -760,9 +760,9 @@ void clienthandledelta_helmet(NetworkContext *netmessage)
 
 void clienthandleclientspritesnapshot_dead(NetworkContext *netmessage)
 {
-  if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), netmessage->m_cbSize,
+  if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), netmessage->size,
                     msgid_clientspritesnapshot_dead))
     return;
   if (freecam == 0)
-    camerafollowsprite = pmsg_clientspritesnapshot_dead(netmessage->m_pData)->camerafocus;
+    camerafollowsprite = pmsg_clientspritesnapshot_dead(netmessage->packet)->camerafocus;
 }

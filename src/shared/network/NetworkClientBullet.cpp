@@ -50,10 +50,10 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
   std::uint8_t style;
   float bulletspread;
 
-  if (!verifypacket(sizeof(tmsg_bulletsnapshot), netmessage->m_cbSize, msgid_bulletsnapshot))
+  if (!verifypacket(sizeof(tmsg_bulletsnapshot), netmessage->size, msgid_bulletsnapshot))
     return;
 
-  bulletsnap = pmsg_bulletsnapshot(netmessage->m_pData);
+  bulletsnap = pmsg_bulletsnapshot(netmessage->packet);
 
   bulletsnap->Dump();
 
