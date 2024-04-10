@@ -760,7 +760,7 @@ void joinserver()
 
   InitClientNetwork();
   GetNetwork()->SetDisconnectionCallback([](const char* msg){rendergameinfo(std::string("Network  error ") + msg);});
-  GetNetwork()->SetConnectionCallback([](NetworkClient& nc) { clientrequestgame(nc);} );
+  GetNetwork()->SetConnectionCallback([](NetworkClient& nc) { clientrequestgame(nc, joinpassword);} );
   // DEMO
   if (joinport == "0")
   {
@@ -781,7 +781,7 @@ void joinserver()
       progready = true;
       gamelooprun = true;
       rendergameinfo(("Loading"));
-      clientrequestgame(*GetNetwork());
+      clientrequestgame(*GetNetwork(), joinpassword);
       startgameloop();
     }
     else

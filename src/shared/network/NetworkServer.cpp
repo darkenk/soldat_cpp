@@ -339,6 +339,21 @@ void NetworkServer::FlushMsg()
   }
 }
 
+std::string NetworkServer::GetDetailedConnectionStatus(HSoldatNetConnection hConn) const
+{
+  std::array<char, 2048> buf; // NOLINT
+  if (mNetworkingSockets->GetDetailedConnectionStatus(hConn, buf.data(), buf.size()) == 0)
+  {
+    return buf.data();
+  }
+  return std::string{};
+}
+
+void NetworkServer::SetConnectionName(const HSoldatNetConnection hConn, const std::string_view name)
+{
+  mNetworkingSockets->SetConnectionName(hConn, name.data());
+}
+
 namespace
 {
 NetworkServer *gUDP;

@@ -57,21 +57,6 @@ TNetwork::~TNetwork()
 #endif
 }
 
-std::string TNetwork::GetDetailedConnectionStatus(HSoldatNetConnection hConn) const
-{
-  std::array<char, 2048> buf; // NOLINT
-  if (mNetworkingSockets->GetDetailedConnectionStatus(hConn, buf.data(), buf.size()) == 0)
-  {
-    return buf.data();
-  }
-  return std::string{};
-}
-
-void TNetwork::SetConnectionName(const HSoldatNetConnection hConn, const std::string_view name)
-{
-  mNetworkingSockets->SetConnectionName(hConn, name.data());
-}
-
 std::string TNetwork::GetStringAddress(bool withPort)
 {
   if (!withPort)

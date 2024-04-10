@@ -167,7 +167,7 @@ void NetworkClient::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
     return; // truncated packet
   }
 
-  auto PacketHeader = pmsgheader(IncomingMsg->m_pData);
+  const auto PacketHeader = static_cast<pmsgheader>(IncomingMsg->m_pData);
 
   if (GS::GetDemoRecorder().active())
   {

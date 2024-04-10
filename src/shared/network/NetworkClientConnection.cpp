@@ -26,19 +26,18 @@
 using string = std::string;
 
 // REQUEST GAME FROM SERVER
-void clientrequestgame(NetworkClient& network)
+template<typename T_NetworkClient>
+void clientrequestgame(T_NetworkClient& network, std::string_view password)
 {
-  std::vector<std::uint8_t> sendbuffer;
+  const std::int32_t size = tmsg_requestgame::sCalculateSize(password);
+  auto buff = static_cast<uint8_t*>(alloca(size));
 
-  std::int32_t size = sizeof(tmsg_requestgame) + length(joinpassword) + 1;
+  auto requestmsg = new(buff)tmsg_requestgame();
+  std::memset(&buff[sizeof(tmsg_requestgame)],0xff, length(password));
+  buff[size-1] = '\0';
+  SoldatAssert(requestmsg->GetSize() == size);
 
-  setlength(sendbuffer, size);
-
-  tmsg_requestgame *requestmsg = pmsg_requestgame(sendbuffer.data());
-
-  requestmsg->header.id = msgid_requestgame;
   std::strcpy(requestmsg->version.data(), soldat_version);
-
   requestmsg->haveanticheat = actype_none;
 
 #ifdef ENABLE_FAE
@@ -46,7 +45,7 @@ void clientrequestgame(NetworkClient& network)
     requestmsg.haveanticheat = actype_fae;
 #endif
 
-  if (redirectip != "")
+  if (!redirectip.empty())
   {
     requestmsg->forwarded = 1;
     redirectip = "";
@@ -55,9 +54,8 @@ void clientrequestgame(NetworkClient& network)
   }
   std::strcpy(requestmsg->hardwareid.data(), hwid.data());
 
-  std::strcpy(requestmsg->password.data(), joinpassword.data());
-  network.SendData(requestmsg, size, true);
-  // udp->senddata(requestmsg, size, true);
+  std::strcpy(requestmsg->password.data(), password.data());
+  network.SendData(*requestmsg);
 
   requestinggame = true;
 }
@@ -712,3 +710,84 @@ void clienthandlesynccvars(NetworkContext *netmessage)
     SoldatAssert(false);
   }
 }
+
+template void clientrequestgame<NetworkClient>(NetworkClient&, std::string_view);
+
+// tests
+#include <doctest/doctest.h>
+
+namespace
+{
+
+class NetworkClientConnectionFixture
+{
+public:
+  NetworkClientConnectionFixture() {}
+  ~NetworkClientConnectionFixture() {}
+  NetworkClientConnectionFixture(const NetworkClientConnectionFixture &) = delete;
+
+protected:
+};
+
+class TestClient
+{
+public:
+  template <typename T>
+  bool SendData(const T *data, std::int32_t size, bool reliable)
+  {
+    return SendData(reinterpret_cast<const std::byte *>(data), size, reliable);
+  }
+  template <typename T>
+  bool SendData(const T& data)
+  {
+    return SendData(reinterpret_cast<const std::byte *>(&data), data.GetSize(), T::sIsReliableMessage());
+  }
+
+  template<typename T>
+  [[nodiscard]] T& GetData() const { SoldatAssert(GetSize() >= sizeof(T)); return *reinterpret_cast<T*>(mMessage.get()); }
+  [[nodiscard]] std::int32_t GetSize() const { return mSize; }
+  [[nodiscard]] bool GetReliable() const { return mReliable;}
+private:
+  std::unique_ptr<std::byte[]> mMessage;
+  std::int32_t mSize = 0;
+  bool mReliable = false;
+  bool SendData(const std::byte *data, std::int32_t size, bool reliable)
+  {
+    mMessage = std::make_unique<std::byte[]>(size);
+    std::memcpy(mMessage.get(), data, size);
+    mSize = size;
+    mReliable = reliable;
+    return true;
+  }
+};
+
+
+TEST_SUITE("NetworkClientConnection")
+{
+
+
+  TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "Send requestgame")
+  {
+    TestClient tc;
+    clientrequestgame(tc, "");
+    auto msg = tc.GetData<tmsg_requestgame>();
+    CHECK_EQ("1.8.0", doctest::String(msg.version.data()));
+    CHECK_EQ(msgid_requestgame, msg.header.id);
+    CHECK_EQ(46, tc.GetSize());
+    CHECK_EQ(true, tc.GetReliable());
+  }
+
+  TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "Check weird computation of requestgame message size")
+  {
+    TestClient tc;
+    clientrequestgame(tc, "asdf");
+    auto msg = tc.GetData<tmsg_requestgame>();
+    CHECK_EQ("1.8.0", doctest::String(msg.version.data()));
+    CHECK_EQ(msgid_requestgame, msg.header.id);
+    CHECK_EQ(50, tc.GetSize());
+    CHECK_EQ(true, tc.GetReliable());
+  }
+
+} // TEST_SUITE("NetworkClientConnection")
+
+} // namespace

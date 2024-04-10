@@ -31,26 +31,20 @@ std::array<std::uint8_t, max_players> pingsendcount;
 #ifdef SERVER
 void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
-  tmsg_requestgame *requestmsg;
   std::uint32_t state;
-  std::int32_t banindex;
-  std::int32_t id;
-  std::string banreason;
-  bool banhw;
 
   if (!verifypacketlargerorequal(sizeof(tmsg_requestgame), size, msgid_requestgame))
     return;
 
-  banindex = 0;
-  banhw = false;
-  banreason = "";
+  std::int32_t banindex = 0;
+  bool banhw = false;
+  std::string banreason;
 
   // Fancy packet filter
-  id = updateantiflood(player->ip);
-  if (isfloodid(id))
+  if (const std::int32_t id = updateantiflood(player->ip); isfloodid(id))
     return;
 
-  requestmsg = pmsg_requestgame(netmessage);
+  auto *requestmsg = reinterpret_cast<pmsg_requestgame>(netmessage);
 
   // Begin by checking the client's version
   if (iswronggameversion(requestmsg->version.data()))
@@ -92,11 +86,7 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
     }
     else
     {
-#ifdef STEAM
-      banindex = findbanhw(inttostr(tsteamid(player.steamid).getaccountid));
-#else
       banindex = findbanhw(requestmsg->hardwareid.data());
-#endif
       if (banindex > 0)
       {
         state = banned_ip;
@@ -111,12 +101,6 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
         state = ok;
     }
   }
-
-#ifdef STEAM
-  if (CVar::sv_steamonly)
-    if (uint64(player.steamid) == 0)
-      state = steam_only;
-#endif
 
   GS::GetMainConsole().console(
     player->ip + ':' + inttostr(player->port) +
@@ -253,12 +237,7 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
 
   GS::GetMainConsole().console(finalplayername + " joining game (" + player->ip + ':' +
                                    inttostr(player->port) + ") HWID:" +
-#ifdef STEAM
-                                   Player.SteamID.GetAsString()
-#else
-                                   player->hwid
-#endif
-                                   ,
+                                   player->hwid,
                                  server_message_color);
 
   // Set a network name for debugging purposes
@@ -827,7 +806,6 @@ void serversynccvars(std::uint8_t tonum, HSoldatNetConnection peer, bool fullsyn
 {
   pmsg_serversynccvars varsmsg;
   std::uint8_t fieldcount = 0;
-  std::uint32_t buffersize;
 
   BitStream bs;
   LogDebug("net_msg", "Write sync variables");
@@ -837,7 +815,7 @@ void serversynccvars(std::uint8_t tonum, HSoldatNetConnection peer, bool fullsyn
   fieldcount += CopyCVarsToBuffer<float>(bs, fullsync);
   fieldcount += CopyCVarsToBuffer<std::string>(bs, fullsync);
 
-  buffersize = bs.Data().size();
+  std::uint32_t buffersize = bs.Data().size();
   auto data = new uint8_t[sizeof(tmsg_serversynccvars) + buffersize];
   varsmsg = new (data) tmsg_serversynccvars();
   varsmsg->itemcount = fieldcount;
@@ -871,21 +849,18 @@ void serversynccvars(std::uint8_t tonum, HSoldatNetConnection peer, bool fullsyn
 void servervars(std::uint8_t tonum)
 {
   tmsg_servervars varsmsg;
-  std::int32_t i;
-
-  std::int32_t weaponindex;
 
   varsmsg.header.id = msgid_servervars;
   auto &weaponSystem = GS::GetWeaponSystem();
 
-  for (i = 1; i <= main_weapons; i++)
+  for (std::int32_t i = 1; i <= main_weapons; i++)
   {
     varsmsg.weaponactive[i - 1] = weaponSystem.IsEnabled(i);
   }
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
-  for (weaponindex = 1; weaponindex <= original_weapons; weaponindex++)
+  for (std::int32_t weaponindex = 1; weaponindex <= original_weapons; weaponindex++)
   {
     auto &gun = guns[weaponindex];
     auto weaponidxminus1 = weaponindex - 1;
@@ -920,25 +895,88 @@ void servervars(std::uint8_t tonum)
 #ifdef SERVER
 void serverhandlepong(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
-  tmsg_pong *pongmsg;
-  std::int32_t i;
-
   if (!verifypacket(sizeof(tmsg_pong), size, msgid_pong))
     return;
 
-  pongmsg = pmsg_pong(netmessage);
-  i = player->spritenum;
+  const auto pongmsg = reinterpret_cast<pmsg_pong>(netmessage);
+  const std::int32_t i = player->spritenum;
 
   messagesasecnum[i] += 1;
 
   if ((pongmsg->pingnum < 1) || (pongmsg->pingnum > 8))
     return;
 
-  SpriteSystem::Get().GetSprite(i).player->pingticks =
-    GS::GetGame().GetMainTickCounter() - pingtime[i][pongmsg->pingnum];
-  SpriteSystem::Get().GetSprite(i).player->pingtime =
-    SpriteSystem::Get().GetSprite(i).player->pingticks * 1000 / 60;
+  player->pingticks = GS::GetGame().GetMainTickCounter() - pingtime[i][pongmsg->pingnum];
+  player->pingtime = player->pingticks * 1000 / 60;
 
   noclientupdatetime[i] = 0;
 }
 #endif
+
+// tests
+#include <doctest/doctest.h>
+#include "NetworkClient.hpp"
+#include "NetworkClientConnection.hpp"
+
+namespace
+{
+
+class NetworkServerConnectionFixture
+{
+public:
+  NetworkServerConnectionFixture()
+  {
+    GlobalSystems<Config::CLIENT_MODULE>::Init();
+    GlobalSystems<Config::SERVER_MODULE>::Init();
+    AnimationSystem::Get().LoadAnimObjects("");
+  }
+  ~NetworkServerConnectionFixture()
+  {
+    GlobalSystems<Config::SERVER_MODULE>::Deinit();
+    GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+  }
+  NetworkServerConnectionFixture(const NetworkServerConnectionFixture &) = delete;
+
+protected:
+};
+
+inline void sHelperProcessMessages(std::unique_ptr<NetworkServer>& server, std::unique_ptr<NetworkClient>& client)
+{
+  client->FlushMsg();
+  server->FlushMsg();
+  client->ProcessLoop();
+  server->ProcessLoop();
+}
+
+TEST_SUITE("NetworkServerConnection")
+{
+
+  TEST_CASE_FIXTURE(NetworkServerConnectionFixture, "Sample test" * doctest::skip(true))
+  {
+    auto server = std::make_unique<NetworkServer>("0.0.0.0", 23073);
+    auto client = std::make_unique<NetworkClient>();
+    client->Connect("127.0.0.1", 23073);
+    while(!client->IsConnected())
+    {
+      sHelperProcessMessages(server, client);
+    }
+    CHECK_EQ(false, server->GetPlayers().empty());
+    sHelperProcessMessages(server, client);
+
+    auto &spriteSystem = SpriteSystem::Get();
+    auto &game = GS::GetGame();
+
+    SoldatAssert(server->GetPlayers().size() == 1);
+    auto player = server->GetPlayers().at(0);
+    clientrequestgame(*client, "");
+
+    while(!player->gamerequested)
+    {
+      sHelperProcessMessages(server, client);
+    }
+
+  }
+
+} // TEST_SUITE("NetworkServerConnection")
+
+} // namespace

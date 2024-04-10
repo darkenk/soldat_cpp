@@ -46,6 +46,11 @@ public:
   {
     return SendData(reinterpret_cast<const std::byte *>(data), size, reliable, location);
   }
+  template <typename T>
+  bool SendData(const T& data, const source_location &location = source_location::current())
+  {
+    return SendData(reinterpret_cast<const std::byte *>(&data), data.GetSize(), T::sIsReliableMessage(), location);
+  }
   [[nodiscard]] HSoldatNetConnection Peer() const { return mPeer; }
   void FlushMsg();
 

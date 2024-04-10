@@ -169,8 +169,6 @@ public:
 
   [[nodiscard]] bool IsActive() const { return mActive; }
   void SetActive(bool active) { mActive = active; }
-  [[nodiscard]] std::string GetDetailedConnectionStatus(HSoldatNetConnection hConn) const;
-  void SetConnectionName(const HSoldatNetConnection hConn, const std::string_view name);
   [[nodiscard]] std::string GetStringAddress(bool withPort);
   [[nodiscard]] std::uint32_t Port() const { return mPort; }
 
@@ -467,16 +465,17 @@ using pmsg_spritedeath = tmsg_spritedeath *;
 
 // request game type
 
-struct tmsg_requestgame
+struct tmsg_requestgame : SoldatVariableSizeMessage<tmsg_requestgame, msgid_requestgame, SoldatNetMessageType::Reliable>
 {
-  tmsgheader header;
-  // soldat_version_chars = 6
   std::array<char, 6> version;
   std::uint8_t forwarded;
   std::uint8_t haveanticheat;
   std::array<char, PLAYERHWID_CHARS> hardwareid;
-  std::array<char, 24> password;
+  std::array<char, 25> password;
+  [[nodiscard]] std::int32_t GetSize() const { return sizeof(tmsg_requestgame) + std::strlen(password.data() + password.size()) + 1;}
+  [[nodiscard]] static std::int32_t sCalculateSize(std::string_view password) { return sizeof(tmsg_requestgame) + length(password) + 1; }
 };
+static_assert(sizeof(tmsg_requestgame) == 45);
 using pmsg_requestgame = tmsg_requestgame *;
 
 // player info type

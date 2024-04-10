@@ -47,6 +47,9 @@ public:
   void CloseConnection(HSoldatNetConnection peer, bool now);
   void FlushMsg();
 
+  [[nodiscard]] std::string GetDetailedConnectionStatus(HSoldatNetConnection hConn) const;
+  void SetConnectionName(const HSoldatNetConnection hConn, const std::string_view name);
+
   TServerPlayer *GetPlayer(const SteamNetworkingMessage_t *msg);
   inline TPlayers& GetPlayers() { return mPlayers; }
 

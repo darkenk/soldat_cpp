@@ -5,7 +5,8 @@
 class NetworkClient;
 struct NetworkContext;
 
-void clientrequestgame(NetworkClient& network);
+template<typename T_NetworkClient>
+void clientrequestgame(T_NetworkClient& network, std::string_view password);
 void clientdisconnect();
 void clientsendplayerinfo();
 void clientpong(std::uint8_t pingnum);
