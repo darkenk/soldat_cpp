@@ -77,7 +77,7 @@ void clienthandleheartbeat(NetworkContext *netmessage)
   if (badmapidcount < 1)
   {
     GS::GetMainConsole().console(_("Wrong map version detected"), server_message_color);
-    clientdisconnect();
+    clientdisconnect(*GetNetwork());
     GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
     return;
   }

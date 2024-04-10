@@ -940,7 +940,7 @@ public:
 protected:
 };
 
-inline void sHelperProcessMessages(std::unique_ptr<NetworkServer>& server, std::unique_ptr<NetworkClient>& client)
+inline void sHelperProcessMessages(std::unique_ptr<NetworkServer>& server, std::unique_ptr<NetworkClientImpl>& client)
 {
   client->FlushMsg();
   server->FlushMsg();
@@ -954,7 +954,7 @@ TEST_SUITE("NetworkServerConnection")
   TEST_CASE_FIXTURE(NetworkServerConnectionFixture, "Sample test" * doctest::skip(true))
   {
     auto server = std::make_unique<NetworkServer>("0.0.0.0", 23073);
-    auto client = std::make_unique<NetworkClient>();
+    auto client = std::make_unique<NetworkClientImpl>();
     client->Connect("127.0.0.1", 23073);
     while(!client->IsConnected())
     {

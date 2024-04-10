@@ -183,7 +183,7 @@ void clienthandlejoinserver(NetworkContext *netmessage)
                         server_message_color);
 #endif
 
-  clientdisconnect();
+  clientdisconnect(*GetNetwork());
 
   redirecttoserver = true;
   NotImplemented("network");

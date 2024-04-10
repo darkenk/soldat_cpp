@@ -272,7 +272,7 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
       switch (buttonindex)
       {
       case 0: {
-        clientdisconnect();
+        clientdisconnect(*GetNetwork());
         SDL_Event evt;
         evt.type = SDL_QUIT;
         SDL_PushEvent(&evt);

@@ -22,19 +22,18 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include <physfs.h>
+#include <source_location>
 
 using string = std::string;
 
 // REQUEST GAME FROM SERVER
-template<typename T_NetworkClient>
-void clientrequestgame(T_NetworkClient& network, std::string_view password)
+template<typename T>
+void clientrequestgame(NetworkBase<T>& network, std::string_view password)
 {
   const std::int32_t size = tmsg_requestgame::sCalculateSize(password);
   auto buff = static_cast<uint8_t*>(alloca(size));
 
-  auto requestmsg = new(buff)tmsg_requestgame();
-  std::memset(&buff[sizeof(tmsg_requestgame)],0xff, length(password));
-  buff[size-1] = '\0';
+  auto requestmsg = new(buff)tmsg_requestgame(password);
   SoldatAssert(requestmsg->GetSize() == size);
 
   std::strcpy(requestmsg->version.data(), soldat_version);
@@ -53,8 +52,6 @@ void clientrequestgame(T_NetworkClient& network, std::string_view password)
     redirectmsg = "";
   }
   std::strcpy(requestmsg->hardwareid.data(), hwid.data());
-
-  std::strcpy(requestmsg->password.data(), password.data());
   network.SendData(*requestmsg);
 
   requestinggame = true;
@@ -135,7 +132,8 @@ void clientsendplayerinfo()
   clientplayerreceivedcounter = clientplayerrecieved_time;
 }
 
-void clientdisconnect()
+template<typename T>
+void clientdisconnect(NetworkBase<T>& client)
 {
   tmsg_playerdisconnect playermsg;
 
@@ -144,7 +142,7 @@ void clientdisconnect()
     playermsg.header.id = msgid_playerdisconnect;
     playermsg.num = mysprite;
 
-    GetNetwork()->SendData(&playermsg, sizeof(playermsg), true);
+    client.SendData(&playermsg, sizeof(playermsg), true);
 
     auto& fs= GS::GetFileSystem();
 
@@ -152,12 +150,12 @@ void clientdisconnect()
                      string("Client Disconnect from ") +
                        GetNetwork()->GetStringAddress( true),
                      GetGameLogFilename());
-    GetNetwork()->ProcessLoop();
-    GetNetwork()->Disconnect(false);
+    client.ProcessLoop();
+    client.Disconnect(false);
   }
   else
   {
-    GetNetwork()->Disconnect(true);
+    client.Disconnect(true);
     exittomenu();
   }
 }
@@ -546,7 +544,7 @@ void clienthandleunaccepted(NetworkContext *netmessage)
     break;
   }
 
-  clientdisconnect();
+  clientdisconnect(*GetNetwork());
   exittomenu();
 }
 
@@ -711,7 +709,7 @@ void clienthandlesynccvars(NetworkContext *netmessage)
   }
 }
 
-template void clientrequestgame<NetworkClient>(NetworkClient&, std::string_view);
+template void clientrequestgame<NetworkClientImpl>(NetworkBase<NetworkClientImpl>&, std::string_view);
 
 // tests
 #include <doctest/doctest.h>
@@ -729,29 +727,19 @@ public:
 protected:
 };
 
-class TestClient
+class TestClient : public NetworkBase<TestClient>
 {
 public:
-  template <typename T>
-  bool SendData(const T *data, std::int32_t size, bool reliable)
-  {
-    return SendData(reinterpret_cast<const std::byte *>(data), size, reliable);
-  }
-  template <typename T>
-  bool SendData(const T& data)
-  {
-    return SendData(reinterpret_cast<const std::byte *>(&data), data.GetSize(), T::sIsReliableMessage());
-  }
-
   template<typename T>
   [[nodiscard]] T& GetData() const { SoldatAssert(GetSize() >= sizeof(T)); return *reinterpret_cast<T*>(mMessage.get()); }
   [[nodiscard]] std::int32_t GetSize() const { return mSize; }
   [[nodiscard]] bool GetReliable() const { return mReliable;}
 private:
+  friend class NetworkBase<TestClient>;
   std::unique_ptr<std::byte[]> mMessage;
   std::int32_t mSize = 0;
   bool mReliable = false;
-  bool SendData(const std::byte *data, std::int32_t size, bool reliable)
+  bool SendDataImpl(const std::byte *data, std::int32_t size, bool reliable, source_location)
   {
     mMessage = std::make_unique<std::byte[]>(size);
     std::memcpy(mMessage.get(), data, size);
@@ -761,11 +749,8 @@ private:
   }
 };
 
-
 TEST_SUITE("NetworkClientConnection")
 {
-
-
   TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "Send requestgame")
   {
     TestClient tc;
@@ -787,6 +772,18 @@ TEST_SUITE("NetworkClientConnection")
     CHECK_EQ(50, tc.GetSize());
     CHECK_EQ(true, tc.GetReliable());
   }
+
+  TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "Send disconnection event")
+  {
+    TestClient tc;
+    clientrequestgame(tc, "asdf");
+    auto msg = tc.GetData<tmsg_requestgame>();
+    CHECK_EQ("1.8.0", doctest::String(msg.version.data()));
+    CHECK_EQ(msgid_requestgame, msg.header.id);
+    CHECK_EQ(50, tc.GetSize());
+    CHECK_EQ(true, tc.GetReliable());
+  }
+
 
 } // TEST_SUITE("NetworkClientConnection")
 

@@ -112,7 +112,7 @@ TEST_CASE_FIXTURE(NetworkServerHeartbeatFixture, "Initial test for heartbeat" * 
   auto &spriteSystem = SpriteSystem::Get();
   auto &game = GS::GetGame();
   auto server = std::make_unique<NetworkServer>("0.0.0.0", 23073);
-  auto client = std::make_unique<NetworkClient>();
+  auto client = std::make_unique<NetworkClientImpl>();
   client->Connect("127.0.0.1", 23073);
   while(server->GetPlayers().empty())
   {

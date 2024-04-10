@@ -472,6 +472,13 @@ struct tmsg_requestgame : SoldatVariableSizeMessage<tmsg_requestgame, msgid_requ
   std::uint8_t haveanticheat;
   std::array<char, PLAYERHWID_CHARS> hardwareid;
   std::array<char, 25> password;
+
+  tmsg_requestgame(std::string_view pass)
+  {
+    std::memset(password.data() + password.size(),0xff, pass.size());
+    *(password.data() + password.size() + pass.size()) = '\0';
+    std::strcpy(password.data(), pass.data());
+  }
   [[nodiscard]] std::int32_t GetSize() const { return sizeof(tmsg_requestgame) + std::strlen(password.data() + password.size()) + 1;}
   [[nodiscard]] static std::int32_t sCalculateSize(std::string_view password) { return sizeof(tmsg_requestgame) + length(password) + 1; }
 };

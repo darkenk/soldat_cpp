@@ -2,12 +2,14 @@
 
 #include <cstdint>
 
-class NetworkClient;
+template<typename T>
+class NetworkBase;
 struct NetworkContext;
 
-template<typename T_NetworkClient>
-void clientrequestgame(T_NetworkClient& network, std::string_view password);
-void clientdisconnect();
+template<typename T>
+void clientrequestgame(NetworkBase<T>& network, std::string_view password);
+template<typename T>
+void clientdisconnect(NetworkBase<T>& network);
 void clientsendplayerinfo();
 void clientpong(std::uint8_t pingnum);
 void clienthandleplayerslist(NetworkContext *netmessage);

@@ -24,7 +24,7 @@ std::int32_t noheartbeattime = 0;
 std::string votemapname;
 std::uint32_t votemapcount;
 
-void NetworkClient::ProcessLoop()
+void NetworkClientImpl::ProcessLoopImpl()
 {
   std::int32_t numMsgs;
   PSteamNetworkingMessage_t IncomingMsg;
@@ -47,7 +47,7 @@ void NetworkClient::ProcessLoop()
   }
 }
 
-void NetworkClient::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo)
+void NetworkClientImpl::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo)
 {
   if (pInfo->m_hConn == k_HSteamNetConnection_Invalid)
   {
@@ -105,9 +105,9 @@ void NetworkClient::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
   }
 }
 
-NetworkClient::NetworkClient(): mPeer(k_HSteamNetConnection_Invalid) {}
+NetworkClientImpl::NetworkClientImpl(): mPeer(k_HSteamNetConnection_Invalid) {}
 
-bool NetworkClient::Connect(const std::string_view host, std::uint32_t port)
+bool NetworkClientImpl::ConnectImpl(const std::string_view host, std::uint32_t port)
 {
   SteamNetworkingIPAddr address; // NOLINT
   std::array<SteamNetworkingConfigValue_t, 2> initSettings; // NOLINT
@@ -128,7 +128,7 @@ bool NetworkClient::Connect(const std::string_view host, std::uint32_t port)
   return mPeer != k_HSteamNetConnection_Invalid;
 }
 
-bool NetworkClient::IsConnected()
+bool NetworkClientImpl::IsConnected()
 {
   if (mPeer == k_HSteamNetConnection_Invalid)
   {
@@ -139,7 +139,7 @@ bool NetworkClient::IsConnected()
   return status.m_eState == k_ESteamNetworkingConnectionState_Connected;
 }
 
-bool NetworkClient::IsDisconnected()
+bool NetworkClientImpl::IsDisconnected()
 {
   if (mPeer == k_HSteamNetConnection_Invalid)
   {
@@ -151,7 +151,7 @@ bool NetworkClient::IsDisconnected()
          status.m_eState != k_ESteamNetworkingConnectionState_Connecting;
 }
 
-void NetworkClient::FlushMsg()
+void NetworkClientImpl::FlushMsg()
 {
   if (mPeer == k_HSteamNetConnection_Invalid)
   {
@@ -160,7 +160,7 @@ void NetworkClient::FlushMsg()
   mNetworkingSockets->FlushMessagesOnConnection(mPeer);
 }
 
-void NetworkClient::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
+void NetworkClientImpl::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 {
   if (IncomingMsg->m_cbSize < sizeof(tmsgheader))
   {
@@ -366,7 +366,7 @@ void NetworkClient::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
   }
 }
 
-bool NetworkClient::SendData(const std::byte *data, std::int32_t size, bool reliable,
+bool NetworkClientImpl::SendDataImpl(const std::byte *data, std::int32_t size, bool reliable,
                              const source_location &location)
 {
   if (size < sizeof(tmsgheader))
@@ -389,7 +389,7 @@ bool NetworkClient::SendData(const std::byte *data, std::int32_t size, bool reli
   return true;
 }
 
-bool NetworkClient::Disconnect(bool now)
+bool NetworkClientImpl::DisconnectImpl(bool now)
 {
   mNetworkingSockets->CloseConnection(mPeer, 0, "", !now);
   mPeer = k_HSteamNetConnection_Invalid;
@@ -398,7 +398,7 @@ bool NetworkClient::Disconnect(bool now)
 
 namespace
 {
-NetworkClient *gUDP = nullptr;
+NetworkClientImpl *gUDP = nullptr;
 }
 
 template <Config::Module M>
@@ -409,7 +409,7 @@ void DeinitClientNetwork() requires(Config::IsClient())
 }
 
 template <Config::Module M>
-NetworkClient *GetNetwork() requires(Config::IsClient())
+NetworkClientImpl *GetNetwork() requires(Config::IsClient())
 {
   return gUDP;
 }
@@ -417,10 +417,10 @@ NetworkClient *GetNetwork() requires(Config::IsClient())
 template <Config::Module M>
 void InitClientNetwork() requires(Config::IsClient())
 {
-  gUDP = new NetworkClient();
+  gUDP = new NetworkClientImpl();
 }
 
-template NetworkClient *GetNetwork<Config::GetModule()>();
+template NetworkClientImpl *GetNetwork<Config::GetModule()>();
 #ifndef SERVER
 template void InitClientNetwork<Config::GetModule()>();
 template void DeinitClientNetwork<Config::GetModule()>();

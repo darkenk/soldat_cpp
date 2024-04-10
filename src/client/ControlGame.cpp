@@ -22,6 +22,7 @@
 #include "shared/network/NetworkClientMessages.hpp"
 #include <SDL2/SDL.h>
 #include <numeric>
+#include <shared/network/NetworkClient.hpp>
 
 bool votekickreasontype = false;
 
@@ -722,7 +723,7 @@ void gameinput()
     switch (event.type)
     {
     case SDL_QUIT: {
-      clientdisconnect();
+      clientdisconnect(*GetNetwork());
       shutdown();
     }
     break;

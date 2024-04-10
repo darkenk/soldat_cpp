@@ -20,6 +20,7 @@
 #include "shared/network/NetworkClientConnection.hpp"
 #include <Tracy.hpp>
 #include <cstdint>
+#include <shared/network/NetworkClient.hpp>
 
 std::int32_t idlecounter, oldmousex;
 
@@ -257,7 +258,7 @@ void update_frame()
 
           if (idlecounter > Constants::IDLE_KICK)
           {
-            clientdisconnect();
+            clientdisconnect(*GetNetwork());
             exittomenu();
           }
 

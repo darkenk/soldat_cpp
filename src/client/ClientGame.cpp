@@ -320,7 +320,7 @@ void gameloop()
 
         GS::GetMainConsole().console(("Connection timeout"), warning_message_color);
 
-        clientdisconnect();
+        clientdisconnect(*GetNetwork());
       }
 
       if (noheartbeattime < 0)

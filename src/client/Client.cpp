@@ -253,7 +253,7 @@ void exittomenu()
 
   if (mysprite > 0)
   {
-    clientdisconnect();
+    clientdisconnect(*GetNetwork());
   }
   if (GetNetwork())
   {
@@ -760,7 +760,7 @@ void joinserver()
 
   InitClientNetwork();
   GetNetwork()->SetDisconnectionCallback([](const char* msg){rendergameinfo(std::string("Network  error ") + msg);});
-  GetNetwork()->SetConnectionCallback([](NetworkClient& nc) { clientrequestgame(nc, joinpassword);} );
+  GetNetwork()->SetConnectionCallback([](NetworkClientImpl& nc) { clientrequestgame(nc, joinpassword);} );
   // DEMO
   if (joinport == "0")
   {
