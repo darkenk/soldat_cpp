@@ -11,7 +11,8 @@ void clientrequestgame(NetworkBase<T>& network, std::string_view password);
 template<typename T>
 void clientdisconnect(NetworkBase<T>& network);
 void clientsendplayerinfo();
-void clientpong(std::uint8_t pingnum);
+template<typename T>
+void clientpong(NetworkBase<T>& network, std::uint8_t pingnum);
 void clienthandleplayerslist(NetworkContext *netmessage);
 void clienthandleunaccepted(NetworkContext *netmessage);
 void clienthandleserverdisconnect(NetworkContext *netmessage);

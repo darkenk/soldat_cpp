@@ -22,12 +22,10 @@ constexpr std::int16_t sround(float v)
 // Checks the distance on one axis
 std::int32_t checkdistance(float posa, float posb)
 {
-  float distance;
 
-  std::int32_t result;
-  result = dist_away;
+  std::int32_t result = dist_away;
 
-  distance = std::fabs(posa - posb);
+  float distance = std::fabs(posa - posb);
 
   if (distance <= dist_too_close)
     result = dist_too_close;

@@ -15,7 +15,6 @@
 
 void clienthandleserverthingsnapshot(NetworkContext *netmessage)
 {
-  tmsg_serverthingsnapshot *thingsnap;
   std::int32_t d;
   tvector2 a;
 
@@ -23,7 +22,7 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
                     msgid_serverthingsnapshot))
     return;
 
-  thingsnap = pmsg_serverthingsnapshot(netmessage->packet);
+  tmsg_serverthingsnapshot *thingsnap = pmsg_serverthingsnapshot(netmessage->packet);
 
   // assign received Thing info to thing
   const auto i = thingsnap->num;

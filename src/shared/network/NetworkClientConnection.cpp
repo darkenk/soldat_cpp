@@ -160,14 +160,11 @@ void clientdisconnect(NetworkBase<T>& client)
   }
 }
 
-void clientpong(std::uint8_t pingnum)
+template<typename T>
+void clientpong(NetworkBase<T>& network, const std::uint8_t pingnum)
 {
-  tmsg_pong pongmsg;
-
-  pongmsg.header.id = msgid_pong;
-  pongmsg.pingnum = pingnum;
-
-  GetNetwork()->SendData(&pongmsg, sizeof(pongmsg), true);
+  tmsg_pong pongmsg(pingnum);
+  network.SendData(pongmsg);
 }
 
 void clienthandleplayerslist(NetworkContext *netmessage)
@@ -576,7 +573,7 @@ void clienthandleping(NetworkContext *netmessage)
     player->pingtime = player->pingticks * 1000 / 60;
   }
 
-  clientpong(pmsg_ping(netmessage->packet)->pingnum);
+  clientpong(netmessage->networkClient, pmsg_ping(netmessage->packet)->pingnum);
 
   clientstopmovingcounter = clientstopmove_retrys;
   noheartbeattime = 0;
@@ -784,6 +781,14 @@ TEST_SUITE("NetworkClientConnection")
     CHECK_EQ(true, tc.GetReliable());
   }
 
+  TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "Send pong")
+  {
+    TestClient tc;
+    clientpong(tc, 12);
+    auto msg = tc.GetData<tmsg_pong>();
+    CHECK_EQ(msgid_pong, msg.header.id);
+    CHECK_EQ(12, msg.pingnum);
+  }
 
 } // TEST_SUITE("NetworkClientConnection")
 

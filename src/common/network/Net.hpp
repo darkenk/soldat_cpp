@@ -240,10 +240,10 @@ struct tmsg_ping
 };
 using pmsg_ping = tmsg_ping *;
 
-struct tmsg_pong
+struct tmsg_pong : SoldatConstSizeMessage<tmsg_pong, msgid_pong, SoldatNetMessageType::Reliable>
 {
-  tmsgheader header;
-  std::uint8_t pingnum;
+  explicit tmsg_pong(const std::uint8_t num) : pingnum(num) {}
+  uint8_t pingnum;
 };
 using pmsg_pong = tmsg_pong *;
 
