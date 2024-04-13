@@ -188,8 +188,8 @@ void clienthandleplayerslist(NetworkContext *netmessage)
 
   if (!demoplayer.active())
     GS::GetMainConsole().console(_("Connection accepted to") + ' ' +
-                               (GetNetwork()->GetStringAddress(true)),
-                             client_message_color);
+                                   (GetNetwork()->GetStringAddress(true)),
+                                 client_message_color);
 
   gClientServerIP = GetNetwork()->GetStringAddress(false);
   NotImplemented("network", "no sha1 checks");
@@ -229,7 +229,8 @@ void clienthandleplayerslist(NetworkContext *netmessage)
         loadsounds(moddir);
         forcegraphicsreload = true;
         usesservermod = true;
-        GS::GetMainConsole().console(_(string("Loading server mod: ") + modname), mode_message_color);
+        GS::GetMainConsole().console(_(string("Loading server mod: ") + modname),
+                                     mode_message_color);
       }
       else
       {
@@ -461,14 +462,14 @@ void clienthandleplayerslist(NetworkContext *netmessage)
     else
     {
       GS::GetMainConsole().console(_("(!) To leave your current weapon after respawn"),
-                               info_message_color);
+                                   info_message_color);
       GS::GetMainConsole().console(string("    ") + _("click anywhere outside the weapons menu."),
-                               info_message_color);
+                                   info_message_color);
     }
 
     if (CVar::sv_realisticmode)
-      GS::GetMainConsole().console(_("(!) To prevent weapon recoil fire float shots or short bursts."),
-                               info_message_color);
+      GS::GetMainConsole().console(
+        _("(!) To prevent weapon recoil fire float shots or short bursts."), info_message_color);
   }
 
   mx = gamewidthhalf;
@@ -647,8 +648,8 @@ void clienthandleservervars(NetworkContext *netmessage)
     if (!demoplayer.active())
     {
       GS::GetMainConsole().console(_("Server uses weapon mod (checksum") + ' ' +
-                                 (inttostr(GS::GetWeaponSystem().GetLoadedWMChecksum())) + ')',
-                               server_message_color);
+                                     (inttostr(GS::GetWeaponSystem().GetLoadedWMChecksum())) + ')',
+                                   server_message_color);
     }
   }
 }

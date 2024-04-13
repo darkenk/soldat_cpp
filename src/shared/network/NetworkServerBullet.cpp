@@ -265,8 +265,8 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
         if (SpriteSystem::Get().GetSprite(p).player->knifewarnings == 3)
         {
           GS::GetMainConsole().console(std::string("** DETECTED KNIFE CHEATING FROM ") +
-                                           SpriteSystem::Get().GetSprite(p).player->name + " **",
-                                         server_message_color);
+                                         SpriteSystem::Get().GetSprite(p).player->name + " **",
+                                       server_message_color);
           kickplayer(p, true, kick_cheat, day, "Knife Throw Cheat");
         }
       }

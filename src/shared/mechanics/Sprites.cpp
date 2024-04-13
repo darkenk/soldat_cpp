@@ -1955,10 +1955,11 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         if (mysprite > 0)
           if (isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
             if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
-              GS::GetMainConsole().console(_("Players left on your team:") + ' ' +
-                                         (inttostr(GS::GetGame().GetTeamAliveNum(
-                                           SpriteSystem::Get().GetSprite(mysprite).player->team))),
-                                       game_message_color);
+              GS::GetMainConsole().console(
+                _("Players left on your team:") + ' ' +
+                  (inttostr(GS::GetGame().GetTeamAliveNum(
+                    SpriteSystem::Get().GetSprite(mysprite).player->team))),
+                game_message_color);
 #endif
       }
     }
@@ -3800,23 +3801,23 @@ void Sprite<M>::changeteam(std::int32_t team)
 #else
     case team_none:
       GS::GetMainConsole().console(wideformat(_("%s has joined the game."), player->name),
-                               enter_message_color);
+                                   enter_message_color);
       break;
     case team_alpha:
       GS::GetMainConsole().console(wideformat(_("%s has joined alpha team"), player->name),
-                               alphaj_message_color);
+                                   alphaj_message_color);
       break;
     case team_bravo:
       GS::GetMainConsole().console(wideformat(_("%s has joined bravo team"), player->name),
-                               bravoj_message_color);
+                                   bravoj_message_color);
       break;
     case team_charlie:
       GS::GetMainConsole().console(wideformat(_("%s has joined charlie team"), player->name),
-                               charliej_message_color);
+                                   charliej_message_color);
       break;
     case team_delta:
       GS::GetMainConsole().console(wideformat(_("%s has joined delta team"), player->name),
-                               deltaj_message_color);
+                                   deltaj_message_color);
       break;
 #endif
     }

@@ -9,69 +9,91 @@
 #include <locale>
 
 template <Config::Module M>
-void Console<M>::scrollconsole()
+void Console<M>::ScrollConsole()
 {
-  std::int32_t x;
-
-  if (count > 0)
+  if (mCount > 0)
   {
-    for (x = 1; x <= count - 1; x++)
+    for (std::int32_t x = 1; x <= mCount - 1; x++)
     {
-      textmessagecolor[x] = textmessagecolor[x + 1];
-      textmessage[x] = textmessage[x + 1];
-      nummessage[x] = nummessage[x + 1]; // scroll the messages up 1
-      alphacount = 255;
+      mTextMessageColor[x] = mTextMessageColor[x + 1];
+      mTextMessage[x] = mTextMessage[x + 1];
+      mNumMessage[x] = mNumMessage[x + 1]; // scroll the messages up 1
+      mAlphaCount = 255;
     }
-    textmessage[count] = ""; // blank the last message
-    nummessage[count] = 0;
-    count -= 1;
+    mTextMessage[mCount] = ""; // blank the last message
+    mNumMessage[mCount] = 0;
+    mCount -= 1;
   }
-  scrolltick = 0;
+  mScrollTick = 0;
 }
 
 template <Config::Module M>
-void Console<M>::consoleadd(const std::string &what, std::int32_t col)
+void Console<M>::ConsoleAdd(const std::string_view what, std::int32_t col)
 {
   // adds a new message
-  count += 1;
-  scrolltick = -newmessagewait;
-  textmessage[count] = what;
-  textmessagecolor[count] = col;
-  nummessage[count] = -255;
-  if (count == 1)
+  mCount += 1;
+  mScrollTick = -mNewMessageWait;
+  mTextMessage[mCount] = what;
+  mTextMessageColor[mCount] = col;
+  mNumMessage[mCount] = -255;
+  if (mCount == 1)
   {
-    alphacount = 255;
+    mAlphaCount = 255;
   }
-  if (count == countmax)
+  if (mCount == mCountMax)
   {
-    scrollconsole();
+    ScrollConsole();
   }
 }
 
 template <Config::Module M>
-void Console<M>::consolenum(const std::string &what, std::int32_t col, std::int32_t num)
+void Console<M>::ConsoleNum(const std::string_view what, std::int32_t col, std::int32_t num)
 {
   // adds a new message
-  count += 1;
-  scrolltick = -newmessagewait;
-  textmessage[count] = what;
-  textmessagecolor[count] = col;
-  nummessage[count] = num;
-  if (count == countmax)
+  mCount += 1;
+  mScrollTick = -mNewMessageWait;
+  mTextMessage[mCount] = what;
+  mTextMessageColor[mCount] = col;
+  mNumMessage[mCount] = num;
+  if (mCount == mCountMax)
   {
-    scrollconsole();
+    ScrollConsole();
+  }
+}
+template <Config::Module M>
+void Console<M>::UpdateMainConsole()
+{
+  mScrollTick = mScrollTick + 1;
+  if (mScrollTick == mScrollTickMax)
+    ScrollConsole();
+
+  if (mAlphaCount > 0)
+  {
+    mAlphaCount--;
   }
 }
 
 template <Config::Module M>
-void Console<M>::console(const std::string &what, std::int32_t col) // overload;
+void Console<M>::UpdateKillConsole()
+{
+  mScrollTick = mScrollTick + 1;
+  if (mScrollTick == mScrollTickMax)
+  {
+    ScrollConsole();
+    if ((mCount > 0) && (mNumMessage[mCount] == -255))
+      ScrollConsole();
+  }
+}
+
+template <Config::Module M>
+void Console<M>::console(const std::string_view what, std::int32_t col) // overload;
 {
   if (what.empty())
   {
     return;
   }
   auto& fs = GS::GetFileSystem();
-  addlinetologfile(fs, GetGameLog(), what, GetGameLogFilename());
+  addlinetologfile(fs, GetGameLog(), std::string(what), GetGameLogFilename());
 
   if constexpr (Config::IsServer(M))
   {
@@ -83,55 +105,104 @@ void Console<M>::console(const std::string &what, std::int32_t col) // overload;
     // adds a new message
     // NOTE: not thread save!
     // added mod to prevent AVs
-    count += 1;
-    if (count >= countmax)
-      count = 1;
+    mCount += 1;
+    if (mCount >= mCountMax)
+      mCount = 1;
 
-    scrolltick = -newmessagewait;
-    textmessage[count] = what;
-    textmessagecolor[count] = col;
-    nummessage[count] = -255;
-    if (count == 1)
-      alphacount = 255;
-    if (count == countmax)
-      scrollconsole();
+    mScrollTick = -mNewMessageWait;
+    mTextMessage[mCount] = what;
+    mTextMessageColor[mCount] = col;
+    mNumMessage[mCount] = -255;
+    if (mCount == 1)
+      mAlphaCount = 255;
+    if (mCount == mCountMax)
+      ScrollConsole();
   }
   if constexpr (Config::IsClient(M))
   {
-    GS::GetMainConsole().consoleadd(what, col);
-    GetBigConsole().consoleadd(what, col);
+    GS::GetMainConsole().ConsoleAdd(what, col);
+    GetBigConsole().ConsoleAdd(what, col);
   }
 }
 
 template <Config::Module M>
-void Console<M>::console(const std::string &what, std::int32_t col,
-                         std::uint8_t sender) requires(Config::IsServer(M))
+void Console<M>::console(const std::string_view what, std::int32_t col, std::uint8_t sender) requires(Config::IsServer(M))
 {
   this->console(what, col);
   if ((sender > 0) && (sender < max_players + 1))
   {
     if constexpr (Config::IsServer(M))
     {
-      serversendstringmessage(what, sender, 255, msgtype_pub);
+      serversendstringmessage(std::string(what), sender, 255, msgtype_pub);
     }
   }
 }
 
 template class Console<Config::GetModule()>;
 
+static Console<Config::GetModule()> sBigConsole;
+static Console<Config::GetModule()> sKillConsole;
+
+template <Config::Module M>
+Console<M> &InitBigConsole(const std::int32_t newMessageWait, const std::int32_t countMax,
+                           const std::int32_t scrollTickMax)
+{
+  return *new (&sBigConsole)Console<M>(newMessageWait, countMax, scrollTickMax);
+}
+
 template <Config::Module M>
 Console<M> &GetBigConsole()
 {
-  static Console<M> bigconsole;
-  return bigconsole;
+  return sBigConsole;
+}
+template <Config::Module M>
+Console<M> &InitKillConsole(const std::int32_t newMessageWait, const std::int32_t countMax,
+                            const std::int32_t scrollTickMax)
+{
+  return *new (&sKillConsole)Console<M>(newMessageWait, countMax, scrollTickMax);
 }
 
 template <Config::Module M>
 Console<M> &GetKillConsole()
 {
-  static Console<M> killconsole;
-  return killconsole;
+  return sKillConsole;
 }
 
 template tconsole &GetKillConsole<Config::GetModule()>();
 template tconsole &GetBigConsole<Config::GetModule()>();
+template tconsole &InitKillConsole<Config::GetModule()>(const std::int32_t newMessageWait,
+                                                        const std::int32_t countMax,
+                                                        const std::int32_t scrollTickMax);
+template tconsole &InitBigConsole<Config::GetModule()>(const std::int32_t newMessageWaitTime,
+                                                       const std::int32_t countMax,
+                                                       const std::int32_t scrollTickMax);
+
+// tests
+#include <doctest/doctest.h>
+
+namespace
+{
+
+class ConsoleFixture
+{
+public:
+  ConsoleFixture() {}
+  ~ConsoleFixture() {}
+  ConsoleFixture(const ConsoleFixture &) = delete;
+
+protected:
+};
+TEST_SUITE("Console")
+{
+
+  TEST_CASE_FIXTURE(ConsoleFixture, "Initial test")
+  {
+    Console<Config::CLIENT_MODULE> cl;
+    CHECK_EQ(255, cl.GetAlphaCount());
+    cl.UpdateMainConsole();
+    CHECK_EQ(254, cl.GetAlphaCount());
+  }
+
+} // TEST_SUITE("Console")
+
+} // namespace

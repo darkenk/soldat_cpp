@@ -2,7 +2,7 @@
 
 WeaponSystem::WeaponSystem()
 {
-  std::fill(std::begin(WeaponActive), std::end(WeaponActive), 0);
+  std::ranges::fill(WeaponActive, 0);
 }
 
 void WeaponSystem::EnableAllWeapons()

@@ -507,8 +507,8 @@ void commandpm(std::vector<std::string> &args, std::uint8_t sender)
     GS::GetMainConsole().console(string("Private Message sent to ") + idtoname(targets[i]),
                                    server_message_color, sender);
     GS::GetMainConsole().console(string("(PM) To: ") + idtoname(targets[i]) +
-                                     " From: " + idtoname(sender) + " Message: " + pmmessage,
-                                   server_message_color);
+                                   " From: " + idtoname(sender) + " Message: " + pmmessage,
+                                 server_message_color);
     serversendstringmessage(string("(PM) ") + (pmmessage), targets[i], 255, msgtype_pub);
   }
 }

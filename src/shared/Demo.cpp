@@ -60,7 +60,8 @@ bool tdemorecorder<M>::startrecord(const string &filename)
     return result;
 #endif
 
-  GS::GetMainConsole().console(("Recording demo: ") + (extractfilename(filename)), info_message_color);
+  GS::GetMainConsole().console(("Recording demo: ") + (extractfilename(filename)),
+                               info_message_color);
 
   fname = extractfilename(filename);
   factive = true;
@@ -281,7 +282,7 @@ bool tdemoplayer::opendemo(const string &filename)
   if (fdemoheader.header != demo_magic)
   {
     GS::GetMainConsole().console(_("The provided file is not valid: ") + ' ' + (fname),
-                             info_message_color);
+                                 info_message_color);
     fdemofile.free();
   }
   else if (fdemoheader.version != demo_version)
@@ -420,8 +421,8 @@ void tdemoplayer::position(std::int32_t ticks)
       chatteam[i] = false;
     }
 
-    GS::GetMainConsole().count = 0;
-    GetBigConsole().count = 0;
+    GS::GetMainConsole().ResetCount();
+    GetBigConsole().ResetCount();
   }
 
   GS::GetGame().SetGoalTicks(default_goalticks * 20);

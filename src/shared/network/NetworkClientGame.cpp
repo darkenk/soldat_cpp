@@ -163,27 +163,27 @@ void clienthandlenewplayer(NetworkContext *netmessage)
     {
     case team_none:
       GS::GetMainConsole().console(wideformat(_("{} has joined the game"), (player->name)),
-                               enter_message_color);
+                                   enter_message_color);
       break;
     case team_alpha:
       GS::GetMainConsole().console(wideformat(_("{} has joined alpha team"), (player->name)),
-                               alphaj_message_color);
+                                   alphaj_message_color);
       break;
     case team_bravo:
       GS::GetMainConsole().console(wideformat(_("{} has joined bravo team"), (player->name)),
-                               bravoj_message_color);
+                                   bravoj_message_color);
       break;
     case team_charlie:
       GS::GetMainConsole().console(wideformat(_("{} has joined charlie team"), (player->name)),
-                               charliej_message_color);
+                                   charliej_message_color);
       break;
     case team_delta:
       GS::GetMainConsole().console(wideformat(_("{} has joined delta team"), (player->name)),
-                               deltaj_message_color);
+                                   deltaj_message_color);
       break;
     case team_spectator:
       GS::GetMainConsole().console(wideformat(_("{} has joined as spectator"), (player->name)),
-                               deltaj_message_color);
+                                   deltaj_message_color);
       break;
     }
 }
@@ -459,7 +459,7 @@ void clienthandlemapchange(NetworkContext *netmessage)
   }
 
   GS::GetMainConsole().console(_("Next map:") + ' ' + (GS::GetGame().GetMapchangename()),
-                           game_message_color);
+                               game_message_color);
 
   if (!CVar::sv_survivalmode)
     if ((CVar::sv_gamemode == gamestyle_deathmatch) ||
@@ -521,11 +521,11 @@ void clienthandleflaginfo(NetworkContext *netmessage)
   if (pmsg_serverflaginfo(netmessage->packet)->style == capturered)
   {
     bigmessage(_("Alpha Team Scores!"), capturectfmessagewait, alpha_message_color);
-    GS::GetMainConsole().console(wideformat(_("{} scores for Alpha Team"),
-                                        (SpriteSystem::Get()
-                                           .GetSprite(pmsg_serverflaginfo(netmessage->packet)->who)
-                                           .player->name)),
-                             alpha_message_color);
+    GS::GetMainConsole().console(
+      wideformat(
+        _("{} scores for Alpha Team"),
+        (SpriteSystem::Get().GetSprite(pmsg_serverflaginfo(netmessage->packet)->who).player->name)),
+      alpha_message_color);
 
     if (CVar::sv_gamemode == gamestyle_inf)
     {
@@ -560,11 +560,11 @@ void clienthandleflaginfo(NetworkContext *netmessage)
   if (pmsg_serverflaginfo(netmessage->packet)->style == captureblue)
   {
     bigmessage(_("Bravo Team Scores!"), capturectfmessagewait, bravo_message_color);
-    GS::GetMainConsole().console(wideformat(_("{} scores for Bravo Team"),
-                                        (SpriteSystem::Get()
-                                           .GetSprite(pmsg_serverflaginfo(netmessage->packet)->who)
-                                           .player->name)),
-                             bravo_message_color);
+    GS::GetMainConsole().console(
+      wideformat(
+        _("{} scores for Bravo Team"),
+        (SpriteSystem::Get().GetSprite(pmsg_serverflaginfo(netmessage->packet)->who).player->name)),
+      bravo_message_color);
     playsound(SfxEffect::ctf);
     if (GS::GetGame().GetTeamFlag(1) > 0)
       things[GS::GetGame().GetTeamFlag(1)].respawn();

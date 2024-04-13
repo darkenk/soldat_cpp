@@ -155,8 +155,8 @@ bool verifypacket(std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t
   if (CVar::log_level > 1)
   {
     GS::GetMainConsole().console("[NET] Received Packet (" + inttostr(PacketId) +
-                               ") Size:" + inttostr(ReceiveSize) + Dropped,
-                             debug_message_color);
+                                   ") Size:" + inttostr(ReceiveSize) + Dropped,
+                                 debug_message_color);
   }
   return Result;
 }
@@ -177,8 +177,8 @@ bool verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
   if (CVar::log_level > 1)
   {
     GS::GetMainConsole().console("[NET] Received Packet (" + inttostr(PacketId) +
-                               ") Size:" + inttostr(ReceiveSize) + Dropped,
-                             debug_message_color);
+                                   ") Size:" + inttostr(ReceiveSize) + Dropped,
+                                 debug_message_color);
   }
   return Result;
 }

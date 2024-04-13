@@ -62,8 +62,8 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
   {
     auto msg = iif(msgtype == msgtype_team, std::string("(TEAM)"), std::string(""));
     GS::GetMainConsole().console(msg + "[" + SpriteSystem::Get().GetSprite(from).player->name +
-                                     "] " + text,
-                                   teamchat_message_color);
+                                   "] " + text,
+                                 teamchat_message_color);
   }
 }
 
@@ -121,7 +121,7 @@ void serverhandlechatmessage(tmsgheader* netmessage, std::int32_t size, NetworkS
       return;
 #endif
     GS::GetMainConsole().console(cs + "(" + (player->ip) + "[" + (player->name) + "]" + ")",
-                                   default_message_color);
+                                 default_message_color);
     parseinput(std::string(cs), player->spritenum);
     return;
   }

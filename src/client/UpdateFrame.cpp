@@ -286,9 +286,9 @@ void update_frame()
           if (game.GetMapchangecounter() == -60)
           {
             GS::GetMainConsole().console(_("Time Left:") + ' ' +
-                                       (inttostr(game.GetTimelimitcounter() / 60)) + ' ' +
-                                       _("seconds"),
-                                     game_message_color);
+                                           (inttostr(game.GetTimelimitcounter() / 60)) + ' ' +
+                                           _("seconds"),
+                                         game_message_color);
             playsound(SfxEffect::signal);
           }
         }
@@ -298,9 +298,9 @@ void update_frame()
         if (game.GetTimelimitcounter() % 600 == 0)
         {
           GS::GetMainConsole().console(_("Time Left:") + ' ' +
-                                     (inttostr(game.GetTimelimitcounter() / 60)) + ' ' +
-                                     _("seconds"),
-                                   game_message_color);
+                                         (inttostr(game.GetTimelimitcounter() / 60)) + ' ' +
+                                         _("seconds"),
+                                       game_message_color);
           playsound(SfxEffect::signal);
         }
       }
@@ -309,18 +309,18 @@ void update_frame()
         if (game.GetTimelimitcounter() % 3600 == 0)
         {
           GS::GetMainConsole().console(_("Time Left:") + ' ' +
-                                     (inttostr(game.GetTimelimitcounter() / 3600)) + ' ' +
-                                     _("minutes"),
-                                   game_message_color);
+                                         (inttostr(game.GetTimelimitcounter() / 3600)) + ' ' +
+                                         _("minutes"),
+                                       game_message_color);
           playsound(SfxEffect::signal);
         }
       }
       else if (game.GetTimelimitcounter() % 18000 == 0)
       {
         GS::GetMainConsole().console(_("Time Left:") + ' ' +
-                                   (inttostr(game.GetTimelimitcounter() / 3600)) + ' ' +
-                                   _("minutes"),
-                                 game_message_color);
+                                       (inttostr(game.GetTimelimitcounter() / 3600)) + ' ' +
+                                       _("minutes"),
+                                     game_message_color);
         playsound(SfxEffect::signal);
       }
     }
@@ -347,21 +347,8 @@ void update_frame()
       shotdistanceshow = shotdistanceshow - 1;
 
     // Consoles Update
-    GS::GetMainConsole().scrolltick = GS::GetMainConsole().scrolltick + 1;
-    if (GS::GetMainConsole().scrolltick == GS::GetMainConsole().scrolltickmax)
-      GS::GetMainConsole().scrollconsole();
-
-    if (GS::GetMainConsole().alphacount > 0)
-      GS::GetMainConsole().alphacount = GS::GetMainConsole().alphacount - 1;
-
-    GetKillConsole().scrolltick = GetKillConsole().scrolltick + 1;
-    if (GetKillConsole().scrolltick == GetKillConsole().scrolltickmax)
-    {
-      GetKillConsole().scrollconsole();
-      if ((GetKillConsole().count > 0) &&
-          (GetKillConsole().nummessage[GetKillConsole().count] == -255))
-        GetKillConsole().scrollconsole();
-    }
+    GS::GetMainConsole().UpdateMainConsole();
+    GetKillConsole().UpdateKillConsole();
 
     if (chattimecounter > 0)
       chattimecounter = chattimecounter - 1;

@@ -507,8 +507,8 @@ void loadsounds(const string &moddir)
     {
       samp[i] = loadsample((sfxpath + sample_files[i].data()), samp[i]);
       if (!samp[i].loaded)
-        GS::GetMainConsole().console(string("Unable to load file ") + sfxpath + sample_files[i].data(),
-                                 debug_message_color);
+        GS::GetMainConsole().console(
+          string("Unable to load file ") + sfxpath + sample_files[i].data(), debug_message_color);
     }
   }
 }

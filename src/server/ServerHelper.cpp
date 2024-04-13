@@ -375,7 +375,7 @@ void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
     thebot = randombot();
     parseinput(std::string("addbot2 ") + thebot, 1);
     GS::GetMainConsole().console(thebot + " has joined bravo team. (Bot Balance)",
-                                   enter_message_color);
+                                 enter_message_color);
     return;
   }
   if (teams[2] > teams[1])
@@ -383,7 +383,7 @@ void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
     thebot = randombot();
     parseinput(std::string("addbot1 ") + thebot, 1);
     GS::GetMainConsole().console(thebot + " has joined alpha team. (Bot Balance)",
-                                   enter_message_color);
+                                 enter_message_color);
     return;
   }
 }

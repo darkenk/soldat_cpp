@@ -1458,40 +1458,27 @@ void renderfragsmenutexts(float fragmenubottom)
 
 void renderconsoletexts(float w)
 {
-  std::int32_t i;
-  float l;
-  std::uint8_t alpha;
-  Console<Config::CLIENT_MODULE> *console;
-  bool tiny;
+  auto *console = chattext != "" ? &GetBigConsole() : &GS::GetMainConsole();
 
   setfontstyle(font_small);
 
-  if (chattext != "")
-  {
-    console = &GetBigConsole();
-  }
-  else
-  {
-    console = &GS::GetMainConsole();
-  }
-
-  l = CVar::font_consolelineheight * pixelsize.y * fontstylesize(font_small);
-  alpha = 255;
-  tiny = false;
+  float l = CVar::font_consolelineheight * pixelsize.y * fontstylesize(font_small);
+  std::uint8_t alpha = 255;
+  bool tiny = false;
 
   if (fragsmenushow || statsmenushow or teammenu->active or
       ((console == &GetBigConsole()) && limbomenu->active) or
       ((console == &GS::GetMainConsole()) && escmenu->active && noobshow))
     alpha = 60;
 
-  for (i = 1; i <= console->count; i++)
+  for (std::int32_t i = 1; i <= console->GetCount(); i++)
   {
-    if (console->textmessage[i] == "")
+    if (console->GetTextMessage(i) == "")
       continue;
 
-    gfxtextcolor(rgba(console->textmessagecolor[i], alpha));
+    gfxtextcolor(rgba(console->GetTextMessageColor(i), alpha));
 
-    if ((rectwidth(gfxtextmetrics(console->textmessage[i])) > (w - 10)) != tiny)
+    if ((rectwidth(gfxtextmetrics(console->GetTextMessage(i))) > (w - 10)) != tiny)
     {
       tiny = !tiny;
 
@@ -1500,7 +1487,7 @@ void renderconsoletexts(float w)
       else
         setfontstyle(font_small);
 
-      gfxdrawtext(console->textmessage[i], 5, 1 + (i - 1) * l);
+      gfxdrawtext(console->GetTextMessage(i), 5, 1 + (i - 1) * l);
     }
     else
       gfxdrawtext(5, 1 + (i - 1) * l);
@@ -1509,14 +1496,9 @@ void renderconsoletexts(float w)
 
 void renderkillconsoletexts(float w)
 {
-  std::int32_t i;
-  std::uint8_t alpha;
-  bool tiny;
-  float x, y, dy;
-
-  alpha = 245;
-  tiny = false;
-  dy = 0;
+  std::uint8_t alpha = 245;
+  bool tiny = false;
+  float dy = 0;
 
   setfontstyle(font_weapons_menu);
 
@@ -1529,15 +1511,15 @@ void renderkillconsoletexts(float w)
       alpha = 180;
   }
 
-  for (i = 1; i <= GetKillConsole().count; i++)
+  for (std::int32_t i = 1; i <= GetKillConsole().GetCount(); i++)
   {
-    if (GetKillConsole().textmessage[i] == "")
+    if (GetKillConsole().GetTextMessage(i) == "")
       continue;
 
-    if (GetKillConsole().nummessage[i] > -255)
+    if (GetKillConsole().GetNumMessage(i) > -255)
       dy = dy + killconsole_separate_height;
 
-    if ((length(GetKillConsole().textmessage[i]) > 14) != tiny)
+    if ((length(GetKillConsole().GetTextMessage(i)) > 14) != tiny)
     {
       tiny = !tiny;
 
@@ -1547,10 +1529,10 @@ void renderkillconsoletexts(float w)
         setfontstyle(font_weapons_menu);
     }
 
-    x = 595 * _iscala.x - rectwidth(gfxtextmetrics(GetKillConsole().textmessage[i]));
-    y = 60 + (i - 1) * (CVar::font_weaponmenusize + 2) + dy;
+    float x = 595 * _iscala.x - rectwidth(gfxtextmetrics(GetKillConsole().GetTextMessage(i)));
+    float y = 60 + (i - 1) * (CVar::font_weaponmenusize + 2) + dy;
 
-    gfxtextcolor(rgba(GetKillConsole().textmessagecolor[i], alpha));
+    gfxtextcolor(rgba(GetKillConsole().GetTextMessageColor(i), alpha));
     gfxdrawtext(x, y);
   }
 }
@@ -2406,11 +2388,11 @@ void renderinterface(float timeelapsed, float width, float height)
       }
 
       l2 = 0;
-      for (j = 1; j <= GetKillConsole().count; j++)
+      for (j = 1; j <= GetKillConsole().GetCount(); j++)
       {
-        if (GetKillConsole().textmessage[j] > "")
+        if (GetKillConsole().GetTextMessage(j) > "")
         {
-          if (GetKillConsole().nummessage[j] > -255)
+          if (GetKillConsole().GetNumMessage(j) > -255)
           {
             x = 605;
             y = (j - 1) * (CVar::font_weaponmenusize + 2) + 59;
@@ -2422,7 +2404,7 @@ void renderinterface(float timeelapsed, float width, float height)
             _scala.x = 0.8;
             _scala.y = 0.8;
 
-            gfxdrawsprite(t[GetKillConsole().nummessage[j]], x, y, _scala.x, _scala.y,
+            gfxdrawsprite(t[GetKillConsole().GetNumMessage(j)], x, y, _scala.x, _scala.y,
                           rgba(0xffffff, alfa));
           }
         }

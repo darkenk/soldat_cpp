@@ -189,16 +189,12 @@ void ActivateServer(int argc, const char *argv[])
   }
 
   // Create Consoles
-  GS::GetMainConsole().countmax = 7;
-  GS::GetMainConsole().scrolltickmax = 150;
-  GS::GetMainConsole().newmessagewait = 150;
-  GS::GetMainConsole().alphacount = 255;
+  auto console = std::make_unique<Console<Config::GetModule()>>(150, 7, 150);
+  GS::SetMainConsole(std::move(console));
+  SoldatAssert(GS::GetMainConsole().GetNewMessageWait() == 150);
+  SoldatAssert(GS::GetMainConsole().GetAlphaCount() == 255);
 
   NotImplemented("Who cares about colors?");
-#if 0
-    if GetEnvironmentVariable ("COLORTERM")
-        != "" then GS::GetMainConsole().TerminalColors = true;
-#endif
 
   NotImplemented("No cvarinit");
 #if 0
@@ -495,7 +491,7 @@ std::int8_t addbotplayer(const std::string& name, std::int32_t team)
   if (GS::GetGame().GetPlayersNum() == max_players)
   {
     GS::GetMainConsole().console("Bot cannot be added because server is full",
-                                   warning_message_color);
+                                 warning_message_color);
     return Result;
   }
 
@@ -550,9 +546,9 @@ std::int8_t addbotplayer(const std::string& name, std::int32_t team)
     TempStr = "as spectator";
     break;
   }
-  GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(p).player->name + " " +
-                                   "has joined " + TempStr + ".",
-                                 enter_message_color);
+  GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(p).player->name + " " + "has joined " +
+                                 TempStr + ".",
+                               enter_message_color);
 
 #ifdef SCRIPT
   ScrptDispatcher.OnJoinTeam(p, SpriteSystem::Get().GetSprite(p).Player.Team,
@@ -659,7 +655,7 @@ void startserver()
     if (not map.loadmap(GS::GetFileSystem(), StartMap))
     {
       GS::GetMainConsole().console("Could Error not load map " + StartMap.name,
-                                     debug_message_color);
+                                   debug_message_color);
       Abort();
       return;
     }
@@ -935,8 +931,8 @@ void nextmap()
   if (mapslist.size() < 1)
   {
     GS::GetMainConsole().console("Can"
-                                   "t load maps from mapslist",
-                                   game_message_color);
+                                 "t load maps from mapslist",
+                                 game_message_color);
   }
   else
   {
@@ -1055,8 +1051,8 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
         isadminip(SpriteSystem::Get().GetSprite(i).player->ip))
     {
       GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                       " is admin and cannot be kicked.",
-                                     client_message_color);
+                                     " is admin and cannot be kicked.",
+                                   client_message_color);
       return Result;
     }
   }
@@ -1071,28 +1067,28 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
       break;
     case 1:
       GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                       " has left alpha team.",
-                                     alphaj_message_color);
+                                     " has left alpha team.",
+                                   alphaj_message_color);
       break;
     case 2:
       GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                       " has left bravo team.",
-                                     bravoj_message_color);
+                                     " has left bravo team.",
+                                   bravoj_message_color);
       break;
     case 3:
       GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                       " has left charlie team.",
-                                     charliej_message_color);
+                                     " has left charlie team.",
+                                   charliej_message_color);
       break;
     case 4:
       GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                       " has left delta team.",
-                                     deltaj_message_color);
+                                     " has left delta team.",
+                                   deltaj_message_color);
       break;
     case 5:
       GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                       " has left spectators",
-                                     deltaj_message_color);
+                                     " has left spectators",
+                                   deltaj_message_color);
       break;
     }
   }
@@ -1131,8 +1127,8 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
     }
     else
       GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
-                                       " has been kicked and permanently banned (" + Reason + ")",
-                                     client_message_color);
+                                     " has been kicked and permanently banned (" + Reason + ")",
+                                   client_message_color);
   }
 
   savetxtlists();

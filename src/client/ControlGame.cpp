@@ -298,15 +298,15 @@ bool keydown(SDL_KeyboardEvent &keyevent)
         {
           clientsendstringmessage(std::string("votemap ") + (game.GetVoteTarget()), msgtype_cmd);
           GS::GetMainConsole().console(wideformat(_("You have voted on " + game.GetVoteTarget())),
-                                   vote_message_color);
+                                       vote_message_color);
         }
         else if (game.GetVoteType() == vote_kick)
         {
           i = strtoint(game.GetVoteTarget());
           clientvotekick(i, true, "");
           GS::GetMainConsole().console(wideformat(_("You have voted to kick " +
-                                                SpriteSystem::Get().GetSprite(i).player->name)),
-                                   vote_message_color);
+                                                    SpriteSystem::Get().GetSprite(i).player->name)),
+                                       vote_message_color);
         }
       }
     }
@@ -525,7 +525,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
         volumeinternal = scalevolumesetting(CVar::snd_volume);
         setvolume(-1, volumeinternal);
         GS::GetMainConsole().console(std::string("Volume: ") + inttostr(CVar::snd_volume) + "%",
-                                 music_message_color);
+                                     music_message_color);
       }
     }
   }

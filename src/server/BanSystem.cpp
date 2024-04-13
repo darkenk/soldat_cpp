@@ -167,8 +167,8 @@ void updateipbanlist()
       if ((bannediplist[j].time == 0) && !(bannediplist[j].time == permanent))
       {
         GS::GetMainConsole().console(std::string("IP number ") + bannediplist[j].ip + " (" +
-                                         bannediplist[j].reason + ") unbanned",
-                                       client_message_color);
+                                       bannediplist[j].reason + ") unbanned",
+                                     client_message_color);
         delbannedip(bannediplist[j].ip);
         savetxtlists();
       }
@@ -326,8 +326,8 @@ void updatehwbanlist()
       if ((bannedhwlist[j].time == 0) && !(bannedhwlist[j].time == permanent))
       {
         GS::GetMainConsole().console(std::string("Hardware ID ") + bannedhwlist[j].hw + " (" +
-                                         bannedhwlist[j].reason + ") unbanned",
-                                       client_message_color);
+                                       bannedhwlist[j].reason + ") unbanned",
+                                     client_message_color);
         delbannedhw(bannedhwlist[j].hw);
         savetxtlists();
       }

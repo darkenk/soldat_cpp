@@ -47,6 +47,12 @@ public:
     return *GlobalSystems::Get().MainConsoleObject;
   }
 
+  static void SetMainConsole(std::unique_ptr<Console<M>>&& console)
+  {
+    GlobalSystems::Get().MainConsoleObject = std::move(console);
+  }
+
+
   static FileUtility &GetFileSystem()
   {
     return *GlobalSystems::Get().FileUtilityObject;

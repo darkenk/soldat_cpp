@@ -268,9 +268,9 @@ void Game<M>::startvote(std::uint8_t startervote, std::uint8_t typevote, std::st
       if (VoteType == vote_kick)
       {
         GS::GetMainConsole().console(("You have voted to kick ") +
-                                   (SpriteSystem::Get().GetSprite(kickmenuindex).player->name) +
-                                   (" from the game"),
-                                 vote_message_color);
+                                       (SpriteSystem::Get().GetSprite(kickmenuindex).player->name) +
+                                       (" from the game"),
+                                     vote_message_color);
         VoteActive = false;
         NotImplemented("network", "No clientvotekick");
 #if 0
@@ -325,7 +325,7 @@ void Game<M>::timervote()
 #ifdef SERVER
           "No map has been voted",
 #else
-        ("No map has been voted"),
+          ("No map has been voted"),
 #endif
           vote_message_color);
       stopvote();

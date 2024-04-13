@@ -72,7 +72,7 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
   {
     if (addiptoremoteadmins(player->ip))
       GS::GetMainConsole().console(player->ip + " added to Game Admins via Request password",
-                                     server_message_color);
+                                   server_message_color);
     state = ok;
   }
   else
@@ -236,9 +236,8 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   } while (!playernameunused);
 
   GS::GetMainConsole().console(finalplayername + " joining game (" + player->ip + ':' +
-                                   inttostr(player->port) + ") HWID:" +
-                                   player->hwid,
-                                 server_message_color);
+                                 inttostr(player->port) + ") HWID:" + player->hwid,
+                               server_message_color);
 
   // Set a network name for debugging purposes
   GetServerNetwork()->SetConnectionName(player->peer, finalplayername);
@@ -414,14 +413,13 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
     break;
   case team_charlie:
     GS::GetMainConsole().console(player->name + " has joined charlie team.",
-                                   charliej_message_color);
+                                 charliej_message_color);
     break;
   case team_delta:
     GS::GetMainConsole().console(player->name + " has joined delta team.", deltaj_message_color);
     break;
   case team_spectator:
-    GS::GetMainConsole().console(player->name + " has joined as spectator.",
-                                   deltaj_message_color);
+    GS::GetMainConsole().console(player->name + " has joined as spectator.", deltaj_message_color);
     break;
   }
 

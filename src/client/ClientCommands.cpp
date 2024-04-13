@@ -169,8 +169,8 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
   for (i = 0; i <= high(targets); i++)
   {
     SpriteSystem::Get().GetSprite(targets[i]).muted = true;
-    GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name + " is muted",
-                             client_message_color);
+    GS::GetMainConsole().console(
+      SpriteSystem::Get().GetSprite(targets[i]).player->name + " is muted", client_message_color);
   }
 }
 
@@ -195,8 +195,8 @@ void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
   for (i = 0; i <= high(targets); i++)
   {
     SpriteSystem::Get().GetSprite(targets[i]).muted = false;
-    GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name + " is unmuted",
-                             client_message_color);
+    GS::GetMainConsole().console(
+      SpriteSystem::Get().GetSprite(targets[i]).player->name + " is unmuted", client_message_color);
   }
 }
 

@@ -112,8 +112,8 @@ void clienthandlechatmessage(NetworkContext *netmessage)
       prefix + "[" + (SpriteSystem::Get().GetSprite(i).player->name) + "] " + cs, col);
   else
   {
-    GS::GetMainConsole().console(prefix + "[" + (SpriteSystem::Get().GetSprite(i).player->name) + "] ",
-                             col);
+    GS::GetMainConsole().console(
+      prefix + "[" + (SpriteSystem::Get().GetSprite(i).player->name) + "] ", col);
     GS::GetMainConsole().console(std::string(" ") + cs, col);
   }
 
