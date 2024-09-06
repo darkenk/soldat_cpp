@@ -12,11 +12,9 @@
 void serverthingsnapshot(std::uint8_t tonum)
 {
   tmsg_serverthingsnapshot thingmsg;
-  std::int32_t i, j;
-  bool send;
   auto &things = GS::GetThingSystem().GetThings();
 
-  for (i = 1; i <= max_things; i++)
+  for (std::int32_t i = 1; i <= max_things; i++)
   {
     auto &thing = things[i];
     if ((thing.active) && (thing.style != object_parachute) &&
@@ -28,7 +26,7 @@ void serverthingsnapshot(std::uint8_t tonum)
       thingmsg.header.id = msgid_serverthingsnapshot;
       // assign thing values to ThingMsg
       thingmsg.num = i;
-      for (j = 1; j <= 4; j++)
+      for (std::int32_t j = 1; j <= 4; j++)
       {
         [[deprecated("indexing")]] auto jminus1 = j - 1;
         thingmsg.pos[jminus1].x = thing.skeleton.pos[j].x;
@@ -42,7 +40,7 @@ void serverthingsnapshot(std::uint8_t tonum)
       thingmsg.holdingsprite = thing.holdingsprite;
 
       // send only if moving
-      send = false;
+      bool send = false;
       if ((distance(thingmsg.pos[0].x, thingmsg.pos[0].y, thingmsg.oldpos[0].x,
                     thingmsg.oldpos[0].y) > minmovedelta) ||
           (distance(thingmsg.pos[1].x, thingmsg.pos[1].y, thingmsg.oldpos[1].x,

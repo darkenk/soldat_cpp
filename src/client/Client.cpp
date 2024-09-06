@@ -50,8 +50,6 @@ std::string joinpassword;         // server password
 std::string joinport = "23073";   // join port to server
 std::string joinip = "127.0.0.1"; // join ip to server
 
-std::uint8_t initing;
-
 std::string basedirectory;
 
 std::string moddir = "";
@@ -424,15 +422,11 @@ void startgame(int argc, const char *argv[])
 
   newlogfiles(fs);
 
-  float fov;
-  SDL_DisplayMode currentdisplay;
   std::string systemlang = "en_US";
   std::string systemfallbacklang = "en_US";
 
   // TODO remove HWIDs, replace by Fae auth tickets
   hwid = "00000000000";
-
-  initing = 0;
 
   LogDebugG("[FS] Initializing system");
 
@@ -454,7 +448,8 @@ void startgame(int argc, const char *argv[])
   renderheight = CVar::r_renderheight;
   renderwidth = CVar::r_renderwidth;
 
-  SDL_Init(SDL_INIT_VIDEO);
+  SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+  SDL_DisplayMode currentdisplay;
   SDL_GetCurrentDisplayMode(0, &currentdisplay);
 
   if ((screenwidth == 0) || (screenheight == 0))
@@ -470,7 +465,7 @@ void startgame(int argc, const char *argv[])
   }
 
   // Calculcate FOV to check for too high/low vision
-  fov = (float)(renderwidth) / renderheight;
+  float fov = (float)(renderwidth) / renderheight;
   if (fov > max_fov)
   {
     renderwidth = ceil(renderheight * max_fov);
@@ -499,13 +494,6 @@ void startgame(int argc, const char *argv[])
   // window size equals "screen" size except in windowed fullscreen
   windowwidth = screenwidth;
   windowheight = screenheight;
-
-  if (CVar::r_fullscreen == 2)
-  {
-    ;
-    //  WindowWidth := Screen.Width;
-    //  WindowHeight := Screen.Height;
-  }
 
   LogInfo("gfx", "Window size: {}x{}", windowwidth, windowheight);
   LogInfo("gfx", "Target resolution: {}x{}", screenwidth, screenheight);
@@ -726,10 +714,6 @@ void startgameloop()
 void joinserver()
 {
   resetframetiming();
-
-  initing += 1;
-  if (initing > 10)
-    initing = 10;
 
   gClientServerIP = trim(joinip);
 

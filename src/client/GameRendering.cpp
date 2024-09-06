@@ -421,8 +421,6 @@ string getfontpath(string fallback, string &fontfile)
 
 void loadfonts()
 {
-  float s;
-  std::int32_t i, w, h;
   std::array<string, 2> fontfile, fontpath;
 
   fontfile[0] = CVar::font_1_filename;
@@ -437,9 +435,9 @@ void loadfonts()
     shutdown();
   }
 
-  w = renderwidth;
-  h = renderheight;
-  s = iif(CVar::r_scaleinterface, (float)(renderheight) / gameheight, 1.0f);
+  const std::int32_t w = renderwidth;
+  const std::int32_t h = renderheight;
+  const float s = iif(CVar::r_scaleinterface, (float)(renderheight) / gameheight, 1.0f);
 
   fonts[0] = gfxcreatefont(fontpath[0], npot(w / 2), npot(h / 2));
   fonts[1] = gfxcreatefont(fontpath[1], npot(w / 3), npot(h / 3));
@@ -481,7 +479,7 @@ void loadfonts()
   fontstyles[font_world].stretch = (float)(CVar::font_1_scale) / 100;
   fontstyles[font_world].flags = 0;
 
-  for (i = 0; i < fontstyles.size(); i++)
+  for (std::int32_t i = 0; i < fontstyles.size(); i++)
   {
     if (fontstyles[i].size < 10)
       fontstyles[i].flags = gfx_monochrome;
@@ -493,12 +491,9 @@ void loadfonts()
 
 bool initgamegraphics()
 {
-  std::uint32_t windowflags;
-  SDL_RWops *iconfile;
   std::vector<std::uint8_t> filebuffer;
 
-  bool result;
-  result = true;
+  bool result = true;
 
   if (initialized)
   {
@@ -512,7 +507,7 @@ bool initgamegraphics()
     return result;
   }
 
-  windowflags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
+  std::uint32_t windowflags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
 
   if (CVar::r_fullscreen == 2)
     windowflags = windowflags | SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -527,7 +522,7 @@ bool initgamegraphics()
   auto& fs = GS::GetFileSystem();
   filebuffer = fs.ReadFile("/icon.bmp");
 
-  iconfile = SDL_RWFromMem(&filebuffer[0], length(filebuffer));
+  SDL_RWops *iconfile = SDL_RWFromMem(&filebuffer[0], length(filebuffer));
 
   IconSurface = SDL_LoadBMP_RW(iconfile, 1);
 
