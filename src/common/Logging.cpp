@@ -23,7 +23,7 @@ void InitLogging()
 
   {
     auto log = spdlog::stdout_color_mt("net_msg");
-    log->set_level(spdlog::level::info);
+    log->set_level(spdlog::level::debug);
   }
 
   {

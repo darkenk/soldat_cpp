@@ -568,15 +568,15 @@ void clienthandlespritedeath(NetworkContext *netmessage)
 
   if (deathsnap->killer != i)
   {
-    GetKillConsole().ConsoleNum(
+    GetKillConsole().ConsoleAdd(
       (SpriteSystem::Get().GetSprite(deathsnap->killer).player->name) + " (" +
         (inttostr(SpriteSystem::Get().GetSprite(deathsnap->killer).player->kills)) + ')',
       col, k);
-    GetKillConsole().ConsoleNum((sprite.player->name), col2, -255);
+    GetKillConsole().ConsoleAdd((sprite.player->name), col2, -255);
   }
   else
   {
-    GetKillConsole().ConsoleNum(
+    GetKillConsole().ConsoleAdd(
       (SpriteSystem::Get().GetSprite(deathsnap->killer).player->name) + " (" +
         (inttostr(SpriteSystem::Get().GetSprite(deathsnap->killer).player->kills)) + ')',
       spectator_d_message_color, k);

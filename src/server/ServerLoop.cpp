@@ -628,7 +628,7 @@ void updateframe()
     GS::GetGame().timervote();
 
     // Consoles Update
-    GS::GetMainConsole().UpdateMainConsole();
+    GS::GetMainConsole().Update();
 
     if (!CVar::sv_advancemode)
       for (j = 1; j <= max_sprites; j++)

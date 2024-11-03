@@ -52,7 +52,7 @@ std::string joinip = "127.0.0.1"; // join ip to server
 
 std::string basedirectory;
 
-std::string moddir = "";
+std::string moddir;
 bool usesservermod;
 
 std::string gClientServerIP = "127.0.0.1";
@@ -369,19 +369,25 @@ static bool MountAssets(FileUtility &fu, const std::string &userdirectory,
   return true;
 }
 
-static void InitConsoles()
+// TODO: throw away test variable
+static void InitConsoles(bool test = false)
 {
   // Create Consoles
-  auto console = std::make_unique<Console<Config::GetModule()>>(150,
+  auto console = std::make_unique<ConsoleMain<Config::GetModule()>>(&GS::GetFileSystem(), 150,
     round(CVar::ui_console_length * _rscala.y), 150);
-  SoldatAssert(GS::GetMainConsole().GetAlphaCount() == 255);
   GS::SetMainConsole(std::move(console));
 
-  InitBigConsole(
-    0, floor((0.85 * renderheight) / (CVar::font_consolelineheight * fontstylesize(font_small))),
-    1500000);
+  auto countMax = floor((0.85 * renderheight) / (CVar::font_consolelineheight * fontstylesize(font_small)));
+  if (test)
+  {
+    countMax = 20;
+  }
 
-  InitKillConsole(70, round(CVar::ui_killconsole_length * _rscala.y), 240);
+  InitBigConsole(&GS::GetFileSystem(),0, countMax, 1500000);
+  GS::GetMainConsole().SetBigConsole(&GetBigConsole());
+
+  InitKillConsole(&GS::GetFileSystem(), 70, round(CVar::ui_killconsole_length * _rscala.y), 240);
+
 }
 
 void startgame(int argc, const char *argv[])
@@ -585,7 +591,6 @@ void startgame(int argc, const char *argv[])
   addlinetologfile(fs, GetGameLog(), "Creating network interface.", GetGameLogFilename());
 
   InitConsoles();
-
   // Create static player objects
   for (auto &s : SpriteSystem::Get().GetSprites())
   {
@@ -883,19 +888,20 @@ TEST_SUITE("Client")
   TEST_CASE_FIXTURE(ClientFixture, "Test console initialization")
   {
     GlobalSystems<Config::CLIENT_MODULE>::Init();
-    InitConsoles();
+    auto prev_y = _rscala.y;
+    _rscala.y = 1;
+    InitConsoles(true);
+    _rscala.y = prev_y;
     const auto& console = GS::GetMainConsole();
     //CHECK_EQ(0, console.countmax);
     //CHECK_EQ(150, console.scrolltickmax);
     CHECK_EQ(150, console.GetNewMessageWait());
-    CHECK_EQ(255, console.GetAlphaCount());
     CHECK_EQ(0, console.GetCount());
 
     const auto& big = GetBigConsole();
     //CHECK_EQ(0, big.countmax); todo countmax in tests
     //CHECK_EQ(1500000, big.scrolltickmax);
     CHECK_EQ(0, big.GetNewMessageWait());
-    CHECK_EQ(255, big.GetAlphaCount());
     CHECK_EQ(0, big.GetCount());
 
     const auto& kill = GetKillConsole();

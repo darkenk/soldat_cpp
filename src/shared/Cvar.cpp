@@ -485,6 +485,12 @@ TEST_CASE_FIXTURE(CVarFixture, "FindCreatedCVar")
   CHECK_EQ(12, ref);
 }
 
+TEST_CASE_FIXTURE(CVarFixture, "CheckMemoryCorruptionIfCVarDoesNotExist")
+{
+  auto &ref = CVarInt::Find("non_exsisting_cvar");
+  CHECK_EQ(false, ref.IsValid());
+}
+
 TEST_CASE_FIXTURE(CVarFixture, "DoNotCreateCVarTwice")
 {
   CVarInt test{"test1", "some test description", CVarFlags::NONE, 12};

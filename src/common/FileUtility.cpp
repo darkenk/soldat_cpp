@@ -281,6 +281,13 @@ bool FileUtility::Mount(const std::string_view item, const std::string_view moun
   return e;
 }
 
+void FileUtility::Unmount(const std::string_view item)
+{
+  auto e = PHYSFS_unmount(item.data());
+  SoldatAssert(e != 0);
+}
+
+
 FileUtility::File *FileUtility::Open(const std::string_view path, FileUtility::FileMode fm)
 {
   PHYSFS_File *f = nullptr;

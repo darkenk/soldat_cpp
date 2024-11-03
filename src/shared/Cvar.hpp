@@ -104,8 +104,8 @@ public:
 
   static CVarBase &Find(const std::uint8_t id) noexcept
   {
-    auto it = std::find_if(CVars.begin(), CVars.end(),
-                           [id](const auto &cv) { return cv.second->Id == id; });
+    auto pred = [id](const auto &cv) -> bool { return cv.second->Id == id; };
+    auto it = std::find_if(std::begin(CVars), std::end(CVars), pred);
     if (it == std::end(CVars))
     {
       return InvalidCVar;
@@ -194,8 +194,8 @@ private:
   T Value;
   const std::string Name;
   const std::string Description;
-  FlagSet<CVarFlags> Flags;
   std::uint8_t Id;
+  FlagSet<CVarFlags> Flags;
 
   using Map = std::map<const std::string, CVarBase *>;
 

@@ -347,8 +347,8 @@ void update_frame()
       shotdistanceshow = shotdistanceshow - 1;
 
     // Consoles Update
-    GS::GetMainConsole().UpdateMainConsole();
-    GetKillConsole().UpdateKillConsole();
+    GS::GetMainConsole().Update();
+    GetKillConsole().Update(true);
 
     if (chattimecounter > 0)
       chattimecounter = chattimecounter - 1;

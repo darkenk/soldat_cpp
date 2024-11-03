@@ -42,12 +42,12 @@ public:
     return *GlobalSystems::Get().ThingSystemObject;
   }
 
-  static Console<M> &GetMainConsole()
+  static ConsoleMain<M> &GetMainConsole()
   {
     return *GlobalSystems::Get().MainConsoleObject;
   }
 
-  static void SetMainConsole(std::unique_ptr<Console<M>>&& console)
+  static void SetMainConsole(std::unique_ptr<ConsoleMain<M>>&& console)
   {
     GlobalSystems::Get().MainConsoleObject = std::move(console);
   }
@@ -71,7 +71,7 @@ private:
   std::unique_ptr<BulletSystem> BulletSystemObject;
   std::unique_ptr<ThingSystem> ThingSystemObject;
   std::unique_ptr<FileUtility> FileUtilityObject;
-  std::unique_ptr<Console<M>> MainConsoleObject;
+  std::unique_ptr<ConsoleMain<M>> MainConsoleObject;
 };
 
 using GS = GlobalSystems<Config::GetModule()>;

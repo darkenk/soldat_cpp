@@ -78,6 +78,7 @@ TestEntry=1.0
     FS.Close(f);
   }
   ~TFileStreamFixture() {
+    FS.Unmount("tmpfs.memory");
   }
 
 protected:
