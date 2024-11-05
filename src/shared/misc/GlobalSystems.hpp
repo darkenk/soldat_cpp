@@ -10,13 +10,19 @@
 #include "shared/mechanics/ThingSystem.hpp"
 #include "shared/Console.hpp"
 #include <memory>
+#include <type_traits>
 
 class FileUtility;
+class ConsoleMain;
+template<Config::Module>
+class ConsoleServer;
 
 template <Config::Module M>
 class GlobalSystems final : public GlobalSubsystem<GlobalSystems<M>>
 {
 public:
+  using ConsoleType = typename std::conditional_t<Config::IsClient(M), ConsoleMain, ConsoleServer<M>>;
+
   static WeaponSystem &GetWeaponSystem()
   {
     return *GlobalSystems::Get().WeaponSystemObject;
@@ -42,22 +48,20 @@ public:
     return *GlobalSystems::Get().ThingSystemObject;
   }
 
-  static ConsoleMain<M> &GetMainConsole()
+  static ConsoleType &GetMainConsole()
   {
     return *GlobalSystems::Get().MainConsoleObject;
   }
 
-  static void SetMainConsole(std::unique_ptr<ConsoleMain<M>>&& console)
+  static void SetMainConsole(std::unique_ptr<ConsoleType>&& console)
   {
     GlobalSystems::Get().MainConsoleObject = std::move(console);
   }
-
 
   static FileUtility &GetFileSystem()
   {
     return *GlobalSystems::Get().FileUtilityObject;
   }
-
 
 protected:
   GlobalSystems();
@@ -71,7 +75,7 @@ private:
   std::unique_ptr<BulletSystem> BulletSystemObject;
   std::unique_ptr<ThingSystem> ThingSystemObject;
   std::unique_ptr<FileUtility> FileUtilityObject;
-  std::unique_ptr<ConsoleMain<M>> MainConsoleObject;
+  std::unique_ptr<ConsoleType> MainConsoleObject;
 };
 
 using GS = GlobalSystems<Config::GetModule()>;

@@ -17,7 +17,8 @@ GlobalSystems<M>::GlobalSystems()
   {
     FileUtilityObject = std::make_unique<FileUtility>("/client");
   }
-  MainConsoleObject = std::make_unique<ConsoleMain<M>>();
+  MainConsoleObject = std::make_unique<ConsoleType>();
+
   SpriteSystem::Init();
   AnimationSystem::Init();
   ThingSystemObject = std::make_unique<ThingSystem>();

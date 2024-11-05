@@ -10,6 +10,7 @@ set(SRC
     port_utils/NotImplemented.cpp
     Anims.cpp
     Calc.cpp
+    Console.cpp
     DefaultFont.cpp
     FileUtility.cpp
     Logging.cpp

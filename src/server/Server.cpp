@@ -189,7 +189,7 @@ void ActivateServer(int argc, const char *argv[])
   }
 
   // Create Consoles
-  auto console = std::make_unique<ConsoleMain<Config::GetModule()>>(&GS::GetFileSystem(), 150, 7, 150);
+  auto console = std::make_unique<ConsoleServer<Config::GetModule()>>(&GS::GetFileSystem(), 150, 7, 150);
   GS::SetMainConsole(std::move(console));
   SoldatAssert(GS::GetMainConsole().GetNewMessageWait() == 150);
 

@@ -9,128 +9,43 @@
 #include <locale>
 
 template <Config::Module M>
-void Console<M>::ScrollConsole()
-{
-  mScrollTick = 0;
-  if (mCount < 0)
-  {
-    return;
-  }
-  for (std::int32_t x = 0; x < mCount; x++)
-  {
-    mTextMessageColor[x] = mTextMessageColor[x + 1];
-    mTextMessage[x] = mTextMessage[x + 1];
-    mNumMessage[x] = mNumMessage[x + 1]; // scroll the messages up 1
-  }
-  mTextMessage[mCount] = ""; // blank the last message
-  mNumMessage[mCount] = 0;
-  mCount -= 1;
-
-}
-
-template <Config::Module M>
-void Console<M>::ConsoleAdd(const std::string_view what, std::int32_t col, std::int32_t num)
-{
-  mCount += 1;
-  mScrollTick = -mNewMessageWait;
-  mTextMessage[mCount] = what;
-  mTextMessageColor[mCount] = col;
-  mNumMessage[mCount] = num;
-  if (mCount == mCountMax - 1)
-  {
-    ScrollConsole();
-  }
-}
-
-template <Config::Module M>
-void ConsoleMain<M>::Update(const bool killConsole)
-{
-  ++this->mScrollTick;
-  if (this->mScrollTick != this->mScrollTickMax)
-  {
-    return;
-  }
-  this->ScrollConsole();
-  if (!killConsole)
-  {
-    return;
-  }
-  if ((this->mCount > -1) && (this->mNumMessage[this->mCount] == -255))
-    this->ScrollConsole();
-}
-
-template <Config::Module M>
-void ConsoleMain<M>::console(const std::string_view what, std::int32_t col) // overload;
-{
-  if (what.empty())
-  {
-    return;
-  }
-  if (this->mWriteToFile)
-  {
-    auto &fs = *::Console<M>::mFileSystem;
-    addlinetologfile(fs, GetGameLog(), std::string(what), GetGameLogFilename());
-  }
-  LogDebugG("{}", what);
-
-  this->ConsoleAdd(what, col);
-  if (mBigConsole)
-  {
-    mBigConsole->ConsoleAdd(what, col);
-  }
-}
-
-template <Config::Module M>
-void ConsoleMain<M>::console(const std::string_view what, std::int32_t col, std::uint8_t sender)
+void ConsoleServer<M>::console(const std::string_view what, std::int32_t col, std::uint8_t sender)
   requires(Config::IsServer(M))
 {
-  this->console(what, col);
+  ::ConsoleMain::console(what, col);
   if ((sender > 0) && (sender < max_players + 1))
   {
     serversendstringmessage(std::string(what), sender, 255, msgtype_pub);
   }
 }
 
-template class Console<Config::GetModule()>;
-template class ConsoleMain<Config::GetModule()>;
+template class ConsoleServer<Config::GetModule()>;
 
-static Console<Config::GetModule()> sBigConsole;
-static ConsoleMain<Config::GetModule()> sKillConsole;
+#ifndef SERVER
+static Console sBigConsole;
+static ConsoleMain sKillConsole;
 
-template <Config::Module M>
-Console<M> &InitBigConsole(FileUtility* filesystem, const std::int32_t newMessageWait, const std::int32_t countMax,
+Console &InitBigConsole(FileUtility* filesystem, const std::int32_t newMessageWait, const std::int32_t countMax,
                            const std::int32_t scrollTickMax)
 {
-  return *new (&sBigConsole) Console<M>(filesystem, newMessageWait, countMax, scrollTickMax);
+  return *new (&sBigConsole) Console(filesystem, newMessageWait, countMax, scrollTickMax);
 }
 
-template <Config::Module M>
-Console<M> &GetBigConsole()
+Console &GetBigConsole()
 {
   return sBigConsole;
 }
 
-template <Config::Module M>
-ConsoleMain<M> &InitKillConsole(FileUtility* filesystem, const std::int32_t newMessageWait, const std::int32_t countMax,
-                                const std::int32_t scrollTickMax) requires(Config::IsClient(M))
+ConsoleMain &InitKillConsole(FileUtility* filesystem, const std::int32_t newMessageWait, const std::int32_t countMax,
+                                const std::int32_t scrollTickMax)
 {
-  return *new (&sKillConsole) ConsoleMain<M>(filesystem, newMessageWait, countMax, scrollTickMax);
+  return *new (&sKillConsole) ConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax);
 }
 
-template <Config::Module M>
-ConsoleMain<M> &GetKillConsole() requires(Config::IsClient(M))
+ConsoleMain &GetKillConsole()
 {
   return sKillConsole;
 }
-
-#ifndef SERVER
-template ConsoleMain<Config::GetModule()> &GetKillConsole<Config::GetModule()>();
-template Console<Config::GetModule()> &GetBigConsole<Config::GetModule()>();
-template ConsoleMain<Config::GetModule()> &InitKillConsole<Config::GetModule()>(FileUtility* filesystem,
-  const std::int32_t newMessageWait, const std::int32_t countMax, const std::int32_t scrollTickMax);
-template Console<Config::GetModule()> &InitBigConsole<Config::GetModule()>(FileUtility* filesystem,
-  const std::int32_t newMessageWaitTime, const std::int32_t countMax,
-  const std::int32_t scrollTickMax);
 #endif
 
 // tests
@@ -146,8 +61,7 @@ public:
   ~ConsoleFixture() = default;
   ConsoleFixture(const ConsoleFixture &) = delete;
 
-  template <Config::Module T>
-  static void addMessagesUntilScroll(Console<T> &console, std::int32_t countMax)
+  static void addMessagesUntilScroll(Console &console, std::int32_t countMax)
   {
     auto noOfMessagesTillScroll = countMax - console.GetCount();
     for (auto i = 0; i < noOfMessagesTillScroll; ++i)
@@ -165,8 +79,8 @@ TEST_SUITE("Console")
 
   TEST_CASE_FIXTURE(ConsoleFixture, "Write message")
   {
-    Console<Config::CLIENT_MODULE> big(nullptr);
-    ConsoleMain<Config::CLIENT_MODULE> cl(nullptr, 0, 254, 150, false);
+    Console big(nullptr);
+    ConsoleMain cl(nullptr, 0, 254, 150, false);
     cl.SetBigConsole(&big);
     cl.console("Test message", game_message_color);
     CHECK_EQ(1, cl.GetCount());
@@ -178,7 +92,7 @@ TEST_SUITE("Console")
     constexpr auto countMax = 254;
     constexpr auto scrollTickMax = 150;
     constexpr auto writeToFile = true;
-    Console<Config::CLIENT_MODULE> console(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
+    Console console(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
     console.ConsoleAdd("Message 1", 10);
     console.ConsoleAdd("Message 2", 20);
     console.ConsoleAdd("Message 3", 30);
@@ -203,7 +117,7 @@ TEST_SUITE("Console")
     constexpr auto countMax = 254;
     constexpr auto scrollTickMax = 150;
     constexpr auto writeToFile = true;
-    Console<Config::CLIENT_MODULE> console(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
+    Console console(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
     console.ConsoleAdd("Message 1", 10);
     addMessagesUntilScroll(console, countMax);
 
@@ -216,7 +130,7 @@ TEST_SUITE("Console")
     constexpr auto countMax = 254;
     constexpr auto scrollTickMax = 150;
     constexpr auto writeToFile = true;
-    Console<Config::CLIENT_MODULE> console(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
+    Console console(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
     console.ConsoleAdd("Only Message", 99);
     addMessagesUntilScroll(console, countMax);
 
@@ -228,7 +142,7 @@ TEST_SUITE("Console")
 
   TEST_CASE_FIXTURE(ConsoleFixture, "Console - Add Empty Message")
   {
-    ConsoleMain<Config::CLIENT_MODULE> cl;
+    ConsoleMain cl;
     cl.console("", 10);
     CHECK_EQ(cl.GetCount(), 0);
   }
@@ -239,7 +153,7 @@ TEST_SUITE("Console")
     constexpr auto countMax = 20;
     constexpr auto scrollTickMax = 150;
     constexpr auto writeToFile = true;
-    ConsoleMain<Config::SERVER_MODULE> cl(nullptr, newMessageWait, countMax, scrollTickMax,
+    ConsoleServer<Config::SERVER_MODULE> cl(nullptr, newMessageWait, countMax, scrollTickMax,
                                                writeToFile);
     cl.console("Test message", 10);
     // Assuming GetGameLog() and GetGameLogFilename() are accessible and return expected values
@@ -253,7 +167,7 @@ TEST_SUITE("Console")
     constexpr auto countMax = 20;
     constexpr auto scrollTickMax = 150;
     constexpr auto writeToFile = false;
-    ConsoleMain<Config::SERVER_MODULE> cl(nullptr, newMessageWait, countMax, scrollTickMax,
+    ConsoleServer<Config::SERVER_MODULE> cl(nullptr, newMessageWait, countMax, scrollTickMax,
                                                writeToFile);
     cl.console("Server message", 20);
     CHECK_EQ(cl.GetCount(), 1);
@@ -267,9 +181,9 @@ TEST_SUITE("Console")
     constexpr auto countMax = 254;
     constexpr auto scrollTickMax = 150;
     constexpr auto writeToFile = false;
-    ConsoleMain<Config::CLIENT_MODULE> cl(nullptr, newMessageWait, countMax, scrollTickMax,
+    ConsoleMain cl(nullptr, newMessageWait, countMax, scrollTickMax,
                                                writeToFile);
-    Console<Config::CLIENT_MODULE> big;
+    Console big;
     cl.SetBigConsole(&big);
     cl.console("Client message", 30);
     CHECK_EQ(cl.GetCount(), 1);
@@ -286,7 +200,7 @@ TEST_SUITE("Console")
     constexpr auto countMax = 20;
     constexpr auto scrollTickMax = 150;
     constexpr auto writeToFile = false;
-    ConsoleMain<Config::SERVER_MODULE> cl(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
+    ConsoleServer<Config::SERVER_MODULE> cl(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
     cl.console("Message 1", 10);
     cl.console("Message 2", 20);
     cl.console("Message 3", 30);
@@ -299,7 +213,7 @@ TEST_SUITE("Console")
 
   TEST_CASE_FIXTURE(ConsoleFixture, "ConsoleNum - Add New Message")
   {
-    ConsoleMain<Config::CLIENT_MODULE> console;
+    ConsoleMain console;
     console.ConsoleAdd("Test message", 10, 5);
     CHECK_EQ(console.GetCount(), 1);
     CHECK_EQ(console.GetTextMessage(1), "Test message");
@@ -310,7 +224,7 @@ TEST_SUITE("Console")
   TEST_CASE_FIXTURE(ConsoleFixture, "ConsoleNum - Scroll When Max Count Reached")
   {
     constexpr auto countMax = 3;
-    ConsoleMain<Config::CLIENT_MODULE> console(nullptr, 0, countMax, 150);
+    ConsoleMain console(nullptr, 0, countMax, 150);
     console.ConsoleAdd("Message 1", 10, 1);
     console.ConsoleAdd("Message 2", 20, 2);
     console.ConsoleAdd("Message 3", 30, 3);
@@ -324,7 +238,7 @@ TEST_SUITE("Console")
 
   TEST_CASE_FIXTURE(ConsoleFixture, "ConsoleNum - Empty Message")
   {
-    ConsoleMain<Config::CLIENT_MODULE> console;
+    ConsoleMain console;
     console.ConsoleAdd("", 10, 5);
     CHECK_EQ(console.GetCount(), 1);
     CHECK_EQ(console.GetTextMessage(1), "");
@@ -334,7 +248,7 @@ TEST_SUITE("Console")
 
   TEST_CASE_FIXTURE(ConsoleFixture, "ConsoleNum - Negative Color Value")
   {
-    ConsoleMain<Config::CLIENT_MODULE> console;
+    ConsoleMain console;
     console.ConsoleAdd("Test message", -10, 5);
     CHECK_EQ(console.GetCount(), 1);
     CHECK_EQ(console.GetTextMessage(1), "Test message");
@@ -344,7 +258,7 @@ TEST_SUITE("Console")
 
   TEST_CASE_FIXTURE(ConsoleFixture, "ConsoleNum - Negative Num Value")
   {
-    ConsoleMain<Config::CLIENT_MODULE> console;
+    ConsoleMain console;
     console.ConsoleAdd("Test message", 10, -5);
     CHECK_EQ(console.GetCount(), 1);
     CHECK_EQ(console.GetTextMessage(1), "Test message");
@@ -354,7 +268,7 @@ TEST_SUITE("Console")
 
   TEST_CASE_FIXTURE(ConsoleFixture, "UpdateKillConsole - Scrolls When ScrollTickMax Reached")
   {
-    ConsoleMain<Config::CLIENT_MODULE> console(0, 0, 2, 1);
+    ConsoleMain console(nullptr, 0, 2, 1);
     console.ConsoleAdd("Message 1", 10, 1);
     console.Update(true);
     CHECK_EQ(console.GetCount(), 0);
@@ -362,7 +276,7 @@ TEST_SUITE("Console")
 
   TEST_CASE_FIXTURE(ConsoleFixture, "UpdateKillConsole - Scrolls Twice When Last Message Num is -255")
   {
-    ConsoleMain<Config::CLIENT_MODULE> console(0, 0, 3, 1);
+    ConsoleMain console(nullptr, 0, 3, 1);
     console.ConsoleAdd("Message 1", 10, -255);
     console.ConsoleAdd("Message 2", 10, -255);
     console.Update(true);
@@ -371,7 +285,7 @@ TEST_SUITE("Console")
 
   TEST_CASE_FIXTURE(ConsoleFixture, "UpdateKillConsole - Does Not Scroll When ScrollTickMax Not Reached")
   {
-    ConsoleMain<Config::CLIENT_MODULE> console(0, 3, 2, 4);
+    ConsoleMain console(nullptr, 3, 2, 4);
     console.ConsoleAdd("Message 1", 10, 1);
     console.Update(true);
     CHECK_EQ(console.GetCount(), 1);
@@ -379,14 +293,14 @@ TEST_SUITE("Console")
 
   TEST_CASE_FIXTURE(ConsoleFixture, "UpdateKillConsole - Does Not Scroll When No Messages")
   {
-    ConsoleMain<Config::CLIENT_MODULE> console(0, 3, 1);
+    ConsoleMain console(nullptr, 0, 3, 1);
     console.Update(true);
     CHECK_EQ(console.GetCount(), 0);
   }
 
   TEST_CASE_FIXTURE(ConsoleFixture, "UpdateMainConsole - Scrolls When ScrollTickMax Reached")
   {
-    ConsoleMain<Config::CLIENT_MODULE> console(0, 0, 2, 1);
+    ConsoleMain console(nullptr,  0, 2, 1);
     console.ConsoleAdd("Message 1", 10);
     console.Update();
     CHECK_EQ(console.GetCount(), 0);
@@ -394,7 +308,7 @@ TEST_SUITE("Console")
 
   TEST_CASE_FIXTURE(ConsoleFixture, "UpdateMainConsole - Does Not Scroll When ScrollTickMax Not Reached")
   {
-    ConsoleMain<Config::CLIENT_MODULE> console(0, 3, 2, 4);
+    ConsoleMain console(nullptr,  3, 2, 4);
     console.ConsoleAdd("Message 1", 10);
     console.Update();
     CHECK_EQ(console.GetCount(), 1);
@@ -402,7 +316,7 @@ TEST_SUITE("Console")
 
   TEST_CASE_FIXTURE(ConsoleFixture, "UpdateMainConsole - Does Not Scroll When No Messages")
   {
-    ConsoleMain<Config::CLIENT_MODULE> console(0, 3, 1);
+    ConsoleMain console(nullptr, 0, 3, 1);
     console.Update();
     CHECK_EQ(console.GetCount(), 0);
   }

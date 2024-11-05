@@ -373,7 +373,7 @@ static bool MountAssets(FileUtility &fu, const std::string &userdirectory,
 static void InitConsoles(bool test = false)
 {
   // Create Consoles
-  auto console = std::make_unique<ConsoleMain<Config::GetModule()>>(&GS::GetFileSystem(), 150,
+  auto console = std::make_unique<ConsoleMain>(&GS::GetFileSystem(), 150,
     round(CVar::ui_console_length * _rscala.y), 150);
   GS::SetMainConsole(std::move(console));
 
