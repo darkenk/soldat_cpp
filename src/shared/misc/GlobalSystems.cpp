@@ -1,7 +1,7 @@
 #include "GlobalSystems.hpp"
 #include "common/FileUtility.hpp"
 #include "shared/AnimationSystem.hpp"
-#include "shared/Console.hpp"
+#include "common/Console.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include <memory>

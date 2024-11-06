@@ -15,6 +15,18 @@ void restartgraph();
 void showmessage(const std::string &messagetext);
 void showmessage(const std::wstring &messagetext);
 
+class Console;
+class FileUtility;
+class ConsoleMain;
+
+Console &InitBigConsole(FileUtility* filesystem, const std::int32_t newMessageWait, const std::int32_t countMax,
+                           const std::int32_t scrollTickMax);
+Console &GetBigConsole();
+
+ConsoleMain &InitKillConsole(FileUtility* filesystem, const std::int32_t newMessageWait, const std::int32_t countMax,
+                                const std::int32_t scrollTickMax);
+ConsoleMain &GetKillConsole();
+
 struct tweaponstat
 {
   std::string name;

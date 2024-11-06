@@ -9,6 +9,7 @@
 #include "InterfaceGraphics.hpp"
 #include "MapGraphics.hpp"
 #include "common/Calc.hpp"
+#include "common/Console.hpp"
 #include "common/Logging.hpp"
 #include "common/Util.hpp"
 #include "common/gfx.hpp"

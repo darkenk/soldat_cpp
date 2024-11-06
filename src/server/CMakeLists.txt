@@ -13,7 +13,6 @@ set(SHARED_SRC
     ../shared/Cvar.cpp
     ../shared/Game.cpp
     ../shared/Demo.cpp
-    ../shared/Console.cpp
     ../shared/LogFile.cpp
     ../shared/SharedConfig.cpp
     ../shared/mechanics/Sprites.cpp

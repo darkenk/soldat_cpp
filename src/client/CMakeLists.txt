@@ -29,7 +29,6 @@ set(SHARED_SRC
     ../shared/Game.cpp
     ../shared/Demo.cpp
     ../shared/Game.cpp
-    ../shared/Console.cpp
     ../shared/LogFile.cpp
     ../shared/mechanics/Sprites.cpp
     ../shared/mechanics/Sparks.cpp

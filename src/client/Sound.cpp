@@ -7,6 +7,7 @@
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/Constants.hpp"
+#include "common/Console.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"

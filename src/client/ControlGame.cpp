@@ -10,6 +10,7 @@
 #include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
 #include "common/Logging.hpp"
+#include "common/Console.hpp"
 #include "shared/Command.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"

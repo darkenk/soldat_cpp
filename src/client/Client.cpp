@@ -22,6 +22,7 @@
 #include "common/misc/TFileStream.hpp"
 #include "common/misc/TIniFile.hpp"
 #include "common/port_utils/NotImplemented.hpp"
+#include "common/Console.hpp"
 #include "shared/Command.hpp"
 #include "common/Constants.hpp"
 #include "shared/Cvar.hpp"
@@ -42,6 +43,31 @@ namespace
 {
 bool progready;
 } // namespace
+
+static Console sBigConsole;
+static ConsoleMain sKillConsole;
+
+Console &InitBigConsole(FileUtility* filesystem, const std::int32_t newMessageWait, const std::int32_t countMax,
+                           const std::int32_t scrollTickMax)
+{
+  return *new (&sBigConsole) Console(filesystem, newMessageWait, countMax, scrollTickMax);
+}
+
+Console &GetBigConsole()
+{
+  return sBigConsole;
+}
+
+ConsoleMain &InitKillConsole(FileUtility* filesystem, const std::int32_t newMessageWait, const std::int32_t countMax,
+                                const std::int32_t scrollTickMax)
+{
+  return *new (&sKillConsole) ConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax);
+}
+
+ConsoleMain &GetKillConsole()
+{
+  return sKillConsole;
+}
 
 // Client.cpp variables
 bool gamelooprun;

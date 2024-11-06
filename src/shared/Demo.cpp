@@ -13,6 +13,7 @@
 #include "Cvar.hpp"
 #include "common/MapFile.hpp"
 #include "common/Util.hpp"
+#include "common/Console.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Game.hpp"

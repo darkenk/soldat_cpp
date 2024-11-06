@@ -3,7 +3,7 @@
 #include "BanSystem.hpp"
 #include "Server.hpp"
 #include "ServerHelper.hpp"
-#include "shared/Console.hpp"
+#include "common/Console.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
 std::vector<tbanip> bannediplist;

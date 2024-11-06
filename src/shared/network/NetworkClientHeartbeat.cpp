@@ -7,6 +7,7 @@
 #include "../Demo.hpp"
 #include "../Game.hpp"
 #include "../GameStrings.hpp"
+#include "common/Console.hpp"
 #include "NetworkClient.hpp"
 #include "NetworkClientConnection.hpp"
 #include "NetworkUtils.hpp"

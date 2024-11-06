@@ -8,20 +8,18 @@
 #include "shared/Game.hpp"
 #include "shared/mechanics/BulletSystem.hpp"
 #include "shared/mechanics/ThingSystem.hpp"
-#include "shared/Console.hpp"
 #include <memory>
 #include <type_traits>
 
 class FileUtility;
 class ConsoleMain;
-template<Config::Module>
 class ConsoleServer;
 
 template <Config::Module M>
 class GlobalSystems final : public GlobalSubsystem<GlobalSystems<M>>
 {
 public:
-  using ConsoleType = typename std::conditional_t<Config::IsClient(M), ConsoleMain, ConsoleServer<M>>;
+  using ConsoleType = typename std::conditional_t<Config::IsClient(M), ConsoleMain, ConsoleServer>;
 
   static WeaponSystem &GetWeaponSystem()
   {

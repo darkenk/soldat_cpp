@@ -10,6 +10,7 @@
 #endif
 #include "Cvar.hpp"
 #include "Game.hpp"
+#include "common/Console.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/Config.hpp"
 #include "common/FileUtility.hpp"

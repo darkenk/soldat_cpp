@@ -1,9 +1,9 @@
 #pragma once
 
-#include "shared/Console.hpp"
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
 
+#include <common/Console.hpp>
 #include <common/network/Net.hpp>
 // #include "shared/network/NetworkServer.hpp"
 
@@ -51,3 +51,16 @@ void startserver();
 void ActivateServer(int argc, const char *argv[]);
 void RunServer(int argc, const char *argv[]);
 void ShutdownServer();
+
+class FileUtility;
+
+class ConsoleServer : public ConsoleMain
+{
+public:
+  explicit ConsoleServer(FileUtility* filesystem = nullptr, const std::int32_t newMessageWait = 0, const std::int32_t countMax = 254,
+                       const std::int32_t scrollTickMax = 150, bool writeToFile = true)
+    : ConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax, writeToFile)
+  {
+  }
+  void console(const std::string_view what, std::int32_t col, std::uint8_t sender = 255);
+};

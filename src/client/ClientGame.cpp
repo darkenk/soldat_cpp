@@ -16,6 +16,7 @@
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientSprite.hpp"
 #include "shared/network/NetworkClient.hpp"
+#include <common/Console.hpp>
 #include <SDL2/SDL.h>
 #include <Tracy.hpp>
 #include <thread>

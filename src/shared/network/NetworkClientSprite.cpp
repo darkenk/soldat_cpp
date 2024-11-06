@@ -10,6 +10,7 @@
 #include "../GameStrings.hpp"
 #include "NetworkClient.hpp"
 #include "NetworkUtils.hpp"
+#include "common/Console.hpp"
 #include "common/Logging.hpp"
 #include "common/gfx.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"

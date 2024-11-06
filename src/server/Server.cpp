@@ -26,6 +26,8 @@
 #include "shared/network/NetworkServerGame.hpp"
 #include "shared/network/NetworkServerSprite.hpp"
 #include "shared/network/NetworkUtils.hpp"
+#include "shared/network/Net.hpp"
+#include "shared/network/NetworkServerMessages.hpp"
 #include <Tracy.hpp>
 #include <array>
 #include <thread>
@@ -189,7 +191,7 @@ void ActivateServer(int argc, const char *argv[])
   }
 
   // Create Consoles
-  auto console = std::make_unique<ConsoleServer<Config::GetModule()>>(&GS::GetFileSystem(), 150, 7, 150);
+  auto console = std::make_unique<ConsoleServer>(&GS::GetFileSystem(), 150, 7, 150);
   GS::SetMainConsole(std::move(console));
   SoldatAssert(GS::GetMainConsole().GetNewMessageWait() == 150);
 
@@ -1190,3 +1192,88 @@ void RunServer(int argc, const char *argv[])
 }
 
 void ShutdownServer() { progready = false; }
+
+void ConsoleServer::console(const std::string_view what, std::int32_t col, std::uint8_t sender)
+{
+  ::ConsoleMain::console(what, col);
+  if ((sender > 0) && (sender < max_players + 1))
+  {
+    serversendstringmessage(std::string(what), sender, 255, msgtype_pub);
+  }
+}
+
+// tests
+#include <doctest/doctest.h>
+
+namespace
+{
+
+class ConsoleFixture
+{
+public:
+  ConsoleFixture() = default;
+  ~ConsoleFixture() = default;
+  ConsoleFixture(const ConsoleFixture &) = delete;
+
+  static void addMessagesUntilScroll(Console &console, std::int32_t countMax)
+  {
+    auto noOfMessagesTillScroll = countMax - console.GetCount();
+    for (auto i = 0; i < noOfMessagesTillScroll; ++i)
+    {
+      char buffer[100];
+      snprintf(buffer, 100, "Filler Message %d", i + 1);
+      console.ConsoleAdd(buffer, i * 10);
+    }
+  }
+
+protected:
+};
+TEST_SUITE("Console")
+{
+  TEST_CASE_FIXTURE(ConsoleFixture, "Console - Add Message to File" * doctest::skip(true))
+  {
+    constexpr auto newMessageWait = 0;
+    constexpr auto countMax = 20;
+    constexpr auto scrollTickMax = 150;
+    constexpr auto writeToFile = true;
+    ConsoleServer cl(nullptr, newMessageWait, countMax, scrollTickMax,
+                                               writeToFile);
+    cl.console("Test message", 10);
+    // Assuming GetGameLog() and GetGameLogFilename() are accessible and return expected values
+    auto &fs = GS::GetFileSystem();
+    // CHECK(fs.FileExists(GetGameLogFilename()));
+  }
+
+  TEST_CASE_FIXTURE(ConsoleFixture, "Console - Add Message Server")
+  {
+    constexpr auto newMessageWait = 0;
+    constexpr auto countMax = 20;
+    constexpr auto scrollTickMax = 150;
+    constexpr auto writeToFile = false;
+    ConsoleServer cl(nullptr, newMessageWait, countMax, scrollTickMax,
+                                               writeToFile);
+    cl.console("Server message", 20);
+    CHECK_EQ(cl.GetCount(), 1);
+    CHECK_EQ(cl.GetTextMessage(1), "Server message");
+    CHECK_EQ(cl.GetTextMessageColor(1), 20);
+  }
+
+  TEST_CASE_FIXTURE(ConsoleFixture, "Console - Add Message and Scroll")
+  {
+    constexpr auto newMessageWait = 0;
+    constexpr auto countMax = 20;
+    constexpr auto scrollTickMax = 150;
+    constexpr auto writeToFile = false;
+    ConsoleServer cl(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
+    cl.console("Message 1", 10);
+    cl.console("Message 2", 20);
+    cl.console("Message 3", 30);
+    CHECK_EQ(cl.GetCount(), 3);
+    addMessagesUntilScroll(cl, countMax);
+    CHECK_EQ(cl.GetCount(), countMax - 1);
+    CHECK_EQ(cl.GetTextMessage(1), "Message 2");
+    CHECK_EQ(cl.GetTextMessage(2), "Message 3");
+  }
+} // TEST_SUITE("Console")
+
+} // namespace

@@ -14,6 +14,7 @@
 #include "NetworkClient.hpp"
 #include "NetworkClientSprite.hpp"
 #include "NetworkUtils.hpp"
+#include "common/Console.hpp"
 #include "common/Logging.hpp"
 #include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"

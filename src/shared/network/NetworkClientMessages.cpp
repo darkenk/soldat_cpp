@@ -8,6 +8,7 @@
 #include "../misc/MemoryUtils.hpp"
 #include "NetworkClient.hpp"
 #include "NetworkUtils.hpp"
+#include "common/Console.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"

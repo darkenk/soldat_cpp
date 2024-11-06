@@ -18,6 +18,7 @@
 #endif
 #include "Cvar.hpp"
 #include "Demo.hpp"
+#include "common/Console.hpp"
 #include "common/Util.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"

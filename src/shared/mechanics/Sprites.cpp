@@ -22,6 +22,7 @@
 #include "Control.hpp"
 #include "SpriteSystem.hpp"
 #include "common/Calc.hpp"
+#include "common/Console.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"

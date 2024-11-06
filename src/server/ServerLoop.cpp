@@ -5,7 +5,7 @@
 #include "Server.hpp"
 #include "ServerHelper.hpp"
 #include "common/Logging.hpp"
-#include "shared/Console.hpp"
+#include "common/Console.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
