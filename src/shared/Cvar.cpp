@@ -91,8 +91,8 @@ namespace CVarClient
 {
 
 // clang-format off
-CVarInt log_level{"log_level", "Sets log level", CVarFlags::NONE, 0};
-CVarBool log_enable{"log_enable", "Enables logging to file", CVarFlags::NONE, false};
+CVarInt log_level{"log_level", "Sets log level", CVarFlags::NONE, 1};
+CVarBool log_enable{"log_enable", "Enables logging to file", CVarFlags::NONE, true};
 CVarInt log_filesupdate{"log_filesupdate", "How often the log files should be updated", CVarFlags::NONE, 3600};
 #ifdef SERVER
 CVarBool log_timestamp{ "log_timestamp", "Enables/Disables timestamps in console", CVarFlags::SERVER_FLAG, false};

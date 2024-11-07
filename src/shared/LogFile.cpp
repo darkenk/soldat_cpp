@@ -17,17 +17,10 @@ void newlogfile(FileUtility& fu, tstringlist *f, const std::string &name)
   {
     return;
   }
-
+  SoldatAssert(f != nullptr);
   {
     std::lock_guard<std::mutex> lock(loglock);
-    if (f != nullptr)
-    {
-      delete f;
-    }
-    else
-    {
-      f = new tstringlist();
-    }
+    f->clear();
   }
 
   auto logfile = fu.Open(name, FileUtility::FileMode::Write);
@@ -123,7 +116,7 @@ void writelogfile(FileUtility& fu, tstringlist *f, const std::string &name)
     for (auto &line : *f)
     {
       fu.Write(logfile, reinterpret_cast<const std::byte*>(line.c_str()), line.size());
-      fu.Write(logfile, reinterpret_cast<const std::byte*>('\n'), 1);
+      fu.Write(logfile, reinterpret_cast<const std::byte*>("\n"), 1);
     }
     f->clear();
   }
@@ -148,10 +141,9 @@ void newlogfiles(FileUtility &fu)
   }
 
   std::string consolelogfilename = "/user/logs/consolelog-" + s2 + ".txt";
-  j = 1;
   for (auto i = 1; fu.Exists(consolelogfilename); i++)
   {
-    consolelogfilename = "/user/logs/consolelog-" + s2 + "-" + std::to_string(j) + ".txt";
+    consolelogfilename = "/user/logs/consolelog-" + s2 + "-" + std::to_string(i) + ".txt";
   }
   if (CVar::log_level == 0)
   {
@@ -164,28 +156,25 @@ void newlogfiles(FileUtility &fu)
   addlinetologfile(fu, GetGameLog(), "   Console Log Started", consolelogfilename);
 
 // TODO error logging once mainconsole is ready
-#ifdef SERVER
-  NotImplemented("Missing logging");
-#if 0
-    killlogfilename = format("%slogs/kills/killlog-%s-01.txt", set::of(userdirectory, s2, eos));
+  if constexpr(Config::IsServer((M)))
+  {
+    GetKillLogFilename<M>() = std::format("/user/logs/kills/killlog-{}-01.txt", s2.c_str());
     j = 1;
-    while (fileexists(killlogfilename))
+    while (fu.Exists(GetKillLogFilename<M>()))
     {
-        j += 1;
-        killlogfilename =
-            format("%slogs/kills/killlog-%s-%.2d.txt", set::of(userdirectory, s2, j, eos));
+      j += 1;
+      GetKillLogFilename<M>() = std::format("/user/logs/kills/killlog-{}-{:2d}.txt", s2, j);
     }
-    newlogfile(killlog, killlogfilename);
-    addlinetologfile(killlog, "   Kill Log Started", killlogfilename);
-#endif
-#endif
+    newlogfile(fu, &GetKillLog<M>(), GetKillLogFilename<M>());
+    addlinetologfile(fu, &GetKillLog<M>(), "   Kill Log Started", GetKillLogFilename<M>());
+  }
 }
 
 template <Config::Module M>
-tstringlist *&GetGameLog()
+tstringlist *GetGameLog()
 {
-  static tstringlist *gamelog = nullptr;
-  return gamelog;
+  static tstringlist gamelog;
+  return &gamelog;
 }
 
 template <Config::Module M>
@@ -195,11 +184,25 @@ std::string &GetGameLogFilename()
   return filename;
 }
 
+template <Config::Module M>
+tstringlist &GetKillLog() requires(Config::IsServer())
+{
+  static tstringlist killlog;
+  return killlog;
+}
+
+template <Config::Module M>
+std::string &GetKillLogFilename() requires(Config::IsServer())
+{
+  static std::string killlogfilename;
+  return killlogfilename;
+}
+
 template void newlogfile(FileUtility& fu, tstringlist *f, const std::string &name);
 template void writelogfile(FileUtility& fu, tstringlist *f, const std::string &name);
 template void addlinetologfile(FileUtility& fu, tstringlist *f, const std::string &s, const std::string &name,
                                bool withdate);
 template void newlogfiles(FileUtility& fu);
 
-template tstringlist *&GetGameLog();
+template tstringlist *GetGameLog();
 template std::string &GetGameLogFilename();

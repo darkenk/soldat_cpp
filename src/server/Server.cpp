@@ -36,9 +36,6 @@
 
 bool progready = false;
 
-tstringlist killlog;
-std::string killlogfilename;
-
 // config stuff
 std::string serverip = "127.0.0.1";
 std::int32_t serverport = 23073;
@@ -420,14 +417,7 @@ void ShutDown()
   LogDebugG("Saving gamelog");
   writelogfile(fs, GetGameLog(), GetGameLogFilename());
   LogDebugG("Freeing gamelog");
-  delete GetGameLog();
-  GetGameLog() = nullptr;
   commanddeinit();
-#if 0
-    LogDebugG("Freeing killlog");
-    delete killlog;
-    killlog = nullptr;
-#endif
 }
 
 void loadweapons(const std::string &Filename)
