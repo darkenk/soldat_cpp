@@ -22,10 +22,10 @@ template <Config::Module M = Config::GetModule()>
 void newlogfiles(FileUtility& fu);
 
 template <Config::Module M = Config::GetModule()>
-tstringlist &GetKillLog() requires(Config::IsServer());
+tstringlist &GetKillLog() requires(Config::IsServer(M));
 
 template <Config::Module M = Config::GetModule()>
-std::string &GetKillLogFilename() requires(Config::IsServer());
+std::string &GetKillLogFilename() requires(Config::IsServer(M));
 
 template <Config::Module M = Config::GetModule()>
 tstringlist *GetGameLog();
