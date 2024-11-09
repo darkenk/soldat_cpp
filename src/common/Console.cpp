@@ -61,8 +61,7 @@ void ConsoleMain::console(const std::string_view what, std::int32_t col) // over
   {
     NotImplemented("logging", "GetGameLog is implemented in shared directory");
 #if 0
-    auto &fs = *::Console::mFileSystem;
-    addlinetologfile(fs, GetGameLog(), std::string(what), GetGameLogFilename());
+    GS::GetConsleLogFile().addlinetologfile(std::string(what));
 #endif
   }
   LogDebugG("{}", what);

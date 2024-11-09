@@ -6,7 +6,6 @@
 #include "../../server/ServerHelper.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "../LogFile.hpp"
 #include "../mechanics/Sprites.hpp"
 #include "../mechanics/Things.hpp"
 #include "../misc/BitStream.hpp"

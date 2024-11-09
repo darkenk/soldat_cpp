@@ -6,6 +6,7 @@
 #include "ServerLoop.hpp"
 #include "common/FileUtility.hpp"
 #include "common/Logging.hpp"
+#include "common/LogFile.hpp"
 #include "common/Util.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
@@ -14,22 +15,22 @@
 #include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
-#include "shared/LogFile.hpp"
 #include "shared/SharedConfig.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/misc/SignalUtils.hpp"
+#include "shared/network/Net.hpp"
 #include "shared/network/NetworkServer.hpp"
 #include "shared/network/NetworkServerConnection.hpp"
 #include "shared/network/NetworkServerGame.hpp"
+#include "shared/network/NetworkServerMessages.hpp"
 #include "shared/network/NetworkServerSprite.hpp"
 #include "shared/network/NetworkUtils.hpp"
-#include "shared/network/Net.hpp"
-#include "shared/network/NetworkServerMessages.hpp"
 #include <Tracy.hpp>
 #include <array>
+#include <client/Client.hpp>
 #include <thread>
 
 // constexpr auto PATH_MAX = 4095;
@@ -251,7 +252,12 @@ void ActivateServer(int argc, const char *argv[])
     CvarsInitialized = true;
 #endif
 
-  newlogfiles(fs);
+  GS::GetKillLogFile().Enable(CVar::log_enable);
+  GS::GetConsoleLogFile().Enable(CVar::log_enable);
+  GS::GetKillLogFile().SetLogLevel(CVar::log_level);
+  GS::GetConsoleLogFile().SetLogLevel(CVar::log_level);
+  GS::GetConsoleLogFile().Init("/user/logs/consolelog");
+  GS::GetKillLogFile().Init("/user/logs/kills/killlog");
 
   LogDebugG("ActivateServer");
 
@@ -280,7 +286,7 @@ void ActivateServer(int argc, const char *argv[])
 
   GS::GetGame().SetSinusCounter(0);
 
-  addlinetologfile(fs, GetGameLog(), "Loading Maps List", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("Loading Maps List");
 
   if (fileexists(userDirectory + "configs/" + std::string(CVar::sv_maplist)))
   {
@@ -349,8 +355,8 @@ void ActivateServer(int argc, const char *argv[])
 
   WriteLn(" Server  name" + std::string(CVar::sv_hostname));
   GS::GetGame().updategamestats();
-  writelogfile(fs, &GetKillLog(), GetKillLogFilename());
-  writelogfile(fs, GetGameLog(), GetGameLogFilename());
+  GS::GetKillLogFile().WriteToFile();
+  GS::GetConsoleLogFile().WriteToFile();
 
   NotImplemented("mixing commands between server and client");
   // rundeferredcommands();
@@ -409,13 +415,13 @@ void ShutDown()
 
   auto& fs = GS::GetFileSystem();
 
-  addlinetologfile(fs, GetGameLog(), "   End of Log.", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("   End of Log.");
   LogDebugG("Updating gamestats");
   GS::GetGame().updategamestats();
   LogDebugG("Saving killlog");
-  writelogfile(fs, &GetKillLog(), GetKillLogFilename());
+  GS::GetKillLogFile().WriteToFile();
   LogDebugG("Saving gamelog");
-  writelogfile(fs, GetGameLog(), GetGameLogFilename());
+  GS::GetConsoleLogFile().WriteToFile();
   LogDebugG("Freeing gamelog");
   commanddeinit();
 }
@@ -597,7 +603,7 @@ void startserver()
     GS::GetGame().SetTeamScore(i, 0);
   }
 
-  addlinetologfile(fs, GetGameLog(), "Loading Map.", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("Loading Map.");
 
   // playing over internet - optimize
   if (CVar::net_lan == LAN)
@@ -661,7 +667,7 @@ void startserver()
 #endif
 
   // Create Weapons
-  addlinetologfile(fs, GetGameLog(), "Creating Weapons.", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("Creating Weapons.");
 
   if (CVar::sv_realisticmode)
   {
@@ -827,7 +833,7 @@ void startserver()
   updatewaverespawntime();
   waverespawncounter = waverespawntime;
 
-  addlinetologfile(fs, GetGameLog(), "Starting Game Server.", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("Starting Game Server.");
 
   InitNetworkServer(std::string(CVar::net_ip), CVar::net_port);
   GetServerNetwork()->SetDisconnectionCallback([](std::shared_ptr<TServerPlayer> player) {

@@ -10,7 +10,7 @@
 #else
 #include "../../server/Server.hpp"
 #include "../../server/ServerHelper.hpp"
-#include "../LogFile.hpp"
+#include "common/LogFile.hpp"
 #include "../network/NetworkServerConnection.hpp"
 #include "../network/NetworkServerGame.hpp"
 #include "../network/NetworkServerMessages.hpp"
@@ -1701,11 +1701,10 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 s2 = s2 + ' ' + formatdatetime("hh:nn:ss", get_time());
 #endif
         auto& fs = GS::GetFileSystem();
-        addlinetologfile(fs, &GetKillLog(), std::string("--- ") + s2, GetKillLogFilename(), false);
-        addlinetologfile(fs, &GetKillLog(), SpriteSystem::Get().GetSprite(who).player->name,
-                         GetKillLogFilename(), false);
-        addlinetologfile(fs, &GetKillLog(), player->name, GetKillLogFilename(), false);
-        addlinetologfile(fs, &GetKillLog(), s, GetKillLogFilename(), false);
+        GS::GetKillLogFile().Log(std::string("--- ") + s2, false);
+        GS::GetKillLogFile().Log(SpriteSystem::Get().GetSprite(who).player->name, false);
+        GS::GetKillLogFile().Log(player->name, false);
+        GS::GetKillLogFile().Log(s, false);
       }
 
       // Bot Chat

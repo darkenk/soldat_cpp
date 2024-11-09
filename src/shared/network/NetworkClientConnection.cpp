@@ -15,10 +15,10 @@
 #include "NetworkClientSprite.hpp"
 #include "NetworkUtils.hpp"
 #include "common/Console.hpp"
+#include "common/LogFile.hpp"
 #include "common/Logging.hpp"
 #include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
-#include "shared/LogFile.hpp"
 #include "shared/Version.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
@@ -145,12 +145,9 @@ void clientdisconnect(NetworkBase<T>& client)
 
     client.SendData(&playermsg, sizeof(playermsg), true);
 
-    auto& fs= GS::GetFileSystem();
-
-    addlinetologfile(fs, GetGameLog(),
+    GS::GetConsoleLogFile().Log(
                      string("Client Disconnect from ") +
-                       GetNetwork()->GetStringAddress( true),
-                     GetGameLogFilename());
+                       GetNetwork()->GetStringAddress( true));
     client.ProcessLoop();
     client.Disconnect(false);
   }
@@ -497,10 +494,7 @@ void clienthandleunaccepted(NetworkContext *netmessage)
     text = "";
 
 
-  auto& fs = GS::GetFileSystem();
-
-  addlinetologfile(fs, GetGameLog(), string("*UA ") + inttostr(unacceptedmsg->state),
-                   GetGameLogFilename());
+  GS::GetConsoleLogFile().Log(string("*UA ") + inttostr(unacceptedmsg->state));
 
   switch (unacceptedmsg->state)
   {

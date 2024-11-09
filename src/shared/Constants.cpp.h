@@ -52,7 +52,6 @@ constexpr std::int32_t spectatoraimdist = 30;
 constexpr float aimdistincr = 0.05;
 
 constexpr std::int32_t bulletcheckarraysize = 20;
-constexpr std::int32_t max_logfilesize = 512000;
 constexpr std::int32_t sound_maxdist = 750;
 constexpr std::int32_t sound_panwidth = 1000;
 constexpr std::int32_t sound_meterlength = 2000;

@@ -1,7 +1,7 @@
 // automatically converted
 #include "AnimationSystem.hpp"
-#include "LogFile.hpp"
 #include "common/Anims.hpp"
+#include "common/LogFile.hpp"
 #include "common/Parts.hpp"
 #include "common/misc/TFileStream.hpp"
 #include "mechanics/SpriteSystem.hpp"
@@ -16,8 +16,7 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 {
   auto& fs = GS::GetFileSystem();
   Animations.clear();
-  addlinetologfile(fs, GetGameLog(), std::string("Loading Animations. ") + moddir,
-                   GetGameLogFilename());
+  GS::GetConsoleLogFile().Log(std::string("Loading Animations. ") + moddir);
   struct AnimData
   {
     AnimationType AnimType = AnimationType::Last;
@@ -88,7 +87,7 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
     a.speed = anim.Speed;
   }
 
-  addlinetologfile(fs, GetGameLog(), "Loading objects.", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("Loading objects.");
 
   SpriteSystem::Get().ResetSpriteParts();
 

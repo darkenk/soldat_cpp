@@ -23,12 +23,12 @@
 #include "common/misc/TIniFile.hpp"
 #include "common/port_utils/NotImplemented.hpp"
 #include "common/Console.hpp"
+#include "common/LogFile.hpp"
 #include "shared/Command.hpp"
 #include "common/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
-#include "shared/LogFile.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/misc/GlobalSystems.hpp"
@@ -452,7 +452,9 @@ void startgame(int argc, const char *argv[])
     GS::GetGame().SetGameModChecksum(gameSha1);
   }
 
-  newlogfiles(fs);
+  GS::GetConsoleLogFile().Enable(CVar::log_enable);
+  GS::GetConsoleLogFile().SetLogLevel(CVar::log_level);
+  GS::GetConsoleLogFile().Init("/user/logs/consolelog");
 
   std::string systemlang = "en_US";
   std::string systemfallbacklang = "en_US";
@@ -602,11 +604,11 @@ void startgame(int argc, const char *argv[])
     LogDebugG("Game captions not found");
   }
 
-  addlinetologfile(fs, GetGameLog(), "Initializing Sound Library.", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("Initializing Sound Library.");
   // Init Sound Library
   if (!initsound())
   {
-    addlinetologfile(fs, GetGameLog(), "Failed to initialize Sound Library.", GetGameLogFilename());
+    GS::GetConsoleLogFile().Log("Failed to initialize Sound Library.");
     // Let the player know that he has no sound (no popup window)
   }
 
@@ -614,7 +616,7 @@ void startgame(int argc, const char *argv[])
   if (length(moddir) > 0)
     loadsounds(moddir);
 
-  addlinetologfile(fs, GetGameLog(), "Creating network interface.", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("Creating network interface.");
 
   InitConsoles();
   // Create static player objects
@@ -656,7 +658,7 @@ void startgame(int argc, const char *argv[])
   if (CVar::r_compatibility)
     CVar::cl_actionsnap = false;
 
-  writelogfile(fs, GetGameLog(), GetGameLogFilename());
+  GS::GetConsoleLogFile().WriteToFile();
   rundeferredcommands();
 }
 
@@ -671,7 +673,7 @@ void shutdown()
 
   auto& fs = GS::GetFileSystem();
 
-  addlinetologfile(fs, GetGameLog(), "Freeing sprites.", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("Freeing sprites.");
 
   // Free GFX
   destroygamegraphics();
@@ -685,24 +687,24 @@ void shutdown()
 
   deinittranslation();
 
-  addlinetologfile(fs, GetGameLog(), "UDP closing.", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("UDP closing.");
 
   NotImplemented("network");
 #if 0
     freeandnullptr(udp);
 #endif
 
-  addlinetologfile(fs, GetGameLog(), "Sound closing.", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("Sound closing.");
 
   closesound();
 
-  addlinetologfile(fs, GetGameLog(), "FS closing.", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("FS closing.");
 
   commanddeinit();
 
-  addlinetologfile(fs, GetGameLog(), "   End of Log.", GetGameLogFilename());
+  GS::GetConsoleLogFile().Log("   End of Log.");
 
-  writelogfile(fs, GetGameLog(), GetGameLogFilename());
+  GS::GetConsoleLogFile().WriteToFile();
 
   gamelooprun = false;
 }

@@ -12,10 +12,10 @@
 #include "WeatherEffects.hpp"
 #include "common/Calc.hpp"
 #include "common/Console.hpp"
+#include "common/LogFile.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
-#include "shared/LogFile.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
@@ -213,15 +213,12 @@ void update_frame()
     // Game Stats save
     if ((GS::GetGame().GetMainTickCounter() % CVar::log_filesupdate) == 0)
     {
+      GS::GetConsoleLogFile().Enable(CVar::log_enable);
+      GS::GetConsoleLogFile().SetLogLevel(CVar::log_level);
       if (CVar::log_enable)
       {
-        auto& fs = GS::GetFileSystem();
-        if (fs.Size(GetGameLogFilename()) > max_logfilesize)
-        {
-          newlogfiles(fs);
-        }
-
-        writelogfile(fs, GetGameLog(), GetGameLogFilename());
+        GS::GetConsoleLogFile().CreateNewLogIfCurrentLogIsTooBig();
+        GS::GetConsoleLogFile().WriteToFile();
       }
     }
 

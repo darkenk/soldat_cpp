@@ -1,6 +1,7 @@
 #include "GlobalSystems.hpp"
 #include "common/FileUtility.hpp"
 #include "shared/AnimationSystem.hpp"
+#include "common/LogFile.hpp"
 #include "common/Console.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
@@ -18,6 +19,11 @@ GlobalSystems<M>::GlobalSystems()
     FileUtilityObject = std::make_unique<FileUtility>("/client");
   }
   MainConsoleObject = std::make_unique<ConsoleType>();
+  ConsoleLogFileObject = std::make_unique<LogFile>(*FileUtilityObject);
+  if constexpr(Config::IsServer(M))
+  {
+    KillLogFileObject = std::make_unique<LogFile>(*FileUtilityObject);
+  }
 
   SpriteSystem::Init();
   AnimationSystem::Init();
@@ -39,6 +45,8 @@ GlobalSystems<M>::~GlobalSystems()
   AnimationSystem::Deinit();
   SpriteSystem::Deinit();
   MainConsoleObject.reset();
+  KillLogFileObject.reset();
+  ConsoleLogFileObject.reset();
   FileUtilityObject.reset();
 }
 

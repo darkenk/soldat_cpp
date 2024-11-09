@@ -28,8 +28,6 @@ set(SHARED_SRC
     ../shared/Cvar.cpp
     ../shared/Game.cpp
     ../shared/Demo.cpp
-    ../shared/Game.cpp
-    ../shared/LogFile.cpp
     ../shared/mechanics/Sprites.cpp
     ../shared/mechanics/Sparks.cpp
     ../shared/mechanics/Bullets.cpp

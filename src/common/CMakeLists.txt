@@ -23,7 +23,7 @@ set(SRC
     Waypoints.cpp
     Weapons.cpp
     WeaponSystem.cpp
-
+    LogFile.cpp
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

@@ -14,6 +14,7 @@
 class FileUtility;
 class ConsoleMain;
 class ConsoleServer;
+class LogFile;
 
 template <Config::Module M>
 class GlobalSystems final : public GlobalSubsystem<GlobalSystems<M>>
@@ -61,6 +62,16 @@ public:
     return *GlobalSystems::Get().FileUtilityObject;
   }
 
+  static LogFile &GetConsoleLogFile()
+  {
+    return *GlobalSystems::Get().ConsoleLogFileObject;
+  }
+
+  static LogFile &GetKillLogFile() requires(Config::IsServer(M))
+  {
+    return *GlobalSystems::Get().KillLogFileObject;
+  }
+
 protected:
   GlobalSystems();
   ~GlobalSystems();
@@ -74,6 +85,8 @@ private:
   std::unique_ptr<ThingSystem> ThingSystemObject;
   std::unique_ptr<FileUtility> FileUtilityObject;
   std::unique_ptr<ConsoleType> MainConsoleObject;
+  std::unique_ptr<LogFile> ConsoleLogFileObject;
+  std::unique_ptr<LogFile> KillLogFileObject;
 };
 
 using GS = GlobalSystems<Config::GetModule()>;

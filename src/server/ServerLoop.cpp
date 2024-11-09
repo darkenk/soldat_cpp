@@ -6,10 +6,10 @@
 #include "ServerHelper.hpp"
 #include "common/Logging.hpp"
 #include "common/Console.hpp"
+#include "common/LogFile.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
-#include "shared/LogFile.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkServer.hpp"
@@ -452,19 +452,18 @@ void updateframe()
     // Game Stats save
     if (GS::GetGame().GetMainTickCounter() % CVar::log_filesupdate == 0)
     {
+      GS::GetKillLogFile().Enable(CVar::log_enable);
+      GS::GetConsoleLogFile().Enable(CVar::log_enable);
+      GS::GetKillLogFile().SetLogLevel(CVar::log_level);
+      GS::GetConsoleLogFile().SetLogLevel(CVar::log_level);
       if (CVar::log_enable)
       {
         GS::GetGame().updategamestats();
-        auto& fs = GS::GetFileSystem();
 
-        writelogfile(fs, &GetKillLog(), GetKillLogFilename());
-        writelogfile(fs, GetGameLog(), GetGameLogFilename());
-
-        if ((fs.Size(GetKillLogFilename()) > max_logfilesize) ||
-            (fs.Size(GetGameLogFilename()) > max_logfilesize))
-        {
-          newlogfiles(fs);
-        }
+        GS::GetKillLogFile().WriteToFile();
+        GS::GetConsoleLogFile().WriteToFile();
+        GS::GetKillLogFile().CreateNewLogIfCurrentLogIsTooBig();
+        GS::GetConsoleLogFile().CreateNewLogIfCurrentLogIsTooBig();
       }
     }
 
