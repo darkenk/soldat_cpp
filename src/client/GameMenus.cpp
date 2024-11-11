@@ -49,7 +49,6 @@ void initbutton(pgamemenu menu, std::int32_t button, const std::string &caption,
 
 void initgamemenus()
 {
-  std::int32_t i;
   std::string s;
 
   hoveredmenu = nullptr;
@@ -112,7 +111,7 @@ void initgamemenus()
 
   setlength(limbomenu->button, main_weapons);
 
-  for (i = 0; i <= main_weapons - 1; i++)
+  for (std::int32_t i = 0; i <= main_weapons - 1; i++)
   {
     if (i < primary_weapons)
       s = (inttostr((i + 1) % 10)) + ' ' +

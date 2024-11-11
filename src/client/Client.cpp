@@ -42,20 +42,15 @@
 namespace
 {
 bool progready;
-} // namespace
 
-static Console sBigConsole;
-static ConsoleMain sKillConsole;
+
+Console sBigConsole;
+ConsoleMain sKillConsole;
 
 Console &InitBigConsole(FileUtility* filesystem, const std::int32_t newMessageWait, const std::int32_t countMax,
                            const std::int32_t scrollTickMax)
 {
   return *new (&sBigConsole) Console(filesystem, newMessageWait, countMax, scrollTickMax);
-}
-
-Console &GetBigConsole()
-{
-  return sBigConsole;
 }
 
 ConsoleMain &InitKillConsole(FileUtility* filesystem, const std::int32_t newMessageWait, const std::int32_t countMax,
@@ -64,13 +59,21 @@ ConsoleMain &InitKillConsole(FileUtility* filesystem, const std::int32_t newMess
   return *new (&sKillConsole) ConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax);
 }
 
+} // namespace
+
+
+Console &GetBigConsole()
+{
+  return sBigConsole;
+}
+
 ConsoleMain &GetKillConsole()
 {
   return sKillConsole;
 }
 
 // Client.cpp variables
-bool gamelooprun;
+static bool gamelooprun;
 
 std::string joinpassword;         // server password
 std::string joinport = "23073";   // join port to server
@@ -821,8 +824,6 @@ protected:
 
 TEST_SUITE("Client")
 {
-
-
 
   TEST_CASE_FIXTURE(ClientFixture, "Mount memory and write file and later read it")
   {

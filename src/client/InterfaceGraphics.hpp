@@ -46,4 +46,4 @@ void loadinterfacearchives(const std::string &path, bool firstonly = false);
 bool loadinterfacedata(const std::string &interfacename);
 void renderinterface(float timeelapsed, float width, float height);
 void renderactionsnaptext(double t);
-bool isdefaultinterface(const std::string interfacename);
+bool isdefaultinterface(const std::string& interfacename);

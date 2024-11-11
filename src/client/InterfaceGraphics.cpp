@@ -136,15 +136,13 @@ void loadinterfacearchives(const std::string &path, bool firstonly)
     return;
   }
 
-  std::string name;
-
   for (auto &f : std::filesystem::directory_iterator(path))
   {
     if (f.path().extension() != ".sint")
     {
       continue;
     }
-    name = f.path().stem();
+    std::string name = f.path().stem();
     if (PHYSFS_mount((pchar)(path + f.path().filename().c_str()),
                      (pchar)(string("custom-interfaces/") + name + '/'), false))
     {
@@ -162,9 +160,9 @@ void loadinterfacearchives(const std::string &path, bool firstonly)
   }
 }
 
-bool isdefaultinterface(const std::string interfacename)
+bool isdefaultinterface(const std::string &interfacename)
 {
-  return (interfacename == "") || (interfacename == "Default");
+  return (interfacename.empty()) || (interfacename == "Default");
 }
 
 void loaddefaultinterfacedata()

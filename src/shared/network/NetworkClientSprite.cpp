@@ -24,18 +24,16 @@ tmsg_clientspritesnapshot_mov oldclientsnapshotmovmsg;
 
 void clienthandleserverspritesnapshot(NetworkContext *netmessage)
 {
-  tmsg_serverspritesnapshot *spritesnap;
-  std::int32_t i, j;
 
   if (!verifypacket(sizeof(tmsg_serverspritesnapshot), netmessage->size,
                     msgid_serverspritesnapshot))
     return;
 
-  spritesnap = pmsg_serverspritesnapshot(netmessage->packet);
+  auto spritesnap = pmsg_serverspritesnapshot(netmessage->packet);
   auto &things = GS::GetThingSystem().GetThings();
 
   // assign received sprite info to sprite
-  i = spritesnap->num;
+  std::int32_t i = spritesnap->num;
 
   if ((i < 1) || (i > max_sprites))
     return;
@@ -98,7 +96,7 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
   // kill the bow
   if ((SpriteSystem::Get().GetSprite(i).weapon.num == bow_num) ||
       (SpriteSystem::Get().GetSprite(i).weapon.num == bow2_num))
-    for (j = 1; j <= max_things; j++)
+    for (std::int32_t j = 1; j <= max_things; j++)
       if ((things[j].active) && (things[j].style == object_rambo_bow))
       {
         gamethingtarget = 0;
@@ -143,17 +141,16 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
 
 void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
 {
-  tmsg_serverspritesnapshot_major *spritesnapmajor;
-  std::int32_t i, j;
 
   if (!verifypacket(sizeof(tmsg_serverspritesnapshot_major), netmessage->size,
                     msgid_serverspritesnapshot_major))
     return;
 
-  spritesnapmajor = pmsg_serverspritesnapshot_major(netmessage->packet);
+  auto spritesnapmajor =
+    pmsg_serverspritesnapshot_major(netmessage->packet);
 
   // assign received sprite info to sprite
-  i = spritesnapmajor->num;
+  std::int32_t i = spritesnapmajor->num;
 
   if ((i < 1) || (i > max_sprites))
     return;
@@ -207,7 +204,7 @@ void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
   auto &things = GS::GetThingSystem().GetThings();
   if ((SpriteSystem::Get().GetSprite(i).weapon.num == bow_num) ||
       (SpriteSystem::Get().GetSprite(i).weapon.num == bow2_num))
-    for (j = 1; j <= max_things; j++)
+    for (std::int32_t j = 1; j <= max_things; j++)
       if ((things[j].active) & (things[j].style == object_rambo_bow))
       {
         gamethingtarget = 0;
@@ -228,17 +225,15 @@ void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
 
 void clienthandleserverskeletonsnapshot(NetworkContext *netmessage)
 {
-  tmsg_serverskeletonsnapshot *skeletonsnap;
-  std::int32_t i;
 
   if (!verifypacket(sizeof(tmsg_serverskeletonsnapshot), netmessage->size,
                     msgid_serverskeletonsnapshot))
     return;
 
-  skeletonsnap = pmsg_serverskeletonsnapshot(netmessage->packet);
+  auto skeletonsnap = pmsg_serverskeletonsnapshot(netmessage->packet);
 
   // assign received Skeleton info to skeleton
-  i = skeletonsnap->num;
+  std::int32_t i = skeletonsnap->num;
 
   if ((i < 1) || (i > max_sprites))
     return;
@@ -279,7 +274,6 @@ void clientspritesnapshot()
 void clientspritesnapshotmov()
 {
   tmsg_clientspritesnapshot_mov clientmsg;
-  tvector2 posdiff, veldiff;
 
   clientmsg.header.id = msgid_clientspritesnapshot_mov;
 
@@ -296,8 +290,8 @@ void clientspritesnapshotmov()
   if (SpriteSystem::Get().GetSprite(mysprite).dontdrop)
     clientmsg.keys16 = clientmsg.keys16 & ~B9;
 
-  posdiff = vec2subtract(clientmsg.pos, oldclientsnapshotmovmsg.pos);
-  veldiff = vec2subtract(clientmsg.velocity, oldclientsnapshotmovmsg.velocity);
+  tvector2 posdiff = vec2subtract(clientmsg.pos, oldclientsnapshotmovmsg.pos);
+  tvector2 veldiff = vec2subtract(clientmsg.velocity, oldclientsnapshotmovmsg.velocity);
 
   if ((vec2length(posdiff) > posdelta) || (vec2length(veldiff) > veldelta) ||
       (clientmsg.keys16 != oldclientsnapshotmovmsg.keys16) || ((clientmsg.keys16 & B6) == B6) ||
@@ -327,22 +321,70 @@ void clientspritesnapshotdead()
   GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
 }
 
+static std::int32_t sConvertKillBulletToGFX(const std::uint8_t killbullet)
+{
+  switch (killbullet)
+  {
+  case 0:
+    return GFX::INTERFACE_GUNS_SOCOM;
+  case 1:
+    return GFX::INTERFACE_GUNS_DEAGLES;
+  case 2:
+    return GFX::INTERFACE_GUNS_MP5;
+  case 3:
+    return GFX::INTERFACE_GUNS_AK74;
+  case 4:
+    return GFX::INTERFACE_GUNS_STEYR;
+  case 5:
+    return GFX::INTERFACE_GUNS_SPAS;
+  case 6:
+    return GFX::INTERFACE_GUNS_RUGER;
+  case 7:
+    return GFX::INTERFACE_GUNS_M79;
+  case 8:
+    return GFX::INTERFACE_GUNS_BARRETT;
+  case 9:
+    return GFX::INTERFACE_GUNS_MINIMI;
+  case 10:
+    return GFX::INTERFACE_GUNS_MINIGUN;
+  case 205:
+    return GFX::INTERFACE_GUNS_FLAMER;
+  case 206:
+    return GFX::INTERFACE_GUNS_FIST;
+  case 207:
+    return  GFX::INTERFACE_GUNS_BOW;
+  case 208:
+    return  GFX::INTERFACE_GUNS_BOW;
+  case 210:
+    return  GFX::INTERFACE_CLUSTER_NADE;
+  case 211:
+    return  GFX::INTERFACE_GUNS_KNIFE;
+  case 212:
+    return  GFX::INTERFACE_GUNS_CHAINSAW;
+  case 222:
+    return  GFX::INTERFACE_NADE;
+  case 224:
+    return  GFX::INTERFACE_GUNS_LAW;
+  case 225:
+    return  GFX::INTERFACE_GUNS_M2;
+  default:
+    return -255;
+  }
+}
+
 void clienthandlespritedeath(NetworkContext *netmessage)
 {
-  tmsg_spritedeath *deathsnap;
-  std::int32_t i, d, j, k;
+  std::int32_t j;
   tvector2 b;
-  std::uint32_t col, col2;
-  float hm = 0.0;
 
   auto &map = GS::GetGame().GetMap();
 
   if (!verifypacket(sizeof(tmsg_spritedeath), netmessage->size, msgid_spritedeath))
     return;
 
-  deathsnap = pmsg_spritedeath(netmessage->packet);
+  auto deathsnap = pmsg_spritedeath(netmessage->packet);
 
-  i = deathsnap->num;
+  const std::int32_t i = deathsnap->num;
 
   if ((i < 1) || (i > max_sprites))
     return;
@@ -351,7 +393,7 @@ void clienthandlespritedeath(NetworkContext *netmessage)
 
   auto &sprite = SpriteSystem::Get().GetSprite(i);
 
-  for (d = 1; d <= 16; d++)
+  for (std::int32_t d = 1; d <= 16; d++)
   {
     [[deprecated("dminus 1")]] auto dminus1 = d - 1;
     const auto &pos = deathsnap->pos[dminus1];
@@ -477,59 +519,10 @@ void clienthandlespritedeath(NetworkContext *netmessage)
   // texture constants instead, without that 11 offset.
   // Similar code can be found in TSprite.Die (Sprites.pas)
 
-  switch (deathsnap->killbullet)
-  {
-  case 0:
-    k = GFX::INTERFACE_GUNS_SOCOM;
-    break;
-  case 1:
-  case 2:
-  case 3:
-  case 4:
-  case 5:
-  case 6:
-  case 7:
-  case 8:
-  case 9:
-  case 10:
-    k = GFX::INTERFACE_GUNS_DEAGLES + deathsnap->killbullet - 1;
-    break;
-  case 205:
-    k = GFX::INTERFACE_GUNS_FLAMER;
-    break;
-  case 206:
-    k = GFX::INTERFACE_GUNS_FIST;
-    break;
-  case 207:
-    k = GFX::INTERFACE_GUNS_BOW;
-    break;
-  case 208:
-    k = GFX::INTERFACE_GUNS_BOW;
-    break;
-  case 210:
-    k = GFX::INTERFACE_CLUSTER_NADE;
-    break;
-  case 211:
-    k = GFX::INTERFACE_GUNS_KNIFE;
-    break;
-  case 212:
-    k = GFX::INTERFACE_GUNS_CHAINSAW;
-    break;
-  case 222:
-    k = GFX::INTERFACE_NADE;
-    break;
-  case 224:
-    k = GFX::INTERFACE_GUNS_LAW;
-    break;
-  case 225:
-    k = GFX::INTERFACE_GUNS_M2;
-    break;
-  default:
-    k = -255;
-  }
+  const std::int32_t k = sConvertKillBulletToGFX(deathsnap->killbullet);
 
-  col = 0;
-  col2 = 0;
+  std::uint32_t col = 0;
+  std::uint32_t col2 = 0;
   switch (SpriteSystem::Get().GetSprite(deathsnap->killer).player->team)
   {
   case team_none:
@@ -620,6 +613,7 @@ void clienthandlespritedeath(NetworkContext *netmessage)
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
   if (deathsnap->killbullet == 222) /*grenade*/
   {
+    float hm = 0.0;
     for (j = max_bullets; j >= 1; j--)
     {
       auto &b = bullet[j];
@@ -641,22 +635,20 @@ void clienthandlespritedeath(NetworkContext *netmessage)
 
 void clienthandledelta_movement(NetworkContext *netmessage)
 {
-  tmsg_serverspritedelta_movement *deltamov;
-  std::int32_t i;
   // a: TVector2;
 
   if (!verifypacket(sizeof(tmsg_serverspritedelta_movement), netmessage->size,
                     msgid_delta_movement))
     return;
 
-  deltamov = pmsg_serverspritedelta_movement(netmessage->packet);
+  auto deltamov = pmsg_serverspritedelta_movement(netmessage->packet);
 
   // Older than Heartbeat Drop the Packet
   if (!demoplayer.active() && (deltamov->servertick < lastheartbeatcounter))
   {
     return;
   }
-  i = deltamov->num;
+  std::int32_t i = deltamov->num;
 
   if ((i < 1) || (i > max_sprites))
     return;
@@ -676,7 +668,6 @@ void clienthandledelta_movement(NetworkContext *netmessage)
 
 void clienthandledelta_mouseaim(NetworkContext *netmessage)
 {
-  std::int32_t i;
   tmsg_serverspritedelta_mouseaim *deltamouse;
 
   if (!verifypacket(sizeof(tmsg_serverspritedelta_mouseaim), netmessage->size,
@@ -685,7 +676,7 @@ void clienthandledelta_mouseaim(NetworkContext *netmessage)
 
   deltamouse = pmsg_serverspritedelta_mouseaim(netmessage->packet);
 
-  i = deltamouse->num;
+  std::int32_t i = deltamouse->num;
   if ((i < 1) || (i > max_sprites))
     return;
   if (!SpriteSystem::Get().GetSprite(i).active)
@@ -705,13 +696,11 @@ void clienthandledelta_mouseaim(NetworkContext *netmessage)
 
 void clienthandledelta_weapons(NetworkContext *netmessage)
 {
-  std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_serverspritedelta_weapons), netmessage->size,
-                    msgid_delta_weapons))
+  if (!verifypacket(sizeof(tmsg_serverspritedelta_weapons), netmessage->size, msgid_delta_weapons))
     return;
 
-  i = pmsg_serverspritedelta_weapons(netmessage->packet)->num;
+  std::int32_t i = pmsg_serverspritedelta_weapons(netmessage->packet)->num;
 
   if ((i < 1) || (i > max_sprites))
     return;
@@ -731,16 +720,13 @@ void clienthandledelta_weapons(NetworkContext *netmessage)
 
 void clienthandledelta_helmet(NetworkContext *netmessage)
 {
-  tmsg_serverspritedelta_helmet *deltahelmet;
-  std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_serverspritedelta_helmet), netmessage->size,
-                    msgid_delta_helmet))
+  if (!verifypacket(sizeof(tmsg_serverspritedelta_helmet), netmessage->size, msgid_delta_helmet))
     return;
 
-  deltahelmet = pmsg_serverspritedelta_helmet(netmessage->packet);
+  auto deltahelmet = pmsg_serverspritedelta_helmet(netmessage->packet);
 
-  i = deltahelmet->num;
+  std::int32_t i = deltahelmet->num;
 
   if ((i < 1) || (i > max_sprites))
     return;
@@ -766,4 +752,106 @@ void clienthandleclientspritesnapshot_dead(NetworkContext *netmessage)
     return;
   if (freecam == 0)
     camerafollowsprite = pmsg_clientspritesnapshot_dead(netmessage->packet)->camerafocus;
+}
+
+// TESTS
+#include <doctest/doctest.h>
+
+TEST_SUITE("NetworkClientSprite")
+{
+  TEST_CASE("Convert kill bullet to SOCOM")
+  {
+    tmsg_spritedeath deathsnap;
+    deathsnap.killbullet = 0;
+    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+    CHECK(k == GFX::INTERFACE_GUNS_SOCOM);
+  }
+
+  TEST_CASE("Convert kill bullet to DEAGLES")
+  {
+    tmsg_spritedeath deathsnap;
+    deathsnap.killbullet = 5;
+    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+    CHECK(k == GFX::INTERFACE_GUNS_DEAGLES + 4);
+  }
+
+  TEST_CASE("Convert kill bullet to FLAMER")
+  {
+    tmsg_spritedeath deathsnap;
+    deathsnap.killbullet = 205;
+    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+    CHECK(k == GFX::INTERFACE_GUNS_FLAMER);
+  }
+
+  TEST_CASE("Convert kill bullet to FIST")
+  {
+    tmsg_spritedeath deathsnap;
+    deathsnap.killbullet = 206;
+    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+    CHECK(k == GFX::INTERFACE_GUNS_FIST);
+  }
+
+  TEST_CASE("Convert kill bullet to BOW")
+  {
+    tmsg_spritedeath deathsnap;
+    deathsnap.killbullet = 207;
+    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+    CHECK(k == GFX::INTERFACE_GUNS_BOW);
+  }
+
+  TEST_CASE("Convert kill bullet to CLUSTER_NADE")
+  {
+    tmsg_spritedeath deathsnap;
+    deathsnap.killbullet = 210;
+    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+    CHECK(k == GFX::INTERFACE_CLUSTER_NADE);
+  }
+
+  TEST_CASE("Convert kill bullet to KNIFE")
+  {
+    tmsg_spritedeath deathsnap;
+    deathsnap.killbullet = 211;
+    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+    CHECK(k == GFX::INTERFACE_GUNS_KNIFE);
+  }
+
+  TEST_CASE("Convert kill bullet to CHAINSAW")
+  {
+    tmsg_spritedeath deathsnap;
+    deathsnap.killbullet = 212;
+    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+    CHECK(k == GFX::INTERFACE_GUNS_CHAINSAW);
+  }
+
+  TEST_CASE("Convert kill bullet to NADE")
+  {
+    tmsg_spritedeath deathsnap;
+    deathsnap.killbullet = 222;
+    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+    CHECK(k == GFX::INTERFACE_NADE);
+  }
+
+  TEST_CASE("Convert kill bullet to LAW")
+  {
+    tmsg_spritedeath deathsnap;
+    deathsnap.killbullet = 224;
+    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+    CHECK(k == GFX::INTERFACE_GUNS_LAW);
+  }
+
+  TEST_CASE("Convert kill bullet to M2")
+  {
+    tmsg_spritedeath deathsnap;
+    deathsnap.killbullet = 225;
+    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+    CHECK(k == GFX::INTERFACE_GUNS_M2);
+  }
+
+  TEST_CASE("Convert kill bullet to unknown")
+  {
+    tmsg_spritedeath deathsnap;
+    deathsnap.killbullet = 999;
+    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+    CHECK(k == -255);
+  }
 }

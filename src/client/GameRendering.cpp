@@ -112,7 +112,6 @@ static SDL_Surface *IconSurface = nullptr;
 
 void loadmodinfo()
 {
-  std::int32_t i;
   std::unique_ptr<TIniFile> rootini;
   std::unique_ptr<TIniFile> modini;
   std::unique_ptr<TIniFile> interfaceini;
@@ -185,14 +184,13 @@ void loadmodinfo()
 
 float getimagescale(const std::string &imagepath)
 {
-  TIniFile::Entries *data;
-  std::string intdir, scale, key;
-  std::string path;
+  std::string scale, key;
 
-  intdir = string("/custom-interfaces/") + lowercase(gamerenderingparams.interfacename) + '/';
+  std::string intdir =
+    string("/custom-interfaces/") + lowercase(gamerenderingparams.interfacename) + '/';
 
-  data = &scaledata.root;
-  path = lowercase(imagepath);
+  TIniFile::Entries *data = &scaledata.root;
+  std::string path = lowercase(imagepath);
   NotImplemented("rendering");
 #if 0
     if (((moddir != "") && (lowercase(moddir) == path.substr(1, length(moddir)))))
@@ -209,13 +207,12 @@ float getimagescale(const std::string &imagepath)
 
   std::replace(path.begin(), path.end(), '\\', '/');
   key = path;
-  auto it = data->find(key);
-  if (it != data->end())
+  if (const auto it = data->find(key); it != data->end())
   {
     scale = it->second;
   }
 
-  if (scale == "")
+  if (scale.empty())
   {
     NotImplemented("rendering");
 #if 0
@@ -223,7 +220,7 @@ float getimagescale(const std::string &imagepath)
         scale = data->at(key);
 #endif
 
-    if (scale == "")
+    if (scale.empty())
       scale = data->at("DefaultScale");
   }
 
@@ -1140,7 +1137,6 @@ bool dotextureloading(bool finishloading)
   std::int32_t i, j;
   std::int32_t w = 0;
   std::int32_t h = 0;
-  bool mainloading, interfaceloading;
   std::string s;
 
   bool dotextureloading_result = true; // return true when not loading
@@ -1148,8 +1144,8 @@ bool dotextureloading(bool finishloading)
   if ((mainspritesheet == nullptr) || (interfacespritesheet == nullptr))
     return dotextureloading_result;
 
-  mainloading = mainspritesheet->loading();
-  interfaceloading = interfacespritesheet->loading();
+  bool mainloading = mainspritesheet->loading();
+  bool interfaceloading = interfacespritesheet->loading();
 
   if (!(mainloading || interfaceloading))
     return dotextureloading_result;

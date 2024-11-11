@@ -7,7 +7,6 @@
 #include <common/network/Net.hpp>
 // #include "shared/network/NetworkServer.hpp"
 
-extern bool progready;
 extern std::int32_t bonusfreq;
 
 extern std::string serverip;
