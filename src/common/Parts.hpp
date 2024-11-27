@@ -1,8 +1,8 @@
 #pragma once
 
+#include "FileUtility.hpp"
 #include "Vector.hpp"
 #include "misc/PortUtilsSoldat.hpp"
-#include "FileUtility.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -30,6 +30,12 @@ public:
   std::int32_t constraintcount;
   std::int32_t partcount;
   PascalArray<constraint, 1, num_particles> constraints;
+
+  void SetOldPos(const std::int32_t i, const tvector2 value) { oldpos[i + 1] = value; }
+  void SetPos(const std::int32_t i, const tvector2 value) { pos[i + 1] = value; }
+
+  [[nodiscard]] tvector2 &GetOldPos(const std::int32_t i) { return oldpos[i + 1]; }
+  [[nodiscard]] tvector2 &GetPos(const std::int32_t i) { return pos[i + 1]; }
 
 public:
   void doverlettimestep();

@@ -23,15 +23,14 @@ public:
     return SpriteId{255};
   }
 
-  constexpr bool operator==(const SpriteId &ref)
-  {
+  constexpr bool operator==(const SpriteId &ref) const {
     return ref.Id == Id;
   }
 
 private:
   const std::uint8_t Id;
 
-  auto GetId() const -> decltype(Id)
+  [[nodiscard]] auto GetId() const -> decltype(Id)
   {
     return Id;
   }

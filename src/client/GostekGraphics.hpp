@@ -2,13 +2,14 @@
 
 #include "common/misc/TIniFile.hpp"
 #include "shared/misc/SoldatConfig.hpp"
+#include "Gfx.hpp"
 
 template <Config::Module M>
 class Sprite;
 
 void rendergostek(Sprite<Config::GetModule()> &soldier);
 void loadgostekdata(const TIniFile::Entries &data);
-void applygostekconstraints();
+void applygostekconstraints(tgfxspritearray textures);
 
 constexpr std::int32_t GOSTEK_SECONDARY_DEAGLES = 0;
 constexpr std::int32_t GOSTEK_SECONDARY_MP5 = 1;

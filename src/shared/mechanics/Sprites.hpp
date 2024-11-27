@@ -209,10 +209,7 @@ public:
   bool isnotsolo();
   bool isinteam();
   bool isspectator();
-  bool isnotspectator()
-  {
-    return player->team != team_spectator;
-  }
+  [[nodiscard]] bool isnotspectator() const { return player->team != team_spectator; }
   bool isinsameteam(const Sprite &otherplayer);
   bool isnotinsameteam(const Sprite &otherplayer);
   bool canrespawn(bool deadmeatbeforerespawn);
@@ -220,10 +217,7 @@ public:
   void SetHealth(float health);
   float GetHealth();
 
-  bool IsActive() const
-  {
-    return active;
-  }
+  [[nodiscard]] bool IsActive() const { return active; }
 
   void SetFirstWeapon(const tgun &gun);
   void SetSecondWeapon(const tgun &gun);

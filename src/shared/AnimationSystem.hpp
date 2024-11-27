@@ -6,6 +6,7 @@
 #include <string>
 
 class particlesystem;
+class Skeleton;
 
 enum SkeletonType : std::int32_t
 {

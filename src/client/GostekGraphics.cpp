@@ -18,10 +18,6 @@
 
 using std::numbers::pi;
 
-//#define IDS 1
-//#include "GostekGraphics.inc.hpp"
-//#undef IDS
-
 constexpr std::int32_t color_none = 0;
 constexpr std::int32_t color_main = 1;
 constexpr std::int32_t color_pants = 2;
@@ -42,8 +38,8 @@ public:
                          const std::uint8_t visible, const std::uint8_t flip,
                          const std::uint8_t team, const float flex, const std::uint8_t color,
                          const std::uint8_t alpha)
-    : id(id), image(image), p1(p1), p2(p2), cx(cx), cy(cy), visible(visible == 1), flex(flex), flip(flip), team(team),
-      color(color), alpha(alpha)
+    : id(id), image(image), p1(p1), p2(p2), cx(cx), cy(cy), flex(flex), flip(flip), team(team),
+      color(color), alpha(alpha), visible(visible == 1)
   {
   }
 
@@ -462,20 +458,17 @@ void loadgostekdata(const TIniFile::Entries &data)
   }
 }
 
-static float texwidth(std::int32_t index)
+void applygostekconstraints(tgfxspritearray textures)
 {
-  return fabs(textures[index]->width * textures[index]->scale);
-}
+  auto texwidth = [&textures](const std::int32_t index) {
+    return fabs(textures[index]->width * textures[index]->scale);
+  };
 
-static float texheight(std::int32_t index)
-{
-  return fabs(textures[index]->height * textures[index]->scale);
-}
+  auto texheight = [&textures](const std::int32_t index) {
+    return fabs(textures[index]->height * textures[index]->scale);
+  };
 
-void applygostekconstraints()
-{
-
-  const std::int32_t t2 = GFX::GOSTEK_TEAM2_STOPA - GFX::GOSTEK_STOPA;
+  constexpr std::int32_t t2 = GFX::GOSTEK_TEAM2_STOPA - GFX::GOSTEK_STOPA;
 
   for (std::int32_t i = GOSTEK_FIRST; i < GOSTEK_LAST; i++)
   {
@@ -493,8 +486,8 @@ void applygostekconstraints()
       h = max(h, texheight(gs.image + t2 * ord(gs.team)));
       h = max(h, texheight(gs.image + t2 * ord(gs.team) + ord(gs.flip)));
 
-      float cx = w * fabs(gs.cx + 0.5);
-      float cy = h * fabs(gs.cy + 0.5);
+      const float cx = w * fabs(gs.cx + 0.5);
+      const float cy = h * fabs(gs.cy + 0.5);
 
       if (cx > (w + gos_restrict_width))
         gs.cx = 0.5 + sign(gs.cx + 0.5) * ((float)((w + gos_restrict_width)) / w);
@@ -505,7 +498,7 @@ void applygostekconstraints()
   }
 }
 
-void drawgosteksprite(pgfxsprite sprite, float x, float y, float sx, float sy, float cx, float cy,
+static void drawgosteksprite(pgfxsprite sprite, float x, float y, float sx, float sy, float cx, float cy,
                       float r, const tgfxcolor &color)
 {
   ZoneScopedN("DrawGostekSprite");
@@ -555,7 +548,7 @@ void drawgosteksprite(pgfxsprite sprite, float x, float y, float sx, float sy, f
 void rendergostek(tsprite &soldier)
 {
   ZoneScopedN("RenderGostek");
-  std::int32_t i, n, index;
+  std::int32_t i, index;
   bool showclip;
   tgostekspriteset visible;
   PascalArray<tgfxcolor, color_none, color_headblood> color;
@@ -646,7 +639,8 @@ void rendergostek(tsprite &soldier)
   else
     index = GOSTEK_CLUSTER_GRENADE1;
 
-  n = soldier.tertiaryweapon.ammocount - ord(soldier.bodyanimation.id == AnimationType::Throw);
+  std::int32_t n =
+    soldier.tertiaryweapon.ammocount - ord(soldier.bodyanimation.id == AnimationType::Throw);
 
   for (i = 0; i <= min(5, n) - 1; i++)
     include(visible, index + i);
@@ -886,17 +880,14 @@ void rendergostek(tsprite &soldier)
   }
 }
 
-// initialization
-//  LoadDefaults();
-
 // TESTS
 #include <doctest/doctest.h>
 
 struct GostekGraphicsFixture
 {
 public:
-  GostekGraphicsFixture() { }
-  template<typename T>
+  GostekGraphicsFixture() {}
+  template <typename T>
   void VerifyGostSkprites(const T &gosteksprites);
   void VerifyGostekBase(const tgostekspriteset &gostekbase);
 };
@@ -912,45 +903,11 @@ TEST_SUITE("GostekGraphics")
     loaddefaults();
     VerifyGostekBase(gostekbase);
     VerifyGostSkprites(gosteksprites);
-    //  for (auto defindex = 0; defindex < gosteksprites.size(); defindex++)
-    //  {
-    //    printf("CHECK_EQ(gosteksprites[%d].cx, %f);\n", defindex, gosteksprites[defindex].cx);
-    //    printf("CHECK_EQ(gosteksprites[%d].image, %" PRIu64 ");\n", defindex,
-    //           gosteksprites[defindex].image);
-    //    printf("CHECK_EQ(gosteksprites[%d].p1, %u);\n", defindex, gosteksprites[defindex].p1);
-    //    printf("CHECK_EQ(gosteksprites[%d].p2, %u);\n", defindex, gosteksprites[defindex].p2);
-    //    printf("CHECK_EQ(gosteksprites[%d].id, \"%s\");\n", defindex,
-    //           gosteksprites[defindex].id.c_str());
-    //    printf("CHECK_EQ(gosteksprites[%d].cy, %f);\n", defindex, gosteksprites[defindex].cy);
-    //    printf("CHECK_EQ(gosteksprites[%d].flex, %f);\n", defindex, gosteksprites[defindex].flex);
-    //    printf("CHECK_EQ(gosteksprites[%d].flip, %s);\n", defindex,
-    //           gosteksprites[defindex].flip == 1 ? "true" : "false");
-    //    printf("CHECK_EQ(gosteksprites[%d].team, %s);\n", defindex,
-    //           gosteksprites[defindex].team == 1 ? "true" : "false");
-    //    printf("CHECK_EQ(gosteksprites[%d].color, %u);\n", defindex,
-    //    gosteksprites[defindex].color); printf("CHECK_EQ(gosteksprites[%d].alpha, %u);\n",
-    //    defindex, gosteksprites[defindex].alpha);
-    //  }
   }
-  // TEST_CASE_FIXTURE(GostekGraphicsFixture, "Load defaults sets initial defindex")
-  // {
-  //   CHECK_EQ(defindex, GOSTEK_FIRST);
-  // }
-  //
-  // TEST_CASE_FIXTURE(GostekGraphicsFixture, "Load defaults includes correct sprites")
-  // {
-  //   CHECK(gostekbase.contains(GOSTEK_HEAD));
-  //   CHECK(gostekbase.contains(GOSTEK_CHEST));
-  //   CHECK(gostekbase.contains(GOSTEK_LEFT_ARM));
-  //   CHECK(gostekbase.contains(GOSTEK_RIGHT_ARM));
-  //   CHECK(gostekbase.contains(GOSTEK_LEFT_LEG));
-  //   CHECK(gostekbase.contains(GOSTEK_RIGHT_LEG));
-  // }
 }
 
-template<typename T>
-void GostekGraphicsFixture::VerifyGostSkprites(
-  const T& gosteksprites)
+template <typename T>
+void GostekGraphicsFixture::VerifyGostSkprites(const T &gosteksprites)
 {
   CHECK_EQ(gosteksprites[0].cx, 0.300000f);
   CHECK_EQ(gosteksprites[0].image, 0);

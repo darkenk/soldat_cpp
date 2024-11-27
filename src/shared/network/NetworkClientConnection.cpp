@@ -351,17 +351,18 @@ void clienthandleplayerslist(NetworkContext *netmessage)
         newplayer->chain = 2;
 
       createsprite(pos, iplus1, newplayer);
+      auto& sprite = SpriteSystem::Get().GetSprite(iplus1);
 
       auto &spriteVelocity =
-        SpriteSystem::Get().GetVelocity(SpriteSystem::Get().GetSprite(iplus1).num);
+        SpriteSystem::Get().GetVelocity(sprite.num);
       spriteVelocity = vel;
 
-      SpriteSystem::Get().GetSprite(iplus1).ceasefirecounter = 0;
+      sprite.ceasefirecounter = 0;
       if (playerslistmsg->predduration[i] > 0)
       {
-        SpriteSystem::Get().GetSprite(iplus1).alpha = predatoralpha;
-        SpriteSystem::Get().GetSprite(iplus1).bonustime = playerslistmsg->predduration[i] * 60;
-        SpriteSystem::Get().GetSprite(iplus1).bonusstyle = bonus_predator;
+        sprite.alpha = predatoralpha;
+        sprite.bonustime = playerslistmsg->predduration[i] * 60;
+        sprite.bonusstyle = bonus_predator;
       }
     }
   }

@@ -1177,17 +1177,13 @@ void gfxend()
 template <typename Allocator>
 void gfxdrawquad(tgfxtexture *texture, const std::vector<tgfxvertex, Allocator> &vertices)
 {
-  tbatchbuffer *buf;
-  pgfxvertex v;
-  tgfxtexture *curtex;
-  std::int32_t n;
 
   tbatch &b = gfxcontext.batch;
 
   // update commands list
 
-  curtex = nullptr;
-  n = b.commandssize;
+  tgfxtexture *curtex = nullptr;
+  std::int32_t n = b.commandssize;
 
   if (n > 0)
     curtex = b.commands[n - 1].texture;
@@ -1218,7 +1214,7 @@ void gfxdrawquad(tgfxtexture *texture, const std::vector<tgfxvertex, Allocator> 
   // update buffer
 
   n = length(b.buffers);
-  buf = &b.buffers[n - 1];
+  tbatchbuffer *buf = &b.buffers[n - 1];
 
   if ((buf->size + 6) > buf->capacity)
   {
@@ -1230,7 +1226,7 @@ void gfxdrawquad(tgfxtexture *texture, const std::vector<tgfxvertex, Allocator> 
     getmem(buf->data, buf->capacity * sizeof(tgfxvertex));
   }
 
-  v = buf->data;
+  pgfxvertex v = buf->data;
   v += buf->size;
 
   *v = vertices[0];

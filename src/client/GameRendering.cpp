@@ -115,7 +115,6 @@ void loadmodinfo()
   std::unique_ptr<TIniFile> rootini;
   std::unique_ptr<TIniFile> modini;
   std::unique_ptr<TIniFile> interfaceini;
-  std::string key;
 
   // load required ini's
 
@@ -250,32 +249,26 @@ string pngoverride(const std::string &filename)
 
 void loadmaintextures()
 {
-  std::int32_t i, count;
-  std::string path;
-  tgfxcolor color;
-  float scale;
+  auto &fs = GS::GetFileSystem();
 
-  auto& fs = GS::GetFileSystem();
-
-  count = 0;
-
-  count = std::count_if(GFXData.begin(), GFXData.end(),
+  const auto count = std::count_if(GFXData.begin(), GFXData.end(),
                         [](const auto &d) { return d.Group != GFXG::INTERFACE; });
 
   mainspritesheet = new tgfxspritesheet(count);
-  scale = 1.5 * renderheight / gameheight;
+  float scale = 1.5 * renderheight / gameheight;
 
-  for (i = 0; i < GFXData.size(); i++)
+  for (std::int32_t i = 0; i < GFXData.size(); i++)
   {
     if (GFXData[i].Group != GFXG::INTERFACE)
     {
+      tgfxcolor color;
       auto id = GFXData[i].ID;
       color.r = (GFXData[i].ColorKey & 0xff) >> 0;
       color.g = (GFXData[i].ColorKey & 0xff00) >> 8;
       color.b = (GFXData[i].ColorKey & 0xff0000) >> 16;
       color.a = (GFXData[i].ColorKey & 0xff000000) >> 24;
 
-      path = pngoverride(moddir + std::string(GFXData[i].Path));
+      auto path = pngoverride(moddir + std::string(GFXData[i].Path));
 
       if (!fs.Exists(path))
         path = pngoverride(GFXData[i].Path);
@@ -400,15 +393,15 @@ string getfontpath(string fallback, string &fontfile)
     return "play-regular.ttf";
   }
 
-  if (fontfile != "")
+  if (!fontfile.empty())
     result = getfontpath(fontfile);
 
-  if (result == "")
+  if (result.empty())
   {
     result = getfontpath(fontfile);
   }
 
-  if (result == "")
+  if (result.empty())
   {
     fontfile = fallback;
     result = getfontpath(fontfile);
@@ -677,8 +670,6 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
     object_medical_kit, object_grenade_kit, object_flamer_kit, object_predator_kit,
     object_vest_kit,    object_berserk_kit, object_cluster_kit};
   std::int32_t i, j;
-  particlesystem *sk;
-  tgun *gun;
 
   s.camera.x = camerax;
   s.camera.y = cameray;
@@ -698,8 +689,8 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
       i = sprite.num;
-      sk = &sprite.skeleton;
-      gun = &sprite.weapon;
+      const auto sk = &sprite.skeleton;
+      tgun *gun = &sprite.weapon;
       std::memcpy(&s.spritepos[i][1], &sk->pos[1], sizeof(tvector2) * length(s.spritepos[i]));
 
       {
@@ -758,7 +749,7 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
     {
       if (things[i].active)
       {
-        sk = &things[i].skeleton;
+        const auto sk = &things[i].skeleton;
         std::memcpy(&s.thingpos[i][1], &sk->pos[1], sizeof(tvector2) * length(s.thingpos[i]));
 
         for (j = low(s.thingpos[i]); j <= high(s.thingpos[i]); j++)
@@ -1204,7 +1195,7 @@ bool dotextureloading(bool finishloading)
     s[length(s)] = ')';
     gfxlog(string("Loaded main spritesheet (") + s);
 
-    applygostekconstraints();
+    applygostekconstraints(textures);
   }
 
   if (interfacespritesheet->loading() != interfaceloading)

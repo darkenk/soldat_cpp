@@ -60,18 +60,18 @@ void particlesystem::euler(std::int32_t i)
 
 void particlesystem::verlet(std::int32_t i)
 {
-  tvector2 temppos, s1, s2, d;
+  tvector2 s1, s2;
 
   // Accumulate Forces
   forces[i].y = forces[i].y + gravity;
-  temppos = pos[i];
+  tvector2 temppos = pos[i];
 
   // Pos[I]:= 2 * Pos[I] - OldPos[I] + Forces[I]{ / Mass} * TimeStep * TimeStep;  {Verlet
   // integration}
   vec2scale(s1, pos[i], 1.0 + vdamping);
   vec2scale(s2, oldpos[i], vdamping);
 
-  d = vec2subtract(s1, s2);
+  tvector2 d = vec2subtract(s1, s2);
   vec2scale(s1, forces[i], oneovermass[i]);
   vec2scale(s2, s1, sqr(timestep));
 
@@ -193,23 +193,19 @@ void particlesystem::clone(const particlesystem &other)
 
 void particlesystem::loadpoobject(FileUtility &fs, const std::string &filename, float scale)
 {
-  std::string nm = "";
-  std::string x = "";
-  std::string y = "";
-  std::string z = "";
-  std::string a = "";
-  std::string b = "";
-  tvector2 p, delta, v;
-  std::int32_t pa, pb;
-  std::int32_t i;
-
   if (!fs.Exists(filename))
   {
     return;
   }
-  v.x = 0;
-  v.y = 0;
-  i = 0;
+  std::string nm;
+  std::string x;
+  std::string y;
+  std::string z;
+  std::string a;
+  std::string b;
+  tvector2 p;
+
+  std::int32_t i = 0;
   constraintcount = 0;
 
   auto stream = ReadAsFileStream(fs, filename);
@@ -219,6 +215,7 @@ void particlesystem::loadpoobject(FileUtility &fs, const std::string &filename, 
     stream->ReadLine(nm); // name
     if (nm != "CONSTRAINTS")
     {
+      tvector2 v;
       stream->ReadLine(x); // X
       stream->ReadLine(y); // Y
       stream->ReadLine(z); // Z
@@ -230,7 +227,7 @@ void particlesystem::loadpoobject(FileUtility &fs, const std::string &filename, 
       i += 1;
       createpart(p, v, 1, i);
     }
-  } while (!(nm == "CONSTRAINTS"));
+  } while (nm != "CONSTRAINTS");
 
   partcount = i;
 
@@ -243,12 +240,12 @@ void particlesystem::loadpoobject(FileUtility &fs, const std::string &filename, 
     stream->ReadLine(b); // Part B
     a.erase(0, 1);
     b.erase(0, 1);
-    pa = strtoint(a);
-    pb = strtoint(b);
+    std::int32_t pa = strtoint(a);
+    std::int32_t pb = strtoint(b);
 
-    delta = vec2subtract(pos[pa], pos[pb]);
+    tvector2 delta = vec2subtract(pos[pa], pos[pb]);
     makeconstraint(pa, pb, sqrt(vec2dot(delta, delta)));
-  } while (!(a == "ENDFILE"));
+  } while (a != "ENDFILE");
 }
 
 void particlesystem::stopallparts()
