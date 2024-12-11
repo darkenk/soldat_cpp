@@ -4,7 +4,7 @@
         {
             "name": "default",
             "displayName": "Default Config",
-            "generator": "Unix Makefiles",
+            "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/out/soldat",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE":"RelWithDebInfo",
@@ -50,6 +50,19 @@
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake"
             }
+        },
+        {
+            "name": "utbot_cpp",
+            "displayName": "Utbot_cpp",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build/out/soldat_utbot",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE":"RelWithDebInfo",
+                "CMAKE_C_COMPILER": "${env:utbot}/utbot_distr/install/bin/clang",
+                "CMAKE_CXX_COMPILER": "${env:utbot}/utbot_distr/install/bin/clang++",
+                "CMAKE_EXPORT_LINK_COMMANDS": "ON",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
         }
     ],
     "buildPresets": [
@@ -63,25 +76,36 @@
             "name": "debug",
             "displayName": "Debug Clang",
             "configurePreset": "debug",
-            "configuration": "Debug Clang"
+            "configuration": "Debug Clang",
+            "targets": ["SoldatGame"]
         },
         {
             "name": "debug coverage",
             "displayName": "Debug Clang Coverage",
             "configurePreset": "debug-coverage-clang",
-            "configuration": "Debug Clang Coverage"
+            "configuration": "Debug Clang Coverage",
+            "targets": ["SoldatGame"]
         },
         {
             "name": "debug g++",
             "displayName": "Debug G++",
             "configurePreset": "debug-g++",
-            "configuration": "Debug G++"
+            "configuration": "Debug G++",
+            "targets": ["SoldatGame"]
         },
         {
             "name": "debug emcc",
             "displayName": "Debug emcc",
             "configurePreset": "debug-emcc",
-            "configuration": "Debug emcc"
+            "configuration": "Debug emcc",
+            "targets": ["SoldatGame"]
+        },
+        {
+            "name": "utbot_cpp",
+            "displayName": "Utbot_cpp",
+            "configurePreset": "utbot_cpp",
+            "configuration": "Utbot_cpp",
+            "targets": ["SoldatGame"]
         }
     ]
 }

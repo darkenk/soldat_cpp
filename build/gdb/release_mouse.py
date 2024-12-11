@@ -22,6 +22,5 @@ def release_mouse (event):
     #       either way, it needs xdotool installed.
     #gdb.execute("exec xdotool key XF86Ungrab")
      
- 
-gdb.events.stop.connect(release_mouse)
-gdb.write("GDB/SDL2: installed release mouse for SDL2\n")
+#gdb.events.stop.connect(release_mouse)
+#gdb.write("GDB/SDL2: installed release mouse for SDL2\n")
