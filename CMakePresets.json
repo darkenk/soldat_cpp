@@ -4,7 +4,7 @@
         {
             "name": "default",
             "displayName": "Default Config",
-            "generator": "Ninja",
+            "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/build/out/soldat",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE":"RelWithDebInfo",

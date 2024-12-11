@@ -15,7 +15,6 @@
 
 void clienthandleserverthingsnapshot(NetworkContext *netmessage)
 {
-  std::int32_t d;
   tvector2 a;
 
   if (!verifypacket(sizeof(tmsg_serverthingsnapshot), netmessage->size,
@@ -40,7 +39,7 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
   {
     creatething(a, thingsnap->owner, thingsnap->style, i);
 
-    for (d = 1; d <= 4; d++)
+    for (auto d = 1; d <= 4; d++)
     {
       [[deprecated("minus 1")]] auto dminus1 = d - 1;
       thing.skeleton.pos[d].x = thingsnap->pos[dminus1].x;
@@ -78,7 +77,7 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
   if ((thing.holdingsprite == 0) && (thing.style != object_stationary_gun))
     if ((distance(thing.skeleton.pos[1], thingsnap->pos[1]) > 10) &&
         (distance(thing.skeleton.pos[2], thingsnap->pos[2]) > 10))
-      for (d = 1; d <= 4; d++)
+      for (auto d = 1; d <= 4; d++)
       {
         [[deprecated("maybe change d scope from 1 to 0?")]] auto dminus1 = d - 1;
         thing.skeleton.pos[d].x = thingsnap->pos[dminus1].x;
@@ -91,7 +90,7 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
   {
     auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(thing.holdingsprite);
     if (distance(thing.skeleton.pos[1], spritePartsPos) > 330)
-      for (d = 1; d <= 4; d++)
+      for (auto d = 1; d <= 4; d++)
       {
         [[deprecated("maybe change d scope from 1 to 0?")]] auto dminus1 = d - 1;
         thing.skeleton.pos[d].x = thingsnap->pos[dminus1].x;
