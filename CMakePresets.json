@@ -58,8 +58,14 @@
             "binaryDir": "${sourceDir}/build/out/soldat_utbot",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE":"RelWithDebInfo",
-                "CMAKE_C_COMPILER": "${env:utbot}/utbot_distr/install/bin/clang",
-                "CMAKE_CXX_COMPILER": "${env:utbot}/utbot_distr/install/bin/clang++",
+                "CMAKE_C_COMPILER": "/utbot_distr/install/bin/clang",
+                "CMAKE_CXX_COMPILER": "/utbot_distr/install/bin/clang++",
+                "CMAKE_AR": "/utbot_distr/install/bin/llvm-ar",
+                "CMAKE_LINKER": "/utbot_distr/install/bin/llvm-link",
+                "CMAKE_NM": "/utbot_distr/install/bin/llvm-nm",
+                "CMAKE_OBJDUMP": "/utbot_distr/install/bin/llvm-objdump",
+                "CMAKE_RUNLIB": "/utbot_distr/install/bin/llvm-ranlib",
+                "CMAKE_OBJCOPY": "/utbot_distr/install/bin/llvm-objcopy",
                 "CMAKE_EXPORT_LINK_COMMANDS": "ON",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }

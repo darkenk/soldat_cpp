@@ -29,7 +29,9 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>
 #include <client/ClientGame.hpp>
+#if !SOLDAT_UTBOT
 #include <numbers>
+#endif // !SOLDAT_UTBOT
 
 #ifndef SERVER
 bool wasreloading;
@@ -37,7 +39,11 @@ bool wasreloading;
 
 auto constexpr LOG = "sprites";
 
+#if SOLDAT_UTBOT
+constexpr auto pi = 3.14159265358979323846;
+#else
 using std::numbers::pi;
+#endif // SOLDAT_UTBOT
 
 namespace
 {
@@ -3943,7 +3949,7 @@ void Sprite<M>::fire()
   // The scaling is modeled after Sin(x) where x = 0 -> Pi/2 to gracefully reach
   // the maximum. Then multiply by a float between -1.0 and 1.0.
   maxdeviation =
-    max_inaccuracy * sin(((float)(inaccuracy) / max_inaccuracy) * (std::numbers::pi / 2));
+    max_inaccuracy * sin(((float)(inaccuracy) / max_inaccuracy) * (pi / 2));
   d.x = (float)(Random() * 2 - 1) * maxdeviation;
   d.y = (float)(Random() * 2 - 1) * maxdeviation;
 

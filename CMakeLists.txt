@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.20)
 project(SoldatCPP)
 set(CMAKE_CXX_STANDARD 20)
 
@@ -20,6 +20,8 @@ else()
   set(THIRD_PARTY_OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/release/third_party)
 endif()
 
+
+add_compile_definitions(SOLDAT_UTBOT=0)
 
 if (CMAKE_SYSTEM_PROCESSOR MATCHES "^aarch64")
   set(SOLDAT_PLATFORM linux_aarch64)

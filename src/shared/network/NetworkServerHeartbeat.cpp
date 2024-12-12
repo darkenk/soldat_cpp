@@ -10,7 +10,16 @@ template<class TSprite, Config::Module M>
 void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSystem, Game<M>& game)
 {
   tmsg_heartbeat heartbeatmsg; // NOLINT
-
+#if SOLDAT_UTBOT
+  auto fill = [](auto &arr, auto val) { std::for_each(std::begin(arr), std::end(arr), [val](auto &v) { v = val; }); };
+  fill(heartbeatmsg.active, false);
+  fill(heartbeatmsg.kills, 0);
+  fill(heartbeatmsg.caps, 0);
+  fill(heartbeatmsg.team, 0);
+  fill(heartbeatmsg.deaths, 0);
+  fill(heartbeatmsg.flags, 0);
+  fill(heartbeatmsg.ping, 255);
+#else
   std::ranges::fill(heartbeatmsg.active, false);
   std::ranges::fill(heartbeatmsg.kills, 0);
   std::ranges::fill(heartbeatmsg.caps, 0);
@@ -18,6 +27,7 @@ void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSys
   std::ranges::fill(heartbeatmsg.deaths, 0);
   std::ranges::fill(heartbeatmsg.flags, 0);
   std::ranges::fill(heartbeatmsg.ping, 255);
+#endif // SOLDAT_UTBOT
 
   for (auto c = 0; auto &s : spriteSystem.GetActiveSprites())
   {

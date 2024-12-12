@@ -23,9 +23,14 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>
 #include <limits>
+
+#if SOLDAT_UTBOT
+constexpr auto pi = 3.14159265358979323846;
+#else
 #include <numbers>
 
 using std::numbers::pi;
+#endif // SOLDAT_UTBOT
 
 template <Config::Module M>
 particlesystem &GetBulletParts()

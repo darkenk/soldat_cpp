@@ -25,9 +25,13 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
+#if SOLDAT_UTBOT
+constexpr auto pi = 3.14159265358979323846;
+#else
 #include <numbers>
 
 using std::numbers::pi;
+#endif // SOLDAT_UTBOT
 
 template <Config::Module M>
 std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::uint8_t n)
