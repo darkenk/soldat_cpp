@@ -27,14 +27,79 @@
 
 using string = std::string;
 
+static void sPreprocessSprites(SpriteSystem &spriteSystem, tmsg_playerslist *playerslistmsg,
+                               tvector2 &pos, tvector2 &vel)
+{
+  for (std::int32_t i = 0; i < max_sprites; i++)
+  {
+    if (strcmp(playerslistmsg->name[i].data(), "0 ") != 0)
+    {
+      [[deprecated("conversion from 0 to 1")]] auto iplus1 =
+        i + 1; // convert from indexing from 0 to indexing from 1
+      auto newplayer = spriteSystem.GetSprite(iplus1).player; // reuse object
+      newplayer->name = returnfixedplayername(playerslistmsg->name[i].data());
+      newplayer->shirtcolor = playerslistmsg->shirtcolor[i] | 0xff000000;
+      newplayer->pantscolor = playerslistmsg->pantscolor[i] | 0xff000000;
+      newplayer->skincolor = playerslistmsg->skincolor[i] | 0xff000000;
+      newplayer->haircolor = playerslistmsg->haircolor[i] | 0xff000000;
+      newplayer->jetcolor = playerslistmsg->jetcolor[i];
+      newplayer->team = playerslistmsg->team[i];
+
+#ifdef STEAM
+      newplayer.steamid = tsteamid(playerslistmsg->steamid[i]);
+#endif
+
+      newplayer->secwep = 0;
+      pos = playerslistmsg->pos[i];
+      vel = playerslistmsg->vel[i];
+
+      newplayer->hairstyle = 0;
+      if ((playerslistmsg->look[i] & B1) == B1)
+        newplayer->hairstyle = 1;
+      if ((playerslistmsg->look[i] & B2) == B2)
+        newplayer->hairstyle = 2;
+      if ((playerslistmsg->look[i] & B3) == B3)
+        newplayer->hairstyle = 3;
+      if ((playerslistmsg->look[i] & B4) == B4)
+        newplayer->hairstyle = 4;
+
+      newplayer->headcap = 0;
+      if ((playerslistmsg->look[i] & B5) == B5)
+        newplayer->headcap = GFX::GOSTEK_HELM;
+      if ((playerslistmsg->look[i] & B6) == B6)
+        newplayer->headcap = GFX::GOSTEK_KAP;
+
+      newplayer->chain = 0;
+      if ((playerslistmsg->look[i] & B7) == B7)
+        newplayer->chain = 1;
+      if ((playerslistmsg->look[i] & B8) == B8)
+        newplayer->chain = 2;
+
+      createsprite(pos, iplus1, newplayer);
+      auto &sprite = spriteSystem.GetSprite(iplus1);
+
+      auto &spriteVelocity = spriteSystem.GetVelocity(sprite.num);
+      spriteVelocity = vel;
+
+      sprite.ceasefirecounter = 0;
+      if (playerslistmsg->predduration[i] > 0)
+      {
+        sprite.alpha = predatoralpha;
+        sprite.bonustime = playerslistmsg->predduration[i] * 60;
+        sprite.bonusstyle = bonus_predator;
+      }
+    }
+  }
+}
+
 // REQUEST GAME FROM SERVER
-template<typename T>
-void clientrequestgame(NetworkBase<T>& network, std::string_view password)
+template <typename T>
+void clientrequestgame(NetworkBase<T> &network, std::string_view password)
 {
   const std::int32_t size = tmsg_requestgame::sCalculateSize(password);
-  auto buff = static_cast<uint8_t*>(alloca(size));
+  auto buff = static_cast<uint8_t *>(alloca(size));
 
-  auto requestmsg = new(buff)tmsg_requestgame(password);
+  auto requestmsg = new (buff) tmsg_requestgame(password);
   SoldatAssert(requestmsg->GetSize() == size);
 
   std::strcpy(requestmsg->version.data(), soldat_version);
@@ -133,8 +198,8 @@ void clientsendplayerinfo()
   clientplayerreceivedcounter = clientplayerrecieved_time;
 }
 
-template<typename T>
-void clientdisconnect(NetworkBase<T>& client)
+template <typename T>
+void clientdisconnect(NetworkBase<T> &client)
 {
   tmsg_playerdisconnect playermsg;
 
@@ -145,9 +210,8 @@ void clientdisconnect(NetworkBase<T>& client)
 
     client.SendData(&playermsg, sizeof(playermsg), true);
 
-    GS::GetConsoleLogFile().Log(
-                     string("Client Disconnect from ") +
-                       GetNetwork()->GetStringAddress( true));
+    GS::GetConsoleLogFile().Log(string("Client Disconnect from ") +
+                                GetNetwork()->GetStringAddress(true));
     client.ProcessLoop();
     client.Disconnect(false);
   }
@@ -158,8 +222,8 @@ void clientdisconnect(NetworkBase<T>& client)
   }
 }
 
-template<typename T>
-void clientpong(NetworkBase<T>& network, const std::uint8_t pingnum)
+template <typename T>
+void clientpong(NetworkBase<T> &network, const std::uint8_t pingnum)
 {
   tmsg_pong pongmsg(pingnum);
   network.SendData(pongmsg);
@@ -256,11 +320,12 @@ void clienthandleplayerslist(NetworkContext *netmessage)
 
   // Initialize Map
   auto &map = GS::GetGame().GetMap();
-  auto& fs = GS::GetFileSystem();
+  auto &fs = GS::GetFileSystem();
   if (tmapinfo mapstatus ;getmapinfo(fs, mapname, GS::GetGame().GetUserDirectory(), mapstatus) /*&&
         verifymapchecksum(fs, mapstatus, playerslistmsg->mapchecksum)*/)
   {
-    if (!map.loadmap(fs, mapstatus, CVar::r_forcebg, CVar::r_forcebg_color1, CVar::r_forcebg_color2))
+    if (!map.loadmap(fs, mapstatus, CVar::r_forcebg, CVar::r_forcebg_color1,
+                     CVar::r_forcebg_color2))
     {
       rendergameinfo(_("Could not load map: ") + (mapname));
       exittomenu();
@@ -305,67 +370,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
   GS::GetGame().SetPlayersNum(playerslistmsg->players);
   GS::GetGame().SetTimelimitcounter(playerslistmsg->currenttime);
 
-  for (std::int32_t i = 0; i < max_sprites; i++)
-  {
-    if (strcmp(playerslistmsg->name[i].data(), "0 ") != 0)
-    {
-      [[deprecated("conversion from 0 to 1")]] auto iplus1 =
-        i + 1; // convert from indexing from 0 to indexing from 1
-      auto newplayer = SpriteSystem::Get().GetSprite(iplus1).player; // reuse object
-      newplayer->name = returnfixedplayername(playerslistmsg->name[i].data());
-      newplayer->shirtcolor = playerslistmsg->shirtcolor[i] | 0xff000000;
-      newplayer->pantscolor = playerslistmsg->pantscolor[i] | 0xff000000;
-      newplayer->skincolor = playerslistmsg->skincolor[i] | 0xff000000;
-      newplayer->haircolor = playerslistmsg->haircolor[i] | 0xff000000;
-      newplayer->jetcolor = playerslistmsg->jetcolor[i];
-      newplayer->team = playerslistmsg->team[i];
-
-#ifdef STEAM
-      newplayer.steamid = tsteamid(playerslistmsg->steamid[i]);
-#endif
-
-      newplayer->secwep = 0;
-      pos = playerslistmsg->pos[i];
-      vel = playerslistmsg->vel[i];
-
-      newplayer->hairstyle = 0;
-      if ((playerslistmsg->look[i] & B1) == B1)
-        newplayer->hairstyle = 1;
-      if ((playerslistmsg->look[i] & B2) == B2)
-        newplayer->hairstyle = 2;
-      if ((playerslistmsg->look[i] & B3) == B3)
-        newplayer->hairstyle = 3;
-      if ((playerslistmsg->look[i] & B4) == B4)
-        newplayer->hairstyle = 4;
-
-      newplayer->headcap = 0;
-      if ((playerslistmsg->look[i] & B5) == B5)
-        newplayer->headcap = GFX::GOSTEK_HELM;
-      if ((playerslistmsg->look[i] & B6) == B6)
-        newplayer->headcap = GFX::GOSTEK_KAP;
-
-      newplayer->chain = 0;
-      if ((playerslistmsg->look[i] & B7) == B7)
-        newplayer->chain = 1;
-      if ((playerslistmsg->look[i] & B8) == B8)
-        newplayer->chain = 2;
-
-      createsprite(pos, iplus1, newplayer);
-      auto& sprite = SpriteSystem::Get().GetSprite(iplus1);
-
-      auto &spriteVelocity =
-        SpriteSystem::Get().GetVelocity(sprite.num);
-      spriteVelocity = vel;
-
-      sprite.ceasefirecounter = 0;
-      if (playerslistmsg->predduration[i] > 0)
-      {
-        sprite.alpha = predatoralpha;
-        sprite.bonustime = playerslistmsg->predduration[i] * 60;
-        sprite.bonusstyle = bonus_predator;
-      }
-    }
-  }
+  sPreprocessSprites(SpriteSystem::Get(), playerslistmsg, pos, vel);
 
   if (!demoplayer.active())
     rendergameinfo(_("Waiting to join game..."));
@@ -494,7 +499,6 @@ void clienthandleunaccepted(NetworkContext *netmessage)
   else
     text = "";
 
-
   GS::GetConsoleLogFile().Log(string("*UA ") + inttostr(unacceptedmsg->state));
 
   switch (unacceptedmsg->state)
@@ -565,7 +569,7 @@ void clienthandleping(NetworkContext *netmessage)
 
   if (mysprite != 0)
   {
-    auto& player = SpriteSystem::Get().GetSprite(mysprite).player;
+    auto &player = SpriteSystem::Get().GetSprite(mysprite).player;
     player->pingticks = pmsg_ping(netmessage->packet)->pingticks;
     player->pingtime = player->pingticks * 1000 / 60;
   }
@@ -703,23 +707,61 @@ void clienthandlesynccvars(NetworkContext *netmessage)
   }
 }
 
-template void clientrequestgame<NetworkClientImpl>(NetworkBase<NetworkClientImpl>&, std::string_view);
+template void clientrequestgame<NetworkClientImpl>(NetworkBase<NetworkClientImpl> &,
+                                                   std::string_view);
 
-// tests
+#pragma region tests
+
 #include <doctest/doctest.h>
 
 namespace
 {
 
+
 class NetworkClientConnectionFixture
 {
 public:
-  NetworkClientConnectionFixture() {}
-  ~NetworkClientConnectionFixture() {}
+  NetworkClientConnectionFixture()
+  {
+    GlobalSystems<Config::CLIENT_MODULE>::Init();
+    AnimationSystem::Get().LoadAnimObjects("");
+    for (auto &s : SpriteSystem::Get().GetSprites())
+    {
+      s.player = std::make_shared<tplayer>();
+    }
+  }
+  ~NetworkClientConnectionFixture()
+  {
+    GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+  }
   NetworkClientConnectionFixture(const NetworkClientConnectionFixture &) = delete;
 
 protected:
 };
+
+// Add helper functions
+static bool verifyPlayer(const tsprite &sprite, const std::string &name, std::uint32_t shirtcolor,
+                  std::uint32_t pantscolor, std::uint32_t skincolor, std::uint32_t haircolor,
+                  std::uint32_t jetcolor, std::int32_t team, std::int32_t hairstyle,
+                  std::int32_t headcap, std::int32_t chain)
+{
+  if (!sprite.player)
+    return false;
+  // Check each player attribute separately
+  CHECK_EQ(sprite.player->name, name);
+  CHECK_EQ(sprite.player->shirtcolor, shirtcolor);
+  CHECK_EQ(sprite.player->pantscolor, pantscolor);
+  CHECK_EQ(sprite.player->skincolor, skincolor);
+  CHECK_EQ(sprite.player->haircolor, haircolor);
+  CHECK_EQ(sprite.player->jetcolor, jetcolor);
+  CHECK_EQ(sprite.player->team, team);
+  CHECK_EQ(sprite.player->hairstyle, hairstyle);
+  CHECK_EQ(sprite.player->headcap, headcap);
+  CHECK_EQ(sprite.player->chain, chain);
+
+  // Return true if all checks pass
+  return true;
+}
 
 class TestClient : public NetworkBase<TestClient>
 {
@@ -787,6 +829,190 @@ TEST_SUITE("NetworkClientConnection")
     CHECK_EQ(12, msg.pingnum);
   }
 
-} // TEST_SUITE("NetworkClientConnection")
+  TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "sPreprocessSprites empty list")
+  {
+    auto &ss = SpriteSystem::Get();
+    tmsg_playerslist msg;
+    tvector2 pos, vel;
+
+    // Initialize empty list
+    for (auto &name : msg.name)
+    {
+      std::strcpy(name.data(), "0 ");
+    }
+
+    sPreprocessSprites(ss, &msg, pos, vel);
+
+    // Verify no sprites were created (all are inactive)
+    for (int i = 1; i <= max_sprites; i++)
+    {
+      CHECK_FALSE(ss.GetSprite(i).active);
+    }
+  }
+
+  TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "sPreprocessSprites single player")
+  {
+    auto &ss = SpriteSystem::Get();
+    tmsg_playerslist msg;
+    tvector2 pos{1.0f, 2.0f}, vel{3.0f, 4.0f};
+    for (auto &name : msg.name)
+    {
+      std::strcpy(name.data(), "0 ");
+    }
+
+    // Set first player
+    std::strcpy(msg.name[0].data(), "TestPlayer");
+    msg.shirtcolor[0] = 0x123456;
+    msg.pantscolor[0] = 0x234567;
+    msg.skincolor[0] = 0x345678;
+    msg.haircolor[0] = 0x456789;
+    msg.jetcolor[0] = 0x567890;
+    msg.team[0] = 1;
+    msg.pos[0] = pos;
+    msg.vel[0] = vel;
+
+    sPreprocessSprites(ss, &msg, pos, vel);
+
+    // Verify sprite 1 was created correctly
+    const auto &sprite = ss.GetSprite(1);
+    CHECK(sprite.active);
+    CHECK(verifyPlayer(sprite, "TestPlayer", 0x123456 | 0xff000000, 0x234567 | 0xff000000,
+                       0x345678 | 0xff000000, 0x456789 | 0xff000000, 0x567890, 1, 0, 0, 0));
+
+    // Verify position and velocity
+    const auto &velocity = ss.GetVelocity(1);
+    CHECK_EQ(3.0f, velocity.x);
+    CHECK_EQ(4.0f, velocity.y);
+  }
+
+  TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "sPreprocessSprites player appearance")
+  {
+    auto &ss = SpriteSystem::Get();
+    tmsg_playerslist msg;
+    tvector2 pos, vel;
+
+    for (auto &name : msg.name)
+    {
+      std::strcpy(name.data(), "0 ");
+    }
+
+    struct TestCase
+    {
+      std::uint8_t look;
+      int expectedHair;
+      int expectedHead;
+      int expectedChain;
+    };
+
+    const TestCase testCases[] = {
+      {B1, 1, 0, 0},                     // Hairstyle 1
+      {B2, 2, 0, 0},                     // Hairstyle 2
+      {B3, 3, 0, 0},                     // Hairstyle 3
+      {B4, 4, 0, 0},                     // Hairstyle 4
+      {B5, 0, GFX::GOSTEK_HELM, 0},      // Helmet
+      {B6, 0, GFX::GOSTEK_KAP, 0},       // Hat
+      {B7, 0, 0, 1},                     // Chain 1
+      {B8, 0, 0, 2},                     // Chain 2
+      {B1 | B5, 1, GFX::GOSTEK_HELM, 0}, // Combined hair + helm
+      {B2 | B7, 2, 0, 1},                // Combined hair + chain
+    };
+
+    for (const auto &tc : testCases)
+    {
+      // Reset sprite system state
+      for (int i = 1; i <= max_sprites; i++)
+      {
+        ss.GetSprite(i).active = false;
+      }
+
+      std::strcpy(msg.name[0].data(), "TestPlayer");
+      msg.look[0] = tc.look;
+
+      sPreprocessSprites(ss, &msg, pos, vel);
+
+      const auto &sprite = ss.GetSprite(1);
+      CHECK(sprite.active);
+      CHECK_MESSAGE(sprite.player->hairstyle == tc.expectedHair,
+                    "Expected hairstyle " << tc.expectedHair << " for look " << (int)tc.look);
+      CHECK_MESSAGE(sprite.player->headcap == tc.expectedHead,
+                    "Expected headcap " << tc.expectedHead << " for look " << (int)tc.look);
+      CHECK_MESSAGE(sprite.player->chain == tc.expectedChain,
+                    "Expected chain " << tc.expectedChain << " for look " << (int)tc.look);
+    }
+  }
+
+  TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "sPreprocessSprites handles 32 players")
+  {
+    auto &ss = SpriteSystem::Get();
+    tmsg_playerslist msg;
+    tvector2 pos{1.0f, 2.0f}, vel{3.0f, 4.0f};
+
+    // Reset sprite system
+    for (int i = 1; i <= max_sprites; i++)
+    {
+      ss.GetSprite(i).active = false;
+    }
+
+    // Setup 32 players with unique values
+    for (int i = 0; i < max_sprites; i++)
+    {
+      std::string name = "Player" + std::to_string(i);
+      std::strcpy(msg.name[i].data(), name.c_str());
+      msg.shirtcolor[i] = 0x100000 + i;
+      msg.pantscolor[i] = 0x200000 + i;
+      msg.skincolor[i] = 0x300000 + i;
+      msg.haircolor[i] = 0x400000 + i;
+      msg.jetcolor[i] = 0x500000 + i;
+      msg.team[i] = (i % 4) + 1; // Teams 1-4
+      msg.look[i] = (1 << (i % 4)) | ( (i + 1) % 3) << 5 | ((i + 2) % 3) << 7; // All possible looks
+      msg.pos[i] = tvector2(float(i), float(i * 2));
+      msg.vel[i] = tvector2(float(i / 2), float(i / 3));
+      msg.predduration[i] = i % 2; // Every other player is predator
+    }
+
+    sPreprocessSprites(ss, &msg, pos, vel);
+
+    // Verify all 32 sprites were created correctly
+    for (int i = 1; i <= max_sprites; i++)
+    {
+      const auto &sprite = ss.GetSprite(i);
+      CHECK(sprite.active);
+
+      int idx = i - 1; // Convert to 0-based for message array access
+      std::string expectedName = "Player" + std::to_string(idx);
+
+      CHECK(verifyPlayer(sprite, expectedName, (0x100000 + idx) | 0xff000000,
+                         (0x200000 + idx) | 0xff000000, (0x300000 + idx) | 0xff000000,
+                         (0x400000 + idx) | 0xff000000, 0x500000 + idx, (idx % 4) + 1,
+                         // Calculate expected appearance based on look flags
+                         ((msg.look[idx] & B1)   ? 1
+                          : (msg.look[idx] & B2) ? 2
+                          : (msg.look[idx] & B3) ? 3
+                          : (msg.look[idx] & B4) ? 4
+                                                 : 0),
+                         ((msg.look[idx] & B5)   ? GFX::GOSTEK_HELM
+                          : (msg.look[idx] & B6) ? GFX::GOSTEK_KAP
+                                                 : 0),
+                         ((msg.look[idx] & B7)   ? 1
+                          : (msg.look[idx] & B8) ? 2
+                                                 : 0)));
+
+      // Verify velocity
+      const auto &velocity = ss.GetVelocity(i);
+      CHECK_EQ(float(idx / 2), velocity.x);
+      CHECK_EQ(float(idx / 3), velocity.y);
+
+      // Verify predator status
+      if (idx % 2 == 1)
+      {
+        CHECK_EQ(predatoralpha, sprite.alpha);
+        CHECK_EQ(60, sprite.bonustime); // predduration * 60
+        CHECK_EQ(bonus_predator, sprite.bonusstyle);
+      }
+    }
+  }
+} // TEST_SUITE
 
 } // namespace
+
+#pragma endregion tests

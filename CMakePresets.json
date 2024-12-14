@@ -82,7 +82,7 @@
             "name": "debug",
             "displayName": "Debug Clang",
             "configurePreset": "debug",
-            "configuration": "Debug Clang",
+            "configuration": "Debug",
             "targets": ["SoldatGame"]
         },
         {

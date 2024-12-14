@@ -1,3 +1,7 @@
+# General coding style
+- Use two spaces for intendation
+- Braces are in new lines
+
 # Tests
 - Use doctest
 - Every test should belong to fixture
