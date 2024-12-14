@@ -74,7 +74,7 @@ void ConsoleMain::console(const std::string_view what, std::int32_t col) // over
 }
 
 // tests
-#include <doctest/doctest.h>
+#include <doctest.h>
 
 namespace
 {

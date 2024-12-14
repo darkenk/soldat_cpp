@@ -7,7 +7,7 @@
 
 // clang-format off
 #define DOCTEST_CONFIG_IMPLEMENT
-#include <doctest/doctest.h>
+#include <doctest.h>
 // clang-format on
 
 void RunTests(int argc, const char *argv[])

@@ -119,7 +119,7 @@ void SdlApp::ProcessEvents()
 
 void SdlApp::Present() { SDL_GL_SwapWindow(Window); }
 
-#include <doctest/doctest.h>
+#include <doctest.h>
 
 TEST_CASE("Create opengl window with sdl")
 {

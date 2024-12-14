@@ -712,7 +712,7 @@ template void clientrequestgame<NetworkClientImpl>(NetworkBase<NetworkClientImpl
 
 #pragma region tests
 
-#include <doctest/doctest.h>
+#include <doctest.h>
 
 namespace
 {

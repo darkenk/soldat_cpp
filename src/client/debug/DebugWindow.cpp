@@ -42,7 +42,7 @@ void DebugWindow::DrawEverything()
 
 
 // tests
-#include <doctest/doctest.h>
+#include <doctest.h>
 
 namespace
 {

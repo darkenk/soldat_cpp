@@ -91,5 +91,7 @@
         "ios": "cpp",
         "locale": "cpp",
         "queue": "cpp"
-    }
+    },
+    "testMate.cpp.test.executables": "build/out/**/game/SoldatGame",
+    "cmake.ctest.testExplorerIntegrationEnabled": false
 }

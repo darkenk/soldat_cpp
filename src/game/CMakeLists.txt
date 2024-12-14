@@ -19,3 +19,4 @@ target_link_libraries(SoldatGame
 )
 
 set_target_properties(SoldatGame PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/game)
+doctest_discover_tests(SoldatGame)

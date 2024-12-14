@@ -25,21 +25,31 @@
         },
         {
             "name": "debug-coverage-clang",
-            "displayName": "DebugCoverage",
+            "displayName": "Debug Coverage",
             "inherits": "debug",
             "binaryDir": "${sourceDir}/build/out/soldat_debug_coverage",
             "cacheVariables": {
-                "CMAKE_CXX_FLAGS": "-fprofile-instr-generate -fcoverage-mapping",
-                "CMAKE_C_FLAGS": "-fprofile-instr-generate -fcoverage-mapping"
+                "CMAKE_CXX_FLAGS": "-coverage",
+                "CMAKE_EXE_LINKER_FLAGS": "-coverage"
             }
         },
         {
-            "name": "debug-g++",
-            "displayName": "DebugG++",
+            "name": "debug-gcc",
+            "displayName": "Debug GCC",
             "inherits": "debug",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++"
+            }
+        },
+        {
+            "name": "debug-coverage-gcc",
+            "displayName": "Debug Coverage Gcc",
+            "inherits": "debug-gcc",
+            "binaryDir": "${sourceDir}/build/out/soldat_debug_coverage_gcc",
+            "cacheVariables": {
+                "CMAKE_CXX_FLAGS": "-coverage",
+                "CMAKE_EXE_LINKER_FLAGS": "-coverage"
             }
         },
         {
@@ -76,7 +86,7 @@
             "name": "default",
             "displayName": "Release Clang",
             "configurePreset": "default",
-            "configuration": "Release Clang"
+            "configuration": "Release"
         },
         {
             "name": "debug",
@@ -86,31 +96,38 @@
             "targets": ["SoldatGame"]
         },
         {
-            "name": "debug coverage",
+            "name": "debug_clang_coverage",
             "displayName": "Debug Clang Coverage",
             "configurePreset": "debug-coverage-clang",
-            "configuration": "Debug Clang Coverage",
+            "configuration": "Debug",
             "targets": ["SoldatGame"]
         },
         {
-            "name": "debug g++",
-            "displayName": "Debug G++",
-            "configurePreset": "debug-g++",
-            "configuration": "Debug G++",
+            "name": "debug_gcc",
+            "displayName": "Debug GCC",
+            "configurePreset": "debug-gcc",
+            "configuration": "Debug",
+            "targets": ["SoldatGame"]
+        },
+        {   
+            "name": "debug_gcc",
+            "displayName": "Debug GCC Coverage",
+            "configurePreset": "debug-coverage-gcc",
+            "configuration": "Debug",
             "targets": ["SoldatGame"]
         },
         {
             "name": "debug emcc",
             "displayName": "Debug emcc",
             "configurePreset": "debug-emcc",
-            "configuration": "Debug emcc",
+            "configuration": "Debug",
             "targets": ["SoldatGame"]
         },
         {
             "name": "utbot_cpp",
             "displayName": "Utbot_cpp",
             "configurePreset": "utbot_cpp",
-            "configuration": "Utbot_cpp",
+            "configuration": "Debug",
             "targets": ["SoldatGame"]
         }
     ]

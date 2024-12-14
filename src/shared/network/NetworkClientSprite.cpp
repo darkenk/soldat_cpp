@@ -756,7 +756,7 @@ void clienthandleclientspritesnapshot_dead(NetworkContext *netmessage)
 }
 
 // TESTS
-#include <doctest/doctest.h>
+#include <doctest.h>
 
 TEST_SUITE("NetworkClientSprite")
 {

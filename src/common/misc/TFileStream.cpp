@@ -56,7 +56,7 @@ std::unique_ptr<TStream> ReadAsFileStream(FileUtility &fs, const std::string_vie
 }
 
 // tests
-#include <doctest/doctest.h>
+#include <doctest.h>
 
 namespace
 {

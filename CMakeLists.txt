@@ -32,6 +32,18 @@ set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 message(STATUS "Using third party: ${THIRD_PARTY_OUT_DIR}")
 
 include(CMakePrintHelpers)
+include(ExternalProject)
+
+ExternalProject_Add(doctest 
+  PREFIX ${CMAKE_BINARY_DIR}/third_party/doctest
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/doctest
+)
+include_directories(${DOCTEST_INCLUDE_DIR})
+
+ExternalProject_Get_Property(doctest source_dir)
+set(DOCTEST_INCLUDE_DIR ${source_dir}/doctest CACHE INTERNAL "Path to include folder for doctest")
+include(${source_dir}/scripts/cmake/doctest.cmake)
+
 
 set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/libsodium-1.0.18/contrib
@@ -81,7 +93,7 @@ set(SOLOUD_LIBRARY ${THIRD_PARTY_OUT_DIR}/soloud/out/lib/libsoloud_static.a)
 #tracy
 set(TRACY_SRC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8/TracyClient.cpp)
 set(TRACY_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8)
-set(DOCTEST_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/doctest-2.4.8)
+
 set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/imgui-1.87)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)

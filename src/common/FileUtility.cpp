@@ -411,7 +411,7 @@ std::string FileUtility::GetPrefPath(const std::string_view postfix, const bool 
 }
 
 // tests
-#include <doctest/doctest.h>
+#include <doctest.h>
 #include <fstream>
 
 namespace
