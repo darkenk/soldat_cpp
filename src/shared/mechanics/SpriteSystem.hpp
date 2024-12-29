@@ -4,39 +4,6 @@
 #include <algorithm>
 #include <array>
 
-template <class TSprite = tsprite>
-class TSpriteSystem;
-
-class SpriteId
-{
-public:
-  constexpr SpriteId(const SpriteId &ref) : Id{ref.Id}
-  {
-  }
-
-  constexpr SpriteId(const std::uint8_t id) : Id{id}
-  {
-  }
-
-  static constexpr SpriteId Invalid()
-  {
-    return SpriteId{255};
-  }
-
-  constexpr bool operator==(const SpriteId &ref) const {
-    return ref.Id == Id;
-  }
-
-private:
-  const std::uint8_t Id;
-
-  [[nodiscard]] auto GetId() const -> decltype(Id)
-  {
-    return Id;
-  }
-  friend class TSpriteSystem<>;
-};
-
 template <class TSprite>
 class TSpriteSystem : public GlobalSubsystem<TSpriteSystem<TSprite>>
 {

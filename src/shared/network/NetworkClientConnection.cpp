@@ -30,64 +30,64 @@ using string = std::string;
 static void sPreprocessSprites(SpriteSystem &spriteSystem, tmsg_playerslist *playerslistmsg,
                                tvector2 &pos, tvector2 &vel)
 {
-  for (std::int32_t i = 0; i < max_sprites; i++)
+  for (std::uint8_t i = 0; i < max_sprites; i++)
   {
-    if (strcmp(playerslistmsg->name[i].data(), "0 ") != 0)
+    if (strcmp(playerslistmsg->name[i].data(), "0 ") == 0)
     {
-      [[deprecated("conversion from 0 to 1")]] auto iplus1 =
-        i + 1; // convert from indexing from 0 to indexing from 1
-      auto newplayer = spriteSystem.GetSprite(iplus1).player; // reuse object
-      newplayer->name = returnfixedplayername(playerslistmsg->name[i].data());
-      newplayer->shirtcolor = playerslistmsg->shirtcolor[i] | 0xff000000;
-      newplayer->pantscolor = playerslistmsg->pantscolor[i] | 0xff000000;
-      newplayer->skincolor = playerslistmsg->skincolor[i] | 0xff000000;
-      newplayer->haircolor = playerslistmsg->haircolor[i] | 0xff000000;
-      newplayer->jetcolor = playerslistmsg->jetcolor[i];
-      newplayer->team = playerslistmsg->team[i];
+      continue;
+    }
+    SpriteId id{static_cast<std::uint8_t>(i + 1)};
+    auto newplayer = spriteSystem.GetSprite(id).player; // reuse object
+    newplayer->name = returnfixedplayername(playerslistmsg->name[i].data());
+    newplayer->shirtcolor = playerslistmsg->shirtcolor[i] | 0xff000000;
+    newplayer->pantscolor = playerslistmsg->pantscolor[i] | 0xff000000;
+    newplayer->skincolor = playerslistmsg->skincolor[i] | 0xff000000;
+    newplayer->haircolor = playerslistmsg->haircolor[i] | 0xff000000;
+    newplayer->jetcolor = playerslistmsg->jetcolor[i];
+    newplayer->team = playerslistmsg->team[i];
 
 #ifdef STEAM
-      newplayer.steamid = tsteamid(playerslistmsg->steamid[i]);
+    newplayer.steamid = tsteamid(playerslistmsg->steamid[i]);
 #endif
 
-      newplayer->secwep = 0;
-      pos = playerslistmsg->pos[i];
-      vel = playerslistmsg->vel[i];
+    newplayer->secwep = 0;
+    pos = playerslistmsg->pos[i];
+    vel = playerslistmsg->vel[i];
 
-      newplayer->hairstyle = 0;
-      if ((playerslistmsg->look[i] & B1) == B1)
-        newplayer->hairstyle = 1;
-      if ((playerslistmsg->look[i] & B2) == B2)
-        newplayer->hairstyle = 2;
-      if ((playerslistmsg->look[i] & B3) == B3)
-        newplayer->hairstyle = 3;
-      if ((playerslistmsg->look[i] & B4) == B4)
-        newplayer->hairstyle = 4;
+    newplayer->hairstyle = 0;
+    if ((playerslistmsg->look[i] & B1) == B1)
+      newplayer->hairstyle = 1;
+    if ((playerslistmsg->look[i] & B2) == B2)
+      newplayer->hairstyle = 2;
+    if ((playerslistmsg->look[i] & B3) == B3)
+      newplayer->hairstyle = 3;
+    if ((playerslistmsg->look[i] & B4) == B4)
+      newplayer->hairstyle = 4;
 
-      newplayer->headcap = 0;
-      if ((playerslistmsg->look[i] & B5) == B5)
-        newplayer->headcap = GFX::GOSTEK_HELM;
-      if ((playerslistmsg->look[i] & B6) == B6)
-        newplayer->headcap = GFX::GOSTEK_KAP;
+    newplayer->headcap = 0;
+    if ((playerslistmsg->look[i] & B5) == B5)
+      newplayer->headcap = GFX::GOSTEK_HELM;
+    if ((playerslistmsg->look[i] & B6) == B6)
+      newplayer->headcap = GFX::GOSTEK_KAP;
 
-      newplayer->chain = 0;
-      if ((playerslistmsg->look[i] & B7) == B7)
-        newplayer->chain = 1;
-      if ((playerslistmsg->look[i] & B8) == B8)
-        newplayer->chain = 2;
+    newplayer->chain = 0;
+    if ((playerslistmsg->look[i] & B7) == B7)
+      newplayer->chain = 1;
+    if ((playerslistmsg->look[i] & B8) == B8)
+      newplayer->chain = 2;
 
-      createsprite(pos, iplus1, newplayer);
-      auto &sprite = spriteSystem.GetSprite(iplus1);
+    createsprite(pos, id, newplayer);
+    auto &sprite = spriteSystem.GetSprite(id);
 
-      auto &spriteVelocity = spriteSystem.GetVelocity(sprite.num);
-      spriteVelocity = vel;
+    auto &spriteVelocity = spriteSystem.GetVelocity(sprite.num);
+    spriteVelocity = vel;
 
-      sprite.ceasefirecounter = 0;
-      if (playerslistmsg->predduration[i] > 0)
-      {
-        sprite.alpha = predatoralpha;
-        sprite.bonustime = playerslistmsg->predduration[i] * 60;
-        sprite.bonusstyle = bonus_predator;
-      }
+    sprite.ceasefirecounter = 0;
+    if (playerslistmsg->predduration[i] > 0)
+    {
+      sprite.alpha = predatoralpha;
+      sprite.bonustime = playerslistmsg->predduration[i] * 60;
+      sprite.bonusstyle = bonus_predator;
     }
   }
 }

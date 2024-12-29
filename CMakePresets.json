@@ -29,8 +29,8 @@
             "inherits": "debug",
             "binaryDir": "${sourceDir}/build/out/soldat_debug_coverage",
             "cacheVariables": {
-                "CMAKE_CXX_FLAGS": "-coverage",
-                "CMAKE_EXE_LINKER_FLAGS": "-coverage"
+                "CMAKE_CXX_FLAGS": "--coverage",
+                "CMAKE_EXE_LINKER_FLAGS": "--coverage"
             }
         },
         {
@@ -110,7 +110,7 @@
             "targets": ["SoldatGame"]
         },
         {   
-            "name": "debug_gcc",
+            "name": "debug_coverage_gcc",
             "displayName": "Debug GCC Coverage",
             "configurePreset": "debug-coverage-gcc",
             "configuration": "Debug",

@@ -51,7 +51,7 @@ bool weaponscleaned = false;
 }
 
 template <Config::Module M>
-std::int32_t createsprite(tvector2 &spos, std::uint8_t n, std::shared_ptr<tplayer> player,
+std::int32_t createsprite(tvector2 &spos, SpriteId id, std::shared_ptr<tplayer> player,
                           const tsprite::Style style)
 {
   LogDebug(LOG, "CreateSprite");
@@ -61,7 +61,7 @@ std::int32_t createsprite(tvector2 &spos, std::uint8_t n, std::shared_ptr<tplaye
   auto &weapon = GS::GetWeaponSystem();
   auto &spriteSystem = SpriteSystem::Get();
 
-  auto &sprite = spriteSystem.CreateSprite(n);
+  auto &sprite = spriteSystem.CreateSprite(id);
 
   // replace player object
   if (sprite.player != nullptr)
