@@ -84,51 +84,60 @@
     "buildPresets": [
         {
             "name": "default",
+            "hidden": true,
+            "displayName": "Release Clang",
+            "configurePreset": "default",
+            "configuration": "Release",
+            "targets": ["SoldatGame", "SoldatGame_full"]
+        },
+        {
+            "name": "release",
+            "inherits": "default",
             "displayName": "Release Clang",
             "configurePreset": "default",
             "configuration": "Release"
         },
         {
+            "inherits": "default",
             "name": "debug",
             "displayName": "Debug Clang",
             "configurePreset": "debug",
-            "configuration": "Debug",
-            "targets": ["SoldatGame"]
+            "configuration": "Debug"
         },
         {
+            "inherits": "default",
             "name": "debug_clang_coverage",
             "displayName": "Debug Clang Coverage",
             "configurePreset": "debug-coverage-clang",
-            "configuration": "Debug",
-            "targets": ["SoldatGame"]
+            "configuration": "Debug"
         },
         {
+            "inherits": "default",
             "name": "debug_gcc",
             "displayName": "Debug GCC",
             "configurePreset": "debug-gcc",
-            "configuration": "Debug",
-            "targets": ["SoldatGame"]
+            "configuration": "Debug"
         },
         {   
+            "inherits": "default",
             "name": "debug_coverage_gcc",
             "displayName": "Debug GCC Coverage",
             "configurePreset": "debug-coverage-gcc",
-            "configuration": "Debug",
-            "targets": ["SoldatGame"]
+            "configuration": "Debug"
         },
         {
+            "inherits": "default",
             "name": "debug emcc",
             "displayName": "Debug emcc",
             "configurePreset": "debug-emcc",
-            "configuration": "Debug",
-            "targets": ["SoldatGame"]
+            "configuration": "Debug"
         },
         {
+            "inherits": "default",
             "name": "utbot_cpp",
             "displayName": "Utbot_cpp",
             "configurePreset": "utbot_cpp",
-            "configuration": "Debug",
-            "targets": ["SoldatGame"]
+            "configuration": "Debug"
         }
     ]
 }
