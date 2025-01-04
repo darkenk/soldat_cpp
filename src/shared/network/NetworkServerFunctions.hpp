@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-struct TServerPlayer;
+class TServerPlayer;
 class NetworkServer;
 
 void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state);

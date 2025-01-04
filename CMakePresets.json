@@ -14,7 +14,7 @@
     {
       "name": "default-clang",
       "inherits": "default",
-      "hidden": true,
+      "displayName": "Clang Default",
       "cacheVariables": {
         "ENABLE_MOLD": "ON",
         "CMAKE_C_COMPILER": "clang",
@@ -40,7 +40,7 @@
     {
       "name": "default-gcc",
       "inherits": "default",
-      "hidden": true,
+      "displayName": "Gcc Default",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",

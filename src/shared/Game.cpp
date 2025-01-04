@@ -426,7 +426,6 @@ void Game<M>::changemap()
 #ifdef SERVER
   tvector2 a;
 #endif
-  std::int32_t j;
   std::int32_t secwep;
 #ifndef SERVER
   tmapinfo mapchangestatus;

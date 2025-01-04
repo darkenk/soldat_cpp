@@ -199,7 +199,6 @@ void clienthandlejoinserver(NetworkContext *netmessage)
 void clienthandleplaysound(NetworkContext *netmessage)
 {
   tmsg_playsound *playsoundmsg;
-  std::int32_t i;
   auto& fs = GS::GetFileSystem();
 
   if (!verifypacket(sizeof(tmsg_playsound), netmessage->size, msgid_playsound))
@@ -210,7 +209,7 @@ void clienthandleplaysound(NetworkContext *netmessage)
   if (fs.Exists(std::string(moddir) + std::string("sfx/") + playsoundmsg->name.data()))
   {
     // Name to ID, for easy use for scripters
-    i = soundnametoid(playsoundmsg->name.data());
+    [[maybe_unused]] std::int32_t i = soundnametoid(playsoundmsg->name.data());
     NotImplemented("network");
 #if 0
         // Sound downloaded, but not initialized. So intialize it

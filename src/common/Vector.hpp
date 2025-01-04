@@ -9,8 +9,14 @@ struct tvector2
   explicit constexpr tvector2(const MyFloat _x = 0.0f, const MyFloat _y = 0.0f) : x(_x), y(_y) {}
   MyFloat x;
   MyFloat y;
-  tvector2 operator+(const tvector2 &v) const;
-  tvector2 operator-(const tvector2 &v) const;
+  constexpr tvector2 operator+(const tvector2 &v) const
+  {
+    return tvector2(x + v.x, y + v.y);
+  }
+  constexpr tvector2 operator-(const tvector2 &v) const
+  {
+    return tvector2(x - v.x, y - v.y);
+  }
 };
 
 typedef struct tvector3 *pvector3;

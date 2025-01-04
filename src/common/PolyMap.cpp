@@ -60,7 +60,7 @@ void Polymap::initialize()
   this->collidercount = 0;
 
   auto idx = 1;
-  std::memset(&this->polys[idx], 0, sizeof(this->polys));
+  fillchar(&this->polys[idx], sizeof(this->polys), 0);
   fillchar(&this->backpolys[idx], sizeof(this->backpolys), 0);
   fillchar(&this->perp[idx][idx], sizeof(this->perp), 0);
   fillchar(&this->bounciness[idx], sizeof(this->bounciness), 0);

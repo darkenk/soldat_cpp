@@ -100,7 +100,6 @@ static void commandexecutealias(std::vector<std::string> &args, std::uint8_t sen
 {
   pcommand commandptr;
   tstringlist inputparse;
-  std::int32_t i;
 
   commandptr = commandfind(args[0]);
   if (!assigned(commandptr))
@@ -110,6 +109,7 @@ static void commandexecutealias(std::vector<std::string> &args, std::uint8_t sen
   }
   NotImplemented();
 #if 0
+    std::int32_t i;
     inputparse.delimiter = ';';
     inputparse.strictdelimiter = true;
     inputparse.delimitedtext = commandptr.description;

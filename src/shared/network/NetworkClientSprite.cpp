@@ -206,7 +206,7 @@ void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
   if ((sprite.weapon.num == bow_num) ||
       (sprite.weapon.num == bow2_num))
     for (std::int32_t j = 1; j <= max_things; j++)
-      if ((things[j].active) & (things[j].style == object_rambo_bow))
+      if ((things[j].active) && (things[j].style == object_rambo_bow))
       {
         gamethingtarget = 0;
         things[j].kill();

@@ -131,8 +131,8 @@ void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col)
 void tabcomplete()
 {
   std::int32_t i;
-  std::int32_t chattextlen, completionbaselen;
-  std::int32_t offset, lastseparator;
+  std::int32_t chattextlen;
+  std::int32_t offset;
   std::int32_t continuedtabcompleteplayer, next, availablechatspace;
   std::string spacefittedname;
 
@@ -151,6 +151,7 @@ void tabcomplete()
   {
     NotImplemented("string operation");
 #if 0
+        std::int32_t completionbaselen, lastseparator;
         // Find where the current std::uint64_t starts
         lastseparator = lastdelimiter(' ', string(chattext));
 

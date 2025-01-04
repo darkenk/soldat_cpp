@@ -960,9 +960,6 @@ TEST_SUITE("NetworkServerConnection")
     CHECK_EQ(false, server->GetPlayers().empty());
     sHelperProcessMessages(server, client);
 
-    auto &spriteSystem = SpriteSystem::Get();
-    auto &game = GS::GetGame();
-
     SoldatAssert(server->GetPlayers().size() == 1);
     auto player = server->GetPlayers().at(0);
     clientrequestgame(*client, "");

@@ -165,6 +165,30 @@ if (ENABLE_COVERAGE)
   )
 endif()
 
+# Add compile options for uninitialized variable warnings
+add_compile_options(
+  "$<$<CXX_COMPILER_ID:Clang>:-Wall>"
+  "$<$<CXX_COMPILER_ID:Clang>:-Wextra>"
+  "$<$<CXX_COMPILER_ID:Clang>:-Wpedantic>"
+  "$<$<CXX_COMPILER_ID:Clang>:-Werror>"
+  "$<$<CXX_COMPILER_ID:Clang>:-Wno-unused-parameter>"
+  "$<$<CXX_COMPILER_ID:Clang>:-Wno-unused-function>"
+  "$<$<CXX_COMPILER_ID:Clang>:-Wno-sign-compare>"
+  "$<$<CXX_COMPILER_ID:Clang>:-Wno-nested-anon-types>"
+  "$<$<CXX_COMPILER_ID:Clang>:-Wno-error=int-to-pointer-cast>"
+  "$<$<CXX_COMPILER_ID:Clang>:-Wno-error=deprecated-declarations>"
+
+  "$<$<CXX_COMPILER_ID:GNU>:-Wall>"
+  "$<$<CXX_COMPILER_ID:GNU>:-Wextra>"
+  "$<$<CXX_COMPILER_ID:GNU>:-Wpedantic>"
+  "$<$<CXX_COMPILER_ID:GNU>:-Werror>"
+  "$<$<CXX_COMPILER_ID:GNU>:-Wno-unused-parameter>"
+  "$<$<CXX_COMPILER_ID:GNU>:-Wno-unused-function>"
+  "$<$<CXX_COMPILER_ID:GNU>:-Wno-sign-compare>"
+  "$<$<CXX_COMPILER_ID:GNU>:-Wno-error=int-to-pointer-cast>"
+  "$<$<CXX_COMPILER_ID:GNU>:-Wno-error=deprecated-declarations>"
+)
+
 set(CommonPCH
     "$<$<COMPILE_LANGUAGE:CXX>:${ROOT_DIR}/src/common/Logging.hpp>"
     "$<$<COMPILE_LANGUAGE:CXX>:${ROOT_DIR}/src/common/misc/PortUtils.hpp>"

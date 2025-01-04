@@ -306,7 +306,6 @@ void commandadmip(std::vector<std::string> &args, std::uint8_t sender)
 void commandunadm(std::vector<std::string> &args, std::uint8_t sender)
 {
   std::string name;
-  std::int32_t j;
 
   if (length(args) == 1)
     return;
@@ -320,6 +319,7 @@ void commandunadm(std::vector<std::string> &args, std::uint8_t sender)
   {
     NotImplemented("network");
 #if 0
+    std::int32_t j;
         j = remoteips.indexof(name);
         remoteips.delete_(j);
 #endif
@@ -333,7 +333,6 @@ void commandsetteam(std::vector<std::string> &args, std::uint8_t sender)
 {
   std::string name, tempstr;
   std::int32_t i;
-  std::uint8_t teamset;
   tcommandtargets targets;
 
   if (length(args) == 1)
@@ -346,6 +345,7 @@ void commandsetteam(std::vector<std::string> &args, std::uint8_t sender)
 
   tempstr = args[0];
   NotImplemented();
+  std::uint8_t teamset = 1;
 #if 0
     teamset = strtointdef(std::string(tempstr.at(8)), 1);
 #endif
@@ -423,7 +423,6 @@ void commandloadwep(std::vector<std::string> &args, std::uint8_t sender)
 void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
 {
   std::string name;
-  std::int32_t i;
 
   if (length(args) == 1)
     return;
@@ -467,7 +466,6 @@ void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
 void commandloadlist(std::vector<std::string> &args, std::uint8_t sender)
 {
   std::string name;
-  std::int32_t i;
 
   if (length(args) == 0)
   {
@@ -482,7 +480,6 @@ void commandloadlist(std::vector<std::string> &args, std::uint8_t sender)
   if (fileexists(GS::GetGame().GetUserDirectory() + name + ".txt"))
   {
     mapslist.loadfromfile(GS::GetGame().GetUserDirectory() + name + ".txt");
-    i = 1;
     mapslist.erase(std::remove(mapslist.begin(), mapslist.end(), ""), mapslist.end());
     CVar::sv_maplist = name + ".txt";
     GS::GetMainConsole().console(string("Mapslist loaded ") + name, client_message_color, sender);

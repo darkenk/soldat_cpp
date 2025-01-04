@@ -241,7 +241,6 @@ bool iswronggameversion(std::string RequestVersion)
 #ifndef SERVER
 std::string returnfixedplayername(std::string name)
 {
-  std::int32_t i;
   std::string r;
   r = "";
   NotImplemented();

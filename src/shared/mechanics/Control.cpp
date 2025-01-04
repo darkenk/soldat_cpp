@@ -76,8 +76,9 @@ void controlsprite(tsprite &spritec)
 {
   ZoneScopedN("ControlSprite");
   tvector2 a, b, lookpoint, startpoint;
-  std::int32_t i, j;
+  std::int32_t j;
 #ifndef SERVER
+  std::int32_t i;
   std::int32_t cameratarget;
 #endif
   float d;

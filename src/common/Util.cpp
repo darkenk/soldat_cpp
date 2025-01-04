@@ -354,7 +354,7 @@ void tostr(const void *avalue, ptypeinfo atypeinfo)
         {
             void &with = gettypedata(atypeinfo);
 
-#ifndef VER3_0 // ifdef needed because of a field rename in trunk (ManagedFldCount to \
+#ifndef VER3_0 // ifdef needed because of a field rename in trunk (ManagedFldCount to
     // TotalFieldCount)
             firstfield = pmanagedfield(std::uint8_t*(&totalfieldcount) + sizeof(totalfieldcount));
             for (i = 0; i <= totalfieldcount - 1; i++)

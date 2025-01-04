@@ -859,7 +859,7 @@ void rendergostek(tsprite &soldier)
 
       cx = cx * textures[tex]->width * textures[tex]->scale;
       cy = cy * textures[tex]->height * textures[tex]->scale;
-      color[gs.color].a = alpha[gs.alpha];
+      color[gs.color].color.a = alpha[gs.alpha];
 
       if ((i >= GOSTEK_HAIR_DREADLOCK1) && (i <= GOSTEK_HAIR_DREADLOCK5))
       {

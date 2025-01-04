@@ -46,7 +46,9 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
                           std::uint8_t n, float hitm, bool net, bool mustcreate,
                           std::uint16_t seed) // Seed = -1
 {
+#ifndef SERVER
   std::int32_t j;
+#endif
   float mass;
   std::int16_t weaponindex;
   std::uint8_t sstyle;
@@ -1136,7 +1138,7 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
 {
   ZoneScopedN("Bullet::CheckMapCollision");
   float largestvelocitycomponent;
-  std::int32_t j, b;
+  std::int32_t b;
   tvector2 pos, perp, step, temp, temp2;
   float d = 0.0;
   std::int32_t detacc;
@@ -1761,7 +1763,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                 GetBulletParts().pos[num] = vec2subtract(pos, GetBulletParts().velocity[num]);
                 GetBulletParts().forces[num].y =
                   GetBulletParts().forces[num].y - GetBulletParts().gravity;
-                if (((CVar::sv_friendlyfire)&SpriteSystem::Get().GetSprite(owner).isnotsolo() and
+                if (((CVar::sv_friendlyfire) && SpriteSystem::Get().GetSprite(owner).isnotsolo() and
                      SpriteSystem::Get().GetSprite(owner).isinsameteam(
                        SpriteSystem::Get().GetSprite(j))
 #ifndef SERVER

@@ -435,7 +435,6 @@ void serverhandleclientspritesnapshot(tmsgheader* netmessage, std::int32_t size,
   i = player->spritenum;
 
   auto &sprite = SpriteSystem::Get().GetSprite(i);
-  auto &map = GS::GetGame().GetMap();
 
   messagesasecnum[i] += 1;
 

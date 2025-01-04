@@ -42,7 +42,7 @@ struct tgfxcolor
     struct
     {
       std::uint8_t r, g, b, a;
-    };
+    } color;
     std::uint32_t rgba;
   };
 };

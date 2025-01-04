@@ -605,6 +605,7 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Filesystem does not leak between two diff
                                                     std::byte(40)};
   auto f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
   auto r = fu.Write(f, testData.data(), TEST_DATA_SIZE);
+  CHECK(r);
   fu.Close(f);
   FileUtility fu2("/test2");
   fu2.Mount("tmpfs.memory", "/fs_mem");
@@ -672,6 +673,7 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Filesystem does not leak between two diff
   std::array<std::uint8_t, TEST_DATA_SIZE> testData = {42, 42, 42, 40};
   auto f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
   auto r = fu.Write(f, reinterpret_cast<std::byte*>(testData.data()), TEST_DATA_SIZE);
+  CHECK(r);
   fu.Close(f);
 
   auto data = fu.ReadFile("/fs_mem/valid");

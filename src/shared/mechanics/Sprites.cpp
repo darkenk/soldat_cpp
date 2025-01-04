@@ -1706,7 +1706,6 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 s2 = formatdatetime("yy/mm/dd", get_date());
                 s2 = s2 + ' ' + formatdatetime("hh:nn:ss", get_time());
 #endif
-        auto& fs = GS::GetFileSystem();
         GS::GetKillLogFile().Log(std::string("--- ") + s2, false);
         GS::GetKillLogFile().Log(SpriteSystem::Get().GetSprite(who).player->name, false);
         GS::GetKillLogFile().Log(player->name, false);
@@ -2404,7 +2403,6 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
   bool teamcol;
 
 #ifdef SERVER
-  bool checkmapcollision_result;
   LogTraceG("TSprite.CheckMapCollision");
 #endif
   auto &map = GS::GetGame().GetMap();
@@ -2674,7 +2672,6 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
   bool teamcol;
 
 #ifdef SERVER
-  bool checkmapverticescollision_result;
   LogTraceG("TSprite.CheckMapVerticesCollision");
 #endif
   auto &map = GS::GetGame().GetMap();
@@ -2739,7 +2736,6 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
   bool teamcol;
 
 #ifdef SERVER
-  bool checkskeletonmapcollision_result;
   LogTraceG("TSprite.CheckSkeletonMapCollision");
 #endif
   auto &map = GS::GetGame().GetMap();
@@ -2839,7 +2835,9 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 {
   tvector2 a, b;
   auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
+#ifndef SERVER
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
+#endif
   auto &guns = GS::GetWeaponSystem().GetGuns();
   auto &things = GS::GetThingSystem().GetThings();
 
@@ -3092,8 +3090,8 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
 {
   tvector2 t;
   float hm;
-  std::int32_t j;
 #ifndef SERVER
+  std::int32_t j;
   std::string s;
 #endif
 
@@ -3961,7 +3959,9 @@ void Sprite<M>::fire()
   vec2scale(b, b, weapon.speed);
 
   auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
+#ifndef SERVER
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
+#endif // SERVER
 
   // Add some of the player's velocity to the bullet
   vec2scale(m, spriteVelocity, weapon.inheritedvelocity);

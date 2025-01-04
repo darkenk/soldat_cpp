@@ -4,7 +4,14 @@
 // clang-format off
 #include <glad/glad.h>
 #undef GL_POLYGON_MODE
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-enum-enum-conversion"
+#endif // __GNUC__
 #include "misc/single_file/imgui_single_file.h"
 #include "backends/imgui_impl_opengl3.cpp"
 #include "backends/imgui_impl_sdl.cpp"
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif // __GNUC__
 // clang-format on

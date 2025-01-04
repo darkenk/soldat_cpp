@@ -1853,8 +1853,6 @@ void renderplayername(float width, float height, std::int32_t i, bool onlyoffscr
 
 void renderplayernames(float width, float height)
 {
-  std::int32_t i;
-
   setfontstyle(font_weapons_menu);
 
   if (SpriteSystem::Get().GetSprite(mysprite).isspectator())
@@ -2054,7 +2052,7 @@ void renderinterface(float timeelapsed, float width, float height)
     // Bonus all colored
     if (CVar::ui_bonuscolors)
     {
-      color.a = 0;
+      color.color.a = 0;
 
       switch (spriteme->bonusstyle)
       {
@@ -2069,7 +2067,7 @@ void renderinterface(float timeelapsed, float width, float height)
         break;
       }
 
-      if (color.a > 0)
+      if (color.color.a > 0)
       {
         _scala.x = t[GFX::INTERFACE_OVERLAY]->scale;
         _scala.y = t[GFX::INTERFACE_OVERLAY]->scale;
@@ -2984,7 +2982,7 @@ void renderinterface(float timeelapsed, float width, float height)
     if (playernamesshow)
       renderplayernames(width, height);
 
-    if ((CVar::sv_survivalmode)&SpriteSystem::Get().GetSprite(mysprite).active and
+    if ((CVar::sv_survivalmode) && SpriteSystem::Get().GetSprite(mysprite).active and
         (SpriteSystem::Get().GetSprite(mysprite).ceasefirecounter > 0))
       renderceasefirecounter();
   }

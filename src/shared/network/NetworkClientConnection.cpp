@@ -24,6 +24,7 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <physfs.h>
 #include <source_location>
+#include <csignal>
 
 using string = std::string;
 
@@ -867,6 +868,7 @@ TEST_SUITE("NetworkClientConnection")
     msg.skincolor[0] = 0x345678;
     msg.haircolor[0] = 0x456789;
     msg.jetcolor[0] = 0x567890;
+    msg.look[0] = 0;
     msg.team[0] = 1;
     msg.pos[0] = pos;
     msg.vel[0] = vel;
@@ -926,6 +928,7 @@ TEST_SUITE("NetworkClientConnection")
       }
 
       std::strcpy(msg.name[0].data(), "TestPlayer");
+      msg.team[0] = 1;
       msg.look[0] = tc.look;
 
       sPreprocessSprites(ss, &msg, pos, vel);

@@ -6,7 +6,7 @@
 
 class NetworkServer;
 struct tmsg_header;
-struct TServerPlayer;
+class TServerPlayer;
 
 #ifdef SERVER
 void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player);

@@ -32,7 +32,7 @@ public:
   std::int32_t pingticks, pingticksb, pingtime, ping;
   std::uint16_t realping;
   std::uint8_t connectionquality;
-  std::uint8_t team;
+  std::uint8_t team = 0;
   std::uint8_t controlmethod;
   std::uint8_t chain, headcap, hairstyle;
   std::uint8_t secwep;

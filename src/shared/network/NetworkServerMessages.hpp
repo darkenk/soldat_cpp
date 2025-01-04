@@ -3,7 +3,7 @@
 #include <string>
 
 class NetworkServer;
-struct TServerPlayer;
+class TServerPlayer;
 
 void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
                              std::uint8_t msgtype);

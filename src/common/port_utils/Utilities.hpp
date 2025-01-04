@@ -8,7 +8,7 @@
 #endif
 
 #if __has_attribute(always_inline)
-#define PU_ALWAYS_INLINE __attribute__((always_inline))
+#define PU_ALWAYS_INLINE __attribute__((always_inline)) inline
 #else
 #define PU_ALWAYS_INLINE inline
 #endif
@@ -24,7 +24,7 @@ struct StringLiteral
   char value[N];
 };
 
-consteval const char *GetRelativePath(const std::string_view v)
+constexpr const char *GetRelativePath(const std::string_view v)
 {
   return v.substr(v.find("soldat_cpp") + sizeof("soldat_cpp")).data();
 }

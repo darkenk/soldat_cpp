@@ -263,10 +263,10 @@ void loadmaintextures()
     {
       tgfxcolor color;
       auto id = GFXData[i].ID;
-      color.r = (GFXData[i].ColorKey & 0xff) >> 0;
-      color.g = (GFXData[i].ColorKey & 0xff00) >> 8;
-      color.b = (GFXData[i].ColorKey & 0xff0000) >> 16;
-      color.a = (GFXData[i].ColorKey & 0xff000000) >> 24;
+      color.color.r = (GFXData[i].ColorKey & 0xff) >> 0;
+      color.color.g = (GFXData[i].ColorKey & 0xff00) >> 8;
+      color.color.b = (GFXData[i].ColorKey & 0xff0000) >> 16;
+      color.color.a = (GFXData[i].ColorKey & 0xff000000) >> 24;
 
       auto path = pngoverride(moddir + std::string(GFXData[i].Path));
 
@@ -327,10 +327,10 @@ void loadinterfacetextures(const std::string interfacename)
     if (GFXData[i].Group == GFXG::INTERFACE)
     {
       auto id = GFXData[i].ID;
-      color.r = (GFXData[i].ColorKey & 0xff) >> 0;
-      color.g = (GFXData[i].ColorKey & 0xff00) >> 8;
-      color.b = (GFXData[i].ColorKey & 0xff0000) >> 16;
-      color.a = (GFXData[i].ColorKey & 0xff000000) >> 24;
+      color.color.r = (GFXData[i].ColorKey & 0xff) >> 0;
+      color.color.g = (GFXData[i].ColorKey & 0xff00) >> 8;
+      color.color.b = (GFXData[i].ColorKey & 0xff0000) >> 16;
+      color.color.a = (GFXData[i].ColorKey & 0xff000000) >> 24;
 
       if (iscustom && (i >= custom_first) && (i <= custom_last))
       {
@@ -503,8 +503,6 @@ bool initgamegraphics()
     windowflags = windowflags | SDL_WINDOW_FULLSCREEN_DESKTOP;
   else if (CVar::r_fullscreen == 1)
     windowflags = windowflags | SDL_WINDOW_FULLSCREEN;
-  else
-    windowflags = windowflags;
 
   gamewindow = SDL_CreateWindow("Soldat", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                 windowwidth, windowheight, windowflags);

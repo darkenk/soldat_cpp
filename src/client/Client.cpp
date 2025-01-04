@@ -674,8 +674,6 @@ void shutdown()
     return;
   }
 
-  auto& fs = GS::GetFileSystem();
-
   GS::GetConsoleLogFile().Log("Freeing sprites.");
 
   // Free GFX

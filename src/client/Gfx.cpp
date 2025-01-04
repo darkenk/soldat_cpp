@@ -16,11 +16,23 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#elif defined(__clang__) // __GNUC__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-field-initializers"
+#endif // __clang__
 #include <freetype/freetype.h>
 #include <ft2build.h>
 #include <stb_image.h>
 #include <stb_image_resize.h>
 #include <stb_image_write.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#elif defined(__GNUC__) // __clang__
+#pragma GCC diagnostic pop
+#endif // __GNUC__
 // clang-format on
 #include "shared/misc/MemoryUtils.hpp"
 #include "shared/misc/GlobalSystems.hpp"
@@ -491,7 +503,6 @@ void OpenGLGladDebug(const char *name, void * /*funcptr*/, int /*len_args*/, ...
 
 bool gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline)
 {
-  std::int32_t i;
   tgfxcolor color;
   std::string version;
   bool requiredfunctions;
@@ -553,7 +564,6 @@ bool gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline)
     glDebugMessageCallback(OpenGLDebug, nullptr);
   }
   version = std::string(reinterpret_cast<const char *>(glGetString(GL_VERSION)));
-  i = version.find(" ");
   glGetIntegerv(GL_MAX_LABEL_LENGTH, &OPENGL_MAX_LABEL_LENGTH);
   gfxlog(string("OpenGL version: ") + version);
 
@@ -766,7 +776,7 @@ void gfxclear(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a)
 
 void gfxclear(tgfxcolor c)
 {
-  gfxclear(c.r, c.g, c.b, c.a);
+  gfxclear(c.color.r, c.color.g, c.color.b, c.color.a);
 }
 
 void gfxdraw(tgfxvertexbuffer *buffer, std::int32_t offset, std::int32_t count)
@@ -871,7 +881,6 @@ void gfxsavescreen(const std::string &filename, std::int32_t x, std::int32_t y, 
                    std::int32_t h, bool async)
 {
   std::uint8_t *data, *src;
-  tscreenshotthread *screenthread;
 
   getmem(data, 2 * w * h * 4);
 
@@ -881,6 +890,7 @@ void gfxsavescreen(const std::string &filename, std::int32_t x, std::int32_t y, 
 
   NotImplemented("rendering", "Lack of screenshot");
 #if 0
+    tscreenshotthread *screenthread;
     screenthread = tscreenshotthread.create(filename, w, h, data);
     screenthread.freeonterminate = true;
     screenthread.start;
@@ -920,28 +930,28 @@ void max(float a, float b)
 tgfxcolor rgba(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a)
 {
   tgfxcolor result;
-  result.r = r;
-  result.g = g;
-  result.b = b;
-  result.a = a;
+  result.color.r = r;
+  result.color.g = g;
+  result.color.b = b;
+  result.color.a = a;
   return result;
 }
 tgfxcolor rgba(std::uint8_t r, std::uint8_t g, std::uint8_t b)
 {
   tgfxcolor result;
-  result.r = r;
-  result.g = g;
-  result.b = b;
-  result.a = 255;
+  result.color.r = r;
+  result.color.g = g;
+  result.color.b = b;
+  result.color.a = 255;
   return result;
 }
 tgfxcolor rgba(std::uint32_t rgba)
 {
   tgfxcolor result;
-  result.a = 255;
-  result.r = (std::uint32_t)(rgba & 0xff0000) >> 16;
-  result.g = (std::uint32_t)(rgba & 0xff00) >> 8;
-  result.b = (rgba & 0xff);
+  result.color.a = 255;
+  result.color.r = (std::uint32_t)(rgba & 0xff0000) >> 16;
+  result.color.g = (std::uint32_t)(rgba & 0xff00) >> 8;
+  result.color.b = (rgba & 0xff);
   return result;
 }
 
@@ -949,10 +959,10 @@ tgfxcolor rgba(std::uint8_t r, std::uint8_t g, std::uint8_t b, double a)
 {
 
   tgfxcolor result;
-  result.r = r;
-  result.g = g;
-  result.b = b;
-  result.a = (std::uint8_t)(trunc(a));
+  result.color.r = r;
+  result.color.g = g;
+  result.color.b = b;
+  result.color.a = (std::uint8_t)(trunc(a));
   return result;
 }
 
@@ -960,10 +970,10 @@ tgfxcolor rgba(std::uint32_t rgb, float a)
 {
 
   tgfxcolor result;
-  result.r = (std::uint32_t)(rgb & 0xff0000) >> 16;
-  result.g = (std::uint32_t)(rgb & 0xff00) >> 8;
-  result.b = (rgb & 0xff);
-  result.a = (std::uint8_t)(trunc(a));
+  result.color.r = (std::uint32_t)(rgb & 0xff0000) >> 16;
+  result.color.g = (std::uint32_t)(rgb & 0xff00) >> 8;
+  result.color.b = (rgb & 0xff);
+  result.color.a = (std::uint8_t)(trunc(a));
   return result;
 }
 
@@ -1057,10 +1067,10 @@ void premultiplycolor(pgfxvertex v, std::int32_t n)
 
   for (i = 0; i <= n - 1; i++)
   {
-    a = (float)(v->color.a) / 255;
-    v->color.r = round(v->color.r * a);
-    v->color.g = round(v->color.g * a);
-    v->color.b = round(v->color.b * a);
+    a = (float)(v->color.color.a) / 255;
+    v->color.color.r = round(v->color.color.r * a);
+    v->color.color.g = round(v->color.color.g * a);
+    v->color.color.b = round(v->color.color.b * a);
     v += 1;
   }
 }
@@ -1131,7 +1141,7 @@ void gfxbegin()
 
 void gfxend()
 {
-  std::int32_t i, n, total;
+  std::int32_t n, total;
 
   tbatch &batch = gfxcontext.batch;
   total = 0;
@@ -1688,7 +1698,7 @@ pglyph loadglyph(pfont f, pglyphtable table, std::int32_t glyphindex)
   if ((w == 0) || (h == 0) || (w > (f->width - 2)) || (h > (f->height - 2)))
   {
     result->page = -1;
-    std::memset(&result->bounds, 0, sizeof(tgfxrect));
+    fillchar(&result->bounds, sizeof(tgfxrect), 0);
   }
   else
   {
@@ -2069,7 +2079,7 @@ void gfxdrawtext(MyFloat x, MyFloat y)
   comp = gfxcontext.textcomputedstr;
   textcolor = gfxcontext.textcolor;
   shadowcolor = gfxcontext.textshadowcolor;
-  shadowcolor.a = trunc(shadowcolor.a * ((float)(textcolor.a) / 255));
+  shadowcolor.color.a = trunc(shadowcolor.color.a * ((float)(textcolor.color.a) / 255));
   pxl = gfxcontext.textpixelratio;
   s = gfxcontext.textscale;
   dx = gfxcontext.textshadowoffset.x * pxl.x;
@@ -2084,7 +2094,7 @@ void gfxdrawtext(MyFloat x, MyFloat y)
     y = y - pxl.y * table->descent * s;
     break;
   case gfx_baseline:
-    y = y;
+    //y = y;
     break;
   default:
     SoldatAssert(false);
@@ -2103,7 +2113,7 @@ void gfxdrawtext(MyFloat x, MyFloat y)
       p.x = x + pxl.x * comp->x;
       p.y = y + pxl.y * comp->y;
 
-      if (shadowcolor.a > 0)
+      if (shadowcolor.color.a > 0)
         drawglyph(f, comp->glyph, p.x + dx, p.y + dy, shadowcolor);
 
       drawglyph(f, comp->glyph, p.x, p.y, textcolor);
@@ -2214,13 +2224,13 @@ void applycolorkey(std::uint8_t *data, std::int32_t w, std::int32_t h, tgfxcolor
 
   for (i = 0; i <= (w * h) - 1; i++)
   {
-    c.r = *p;
+    c.color.r = *p;
     p += 1;
-    c.g = *p;
+    c.color.g = *p;
     p += 1;
-    c.b = *p;
+    c.color.b = *p;
     p += 1;
-    c.a = *p;
+    c.color.a = *p;
 
     if (c.rgba == colorkey.rgba)
       *p = 0;
@@ -3109,7 +3119,6 @@ void tgfxspritesheet::updatetexture()
 
 void tgfxspritesheet::cleanup()
 {
-  std::int32_t i;
   tsheetloaddata *ld;
 
   ld = reinterpret_cast<tsheetloaddata *>(floaddata);

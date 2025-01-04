@@ -603,13 +603,13 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
 
     if (spritec.brain.pissedoff > 0)
       if (GS::GetGame().isteamgame() &&
-          (!CVar::sv_friendlyfire) &
+          (!CVar::sv_friendlyfire) &&
             SpriteSystem::Get().GetSprite(spritec.brain.pissedoff).isinsameteam(spritec))
         spritec.brain.pissedoff = 0;
 
     if (spritec.brain.targetnum > 0)
       if (GS::GetGame().isteamgame() and
-          (CVar::sv_friendlyfire) &
+          (CVar::sv_friendlyfire) &&
             SpriteSystem::Get().GetSprite(spritec.brain.targetnum).isnotinsameteam(spritec))
         spritec.brain.pissedoff = 0;
 

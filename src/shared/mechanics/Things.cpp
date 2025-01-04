@@ -48,7 +48,9 @@ std::int32_t creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
   std::int32_t result;
   LogTraceG("CreateThing");
 
+#ifndef SERVER
   auto &guns = GS::GetWeaponSystem().GetGuns();
+#endif
   auto &things = GS::GetThingSystem().GetThings();
 
   i = 0;
@@ -694,9 +696,6 @@ template <Config::Module M>
 void Thing<M>::update()
 {
   std::int32_t i;
-#ifdef SERVER
-  std::int32_t j;
-#endif
   bool collided, collided2;
   tvector2 a, b;
   bool wasstatic;
@@ -844,10 +843,10 @@ void Thing<M>::update()
 #ifdef SERVER
   LogTraceG("TThing.Update 2");
 #endif
-  auto &things = GS::GetThingSystem().GetThings();
 
 // check if flag is touchdown
 #ifdef SERVER
+  auto &things = GS::GetThingSystem().GetThings();
   if ((style == object_alpha_flag) || (style == object_bravo_flag))
     if ((holdingsprite > 0) && (holdingsprite < max_sprites + 1))
       if (SpriteSystem::Get().GetSprite(holdingsprite).player->team != style)

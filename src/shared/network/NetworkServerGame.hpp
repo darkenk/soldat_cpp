@@ -3,7 +3,7 @@
 #include <string>
 
 class NetworkServer;
-struct TServerPlayer;
+class TServerPlayer;
 
 void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player);
 void servermapchange(std::uint8_t id);

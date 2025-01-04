@@ -357,7 +357,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
     case SDL_SCANCODE_3: {
       result = false;
 
-      if ((chattext == "") & (CVar::sv_radio) && showradiomenu)
+      if ((chattext == "") && (CVar::sv_radio) && showradiomenu)
       {
         result = true;
         i = ord(rmenustate[0] != ' ');
@@ -566,7 +566,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
         chattext = firechattext;
 
       // force spectator chat to teamchat in survival mode when Round hasn't ended
-      if ((CVar::sv_survivalmode)&SpriteSystem::Get().GetSprite(mysprite).isspectator() &&
+      if ((CVar::sv_survivalmode) && SpriteSystem::Get().GetSprite(mysprite).isspectator() &&
           !game.GetSurvivalEndRound() && (CVar::sv_survivalmode_antispy))
         chattype = msgtype_team;
 

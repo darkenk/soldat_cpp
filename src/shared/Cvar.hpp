@@ -41,16 +41,21 @@ class CVarBase
 public:
   CVarBase(const std::string_view &name, const std::string_view &description,
            FlagSet<CVarFlags> flags, const T &value, const std::uint8_t id = 255)
-    : Value{value}, Name{name}, Description{description}, Flags{flags}, Id{id}
+    : Value{value}, Name{name}, Description{description}, Id{id}, Flags{flags}
   {
-    if (CVars.contains(Name))
+    if (sGetCVars().contains(Name))
     {
       throw std::runtime_error("CVar has been created already");
     }
-    CVars.emplace(std::make_pair(Name, this));
+    sGetCVars().emplace(std::make_pair(Name, this));
   };
 
   CVarBase(const CVarBase &ref) = delete;
+
+  ~CVarBase()
+  {
+    sGetCVars().erase(Name);
+  }
 
   bool operator==(const T &ref) const
   {
@@ -94,28 +99,30 @@ public:
 
   static CVarBase &Find(const std::string &cvarName) noexcept
   {
+    auto &CVars = sGetCVars();
     auto it = CVars.find(cvarName);
     if (it == std::end(CVars))
     {
-      return InvalidCVar;
+      return sGetInvalidCVar();
     }
     return *(it->second);
   }
 
   static CVarBase &Find(const std::uint8_t id) noexcept
   {
+    auto &CVars = sGetCVars();
     auto pred = [id](const auto &cv) -> bool { return cv.second->Id == id; };
     auto it = std::find_if(std::begin(CVars), std::end(CVars), pred);
     if (it == std::end(CVars))
     {
-      return InvalidCVar;
+      return sGetInvalidCVar();
     }
     return *(it->second);
   }
 
   [[nodiscard]] bool IsValid() const
   {
-    return this != &InvalidCVar;
+    return this != &sGetInvalidCVar();
   }
 
   [[nodiscard]] bool IsSyncable() const
@@ -167,11 +174,11 @@ public:
     };
     iterator begin()
     {
-      return iterator(CVarBase::CVars.begin());
+      return iterator(CVarBase::sGetCVars().begin());
     }
     iterator end()
     {
-      return iterator(CVarBase::CVars.end());
+      return iterator(CVarBase::sGetCVars().end());
     }
   };
 
@@ -199,15 +206,18 @@ private:
 
   using Map = std::map<const std::string, CVarBase *>;
 
-  static CVarBase InvalidCVar;
-  static Map CVars;
+  static Map& sGetCVars()
+  {
+    static Map CVars;
+    return CVars;
+  }
+
+  static CVarBase& sGetInvalidCVar()
+  {
+    static CVarBase InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
+    return InvalidCVar;
+  }
 };
-
-template <typename T, Config::Module M>
-typename CVarBase<T, M>::Map CVarBase<T, M>::CVars{};
-
-template <typename T, Config::Module M>
-CVarBase<T, M> CVarBase<T, M>::InvalidCVar{"invalid", "", CVarFlags::NONE, {}};
 
 using CVarBool = CVarBase<bool>;
 using CVarString = CVarBase<std::string>;

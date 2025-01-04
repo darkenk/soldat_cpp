@@ -19,8 +19,6 @@ auto constexpr LOG = "input";
 bool bindkey(const std::string &key, const std::string &action, const std::string &command,
              std::uint32_t modifier)
 {
-  std::int32_t i;
-
   bool bindkey_result = false;
   tbind bind;
 
@@ -82,7 +80,7 @@ void unbindall()
 
 void startinput()
 {
-  SDL_SetRelativeMouseMode(SDL_TRUE);
+  //SDL_SetRelativeMouseMode(SDL_TRUE);
   SDL_StopTextInput();
 }
 

@@ -18,7 +18,7 @@ struct SafeType
     FASSERT(Value);
   }
 
-  operator T() const
+  constexpr operator T() const
   {
     return Value;
   }

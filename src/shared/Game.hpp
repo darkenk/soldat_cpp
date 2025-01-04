@@ -416,7 +416,7 @@ private:
   std::uint8_t VoteNumVotes = 0;
   std::uint8_t VoteMaxVotes = 0;
   PascalArray<bool, 1, Constants::MAX_PLAYERS> VoteHasVoted;
-  PascalArray<bool, 1, Constants::MAX_PLAYERS> VoteCooldown;
+  PascalArray<std::int32_t, 1, Constants::MAX_PLAYERS> VoteCooldown;
   std::string UserDirectory;
   twaypoints botpath;
   Polymap map;

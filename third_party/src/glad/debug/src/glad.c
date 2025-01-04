@@ -24,6 +24,11 @@
 #include <string.h>
 #include <glad/glad.h>
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif // __GNUC__
+
 void _pre_call_callback_default_gl(const char *name, void *funcptr, int len_args, ...) {
     (void) name;
     (void) funcptr;
@@ -9109,3 +9114,6 @@ int gladLoadGLES2Loader(GLADloadproc load) {
 	return GLVersion.major != 0 || GLVersion.minor != 0;
 }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif // _GNUC__

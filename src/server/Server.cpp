@@ -413,8 +413,6 @@ void ShutDown()
     s.player = nullptr;
   }
 
-  auto& fs = GS::GetFileSystem();
-
   GS::GetConsoleLogFile().Log("   End of Log.");
   LogDebugG("Updating gamestats");
   GS::GetGame().updategamestats();
@@ -1236,7 +1234,7 @@ TEST_SUITE("Console")
                                                writeToFile);
     cl.console("Test message", 10);
     // Assuming GetGameLog() and GetGameLogFilename() are accessible and return expected values
-    auto &fs = GS::GetFileSystem();
+    // auto &fs = GS::GetFileSystem();
     // CHECK(fs.FileExists(GetGameLogFilename()));
   }
 

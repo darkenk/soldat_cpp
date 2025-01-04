@@ -597,13 +597,13 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
           sx = sqrt(sqr(b.x - a.x) + sqr(b.y - a.y)) / 90;
 
           std::memcpy(&color, &edges[i]->a->color[0], 4);
-          color.a = trunc(color.a * 0.75);
+          color.color.a = trunc(color.color.a * 0.75);
 
           gfxspritevertices(sprite, a.x, a.y, sprite->width, sprite->height, sx, 1, 0, 0.5, r,
                             color, &vb[vbindex]);
 
           std::memcpy(&color, &edges[i]->b->color[0], 4);
-          color.a = trunc(color.a * 0.75);
+          color.color.a = trunc(color.color.a * 0.75);
 
           vb[vbindex + 1].color = color;
           vb[vbindex + 2].color = color;
@@ -637,8 +637,8 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
     std::memcpy(&mg.bgcolorbtm, &mapfile.bgcolorbtm[0], 4);
   }
 
-  mg.bgcolortop.a = 255;
-  mg.bgcolorbtm.a = 255;
+  mg.bgcolortop.color.a = 255;
+  mg.bgcolorbtm.color.a = 255;
 
   vb[i + 0] = gfxvertex(0, -d, 0, 0, mg.bgcolortop);
   vb[i + 1] = gfxvertex(1, -d, 0, 0, mg.bgcolortop);

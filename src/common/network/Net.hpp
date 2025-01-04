@@ -510,7 +510,7 @@ struct tmsg_playerslist
   std::array<char, MAPNAME_CHARS> mapname;
   tsha1digest mapchecksum;
   std::uint8_t players;
-  std::array<std::array<char, PLAYERNAME_CHARS>, max_players> name{0};
+  std::array<std::array<char, PLAYERNAME_CHARS>, max_players> name{};
   std::array<std::uint32_t, max_players> shirtcolor, pantscolor, skincolor, haircolor, jetcolor;
   std::array<std::uint8_t, max_players> team;
   std::array<std::uint8_t, max_players> predduration;
