@@ -1,143 +1,148 @@
 {
-    "version": 2,
-    "configurePresets": [
-        {
-            "name": "default",
-            "displayName": "Default Config",
-            "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build/out/soldat",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE":"RelWithDebInfo",
-                "CMAKE_C_COMPILER": "clang",
-                "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_EXE_LINKER_FLAGS": "-fuse-ld=mold",
-                "CMAKE_SHARED_LINKER_FLAGS": "-fuse-ld=mold"
-            }
-        },
-        {
-            "name": "debug",
-            "displayName": "Debug",
-            "inherits": "default",
-            "binaryDir": "${sourceDir}/build/out/soldat_debug",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        },
-        {
-            "name": "debug-coverage-clang",
-            "displayName": "Debug Coverage",
-            "inherits": "debug",
-            "binaryDir": "${sourceDir}/build/out/soldat_debug_coverage",
-            "cacheVariables": {
-                "CMAKE_CXX_FLAGS": "--coverage",
-                "CMAKE_EXE_LINKER_FLAGS": "--coverage"
-            }
-        },
-        {
-            "name": "debug-gcc",
-            "displayName": "Debug GCC",
-            "inherits": "debug",
-            "cacheVariables": {
-                "CMAKE_C_COMPILER": "gcc",
-                "CMAKE_CXX_COMPILER": "g++"
-            }
-        },
-        {
-            "name": "debug-coverage-gcc",
-            "displayName": "Debug Coverage Gcc",
-            "inherits": "debug-gcc",
-            "binaryDir": "${sourceDir}/build/out/soldat_debug_coverage_gcc",
-            "cacheVariables": {
-                "CMAKE_CXX_FLAGS": "-coverage",
-                "CMAKE_EXE_LINKER_FLAGS": "-coverage"
-            }
-        },
-        {
-            "name": "debug-emcc",
-            "displayName": "DebugEmcc",
-            "inherits": "debug",
-            "binaryDir": "${sourceDir}/build/out/soldat_emcc_debug",
-            "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake"
-            }
-        },
-        {
-            "name": "utbot_cpp",
-            "displayName": "Utbot_cpp",
-            "generator": "Unix Makefiles",
-            "binaryDir": "${sourceDir}/build/out/soldat_utbot",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE":"RelWithDebInfo",
-                "CMAKE_C_COMPILER": "/utbot_distr/install/bin/clang",
-                "CMAKE_CXX_COMPILER": "/utbot_distr/install/bin/clang++",
-                "CMAKE_AR": "/utbot_distr/install/bin/llvm-ar",
-                "CMAKE_LINKER": "/utbot_distr/install/bin/llvm-link",
-                "CMAKE_NM": "/utbot_distr/install/bin/llvm-nm",
-                "CMAKE_OBJDUMP": "/utbot_distr/install/bin/llvm-objdump",
-                "CMAKE_RUNLIB": "/utbot_distr/install/bin/llvm-ranlib",
-                "CMAKE_OBJCOPY": "/utbot_distr/install/bin/llvm-objcopy",
-                "CMAKE_EXPORT_LINK_COMMANDS": "ON",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
-            }
-        }
-    ],
-    "buildPresets": [
-        {
-            "name": "default",
-            "hidden": true,
-            "displayName": "Release Clang",
-            "configurePreset": "default",
-            "configuration": "Release",
-            "targets": ["SoldatGame", "SoldatGame_full"]
-        },
-        {
-            "name": "release",
-            "inherits": "default",
-            "displayName": "Release Clang",
-            "configurePreset": "default",
-            "configuration": "Release"
-        },
-        {
-            "inherits": "default",
-            "name": "debug",
-            "displayName": "Debug Clang",
-            "configurePreset": "debug",
-            "configuration": "Debug"
-        },
-        {
-            "inherits": "default",
-            "name": "debug_clang_coverage",
-            "displayName": "Debug Clang Coverage",
-            "configurePreset": "debug-coverage-clang",
-            "configuration": "Debug"
-        },
-        {
-            "inherits": "default",
-            "name": "debug_gcc",
-            "displayName": "Debug GCC",
-            "configurePreset": "debug-gcc",
-            "configuration": "Debug"
-        },
-        {   
-            "inherits": "default",
-            "name": "debug_coverage_gcc",
-            "displayName": "Debug GCC Coverage",
-            "configurePreset": "debug-coverage-gcc",
-            "configuration": "Debug"
-        },
-        {
-            "inherits": "default",
-            "name": "debug emcc",
-            "displayName": "Debug emcc",
-            "configurePreset": "debug-emcc",
-            "configuration": "Debug"
-        },
-        {
-            "inherits": "default",
-            "name": "utbot_cpp",
-            "displayName": "Utbot_cpp",
-            "configurePreset": "utbot_cpp",
-            "configuration": "Debug"
-        }
-    ]
+  "version": 7,
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default Config",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/out/soldat_${presetName}",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "default-clang",
+      "inherits": "default",
+      "hidden": true,
+      "cacheVariables": {
+        "ENABLE_MOLD": "ON",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "clang-asan",
+      "displayName": "Clang Asan",
+      "inherits": "default-clang",
+      "cacheVariables": {
+        "ENABLE_ASAN": "ON"
+      }
+    },
+    {
+      "name": "clang-coverage",
+      "displayName": "Clang Coverage",
+      "inherits": "default-clang",
+      "cacheVariables": {
+        "ENABLE_COVERAGE": "ON"
+      }
+    },
+    {
+      "name": "default-gcc",
+      "inherits": "default",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "ENABLE_MOLD": "ON"
+      }
+    },
+    {
+      "name": "gcc-coverage",
+      "displayName": "Gcc Coverage",
+      "inherits": "default-gcc",
+      "cacheVariables": {
+        "ENABLE_COVERAGE": "ON"
+      }
+    },
+    {
+      "name": "gcc-asan",
+      "displayName": "Gcc Asan",
+      "inherits": "default-gcc",
+      "cacheVariables": {
+        "ENABLE_ASAN": "ON"
+      }
+    },
+    {
+      "name": "debug-emcc",
+      "displayName": "Debug Emcc",
+      "inherits": "default-clang",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "/usr/lib/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+      }
+    },
+    {
+      "name": "utbot_cpp",
+      "displayName": "Utbot_cpp",
+      "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "/utbot_distr/install/bin/clang",
+        "CMAKE_CXX_COMPILER": "/utbot_distr/install/bin/clang++",
+        "CMAKE_AR": "/utbot_distr/install/bin/llvm-ar",
+        "CMAKE_LINKER": "/utbot_distr/install/bin/llvm-link",
+        "CMAKE_NM": "/utbot_distr/install/bin/llvm-nm",
+        "CMAKE_OBJDUMP": "/utbot_distr/install/bin/llvm-objdump",
+        "CMAKE_RUNLIB": "/utbot_distr/install/bin/llvm-ranlib",
+        "CMAKE_OBJCOPY": "/utbot_distr/install/bin/llvm-objcopy",
+        "CMAKE_EXPORT_LINK_COMMANDS": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "hidden": true,
+      "displayName": "Default Build",
+      "configurePreset": "default",
+      "configuration": "Release",
+      "targets": [
+        "SoldatGame",
+        "SoldatGame_full"
+      ]
+    },
+    {
+      "name": "clang-debug",
+      "displayName": "Clang Debug",
+      "inherits": "default",
+      "configurePreset": "default-clang",
+      "configuration": "Debug"
+    },
+    {
+      "name": "clang-debug-asan",
+      "displayName": "Clang Debug Asan",
+      "inherits": "default",
+      "configurePreset": "clang-asan",
+      "configuration": "Debug"
+    },
+    {
+      "name": "clang-debug-coverage",
+      "displayName": "Clang Debug Coverage",
+      "inherits": "default",
+      "configurePreset": "clang-coverage",
+      "configuration": "Debug"
+    },
+    {
+      "name": "gcc-debug",
+      "displayName": "Gcc Debug",
+      "inherits": "default",
+      "configurePreset": "default-gcc",
+      "configuration": "Debug"
+    },
+    {
+      "name": "gcc-debug-coverage",
+      "displayName": "Gcc Debug Coverage",
+      "inherits": "default",
+      "configurePreset": "gcc-coverage",
+      "configuration": "Debug"
+    },
+    {
+      "name": "gcc-debug-asan",
+      "displayName": "Gcc Debug Asan",
+      "inherits": "default",
+      "configurePreset": "gcc-asan",
+      "configuration": "Debug"
+    }
+  ]
 }

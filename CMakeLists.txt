@@ -126,6 +126,45 @@ find_package(Freetype REQUIRED)
 find_package(GameNetworkingSockets REQUIRED)
 find_package(spdlog REQUIRED)
 
+option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
+option(ENABLE_MOLD "Enable MOLD Linker" OFF)
+option(ENABLE_COVERAGE "Enable Code Coverage" OFF)
+
+if (ENABLE_ASAN)
+  # Add compile options for AddressSanitizer (ASan)
+  add_compile_options(
+    "$<$<CXX_COMPILER_ID:Clang>:-fsanitize=address>"
+    "$<$<CXX_COMPILER_ID:Clang>:-fno-omit-frame-pointer>"
+    "$<$<CXX_COMPILER_ID:GNU>:-fsanitize=address>"
+    "$<$<CXX_COMPILER_ID:GNU>:-fno-omit-frame-pointer>"
+  )
+
+  # Add link options for AddressSanitizer (ASan)
+  add_link_options(
+    "$<$<CXX_COMPILER_ID:Clang>:-fsanitize=address>"
+    "$<$<CXX_COMPILER_ID:GNU>:-fsanitize=address>"
+  )
+endif()
+
+if (ENABLE_MOLD)
+  # Add link options for MOLD Linker
+  add_link_options(
+    "$<$<CXX_COMPILER_ID:Clang>:-fuse-ld=mold>"
+    "$<$<CXX_COMPILER_ID:GNU>:-fuse-ld=mold>"
+  )
+endif()
+
+if (ENABLE_COVERAGE)
+  add_compile_options(
+    "$<$<CXX_COMPILER_ID:Clang>:-coverage>"
+    "$<$<CXX_COMPILER_ID:GNU>:-coverage>"
+  )
+  add_link_options(
+    "$<$<CXX_COMPILER_ID:Clang>:-coverage>"
+    "$<$<CXX_COMPILER_ID:GNU>:-coverage>"
+  )
+endif()
+
 set(CommonPCH
     "$<$<COMPILE_LANGUAGE:CXX>:${ROOT_DIR}/src/common/Logging.hpp>"
     "$<$<COMPILE_LANGUAGE:CXX>:${ROOT_DIR}/src/common/misc/PortUtils.hpp>"

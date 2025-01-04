@@ -21,7 +21,7 @@ class Config(Enum):
 
 # current configuration
 PLATFORM = Platform.LINUX_x64
-CONFIG = Config.Debug
+CONFIG = Config.Release
 
 if platform.machine() == 'aarch64':
     PLATFORM = Platform.LINUX_aarch64
@@ -88,7 +88,7 @@ def SetupLibressl(platform, config):
     os.makedirs(SSL_DIR, exist_ok = True)
 
     cmake_config = ['cmake', '-DCMAKE_INSTALL_PREFIX=' + SSL_DIR + '/out',
-      GetCmakeArgBuildType(config), '-DLIBRESSL_APPS=OFF', '-DLIBRESSL_TESTS=OFF', '-DBUILD_SHARED_LIBS=ON'
+      GetCmakeArgBuildType(config), '-DLIBRESSL_APPS=OFF', '-DLIBRESSL_TESTS=OFF', '-DBUILD_SHARED_LIBS=OFF'
     ]
     cmake_config = cmake_config + GetAdditionalConfigs(platform)
     cmake_config.append(SSL_SRC)
@@ -110,7 +110,7 @@ def SetupGameNetworkingSockets(platform, config):
                              '-DLIGHT_TESTS=OFF',
                              '-DGAMENETWORKINGSOCKETS_BUILD_EXAMPLES=OFF',
                              '-DGAMENETWORKINGSOCKETS_BUILD_TESTS=OFF',
-                             '-DProtobuf_PROTOC_EXECUTABLE='+ GetProtobufOutDir(Platform.LINUX_x64, Config.Release) + '/out/bin/protoc',
+                             '-DProtobuf_PROTOC_EXECUTABLE='+ GetProtobufOutDir(Platform.LINUX_x64, config) + '/out/bin/protoc',
                              '-DCMAKE_PROGRAM_PATH='+ GetProtobufOutDir(Platform.LINUX_x64, config) + '/out/',
                              '-DCMAKE_FIND_ROOT_PATH=' + GetLibreSSLOutDir(platform, config) +'/out/;' + GetProtobufOutDir(platform, config) + '/out/']
     cmake_config = cmake_config + GetAdditionalConfigs(platform)
