@@ -139,8 +139,8 @@ public:
   bool loadmap(FileUtility &fs, const tmapinfo &map, bool bgforce, std::uint32_t bgcolortop,
                std::uint32_t bgcolorbtm);
   bool pointinpolyedges(float x, float y, std::int32_t i);
-  bool pointinpoly(const tvector2 &p, const tmappolygon &poly);
-  bool PointInPoly(const tvector2 &p, const PolyMapSector::Poly &poly);
+  static bool pointinpoly(const tvector2 &p, const tmappolygon &poly);
+  static bool PointInPoly(const tvector2 &p, const PolyMapSector::Poly &poly);
   tvector2 closestperpendicular(std::int32_t j, const tvector2 &pos, float &d, std::int32_t &n);
   bool collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag = false);
   bool collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::int32_t c);
@@ -148,8 +148,8 @@ public:
                bool player = false, bool flag = false, bool bullet = true,
                bool checkcollider = false, std::uint8_t team = 0);
 
-  void checkoutofbounds(MyFloat &x, MyFloat &y);
-  void checkoutofbounds(std::int16_t &x, std::int16_t &y);
+  void checkoutofbounds(MyFloat &x, MyFloat &y) const;
+  void checkoutofbounds(std::int16_t &x, std::int16_t &y) const;
 
   static bool ShouldTestPolygonWithRay(const uint8_t polygonType, const bool npcol,
                                        const bool nbcol, const bool flag, const uint8_t team);
@@ -185,8 +185,8 @@ private:
   };
 
   SectorCoord GetSectorCoord(const tvector2 &pos);
-  SectorCoord GetSectorCoordUnsafe(const tvector2 &pos);
-  std::int32_t GetIndex(const SectorCoord &s);
+  SectorCoord GetSectorCoordUnsafe(const tvector2 &pos) const;
+  std::int32_t GetIndex(const SectorCoord &s) const;
 
   float PositionToSectorScale;
   float MapHalfSize;

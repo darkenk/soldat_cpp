@@ -181,9 +181,10 @@ void loadmodinfo()
   // cleanup
 }
 
-float getimagescale(const std::string &imagepath)
+auto getimagescale(const std::string &imagepath) -> float
 {
-  std::string scale, key;
+  std::string scale;
+  std::string key;
 
   std::string intdir =
     string("/custom-interfaces/") + lowercase(gamerenderingparams.interfacename) + '/';
@@ -220,7 +221,9 @@ float getimagescale(const std::string &imagepath)
 #endif
 
     if (scale.empty())
+    {
       scale = data->at("DefaultScale");
+    }
   }
 
   return strtofloatdef(scale, 1);
@@ -232,7 +235,7 @@ void takescreenshot(string filename, bool async)
   screenshotasync = async;
 }
 
-string pngoverride(const std::string_view &filename)
+auto pngoverride(const std::string_view &filename) -> string
 {
   std::string f{filename};
   std::replace(f.begin(), f.end(), '\\', '/');
@@ -240,7 +243,7 @@ string pngoverride(const std::string_view &filename)
   return overridefileext(GS::GetFileSystem(), f, ".png");
 }
 
-string pngoverride(const std::string &filename)
+auto pngoverride(const std::string &filename) -> string
 {
   std::string f{filename};
   std::replace(f.begin(), f.end(), '\\', '/');
@@ -257,29 +260,35 @@ void loadmaintextures()
   mainspritesheet = new tgfxspritesheet(count);
   float scale = 1.5 * renderheight / gameheight;
 
-  for (std::int32_t i = 0; i < GFXData.size(); i++)
+  for (const auto &i : GFXData)
   {
-    if (GFXData[i].Group != GFXG::INTERFACE)
+    if (i.Group != GFXG::INTERFACE)
     {
       tgfxcolor color;
-      auto id = GFXData[i].ID;
-      color.color.r = (GFXData[i].ColorKey & 0xff) >> 0;
-      color.color.g = (GFXData[i].ColorKey & 0xff00) >> 8;
-      color.color.b = (GFXData[i].ColorKey & 0xff0000) >> 16;
-      color.color.a = (GFXData[i].ColorKey & 0xff000000) >> 24;
+      auto id = i.ID;
+      color.color.r = (i.ColorKey & 0xff) >> 0;
+      color.color.g = (i.ColorKey & 0xff00) >> 8;
+      color.color.b = (i.ColorKey & 0xff0000) >> 16;
+      color.color.a = (i.ColorKey & 0xff000000) >> 24;
 
-      auto path = pngoverride(moddir + std::string(GFXData[i].Path));
+      auto path = pngoverride(moddir + std::string(i.Path));
 
       if (!fs.Exists(path))
-        path = pngoverride(GFXData[i].Path);
+      {
+        path = pngoverride(i.Path);
+      }
 
       imagescale[id] = getimagescale(path);
       SoldatAssert(!path.empty());
 
       if (CVar::r_optimizetextures)
-        mainspritesheet->addimage(path, color, (float)(scale) / imagescale[id]);
+      {
+        mainspritesheet->addimage(path, color, scale / imagescale[id]);
+      }
       else
+      {
         mainspritesheet->addimage(path, color, 1);
+      }
     }
   }
 
@@ -309,18 +318,26 @@ void loadinterfacetextures(const std::string interfacename)
   for (i = low(GFXData); i <= high(GFXData); i++)
   {
     if (GFXData[i].Group == GFXG::INTERFACE)
+    {
       count += 1;
+    }
   }
 
   if (interfacespritesheet != nullptr)
+  {
     freeandnullptr(interfacespritesheet);
+  }
 
   interfacespritesheet = new tgfxspritesheet(count);
 
   if (CVar::r_scaleinterface)
+  {
     scale = (float)(renderheight) / gameheight;
+  }
   else
+  {
     scale = 1;
+  }
 
   for (i = low(GFXData); i <= high(GFXData); i++)
   {
@@ -355,9 +372,13 @@ void loadinterfacetextures(const std::string interfacename)
       imagescale[id] = getimagescale(path);
 
       if (CVar::r_optimizetextures)
-        interfacespritesheet->addimage(path, color, (float)(scale) / imagescale[id]);
+      {
+        interfacespritesheet->addimage(path, color, scale / imagescale[id]);
+      }
       else
+      {
         interfacespritesheet->addimage(path, color, 1);
+      }
     }
   }
 
@@ -367,14 +388,18 @@ void loadinterfacetextures(const std::string interfacename)
 void loadinterface()
 {
   if (loadinterfacedata(gamerenderingparams.interfacename))
+  {
     loadinterfacetextures(gamerenderingparams.interfacename);
+  }
   else
+  {
     loadinterfacetextures("");
+  }
 
   loadedinterfacename = gamerenderingparams.interfacename;
 }
 
-string getfontpath(string fontfile)
+auto getfontpath(string fontfile) -> string
 {
   std::string result;
   auto p = std::filesystem::path(basedirectory + fontfile);
@@ -385,16 +410,18 @@ string getfontpath(string fontfile)
   return result;
 }
 
-string getfontpath(string fallback, string &fontfile)
+auto getfontpath(string fallback, string &fontfile) -> string
 {
-  std::string result = "";
+  std::string result;
   if (fontfile == "play-regular.ttf")
   {
     return "play-regular.ttf";
   }
 
   if (!fontfile.empty())
+  {
     result = getfontpath(fontfile);
+  }
 
   if (result.empty())
   {
@@ -411,7 +438,8 @@ string getfontpath(string fallback, string &fontfile)
 
 void loadfonts()
 {
-  std::array<string, 2> fontfile, fontpath;
+  std::array<string, 2> fontfile;
+  std::array<string, 2> fontpath;
 
   fontfile[0] = CVar::font_1_filename;
   fontfile[1] = CVar::font_2_filename;
@@ -419,7 +447,7 @@ void loadfonts()
   fontpath[0] = getfontpath(default_font, fontfile[0]);
   fontpath[1] = getfontpath(default_font, fontfile[1]);
 
-  if ((fontpath[0] == "") || (fontpath[1] == ""))
+  if ((fontpath[0].empty()) || (fontpath[1].empty()))
   {
     showmessage(("One of the fonts cannot be found. Please check your installation directory."));
     shutdown();
@@ -472,14 +500,16 @@ void loadfonts()
   for (std::int32_t i = 0; i < fontstyles.size(); i++)
   {
     if (fontstyles[i].size < 10)
+    {
       fontstyles[i].flags = gfx_monochrome;
+    }
 
     fontstyles[i].tableindex = gfxsetfont(fontstyles[i].font, fontstyles[i].size,
                                           fontstyles[i].flags, fontstyles[i].stretch);
   }
 }
 
-bool initgamegraphics()
+auto initgamegraphics() -> bool
 {
   std::vector<std::uint8_t> filebuffer;
 
@@ -500,9 +530,13 @@ bool initgamegraphics()
   std::uint32_t windowflags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
 
   if (CVar::r_fullscreen == 2)
+  {
     windowflags = windowflags | SDL_WINDOW_FULLSCREEN_DESKTOP;
+  }
   else if (CVar::r_fullscreen == 1)
+  {
     windowflags = windowflags | SDL_WINDOW_FULLSCREEN;
+  }
 
   gamewindow = SDL_CreateWindow("Soldat", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                 windowwidth, windowheight, windowflags);
@@ -510,7 +544,7 @@ bool initgamegraphics()
   auto& fs = GS::GetFileSystem();
   filebuffer = fs.ReadFile("/icon.bmp");
 
-  SDL_RWops *iconfile = SDL_RWFromMem(&filebuffer[0], length(filebuffer));
+  SDL_RWops *iconfile = SDL_RWFromMem(filebuffer.data(), length(filebuffer));
 
   IconSurface = SDL_LoadBMP_RW(iconfile, 1);
 
@@ -532,7 +566,9 @@ bool initgamegraphics()
   startinput();
 
   if (SDL_GL_SetSwapInterval(CVar::r_swapeffect) == -1)
+  {
     gfxlog(string("Error while setting SDL_GL_SetSwapInterval:") + SDL_GetError());
+  }
 
   gfxviewport(0, 0, windowwidth, windowheight);
 
@@ -546,10 +582,14 @@ bool initgamegraphics()
 
   map.loadgraphics = &loadmapgraphics;
   if (!gfxframebuffersupported())
+  {
     CVar::cl_actionsnap = false;
+  }
 
   if (CVar::cl_actionsnap)
+  {
     actionsnaptexture = gfxcreaterendertarget(renderwidth, renderheight, 4, true);
+  }
 
   if (gfxframebuffersupported())
   {
@@ -562,16 +602,24 @@ bool initgamegraphics()
         rendertargetaa = gfxcreaterendertarget(renderwidth, renderheight, 4, false);
 
         if (CVar::r_resizefilter >= 2)
+        {
           gfxtexturefilter(rendertargetaa, gfx_linear, gfx_linear);
+        }
         else
+        {
           gfxtexturefilter(rendertargetaa, gfx_nearest, gfx_nearest);
+        }
       }
       else
       {
         if (CVar::r_resizefilter >= 2)
+        {
           gfxtexturefilter(rendertarget, gfx_linear, gfx_linear);
+        }
         else
+        {
           gfxtexturefilter(rendertarget, gfx_nearest, gfx_nearest);
+        }
       }
     }
   }
@@ -616,8 +664,10 @@ void destroygamegraphics()
 {
   std::int32_t i;
 
-  if (initialized == false)
+  if (!initialized)
+  {
     return;
+  }
 
   SDL_SetWindowIcon(gamewindow, nullptr);
   SDL_FreeSurface(IconSurface);
@@ -627,16 +677,24 @@ void destroygamegraphics()
   freeandnullptr(interfacespritesheet);
 
   for (i = low(fonts); i <= high(fonts); i++)
+  {
     gfxdeletefont(fonts[i]);
+  }
 
   if (actionsnaptexture != nullptr)
+  {
     gfxdeletetexture(actionsnaptexture);
+  }
 
   if (rendertarget != nullptr)
+  {
     gfxdeletetexture(rendertarget);
+  }
 
   if (rendertargetaa != nullptr)
+  {
     gfxdeletetexture(rendertargetaa);
+  }
 
   destroymapgraphics();
   gfxdestroycontext();
@@ -653,7 +711,7 @@ float lerp(float a, float b, float x)
 
 #endif
 
-inline constexpr tvector2 lerp(const tvector2 &a, const tvector2 &b, float x)
+constexpr auto lerp(const tvector2 &a, const tvector2 &b, float x) -> tvector2
 {
   tvector2 lerp_result;
   lerp_result.x = a.x + (b.x - a.x) * x;
@@ -667,7 +725,8 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
   static const std::set<std::int32_t> kit_styles = {
     object_medical_kit, object_grenade_kit, object_flamer_kit, object_predator_kit,
     object_vest_kit,    object_berserk_kit, object_cluster_kit};
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
 
   s.camera.x = camerax;
   s.camera.y = cameray;
@@ -680,14 +739,16 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
   my = lerp(mouseprev.y, my, p);
 
   if (paused)
+  {
     p = 1.0;
+  }
 
   {
     ZoneScopedN("Sprites");
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
       i = sprite.num;
-      const auto sk = &sprite.skeleton;
+      auto *const sk = &sprite.skeleton;
       tgun *gun = &sprite.weapon;
       std::memcpy(&s.spritepos[i][1], &sk->pos[1], sizeof(tvector2) * length(s.spritepos[i]));
 
@@ -747,14 +808,18 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
     {
       if (things[i].active)
       {
-        const auto sk = &things[i].skeleton;
+        auto *const sk = &things[i].skeleton;
         std::memcpy(&s.thingpos[i][1], &sk->pos[1], sizeof(tvector2) * length(s.thingpos[i]));
 
         for (j = low(s.thingpos[i]); j <= high(s.thingpos[i]); j++)
+        {
           sk->pos[j] = lerp(sk->oldpos[j], sk->pos[j], p);
+        }
 
         if (kit_styles.contains(things[i].style))
+        {
           sk->satisfyconstraints();
+        }
       }
     }
   }
@@ -790,7 +855,9 @@ void restorestate(tinterpolationstate &s)
   for (i = 1; i <= max_sparks; i++)
   {
     if (spark[i].active)
+    {
       GetSparkParts().pos[spark[i].num] = s.sparkpos[i];
+    }
   }
 
   auto &things = GS::GetThingSystem().GetThings();
@@ -809,8 +876,13 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
   ZoneScopedN("RenderFrame");
   tmapgraphics *mg;
   std::int32_t i;
-  float dx, dy;
-  float w, h, s, u, v;
+  float dx;
+  float dy;
+  float w;
+  float h;
+  float s;
+  float u;
+  float v;
   tinterpolationstate interpolationstate;
   bool grabactionsnap;
   trect rc;
@@ -821,7 +893,9 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
   // graphics might be destroyed before end of game loop
   if (mg->vertexbuffer == nullptr)
+  {
     return;
+  }
 
   if (rendertarget != nullptr)
   {
@@ -829,13 +903,13 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
     gfxviewport(0, 0, renderwidth, renderheight);
   }
 
-  if (screenshotpath != "")
+  if (!screenshotpath.empty())
   {
     gfxsavescreen(screenshotpath, 0, 0, renderwidth, renderheight, screenshotasync);
     screenshotpath = "";
   }
 
-  if (showscreen && actionsnaptaken)
+  if ((showscreen != 0u) && actionsnaptaken)
   {
     ZoneScopedN("Render1");
     rc = trect(0, renderheight, renderwidth, 0);
@@ -853,7 +927,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
     gfxbegin();
     gfxtransform(gfxmat3ortho(0, w, 0, h));
-    gfxtextpixelratio(vector2((float)(w) / renderwidth, (float)(h) / renderheight));
+    gfxtextpixelratio(vector2(w / renderwidth, h / renderheight));
     renderactionsnaptext(timeelapsed);
     gfxend();
   }
@@ -879,16 +953,22 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
     w = exp(CVar::r_zoom) * gamewidth;
     h = exp(CVar::r_zoom) * gameheight;
 
-    dx = camerax - (float)(w) / 2;
-    dy = cameray - (float)(h) / 2;
+    dx = camerax - w / 2;
+    dy = cameray - h / 2;
 
     if (cameray > 0)
+    {
       gfxclear(mapgfx.bgcolorbtm);
+    }
     else
+    {
       gfxclear(mapgfx.bgcolortop);
+    }
 
     if (CVar::r_animations)
+    {
       updateprops(timeelapsed);
+    }
 
     gfxtransform(gfxmat3ortho(0, 1, dy, h + dy));
     gfxbindtexture(nullptr);
@@ -897,15 +977,21 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
     gfxtransform(gfxmat3ortho(dx, w + dx, dy, h + dy));
 
     if (CVar::r_smoothedges && (length(mg->edges[0]) > 0))
-      gfxdraw(mg->vertexbuffer, mg->indexbuffer, &mg->edges[0][0], length(mg->edges[0]));
+    {
+      gfxdraw(mg->vertexbuffer, mg->indexbuffer, mg->edges[0].data(), length(mg->edges[0]));
+    }
 
     if (length(mg->polys[0]) > 0)
-      gfxdraw(mg->vertexbuffer, &mg->polys[0][0], length(mg->polys[0]));
+    {
+      gfxdraw(mg->vertexbuffer, mg->polys[0].data(), length(mg->polys[0]));
+    }
 
     gfxsetmipmapbias(CVar::r_mipmapbias);
 
     if (CVar::r_renderbackground)
+    {
       renderprops(0);
+    }
 
     gfxbegin();
 
@@ -916,7 +1002,9 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
         {
           auto &b = GS::GetBulletSystem().GetBullets()[i];
           if (b.active or (b.pingadd > 0))
+          {
             b.render(timeelapsed);
+          }
         }
       }
 
@@ -930,15 +1018,23 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
       {
         ZoneScopedN("RenderThings");
         for (i = 1; i <= max_things; i++)
+        {
           if (things[i].active)
+          {
             things[i].render(timeelapsed);
+          }
+        }
       }
 
       {
         ZoneScopedN("RenderSpark");
         for (i = 1; i <= max_sparks; i++)
+        {
           if (spark[i].active)
+          {
             spark[i].render();
+          }
+        }
       }
     }
 
@@ -947,17 +1043,25 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
     gfxbegin();
 
     for (i = 1; i <= max_things; i++)
+    {
       if (things[i].active)
+      {
         things[i].polygonsrender();
+      }
+    }
 
     gfxend();
     gfxsetmipmapbias(0);
 
     if (CVar::r_smoothedges && (length(mg->edges[1]) > 0))
-      gfxdraw(mg->vertexbuffer, mg->indexbuffer, &mg->edges[1][0], length(mg->edges[1]));
+    {
+      gfxdraw(mg->vertexbuffer, mg->indexbuffer, mg->edges[1].data(), length(mg->edges[1]));
+    }
 
     if (length(mg->polys[1]) > 0)
-      gfxdraw(mg->vertexbuffer, &mg->polys[1][0], length(mg->polys[1]));
+    {
+      gfxdraw(mg->vertexbuffer, mg->polys[1].data(), length(mg->polys[1]));
+    }
 
     gfxsetmipmapbias(CVar::r_mipmapbias);
     renderprops(2);
@@ -1071,7 +1175,7 @@ void rendergameinfo(const std::string &textstring)
 }
 
 template <typename T>
-bool arraycontains(const T &list, std::int32_t x)
+auto arraycontains(const T &list, std::int32_t x) -> bool
 {
   std::int32_t i;
 
@@ -1088,7 +1192,7 @@ bool arraycontains(const T &list, std::int32_t x)
   return result;
 }
 
-bool getsizeconstraint(std::int32_t id, std::int32_t &w, std::int32_t &h)
+auto getsizeconstraint(std::int32_t id, std::int32_t &w, std::int32_t &h) -> bool
 {
   const std::array<std::int32_t, 35> weapons_list = {
     {GFX::WEAPONS_AK74,      GFX::WEAPONS_AK74_2,      GFX::WEAPONS_AK74_FIRE,
@@ -1121,9 +1225,10 @@ bool getsizeconstraint(std::int32_t id, std::int32_t &w, std::int32_t &h)
   return result;
 }
 
-bool dotextureloading(bool finishloading)
+auto dotextureloading(bool finishloading) -> bool
 {
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
   std::int32_t w = 0;
   std::int32_t h = 0;
   std::string s;
@@ -1131,13 +1236,17 @@ bool dotextureloading(bool finishloading)
   bool dotextureloading_result = true; // return true when not loading
 
   if ((mainspritesheet == nullptr) || (interfacespritesheet == nullptr))
+  {
     return dotextureloading_result;
+  }
 
   bool mainloading = mainspritesheet->loading();
   bool interfaceloading = interfacespritesheet->loading();
 
   if (!(mainloading || interfaceloading))
+  {
     return dotextureloading_result;
+  }
 
   if (finishloading)
   {
@@ -1147,9 +1256,13 @@ bool dotextureloading(bool finishloading)
   else
   {
     if (mainspritesheet->loading())
+    {
       mainspritesheet->continueloading();
+    }
     else if (interfacespritesheet->loading())
+    {
       interfacespritesheet->continueloading();
+    }
   }
 
   if (mainspritesheet->loading() != mainloading)
@@ -1170,9 +1283,13 @@ bool dotextureloading(bool finishloading)
               ((textures[id]->height * textures[id]->scale) > h))
           {
             if (((float)(textures[id]->width) / textures[id]->height) > ((float)(w) / h))
+            {
               textures[id]->scale = (float)(w) / textures[id]->width;
+            }
             else
+            {
               textures[id]->scale = (float)(h) / textures[id]->height;
+            }
           }
         }
 
@@ -1228,7 +1345,9 @@ bool dotextureloading(bool finishloading)
   dotextureloading_result = false;
 
   if (!(mainspritesheet->loading() || interfacespritesheet->loading()))
+  {
     dotextureloading_result = true;
+  }
   return dotextureloading_result;
 }
 
@@ -1243,10 +1362,7 @@ void setfontstyle(std::int32_t style, float scale)
              fontstyles[style].stretch);
 }
 
-std::int32_t fontstylesize(std::int32_t style)
-{
-  return fontstyles[style].size;
-}
+auto fontstylesize(std::int32_t style) -> std::int32_t { return fontstyles[style].size; }
 
 void gfxlogcallback(const std::string &s)
 {

@@ -39,7 +39,7 @@ void clearchattext()
   SDL_StopTextInput();
 }
 
-std::string filterchattext(const std::string &str1)
+auto filterchattext(const std::string &str1) -> std::string
 {
   std::string result;
   result = std::accumulate(str1.begin(), str1.end(), result, [](const auto &out, const auto &c) {
@@ -52,7 +52,7 @@ std::string filterchattext(const std::string &str1)
   return result;
 }
 
-bool chatkeydown(std::uint8_t keymods, SDL_Keycode keycode)
+auto chatkeydown(std::uint8_t keymods, SDL_Keycode keycode) -> bool
 {
   std::int32_t len;
   std::string str1;
@@ -135,14 +135,18 @@ bool chatkeydown(std::uint8_t keymods, SDL_Keycode keycode)
       case SDLK_RIGHT: {
         chatchanged = true;
         if (length(chattext) > cursorposition)
+        {
           cursorposition += 1;
+        }
       }
       break;
 
       case SDLK_LEFT: {
         chatchanged = true;
         if (cursorposition > 1)
+        {
           cursorposition -= 1;
+        }
       }
       break;
 
@@ -189,7 +193,7 @@ bool chatkeydown(std::uint8_t keymods, SDL_Keycode keycode)
   return result;
 }
 
-bool menukeydown(std::uint8_t keymods, SDL_Scancode keycode)
+auto menukeydown(std::uint8_t keymods, SDL_Scancode keycode) -> bool
 {
   bool result;
   result = false;
@@ -205,21 +209,29 @@ bool menukeydown(std::uint8_t keymods, SDL_Scancode keycode)
       rmenustate[1] = ' ';
     }
     else if (kickmenu->active || mapmenu->active)
+    {
       gamemenushow(escmenu);
+    }
     else
+    {
       gamemenushow(escmenu, !escmenu->active);
+    }
   }
   else if ((keycode >= SDL_SCANCODE_1) && (keycode <= SDL_SCANCODE_0))
   {
     if (teammenu->active)
     {
       if (keymods == km_none)
+      {
         result = gamemenuaction(teammenu, ((keycode - SDL_SCANCODE_1) + 1) % 10);
+      }
     }
     else if (escmenu->active)
     {
       if (keymods == km_none)
+      {
         result = gamemenuaction(escmenu, keycode - SDL_SCANCODE_1);
+      }
     }
     else if (limbomenu->active)
     {
@@ -237,7 +249,7 @@ bool menukeydown(std::uint8_t keymods, SDL_Scancode keycode)
   return result;
 }
 
-bool keydown(SDL_KeyboardEvent &keyevent)
+auto keydown(SDL_KeyboardEvent &keyevent) -> bool
 {
   std::int32_t i;
   std::uint8_t keymods;
@@ -254,7 +266,9 @@ bool keydown(SDL_KeyboardEvent &keyevent)
             (ord(0 != (keyevent.keysym.mod & KMOD_SHIFT)) << 2);
 
   if (chatkeydown(keymods, keyevent.keysym.sym))
+  {
     return result;
+  }
 
   if (keyevent.repeat != 0)
   {
@@ -263,22 +277,29 @@ bool keydown(SDL_KeyboardEvent &keyevent)
   }
 
   if (menukeydown(keymods, keycode))
+  {
     return result;
+  }
 
   // other hard coded key bindings
 
   if (keymods == km_none)
+  {
     switch (keycode)
     {
     case SDL_SCANCODE_PAGEDOWN: {
       if (fragsmenushow)
+      {
         fragsscrolllev += ord(fragsscrolllev < fragsscrollmax);
+      }
     }
     break;
 
     case SDL_SCANCODE_PAGEUP: {
       if (fragsmenushow)
+      {
         fragsscrolllev -= ord(fragsscrolllev > 0);
+      }
     }
     break;
 
@@ -357,7 +378,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
     case SDL_SCANCODE_3: {
       result = false;
 
-      if ((chattext == "") && (CVar::sv_radio) && showradiomenu)
+      if ((chattext.empty()) && (CVar::sv_radio) && showradiomenu)
       {
         result = true;
         i = ord(rmenustate[0] != ' ');
@@ -406,7 +427,9 @@ bool keydown(SDL_KeyboardEvent &keyevent)
     default:
       result = false;
     }
+  }
   else if (keymods == km_alt)
+  {
     switch (keycode)
     {
     case SDL_SCANCODE_F4:
@@ -419,25 +442,35 @@ bool keydown(SDL_KeyboardEvent &keyevent)
     default:
       result = false;
     }
+  }
   else if ((keymods == km_ctrl) || (keymods == km_shift))
+  {
     result = false;
+  }
 
   if (result)
+  {
     return result;
+  }
 
   // bindings
   bind = findkeybind(keymods, keycode);
   result = bind != nullptr;
 
   if (!result)
+  {
     return result;
+  }
 
   action = bind->action;
 
   if (action == taction::sniperline)
   {
     if (!CVar::sv_sniperline)
-      sniperline_client_hpp = !sniperline_client_hpp;
+    {
+      sniperline_client_hpp =
+        static_cast<std::uint8_t>(static_cast<std::uint8_t>(sniperline_client_hpp) == 0u);
+    }
   }
   else if (action == taction::statsmenu)
   {
@@ -445,7 +478,9 @@ bool keydown(SDL_KeyboardEvent &keyevent)
     {
       statsmenushow = !statsmenushow;
       if (statsmenushow)
+      {
         fragsmenushow = false;
+      }
     }
   }
   else if (action == taction::gamestats)
@@ -467,12 +502,14 @@ bool keydown(SDL_KeyboardEvent &keyevent)
       fragsscrolllev = 0;
       fragsmenushow = !fragsmenushow;
       if (fragsmenushow)
+      {
         statsmenushow = false;
+      }
     }
   }
   else if (action == taction::radio)
   {
-    if ((chattext == "") && (CVar::sv_radio) && (mysprite > 0) and
+    if ((chattext.empty()) && (CVar::sv_radio) && (mysprite > 0) and
         (SpriteSystem::Get().GetSprite(mysprite).isnotspectator)())
     {
       showradiomenu = !showradiomenu;
@@ -511,15 +548,19 @@ bool keydown(SDL_KeyboardEvent &keyevent)
   }
   else if ((action == taction::volumeup) || (action == taction::volumedown))
   {
-    if ((chattext == "") && !escmenu->active)
+    if ((chattext.empty()) && !escmenu->active)
     {
       i = CVar::snd_volume;
 
       if (action == taction::volumeup)
+      {
         CVar::snd_volume = (min(CVar::snd_volume + 10, 100));
+      }
 
       if (action == taction::volumedown)
+      {
         CVar::snd_volume = (max(CVar::snd_volume - 10, 0));
+      }
 
       if (CVar::snd_volume != i)
       {
@@ -532,7 +573,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
   }
   else if ((action == taction::mousesensitivityup) || (action == taction::mousesensitivitydown))
   {
-    if ((chattext == "") && !escmenu->active)
+    if ((chattext.empty()) && !escmenu->active)
     {
       i = iif(action == taction::mousesensitivitydown, -5, 5);
       CVar::cl_sensitivity = ((float)(max(0.f, i + floor(100 * CVar::cl_sensitivity))) / 100);
@@ -543,7 +584,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
   }
   else if (action == taction::cmd)
   {
-    if (chattext == "")
+    if (chattext.empty())
     {
       chattext = '/';
       chattype = msgtype_cmd;
@@ -555,7 +596,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
   }
   else if (action == taction::chat)
   {
-    if (chattext == "")
+    if (chattext.empty())
     {
       SDL_StartTextInput();
       chatchanged = true;
@@ -563,19 +604,23 @@ bool keydown(SDL_KeyboardEvent &keyevent)
       chattype = msgtype_pub;
 
       if (length(firechattext) > 0)
+      {
         chattext = firechattext;
+      }
 
       // force spectator chat to teamchat in survival mode when Round hasn't ended
       if ((CVar::sv_survivalmode) && SpriteSystem::Get().GetSprite(mysprite).isspectator() &&
           !game.GetSurvivalEndRound() && (CVar::sv_survivalmode_antispy))
+      {
         chattype = msgtype_team;
+      }
 
       cursorposition = length(chattext);
     }
   }
   else if (action == taction::teamchat)
   {
-    if ((chattext == "") && (mysprite > 0) &&
+    if ((chattext.empty()) && (mysprite > 0) &&
         (SpriteSystem::Get().GetSprite(mysprite).isspectator() || GS::GetGame().isteamgame()))
     {
       SDL_StartTextInput();
@@ -589,22 +634,26 @@ bool keydown(SDL_KeyboardEvent &keyevent)
   {
     if ((CVar::cl_actionsnap) && (screencounter < 255) && actionsnaptaken)
     {
-      showscreen = !showscreen;
+      showscreen = static_cast<std::uint8_t>(static_cast<std::uint8_t>(showscreen) == 0u);
 
-      if (showscreen == false)
+      if (!static_cast<bool>(showscreen))
+      {
         screencounter = 255;
+      }
       else
+      {
         playsound(SfxEffect::snapshot);
+      }
     }
     else
     {
       screencounter = 255;
-      showscreen = false;
+      showscreen = 0u;
     }
   }
   else if (action == taction::weapons)
   {
-    if ((chattext == "") && (mysprite > 0) && !escmenu->active &&
+    if ((chattext.empty()) && (mysprite > 0) && !escmenu->active &&
         !SpriteSystem::Get().GetSprite(mysprite).isspectator())
     {
       if (SpriteSystem::Get().GetSprite(mysprite).deadmeat)
@@ -636,9 +685,9 @@ bool keydown(SDL_KeyboardEvent &keyevent)
   }
   else if (action == taction::bind)
   {
-    if ((chattimecounter == 0) && (bind->command != ""))
+    if ((chattimecounter == 0) && (!bind->command.empty()))
     {
-      if ((chattext == "") && !escmenu->active)
+      if ((chattext.empty()) && !escmenu->active)
       {
         if (!parseinput(std::string(bind->command)))
         {
@@ -664,7 +713,7 @@ bool keydown(SDL_KeyboardEvent &keyevent)
   return result;
 }
 
-bool keyup(SDL_KeyboardEvent &keyevent)
+auto keyup(SDL_KeyboardEvent &keyevent) -> bool
 {
   std::uint8_t keymods;
   SDL_Scancode keycode;
@@ -690,7 +739,9 @@ bool keyup(SDL_KeyboardEvent &keyevent)
   result = bind != nullptr;
 
   if (!result)
+  {
     return result;
+  }
 
   action = bind->action;
 
@@ -731,7 +782,9 @@ void gameinput()
 
     case SDL_KEYDOWN: {
       if (!keydown(event.key))
+      {
         keystatus[event.key.keysym.scancode] = true;
+      }
     }
     break;
 
@@ -743,7 +796,9 @@ void gameinput()
 
     case SDL_MOUSEBUTTONDOWN: {
       if (!gamemenuclick())
+      {
         keystatus[event.button.button + 300] = true;
+      }
     }
     break;
 

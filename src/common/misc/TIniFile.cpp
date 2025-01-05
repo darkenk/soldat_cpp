@@ -5,7 +5,7 @@ TIniFile::TIniFile(std::unique_ptr<TStream> stream) : Stream(std::move(stream))
 {
 }
 
-bool TIniFile::ReadSectionValues(const std::string_view section, Entries &out)
+auto TIniFile::ReadSectionValues(const std::string_view section, Entries &out) -> bool
 {
   std::string line;
   std::regex sectionRegex{R"(^\[(.*)\])"};

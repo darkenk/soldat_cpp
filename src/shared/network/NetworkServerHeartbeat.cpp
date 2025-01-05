@@ -84,13 +84,14 @@ namespace
 class LogBumper
 {
 public:
-  inline LogBumper(std::string_view logger, spdlog::level::level_enum lv = spdlog::level::trace):
-    Logger(logger)
+  LogBumper(std::string_view logger, spdlog::level::level_enum lv = spdlog::level::trace)
+    : Logger(logger)
   {
     PreviousLevel = spdlog::get(Logger)->level();
     spdlog::get(Logger)->set_level(lv);
   }
-  inline ~LogBumper() { spdlog::get(Logger)->set_level(PreviousLevel); }
+  ~LogBumper() { spdlog::get(Logger)->set_level(PreviousLevel); }
+
 private:
   std::string Logger;
   spdlog::level::level_enum PreviousLevel;
@@ -105,6 +106,7 @@ public:
     GlobalSystems<Config::SERVER_MODULE>::Init();
     AnimationSystem::Get().LoadAnimObjects("");
   }
+  NetworkServerHeartbeatFixture(const NetworkServerHeartbeatFixture &) = delete;
   ~NetworkServerHeartbeatFixture()
   {
     GlobalSystems<Config::SERVER_MODULE>::Deinit();
@@ -114,7 +116,6 @@ public:
 protected:
   LogBumper LogBumperNetMsg;
   LogBumper LogBumperNetworkMsg;
-  NetworkServerHeartbeatFixture(const NetworkServerHeartbeatFixture &) = delete;
 };
 
 TEST_CASE_FIXTURE(NetworkServerHeartbeatFixture, "Initial test for heartbeat" * doctest::skip(true))

@@ -27,19 +27,25 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
 
   if (!verifypacket(sizeof(tmsg_serverspritesnapshot), netmessage->size,
                     msgid_serverspritesnapshot))
+  {
     return;
+  }
 
-  auto spritesnap = pmsg_serverspritesnapshot(netmessage->packet);
+  auto *spritesnap = pmsg_serverspritesnapshot(netmessage->packet);
   auto &things = GS::GetThingSystem().GetThings();
 
   // assign received sprite info to sprite
   const std::int32_t i = spritesnap->num;
 
   if ((i < 1) || (i > max_sprites))
+  {
     return;
+  }
   auto& sprite = SpriteSystem::Get().GetSprite(i);
   if (!sprite.active)
+  {
     return;
+  }
 
   clienttickcount = spritesnap->serverticks;
   lastheartbeatcounter = spritesnap->serverticks;
@@ -76,17 +82,27 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
     decodekeys(sprite, spritesnap->keys16);
 
     if (sprite.weapon.num != spritesnap->weaponnum)
+    {
       sprite.applyweaponbynum(spritesnap->weaponnum, 1);
+    }
     if (sprite.secondaryweapon.num != spritesnap->secondaryweaponnum)
+    {
       sprite.applyweaponbynum(spritesnap->secondaryweaponnum, 2);
+    }
     sprite.weapon.ammocount = spritesnap->ammocount;
 
     if (sprite.weapon.num == knife_num)
+    {
       sprite.player->secwep = 1;
+    }
     if (sprite.weapon.num == chainsaw_num)
+    {
       sprite.player->secwep = 2;
+    }
     if (sprite.weapon.num == law_num)
+    {
       sprite.player->secwep = 3;
+    }
 
     // Toggle prone if it was activated or deactivated
     sprite.control.prone =
@@ -95,30 +111,40 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
   }
 
   // kill the bow
-  if ((sprite.weapon.num == bow_num) ||
-      (sprite.weapon.num == bow2_num))
+  if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
+  {
     for (std::int32_t j = 1; j <= max_things; j++)
+    {
       if ((things[j].active) && (things[j].style == object_rambo_bow))
       {
         gamethingtarget = 0;
         things[j].kill();
       }
+    }
+  }
 
   sprite.wearhelmet = 1;
   if ((spritesnap->look & B1) == B1)
+  {
     sprite.wearhelmet = 0;
+  }
   if ((spritesnap->look & B4) == B4)
+  {
     sprite.wearhelmet = 2;
+  }
   if ((sprite.bodyanimation.id != AnimationType::Cigar) &&
       (sprite.bodyanimation.id != AnimationType::Smoke) &&
-      !((sprite.idlerandom == 1) &&
-        (sprite.bodyanimation.id == AnimationType::Stand)))
+      ((sprite.idlerandom != 1) || (sprite.bodyanimation.id != AnimationType::Stand)))
   {
     sprite.hascigar = 0;
     if ((spritesnap->look & B2) == B2)
+    {
       sprite.hascigar = 5;
+    }
     if ((spritesnap->look & B3) == B3)
+    {
       sprite.hascigar = 10;
+    }
   }
 
   sprite.tertiaryweapon.ammocount = spritesnap->grenadecount;
@@ -128,7 +154,9 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
   sprite.SetHealth(spritesnap->health);
   sprite.vest = spritesnap->vest;
   if (sprite.vest > defaultvest)
+  {
     sprite.vest = defaultvest;
+  }
 
   if (i == mysprite)
   {
@@ -145,15 +173,19 @@ void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
 
   if (!verifypacket(sizeof(tmsg_serverspritesnapshot_major), netmessage->size,
                     msgid_serverspritesnapshot_major))
+  {
     return;
+  }
 
-  auto spritesnapmajor = pmsg_serverspritesnapshot_major(netmessage->packet);
+  auto *spritesnapmajor = pmsg_serverspritesnapshot_major(netmessage->packet);
 
   // assign received sprite info to sprite
   std::int32_t i = spritesnapmajor->num;
 
   if ((i < 1) || (i > max_sprites))
+  {
     return;
+  }
 
   auto& sprite = SpriteSystem::Get().GetSprite(i);
   if (!sprite.active)
@@ -203,14 +235,17 @@ void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
 
   // kill the bow
   auto &things = GS::GetThingSystem().GetThings();
-  if ((sprite.weapon.num == bow_num) ||
-      (sprite.weapon.num == bow2_num))
+  if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
+  {
     for (std::int32_t j = 1; j <= max_things; j++)
+    {
       if ((things[j].active) && (things[j].style == object_rambo_bow))
       {
         gamethingtarget = 0;
         things[j].kill();
       }
+    }
+  }
 
   sprite.SetHealth(spritesnapmajor->health);
 
@@ -229,18 +264,24 @@ void clienthandleserverskeletonsnapshot(NetworkContext *netmessage)
 
   if (!verifypacket(sizeof(tmsg_serverskeletonsnapshot), netmessage->size,
                     msgid_serverskeletonsnapshot))
+  {
     return;
+  }
 
-  auto skeletonsnap = pmsg_serverskeletonsnapshot(netmessage->packet);
+  auto *skeletonsnap = pmsg_serverskeletonsnapshot(netmessage->packet);
 
   // assign received Skeleton info to skeleton
   std::int32_t i = skeletonsnap->num;
 
   if ((i < 1) || (i > max_sprites))
+  {
     return;
+  }
   auto& sprite = SpriteSystem::Get().GetSprite(i);
   if (!sprite.active)
+  {
     return;
+  }
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
@@ -265,7 +306,9 @@ void clientspritesnapshot()
       (clientmsg.weaponnum == oldclientsnapshotmsg.weaponnum) &&
       (clientmsg.secondaryweaponnum == oldclientsnapshotmsg.secondaryweaponnum) &&
       (clientmsg.position == oldclientsnapshotmsg.position))
+  {
     return;
+  }
 
   oldclientsnapshotmsg = clientmsg;
 
@@ -290,19 +333,21 @@ void clientspritesnapshotmov()
   encodekeys(SpriteSystem::Get().GetSprite(mysprite), clientmsg.keys16);
 
   if (SpriteSystem::Get().GetSprite(mysprite).dontdrop)
+  {
     clientmsg.keys16 = clientmsg.keys16 & ~B9;
+  }
 
   tvector2 posdiff = vec2subtract(clientmsg.pos, oldclientsnapshotmovmsg.pos);
   tvector2 veldiff = vec2subtract(clientmsg.velocity, oldclientsnapshotmovmsg.velocity);
 
   if ((vec2length(posdiff) > posdelta) || (vec2length(veldiff) > veldelta) ||
       (clientmsg.keys16 != oldclientsnapshotmovmsg.keys16) || ((clientmsg.keys16 & B6) == B6) ||
-      !(((SpriteSystem::Get().GetSprite(mysprite).weapon.fireinterval <= fireinterval_net) &&
-         (SpriteSystem::Get().GetSprite(mysprite).weapon.ammocount > 0) &&
-         (round(mx) == oldclientsnapshotmovmsg.mouseaimx) &&
-         (round(my) == oldclientsnapshotmovmsg.mouseaimy)) ||
-        ((fabs(mx - oldclientsnapshotmovmsg.mouseaimx) < mouseaimdelta) &&
-         (fabs(my - oldclientsnapshotmovmsg.mouseaimy) < mouseaimdelta))))
+      (((SpriteSystem::Get().GetSprite(mysprite).weapon.fireinterval > fireinterval_net) ||
+        (SpriteSystem::Get().GetSprite(mysprite).weapon.ammocount <= 0) ||
+        (round(mx) != oldclientsnapshotmovmsg.mouseaimx) ||
+        (round(my) != oldclientsnapshotmovmsg.mouseaimy)) &&
+       ((fabs(mx - oldclientsnapshotmovmsg.mouseaimx) >= mouseaimdelta) ||
+        (fabs(my - oldclientsnapshotmovmsg.mouseaimy) >= mouseaimdelta))))
   {
     oldclientsnapshotmovmsg = clientmsg;
     oldclientsnapshotmovmsg.mouseaimx = round(mx);
@@ -323,7 +368,7 @@ void clientspritesnapshotdead()
   GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
 }
 
-static std::int32_t sConvertKillBulletToGFX(const std::uint8_t killbullet)
+static auto sConvertKillBulletToGFX(const std::uint8_t killbullet) -> std::int32_t
 {
   switch (killbullet)
   {
@@ -418,17 +463,23 @@ void clienthandlespritedeath(NetworkContext *netmessage)
   auto &map = GS::GetGame().GetMap();
 
   if (!verifypacket(sizeof(tmsg_spritedeath), netmessage->size, msgid_spritedeath))
+  {
     return;
+  }
 
-  auto deathsnap = pmsg_spritedeath(netmessage->packet);
+  auto *deathsnap = pmsg_spritedeath(netmessage->packet);
 
   const std::int32_t i = deathsnap->num;
 
   if ((i < 1) || (i > max_sprites))
+  {
     return;
+  }
   auto& sprite = SpriteSystem::Get().GetSprite(i);
   if (!sprite.active)
+  {
     return;
+  }
 
   sFillPos(sprite, deathsnap);
 
@@ -438,12 +489,18 @@ void clienthandlespritedeath(NetworkContext *netmessage)
 
   // death!
   if ((sprite.GetHealth() < 1) && (sprite.GetHealth() > headchopdeathhealth))
+  {
     sprite.die(normal_death, deathsnap->killer, deathsnap->where, deathsnap->killbullet, b);
+  }
   else if ((sprite.GetHealth() < (headchopdeathhealth + 1)) &&
            (sprite.GetHealth() > brutaldeathhealth))
+  {
     sprite.die(headchop_death, deathsnap->killer, deathsnap->where, deathsnap->killbullet, b);
+  }
   else if (sprite.GetHealth() < (brutaldeathhealth + 1))
+  {
     sprite.die(brutal_death, deathsnap->killer, deathsnap->where, deathsnap->killbullet, b);
+  }
 
   sprite.skeleton.constraints[2].active = true;
   sprite.skeleton.constraints[4].active = true;
@@ -451,15 +508,25 @@ void clienthandlespritedeath(NetworkContext *netmessage)
   sprite.skeleton.constraints[21].active = true;
   sprite.skeleton.constraints[23].active = true;
   if ((deathsnap->constraints & B1) == B1)
+  {
     sprite.skeleton.constraints[2].active = false;
+  }
   if ((deathsnap->constraints & B2) == B2)
+  {
     sprite.skeleton.constraints[4].active = false;
+  }
   if ((deathsnap->constraints & B3) == B3)
+  {
     sprite.skeleton.constraints[20].active = false;
+  }
   if ((deathsnap->constraints & B4) == B4)
+  {
     sprite.skeleton.constraints[21].active = false;
+  }
   if ((deathsnap->constraints & B5) == B5)
+  {
     sprite.skeleton.constraints[23].active = false;
+  }
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
@@ -480,7 +547,9 @@ void clienthandlespritedeath(NetworkContext *netmessage)
       wideformat(_("Killed by {}"), SpriteSystem::Get().GetSprite(deathsnap->killer).player->name),
       killmessagewait, die_message_color);
     if (!limbolock)
+    {
       gamemenushow(limbomenu);
+    }
     menutimer = menu_time;
     playsound(SfxEffect::playerdeath);
   }
@@ -492,10 +561,14 @@ void clienthandlespritedeath(NetworkContext *netmessage)
 
     if ((SpriteSystem::Get().GetSprite(deathsnap->killer).multikills > 1) &&
         (SpriteSystem::Get().GetSprite(deathsnap->killer).multikills < 18))
+    {
       bigmessage(multikillmessage[SpriteSystem::Get().GetSprite(deathsnap->killer).multikills],
                  killmessagewait, kill_message_color);
+    }
     if (SpriteSystem::Get().GetSprite(deathsnap->killer).multikills > 17)
+    {
       bigmessage(multikillmessage[9], killmessagewait, kill_message_color);
+    }
 
     if ((shotdistance > -1) && (deathsnap->killer != i))
     {
@@ -507,7 +580,9 @@ void clienthandlespritedeath(NetworkContext *netmessage)
   }
 
   if ((deathsnap->killer == mysprite) && (i == mysprite))
+  {
     bigmessage(_("You killed yourself"), killmessagewait, die_message_color);
+  }
 
   // This k seems to go to the rendering code through KillConsole.NumMessage,
   // where it was used as IntTexture[11 + k] basically, so I'm replacing with
@@ -634,9 +709,11 @@ void clienthandledelta_movement(NetworkContext *netmessage)
 
   if (!verifypacket(sizeof(tmsg_serverspritedelta_movement), netmessage->size,
                     msgid_delta_movement))
+  {
     return;
+  }
 
-  auto deltamov = pmsg_serverspritedelta_movement(netmessage->packet);
+  auto *deltamov = pmsg_serverspritedelta_movement(netmessage->packet);
 
   // Older than Heartbeat Drop the Packet
   if (!demoplayer.active() && (deltamov->servertick < lastheartbeatcounter))
@@ -646,11 +723,15 @@ void clienthandledelta_movement(NetworkContext *netmessage)
   std::int32_t i = deltamov->num;
 
   if ((i < 1) || (i > max_sprites))
+  {
     return;
+  }
 
   auto& sprite = SpriteSystem::Get().GetSprite(i);
   if (!sprite.active)
+  {
     return;
+  }
 
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
   auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
@@ -669,25 +750,35 @@ void clienthandledelta_mouseaim(NetworkContext *netmessage)
 
   if (!verifypacket(sizeof(tmsg_serverspritedelta_mouseaim), netmessage->size,
                     msgid_delta_mouseaim))
+  {
     return;
+  }
 
   deltamouse = pmsg_serverspritedelta_mouseaim(netmessage->packet);
 
   std::int32_t i = deltamouse->num;
   if ((i < 1) || (i > max_sprites))
+  {
     return;
+  }
 
   auto& sprite = SpriteSystem::Get().GetSprite(i);
   if (!sprite.active)
+  {
     return;
+  }
 
   sprite.control.mouseaimy = deltamouse->mouseaimy;
   sprite.control.mouseaimx = deltamouse->mouseaimx;
 
   if (sprite.position == pos_prone)
+  {
     sprite.bodyapplyanimation(AnimationType::Prone, 1);
+  }
   else
+  {
     sprite.bodyapplyanimation(AnimationType::Aim, 1);
+  }
 
   sprite.weapon.fireintervalprev = 0;
   sprite.weapon.fireintervalcount = 0;
@@ -697,15 +788,21 @@ void clienthandledelta_weapons(NetworkContext *netmessage)
 {
 
   if (!verifypacket(sizeof(tmsg_serverspritedelta_weapons), netmessage->size, msgid_delta_weapons))
+  {
     return;
+  }
 
   std::int32_t i = pmsg_serverspritedelta_weapons(netmessage->packet)->num;
 
   if ((i < 1) || (i > max_sprites))
+  {
     return;
+  }
   auto& sprite = SpriteSystem::Get().GetSprite(i);
   if (!sprite.active)
+  {
     return;
+  }
 
   sprite.applyweaponbynum(
     pmsg_serverspritedelta_weapons(netmessage->packet)->weaponnum, 1);
@@ -715,24 +812,32 @@ void clienthandledelta_weapons(NetworkContext *netmessage)
     pmsg_serverspritedelta_weapons(netmessage->packet)->ammocount;
 
   if ((i == mysprite) && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+  {
     clientspritesnapshot();
+  }
 }
 
 void clienthandledelta_helmet(NetworkContext *netmessage)
 {
 
   if (!verifypacket(sizeof(tmsg_serverspritedelta_helmet), netmessage->size, msgid_delta_helmet))
+  {
     return;
+  }
 
-  auto deltahelmet = pmsg_serverspritedelta_helmet(netmessage->packet);
+  auto *deltahelmet = pmsg_serverspritedelta_helmet(netmessage->packet);
 
   std::int32_t i = deltahelmet->num;
 
   if ((i < 1) || (i > max_sprites))
+  {
     return;
+  }
   auto& sprite = SpriteSystem::Get().GetSprite(i);
   if (!sprite.active)
+  {
     return;
+  }
 
   auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
 
@@ -750,9 +855,13 @@ void clienthandleclientspritesnapshot_dead(NetworkContext *netmessage)
 {
   if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), netmessage->size,
                     msgid_clientspritesnapshot_dead))
+  {
     return;
+  }
   if (freecam == 0)
+  {
     camerafollowsprite = pmsg_clientspritesnapshot_dead(netmessage->packet)->camerafocus;
+  }
 }
 
 // TESTS

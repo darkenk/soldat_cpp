@@ -50,7 +50,7 @@ const std::array<std::uint32_t, 256> crctable = {
    0x89b8fd09, 0x8d79e0be, 0x803ac667, 0x84fbdbd0, 0x9abc8bd5, 0x9e7d9662, 0x933eb0bb, 0x97ffad0c,
    0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4}};
 
-std::uint32_t crc32(std::uint32_t crc, std::uint8_t *data, std::int32_t len)
+auto crc32(std::uint32_t crc, const std::uint8_t *data, std::int32_t len) -> std::uint32_t
 {
   std::uint32_t result;
   result = crc;
@@ -63,12 +63,14 @@ std::uint32_t crc32(std::uint32_t crc, std::uint8_t *data, std::int32_t len)
   return result;
 }
 
-bool readallbytes(FileUtility &fs, const tmapinfo &map, tfilebuffer &buffer)
+auto readallbytes(FileUtility &fs, const tmapinfo &map, tfilebuffer &buffer) -> bool
 {
   bool result = false;
 
-  if (map.name == "")
+  if (map.name.empty())
+  {
     return result;
+  }
 
   // Load default map from base archive
   auto mapFile = std::string("/maps/") + map.name + ".pms";
@@ -82,7 +84,7 @@ bool readallbytes(FileUtility &fs, const tmapinfo &map, tfilebuffer &buffer)
     // Unmount previous map
     PHYSFS_unmount("/current_map");
     // Mount new map
-    if (not PHYSFS_mount(map.path.c_str(), "/current_map", true))
+    if (PHYSFS_mount(map.path.c_str(), "/current_map", 1) == 0)
     {
       return result;
     }
@@ -90,7 +92,7 @@ bool readallbytes(FileUtility &fs, const tmapinfo &map, tfilebuffer &buffer)
     buffer.data = fs.ReadFile(std::string("/current_map/maps/") + map.mapname + ".pms");
   }
 
-  if (buffer.data.size() == 0)
+  if (buffer.data.empty())
   {
     return result;
   }
@@ -108,47 +110,47 @@ void bufferread(tfilebuffer &bf, void *dest, std::int32_t size)
   bf.pos += size;
 }
 
-std::uint8_t readuint8(tfilebuffer &bf)
+auto readuint8(tfilebuffer &bf) -> std::uint8_t
 {
   std::uint8_t readuint8_result;
   bufferread(bf, &readuint8_result, 1);
   return readuint8_result;
 }
 
-std::uint16_t readuint16(tfilebuffer &bf)
+auto readuint16(tfilebuffer &bf) -> std::uint16_t
 {
   std::uint16_t readuint16_result;
   bufferread(bf, &readuint16_result, 2);
   return readuint16_result;
 }
 
-std::int32_t readint32(tfilebuffer &bf)
+auto readint32(tfilebuffer &bf) -> std::int32_t
 {
   std::int32_t readint32_result;
   bufferread(bf, &readint32_result, 4);
   return readint32_result;
 }
 
-float readfloat(tfilebuffer &bf)
+auto readfloat(tfilebuffer &bf) -> float
 {
   float readfloat_result;
   bufferread(bf, &readfloat_result, 4);
   return readfloat_result;
 }
 
-std::string readstring(tfilebuffer &bf, std::int32_t maxsize)
+auto readstring(tfilebuffer &bf, std::int32_t maxsize) -> std::string
 {
   std::int32_t n;
   std::array<char, 128> s;
 
-  std::string readstring_result = "";
+  std::string readstring_result;
   n = readuint8(bf);
 
   if ((n < s.size()) && (n <= maxsize))
   {
-    bufferread(bf, &s[0], maxsize);
+    bufferread(bf, s.data(), maxsize);
     s[n] = '\0';
-    readstring_result = &s[0];
+    readstring_result = s.data();
   }
   else
   {
@@ -157,7 +159,7 @@ std::string readstring(tfilebuffer &bf, std::int32_t maxsize)
   return readstring_result;
 }
 
-tvector3 readvec3(tfilebuffer &bf)
+auto readvec3(tfilebuffer &bf) -> tvector3
 {
   tvector3 result;
   result.x = readfloat(bf);
@@ -166,7 +168,7 @@ tvector3 readvec3(tfilebuffer &bf)
   return result;
 }
 
-tmapcolor readcolor(tfilebuffer &bf)
+auto readcolor(tfilebuffer &bf) -> tmapcolor
 {
   tmapcolor result;
   result[2] = readuint8(bf);
@@ -176,7 +178,7 @@ tmapcolor readcolor(tfilebuffer &bf)
   return result;
 }
 
-tmapvertex readvertex(tfilebuffer &bf)
+auto readvertex(tfilebuffer &bf) -> tmapvertex
 {
   tmapvertex result;
   result.x = readfloat(bf);
@@ -189,7 +191,7 @@ tmapvertex readvertex(tfilebuffer &bf)
   return result;
 }
 
-tmapcolor mapcolor(std::uint32_t color)
+auto mapcolor(std::uint32_t color) -> tmapcolor
 {
   tmapcolor result;
   result[0] = ((unsigned long)color >> (0 * 8)) & 0xff;
@@ -203,10 +205,13 @@ tmapcolor mapcolor(std::uint32_t color)
 /*                                LoadMapFile                                 */
 /******************************************************************************/
 
-bool loadmapfile(FileUtility &fs, const tmapinfo &mapinfo, tmapfile &map)
+auto loadmapfile(FileUtility &fs, const tmapinfo &mapinfo, tmapfile &map) -> bool
 {
   tfilebuffer bf;
-  std::int32_t i, j, n, m;
+  std::int32_t i;
+  std::int32_t j;
+  std::int32_t n;
+  std::int32_t m;
 
   bool result = false;
 
@@ -242,7 +247,7 @@ bool loadmapfile(FileUtility &fs, const tmapinfo &mapinfo, tmapfile &map)
 
   for (i = 0; i <= n - 1; i++)
   {
-    map.polygons.push_back(tmappolygon());
+    map.polygons.emplace_back();
     map.polygons[i].vertices[0] = readvertex(bf);
     map.polygons[i].vertices[1] = readvertex(bf);
     map.polygons[i].vertices[2] = readvertex(bf);
@@ -259,13 +264,15 @@ bool loadmapfile(FileUtility &fs, const tmapinfo &mapinfo, tmapfile &map)
   map.sectorsnum = readint32(bf);
 
   if ((map.sectorsnum > max_sector) || (map.sectorsnum < 0))
+  {
     return result;
+  }
 
   n = (2 * map.sectorsnum + 1) * (2 * map.sectorsnum + 1);
 
   for (i = 0; i <= n - 1; i++)
   {
-    map.sectors.push_back(tmapsector());
+    map.sectors.emplace_back();
     m = readuint16(bf);
 
     if (m > max_polys)
@@ -319,7 +326,7 @@ bool loadmapfile(FileUtility &fs, const tmapinfo &mapinfo, tmapfile &map)
 
   for (i = 0; i <= n - 1; i++)
   {
-    map.scenery.push_back(tmapscenery());
+    map.scenery.emplace_back();
     map.scenery[i].filename = readstring(bf, 50);
     map.scenery[i].date = readint32(bf);
   }
@@ -335,7 +342,7 @@ bool loadmapfile(FileUtility &fs, const tmapinfo &mapinfo, tmapfile &map)
 
   for (i = 0; i <= n - 1; i++)
   {
-    map.colliders.push_back(tmapcollider());
+    map.colliders.emplace_back();
     map.colliders[i].active = (readuint8(bf) != 0);
     bf.pos += 3;
     map.colliders[i].x = readfloat(bf);
@@ -397,12 +404,12 @@ bool loadmapfile(FileUtility &fs, const tmapinfo &mapinfo, tmapfile &map)
     }
   }
 
-  map.hash = crc32(5381, &bf.data[0], bf.data.size());
+  map.hash = crc32(5381, bf.data.data(), bf.data.size());
   result = true;
   return result;
 }
 
-bool ispropactive(tmapfile &map, std::int32_t index)
+auto ispropactive(tmapfile &map, std::int32_t index) -> bool
 {
   tmapprop *prop;
 

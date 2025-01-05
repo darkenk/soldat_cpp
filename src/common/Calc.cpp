@@ -2,22 +2,32 @@
 #include <cmath>
 #include <numbers>
 
-static float sqr(float v)
-{
-  return v * v;
-}
+static auto sqr(float v) -> float { return v * v; }
 
 template <typename T>
-static constexpr bool inrange(const T &v, const T &min, const T &max)
+static constexpr auto inrange(const T &v, const T &min, const T &max) -> bool
 {
   return v >= min && v <= max;
 }
 
-tintersectionresult islineintersectingcircle(tvector2 line1, tvector2 line2, tvector2 circlecenter,
-                                             float radius)
+auto islineintersectingcircle(tvector2 line1, tvector2 line2, tvector2 circlecenter,
+                              float radius) -> tintersectionresult
 {
-  MyFloat a = 0.f, a1 = 0.f, b = 0.f, b1 = 0.f, c1 = 0.f, delta = 0.f, diffx = 0.f, diffy = 0.f,
-          sqrtdelta = 0.f, a2 = 0.f, minx = 0.f, miny = 0.f, maxx = 0.f, maxy = 0.f, temp = 0.f;
+  MyFloat a = 0.f;
+  MyFloat a1 = 0.f;
+  MyFloat b = 0.f;
+  MyFloat b1 = 0.f;
+  MyFloat c1 = 0.f;
+  MyFloat delta = 0.f;
+  MyFloat diffx = 0.f;
+  MyFloat diffy = 0.f;
+  MyFloat sqrtdelta = 0.f;
+  MyFloat a2 = 0.f;
+  MyFloat minx = 0.f;
+  MyFloat miny = 0.f;
+  MyFloat maxx = 0.f;
+  MyFloat maxy = 0.f;
+  MyFloat temp = 0.f;
   bool flipped;
   tvector2 intersect;
 
@@ -27,9 +37,11 @@ tintersectionresult islineintersectingcircle(tvector2 line1, tvector2 line2, tve
   diffy = line2.y - line1.y;
 
   if ((std::abs(diffx) < 0.00001) && (std::abs(diffy) < 0.00001))
+  {
     // The line is a lie!
     // On a more serious note, let's not test the limit of floating point
     return result;
+  }
 
   // if the angle of the bullet is bigger than 45 degrees,
   // flip the coordinate system.
@@ -55,7 +67,9 @@ tintersectionresult islineintersectingcircle(tvector2 line1, tvector2 line2, tve
     diffy = temp;
   }
   else
+  {
     flipped = false;
+  }
 
   // Line equation: ax + b - y = 0. given x1, y1, x2, y2, let's calculate a and b
   // a = (y1 - y2)/(x1 - x2)
@@ -79,7 +93,9 @@ tintersectionresult islineintersectingcircle(tvector2 line1, tvector2 line2, tve
 
   // if delta < 0, no intersection
   if (delta < 0)
+  {
     return result;
+  }
 
   if (line1.x < line2.x)
   {
@@ -138,8 +154,9 @@ tintersectionresult islineintersectingcircle(tvector2 line1, tvector2 line2, tve
   return result;
 }
 
-bool linecirclecollision(const tvector2 &startpoint, const tvector2 &endpoint,
-                         const tvector2 &circlecenter, float radius, tvector2 &collisionpoint)
+auto linecirclecollision(const tvector2 &startpoint, const tvector2 &endpoint,
+                         const tvector2 &circlecenter, float radius,
+                         tvector2 &collisionpoint) -> bool
 {
   float r2;
   tintersectionresult intersectionresult;
@@ -168,14 +185,18 @@ bool linecirclecollision(const tvector2 &startpoint, const tvector2 &endpoint,
     if ((intersectionresult.numintersections == 2) &&
         (sqrdist(intersectionresult.points[0], startpoint) >
          sqrdist(intersectionresult.points[1], startpoint)))
+    {
       collisionpoint = intersectionresult.points[1];
+    }
   }
   return result;
 }
 
-float pointlinedistance(const tvector2 &p1, const tvector2 &p2, const tvector2 &p3)
+auto pointlinedistance(const tvector2 &p1, const tvector2 &p2, const tvector2 &p3) -> float
 {
-  float u, x, y;
+  float u;
+  float x;
+  float y;
 
   u = ((p3.x - p1.x) * (p2.x - p1.x) + (p3.y - p1.y) * (p2.y - p1.y)) /
       (sqr(p2.x - p1.x) + sqr(p2.y - p1.y));
@@ -186,56 +207,63 @@ float pointlinedistance(const tvector2 &p1, const tvector2 &p2, const tvector2 &
   return std::sqrt(sqr(x - p3.x) + sqr(y - p3.y));
 }
 
-float angle2points(const tvector2 &p1, const tvector2 &p2)
+auto angle2points(const tvector2 &p1, const tvector2 &p2) -> float
 {
   float result = 0.0f;
   if ((p2.x - p1.x) != 0.0f)
   {
     if (p1.x > p2.x)
+    {
       result = std::atan((p2.y - p1.y) / (p2.x - p1.x)) + std::numbers::pi_v<float>;
+    }
     else
+    {
       result = std::atan((p2.y - p1.y) / (p2.x - p1.x));
+    }
   }
   else
   {
     if (p2.y > p1.y)
+    {
       result = std::numbers::pi_v<float> / 2.0f;
+    }
     else if (p2.y < p1.y)
+    {
       result = -std::numbers::pi_v<float> / 2.0f;
+    }
     else
+    {
       result = 0;
+    }
   }
   return result;
 }
 
-float distance(float x1, float y1, float x2, float y2)
+auto distance(float x1, float y1, float x2, float y2) -> float
 {
   return std::sqrt(sqr(x1 - x2) + sqr(y1 - y2));
 }
 
-float distance(const tvector2 &p1, const tvector2 &p2)
+auto distance(const tvector2 &p1, const tvector2 &p2) -> float
 {
   return std::sqrt(sqr(p1.x - p2.x) + sqr(p1.y - p2.y));
 }
 
-float sqrdist(float x1, float y1, float x2, float y2)
+auto sqrdist(float x1, float y1, float x2, float y2) -> float
 {
   return sqr(x1 - x2) + sqr(y1 - y2);
 }
 
-float sqrdist(const tvector2 &p1, const tvector2 &p2)
+auto sqrdist(const tvector2 &p1, const tvector2 &p2) -> float
 {
   return sqr(p1.x - p2.x) + sqr(p1.y - p2.y);
 }
 
-std::int32_t greaterpowerof2(std::int32_t n)
+auto greaterpowerof2(std::int32_t n) -> std::int32_t
 {
   // 2 ^ roundup(log2(n))
   return std::floor(std::pow(2, std::ceil(std::log2(n))));
 }
 
 // Rounds, but witout that "Banker's rule" that prefers even numbers.
-std::int32_t roundfair(float value)
-{
-  return std::floor(value + 0.5f);
-}
+auto roundfair(float value) -> std::int32_t { return std::floor(value + 0.5f); }

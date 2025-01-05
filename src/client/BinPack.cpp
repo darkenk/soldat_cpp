@@ -14,7 +14,7 @@ private:
   std::int32_t fsize;
   std::int32_t fcapacity;
 
-  tbprect &GetValue(std::int32_t index);
+  auto GetValue(std::int32_t index) -> tbprect &;
   void SetValue(std::int32_t index, const tbprect &value);
 
 public:
@@ -23,11 +23,8 @@ public:
   void Push(const tbprect &rect);
   void Remove(std::int32_t index);
 
-  std::int32_t Size() const
-  {
-    return fsize;
-  };
-  tbprect &operator[](std::int32_t index);
+  [[nodiscard]] auto Size() const -> std::int32_t { return fsize; };
+  auto operator[](std::int32_t index) -> tbprect &;
   //      property Items[Index: Integer]: TBPRect read GetValue write SetValue;
   //        default;
 };
@@ -40,23 +37,24 @@ struct TBinPack final
 
 // Forward declarations of internal functions
 
-static tbprect ScoreRect(TBinPack &bp, std::int32_t w, std::int32_t h, std::int32_t &besty,
-                         std::int32_t &bestx);
+static auto ScoreRect(TBinPack &bp, std::int32_t w, std::int32_t h, std::int32_t &besty,
+                      std::int32_t &bestx) -> tbprect;
 
 static void PlaceRect(TBinPack &bp, const tbprect& rect);
 
-static bool SplitFreeRect(TBinPack &bp, tbprect freerect, const tbprect& usedrect);
+static auto SplitFreeRect(TBinPack &bp, tbprect freerect, const tbprect &usedrect) -> bool;
 
 static void PruneFreeList(TBinPack &bp);
 
-static bool IsContainedIn(const tbprect& a, const tbprect& b);
+static auto IsContainedIn(const tbprect &a, const tbprect &b) -> bool;
 
 // PackRects
 
-std::int32_t packrects(std::int32_t w, std::int32_t h, tbprectarray &rects)
+auto packrects(std::int32_t w, std::int32_t h, tbprectarray &rects) -> std::int32_t
 {
   TBinPack bp;
-  std::size_t i, j;
+  std::size_t i;
+  std::size_t j;
   tbprect rect;
   tbprect bestrect;
   std::int32_t bestindex;
@@ -98,7 +96,9 @@ std::int32_t packrects(std::int32_t w, std::int32_t h, tbprectarray &rects)
     }
 
     if ((bestrect.h == 0) || (bestindex == -1))
+    {
       break;
+    }
 
     PlaceRect(bp, bestrect);
 
@@ -114,8 +114,8 @@ std::int32_t packrects(std::int32_t w, std::int32_t h, tbprectarray &rects)
 
 // Internal functions
 
-tbprect ScoreRect(TBinPack &bp, std::int32_t w, std::int32_t h, std::int32_t &besty,
-                  std::int32_t &bestx)
+auto ScoreRect(TBinPack &bp, std::int32_t w, std::int32_t h, std::int32_t &besty,
+               std::int32_t &bestx) -> tbprect
 {
   tbprect bestrect;
   std::int32_t topsidey;
@@ -177,7 +177,8 @@ tbprect ScoreRect(TBinPack &bp, std::int32_t w, std::int32_t h, std::int32_t &be
 
 void PlaceRect(TBinPack &bp, const tbprect& rect)
 {
-  std::int32_t i, n;
+  std::int32_t i;
+  std::int32_t n;
 
   i = 0;
   n = bp.free.Size();
@@ -198,7 +199,7 @@ void PlaceRect(TBinPack &bp, const tbprect& rect)
   bp.used.Push(rect);
 }
 
-bool SplitFreeRect(TBinPack &bp, tbprect freerect, const tbprect& usedrect)
+auto SplitFreeRect(TBinPack &bp, tbprect freerect, const tbprect &usedrect) -> bool
 {
   tbprect rect;
 
@@ -249,7 +250,9 @@ bool SplitFreeRect(TBinPack &bp, tbprect freerect, const tbprect& usedrect)
 
 void PruneFreeList(TBinPack &bp)
 {
-  std::int32_t i, j, n;
+  std::int32_t i;
+  std::int32_t j;
+  std::int32_t n;
 
   i = 0;
   n = bp.free.Size();
@@ -282,7 +285,7 @@ void PruneFreeList(TBinPack &bp)
   }
 }
 
-bool IsContainedIn(const tbprect& a, const tbprect& b)
+auto IsContainedIn(const tbprect &a, const tbprect &b) -> bool
 {
   return (a.x >= b.x) && (a.y >= b.y) && ((a.x + a.w) <= (b.x + b.w)) &&
          ((a.y + a.h) <= (b.y + b.h));
@@ -314,7 +317,7 @@ TRectList::~TRectList()
   freemem(fdata);
 }
 
-tbprect &TRectList::GetValue(std::int32_t index)
+auto TRectList::GetValue(std::int32_t index) -> tbprect &
 {
   pbprect p;
 
@@ -353,7 +356,8 @@ void TRectList::Push(const tbprect &rect)
 
 void TRectList::Remove(std::int32_t index)
 {
-  pbprect a, b;
+  pbprect a;
+  pbprect b;
 
   a = fdata;
   b = fdata;
@@ -365,7 +369,4 @@ void TRectList::Remove(std::int32_t index)
   fsize -= 1;
 }
 
-tbprect &TRectList::operator[](int32_t index)
-{
-  return GetValue(index);
-}
+auto TRectList::operator[](int32_t index) -> tbprect & { return GetValue(index); }

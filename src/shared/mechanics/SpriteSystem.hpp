@@ -81,14 +81,14 @@ public:
 
   auto CreateSprite(const SpriteId reuseSpriteId = SpriteId::Invalid()) -> TSprite &;
 
-  TSprite &GetSprite(const SpriteId id);
+  auto GetSprite(const SpriteId id) -> TSprite &;
 
   std::vector<TSprite> &GetSprites()
   {
     return Sprites;
   }
 
-  TActiveSprites &GetActiveSprites();
+  auto GetActiveSprites() -> TActiveSprites &;
 
   tvector2 &GetSpritePartsPos(std::int32_t spriteId)
   {

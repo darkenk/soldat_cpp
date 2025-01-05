@@ -7,7 +7,7 @@ RectangleArea::RectangleArea(std::uint32_t width, std::uint32_t height)
   Skyline.emplace_back(Width, 0, 0);
 }
 
-bool RectangleArea::Add(Rectangle &rect)
+auto RectangleArea::Add(Rectangle &rect) -> bool
 {
   if (rect.w > Width || rect.h > Height)
   {

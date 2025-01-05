@@ -56,7 +56,7 @@ void initgamemenus()
   hoveredbuttonindex = 0;
 
   setlength(gamemenu, 5);
-  escmenu = &gamemenu[0];
+  escmenu = gamemenu.data();
   teammenu = &gamemenu[1];
   limbomenu = &gamemenu[2];
   kickmenu = &gamemenu[3];
@@ -114,10 +114,14 @@ void initgamemenus()
   for (std::int32_t i = 0; i <= main_weapons - 1; i++)
   {
     if (i < primary_weapons)
+    {
       s = (inttostr((i + 1) % 10)) + ' ' +
           (gundisplayname[GS::GetWeaponSystem().GetGuns()[i + 1].num]);
+    }
     else
+    {
       s = (gundisplayname[GS::GetWeaponSystem().GetGuns()[i + 1].num]);
+    }
 
     initbutton(limbomenu, i, s, 35, 154 + 18 * (i + ord(i >= primary_weapons)), 235, 16);
   }
@@ -155,7 +159,9 @@ void hideall()
   std::int32_t i;
 
   for (i = low(gamemenu); i <= high(gamemenu); i++)
+  {
     gamemenu[i].active = false;
+  }
 }
 
 void gamemenushow(pgamemenu menu, bool show)
@@ -165,7 +171,9 @@ void gamemenushow(pgamemenu menu, bool show)
     if (show)
     {
       if (limbomenu->active)
+      {
         limbowasactive = true;
+      }
 
       hideall();
       fragsmenushow = false;
@@ -180,7 +188,9 @@ void gamemenushow(pgamemenu menu, bool show)
       }
 
       if (CVar::cl_runs < 3)
+      {
         noobshow = true;
+      }
 
       // TODO: stop playing weather in escmenu
     }
@@ -189,7 +199,9 @@ void gamemenushow(pgamemenu menu, bool show)
       hideall();
       noobshow = false;
       if (limbowasactive)
+      {
         limbomenu->active = true;
+      }
     }
   }
   else if ((menu == teammenu) && show)
@@ -197,6 +209,7 @@ void gamemenushow(pgamemenu menu, bool show)
     hideall();
 
     if (show)
+    {
       switch (CVar::sv_gamemode)
       {
       case gamestyle_ctf:
@@ -225,6 +238,7 @@ void gamemenushow(pgamemenu menu, bool show)
         menu->button[4].active = false;
       }
       }
+    }
   }
   else if ((menu == mapmenu) && show)
   {
@@ -237,25 +251,33 @@ void gamemenushow(pgamemenu menu, bool show)
     mapmenu->active = false;
 
     if (GS::GetGame().GetPlayersNum() < 1)
+    {
       menu = nullptr;
+    }
   }
   else if (menu == limbomenu)
   {
     menu->active = false;
 
     if (!show)
+    {
       limbowasactive = false;
+    }
     else if (GS::GetWeaponSystem().GetWeaponsInGame() == 0)
+    {
       menu = nullptr;
+    }
   }
 
   if (menu != nullptr)
+  {
     menu->active = show;
+  }
 
   gamemenumousemove();
 }
 
-bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
+auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
 {
   std::int32_t i;
 
@@ -330,13 +352,16 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
         gamemenushow(kickmenu, false);
       }
       else
+      {
         switch (buttonindex)
         {
         case 0: { // prev
           kickmenuindex = ((max_sprites + kickmenuindex - 2) % max_sprites) + 1;
           while (!(SpriteSystem::Get().GetSprite(kickmenuindex).IsActive() or
                    SpriteSystem::Get().GetSprite(kickmenuindex).player->demoplayer))
+          {
             kickmenuindex = ((max_sprites + kickmenuindex - 2) % max_sprites) + 1;
+          }
 
           result = (kickmenuindex != i);
         }
@@ -346,7 +371,9 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
           kickmenuindex = (kickmenuindex % max_sprites) + 1;
           while (!(SpriteSystem::Get().GetSprite(kickmenuindex).IsActive() or
                    SpriteSystem::Get().GetSprite(kickmenuindex).player->demoplayer))
+          {
             kickmenuindex = (kickmenuindex % max_sprites) + 1;
+          }
 
           result = (kickmenuindex != i);
         }
@@ -366,6 +393,7 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
         }
         break;
         }
+      }
     }
     else if (menu == mapmenu)
     {
@@ -374,6 +402,7 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
         gamemenushow(kickmenu, false);
       }
       else
+      {
         switch (buttonindex)
         {
         case 0: { // prev
@@ -404,6 +433,7 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
         }
         break;
         }
+      }
     }
     else if ((menu == limbomenu) && (mysprite > 0))
     {
@@ -453,21 +483,27 @@ bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex)
           }
 
           if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+          {
             clientspritesnapshot();
+          }
         }
       }
     }
 
     if (result)
+    {
       playsound(SfxEffect::menuclick);
+    }
   }
   return result;
 }
 
 void gamemenumousemove()
 {
-  std::int32_t i, j;
-  float x, y;
+  std::int32_t i;
+  std::int32_t j;
+  float x;
+  float y;
   pgamebutton btn;
 
   hoveredmenu = nullptr;
@@ -497,9 +533,11 @@ void gamemenumousemove()
   }
 }
 
-bool gamemenuclick()
+auto gamemenuclick() -> bool
 {
   if (hoveredbutton != nullptr)
+  {
     return gamemenuaction(hoveredmenu, hoveredbuttonindex);
+  }
   return false;
 }

@@ -43,18 +43,18 @@ public:
   void render(double timeelapsed);
   void polygonsrender();
 #endif
-  bool checkmapcollision(std::int32_t i, float x, float y);
+  auto checkmapcollision(std::int32_t i, float x, float y) -> bool;
   void kill();
   void checkoutofbounds();
   void respawn();
   void moveskeleton(float x1, float y1, bool fromzero);
 #ifdef SERVER
-  std::int32_t checkspritecollision();
+  auto checkspritecollision() -> std::int32_t;
 #endif
 #ifdef SERVER
-  std::int32_t checkstationaryguncollision();
+  auto checkstationaryguncollision() -> std::int32_t;
 #else
-  std::int32_t checkstationaryguncollision(bool clientcheck);
+  auto checkstationaryguncollision(bool clientcheck) -> std::int32_t;
 #endif
 };
 

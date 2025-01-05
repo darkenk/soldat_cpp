@@ -38,8 +38,8 @@ public:
                          const std::uint8_t visible, const std::uint8_t flip,
                          const std::uint8_t team, const float flex, const std::uint8_t color,
                          const std::uint8_t alpha)
-    : id(id), image(image), p1(p1), p2(p2), cx(cx), cy(cy), flex(flex), flip(flip), team(team),
-      color(color), alpha(alpha), visible(visible == 1)
+    : id(id), image(image), p1(p1), p2(p2), cx(cx), cy(cy), flex(flex), flip(flip != 0u),
+      team(team != 0u), color(color), alpha(alpha), visible(visible == 1)
   {
   }
 
@@ -423,7 +423,7 @@ static constexpr std::array<GostekSprite, 131> sGostekSpritesDefaults = {
   GostekSprite("Right_Hand", GFX::GOSTEK_DLON, 16, 20, 0, 0.5, 1, 1, 1, 0, color_skin, alpha_base),
 };
 
-typedef std::set<std::int32_t> tgostekspriteset;
+using tgostekspriteset = std::set<std::int32_t>;
 
 static std::vector<GostekSprite> gosteksprites;
 static tgostekspriteset gostekbase;
@@ -490,10 +490,14 @@ void applygostekconstraints(tgfxspritearray textures)
       const float cy = h * fabs(gs.cy + 0.5);
 
       if (cx > (w + gos_restrict_width))
+      {
         gs.cx = 0.5 + sign(gs.cx + 0.5) * ((float)((w + gos_restrict_width)) / w);
+      }
 
       if (cy > (h + gos_restrict_height))
+      {
         gs.cy = 0.5 + sign(gs.cy + 0.5) * ((float)((h + gos_restrict_height)) / h);
+      }
     }
   }
 }
@@ -548,19 +552,26 @@ static void drawgosteksprite(pgfxsprite sprite, float x, float y, float sx, floa
 void rendergostek(tsprite &soldier)
 {
   ZoneScopedN("RenderGostek");
-  std::int32_t i, index;
+  std::int32_t i;
+  std::int32_t index;
   bool showclip;
   tgostekspriteset visible;
   PascalArray<tgfxcolor, color_none, color_headblood> color;
   PascalArray<std::uint8_t, alpha_base, alpha_nades> alpha;
   tgfxmat3 m{0};
-  float x1, y1, x2, y2, r;
+  float x1;
+  float y1;
+  float x2;
+  float y2;
+  float r;
 
   if ((soldier.style != tsprite::Style::Default) ||
       (soldier.ceasefirecounter > GS::GetGame().GetCeasefiretime() - 5) ||
       ((CVar::sv_realisticmode) && (soldier.visible == 0)) or (soldier.isspectator()) or
-      (soldier.player->name == "") or (soldier.player->demoplayer))
+      (soldier.player->name.empty()) or (soldier.player->demoplayer))
+  {
     return;
+  }
 
   {
     ZoneScopedN("CopyGostekBase");
@@ -578,13 +589,17 @@ void rendergostek(tsprite &soldier)
   color[color_headblood] = rgba(0xaca9a8);
 
   if (soldier.hascigar == 5)
+  {
     color[color_cygar] = rgba(0x616161);
+  }
 
   alpha[alpha_base] = soldier.alpha;
   alpha[alpha_blood] = max(0.0f, min(255.0f, 200 - round(soldier.GetHealth())));
 
-  if (soldier.GetHealth() > (90 - 40 * CVar::sv_realisticmode))
+  if (soldier.GetHealth() > (90 - 40 * static_cast<int>(CVar::sv_realisticmode)))
+  {
     alpha[alpha_blood] = 0;
+  }
 
   if ((CVar::sv_realisticmode) && (soldier.visible > 0) && (soldier.visible < 45) &&
       (soldier.alpha > 60))
@@ -631,19 +646,27 @@ void rendergostek(tsprite &soldier)
 
   // vest
   if (soldier.vest > 0)
+  {
     include(visible, GOSTEK_VEST);
+  }
 
   // grenades
   if (soldier.tertiaryweapon.num == fraggrenade_num)
+  {
     index = GOSTEK_FRAG_GRENADE1;
+  }
   else
+  {
     index = GOSTEK_CLUSTER_GRENADE1;
+  }
 
   std::int32_t n =
     soldier.tertiaryweapon.ammocount - ord(soldier.bodyanimation.id == AnimationType::Throw);
 
   for (i = 0; i <= min(5, n) - 1; i++)
+  {
     include(visible, index + i);
+  }
 
   // chain
   switch (soldier.player->chain)
@@ -662,7 +685,9 @@ void rendergostek(tsprite &soldier)
 
   // cygar
   if ((soldier.hascigar == 5) || (soldier.hascigar == 10))
+  {
     include(visible, GOSTEK_CIGAR);
+  }
 
   // head & hair
   if (soldier.deadmeat)
@@ -724,7 +749,9 @@ void rendergostek(tsprite &soldier)
       {
       case 1:
         for (i = 0; i <= 5; i++)
+        {
           include(visible, GOSTEK_HAIR_DREADLOCKS + i);
+        }
         break;
       case 2:
         include(visible, GOSTEK_HAIR_PUNK);
@@ -744,7 +771,9 @@ void rendergostek(tsprite &soldier)
   index = weaponnumtoindex(soldier.secondaryweapon.num, GS::GetWeaponSystem().GetGuns());
 
   if ((index >= eagle) && (index <= flamer))
+  {
     include(visible, GOSTEK_SECONDARY_FIRST + index - eagle);
+  }
 
   // primary weapon
 
@@ -756,17 +785,25 @@ void rendergostek(tsprite &soldier)
                ((soldier.weapon.ammocount == 0) && (soldier.weapon.reloadtimecount < 65));
 
     if (showclip)
+    {
       include(visible, GOSTEK_PRIMARY_MINIGUN_CLIP);
+    }
 
     if (soldier.fired > 0)
+    {
       include(visible, GOSTEK_PRIMARY_MINIGUN_FIRE);
+    }
   }
   else if (soldier.weapon.num == bow_num || bow2_num == soldier.weapon.num)
   {
     if (soldier.weapon.ammocount == 0)
+    {
       include(visible, GOSTEK_PRIMARY_BOW_ARROW_RELOAD);
+    }
     else
+    {
       include(visible, GOSTEK_PRIMARY_BOW_ARROW);
+    }
 
     if (soldier.bodyanimation.id == AnimationType::ReloadBow)
     {
@@ -780,7 +817,9 @@ void rendergostek(tsprite &soldier)
     }
 
     if (soldier.fired > 0)
+    {
       include(visible, GOSTEK_PRIMARY_BOW_FIRE);
+    }
   }
   else if (!soldier.deadmeat)
   {
@@ -789,9 +828,13 @@ void rendergostek(tsprite &soldier)
     if ((index >= eagle) && (index <= flamer))
     {
       if (index == flamer)
+      {
         index = GOSTEK_PRIMARY_FLAMER - GOSTEK_PRIMARY_FIRST;
+      }
       else
+      {
         index = 3 * (index - eagle);
+      }
 
       include(visible, GOSTEK_PRIMARY_FIRST + index);
 
@@ -802,10 +845,14 @@ void rendergostek(tsprite &soldier)
                     (soldier.weapon.reloadtimecount > soldier.weapon.clipouttime))));
 
       if (showclip)
+      {
         include(visible, GOSTEK_PRIMARY_FIRST + index + 1);
+      }
 
       if (soldier.fired > 0)
+      {
         include(visible, GOSTEK_PRIMARY_FIRST + index + 2);
+      }
     }
   }
 
@@ -814,7 +861,9 @@ void rendergostek(tsprite &soldier)
   std::int32_t team2offset = 0;
 
   if (soldier.player->team == team_bravo || team_delta == soldier.player->team)
+  {
     team2offset = GFX::GOSTEK_TEAM2_STOPA - GFX::GOSTEK_STOPA;
+  }
 
   if (visible.contains(GOSTEK_HAIR_DREADLOCKS))
   {
@@ -834,7 +883,9 @@ void rendergostek(tsprite &soldier)
       std::int32_t tex = gs.image;
 
       if (gs.team)
+      {
         tex = tex + team2offset;
+      }
 
       x1 = soldier.skeleton.pos[gs.p1].x;
       y1 = soldier.skeleton.pos[gs.p1].y;
@@ -854,7 +905,9 @@ void rendergostek(tsprite &soldier)
           tex = tex + 1;
         }
         else
+        {
           sy = -1;
+        }
       }
 
       cx = cx * textures[tex]->width * textures[tex]->scale;
@@ -886,7 +939,7 @@ void rendergostek(tsprite &soldier)
 struct GostekGraphicsFixture
 {
 public:
-  GostekGraphicsFixture() {}
+  GostekGraphicsFixture() = default;
   template <typename T>
   void VerifyGostSkprites(const T &gosteksprites);
   void VerifyGostekBase(const tgostekspriteset &gostekbase);

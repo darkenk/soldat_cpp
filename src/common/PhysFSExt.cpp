@@ -15,15 +15,15 @@ public:
     SoldatAssert(Handle != nullptr);
   }
 
-  ~PhysFSStream()
+  ~PhysFSStream() override
   {
     auto errorCode = PHYSFS_close(Handle);
     SoldatAssert(errorCode != 0);
   }
 
-  bool ReadLine(std::string &out) override
+  auto ReadLine(std::string &out) -> bool override
   {
-    if (PHYSFS_eof(Handle))
+    if (PHYSFS_eof(Handle) != 0)
     {
       return false;
     }
@@ -44,7 +44,7 @@ void PhysFS_ReadLn(PHYSFS_File *fileHandle, std::string &line)
 {
   char c;
   line = "";
-  while (PHYSFS_readBytes(fileHandle, &c, 1) && c != '\n')
+  while ((PHYSFS_readBytes(fileHandle, &c, 1) != 0) && c != '\n')
   {
     if (c != '\r')
     {
@@ -53,18 +53,18 @@ void PhysFS_ReadLn(PHYSFS_File *fileHandle, std::string &line)
   }
 }
 
-PhysFS_Buffer PhysFS_readBuffer(const std::string_view &name)
+auto PhysFS_readBuffer(const std::string_view &name) -> PhysFS_Buffer
 {
   SoldatAssert(not name.empty());
   LogDebug(LOG, "Loading file {}", name);
   PhysFS_Buffer result;
-  if (not PHYSFS_exists(name.data()))
+  if (PHYSFS_exists(name.data()) == 0)
   {
     LogWarn(LOG, "File does not exist {}", name);
     return result;
   }
-  auto FileHandle = PHYSFS_openRead(name.data());
-  if (not FileHandle)
+  auto *FileHandle = PHYSFS_openRead(name.data());
+  if (FileHandle == nullptr)
   {
     LogError(LOG, "Cannot open file %s", name);
     return result;
@@ -81,16 +81,16 @@ PhysFS_Buffer PhysFS_readBuffer(const std::string_view &name)
   return result;
 }
 
-bool PhysFS_CopyFileFromArchive(const std::string_view &sourceFile,
-                                const std::string_view &destination)
+auto PhysFS_CopyFileFromArchive(const std::string_view &sourceFile,
+                                const std::string_view &destination) -> bool
 {
   if (std::filesystem::exists(destination.data()))
   {
     return false;
   }
-  auto inputFile = PHYSFS_openRead(sourceFile.data());
-  auto outputFile = std::fopen(destination.data(), "wb");
-  if (inputFile && outputFile)
+  auto *inputFile = PHYSFS_openRead(sourceFile.data());
+  auto *outputFile = std::fopen(destination.data(), "wb");
+  if ((inputFile != nullptr) && (outputFile != nullptr))
   {
     std::array<std::byte, 1024> data;
     while (PHYSFS_eof(inputFile) == 0)
@@ -104,9 +104,9 @@ bool PhysFS_CopyFileFromArchive(const std::string_view &sourceFile,
   return true;
 }
 
-std::unique_ptr<TStream> PhysFS_ReadAsStream(const std::string_view &file)
+auto PhysFS_ReadAsStream(const std::string_view &file) -> std::unique_ptr<TStream>
 {
-  if (not PHYSFS_exists(file.data()))
+  if (PHYSFS_exists(file.data()) == 0)
   {
     return nullptr;
   }
@@ -120,17 +120,17 @@ namespace
   std::atomic<std::uint32_t> sNoOfInstances;
 }
 
-std::uint32_t PhysFS_InitThreadSafe()
+auto PhysFS_InitThreadSafe() -> std::uint32_t
 {
   std::lock_guard m(sInitMutex);
-  if (PHYSFS_isInit() || PHYSFS_init(nullptr))
+  if ((PHYSFS_isInit() != 0) || (PHYSFS_init(nullptr) != 0))
   {
     sNoOfInstances++;
   }
   return sNoOfInstances;
 }
 
-bool PhysFS_DeinitThreadSafe()
+auto PhysFS_DeinitThreadSafe() -> bool
 {
   std::lock_guard m(sInitMutex);
   sNoOfInstances--;
@@ -138,5 +138,5 @@ bool PhysFS_DeinitThreadSafe()
   {
     return true;
   }
-  return PHYSFS_deinit();
+  return PHYSFS_deinit() != 0;
 }

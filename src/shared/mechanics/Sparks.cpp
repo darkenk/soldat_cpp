@@ -19,7 +19,7 @@
 #include <set>
 
 template <Config::Module M>
-particlesystem &GetSparkParts()
+auto GetSparkParts() -> particlesystem &
 {
   static particlesystem b;
   return b;
@@ -31,8 +31,8 @@ std::int32_t sparkscount;
 
 using std::numbers::pi;
 
-std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
-                         std::uint8_t sowner, std::int32_t life)
+auto createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::uint8_t sowner,
+                 std::int32_t life) -> std::int32_t
 {
   ZoneScopedN("CreateSpark");
   std::int32_t i;
@@ -53,11 +53,13 @@ std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
     }
 
     if (camerafollowsprite != mysprite)
+    {
       if (!GS::GetGame().pointvisible2(spos.x, spos.y, camerafollowsprite) && (sstyle != 38))
       {
         result = 0;
         return result;
       }
+    }
   }
 
   for (i = 1; i <= CVar::r_maxsparks + 1; i++)
@@ -65,11 +67,17 @@ std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
     if ((sparkscount > CVar::r_maxsparks - 50) &&
         ((sstyle == 3) || (sstyle == 4) || (sstyle == 26) || (sstyle == 27) || (sstyle == 59) ||
          (sstyle == 2)))
+    {
       return result;
+    }
     if ((sparkscount > CVar::r_maxsparks - 40) && (sstyle == 1))
+    {
       return result;
+    }
     if ((sparkscount > CVar::r_maxsparks - 30) && (sstyle == 24))
+    {
       return result;
+    }
 
     if (i == CVar::r_maxsparks)
     {
@@ -110,22 +118,31 @@ void tspark::update()
   static const std::set<std::int32_t> collidable_style = {
     2,  4,  5,  6,  7,  8,  9,  10, 11, 13, 16, 18, 19, 20, 21, 22, 23, 30, 32, 33, 34,
     40, 41, 42, 43, 48, 49, 51, 52, 57, 62, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73};
-  std::int32_t wobble, wobblex, wobbley;
+  std::int32_t wobble;
+  std::int32_t wobblex;
+  std::int32_t wobbley;
 
   if (!(noneuler_style.contains(style)))
+  {
     GetSparkParts().doeulertimestepfor(num);
+  }
 
   checkoutofbounds();
 
   // check collision with map
   if (collidable_style.contains(style))
+  {
     checkmapcollision(GetSparkParts().pos[num].x, GetSparkParts().pos[num].y);
+  }
 
   // wobble the screen when explosion
   if ((mysprite > 0) && (camerafollowsprite > 0) && (!demoplayer.active()))
+  {
     if ((style == 17) || (style == 12) || (style == 14) || (style == 15) || (style == 28))
+    {
       if (GS::GetGame().pointvisible(GetSparkParts().pos[num].x, GetSparkParts().pos[num].y,
                                      camerafollowsprite))
+      {
         if (life > explosion_anims * 2.3)
         // if ((Style = 17) and (Life > EXPLOSION_ANIMS * 2.5)) or
         // ((Style <> 17) and (Life > EXPLOSION_ANIMS * 2.4)) then
@@ -136,35 +153,50 @@ void tspark::update()
           camerax = camerax - wobble + wobblex;
           cameray = cameray - wobble + wobbley;
         }
+      }
+    }
+  }
 
   // smoke luska
   if ((CVar::r_maxsparks > (max_sparks - 10)) && (style > 64) && (life > 235) && (Random(32) == 0))
+  {
     createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 31, owner, 40);
+  }
 
   // smoke m79 luska
   if ((CVar::r_maxsparks > (max_sparks - 10)) && (style == 52))
   {
     if ((life > 235) && (Random(6) == 0))
+    {
       createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 31, owner, 40);
+    }
 
     if ((life > 85) && (life < 235) && (Random(15) == 0))
+    {
       createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 31, owner, 35);
+    }
 
     if ((life < 85) && (Random(24) == 0))
+    {
       createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 31, owner, 30);
+    }
   }
 
   // iskry
   if ((CVar::r_maxsparks > (max_sparks - 10)) && (style == 2) && (Random(8) == 0))
+  {
     createspark(GetSparkParts().pos[num], vector2(0, 0), 26, owner, 35);
+  }
 
   lifeprev = life;
   life = life - 1;
   if (life == 0)
+  {
     kill();
+  }
 }
 
-void tspark::render()
+void tspark::render() const
 {
   tvector2 _p;
   tvector2 _scala;
@@ -175,14 +207,24 @@ void tspark::render()
 
   tgfxspritearray &t = textures;
   if (CVar::sv_realisticmode)
+  {
     if ((owner > 0) && (owner < max_sprites + 1))
+    {
       if (SpriteSystem::Get().GetSprite(owner).active)
+      {
         if (SpriteSystem::Get().GetSprite(owner).visible == 0)
+        {
           if (map.raycast(GetSparkParts().pos[num],
                           SpriteSystem::Get().GetSprite(mysprite).skeleton.pos[9], grenvel,
                           gamewidth, true) or
               (SpriteSystem::Get().GetSprite(owner).visible == 0))
+          {
             return;
+          }
+        }
+      }
+    }
+  }
 
   _p.x = GetSparkParts().pos[num].x;
   _p.y = GetSparkParts().pos[num].y;
@@ -212,8 +254,10 @@ void tspark::render()
   break;
   case 6:
     if (SpriteSystem::Get().GetSprite(owner).player->headcap > 0)
+    {
       gfxdrawsprite(t[SpriteSystem::Get().GetSprite(owner).player->headcap], _p.x, _p.y, 0, 0,
                     degtorad(l * 2), rgba(SpriteSystem::Get().GetSprite(owner).player->shirtcolor));
+    }
     break;
   case 7:
     gfxdrawsprite(t[GFX::WEAPONS_SHELL], _p.x, _p.y, 0, 0, degtorad(l * 4));
@@ -235,10 +279,12 @@ void tspark::render()
     _p.x = _p.x - 19;
     _p.y = _p.y - 38;
 
-    i = GFX::SPARKS_EXPLOSION_EXPLODE16 - round((float)(l) / 4);
+    i = GFX::SPARKS_EXPLOSION_EXPLODE16 - round(l / 4);
 
     if ((i - 1) >= GFX::SPARKS_EXPLOSION_EXPLODE1)
+    {
       gfxdrawsprite(t[i - 1], _p.x, _p.y, 0.75, rgba(0xadadad, 100));
+    }
 
     gfxdrawsprite(t[i], _p.x, _p.y, 0.75, rgba(0xffffff, 255 - (explosion_anims * 5) + l));
   }
@@ -246,18 +292,20 @@ void tspark::render()
   case 13: {
     _p.x = _p.x - 8;
     _p.y = _p.y - 17;
-    gfxdrawsprite(t[GFX::SPARKS_EXPLOSION_EXPLODE16 - (std::int32_t)round((float)(l) / 3)], _p.x,
-                  _p.y, 0.3, rgba(0xffffff, 255 - 2 * l));
+    gfxdrawsprite(t[GFX::SPARKS_EXPLOSION_EXPLODE16 - (std::int32_t)round(l / 3)], _p.x, _p.y, 0.3,
+                  rgba(0xffffff, 255 - 2 * l));
   }
   break;
   case 14: {
     _p.x = _p.x - 50;
     _p.y = _p.y - 100;
 
-    i = GFX::SPARKS_EXPLOSION_EXPLODE16 - round((float)(l) / 3);
+    i = GFX::SPARKS_EXPLOSION_EXPLODE16 - round(l / 3);
 
     if ((i - 1) >= GFX::SPARKS_EXPLOSION_EXPLODE1)
+    {
       gfxdrawsprite(t[i - 1], _p.x, _p.y, 2, rgba(0xadadad, 100));
+    }
 
     gfxdrawsprite(t[i], _p.x, _p.y, 2, rgba(0xffffff, 255 - 2 * l));
   }
@@ -266,10 +314,12 @@ void tspark::render()
     _p.x = _p.x - 75;
     _p.y = _p.y - 150;
 
-    i = GFX::SPARKS_EXPLOSION_EXPLODE16 - round((float)(l) / 3);
+    i = GFX::SPARKS_EXPLOSION_EXPLODE16 - round(l / 3);
 
     if ((i - 1) >= GFX::SPARKS_EXPLOSION_EXPLODE1)
+    {
       gfxdrawsprite(t[i - 1], _p.x, _p.y, 3, rgba(0xadadad, 100));
+    }
 
     gfxdrawsprite(t[i], _p.x, _p.y, 3, rgba(0xffffff, 255 - 2 * l));
   }
@@ -281,10 +331,12 @@ void tspark::render()
     _p.x = _p.x - 25;
     _p.y = _p.y - 50;
 
-    i = GFX::SPARKS_EXPLOSION_EXPLODE16 - round((float)(l) / 4);
+    i = GFX::SPARKS_EXPLOSION_EXPLODE16 - round(l / 4);
 
     if ((i - 1) >= GFX::SPARKS_EXPLOSION_EXPLODE1)
+    {
       gfxdrawsprite(t[i - 1], _p.x, _p.y, rgba(0xaaaaaa, 100));
+    }
 
     gfxdrawsprite(t[i], _p.x, _p.y, rgba(0xffffff, 255 - (explosion_anims * 5) + l));
   }
@@ -311,7 +363,7 @@ void tspark::render()
     _scala.x = 0.6 + ((float)(75) / l) / 126;
     _scala.y = 0.6 + ((float)(75) / l) / 120;
     _p.x = _p.x - 22 * _scala.x;
-    _p.y = _p.y - 64 + (float)(l) / 2;
+    _p.y = _p.y - 64 + l / 2;
     gfxdrawsprite(t[GFX::SPARKS_BIGSMOKE], _p.x, _p.y, _scala.x, _scala.y,
                   rgba(0xffffff, trunc(3 * l)));
   }
@@ -328,8 +380,8 @@ void tspark::render()
     gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y, rgba(0xaaaaaa, min(l * 3.0 + 154, 255.0)));
     break;
   case 28:
-    gfxdrawsprite(t[GFX::SPARKS_EXPLOSION_EXPLODE16 - (std::int32_t)round((float)(l) / 3)],
-                  _p.x - 15, _p.y - 37, 0.5, rgba(0xffffff, 255 - 2 * l));
+    gfxdrawsprite(t[GFX::SPARKS_EXPLOSION_EXPLODE16 - (std::int32_t)round(l / 3)], _p.x - 15,
+                  _p.y - 37, 0.5, rgba(0xffffff, 255 - 2 * l));
     break;
   case 29: {
     _scala.x = 0.5 * (0.6 + ((float)(75) / l) / 96);
@@ -359,16 +411,16 @@ void tspark::render()
     gfxdrawsprite(t[GFX::SPARKS_LILSMOKE], _p.x, _p.y, rgba(0xffffff, l * 13));
     break;
   case 36: {
-    _scala.x = (float)(l) / 35;
-    _scala.y = (float)(l) / 35;
+    _scala.x = l / 35;
+    _scala.y = l / 35;
     _p.y = _p.y - ((float)(1) / _scala.y);
     gfxdrawsprite(t[GFX::SPARKS_PLOMYK], _p.x, _p.y, _scala.x, _scala.y,
                   rgba(0xffffff, min(l * 2 + 185.0, 255.0)));
   }
   break;
   case 37: {
-    _scala.x = (float)(l) / 75;
-    _scala.y = (float)(l) / 75;
+    _scala.x = l / 75;
+    _scala.y = l / 75;
     _p.y = _p.y - ((float)(1) / _scala.y);
     gfxdrawsprite(t[GFX::SPARKS_BLACKSMOKE], _p.x, _p.y, _scala.x, _scala.y, rgba(0xffffff, l * 3));
   }
@@ -433,10 +485,12 @@ void tspark::render()
       _p.x = _p.x - 26;
       _p.y = _p.y - 48;
 
-      i = GFX::SPARKS_MINISMOKE - round((float)(l) / 4);
+      i = GFX::SPARKS_MINISMOKE - round(l / 4);
 
       if ((i - 1) >= GFX::SPARKS_EXPLOSION_SMOKE1)
+      {
         gfxdrawsprite(t[i - 1], _p.x, _p.y, rgba(0xcccccc, 2 * l + 10.0));
+      }
 
       gfxdrawsprite(t[i], _p.x, _p.y, rgba(0xdddddd, 3 * l + 10));
     }
@@ -473,11 +527,15 @@ void tspark::render()
                   rgba(0xffffff, trunc(l / 3.3)));
 
     if (l > 30)
+    {
       gfxdrawsprite(t[GFX::SPARKS_BIGSMOKE2], _p.x, _p.y, _scala.x, _scala.y,
                     rgba(0x666666, trunc((float)((255 - l)) / 9)));
+    }
     else
+    {
       gfxdrawsprite(t[GFX::SPARKS_BIGSMOKE2], _p.x, _p.y, _scala.x, _scala.y,
                     rgba(0xbfbfbf, trunc(l * 1.0)));
+    }
   }
   break;
   case 61:
@@ -489,8 +547,8 @@ void tspark::render()
                   rgba(SpriteSystem::Get().GetSprite(owner).player->jetcolor, l * 5));
     break;
   case 64: {
-    _scala.x = (float)(l) / 35;
-    _scala.y = (float)(l) / 35;
+    _scala.x = l / 35;
+    _scala.y = l / 35;
     _p.y = _p.y - ((float)(1) / _scala.y);
     gfxdrawsprite(t[GFX::SPARKS_PLOMYK], _p.x, _p.y, _scala.x, _scala.y,
                   rgba(0xffffff, l * 2 + 185));
@@ -526,11 +584,12 @@ void tspark::render()
   } // case
 }
 
-bool tspark::checkmapcollision(float x, float y)
+auto tspark::checkmapcollision(float x, float y) -> bool
 {
   ZoneScopedN("TSpark::CheckMapCollision");
   std::int32_t b = 0;
-  tvector2 pos, perp;
+  tvector2 pos;
+  tvector2 perp;
   float d = 0.0;
   bool teamcol;
 
@@ -544,23 +603,29 @@ bool tspark::checkmapcollision(float x, float y)
   /*iterate through maps sector polygons*/
   auto const sector = map.GetSector(pos);
   if (!sector.IsValid())
+  {
     return result;
+  }
 
   for (const auto &w : sector.GetPolys())
   {
     if ((owner < 1) || (owner > 32))
+    {
       return result;
+    }
 
     const auto polytype = w.Type;
 
     teamcol = teamcollides(polytype, SpriteSystem::Get().GetSprite(owner).player->team, false);
 
     if (teamcol)
-      if (!((polytype == poly_type_bouncy) &&
-            (SpriteSystem::Get().GetSprite(owner).holdedthing == 0)))
+    {
+      if ((polytype != poly_type_bouncy) || (SpriteSystem::Get().GetSprite(owner).holdedthing != 0))
+      {
         if ((polytype != poly_type_only_bullets) && (polytype != poly_type_only_player) &&
             (polytype != poly_type_doesnt) && (polytype != poly_type_background) &&
             (polytype != poly_type_background_transition))
+        {
           if (map.pointinpolyedges(pos.x, pos.y, w.Index))
           {
             perp = map.closestperpendicular(w.Index, pos, d, b);
@@ -583,9 +648,13 @@ bool tspark::checkmapcollision(float x, float y)
               if (Random(2) == 0)
               {
                 if (Random(2) == 0)
+                {
                   createspark(pos, perp, 26, owner, 35);
+                }
                 else
+                {
                   createspark(pos, perp, 27, owner, 35);
+                }
 
                 playsound(SfxEffect::ts, GetSparkParts().pos[num]);
               }
@@ -597,29 +666,43 @@ bool tspark::checkmapcollision(float x, float y)
               perp.x = perp.x - 0.5 + (float)(Random(11)) / 10;
               perp.y = -perp.y;
               if (Random(7) == 0)
+              {
                 createspark(pos, perp, 26, owner, 35);
+              }
               else
+              {
                 createspark(pos, perp, 27, owner, 35);
+              }
 
               if (collidecount > 4)
+              {
                 kill();
+              }
             }
             break;
             case 4:
             case 5: {
               if (style == 5)
+              {
                 createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 55, owner, 30);
+              }
 
               if (collidecount > 1)
+              {
                 kill();
+              }
             }
             break;
             case 6: {
               if ((collidecount == 0) || (collidecount == 2) || (collidecount == 4))
+              {
                 playsound(SfxEffect::clipfall, GetSparkParts().pos[num]);
+              }
 
               if (collidecount > 4)
+              {
                 kill();
+              }
             }
             break;
             case 7:
@@ -638,22 +721,30 @@ bool tspark::checkmapcollision(float x, float y)
             case 72:
             case 73: {
               if ((collidecount == 0) || (collidecount == 2) || (collidecount == 4))
+              {
                 playsound(SfxEffect::shell + Random(2), GetSparkParts().pos[num]);
+              }
               if (collidecount > 4)
+              {
                 kill();
+              }
             }
             break;
             case 51: {
               playsound(SfxEffect::gaugeshell, GetSparkParts().pos[num]);
               if (collidecount > 4)
+              {
                 kill();
+              }
             }
             break;
             case 32:
             case 48:
             case 49: {
               if (collidecount > 2)
+              {
                 kill();
+              }
             }
             break;
             case 9:
@@ -664,10 +755,14 @@ bool tspark::checkmapcollision(float x, float y)
             case 20:
             case 23: {
               if ((collidecount == 0) || (collidecount == 4))
+              {
                 playsound(SfxEffect::clipfall, GetSparkParts().pos[num]);
+              }
 
               if (collidecount > 4)
+              {
                 kill();
+              }
             }
             break;
             case 57: {
@@ -675,9 +770,13 @@ bool tspark::checkmapcollision(float x, float y)
               perp.x = perp.x - 0.5 + (float)(Random(11)) / 10;
               perp.y = -perp.y;
               if (Random(2) == 0)
+              {
                 createspark(pos, perp, 58, owner, 50);
+              }
               else
+              {
                 createspark(pos, perp, 58, owner, 50);
+              }
             }
             break;
             }
@@ -687,6 +786,9 @@ bool tspark::checkmapcollision(float x, float y)
             result = true;
             return result;
           } // PointinPolyEdges
+        }
+      }
+    }
   }         // for j
   return result;
 }
@@ -696,7 +798,9 @@ void tspark::kill()
   active = false;
   style = 0;
   if (num > 0)
+  {
     GetSparkParts().active[num] = false;
+  }
 }
 
 void tspark::checkoutofbounds()
@@ -709,5 +813,7 @@ void tspark::checkoutofbounds()
   sparkpartspos = &GetSparkParts().pos[num];
 
   if ((fabs(sparkpartspos->x) > bound) || (fabs(sparkpartspos->y) > bound))
+  {
     kill();
+  }
 }

@@ -114,7 +114,7 @@ struct tinterface
   std::int32_t status_x, status_y;
 };
 
-typedef tinterface *pinterface;
+using pinterface = tinterface *;
 
 tinterface int_;
 tinterfacerelinfo relinfo;
@@ -163,7 +163,7 @@ void loadinterfacearchives(const std::string &path, bool firstonly)
   }
 }
 
-bool isdefaultinterface(const std::string &interfacename)
+auto isdefaultinterface(const std::string &interfacename) -> bool
 {
   return (interfacename.empty()) || (interfacename == "Default");
 }
@@ -264,7 +264,7 @@ void loaddefaultinterfacedata()
 }
 
 // result is true if it loaded a custom interface
-bool loadinterfacedata(const std::string &interfacename)
+auto loadinterfacedata(const std::string &interfacename) -> bool
 {
   std::vector<std::uint8_t> addrfile;
   tinterface addrrec;
@@ -366,15 +366,15 @@ bool loadinterfacedata(const std::string &interfacename)
 }
 
 // Does the HUD overlay belong to the player?
-bool isinteractiveinterface()
+auto isinteractiveinterface() -> bool
 {
   return SpriteSystem::Get().GetSprite(mysprite).isnotspectator() or
          ((camerafollowsprite > 0) && (CVar::sv_advancedspectator));
 }
 
-float pixelalignx(float x) { return pixelsize.x * floor(x / pixelsize.x); }
+auto pixelalignx(float x) -> float { return pixelsize.x * floor(x / pixelsize.x); }
 
-float pixelaligny(float y) { return pixelsize.y * floor(y / pixelsize.y); }
+auto pixelaligny(float y) -> float { return pixelsize.y * floor(y / pixelsize.y); }
 
 void drawline(float x, float y, float w, tgfxcolor color)
 {
@@ -392,7 +392,7 @@ void drawline(float x, float y, float w, tgfxcolor color)
               gfxvertex(x1, y1, 0, 0, color), gfxvertex(x0, y1, 0, 0, color));
 }
 
-tvector2 tominimap(const tvector2 pos, float scale = 1)
+auto tominimap(const tvector2 pos, float scale = 1) -> tvector2
 {
   tvector2 result;
   worldtominimap(pos.x, pos.y, result.x, result.y);
@@ -525,7 +525,7 @@ void getweaponattribs(std::int32_t i, std::vector<tattr> &attrs)
   attrs[12].des = ("Inh. Speed");
 }
 
-std::string getweaponattribdesc(tattr &attr)
+auto getweaponattribdesc(tattr &attr) -> std::string
 {
   return string("    |-") + attr.des + " : " +
          (attr.def != 0 ? inttostr(round(attr.cur / attr.def * 100)) + "%" : "NEW") + " (" +
@@ -2389,8 +2389,8 @@ void renderinterface(float timeelapsed, float width, float height)
         ((GS::GetGame().GetMapchangecounter() < 0) ||
          (GS::GetGame().GetMapchangecounter() == 999999999)) &&
         !(demoplayer.active() && (!CVar::demo_showcrosshair)) &&
-        !((spectnumber > 0) && (spectnumber <= 32) &&
-          (!SpriteSystem::Get().GetSprite(spectnumber).player->demoplayer)))
+        ((spectnumber <= 0) || (spectnumber > 32) ||
+         !(!SpriteSystem::Get().GetSprite(spectnumber).player->demoplayer)))
     {
       // Set base scale for the crosshair
       if (sniperline_client_hpp == 1)

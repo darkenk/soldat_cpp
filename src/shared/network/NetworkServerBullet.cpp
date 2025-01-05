@@ -31,15 +31,21 @@ void serverbulletsnapshot(const std::uint8_t i, std::uint8_t tonum, bool forced)
 
 #ifdef SERVER
   if (!forced)
+  {
     if ((SpriteSystem::Get().GetSprite(bulletmsg.owner).weapon.ammocount > 0) &&
         (b.style != bullet_style_fragnade) && (b.style != bullet_style_clusternade) &&
         (b.style != bullet_style_cluster))
+    {
       SpriteSystem::Get().GetSprite(bulletmsg.owner).weapon.ammocount -= 1;
+    }
+  }
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     if ((sprite.player->controlmethod == human) && (sprite.num != b.owner))
+    {
       if ((tonum == 0) || (sprite.num == tonum))
+      {
         if (bulletcansend(GetBulletParts().pos[i].x, GetBulletParts().pos[i].y,
                           sprite.player->camera, GetBulletParts().velocity[i].x) or
             forced)
@@ -47,6 +53,8 @@ void serverbulletsnapshot(const std::uint8_t i, std::uint8_t tonum, bool forced)
           GetServerNetwork()->SendData(&bulletmsg, sizeof(bulletmsg), sprite.player->peer,
                                        false);
         }
+      }
+    }
   }
 #else
   GS::GetDemoRecorder().saverecord(bulletmsg, sizeof(bulletmsg));
@@ -57,21 +65,26 @@ void serverbulletsnapshot(const std::uint8_t i, std::uint8_t tonum, bool forced)
 void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   tmsg_clientbulletsnapshot *bulletsnap;
-  std::int32_t p, d;
+  std::int32_t p;
+  std::int32_t d;
   float k;
   std::int32_t i;
   bool onstatgun;
   bool failedbulletcheck;
   std::int16_t weaponindex;
   std::uint8_t style;
-  tvector2 a, b, bx;
+  tvector2 a;
+  tvector2 b;
+  tvector2 bx;
   tvector2 bstraight;
   tvector2 bnorm;
   float bulletspread;
   auto &map = GS::GetGame().GetMap();
 
   if (!verifypacket(sizeof(tmsg_clientbulletsnapshot), size, msgid_bulletsnapshot))
+  {
     return;
+  }
 
   bulletsnap = pmsg_clientbulletsnapshot(netmessage);
   p = player->spritenum;
@@ -82,13 +95,19 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
 
   SpriteSystem::Get().GetSprite(p).player->pingticksb = servertickcounter - bulletsnap->clientticks;
   if (SpriteSystem::Get().GetSprite(p).player->pingticksb < 0)
+  {
     SpriteSystem::Get().GetSprite(p).player->pingticksb = 0;
+  }
   if (SpriteSystem::Get().GetSprite(p).player->pingticksb > max_oldpos)
+  {
     SpriteSystem::Get().GetSprite(p).player->pingticksb = max_oldpos;
+  }
 
   weaponindex = weaponnumtoindex(bulletsnap->weaponnum, guns);
   if (weaponindex == -1)
+  {
     return;
+  }
 
   style = guns[weaponindex].bulletstyle;
 
@@ -108,25 +127,24 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
     // ignore duplicate packet
     return;
   }
-  else
+
+  if (SpriteSystem::Get().GetSprite(p).bulletcheckindex > bulletcheckarraysize - 1)
   {
-    if (SpriteSystem::Get().GetSprite(p).bulletcheckindex > bulletcheckarraysize - 1)
-    {
-      SpriteSystem::Get().GetSprite(p).bulletcheckindex = 0;
-    }
-    if (SpriteSystem::Get().GetSprite(p).bulletcheckamount < bulletcheckarraysize - 1)
-    {
-      SpriteSystem::Get().GetSprite(p).bulletcheckamount += 1;
-    }
-    SpriteSystem::Get()
-      .GetSprite(p)
-      .bulletcheck[SpriteSystem::Get().GetSprite(p).bulletcheckindex] = bulletsnap->seed;
-    SpriteSystem::Get().GetSprite(p).bulletcheckindex += 1;
+    SpriteSystem::Get().GetSprite(p).bulletcheckindex = 0;
   }
+  if (SpriteSystem::Get().GetSprite(p).bulletcheckamount < bulletcheckarraysize - 1)
+  {
+    SpriteSystem::Get().GetSprite(p).bulletcheckamount += 1;
+  }
+  SpriteSystem::Get().GetSprite(p).bulletcheck[SpriteSystem::Get().GetSprite(p).bulletcheckindex] =
+    bulletsnap->seed;
+  SpriteSystem::Get().GetSprite(p).bulletcheckindex += 1;
 
   // spec kill: spectators NEVER send bullet snapshots
   if (SpriteSystem::Get().GetSprite(p).isspectator())
+  {
     return;
+  }
 
   // Disable knife-cheat kick for now, until we have timestamped
   // packets, and will do a time-based comparison to sprite snapshot
@@ -145,7 +163,9 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
   if ((style == bullet_style_thrownknife) && (!weaponSystem.IsEnabled(knife)))
   {
     if (kickplayer(p, true, kick_cheat, day, "Knife-Spawn Cheat"))
+    {
       return;
+    }
   }
 
   auto &things = GS::GetThingSystem().GetThings();
@@ -153,11 +173,17 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
   {
     onstatgun = false;
     for (i = 0; i <= max_things; i++)
-      if ((things[i].style == object_stationary_gun) /*Stat Gun*/ && (onstatgun == false))
+    {
+      if ((things[i].style == object_stationary_gun) /*Stat Gun*/ && (!onstatgun))
+      {
         if (distance(SpriteSystem::Get().GetSprite(p).skeleton.pos[1].x,
                      SpriteSystem::Get().GetSprite(p).skeleton.pos[1].y,
                      things[i].skeleton.pos[1].x, things[i].skeleton.pos[1].y) < stat_radius * 2)
+        {
           onstatgun = true;
+        }
+      }
+    }
     if (!onstatgun)
     {
       // KickPlayer(p, True, KICK_CHEAT, DAY, 'StatGun Cheat');
@@ -168,27 +194,37 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
   map.checkoutofbounds(bulletsnap->pos.x, bulletsnap->pos.y);
 
   if ((style < bullet_style_plain) || (style > bullet_style_m2))
+  {
     return;
+  }
 
   if ((style != bullet_style_fragnade) && (style != bullet_style_punch) &&
       (style != bullet_style_clusternade) && (style != bullet_style_cluster) &&
       (style != bullet_style_thrownknife) && (style != bullet_style_m2) &&
       (SpriteSystem::Get().GetSprite(p).lastweaponstyle != style))
+  {
     return;
+  }
 
   if ((oldbulletsnapshotmsg[p].weaponnum == bulletsnap->weaponnum) &&
       (oldbulletsnapshotmsg[p].pos.x == bulletsnap->pos.x) &&
       (oldbulletsnapshotmsg[p].pos.y == bulletsnap->pos.y) &&
       (oldbulletsnapshotmsg[p].velocity.x == bulletsnap->velocity.x) &&
       (oldbulletsnapshotmsg[p].velocity.y == bulletsnap->velocity.y))
+  {
     return;
+  }
 
   if ((style != bullet_style_fragnade) && (style != bullet_style_clusternade) &&
       (style != bullet_style_cluster) && (style != bullet_style_thrownknife) &&
       (style != bullet_style_m2))
+  {
     if (vec2length(bulletsnap->velocity) >
         SpriteSystem::Get().GetSprite(p).lastweaponspeed + 10 * guns[weaponindex].inheritedvelocity)
+    {
       return;
+    }
+  }
 
   a.x = SpriteSystem::Get().GetSprite(p).skeleton.pos[15].x - (bulletsnap->velocity.x / 1.33);
   a.y = SpriteSystem::Get().GetSprite(p).skeleton.pos[15].y - 2 - (bulletsnap->velocity.y / 1.33);
@@ -197,14 +233,22 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
   if ((style != bullet_style_fragnade) && (style != bullet_style_flame) &&
       (style != bullet_style_clusternade) && (style != bullet_style_cluster) &&
       (style != bullet_style_thrownknife) && (style != bullet_style_m2))
+  {
     if (vec2length(b) > 366)
+    {
       return;
+    }
+  }
 
   if (GS::GetGame().GetMapchangecounter() == 999999999)
+  {
     return;
+  }
 
   if (bullettime[p] > GS::GetGame().GetMainTickCounter())
+  {
     bullettime[p] = 0;
+  }
 
   if ((style != bullet_style_fragnade) && (style != bullet_style_punch) &&
       (style != bullet_style_clusternade) && (style != bullet_style_cluster) &&
@@ -237,18 +281,24 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
     }
 
     if (bulletwarningcount[p] > 2)
+    {
       return;
+    }
 
     bullettime[p] = GS::GetGame().GetMainTickCounter();
   }
 
   if (grenadetime[p] > GS::GetGame().GetMainTickCounter())
+  {
     grenadetime[p] = 0;
+  }
 
   if ((style == bullet_style_fragnade) || (style == bullet_style_clusternade))
   {
     if (GS::GetGame().GetMainTickCounter() - grenadetime[p] < 6)
+    {
       return;
+    }
 
     grenadetime[p] = GS::GetGame().GetMainTickCounter();
   }
@@ -279,19 +329,29 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
   k = SpriteSystem::Get().GetSprite(p).lastweaponhm;
 
   if (style == bullet_style_punch)
+  {
     k = guns[noweapon].hitmultiply;
+  }
 
   if (style == bullet_style_cluster)
+  {
     if (SpriteSystem::Get().GetSprite(p).tertiaryweapon.ammocount == 0)
+    {
       return;
+    }
+  }
 
   if ((style == bullet_style_fragnade) || (style == bullet_style_clusternade))
   {
     k = guns[fraggrenade].hitmultiply;
     if (SpriteSystem::Get().GetSprite(p).tertiaryweapon.ammocount == 0)
+    {
       return;
+    }
     if (SpriteSystem::Get().GetSprite(p).tertiaryweapon.ammocount > 0)
+    {
       SpriteSystem::Get().GetSprite(p).tertiaryweapon.ammocount -= 1;
+    }
   }
 
   if (style == bullet_style_thrownknife)
@@ -301,7 +361,9 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
   }
 
   if (style == bullet_style_m2)
+  {
     k = guns[m2].hitmultiply;
+  }
 
   createbullet(a, b, bulletsnap->weaponnum, p, 255, k, true, true, bulletsnap->seed);
 

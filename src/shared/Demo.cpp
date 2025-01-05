@@ -31,7 +31,7 @@ tdemoplayer demoplayer;
 namespace
 {
 
-std::string extractfilename(const std::string &filepath)
+auto extractfilename(const std::string &filepath) -> std::string
 {
   return std::filesystem::path(filepath).stem();
 }
@@ -44,13 +44,13 @@ template <std::size_t N>
 void stringtoarray(std::array<char, N> &arr, const std::string &str)
 {
   int i = 0;
-  for (auto &c : str)
+  for (const auto &c : str)
   {
     arr[i++] = c;
   }
 }
 template <Config::Module M>
-bool tdemorecorder<M>::startrecord(const string &filename)
+auto tdemorecorder<M>::startrecord(const string &filename) -> bool
 {
   std::int32_t spriteid;
 
@@ -58,7 +58,9 @@ bool tdemorecorder<M>::startrecord(const string &filename)
   result = false;
 #ifndef SERVER
   if (demoplayer.active())
+  {
     return result;
+  }
 #endif
 
   GS::GetMainConsole().console(("Recording demo: ") + (extractfilename(filename)),
@@ -85,7 +87,9 @@ bool tdemorecorder<M>::startrecord(const string &filename)
   spriteid = createdemoplayer();
 
   if (spriteid == max_sprites)
+  {
     result = true;
+  }
   return result;
 }
 
@@ -93,7 +97,9 @@ template <Config::Module M>
 void tdemorecorder<M>::stoprecord()
 {
   if (!active())
+  {
     return;
+  }
 
   GS::GetMainConsole().console(
 #ifdef SERVER
@@ -130,7 +136,7 @@ void tdemorecorder<M>::stoprecord()
 }
 
 template <Config::Module M>
-std::int32_t tdemorecorder<M>::createdemoplayer()
+auto tdemorecorder<M>::createdemoplayer() -> std::int32_t
 {
   std::int32_t p;
 #if SERVER
@@ -193,10 +199,14 @@ template <Config::Module M>
 void tdemorecorder<M>::saverecord(const void *r, std::int32_t size)
 {
   if (size == 0)
+  {
     return;
+  }
 
   if (!active())
+  {
     return;
+  }
   fdemofile.write1(&size, sizeof(rsize));
   fdemofile.write1(&r, size);
 }
@@ -245,7 +255,9 @@ template <Config::Module M>
 void tdemorecorder<M>::savenextframe()
 {
   if (!factive)
+  {
     return;
+  }
 
   // save record type
   rsize = 1;
@@ -265,7 +277,7 @@ void tdemorecorder<M>::savenextframe()
 }
 
 #ifndef SERVER
-bool tdemoplayer::opendemo(const string &filename)
+auto tdemoplayer::opendemo(const string &filename) -> bool
 {
   bool opendemo_result = false;
 
@@ -307,7 +319,9 @@ bool tdemoplayer::opendemo(const string &filename)
 void tdemoplayer::stopdemo()
 {
   if (!factive)
+  {
     return;
+  }
 
   GS::GetMainConsole().console("Demo stopped", info_message_color);
 
@@ -387,10 +401,14 @@ void tdemoplayer::position(std::int32_t ticks)
     GS::GetGame().ResetMainTickCounter();
 
     for (i = 1; i <= max_sprites; i++)
+    {
       SpriteSystem::Get().GetSprite(i).kill();
+    }
     GS::GetBulletSystem().KillAll();
     for (i = 1; i <= max_sparks; i++)
+    {
       spark[i].kill();
+    }
     GS::GetThingSystem().KillAll();
 
     // Reset World and Big Texts
@@ -439,14 +457,14 @@ void tdemoplayer::position(std::int32_t ticks)
 // end;
 
 template <Config::Module M>
-bool tmemorystream<M>::writebuffer(const void *buff, int32_t size)
+auto tmemorystream<M>::writebuffer(const void *buff, int32_t size) -> bool
 {
   NotImplemented("filesystem");
   return false;
 }
 
 template <Config::Module M>
-bool tmemorystream<M>::savetofile(const std::string &filename)
+auto tmemorystream<M>::savetofile(const std::string &filename) -> bool
 {
   NotImplemented("filesystem");
   return false;

@@ -37,7 +37,7 @@ constexpr void Add(std::array<std::string_view, ToUint32(SfxEffect::COUNT)> &ref
   s = name;
 }
 
-constexpr std::array<std::string_view, ToUint32(SfxEffect::COUNT)> GenerateSampleFileNames()
+constexpr auto GenerateSampleFileNames() -> std::array<std::string_view, ToUint32(SfxEffect::COUNT)>
 {
   std::array<std::string_view, ToUint32(SfxEffect::COUNT)> ref;
   Add(ref, SfxEffect::ak74_fire, "ak74-fire.wav");
@@ -210,7 +210,7 @@ constexpr auto sample_files = GenerateSampleFileNames();
 class SoundEngine
 {
 public:
-  bool InitSound()
+  auto InitSound() -> bool
   {
     LogDebug(AUDIO, "InitSound");
     if (Engine.init(SoLoud::Soloud::CLIP_ROUNDOFF, SoLoud::Soloud::SDL2) != 0)
@@ -227,14 +227,18 @@ public:
     return true;
   }
 
-  tsoundsample LoadSample(const std::string_view &name, const tsoundsample &samp)
+  auto LoadSample(const std::string_view &name, const tsoundsample &samp) -> tsoundsample
   {
 
     tsoundsample result;
     if (!samp.loaded)
+    {
       result.loaded = false;
+    }
     else
+    {
       result = samp;
+    }
 
     auto filebuffer = GS::GetFileSystem().ReadFile(name);
     if (filebuffer.empty())
@@ -243,7 +247,7 @@ public:
       return result;
     }
 
-    SoLoud::Wav *wav = new SoLoud::Wav();
+    auto *wav = new SoLoud::Wav();
     auto wavError = wav->loadMem(filebuffer.data(), length(filebuffer), true);
     if (wavError != 0)
     {
@@ -277,7 +281,9 @@ public:
     // Pan: Single = 0.0;
 
     if (!samp[ToUint32(samplenum)].loaded)
+    {
       return;
+    }
 
     if (camerafollowsprite > 0)
     {
@@ -289,7 +295,7 @@ public:
     dist = sqrt(sqr(emitterx - listenerx) + sqr(emittery - listenery)) / sound_maxdist;
 
     // play distant sounds
-    if ((dist > 0.5) & (CVar::snd_effects_battle))
+    if ((dist > 0.5) && (CVar::snd_effects_battle))
     {
       switch (samplenum)
       {
@@ -334,9 +340,13 @@ public:
       case SfxEffect::dist_gun3:
       case SfxEffect::dist_gun4:
         if (dist > 1)
+        {
           dist = dist - 1;
+        }
         else
+        {
           dist = 1 - 2 * dist;
+        }
         break;
       default:
         break;
@@ -345,19 +355,23 @@ public:
 
     // decrease volume if grenade effect
     if ((grenadeeffecttimer > 0) && (samplenum != SfxEffect::hum))
+    {
       dist = (dist + 10) * (grenadeeffecttimer / 7);
+    }
 
     if (dist > 1)
+    {
       return;
+    }
 
     if ((samplenum == SfxEffect::rocketz) || (samplenum == SfxEffect::chainsaw_r) ||
         (samplenum == SfxEffect::flamer))
     {
-      looping = true;
+      looping = 1;
     } // loop
     else
     {
-      looping = false; // one time
+      looping = 0; // one time
     }
 
     if (chan >= reserved_sources)
@@ -393,32 +407,31 @@ public:
         return;
       }
 
-      sources[chan] = Engine.play3d(*Waves[ToUint32(samplenum)],
-                                    (float)((emitterx - listenerx)) / sound_meterlength,
-                                    (float)((emittery - listenery)) / sound_meterlength,
-                                    (float)(-sound_panwidth) / sound_meterlength);
+      sources[chan] = Engine.play3d(
+        *Waves[ToUint32(samplenum)], (emitterx - listenerx) / sound_meterlength,
+        (emittery - listenery) / sound_meterlength, (float)(-sound_panwidth) / sound_meterlength);
       auto volume = volumeinternal * (1.0f - dist);
       Engine.setVolume(sources[chan], volume);
-      Engine.setLooping(sources[chan], looping);
+      Engine.setLooping(sources[chan], looping != 0);
 
       LogDebug(AUDIO, "Play sound {}; sample num {}; channel {}", sample_files[ToUint32(samplenum)],
                samplenum, chan);
     }
   }
 
-  bool stopsound(std::int32_t channel)
+  auto stopsound(std::int32_t channel) -> bool
   {
     Engine.stop(sources[channel]);
     return true;
   }
 
-  bool setsoundpaused(std::int32_t channel, bool paused)
+  auto setsoundpaused(std::int32_t channel, bool paused) -> bool
   {
     Engine.setPause(sources[channel], paused);
     return true;
   }
 
-  bool setvolume(std::int32_t channel, float volume)
+  auto setvolume(std::int32_t channel, float volume) -> bool
   {
     if (channel == -1)
     {
@@ -439,18 +452,18 @@ private:
 
 SoundEngine Engine;
 
-bool initsound()
+auto initsound() -> bool
 {
   LogDebug(AUDIO, "InitSound");
   return Engine.InitSound();
 }
 
-tsoundsample loadsample(const std::string_view &name, const tsoundsample &samp)
+auto loadsample(const std::string_view &name, const tsoundsample &samp) -> tsoundsample
 {
   return Engine.LoadSample(name, samp);
 }
 
-static std::string uppercase(const std::string_view &str)
+static auto uppercase(const std::string_view &str) -> std::string
 {
   std::string temp;
   temp.reserve(str.size());
@@ -458,7 +471,7 @@ static std::string uppercase(const std::string_view &str)
   return temp;
 }
 
-std::int8_t soundnametoid(const std::string &name)
+auto soundnametoid(const std::string &name) -> std::int8_t
 {
   std::uint8_t i;
 
@@ -486,7 +499,7 @@ std::int8_t soundnametoid(const std::string &name)
   VolumeSetting the volume percentage to scale
   return the volume scaled for internal use
 */
-float scalevolumesetting(const std::uint8_t volumesetting)
+auto scalevolumesetting(const std::uint8_t volumesetting) -> float
 {
   return (power(1.0404, volumesetting) - 1) / (1.0404 - 1) / 1275;
 }
@@ -504,12 +517,14 @@ void loadsounds(const string &moddir)
 
   for (i = 1U; i < sample_files.size(); i++)
   {
-    if (sample_files[i] != "")
+    if (!sample_files[i].empty())
     {
       samp[i] = loadsample((sfxpath + sample_files[i].data()), samp[i]);
       if (!samp[i].loaded)
+      {
         GS::GetMainConsole().console(
           string("Unable to load file ") + sfxpath + sample_files[i].data(), debug_message_color);
+      }
     }
   }
 }
@@ -545,17 +560,14 @@ void playsound(SfxEffect sample, const tvector2 &emitter, int32_t channel)
   fplaysound(sample, camerax, cameray, emitter.x, emitter.y, channel);
 }
 
-bool stopsound(std::int32_t channel)
-{
-  return Engine.stopsound(channel);
-}
+auto stopsound(std::int32_t channel) -> bool { return Engine.stopsound(channel); }
 
-bool setsoundpaused(std::int32_t channel, bool paused)
+auto setsoundpaused(std::int32_t channel, bool paused) -> bool
 {
   return Engine.setsoundpaused(channel, paused);
 }
 
-bool setvolume(std::int32_t channel, float volume)
+auto setvolume(std::int32_t channel, float volume) -> bool
 {
   return Engine.setvolume(channel, volume);
 }

@@ -25,7 +25,7 @@ static bool deferredinitialized = false;
 static std::map<std::string, tcommand *> commands;
 static std::vector<std::string> deferredcommands;
 
-static pcommand commandfind(const std::string &name)
+static auto commandfind(const std::string &name) -> pcommand
 {
   auto ret = commands.find(name);
   if (ret == commands.end())
@@ -370,8 +370,8 @@ void commandnetloglevel(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 
 template <Config::Module M>
-pcommand commandadd(const std::string &commandnamevar, tcommandfunction commandptr,
-                    const std::string &description, tcommandflags flags)
+auto commandadd(const std::string &commandnamevar, tcommandfunction commandptr,
+                const std::string &description, tcommandflags flags) -> pcommand
 {
   pcommand newcommand;
   std::string commandname;
@@ -395,13 +395,13 @@ pcommand commandadd(const std::string &commandnamevar, tcommandfunction commandp
 }
 
 template <Config::Module M>
-bool parseinput(const std::string &input)
+auto parseinput(const std::string &input) -> bool
 {
   return parseinput(input, 0);
 }
 
 template <typename T>
-bool SetValue(const std::string &cvarName, const std::string &value)
+auto SetValue(const std::string &cvarName, const std::string &value) -> bool
 {
   auto &cvi = CVarBase<T>::Find(cvarName);
   if (!cvi.IsValid())
@@ -417,7 +417,7 @@ bool SetValue(const std::string &cvarName, const std::string &value)
 }
 
 template <Config::Module M>
-bool parseinput(const std::string &input, std::uint8_t sender)
+auto parseinput(const std::string &input, std::uint8_t sender) -> bool
 {
   tstringlist inputparse;
 
@@ -428,7 +428,9 @@ bool parseinput(const std::string &input, std::uint8_t sender)
   result = false;
 
   if (length(input) == 0)
+  {
     return result;
+  }
 
   std::istringstream iss(input);
   std::vector<std::string> inputarray(std::istream_iterator<std::string>{iss},
@@ -459,14 +461,19 @@ bool parseinput(const std::string &input, std::uint8_t sender)
 #ifdef SERVER
       if (commandptr->flags & cmd_adminonly)
       {
-        if (!((sender == 255) or
-              (isremoteadminip(SpriteSystem::Get().GetSprite(sender).player->ip) or
-               isadminip(SpriteSystem::Get().GetSprite(sender).player->ip))))
+        if ((sender != 255) && !isremoteadminip(SpriteSystem::Get().GetSprite(sender).player->ip) &&
+            !isadminip(SpriteSystem::Get().GetSprite(sender).player->ip))
+        {
           return result;
+        }
       }
       if (commandptr->flags & (cmd_playeronly))
+      {
         if ((sender == 0) || (sender > max_players + 1))
+        {
           return result;
+        }
+      }
 #endif
       commandfunction = commandptr->functionptr;
       commandfunction(inputarray, sender);
@@ -509,7 +516,7 @@ bool parseinput(const std::string &input, std::uint8_t sender)
 }
 
 template <Config::Module M>
-bool loadconfig(const std::string &configname, FileUtility& fs)
+auto loadconfig(const std::string &configname, FileUtility &fs) -> bool
 {
   std::string line;
 
@@ -524,11 +531,11 @@ bool loadconfig(const std::string &configname, FileUtility& fs)
   std::unique_ptr<std::byte[]> buff;
   std::size_t fileSize = 0;
   {
-    auto f = fs.Open(path, FileUtility::FileMode::Read);
-    fileSize = fs.Size(f);
+    auto *f = fs.Open(path, FileUtility::FileMode::Read);
+    fileSize = FileUtility::Size(f);
     buff = std::make_unique<std::byte[]>(fileSize);
-    fs.Read(f, buff.get(), fileSize);
-    fs.Close(f);
+    FileUtility::Read(f, buff.get(), fileSize);
+    FileUtility::Close(f);
   }
 
 #if __EMSCRIPTEN__
@@ -580,7 +587,7 @@ static void addplayer(std::uint8_t id, std::vector<std::uint8_t> &players)
 }
 
 template <Config::Module M>
-tcommandtargets commandtarget(const std::string& target, std::uint8_t sender)
+auto commandtarget(const std::string &target, std::uint8_t sender) -> tcommandtargets
 {
   std::vector<std::uint8_t> players;
   std::int32_t targetid;
@@ -609,72 +616,102 @@ tcommandtargets commandtarget(const std::string& target, std::uint8_t sender)
     else if (target == "@bots")
     {
       if (sprite.player->controlmethod == bot)
+      {
         addplayer(sprite.num, players);
+      }
     }
     else if (target == "@humans")
     {
       if (sprite.player->controlmethod == human)
+      {
         addplayer(sprite.num, players);
+      }
     }
     else if (target == "@alive")
     {
       if (!sprite.deadmeat)
+      {
         addplayer(sprite.num, players);
+      }
     }
     else if (target == "@dead")
     {
       if (sprite.deadmeat)
+      {
         addplayer(sprite.num, players);
+      }
     }
     else if (target == "@aim")
     {
       if ((sender > 0) && (sender <= max_players))
+      {
         if (SpriteSystem::Get().GetSprite(sender).player->camera == sprite.num)
         {
           addplayer(sprite.num, players);
         }
+      }
     }
     else if (target == "@me")
     {
       if ((sender > 0) && (sender <= max_players))
+      {
         if (SpriteSystem::Get().GetSprite(sender).num == sprite.num)
+        {
           addplayer(SpriteSystem::Get().GetSprite(sender).num, players);
+        }
+      }
     }
     else if (target == "@!me")
     {
       if ((sender > 0) && (sender <= max_players))
+      {
         if (!(SpriteSystem::Get().GetSprite(sender).num == sprite.num))
+        {
           addplayer(sprite.num, players);
+        }
+      }
     }
     else if (target == "@none")
     {
       if (sprite.player->team == team_none)
+      {
         addplayer(sprite.num, players);
+      }
     }
     else if (target == "@alpha")
     {
       if (sprite.player->team == team_alpha)
+      {
         addplayer(sprite.num, players);
+      }
     }
     else if (target == "@bravo")
     {
       if (sprite.player->team == team_bravo)
+      {
         addplayer(sprite.num, players);
+      }
     }
     else if (target == "@charlie")
     {
       if (sprite.player->team == team_charlie)
+      {
         addplayer(sprite.num, players);
+      }
     }
     else if (target == "@delta")
     {
       if (sprite.player->team == team_delta)
+      {
         addplayer(sprite.num, players);
+      }
     }
     else if (target == "@spec")
     {
       if (sprite.player->team == team_spectator)
+      {
         addplayer(sprite.num, players);
+      }
     }
   }
   return players;

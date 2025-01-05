@@ -12,8 +12,12 @@ void particlesystem::doverlettimestep()
   std::int32_t i;
 
   for (i = 1; i <= num_particles; i++)
+  {
     if (active[i])
+    {
       verlet(i);
+    }
+  }
   satisfyconstraints();
 }
 
@@ -34,13 +38,18 @@ void particlesystem::doeulertimestep()
   std::int32_t i;
 
   for (i = 1; i <= num_particles; i++)
+  {
     if (active[i])
+    {
       euler(i);
+    }
+  }
 }
 
 void particlesystem::euler(std::int32_t i)
 {
-  tvector2 temppos, s;
+  tvector2 temppos;
+  tvector2 s;
 
   // Accumulate Forces
   forces[i].y = forces[i].y + gravity;
@@ -60,7 +69,8 @@ void particlesystem::euler(std::int32_t i)
 
 void particlesystem::verlet(std::int32_t i)
 {
-  tvector2 s1, s2;
+  tvector2 s1;
+  tvector2 s2;
 
   // Accumulate Forces
   forces[i].y = forces[i].y + gravity;
@@ -85,10 +95,13 @@ void particlesystem::verlet(std::int32_t i)
 void particlesystem::satisfyconstraints()
 {
   std::int32_t i;
-  tvector2 delta, d;
-  float deltalength, diff;
+  tvector2 delta;
+  tvector2 d;
+  float deltalength;
+  float diff;
 
   if (constraintcount > 0)
+  {
     for (i = 1; i <= constraintcount; i++)
     {
       constraint &with = constraints[i];
@@ -98,7 +111,9 @@ void particlesystem::satisfyconstraints()
         delta = vec2subtract(pos[with.partb], pos[with.parta]);
         deltalength = sqrt(vec2dot(delta, delta));
         if (deltalength != 0)
-          diff = (float)((deltalength - with.restlength)) / deltalength;
+        {
+          diff = (deltalength - with.restlength) / deltalength;
+        }
         if (oneovermass[with.parta] > 0)
         {
           vec2scale(d, delta, 0.5 * diff);
@@ -111,12 +126,15 @@ void particlesystem::satisfyconstraints()
         }
       }
     }
+  }
 }
 
 void particlesystem::satisfyconstraintsfor(std::int32_t i)
 {
-  tvector2 delta, d;
-  float deltalength, diff;
+  tvector2 delta;
+  tvector2 d;
+  float deltalength;
+  float diff;
 
   {
     constraint &with = constraints[i];
@@ -125,7 +143,9 @@ void particlesystem::satisfyconstraintsfor(std::int32_t i)
     delta = vec2subtract(pos[with.partb], pos[with.parta]);
     deltalength = sqrt(vec2dot(delta, delta));
     if (deltalength != 0)
-      diff = (float)((deltalength - with.restlength)) / deltalength;
+    {
+      diff = (deltalength - with.restlength) / deltalength;
+    }
     if (oneovermass[with.parta] > 0)
     {
       vec2scale(d, delta, 0.5 * diff);
@@ -179,7 +199,7 @@ void particlesystem::clone(const particlesystem &other)
 
   for (i = 1; i <= constraintcount; i++)
   {
-    auto otherconstraint = &other.constraints[i];
+    const auto *otherconstraint = &other.constraints[i];
     {
       constraint &with = constraints[i];
 
@@ -235,7 +255,9 @@ void particlesystem::loadpoobject(FileUtility &fs, const std::string &filename, 
   {                      // CONSTRAINTS
     stream->ReadLine(a); // Part A
     if (a == "ENDFILE")
+    {
       break;
+    }
 
     stream->ReadLine(b); // Part B
     a.erase(0, 1);
@@ -253,12 +275,14 @@ void particlesystem::stopallparts()
   std::int32_t i;
 
   for (i = 1; i <= num_particles; i++)
+  {
     if (active[i])
     {
       velocity[i].x = 0;
       velocity[i].y = 0;
       oldpos[i] = pos[i];
     }
+  }
 }
 
 void particlesystem::destroy()

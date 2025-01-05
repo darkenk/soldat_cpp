@@ -50,10 +50,8 @@ namespace
 class DebugWindowFixture
 {
 public:
-  DebugWindowFixture() {}
-  ~DebugWindowFixture() {}
-
-protected:
+  DebugWindowFixture() = default;
+  ~DebugWindowFixture() = default;
   DebugWindowFixture(const DebugWindowFixture &) = delete;
 };
 
@@ -62,7 +60,7 @@ TEST_CASE_FIXTURE(DebugWindowFixture, "Check whether debug window is displayed")
   SdlApp app("Test Window");
   DebugWindow dw(app);
   auto i = 1;
-  while (i--)
+  while ((i--) != 0)
   {
     glClear(GL_COLOR_BUFFER_BIT);
     app.ProcessEvents();
@@ -78,8 +76,11 @@ TEST_CASE_FIXTURE(DebugWindowFixture, "Check whether debug window is displayed")
 
 struct SampleServiceLocator
 {
-    static SampleServiceLocator& Get() { return *s_SampleServiceLocator; }
-    inline class DebugWindow& DebugWindow() { return *reinterpret_cast<class DebugWindow*>(window.data()); }
+  static auto Get() -> SampleServiceLocator & { return *s_SampleServiceLocator; }
+  auto DebugWindow() -> class DebugWindow &
+  {
+    return *reinterpret_cast<class DebugWindow *>(window.data());
+    }
     ::std::array<::std::byte, sizeof(class DebugWindow)> window;
     static SampleServiceLocator *s_SampleServiceLocator;
 };

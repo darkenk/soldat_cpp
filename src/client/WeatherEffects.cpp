@@ -13,13 +13,18 @@
 void makerain()
 {
   std::int32_t i;
-  tvector2 a, b;
+  tvector2 a;
+  tvector2 b;
   std::int32_t modder;
 
   if (CVar::r_maxsparks < (max_sparks - 10))
+  {
     modder = 34;
+  }
   else
+  {
     modder = 17;
+  }
 
   if (GS::GetGame().GetMainTickCounter() % modder == 0)
   {
@@ -44,13 +49,18 @@ void makerain()
 void makesandstorm()
 {
   std::int32_t i;
-  tvector2 a, b;
+  tvector2 a;
+  tvector2 b;
   std::int32_t modder;
 
   if (CVar::r_maxsparks < (max_sparks - 10))
+  {
     modder = 34;
+  }
   else
+  {
     modder = 17;
+  }
 
   if (GS::GetGame().GetMainTickCounter() % modder == 0)
   {
@@ -75,13 +85,18 @@ void makesandstorm()
 void makesnow()
 {
   std::int32_t i;
-  tvector2 a, b;
+  tvector2 a;
+  tvector2 b;
   std::int32_t modder;
 
   if (CVar::r_maxsparks < (max_sparks - 10))
+  {
     modder = 34;
+  }
   else
+  {
     modder = 17;
+  }
 
   if (GS::GetGame().GetMainTickCounter() % modder == 0)
   {

@@ -23,9 +23,7 @@ struct deletable_facet : Facet
   deletable_facet(Args &&...args) : Facet(std::forward<Args>(args)...)
   {
   }
-  ~deletable_facet()
-  {
-  }
+  ~deletable_facet() override = default;
 };
 
 void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
@@ -34,7 +32,9 @@ void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
   std::int32_t size;
 
   if (length(text) == 0)
+  {
     return;
+  }
 
   size = sizeof(pchatmessage->header) + sizeof(pchatmessage->num) + sizeof(pchatmessage->msgtype) +
          2 * length(text) + 2;
@@ -57,9 +57,10 @@ void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
 
 void clienthandlechatmessage(NetworkContext *netmessage)
 {
-  std::string cs = "";
-  std::string prefix = "";
-  std::int32_t i, d;
+  std::string cs;
+  std::string prefix;
+  std::int32_t i;
+  std::int32_t d;
   std::uint8_t msgtype;
   std::uint32_t col;
 
@@ -71,7 +72,9 @@ void clienthandlechatmessage(NetworkContext *netmessage)
   msgtype = pmsg_stringmessage(netmessage->packet)->msgtype;
 
   if (msgtype > msgtype_radio)
+  {
     return;
+  }
   // chat from server
   if (i == 255)
   {
@@ -80,28 +83,42 @@ void clienthandlechatmessage(NetworkContext *netmessage)
   }
 
   if ((i > 0) && (i < max_players))
+  {
     if (!SpriteSystem::Get().GetSprite(i).active)
+    {
       return;
+    }
+  }
 
-  if ((SpriteSystem::Get().GetSprite(i).muted == true) or muteall)
+  if ((SpriteSystem::Get().GetSprite(i).muted) or muteall)
+  {
     return;
+  }
 
   chatmessage[i] = cs;
   chatteam[i] = (msgtype == msgtype_team);
   d = std::count(cs.begin(), cs.end(), ' ');
 
   if (d == 0)
+  {
     chatdelay[i] = length(cs) * chardelay;
+  }
   else
+  {
     chatdelay[i] = d * spacechardelay;
+  }
 
   if (chatdelay[i] > max_chatdelay)
+  {
     chatdelay[i] = max_chatdelay;
+  }
 
   col = chat_message_color;
 
   if (SpriteSystem::Get().GetSprite(i).player->team == team_spectator)
+  {
     col = spectator_c_message_color;
+  }
   if ((msgtype == msgtype_team) || (msgtype == msgtype_radio))
   {
     col = teamchat_message_color;
@@ -109,8 +126,10 @@ void clienthandlechatmessage(NetworkContext *netmessage)
   }
 
   if (length(cs) < morechattext)
+  {
     GS::GetMainConsole().console(
       prefix + "[" + (SpriteSystem::Get().GetSprite(i).player->name) + "] " + cs, col);
+  }
   else
   {
     GS::GetMainConsole().console(

@@ -127,6 +127,7 @@ void Game<M>::updategamestats()
 
     s.add("Players list: (name/kills/deaths/team/ping)");
     if (playersnum > 0)
+    {
       for (i = 1; i <= playersnum; i++)
       {
         s.add(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->name);
@@ -135,6 +136,7 @@ void Game<M>::updategamestats()
         s.add(inttostr(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->team));
         s.add(inttostr(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->realping));
       }
+    }
 #ifndef SERVER
     s.add("");
     s.add("Server:");
@@ -161,13 +163,15 @@ void Game<M>::togglebullettime(bool turnon, std::int32_t duration)
     goalticks = default_goalticks / 3;
   }
   else
+  {
     goalticks = default_goalticks;
+  }
 
   number27timing();
 }
 
 template <Config::Module M>
-bool Game<M>::pointvisible(float x, float y, const std::int32_t i)
+auto Game<M>::pointvisible(float x, float y, const std::int32_t i) -> bool
 {
 #ifdef SERVER
   // TODO: check why numbers differ on server and client
@@ -177,7 +181,8 @@ bool Game<M>::pointvisible(float x, float y, const std::int32_t i)
   std::int32_t game_width;
   std::int32_t game_height;
 #endif
-  float sx, sy;
+  float sx;
+  float sy;
 
 #ifdef SERVER
   LogTraceG("PointVisible");
@@ -190,7 +195,9 @@ bool Game<M>::pointvisible(float x, float y, const std::int32_t i)
   bool result = false;
 
   if ((i > max_players) || (i < 1))
+  {
     return result;
+  }
 
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
 
@@ -201,12 +208,14 @@ bool Game<M>::pointvisible(float x, float y, const std::int32_t i)
 
   if ((x > (sx - game_width)) && (x < (sx + game_width)) && (y > (sy - game_height)) &&
       (y < (sy + game_height)))
+  {
     result = true;
+  }
   return result;
 }
 
 template <Config::Module M>
-bool Game<M>::pointvisible2(float x, float y, const std::int32_t i)
+auto Game<M>::pointvisible2(float x, float y, const std::int32_t i) -> bool
 {
 // TODO: check why numbers differ on server and client
 #ifdef SERVER
@@ -216,7 +225,8 @@ bool Game<M>::pointvisible2(float x, float y, const std::int32_t i)
   const std::int32_t game_width = 600;
   const std::int32_t game_height = 440;
 #endif
-  float sx, sy;
+  float sx;
+  float sy;
 
 #ifdef SERVER
   LogTraceG("PointVisible2");
@@ -231,24 +241,31 @@ bool Game<M>::pointvisible2(float x, float y, const std::int32_t i)
 
   if ((x > (sx - game_width)) && (x < (sx + game_width)) && (y > (sy - game_height)) &&
       (y < (sy + game_height)))
+  {
     result = true;
+  }
   return result;
 }
 
 #ifndef SERVER
 template <Config::Module M>
-bool Game<M>::ispointonscreen(const tvector2 &point)
+auto Game<M>::ispointonscreen(const tvector2 &point) -> bool
 {
-  float p1, p2;
+  float p1;
+  float p2;
 
   bool result;
   result = true;
   p1 = gamewidthhalf - (camerax - point.x);
   p2 = gameheighthalf - (cameray - point.y);
   if ((p1 < 0) || (p1 > gamewidth))
+  {
     result = false;
+  }
   if ((p2 < 0) || (p2 > gameheight))
+  {
     result = false;
+  }
   return result;
 }
 #endif
@@ -259,13 +276,16 @@ void Game<M>::startvote(std::uint8_t startervote, std::uint8_t typevote, std::st
 {
   VoteActive = true;
   if ((startervote < 1) || (startervote > max_players))
+  {
     VoteStarter = "Server";
+  }
   else
   {
     VoteStarter = SpriteSystem::Get().GetSprite(startervote).player->name;
     VoteCooldown[startervote] = default_vote_time;
 #ifndef SERVER
     if (startervote == mysprite)
+    {
       if (VoteType == vote_kick)
       {
         GS::GetMainConsole().console(("You have voted to kick ") +
@@ -278,6 +298,7 @@ void Game<M>::startvote(std::uint8_t startervote, std::uint8_t typevote, std::st
                 clientvotekick(strtoint(targetvote), true, "");
 #endif
       }
+    }
 #endif
   }
   VoteType = typevote;
@@ -317,11 +338,14 @@ void Game<M>::timervote()
   {
 #endif
     if (VoteTimeRemaining > -1)
+    {
       VoteTimeRemaining = VoteTimeRemaining - 1;
+    }
 
     if (VoteTimeRemaining == 0)
     {
       if (VoteType == vote_map)
+      {
         GS::GetMainConsole().console(
 #ifdef SERVER
           "No map has been voted",
@@ -329,6 +353,7 @@ void Game<M>::timervote()
           ("No map has been voted"),
 #endif
           vote_message_color);
+      }
       stopvote();
     }
 #ifdef SERVER
@@ -356,9 +381,13 @@ void Game<M>::countvote(std::uint8_t voter)
         i = strtoint(VoteTarget);
         // There should be no permanent bans by votes. Reduced to 1 day.
         if (cheattag[i] == 0)
+        {
           kickplayer(i, true, kick_voted, hour, "Vote Kicked");
+        }
         else
+        {
           kickplayer(i, true, kick_voted, day, "Vote Kicked by Server");
+        }
         dobalancebots(1, SpriteSystem::Get().GetSprite(i).player->team);
       }
       else if (VoteType == vote_map)
@@ -403,7 +432,7 @@ void Game<M>::showmapchangescoreboard(const std::string nextmap)
 }
 
 template <Config::Module M>
-bool Game<M>::isteamgame()
+auto Game<M>::isteamgame() -> bool
 {
   bool isteamgame_result;
   switch (CVar::sv_gamemode)
@@ -551,8 +580,12 @@ void Game<M>::changemap()
 
 #ifndef SERVER
     if (mysprite > 0)
+    {
       for (auto i = 1; i <= main_weapons; i++)
+      {
         limbomenu->button[i - 1].active = (bool)(weaponsel[mysprite][i]);
+      }
+    }
 #endif
   }
 
@@ -571,7 +604,9 @@ void Game<M>::changemap()
   statsmenushow = false;
 
   if (mysprite > 0)
+  {
     gamemenushow(limbomenu);
+  }
 #endif
 
 #ifdef SERVER
@@ -586,11 +621,15 @@ void Game<M>::changemap()
   {
     // red flag
     if (randomizestart(a, 5))
+    {
       teamflag[1] = creatething(a, 255, object_alpha_flag, 255);
+    }
 
     // blue flag
     if (randomizestart(a, 6))
+    {
       teamflag[2] = creatething(a, 255, object_bravo_flag, 255);
+    }
   }
 
   if (CVar::sv_gamemode == gamestyle_rambo)
@@ -606,7 +645,9 @@ void Game<M>::changemap()
 
     // spawn grenadekits
     if (CVar::sv_maxgrenades > 0)
+    {
       spawnthings(object_grenade_kit, map.grenades);
+    }
   }
 
   // stat gun
@@ -671,7 +712,9 @@ void Game<M>::changemap()
   if (CVar::demo_autorecord)
   {
     if (GS::GetDemoRecorder().active())
+    {
       GS::GetDemoRecorder().stoprecord();
+    }
 
     NotImplemented("no current time function");
 #if 0
@@ -724,13 +767,19 @@ void Game<M>::sortplayers()
       {
         playersnum += 1;
         if (sprite.player->controlmethod == bot)
+        {
           botsnum += 1;
+        }
 
         if (sprite.isspectator())
+        {
           spectatorsnum += 1;
+        }
 
         if (sprite.isnotsolo() && sprite.isnotspectator())
+        {
           playersteamnum[sprite.player->team] += 1;
+        }
 
         if (sprite.isnotspectator())
         {
@@ -749,7 +798,9 @@ void Game<M>::sortplayers()
 
         // Kill Limit
         if (mapchangecounter < 1)
+        {
           if (!isteamgame())
+          {
             if (sprite.player->kills >= CVar::sv_killlimit)
             {
 #ifndef SERVER
@@ -765,12 +816,15 @@ void Game<M>::sortplayers()
               nextmap();
 #endif
             }
+          }
+        }
       }
     }
   }
 
   // sort by caps first if new score board
   if (playersnum > 0)
+  {
     for (auto i = 1; i <= playersnum; i++)
     {
       for (j = i + 1; j <= playersnum; j++)
@@ -783,31 +837,50 @@ void Game<M>::sortplayers()
         }
       }
     }
+  }
 
   // sort by kills
   if (playersnum > 0)
+  {
     for (auto i = 1; i <= playersnum; i++)
+    {
       for (j = i + 1; j <= playersnum; j++)
+      {
         if (sortedplayers[j].flags == sortedplayers[i].flags)
+        {
           if (sortedplayers[j].kills > sortedplayers[i].kills)
           {
             temp = sortedplayers[i];
             sortedplayers[i] = sortedplayers[j];
             sortedplayers[j] = temp;
           } // if
+        }
+      }
+    }
+  }
 
   // final sort by deaths
   if (playersnum > 0)
+  {
     for (auto i = 1; i <= playersnum; i++)
+    {
       for (j = i + 1; j <= playersnum; j++)
+      {
         if (sortedplayers[j].flags == sortedplayers[i].flags)
+        {
           if (sortedplayers[j].kills == sortedplayers[i].kills)
+          {
             if (sortedplayers[j].deaths < sortedplayers[i].deaths)
             {
               temp = sortedplayers[i];
               sortedplayers[i] = sortedplayers[j];
               sortedplayers[j] = temp;
             }
+          }
+        }
+      }
+    }
+  }
 
 #ifndef SERVER
   // Sort Team Score
@@ -823,13 +896,17 @@ void Game<M>::sortplayers()
   sortedteamscore[4].color = (std::uint32_t(CVar::ui_status_transparency) << 24) | 0x5d205;
 
   for (auto i = 1; i <= 4; i++)
+  {
     for (j = i + 1; j <= 4; j++)
+    {
       if (sortedteamscore[j].kills > sortedteamscore[i].kills)
       {
         temp = sortedteamscore[i];
         sortedteamscore[i] = sortedteamscore[j];
         sortedteamscore[j] = temp;
       }
+    }
+  }
 #endif
 
 #ifdef SERVER
@@ -865,11 +942,13 @@ void Game<M>::sortplayers()
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     if (team_alpha >= sprite.player->team && sprite.player->team <= team_delta)
+    {
 #ifdef SERVER
       teamalivenum[sprite.player->team] += 1;
 #else
       teamplayersnum[sprite.player->team] += 1;
 #endif
+    }
   }
 }
 
@@ -896,13 +975,21 @@ void Game<M>::CalculateTeamAliveNum(int32_t player)
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     if (!sprite.deadmeat and (sprite.player->team == team_alpha))
+    {
       teamalivenum[team_alpha] += 1;
+    }
     if (!sprite.deadmeat and (sprite.player->team == team_bravo))
+    {
       teamalivenum[team_bravo] += 1;
+    }
     if (!sprite.deadmeat and (sprite.player->team == team_charlie))
+    {
       teamalivenum[team_charlie] += 1;
+    }
     if (!sprite.deadmeat and (sprite.player->team == team_delta))
+    {
       teamalivenum[team_delta] += 1;
+    }
   }
 
   teamalivenum[player] -= 1;
@@ -925,25 +1012,39 @@ void Game<M>::CalculateTeamAliveNum(int32_t player)
                   [](auto &sprite) { sprite.respawncounter = survival_respawntime; });
 
     if (!survivalendround)
+    {
       if (CVar::sv_gamemode == gamestyle_ctf)
       {
         if (teamalivenum[1] > 0)
+        {
           teamscore[1] += 1;
+        }
         if (teamalivenum[2] > 0)
+        {
           teamscore[2] += 1;
+        }
       }
+    }
     if (!survivalendround)
+    {
       if (CVar::sv_gamemode == gamestyle_inf)
       {
         if (teamalivenum[1] > 0)
+        {
           teamscore[1] += CVar::sv_inf_redaward;
+        }
 
         // penalty
         if (playersteamnum[1] > playersteamnum[2])
+        {
           teamscore[1] -= 5 * (playersteamnum[1] - playersteamnum[2]);
+        }
         if (teamscore[1] < 0)
+        {
           teamscore[1] = 0;
+        }
       }
+    }
 
     survivalendround = true;
 

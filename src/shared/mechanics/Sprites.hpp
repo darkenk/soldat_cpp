@@ -176,14 +176,14 @@ public:
   void kill();
   void die(std::int32_t how, std::int32_t who, std::int32_t where, std::int32_t what,
            tvector2 impact);
-  std::int32_t dropweapon();
+  auto dropweapon() -> std::int32_t;
   void legsapplyanimation(const AnimationType anim, std::int32_t curr);
   void bodyapplyanimation(const AnimationType anim, std::int32_t curr);
   void moveskeleton(float x1, float y1, bool fromzero);
-  bool checkmapcollision(float x, float y, std::int32_t area);
-  bool checkradiusmapcollision(float x, float y, bool hascollided);
-  bool checkmapverticescollision(float x, float y, float r, bool hascollided);
-  bool checkskeletonmapcollision(std::int32_t i, float x, float y);
+  auto checkmapcollision(float x, float y, std::int32_t area) -> bool;
+  auto checkradiusmapcollision(float x, float y, bool hascollided) -> bool;
+  auto checkmapverticescollision(float x, float y, float r, bool hascollided) -> bool;
+  auto checkskeletonmapcollision(std::int32_t i, float x, float y) -> bool;
   void handlespecialpolytypes(std::int32_t polytype, const tvector2 &pos);
   void applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32_t ammo = -1,
                         bool restoreprimarystate = false); // Ammo -1
@@ -202,20 +202,20 @@ public:
   void fire();
   void throwflag();
   void throwgrenade();
-  float getmoveacc();
-  tvector2 getcursoraimdirection();
-  tvector2 gethandsaimdirection();
-  bool issolo();
-  bool isnotsolo();
-  bool isinteam();
-  bool isspectator();
+  auto getmoveacc() -> float;
+  auto getcursoraimdirection() -> tvector2;
+  auto gethandsaimdirection() -> tvector2;
+  auto issolo() -> bool;
+  auto isnotsolo() -> bool;
+  auto isinteam() -> bool;
+  auto isspectator() -> bool;
   [[nodiscard]] bool isnotspectator() const { return player->team != team_spectator; }
-  bool isinsameteam(const Sprite &otherplayer);
-  bool isnotinsameteam(const Sprite &otherplayer);
-  bool canrespawn(bool deadmeatbeforerespawn);
+  auto isinsameteam(const Sprite &otherplayer) -> bool;
+  auto isnotinsameteam(const Sprite &otherplayer) -> bool;
+  auto canrespawn(bool deadmeatbeforerespawn) -> bool;
 
   void SetHealth(float health);
-  float GetHealth();
+  auto GetHealth() -> float;
 
   [[nodiscard]] bool IsActive() const { return active; }
 
@@ -224,7 +224,7 @@ public:
   void SetThirdWeapon(const tgun &gun);
 
   void CopyOldSpritePos();
-  tvector2 GetOldSpritePos(std::int32_t idx);
+  auto GetOldSpritePos(std::int32_t idx) -> tvector2;
 
 private:
   float Health;

@@ -16,8 +16,8 @@ SDL_GLContext gameglcontext;
 
 auto constexpr LOG = "input";
 
-bool bindkey(const std::string &key, const std::string &action, const std::string &command,
-             std::uint32_t modifier)
+auto bindkey(const std::string &key, const std::string &action, const std::string &command,
+             std::uint32_t modifier) -> bool
 {
   bool bindkey_result = false;
   tbind bind;
@@ -58,7 +58,7 @@ bool bindkey(const std::string &key, const std::string &action, const std::strin
   return bindkey_result;
 }
 
-pbind findkeybind(std::uint32_t keymods, SDL_Scancode keycode)
+auto findkeybind(std::uint32_t keymods, SDL_Scancode keycode) -> pbind
 {
   pbind findkeybind_result = nullptr;
 
@@ -84,7 +84,7 @@ void startinput()
   SDL_StopTextInput();
 }
 
-taction GetActionEnum(const std::string_view &name)
+auto GetActionEnum(const std::string_view &name) -> taction
 {
   static const std::map<std::string_view, taction> m{
     {"none", none},

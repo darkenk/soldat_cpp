@@ -15,16 +15,21 @@
 void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   tmsg_playerdisconnect *playermsg;
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
 
   if (!verifypacket(sizeof(tmsg_playerdisconnect), size, msgid_playerdisconnect))
+  {
     return;
+  }
 
   playermsg = pmsg_playerdisconnect(netmessage);
   i = player->spritenum;
 
   for (j = 0; j <= SpriteSystem::Get().GetSprite(i).bulletcheckamount; j++)
+  {
     SpriteSystem::Get().GetSprite(i).bulletcheck[j] = 0;
+  }
 
   SpriteSystem::Get().GetSprite(i).bulletcheckindex = 0;
   SpriteSystem::Get().GetSprite(i).bulletcheckamount = 0;
@@ -32,12 +37,14 @@ void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, Net
   messagesasecnum[playermsg->num] += 1;
 
   if ((GS::GetGame().IsVoteActive()) && (GS::GetGame().GetVoteType() == vote_kick))
+  {
     if (strtoint(GS::GetGame().GetVoteTarget()) == i)
     {
       kickplayer(i, true, kick_voted, five_minutes, "Vote Kicked (Left game)");
       GS::GetGame().stopvote();
       return;
     }
+  }
 
   switch (SpriteSystem::Get().GetSprite(i).player->team)
   {
@@ -72,17 +79,21 @@ void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, Net
   }
 
   for (j = 1; j <= max_players; j++)
-    if ((trim(tklist[j]) == "") || (tklist[j] == SpriteSystem::Get().GetSprite(i).player->ip))
+  {
+    if ((trim(tklist[j]).empty()) || (tklist[j] == SpriteSystem::Get().GetSprite(i).player->ip))
     {
       tklistkills[j] = SpriteSystem::Get().GetSprite(i).player->tkwarnings;
       tklist[j] = SpriteSystem::Get().GetSprite(i).player->ip;
       break;
     }
+  }
 
   serverplayerdisconnect(i, kick_leftgame);
 
   if (SpriteSystem::Get().GetSprite(i).isnotspectator())
+  {
     SpriteSystem::Get().GetSprite(i).dropweapon();
+  }
   SpriteSystem::Get().GetSprite(i).player->muted = 0;
   SpriteSystem::Get().GetSprite(i).player->tkwarnings = 0;
 
@@ -138,9 +149,10 @@ void servermapchange(std::uint8_t id)
   }
   else if ((SpriteSystem::Get().GetSprite(id).active) &&
            (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
+  {
     GetServerNetwork()->SendData(&mapchangemsg, sizeof(mapchangemsg),
-                                 SpriteSystem::Get().GetSprite(id).player->peer,
-                                 true);
+                                 SpriteSystem::Get().GetSprite(id).player->peer, true);
+  }
 }
 
 void serverflaginfo(std::uint8_t style, std::uint8_t who)
@@ -154,7 +166,9 @@ void serverflaginfo(std::uint8_t style, std::uint8_t who)
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     if (sprite.player->controlmethod == human)
+    {
       GetServerNetwork()->SendData(&flagmsg, sizeof(flagmsg), sprite.player->peer, true);
+    }
   }
 }
 
@@ -217,7 +231,9 @@ void serverhandlevotekick(tmsgheader* netmessage, std::int32_t size, NetworkServ
   std::int32_t i;
 
   if (!verifypacket(sizeof(tmsg_votekick), size, msgid_votekick))
+  {
     return;
+  }
 
   votekickmsg = pmsg_votekick(netmessage);
   i = player->spritenum;
@@ -227,7 +243,9 @@ void serverhandlevotekick(tmsgheader* netmessage, std::int32_t size, NetworkServ
     // if a vote against a player is in progress,
     // don't allow that player to vote against himself.
     if (GS::GetGame().GetVoteType() != vote_kick)
+    {
       return;
+    }
     if (strtoint(GS::GetGame().GetVoteTarget()) == i)
     {
       serversendstringmessage("A vote has been cast against you. You can not vote.", i, 255,
@@ -237,11 +255,15 @@ void serverhandlevotekick(tmsgheader* netmessage, std::int32_t size, NetworkServ
 
     // check if he already voted
     if (GS::GetGame().HasVoted(i))
+    {
       return;
+    }
 
     // check if the vote target is actually the target
     if (GS::GetGame().GetVoteTarget() != inttostr(votekickmsg->num))
+    {
       return;
+    }
 
 #ifdef SCRIPT
     scrptdispatcher.onvotekick(i, votekickmsg.num);
@@ -254,7 +276,9 @@ void serverhandlevotekick(tmsgheader* netmessage, std::int32_t size, NetworkServ
     {
       // only allow valid votes
       if ((votekickmsg->num < 1) || (votekickmsg->num > max_players))
+      {
         return;
+      }
       if (SpriteSystem::Get().GetSprite(i).player->muted == 1)
       {
         writeconsole(i, "You are muted. You can't cast a vote kick.", server_message_color);
@@ -286,13 +310,17 @@ void serverhandlevotemap(tmsgheader* netmessage, std::int32_t size, NetworkServe
   std::int32_t i;
 
   if (!verifypacket(sizeof(tmsg_votemap), size, msgid_votemap))
+  {
     return;
+  }
 
   votemapmsg = pmsg_votemap(netmessage);
   i = player->spritenum;
 
   if (votemapmsg->mapid > mapslist.size() - 1)
+  {
     return;
+  }
 
   votemapreplymsg.header.id = msgid_votemapreply;
   votemapreplymsg.count = mapslist.size();
@@ -308,7 +336,9 @@ void serverhandlechangeteam(tmsgheader* netmessage, std::int32_t size, NetworkSe
   std::int32_t i;
 
   if (!verifypacket(sizeof(tmsg_changeteam), size, msgid_changeteam))
+  {
     return;
+  }
   changeteammsg = pmsg_changeteam(netmessage);
   i = player->spritenum;
   SpriteSystem::Get().GetSprite(i).changeteam(changeteammsg->team);
@@ -321,9 +351,13 @@ void serversyncmsg(std::int32_t tonum)
   syncmsg.header.id = msgid_serversyncmsg;
   syncmsg.time = GS::GetGame().GetTimelimitcounter();
   if (GS::GetGame().GetMapchangecounter() == 999999999)
+  {
     syncmsg.pause = 1;
+  }
   else
+  {
     syncmsg.pause = 0;
+  }
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {

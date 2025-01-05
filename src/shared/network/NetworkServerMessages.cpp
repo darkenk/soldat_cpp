@@ -21,7 +21,9 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
   std::int32_t size;
 
   if (length(text) == 0)
+  {
     return;
+  }
 
   size = sizeof(tmsg_stringmessage) + length(text) + 1;
 
@@ -42,12 +44,15 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
       {
         if ((tonum == 0) || (sprite.num == tonum))
         {
-          if (!((from == 255) && (tonum == 0))) // TODO: Simplify it.
-            if ((!((msgtype == msgtype_team) || (msgtype == msgtype_radio)) || (from == 255)) or
+          if ((from != 255) || (tonum != 0))
+          { // TODO: Simplify it.
+            if ((((msgtype != msgtype_team) && (msgtype != msgtype_radio)) || (from == 255)) or
                 (((msgtype == msgtype_team) || (msgtype == msgtype_radio)) and
                  SpriteSystem::Get().GetSprite(from).isinsameteam(sprite)))
-              GetServerNetwork()->SendData(pchatmessage, size, sprite.player->peer,
-                                           true);
+            {
+              GetServerNetwork()->SendData(pchatmessage, size, sprite.player->peer, true);
+            }
+          }
         }
       }
     }
@@ -55,7 +60,9 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
   freemem(pchatmessage);
 
   if ((from < 1) || (from > max_players))
+  {
     return;
+  }
 
   // show text on servers side
   if (SpriteSystem::Get().GetSprite(from).player->controlmethod == bot)
@@ -67,9 +74,9 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
   }
 }
 
-static inline std::string U16toString(const std::u16string &wstr)
+static inline auto U16toString(const std::u16string &wstr) -> std::string
 {
-  std::string str = "";
+  std::string str;
   char cstr[3] = "\0";
   mbstate_t mbs;
   for (const auto &it : wstr)
@@ -84,23 +91,27 @@ static inline std::string U16toString(const std::u16string &wstr)
 
 void serverhandlechatmessage(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
-  std::string cs, cschat;
+  std::string cs;
+  std::string cschat;
   std::uint8_t msgtype;
 
   if (player->spritenum == 0)
+  {
     return;
+  }
 
   messagesasecnum[player->spritenum] += 1;
 
-  char16_t *v = reinterpret_cast<char16_t *>(
-    &(reinterpret_cast<pmsg_stringmessage>(netmessage)->text));
+  auto *v = reinterpret_cast<char16_t *>(&(reinterpret_cast<pmsg_stringmessage>(netmessage)->text));
   cs = U16toString(v);
   msgtype = pmsg_stringmessage(netmessage)->msgtype;
 
   LogDebug("net_msg", "Message {}", cs);
 
   if (msgtype > msgtype_radio)
+  {
     return;
+  }
 
   if (length(cs) > 100)
   {
@@ -129,24 +140,38 @@ void serverhandlechatmessage(tmsgheader* netmessage, std::int32_t size, NetworkS
   cschat = std::string("[") + (player->name) + "] " + cs;
 
   if (msgtype == msgtype_team)
+  {
     cschat = std::string("(TEAM) ") + cschat;
+  }
   if (msgtype == msgtype_radio)
+  {
     cschat = std::string("(RADIO) ") + cschat;
+  }
   if (player->muted == 1)
+  {
     cschat = std::string("(MUTED) ") + cschat;
+  }
 
   GS::GetMainConsole().console(cschat, chat_message_color);
 
   if (player->muted == 1)
+  {
     serversendstringmessage("(Muted)", all_players, player->spritenum, msgtype_pub);
+  }
   else
+  {
     serversendstringmessage(cs, all_players, player->spritenum, msgtype);
+  }
 
   if (player->muted == 1)
+  {
     return; // cs := "(Muted)";
+  }
 
   if (msgtype == msgtype_team)
+  {
     cs = iif(msgtype == msgtype_radio, "*", "^") + cs;
+  }
 
 #ifdef SCRIPT
   scrptdispatcher.onplayerspeak(player.spritenum, std::string(cs));
@@ -177,9 +202,12 @@ void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     if (sprite.player->controlmethod == human)
+    {
       if ((tonum == 0) || (sprite.num == tonum))
-        GetServerNetwork()->SendData(pchatmessage, size, sprite.player->peer,
-                                     true);
+      {
+        GetServerNetwork()->SendData(pchatmessage, size, sprite.player->peer, true);
+      }
+    }
   }
 
   freemem(pchatmessage);

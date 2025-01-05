@@ -33,7 +33,7 @@ using std::numbers::pi;
 #endif // SOLDAT_UTBOT
 
 template <Config::Module M>
-particlesystem &GetBulletParts()
+auto GetBulletParts() -> particlesystem &
 {
   static particlesystem b;
   return b;
@@ -42,9 +42,9 @@ particlesystem &GetBulletParts()
 template particlesystem &GetBulletParts();
 
 template <Config::Module M>
-std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int32_t sowner,
-                          std::uint8_t n, float hitm, bool net, bool mustcreate,
-                          std::uint16_t seed) // Seed = -1
+auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int32_t sowner,
+                  std::uint8_t n, float hitm, bool net, bool mustcreate,
+                  std::uint16_t seed) -> std::int32_t // Seed = -1
 {
 #ifndef SERVER
   std::int32_t j;
@@ -63,8 +63,12 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
 #ifndef SERVER
   {
     if (demoplayer.active())
+    {
       if (!mustcreate)
+      {
         return result;
+      }
+    }
   }
 #endif
 
@@ -152,14 +156,18 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
     (sowner == camerafollowsprite) ||
 #endif
     (sstyle == bullet_style_flamearrow) || (sstyle == bullet_style_flame))
+  {
     b.whizzed = true;
+  }
 
   if (SpriteSystem::Get().GetSprite(sowner).player->controlmethod == human)
   {
     b.ownerpingtick = SpriteSystem::Get().GetSprite(sowner).player->pingticksb;
   }
   else
+  {
     b.ownerpingtick = 0;
+  }
 
   b.ownerweapon = snum;
   b.hitbody = 0;
@@ -169,7 +177,9 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
 
 #ifndef SERVER // TODO: Check if this should be used also in server
   if (SpriteSystem::Get().GetSprite(sowner).aimdistcoef < defaultaimdist)
+  {
     b.tracking = 255;
+  }
 
   b.imagestyle = SpriteSystem::Get().GetSprite(sowner).weapon.bulletimagestyle;
 #else
@@ -187,9 +197,13 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
   {
     if (SpriteSystem::Get().GetSprite(sowner).bulletcount ==
         std::numeric_limits<std::uint16_t>::max())
+    {
       SpriteSystem::Get().GetSprite(sowner).bulletcount = 0;
+    }
     else
+    {
       SpriteSystem::Get().GetSprite(sowner).bulletcount += 1;
+    }
     seed = SpriteSystem::Get().GetSprite(sowner).bulletcount;
   }
   b.seed = seed;
@@ -201,11 +215,13 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
   mass = 1.0;
 
   if (!mustcreate)
+  {
     if (sstyle == bullet_style_flame)
     {
       spos.x = spos.x + svelocity.x;
       spos.y = spos.y + svelocity.y;
     }
+  }
 
   b.initial = spos;
 
@@ -245,48 +261,74 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
     if (b.style == bullet_style_fragnade)
     {
       if (wepstats[18].shots == 0)
+      {
         wepstats[18].textureid = GFX::INTERFACE_NADE;
+      }
       wepstats[18].shots = wepstats[18].shots + 1;
       if (wepstatsnum == 0)
+      {
         wepstatsnum = 1;
-      if (wepstats[18].name == "")
+      }
+      if (wepstats[18].name.empty())
+      {
         wepstats[18].name = "Grenade";
+      }
     }
     else if ((b.style == bullet_style_cluster) || (b.style == bullet_style_clusternade))
     {
       if (wepstats[19].shots == 0)
+      {
         wepstats[19].textureid = GFX::INTERFACE_CLUSTER_NADE;
+      }
       wepstats[19].shots = wepstats[19].shots + 1;
       if (wepstatsnum == 0)
+      {
         wepstatsnum = 1;
-      if (wepstats[19].name == "")
+      }
+      if (wepstats[19].name.empty())
+      {
         wepstats[19].name = "Clusters";
+      }
     }
     else if (b.style == bullet_style_m2)
     {
       if (wepstats[20].shots == 0)
+      {
         wepstats[20].textureid = GFX::INTERFACE_GUNS_M2;
+      }
       wepstats[20].shots = wepstats[20].shots + 1;
       if (wepstatsnum == 0)
+      {
         wepstatsnum = 1;
-      if (wepstats[20].name == "")
+      }
+      if (wepstats[20].name.empty())
+      {
         wepstats[20].name = "Stationary gun";
+      }
     }
     else if (b.style == bullet_style_punch)
     {
       if (wepstats[17].shots == 0)
+      {
         wepstats[17].textureid = GFX::INTERFACE_GUNS_FIST;
+      }
       wepstats[17].shots = wepstats[17].shots + 1;
       if (wepstatsnum == 0)
+      {
         wepstatsnum = 1;
-      if (wepstats[17].name == "")
+      }
+      if (wepstats[17].name.empty())
+      {
         wepstats[17].name = "Hands";
+      }
     }
     else
     {
       j = SpriteSystem::Get().GetSprite(mysprite).weapon.num;
       if (j == noweapon_num)
+      {
         j = 17;
+      }
 
       if (wepstats[j].shots == 0)
       {
@@ -347,9 +389,13 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
       }
       wepstats[j].shots = wepstats[j].shots + 1;
       if (wepstatsnum == 0)
+      {
         wepstatsnum = 1;
-      if (wepstats[j].name == "")
+      }
+      if (wepstats[j].name.empty())
+      {
         wepstats[j].name = SpriteSystem::Get().GetSprite(mysprite).weapon.name;
+      }
     }
   }
 #else
@@ -384,8 +430,8 @@ std::int32_t createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, 
   return result;
 }
 #ifdef SERVER
-std::int32_t servercreatebullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum,
-                                std::int32_t sowner, std::uint8_t n, float hitm, bool net)
+auto servercreatebullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int32_t sowner,
+                        std::uint8_t n, float hitm, bool net) -> std::int32_t
 {
   std::int32_t i;
 
@@ -394,7 +440,9 @@ std::int32_t servercreatebullet(tvector2 spos, tvector2 svelocity, std::uint8_t 
   auto &bullet = GS::GetBulletSystem().GetBullets();
 
   if ((sowner <= 0) || (sowner >= max_sprites))
+  {
     return result;
+  }
 
   i = createbullet(spos, svelocity, snum, sowner, n, hitm, net, true, 0);
 
@@ -402,7 +450,9 @@ std::int32_t servercreatebullet(tvector2 spos, tvector2 svelocity, std::uint8_t 
   bullet[i].dontcheat = true;
 
   if (net)
+  {
     serverbulletsnapshot(i, 0, true);
+  }
 
   result = i;
   return result;
@@ -410,16 +460,19 @@ std::int32_t servercreatebullet(tvector2 spos, tvector2 svelocity, std::uint8_t 
 #endif
 
 template <Config::Module M>
-bool bulletcansend(float x, float y, const std::int32_t i, float vx)
+auto bulletcansend(float x, float y, const std::int32_t i, float vx) -> bool
 {
-  float sx, sy;
+  float sx;
+  float sy;
 
   bool result;
   LogTraceG("BulletCanSend");
   result = false;
 
   if ((i > max_players) || (i < 0))
+  {
     return result;
+  }
 
   if (i == 0)
   {
@@ -436,18 +489,30 @@ bool bulletcansend(float x, float y, const std::int32_t i, float vx)
 #ifdef SERVER
   if ((x > (sx - max_game_width)) && (x < (sx + max_game_width)) && (y > (sy - 480)) &&
       (y < (sy + 480)))
+  {
     result = true;
+  }
   if ((x > (sx - 1640)) && (x < (sx + 1640)) && (y > (sy - 680)) && (y < (sy + 680)))
+  {
     if (((sx < x) && (vx < 0)) || ((sx > x) && (vx > 0)))
+    {
       result = true;
+    }
+  }
 #else
   if ((x > (sx - gamewidth)) && (x < (sx + gamewidth)) && (y > (sy - gameheight)) &&
       (y < (sy + gameheight)))
+  {
     result = true;
+  }
 
   if ((x > (sx - 1640)) && (x < (sx + 1640)) && (y > (sy - 680)) && (y < (sy + 680)))
+  {
     if (((sx < x) && (vx < 0)) || ((sx > x) && (vx > 0)))
+    {
       result = true;
+    }
+  }
 #endif
   return result;
 }
@@ -455,7 +520,7 @@ bool bulletcansend(float x, float y, const std::int32_t i, float vx)
 template bool bulletcansend<Config::GetModule()>(float x, float y, std::int32_t i, float vx);
 
 #ifndef SERVER
-bool canhitspray(std::int32_t victim, std::int32_t attacker)
+auto canhitspray(std::int32_t victim, std::int32_t attacker) -> bool
 {
   bool result;
   result = false;
@@ -479,12 +544,18 @@ void hitspray()
 
   bink = SpriteSystem::Get().GetSprite(mysprite).weapon.bink;
   if (bink > 0)
+  {
     hitspraycounter = calculatebink(hitspraycounter, bink);
+  }
 }
 
 void calculaterecoil(float px, float py, float &cx, float &cy, float da)
 {
-  float dx, dy, radius, alpha, displacementx;
+  float dx;
+  float dy;
+  float radius;
+  float alpha;
+  float displacementx;
   // M: TVector2;
 
   displacementx = 0;
@@ -507,7 +578,7 @@ void calculaterecoil(float px, float py, float &cx, float &cy, float da)
   // Depending on is cursor is on left/right side do different things
   if (dx > 0)
   {
-    alpha = atan((float)(dy) / dx);
+    alpha = atan(dy / dx);
     alpha = alpha + da;
 
     if (alpha > pi / 2)
@@ -517,7 +588,7 @@ void calculaterecoil(float px, float py, float &cx, float &cy, float da)
   }
   else
   {
-    alpha = atan((float)(dy) / dx) + pi;
+    alpha = atan(dy / dx) + pi;
     alpha = alpha - da;
     if (alpha < pi / 2)
     {
@@ -537,10 +608,10 @@ void calculaterecoil(float px, float py, float &cx, float &cy, float da)
 
   cx = px + ((dx + cos(alpha) * radius) /
              SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef) *
-              ((float)(SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef) / 2);
+              (SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef / 2);
   cy = py + ((dy + sin(alpha) * radius) /
              SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef) *
-              ((float)(SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef) / 2);
+              (SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef / 2);
 
   // Lastly make sure that cursor is still at the same side as it was first
   if (dx > 0)
@@ -567,10 +638,14 @@ void calculaterecoil(float px, float py, float &cx, float &cy, float da)
 template <Config::Module M>
 void Bullet<M>::update()
 {
-  tvector2 oldv, a;
+  tvector2 oldv;
+  tvector2 a;
   float dist;
-  tvector2 oldp, oldop;
-  tvector2 hitp, hitp2, hitp3;
+  tvector2 oldp;
+  tvector2 oldop;
+  tvector2 hitp;
+  tvector2 hitp2;
+  tvector2 hitp3;
 
   LogTraceG("TBullet.Update");
 
@@ -589,7 +664,9 @@ void Bullet<M>::update()
 
   // check collision with map
   if (style != bullet_style_fragnade)
+  {
     hitp = checkmapcollision(GetBulletParts().pos[num].x, GetBulletParts().pos[num].y);
+  }
   else
   {
     hitp = checkmapcollision(GetBulletParts().pos[num].x, GetBulletParts().pos[num].y - 2);
@@ -613,9 +690,13 @@ void Bullet<M>::update()
   if (!active)
   {
     if (hitp2.x == 0)
+    {
       a = vec2subtract(hitp, oldop);
+    }
     else
+    {
       a = vec2subtract(hitp2, oldop);
+    }
 
     dist = vec2length(a);
     GetBulletParts().velocity[num] = oldv;
@@ -631,12 +712,18 @@ void Bullet<M>::update()
     if (hitp3.x == 0)
     {
       if (hitp2.x == 0)
+      {
         a = vec2subtract(hitp, oldop);
+      }
       else
+      {
         a = vec2subtract(hitp2, oldop);
+      }
     }
     else
+    {
       a = vec2subtract(hitp3, oldop);
+    }
 
     dist = vec2length(a);
   }
@@ -712,8 +799,12 @@ void Bullet<M>::update()
 #ifndef SERVER
   // Bullet Tracking
   if (owner == mysprite)
+  {
     if (tracking == 255)
+    {
       tracking = owner;
+    }
+  }
 
   if (tracking == mysprite)
   {
@@ -730,11 +821,15 @@ void Bullet<M>::update()
 
   // his sound
   if ((timeout == bullet_timeout - 25) && (style != bullet_style_shotgun))
+  {
     playsound(SfxEffect::bulletby, GetBulletParts().pos[num]);
+  }
 
   // whiizz above head
   if (!whizzed)
+  {
     if (style != bullet_style_punch)
+    {
       if (camerafollowsprite > 0)
       {
         const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(camerafollowsprite);
@@ -747,16 +842,22 @@ void Bullet<M>::update()
           whizzed = true;
         }
       }
+    }
+  }
 
   // fire for flaming arrow
   if (style == bullet_style_flamearrow)
   {
     // smoke
     if (Random(2) == 0)
+    {
       createspark(GetBulletParts().pos[num], vector2(0, -0.5), 37, num, 40);
+    }
 
     if (Random(2) == 0)
+    {
       createspark(GetBulletParts().pos[num], vector2(0, -0.5), 36, num, 40);
+    }
   }
 
   // law missile smoke
@@ -765,17 +866,22 @@ void Bullet<M>::update()
     // smoke
     createspark(GetBulletParts().pos[num], vector2(0, -1.5), 59, num, 50);
     if (Random(2) == 0)
+    {
       createspark(GetBulletParts().pos[num], GetBulletParts().velocity[num], 2, num, 5);
+    }
   }
 #endif
 
   // flame
   if (style == bullet_style_flame)
+  {
     GetBulletParts().forces[num].y = GetBulletParts().forces[num].y - 0.15;
+  }
 
 #ifndef SERVER
   // bleed
   if (hitbody > 0)
+  {
     if (Random(5) == 0)
     {
       createspark(
@@ -783,6 +889,7 @@ void Bullet<M>::update()
         vector2(GetBulletParts().velocity[num].x * 0.5, GetBulletParts().velocity[num].y * 0.5), 4,
         owner, 90);
     }
+  }
 #endif
 }
 
@@ -790,11 +897,18 @@ void Bullet<M>::update()
 template <Config::Module M>
 void Bullet<M>::render(double timeelapsed)
 {
-  tvector2 bulletpos, bulletvel;
-  tvector2 _p, _p2, _scala, a, b;
-  float roto, alfa;
+  tvector2 bulletpos;
+  tvector2 bulletvel;
+  tvector2 _p;
+  tvector2 _p2;
+  tvector2 _scala;
+  tvector2 a;
+  tvector2 b;
+  float roto;
+  float alfa;
   float grenvel = 0.0;
-  float ox, oy;
+  float ox;
+  float oy;
   float sinusvar;
 
   tgfxspritearray &t = textures;
@@ -803,12 +917,22 @@ void Bullet<M>::render(double timeelapsed)
   auto &map = GS::GetGame().GetMap();
 
   if (CVar::sv_realisticmode)
+  {
     if ((owner > 0) && (owner < max_sprites + 1))
+    {
       if (SpriteSystem::Get().GetSprite(owner).IsActive())
+      {
         if (SpriteSystem::Get().GetSprite(owner).visible == 0)
+        {
           if (map.raycast(bulletpos, SpriteSystem::Get().GetSprite(mysprite).skeleton.pos[9],
                           grenvel, gamewidth, true))
+          {
             return;
+          }
+        }
+      }
+    }
+  }
 
   bulletvel = GetBulletParts().velocity[num];
   sinusvar = sin(timeoutfloat + 5.1 * timeelapsed);
@@ -829,7 +953,9 @@ void Bullet<M>::render(double timeelapsed)
           (imagestyle != guns[m249].bulletimagestyle) &&
           (imagestyle != guns[minigun].bulletimagestyle) &&
           (imagestyle != guns[colt].bulletimagestyle))
+      {
         imagestyle = guns[colt].bulletimagestyle;
+      }
 
       _p.x = bulletpos.x + bulletvel.x;
       _p.y = bulletpos.y + bulletvel.y;
@@ -842,13 +968,19 @@ void Bullet<M>::render(double timeelapsed)
       alfa = ((hitmultiply * _scala.x * _scala.x) / 4.63) * 255;
 
       if (alfa > 230)
+      {
         alfa = 230;
+      }
       if (alfa < 50)
+      {
         alfa = 50;
+      }
 
       if (pingadd < 1)
+      {
         gfxdrawsprite(t[imagestyle], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                       rgba(0xffffff, round(alfa)));
+      }
 
       if (pingadd > 0)
       {
@@ -859,15 +991,20 @@ void Bullet<M>::render(double timeelapsed)
         b.y = 1;
 
         if (active)
-          alfa = (float)(alfa) / 6;
+        {
+          alfa = alfa / 6;
+        }
         else
-          alfa = (float)(alfa) / 4;
+        {
+          alfa = alfa / 4;
+        }
         gfxdrawsprite(t[imagestyle], _p.x, _p.y, b.x, b.y, 0, 0, roto, rgba(0xffffff, round(alfa)));
       }
 
       if (hitbody > 0)
       {
         if (trails == 1)
+        {
           if (timeoutfloat < bullet_timeout - 7)
           {
             _p.x = bulletpos.x;
@@ -877,6 +1014,7 @@ void Bullet<M>::render(double timeelapsed)
             gfxdrawsprite(t[imagestyle], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                           rgba(0xffdddd, bulletalpha / 2));
           }
+        }
       }
       else
       {
@@ -899,27 +1037,37 @@ void Bullet<M>::render(double timeelapsed)
   case bullet_style_fragnade: {
     grenvel = vec2length(bulletvel);
     if (trails == 1)
+    {
       if (timeoutfloat < grenade_timeout - 3)
       {
         if (bulletvel.y > 0)
+        {
           ox = -1;
+        }
         else
+        {
           ox = 1;
+        }
         if (bulletvel.x > 0)
+        {
           oy = 1;
+        }
         else
+        {
           oy = -1;
+        }
 
         _p.x = bulletpos.x + ox;
         _p.y = bulletpos.y - 3 + oy;
         _p2.x = _p.x - bulletvel.x;
         _p2.y = _p.y - bulletvel.y;
         roto = -angle2points(_p, _p2);
-        _scala.x = (float)(grenvel) / 3;
+        _scala.x = grenvel / 3;
         _scala.y = 1;
         gfxdrawsprite(t[GFX::WEAPONS_BULLET], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                       rgba(0x64ff64, round(bulletalpha * 0.75)));
       }
+    }
 
     _p.x = bulletpos.x - 1;
     _p.y = bulletpos.y - 4;
@@ -940,6 +1088,7 @@ void Bullet<M>::render(double timeelapsed)
       gfxdrawsprite(t[GFX::WEAPONS_SPAS_BULLET], _p.x, _p.y, 0, 0, roto, rgba(0xffffff, 150));
 
       if (trails == 1)
+      {
         if (timeoutfloat < bullet_timeout - 3)
         {
           _p.x = bulletpos.x;
@@ -949,6 +1098,7 @@ void Bullet<M>::render(double timeelapsed)
           gfxdrawsprite(t[GFX::WEAPONS_BULLET], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                         rgba(0xffffff, bulletalpha / 5));
         }
+      }
     }
     break;
 
@@ -966,16 +1116,25 @@ void Bullet<M>::render(double timeelapsed)
                     degtorad(timeoutfloat * 6), rgba(0xffffff, 252));
 
       if (trails == 1)
+      {
         if (timeoutfloat < bullet_timeout - 4)
         {
           if (bulletvel.y > 0)
+          {
             ox = -1;
+          }
           else
+          {
             ox = 1;
+          }
           if (bulletvel.x > 0)
+          {
             oy = 1;
+          }
           else
+          {
             oy = -1;
+          }
 
           _p.x = bulletpos.x + ox;
           _p.y = bulletpos.y + oy;
@@ -984,6 +1143,7 @@ void Bullet<M>::render(double timeelapsed)
           gfxdrawsprite(t[GFX::WEAPONS_BULLET], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                         rgba(0xffff55, bulletalpha));
         }
+      }
     }
     break;
 
@@ -991,9 +1151,10 @@ void Bullet<M>::render(double timeelapsed)
     _p.x = bulletpos.x - 8;
     _p.y = bulletpos.y - 17;
     if ((timeoutfloat > 0) && (timeoutfloat <= flamer_timeout))
-      gfxdrawsprite(
-        t[GFX::SPARKS_FLAMES_EXPLODE16 - (std::int32_t)trunc((float)(timeoutfloat) / 2)], _p.x,
-        _p.y);
+    {
+      gfxdrawsprite(t[GFX::SPARKS_FLAMES_EXPLODE16 - (std::int32_t)trunc(timeoutfloat / 2)], _p.x,
+                    _p.y);
+    }
   }
   break;
 
@@ -1008,6 +1169,7 @@ void Bullet<M>::render(double timeelapsed)
       gfxdrawsprite(t[GFX::WEAPONS_ARROW], _p.x, _p.y, 0, 0, roto);
 
       if (trails == 1)
+      {
         if (timeoutfloat > arrow_resist)
         {
           _p.x = bulletpos.x;
@@ -1017,6 +1179,7 @@ void Bullet<M>::render(double timeelapsed)
           gfxdrawsprite(t[GFX::WEAPONS_BULLET], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                         rgba(0xffffff, bulletalpha / 7));
         }
+      }
     }
     break;
 
@@ -1078,9 +1241,13 @@ void Bullet<M>::render(double timeelapsed)
     roto = timeoutfloat / pi;
 
     if (bulletvel.x >= 0)
+    {
       gfxdrawsprite(t[GFX::WEAPONS_KNIFE], _p.x, _p.y, 4, 1, roto);
+    }
     else
+    {
       gfxdrawsprite(t[GFX::WEAPONS_KNIFE2], _p.x, _p.y, 4, 1, -roto);
+    }
   }
   break;
 
@@ -1129,17 +1296,23 @@ void Bullet<M>::kill()
 
   active = false;
   if (num > 0)
+  {
     GetBulletParts().active[num] = false;
+  }
   setlength(thingcollisions, 0);
 }
 
 template <Config::Module M>
-tvector2 Bullet<M>::checkmapcollision(float x, float y)
+auto Bullet<M>::checkmapcollision(float x, float y) -> tvector2
 {
   ZoneScopedN("Bullet::CheckMapCollision");
   float largestvelocitycomponent;
   std::int32_t b;
-  tvector2 pos, perp, step, temp, temp2;
+  tvector2 pos;
+  tvector2 perp;
+  tvector2 step;
+  tvector2 temp;
+  tvector2 temp2;
   float d = 0.0;
   std::int32_t detacc;
   std::int32_t tempint = 0;
@@ -1161,7 +1334,9 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
   detacc = trunc(largestvelocitycomponent / 2.5);
 
   if (detacc == 0)
+  {
     detacc = 1;
+  }
   vec2scale(step, GetBulletParts().velocity[num], (float)(1) / detacc);
 
   // make steps for accurate collision detection
@@ -1183,9 +1358,11 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
       const auto &polytype = w.Type;
       teamcol = teamcollides(polytype, SpriteSystem::Get().GetSprite(owner).player->team, true);
       if (teamcol)
+      {
         if ((polytype != poly_type_only_player) && (polytype != poly_type_doesnt) &&
             (polytype != poly_type_only_flaggers) && (polytype != poly_type_not_flaggers) &&
             (polytype != poly_type_background) && (polytype != poly_type_background_transition))
+        {
           if (map.pointinpolyedges(pos.x, pos.y, w.Index))
           {
             switch (style)
@@ -1221,7 +1398,7 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                 hitspot = GetBulletParts().pos[num];
 
                 vec2normalize(perp, GetBulletParts().velocity[num]);
-                vec2scale(perp, perp, (float)(d) / 6);
+                vec2scale(perp, perp, d / 6);
                 GetBulletParts().oldpos[num] = GetBulletParts().pos[num];
                 pos.x = GetBulletParts().pos[num].x + perp.x;
                 pos.y = GetBulletParts().pos[num].y + perp.y;
@@ -1238,11 +1415,13 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                         (polytype != poly_type_background_transition) and
                         teamcollides(polytype, SpriteSystem::Get().GetSprite(owner).player->team,
                                      true))
+                    {
                       if (map.pointinpolyedges(pos.x, pos.y, w2.Index))
                       {
                         kill();
                         break;
                       }
+                    }
                   }
                 }
               }
@@ -1276,10 +1455,14 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
               GetBulletParts().forces[num].y =
                 GetBulletParts().forces[num].y - GetBulletParts().gravity;
               if (timeout > arrow_resist)
+              {
                 timeout = arrow_resist;
+              }
               if (timeout < 20)
+              {
                 GetBulletParts().forces[num].y =
                   GetBulletParts().forces[num].y + GetBulletParts().gravity;
+              }
             }
             break;
             case bullet_style_fragnade:
@@ -1287,11 +1470,13 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
 #ifndef SERVER
               // bounce sound
               if (style == bullet_style_fragnade)
+              {
                 if (vec2length(GetBulletParts().velocity[num]) > 1.5)
                 {
                   const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
                   playsound(SfxEffect::grenade_bounce, spritePartsPos);
                 }
+              }
 #endif
 
               perp = map.closestperpendicular(w.Index, GetBulletParts().pos[num], d, tempint);
@@ -1306,8 +1491,12 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                         grenade_surfacecoef);
 
               if (style == bullet_style_flame)
+              {
                 if (timeout > 16)
+                {
                   timeout = 16;
+                }
+              }
             }
             break;
             case bullet_style_m79:
@@ -1339,7 +1528,7 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                 hitspot = GetBulletParts().pos[num];
 
                 vec2normalize(perp, GetBulletParts().velocity[num]);
-                vec2scale(perp, perp, (float)(d) / 6);
+                vec2scale(perp, perp, d / 6);
 
                 pos.x = GetBulletParts().pos[num].x + perp.x;
                 pos.y = GetBulletParts().pos[num].y + perp.y;
@@ -1356,11 +1545,13 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
                         (polytype != poly_type_background_transition) and
                         teamcollides(polytype, SpriteSystem::Get().GetSprite(owner).player->team,
                                      true))
+                    {
                       if (map.pointinpolyedges(pos.x, pos.y, w2.Index))
                       {
                         kill();
                         break;
                       }
+                    }
                   }
                 }
               }
@@ -1416,29 +1607,39 @@ tvector2 Bullet<M>::checkmapcollision(float x, float y)
             result = pos;
             return result;
           } // PointinPolyEdges
+        }
+      }
     }       // for j
   }         // for b
   return result;
 }
 
 template <Config::Module M>
-tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
+auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
 {
   ZoneScopedN("Bullet::CheckSpriteCollision");
   const std::array<std::int32_t, 7> bodypartspriority = {{12, 11, 10, 6, 5, 4, 3}};
   tspriteindexes spritesbydistance;
-  std::int32_t spritecount, spritecounter;
+  std::int32_t spritecount;
+  std::int32_t spritecounter;
   std::int32_t j;
-  tvector2 pos, norm, colpos, a, col;
+  tvector2 pos;
+  tvector2 norm;
+  tvector2 colpos;
+  tvector2 a;
+  tvector2 col;
   tvector2 bulletvelocity;
   particlesystem *candidateskeleton;
   std::int32_t bodypartpriorityindex;
   std::int32_t bodypartid;
   tvector2 bodypartoffset;
-  tvector2 buttstockpositionoffset, startpoint, endpoint;
+  tvector2 buttstockpositionoffset;
+  tvector2 startpoint;
+  tvector2 endpoint;
   std::uint8_t where;
   std::uint8_t weaponindex;
-  float dist, mindist;
+  float dist;
+  float mindist;
   std::int32_t r;
   tvector2 bulletpush;
   std::int32_t pushtick;
@@ -1457,7 +1658,9 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
             tracking);
 
   if ((style == bullet_style_arrow) && (timeout <= arrow_resist))
+  {
     return result;
+  }
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
@@ -1482,9 +1685,13 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 
       where = 0;
       if (style != bullet_style_fragnade)
+      {
         r = part_radius;
+      }
       else
+      {
         r = part_radius + 1;
+      }
 
 #ifdef SERVER
       LogTraceG("TBullet.CheckSpriteCollision 3 -- {}", j);
@@ -1525,7 +1732,9 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
         // like that (don't need to do it for melee weapons though because their offsets
         // cancel each other out)
         if ((style != bullet_style_punch) && (style != bullet_style_knife))
+        {
           colpos.x = colpos.x - 2;
+        }
 
         if (linecirclecollision(startpoint, endpoint, colpos, r, pos))
         {
@@ -1576,16 +1785,22 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
           if (((nocollision & weapon_nocollision_enemy) != 0) and
               (SpriteSystem::Get().GetSprite(j).isnotinsameteam(
                 SpriteSystem::Get().GetSprite(owner))))
+          {
             continue;
+          }
 
           if (((nocollision & weapon_nocollision_team) != 0) and
               (SpriteSystem::Get().GetSprite(j).isinsameteam(
                 SpriteSystem::Get().GetSprite(owner))) &&
               (j != owner))
+          {
             continue;
+          }
 
           if (((nocollision & weapon_nocollision_self) != 0) && (owner == j))
+          {
             continue;
+          }
 
           if (SpriteSystem::Get().GetSprite(j).ceasefirecounter < 0)
           {
@@ -1601,7 +1816,9 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                 pushtick =
                   SpriteSystem::Get().GetSprite(j).player->pingticks / 2 + ownerpingtick + 1;
                 if (pushtick > max_pushtick)
+                {
                   pushtick = max_pushtick;
+                }
                 SpriteSystem::Get().GetSprite(j).nextpush[pushtick] =
                   vec2add(SpriteSystem::Get().GetSprite(j).nextpush[pushtick], bulletpush);
               }
@@ -1638,17 +1855,25 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
               vec2scale(a, a, 3);
               a = vec2add(GetBulletParts().pos[num], a);
               if (CVar::r_maxsparks > (max_sparks - 10))
+              {
                 createspark(a, a, 50, j, 31);
+              }
 
               // Shread clothes
               if (CVar::r_maxsparks > (max_sparks - 10))
               {
                 if (where <= 4)
+                {
                   clothesshreadstyle = 49; // Piece of clothing with pants
+                }
                 else if (where <= 11)
+                {
                   clothesshreadstyle = 48; // Piece of clothing
+                }
                 else
+                {
                   clothesshreadstyle = 0;
+                }
 
                 if (clothesshreadstyle > 0)
                 {
@@ -1668,21 +1893,33 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
               if (SpriteSystem::Get().GetSprite(j).vest < 1)
               {
                 if (!SpriteSystem::Get().GetSprite(j).deadmeat)
+                {
                   playsound(SfxEffect::hit_arg + Random(3), GetBulletParts().pos[num]);
+                }
                 else
+                {
                   playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
+                }
               }
               else
+              {
                 playsound(SfxEffect::vesthit, GetBulletParts().pos[num]);
+              }
 #endif
 
               // Head, torso or leg hitbox modifier
               if (where <= 4)
+              {
                 hitboxmodifier = guns[weaponnumtoindex(ownerweapon, guns)].modifierlegs;
+              }
               else if (where <= 11)
+              {
                 hitboxmodifier = guns[weaponnumtoindex(ownerweapon, guns)].modifierchest;
+              }
               else
+              {
                 hitboxmodifier = guns[weaponnumtoindex(ownerweapon, guns)].modifierhead;
+              }
 
               speed = vec2length(bulletvelocity);
 
@@ -1698,7 +1935,9 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 #ifndef SERVER
               // hit Spray
               if (canhitspray(j, owner))
+              {
                 hitspray();
+              }
 #endif
 
 #ifdef SERVER
@@ -1707,14 +1946,20 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 
               // drop weapon when punched
               if (style == bullet_style_punch)
+              {
                 if (SpriteSystem::Get().GetSprite(j).issolo() or
                     (SpriteSystem::Get().GetSprite(j).isnotsolo() and
                      SpriteSystem::Get().GetSprite(j).isnotinsameteam(
                        SpriteSystem::Get().GetSprite(owner))))
+                {
                   if ((SpriteSystem::Get().GetSprite(j).weapon.num != bow_num) &&
                       (SpriteSystem::Get().GetSprite(j).weapon.num != bow2_num))
+                  {
                     SpriteSystem::Get().GetSprite(j).bodyapplyanimation(AnimationType::ThrowWeapon,
                                                                         11);
+                  }
+                }
+              }
 
               hitbody = j;
 
@@ -1735,7 +1980,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                 continue;
               }
 
-              if ((speed > 5) && ((float)(speed) / guns[weaponindex].speed >= 0.9))
+              if ((speed > 5) && (speed / guns[weaponindex].speed >= 0.9))
               {
                 vec2scale(GetBulletParts().velocity[num], bulletvelocity, 0.66);
                 bulletvelocity = GetBulletParts().velocity[num];
@@ -1771,20 +2016,30 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 #endif
                        ) ||
                     (SpriteSystem::Get().GetSprite(j).bonusstyle == bonus_flamegod))
+                {
                   ;
+                }
                 else
+                {
                   hit(hit_type_blood);
+                }
 #ifndef SERVER
                 // play hit sound
                 if (SpriteSystem::Get().GetSprite(j).vest < 1)
                 {
                   if (!SpriteSystem::Get().GetSprite(j).deadmeat)
+                  {
                     playsound(SfxEffect::hit_arg + Random(3), GetBulletParts().pos[num]);
+                  }
                   else
+                  {
                     playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
+                  }
                 }
                 else
+                {
                   playsound(SfxEffect::vesthit, GetBulletParts().pos[num]);
+                }
 #endif
 
 #ifdef SERVER
@@ -1793,11 +2048,17 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 
                 // Head, torso or leg hitbox modifier
                 if (where <= 4)
+                {
                   hitboxmodifier = guns[weaponnumtoindex(ownerweapon, guns)].modifierlegs;
+                }
                 else if (where <= 11)
+                {
                   hitboxmodifier = guns[weaponnumtoindex(ownerweapon, guns)].modifierchest;
+                }
                 else
+                {
                   hitboxmodifier = guns[weaponnumtoindex(ownerweapon, guns)].modifierhead;
+                }
 
                 speed = vec2length(GetBulletParts().velocity[num]);
 
@@ -1809,7 +2070,9 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                   owner, where, num, norm);
 
                 if (!SpriteSystem::Get().GetSprite(j).deadmeat)
+                {
                   SpriteSystem::Get().GetSprite(j).skeleton.pos[where] = a;
+                }
 
                 kill();
               }
@@ -1836,7 +2099,9 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 #endif
 
                 if (!SpriteSystem::Get().GetSprite(j).deadmeat)
+                {
                   SpriteSystem::Get().GetSprite(j).skeleton.pos[where] = a;
+                }
               }
               break;
 
@@ -1846,7 +2111,9 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                 const auto &spriteVelocity = SpriteSystem::Get().GetVelocity(j);
                 GetBulletParts().pos[num] = SpriteSystem::Get().GetSprite(j).skeleton.pos[where];
                 if (!SpriteSystem::Get().GetSprite(j).deadmeat)
+                {
                   GetBulletParts().velocity[num] = spriteVelocity;
+                }
                 else
                 {
                   GetBulletParts().velocity[num].x = 0;
@@ -1859,7 +2126,7 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                 if ((timeout < 2) && (ricochetcount < 1))
 #endif
                 {
-                  if (hitmultiply >= (float)(guns[flamer].hitmultiply) / 3)
+                  if (hitmultiply >= guns[flamer].hitmultiply / 3)
                   {
                     timeout = flamer_timeout - 1;
                     ricochetcount += 1;
@@ -1873,12 +2140,14 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                   }
 
                   if (SpriteSystem::Get().GetSprite(j).GetHealth() > -1)
+                  {
                     SpriteSystem::Get().GetSprite(j).healthhit(
 #ifndef SERVER
                       srv *
 #endif
                         hitmultiply,
                       owner, where, num, norm);
+                  }
                 }
               }
               break;
@@ -1891,7 +2160,9 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
               hit(hit_type_cluster, j, where);
 
               if (!SpriteSystem::Get().GetSprite(j).deadmeat)
+              {
                 SpriteSystem::Get().GetSprite(j).skeleton.pos[where] = a;
+              }
 
               kill();
             }
@@ -1913,17 +2184,25 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
               vec2scale(a, a, 3);
               a = vec2add(GetBulletParts().pos[num], a);
               if (CVar::r_maxsparks > (max_sparks - 10))
+              {
                 createspark(a, a, 50, j, 31);
+              }
 
               // Shread clothes
               if (CVar::r_maxsparks > (max_sparks - 10))
               {
                 if (where <= 4)
+                {
                   clothesshreadstyle = 49; // Piece of clothing with pants
+                }
                 else if (where <= 11)
+                {
                   clothesshreadstyle = 48; // Piece of clothing
+                }
                 else
+                {
                   clothesshreadstyle = 0;
+                }
 
                 if (clothesshreadstyle > 0)
                 {
@@ -1951,12 +2230,18 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                 if (SpriteSystem::Get().GetSprite(j).vest < 1)
                 {
                   if (!SpriteSystem::Get().GetSprite(j).deadmeat)
+                  {
                     playsound(SfxEffect::hit_arg + Random(3), GetBulletParts().pos[num]);
+                  }
                   else
+                  {
                     playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
+                  }
                 }
                 else
+                {
                   playsound(SfxEffect::vesthit, GetBulletParts().pos[num]);
+                }
               }
 #endif
 
@@ -1974,7 +2259,9 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
                 owner, where, num, norm);
 
               if (!SpriteSystem::Get().GetSprite(j).deadmeat)
+              {
                 SpriteSystem::Get().GetSprite(j).skeleton.pos[where] = a;
+              }
 
               if ((!wasdead) or (CVar::sv_realisticmode))
               {
@@ -2003,10 +2290,15 @@ tvector2 Bullet<M>::checkspritecollision(float lasthitdist)
 }
 
 template <Config::Module M>
-tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
+auto Bullet<M>::checkthingcollision(float lasthitdist) -> tvector2
 {
-  std::int32_t i, j;
-  tvector2 startpoint, endpoint, pos, colpos, a;
+  std::int32_t i;
+  std::int32_t j;
+  tvector2 startpoint;
+  tvector2 endpoint;
+  tvector2 pos;
+  tvector2 colpos;
+  tvector2 a;
   std::uint8_t where;
   float dist;
   tvector2 thingvel;
@@ -2027,7 +2319,9 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
 
   // iterate through Things
   if (style != bullet_style_fragnade)
+  {
     for (j = 1; j <= max_things; j++)
+    {
       if (things[j].active && (timeout < bullet_timeout - 1) && things[j].collidewithbullets and
           (owner != things[j].holdingsprite) &&
           (((CVar::sv_gamemode == gamestyle_inf) && (things[j].style == object_bravo_flag)) ||
@@ -2058,7 +2352,9 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
             a = vec2subtract(pos, GetBulletParts().oldpos[num]);
             dist = vec2length(a);
             if (dist > lasthitdist)
+            {
               break;
+            }
           }
 
           // Thing push cooldown from this bullet
@@ -2077,7 +2373,9 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
           }
 
           if (skipcollision)
+          {
             break;
+          }
 
           // TODO: has high performance impact? -> do alloc like std vector
           newindex = length(thingcollisions);
@@ -2109,18 +2407,24 @@ tvector2 Bullet<M>::checkthingcollision(float lasthitdist)
           break;
         }
       } // for j
+    }
+  }
   return result;
 }
 
 template <Config::Module M>
-tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
+auto Bullet<M>::checkcollidercollision(float lasthitdist) -> tvector2
 {
   ZoneScopedN("Bullet::CheckColliderCollision");
   std::int32_t j;
 #ifndef SERVER
   std::int32_t i;
 #endif
-  tvector2 startpoint, endpoint, pos, colpos, a;
+  tvector2 startpoint;
+  tvector2 endpoint;
+  tvector2 pos;
+  tvector2 colpos;
+  tvector2 a;
   float dist;
 
   LogTraceG("TBullet.CheckColliderCollision");
@@ -2134,6 +2438,7 @@ tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
 
   // iterate through colliders
   for (j = 1; j <= 128; j++)
+  {
     if (map.collider[j].active)
     {
       startpoint = GetBulletParts().pos[num];
@@ -2169,19 +2474,25 @@ tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
 #ifndef SERVER
           // dirt
           if (CVar::r_maxsparks > (max_sparks - 10))
+          {
             for (i = 1; i <= 2; i++)
+            {
               if (Random(4) == 0)
               {
                 a.x = sin(Random(100));
                 a.y = cos(Random(100));
                 createspark(pos, a, 44 + Random(4), j, 120);
               }
+            }
+          }
 #endif
 
               // create knife thing
 #ifdef SERVER
           if (style == bullet_style_thrownknife)
+          {
             creatething(GetBulletParts().pos[num], owner, object_combat_knife, 255);
+          }
 #endif
 
 #ifndef SERVER
@@ -2236,13 +2547,15 @@ tvector2 Bullet<M>::checkcollidercollision(float lasthitdist)
         return result;
       }
     } // for j
+  }
   return result;
 }
 
 template <Config::Module M>
 void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 {
-  tvector2 a, b;
+  tvector2 a;
+  tvector2 b;
   std::int32_t i;
 
 #ifdef SERVER
@@ -2279,7 +2592,9 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     b.x = 0;
     b.y = 0;
     if (CVar::r_maxsparks > (max_sparks - 5))
+    {
       createspark(a, b, 56, owner, 22);
+    }
 
     if (timeout < bullet_timeout - 5)
     {
@@ -2306,7 +2621,9 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     b.x = b.x * 0.9;
     b.y = b.y * 0.85;
     if (Random(2) == 0)
+    {
       createspark(a, b, 4, owner, 75);
+    }
 
     b.x = b.x * 1.2;
     b.y = b.y * 0.85;
@@ -2319,15 +2636,19 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     b.x = b.x * 0.5;
     b.y = b.y * 1.05;
     if (Random(2) == 0)
+    {
       createspark(a, b, 5, owner, 75);
+    }
 
     for (i = 1; i <= 7; i++)
+    {
       if (Random(6) == 0)
       {
         b.x = sin(Random(100)) * 1.6;
         b.y = cos(Random(100)) * 1.6;
         createspark(a, b, 4, owner, 55);
       }
+    }
 #endif
   }
   break;
@@ -2338,10 +2659,14 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     a = vector2(0.0, 0.0);
 
     if (CVar::r_maxsparks > (max_sparks - 10))
+    {
       createspark(GetBulletParts().pos[num], a, 60, owner, 255);
+    }
 
     if (CVar::r_maxsparks > (max_sparks - 10))
+    {
       createspark(GetBulletParts().pos[num], a, 54, owner, smoke_anims * 4 + 10);
+    }
 
     createspark(GetBulletParts().pos[num], a, 12, owner, explosion_anims * 3);
     playsound(SfxEffect::m79_explosion, GetBulletParts().pos[num]);
@@ -2356,10 +2681,14 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     a = vector2(0.0, 0.0);
 
     if (CVar::r_maxsparks > (max_sparks - 10))
+    {
       createspark(GetBulletParts().pos[num], a, 60, owner, 190);
+    }
 
     if (CVar::r_maxsparks > (max_sparks - 10))
+    {
       createspark(GetBulletParts().pos[num], a, 54, owner, smoke_anims * 4 + 10);
+    }
 
     createspark(GetBulletParts().pos[num], a, 17, owner, explosion_anims * 3);
     playsound(SfxEffect::grenade_explosion, GetBulletParts().pos[num]);
@@ -2399,8 +2728,8 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
       vec2scale(b, b, -0.75);
       b.x = -b.x - 2.5 + ((float)(Random(50)) / 10.0f);
       b.y = b.y - 2.5 + ((float)(Random(25)) / 10.0f);
-      createbullet(a, b, cluster_num, owner, 255, (float)(guns[fraggrenade].hitmultiply) / 2.0f,
-                   true, false);
+      createbullet(a, b, cluster_num, owner, 255, guns[fraggrenade].hitmultiply / 2.0f, true,
+                   false);
     }
   }
   break;
@@ -2430,7 +2759,9 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 #ifndef SERVER
   case hit_type_bodyhit: {
     if (CVar::r_maxsparks < (max_sparks - 10))
+    {
       return;
+    }
 
     b = GetBulletParts().velocity[num];
     a = GetBulletParts().pos[num];
@@ -2452,12 +2783,14 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     b.y = b.y * 1.15;
 
     for (i = 1; i <= 4; i++)
+    {
       if (Random(6) == 0)
       {
         b.x = sin(Random(100)) * 1.2;
         b.y = cos(Random(100)) * 1.2;
         createspark(a, b, 4, owner, 50);
       }
+    }
   }
   break;
 
@@ -2499,10 +2832,18 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 #ifndef SERVER
   const std::int32_t srv = 0;
 #endif
-  tvector2 a, col;
-  std::int32_t i, j, w, igun, pushtick;
+  tvector2 a;
+  tvector2 col;
+  std::int32_t i;
+  std::int32_t j;
+  std::int32_t w;
+  std::int32_t igun;
+  std::int32_t pushtick;
   bool parthit;
-  float s, explosionradius, explosionradius2, hitboxmodifier;
+  float s;
+  float explosionradius;
+  float explosionradius2;
+  float hitboxmodifier;
   std::uint8_t nocollision;
   float s2 = 0.0;
 #ifndef SERVER
@@ -2548,14 +2889,20 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
     if (((nocollision & weapon_nocollision_exp_enemy) != 0) and
         (sprite.isnotinsameteam(SpriteSystem::Get().GetSprite(owner))))
+    {
       continue;
+    }
 
     if (((nocollision & weapon_nocollision_exp_team) != 0) and
         (sprite.isinsameteam(SpriteSystem::Get().GetSprite(owner))) && (sprite.num != owner))
+    {
       continue;
+    }
 
     if (((nocollision & weapon_nocollision_exp_self) != 0) && (owner == sprite.num))
+    {
       continue;
+    }
 
     if (!sprite.deadmeat)
     {
@@ -2584,11 +2931,17 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
       }
 
       if (w <= 4)
+      {
         hitboxmodifier = guns[igun].modifierlegs;
+      }
       else if (w <= 11)
+      {
         hitboxmodifier = guns[igun].modifierchest;
+      }
       else
+      {
         hitboxmodifier = guns[igun].modifierhead;
+      }
 
       col.x = col.x + (sprite.skeleton.pos[w].x - spritePartsPos.x);
       col.y = col.y + (sprite.skeleton.pos[w].y - spritePartsPos.y);
@@ -2610,9 +2963,13 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
         a.y = (a.y * ((float)(1) / (s + 1)) * explosion_impact_multiply);
 
         if (typ == hit_type_fragnade || typ == hit_type_explode)
+        {
           a.y *= 2.0f;
+        }
         else
+        {
           hitboxmodifier *= 0.5f; // cluster/flak is halved
+        }
 
         pushtick = sprite.player->pingticks / 2 + ownerpingtick + 1;
         pushtick = min(pushtick, max_pushtick);
@@ -2632,7 +2989,9 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
 #ifndef SERVER
         if (canhitspray(sprite.num, owner))
+        {
           hitspray();
+        }
 #endif
       } // s < explosion radius
     }   // not DeadMeat
@@ -2663,9 +3022,13 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
         hitboxmodifier = 1.0;
 
         if (typ == hit_type_explode)
+        {
           s2 = max(s2, 20.0000001f);
+        }
         else if (typ == hit_type_cluster || typ == hit_type_flak)
+        {
           hitboxmodifier = 0.5;
+        }
 
         s2 = ((float)(1) / (s2 + 1)) * guns[igun].hitmultiply * hitboxmodifier;
         sprite.healthhit(
@@ -2683,7 +3046,9 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
   for (i = 1; i <= max_things; i++)
   {
     if (!things[i].active or !things[i].collidewithbullets)
+    {
       continue;
+    }
 
     for (j = 1; j <= 4; j++)
     {
@@ -2701,8 +3066,10 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
     }
   } // for Thing[i]
 
-  if (!(typ == hit_type_fragnade || typ == hit_type_explode))
+  if (typ != hit_type_fragnade && typ != hit_type_explode)
+  {
     return;
+  }
 
   // check explosion collision with bullets
   active = false;
@@ -2769,13 +3136,21 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
       b.x = -b.x - 3.5 + ((float)(Random(70)) / 10.0);
       b.y = b.y - 3.5 + ((float)(Random(65)) / 10.0);
       if (Random(4) == 0)
+      {
         createspark(a, b, 40, owner, 180 + Random(50));
+      }
       if (Random(4) == 0)
+      {
         createspark(a, b, 41, owner, 180 + Random(50));
+      }
       if (Random(4) == 0)
+      {
         createspark(a, b, 42, owner, 180 + Random(50));
+      }
       if (Random(4) == 0)
+      {
         createspark(a, b, 43, owner, 180 + Random(50));
+      }
     }
   }
 
@@ -2792,13 +3167,21 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
       b.x = -b.x - 3.5 + ((float)(Random(70)) / 10.0);
       b.y = b.y - 3.5 + ((float)(Random(65)) / 10.0);
       if (Random(rnd) == 0)
+      {
         createspark(a, b, 44, owner, 120);
+      }
       if (Random(rnd) == 0)
+      {
         createspark(a, b, 45, owner, 120);
+      }
       if (Random(rnd) == 0)
+      {
         createspark(a, b, 46, owner, 120);
+      }
       if (Random(rnd) == 0)
+      {
         createspark(a, b, 47, owner, 120);
+      }
     }
   }
 
@@ -2814,11 +3197,17 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
       b.x = -b.x - 3.5 + ((float)(Random(70)) / 10.0);
       b.y = b.y - 3.5 + ((float)(Random(65)) / 10.0);
       if (Random(rnd) == 0)
+      {
         createspark(a, b, 2, owner, 120);
+      }
       if (Random(rnd) == 0)
+      {
         createspark(a, b, 2, owner, 120);
+      }
       if (Random(rnd) == 0)
+      {
         createspark(a, b, 2, owner, 120);
+      }
     }
   }
 
@@ -2858,14 +3247,18 @@ void Bullet<M>::checkoutofbounds()
   bulletpartspos = &GetBulletParts().pos[num];
 
   if ((fabs(bulletpartspos->x) > bound) || (fabs(bulletpartspos->y) > bound))
+  {
     kill();
+  }
 }
 
 template <Config::Module M>
-std::int32_t Bullet<M>::filterspritesbydistance(tspriteindexes &spriteindexes)
+auto Bullet<M>::filterspritesbydistance(tspriteindexes &spriteindexes) -> std::int32_t
 {
   ZoneScopedN("Bullet::FilterSpritesByDistance");
-  std::int32_t i, j, spritecount;
+  std::int32_t i;
+  std::int32_t j;
+  std::int32_t spritecount;
   float roughdistance;
   tspritedistances distances;
 
@@ -2884,7 +3277,9 @@ std::int32_t Bullet<M>::filterspritesbydistance(tspriteindexes &spriteindexes)
       j = spritecount;
 
       while ((j > 1) && (roughdistance < distances[j - 1]))
+      {
         j = j - 1;
+      }
 
       std::memmove(&distances[j + 1], &distances[j], (spritecount - j) * sizeof(float));
       distances[j] = roughdistance;
@@ -2900,19 +3295,27 @@ std::int32_t Bullet<M>::filterspritesbydistance(tspriteindexes &spriteindexes)
 }
 
 template <Config::Module M>
-bool Bullet<M>::targetablesprite(std::int32_t i)
+auto Bullet<M>::targetablesprite(std::int32_t i) -> bool
 {
   std::int32_t ownervulnerabletime;
 
   bool result;
   if (style == bullet_style_fragnade)
+  {
     ownervulnerabletime = grenade_timeout - 50;
+  }
   else if (style == bullet_style_m2)
+  {
     ownervulnerabletime = m2bullet_timeout - 20;
+  }
   else if (style == bullet_style_flame)
+  {
     ownervulnerabletime = flamer_timeout;
+  }
   else
+  {
     ownervulnerabletime = bullet_timeout - 20;
+  }
 
   // Check whether a sprite can be hit by this bullet
   result = SpriteSystem::Get().GetSprite(i).active &&
@@ -2922,9 +3325,10 @@ bool Bullet<M>::targetablesprite(std::int32_t i)
 }
 
 template <Config::Module M>
-float Bullet<M>::getcomparablespritedistance(std::int32_t i)
+auto Bullet<M>::getcomparablespritedistance(std::int32_t i) -> float
 {
-  tvector2 spritecol, distance;
+  tvector2 spritecol;
+  tvector2 distance;
 
   float result;
   spritecol = getspritecollisionpoint(i);
@@ -2937,7 +3341,7 @@ float Bullet<M>::getcomparablespritedistance(std::int32_t i)
 }
 
 template <Config::Module M>
-tvector2 Bullet<M>::getspritecollisionpoint(std::int32_t i)
+auto Bullet<M>::getspritecollisionpoint(std::int32_t i) -> tvector2
 {
   // Why is this an exception to the usual rule??
   tvector2 result;
@@ -2958,12 +3362,14 @@ tvector2 Bullet<M>::getspritecollisionpoint(std::int32_t i)
   }
   else
 #endif
+  {
     result = spritePartsPos;
+  }
   return result;
 }
 
 template <Config::Module M>
-std::uint8_t Bullet<M>::getweaponindex()
+auto Bullet<M>::getweaponindex() -> std::uint8_t
 {
   std::uint8_t weaponindex;
 

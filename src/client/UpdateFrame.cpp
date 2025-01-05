@@ -29,7 +29,11 @@ void update_frame()
 {
   ZoneScopedN("update_frame");
   std::int32_t j;
-  tvector2 norm, camv, s, m, p;
+  tvector2 norm;
+  tvector2 camv;
+  tvector2 s;
+  tvector2 m;
+  tvector2 p;
   float displayratio;
   std::string screenfile;
 
@@ -50,7 +54,9 @@ void update_frame()
   {
     ZoneScopedN("Update1");
     if (demoplayer.active() && escmenu->active)
+    {
       return;
+    }
 
     {
       ZoneScopedN("SpriteParts");
@@ -74,10 +80,14 @@ void update_frame()
       for (j = 1; j <= max_bullets; j++)
       {
         if (bullet[j].active)
+        {
           bullet[j].update();
+        }
 
         if (bullet[j].pingadd > 0)
+        {
           bullet[j].pingadd -= 4;
+        }
       }
     }
 
@@ -90,11 +100,13 @@ void update_frame()
       ZoneScopedN("Sparks");
       sparkscount = 0;
       for (j = 1; j <= max_sparks; j++)
+      {
         if (spark[j].active)
         {
           spark[j].update();
           sparkscount += 1;
         }
+      }
     }
 
     {
@@ -102,25 +114,36 @@ void update_frame()
       auto &things = GS::GetThingSystem().GetThings();
       // update Things
       for (j = 1; j <= max_things; j++)
+      {
         if (things[j].active)
+        {
           things[j].update();
+        }
+      }
     }
 
     if (GS::GetGame().GetMainTickCounter() % second == 0)
+    {
       if (screencounter != 255)
+      {
         // TODO: don't rely on underflow
         screencounter = 0xff & (screencounter - 1);
+      }
+    }
 
     // Change spectate target away from dead player
     if (GS::GetGame().GetMainTickCounter() % (second * 5) == 0)
+    {
       if ((camerafollowsprite > 0) && SpriteSystem::Get().GetSprite(camerafollowsprite).deadmeat and
           (CVar::sv_realisticmode) && (CVar::sv_survivalmode) && !game.GetSurvivalEndRound())
       {
-        camerafollowsprite = getcameratarget(0);
+        camerafollowsprite = getcameratarget(false);
       }
+    }
 
     // Weather effects
     if (CVar::r_weathereffects)
+    {
       switch (map.weather)
       {
       case 1:
@@ -133,6 +156,7 @@ void update_frame()
         makesnow();
         break;
       }
+    }
   } // mapchangecounter < 0
   else
   {
@@ -171,13 +195,15 @@ void update_frame()
         {
           cursortext = sprite.player->name;
           if (game.isteamgame())
+          {
             if (sprite.isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
             {
-              cursortext =
-                cursortext + ' ' +
-                inttostr(round(((float)(sprite.GetHealth()) / game.GetStarthealth()) * 100)) + '%';
+              cursortext = cursortext + ' ' +
+                           inttostr(round((sprite.GetHealth() / game.GetStarthealth()) * 100)) +
+                           '%';
               cursorfriendly = true;
             }
+          }
 
           break;
         }
@@ -225,10 +251,12 @@ void update_frame()
     if (GS::GetGame().GetMainTickCounter() % (second * 6) == 0)
     {
       if (GS::GetGame().GetPlayersNum() == 0)
+      {
         if (game.GetMapchangecounter() > 99999999)
         {
           game.SetMapchangecounter(game.GetMapchangecounter() - 60);
         }
+      }
     }
 
     {
@@ -237,22 +265,32 @@ void update_frame()
     }
 
     if (grenadeeffecttimer > -1)
+    {
       grenadeeffecttimer = grenadeeffecttimer - 1;
+    }
 
     // Spray counter
     if (hitspraycounter > 0)
+    {
       hitspraycounter -= 1;
+    }
 
     // Idle counter
     if (mysprite > 0)
+    {
       if (game.GetMapchangecounter() < 99999999)
+      {
         if (SpriteSystem::Get().GetSprite(mysprite).isnotspectator() &&
             (!SpriteSystem::Get().GetSprite(mysprite).player->demoplayer))
         {
           if (oldmousex - round(mx) == 0)
+          {
             idlecounter += 1;
+          }
           else
+          {
             idlecounter = 0;
+          }
 
           if (idlecounter > Constants::IDLE_KICK)
           {
@@ -262,6 +300,8 @@ void update_frame()
 
           oldmousex = round(mx);
         }
+      }
+    }
 
     // Time Limit decrease
     if (game.GetMapchangecounter() < 99999999)
@@ -328,28 +368,40 @@ void update_frame()
 
     // Chat Update
     for (j = 1; j <= max_sprites; j++)
+    {
       if (chatdelay[j] > 0)
+      {
         chatdelay[j] = chatdelay[j] - 1;
+      }
+    }
 
     // Big and World Message update
     for (j = 0; j < max_big_messages; j++)
     {
       if (bigdelay[j] > 0)
+      {
         bigdelay[j] = bigdelay[j] - 1;
+      }
       if (worlddelay[j] > 0)
+      {
         worlddelay[j] = worlddelay[j] - 1;
+      }
     }
 
     // Shot dist update
     if (shotdistanceshow > 0)
+    {
       shotdistanceshow = shotdistanceshow - 1;
+    }
 
     // Consoles Update
     GS::GetMainConsole().Update();
     GetKillConsole().Update(true);
 
     if (chattimecounter > 0)
+    {
       chattimecounter = chattimecounter - 1;
+    }
   } // bullettime off
 
   // MOVE -=CAMERA=-
@@ -362,16 +414,15 @@ void update_frame()
       // Why does the magic number ~6.8 work so well?
 
       m.x = exp(CVar::r_zoom) *
-            ((float)((mx - gamewidthhalf)) /
-             SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef *
+            ((mx - gamewidthhalf) / SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef *
              (((float)(2 * 640) / gamewidth - 1) +
               (float)((gamewidth - 640)) / (float)gamewidth *
                 (float)(defaultaimdist -
                         SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef) /
                 6.8));
 
-      m.y = exp(CVar::r_zoom) * ((float)((my - gameheighthalf)) /
-                                 SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef);
+      m.y = exp(CVar::r_zoom) *
+            ((my - gameheighthalf) / SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef);
       camv.x = camerax;
       camv.y = cameray;
       auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(camerafollowsprite);
@@ -385,7 +436,9 @@ void update_frame()
       cameray = camv.y;
     }
     else
+    {
       camerafollowsprite = 0;
+    }
   }
   else if (camerafollowsprite == 0)
   {
@@ -398,8 +451,8 @@ void update_frame()
     }
     else
     {
-      m.x = (float)((mx - gamewidthhalf)) / spectatoraimdist;
-      m.y = (float)((my - gameheighthalf)) / spectatoraimdist;
+      m.x = (mx - gamewidthhalf) / spectatoraimdist;
+      m.y = (my - gameheighthalf) / spectatoraimdist;
     }
     camv.x = camerax;
     camv.y = cameray;
@@ -410,6 +463,7 @@ void update_frame()
 
   // safety
   if ((mysprite > 0) && (SpriteSystem::Get().GetSprite(mysprite).isspectator()))
+  {
     if ((camerax > max_sectorz * map.GetSectorsDivision()) ||
         (camerax < min_sectorz * map.GetSectorsDivision()) ||
         (cameray > max_sectorz * map.GetSectorsDivision()) ||
@@ -419,9 +473,11 @@ void update_frame()
       cameray = 0;
       targetmode = false;
     }
+  }
 
   // end game screen
   if (screentaken)
+  {
     if (game.GetMapchangecounter() < ((float)(default_mapchange_time) / 3))
     {
       screentaken = false;
@@ -439,8 +495,9 @@ void update_frame()
 #endif
       takescreenshot(screenfile);
     }
+  }
 
-  if ((CVar::demo_autorecord) && (GS::GetDemoRecorder().active() == false) && (map.name != ""))
+  if ((CVar::demo_autorecord) && (!GS::GetDemoRecorder().active()) && (!map.name.empty()))
   {
     NotImplemented("No now() function");
 #if 0

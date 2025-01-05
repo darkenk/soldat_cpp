@@ -112,7 +112,9 @@ void apponidle()
     if (GS::GetGame().GetMapchangecounter() < 0)
     {
       if (GS::GetDemoRecorder().active())
+      {
         GS::GetDemoRecorder().savenextframe();
+      }
     }
 
     LogTraceG("AppOnIdle 2");
@@ -155,7 +157,9 @@ void apponidle()
                                        warning_message_color);
           floodwarnings[j] += 1;
           if (floodwarnings[j] > CVar::sv_warnings_flood)
+          {
             kickplayer(j, true, kick_flooding, sixty_minutes / 4, "Flood Kicked");
+          }
         }
       }
 
@@ -174,27 +178,41 @@ void apponidle()
     heavysendersnum = GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum();
 
     if (heavysendersnum < 5)
+    {
       adjust = 0.66;
+    }
     else if (heavysendersnum < 9)
+    {
       adjust = 0.75;
+    }
     else
+    {
       adjust = 1.0;
+    }
 
     // Send Bundled packets
     if (CVar::net_lan == LAN)
     {
       if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) == 0)
+      {
         serverspritesnapshot(netw);
+      }
 
       if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(15 * adjust) == 0) &&
           (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) != 0))
+      {
         serverspritesnapshotmajor(netw);
+      }
 
       if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(20 * adjust) == 0)
+      {
         serverskeletonsnapshot(netw);
+      }
 
       if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(59 * adjust) == 0)
+      {
         serverheartbeat(*GetServerNetwork(), SpriteSystem::Get(), GS::GetGame());
+      }
 
       if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(4 * adjust) == 0) &&
           (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) != 0) &&
@@ -214,7 +232,9 @@ void apponidle()
       if (GS::GetGame().GetMainTickCounter() %
             (std::int32_t)round(CVar::net_t1_snapshot * adjust) ==
           0)
+      {
         serverspritesnapshot(netw);
+      }
 
       if ((GS::GetGame().GetMainTickCounter() %
              (std::int32_t)round(CVar::net_t1_majorsnapshot * adjust) ==
@@ -222,17 +242,23 @@ void apponidle()
           (GS::GetGame().GetMainTickCounter() %
              (std::int32_t)round(CVar::net_t1_snapshot * adjust) !=
            0))
+      {
         serverspritesnapshotmajor(netw);
+      }
 
       if (GS::GetGame().GetMainTickCounter() %
             (std::int32_t)round(CVar::net_t1_deadsnapshot * adjust) ==
           0)
+      {
         serverskeletonsnapshot(netw);
+      }
 
       if (GS::GetGame().GetMainTickCounter() %
             (std::int32_t)round(CVar::net_t1_heartbeat * adjust) ==
           0)
+      {
         serverheartbeat(*GetServerNetwork(), SpriteSystem::Get(), GS::GetGame());
+      }
 
       if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(CVar::net_t1_delta * adjust) ==
            0) &&
@@ -260,7 +286,9 @@ void apponidle()
         j = sprite.num;
         // connection problems
         if (GS::GetGame().GetMapchangecounter() < 0)
+        {
           noclientupdatetime[j] = noclientupdatetime[j] + 1;
+        }
         if (noclientupdatetime[j] > disconnection_time)
         {
           serverplayerdisconnect(j, kick_noresponse);
@@ -274,7 +302,9 @@ void apponidle()
           continue;
         }
         if (noclientupdatetime[j] < 0)
+        {
           noclientupdatetime[j] = 0;
+        }
 
 #ifdef ENABLE_FAE
         if (CVar::ac_enable)
@@ -301,27 +331,37 @@ void apponidle()
 #endif
 
         if (GS::GetGame().GetMainTickCounter() % minute == 0)
+        {
           serversyncmsg();
+        }
 
         if (CVar::net_lan == LAN)
         {
           if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(21 * adjust) == 0)
+          {
             serverping(j);
+          }
 
           if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(12 * adjust) == 0)
+          {
             serverthingsnapshot(j);
+          }
         }
         else if (CVar::net_lan == INTERNET)
         {
           if (GS::GetGame().GetMainTickCounter() %
                 (std::int32_t)round(CVar::net_t1_ping * adjust) ==
               0)
+          {
             serverping(j);
+          }
 
           if (GS::GetGame().GetMainTickCounter() %
                 (std::int32_t)round(CVar::net_t1_thingsnapshot * adjust) ==
               0)
+          {
             serverthingsnapshot(j);
+          }
         }
       }
     }
@@ -332,7 +372,8 @@ void apponidle()
 void updateframe()
 {
   ZoneScopedN("UpdateFrame");
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
   tvector2 m;
   std::uint32_t _x;
 
@@ -358,8 +399,12 @@ void updateframe()
       // Bullets update
       auto &bullet = GS::GetBulletSystem().GetBullets();
       for (j = 1; j <= max_bullets; j++)
+      {
         if (bullet[j].active)
+        {
           bullet[j].update();
+        }
+      }
 
       GetBulletParts().doeulertimestep();
     }
@@ -368,8 +413,12 @@ void updateframe()
       ZoneScopedN("Things");
       // update Things
       for (j = 1; j <= max_things; j++)
+      {
         if (things[j].active)
+        {
           things[j].update();
+        }
+      }
     }
 
     // Bonuses spawn
@@ -397,37 +446,73 @@ void updateframe()
         }
 
         if (CVar::sv_bonus_berserker)
+        {
           if (GS::GetGame().GetMainTickCounter() % bonusfreq == 0)
+          {
             if (Random(berserkerbonus_random) == 0)
+            {
               spawnthings(object_berserk_kit, 1);
+            }
+          }
+        }
 
         j = flamerbonus_random;
         if (CVar::sv_bonus_flamer)
+        {
           if (GS::GetGame().GetMainTickCounter() % 444 == 0)
+          {
             if (Random(j) == 0)
+            {
               spawnthings(object_flamer_kit, 1);
+            }
+          }
+        }
 
         if (CVar::sv_bonus_predator)
+        {
           if (GS::GetGame().GetMainTickCounter() % bonusfreq == 0)
+          {
             if (Random(predatorbonus_random) == 0)
+            {
               spawnthings(object_predator_kit, 1);
+            }
+          }
+        }
 
         if (CVar::sv_bonus_vest)
+        {
           if (GS::GetGame().GetMainTickCounter() % (bonusfreq / 2) == 0)
+          {
             if (Random(vestbonus_random) == 0)
+            {
               spawnthings(object_vest_kit, 1);
+            }
+          }
+        }
 
         j = clusterbonus_random;
         if (CVar::sv_gamemode == gamestyle_ctf)
+        {
           j = round(clusterbonus_random * 0.75);
+        }
         if (CVar::sv_gamemode == gamestyle_inf)
+        {
           j = round(clusterbonus_random * 0.75);
+        }
         if (CVar::sv_gamemode == gamestyle_htf)
+        {
           j = round(clusterbonus_random * 0.75);
+        }
         if (CVar::sv_bonus_cluster)
+        {
           if (GS::GetGame().GetMainTickCounter() % (bonusfreq / 2) == 0)
+          {
             if (Random(j) == 0)
+            {
               spawnthings(object_cluster_kit, 1);
+            }
+          }
+        }
       }
     }
   }
@@ -445,9 +530,13 @@ void updateframe()
     // MapChange counter update
     if ((GS::GetGame().GetMapchangecounter() > -60) &&
         (GS::GetGame().GetMapchangecounter() < 99999999))
+    {
       GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 1);
+    }
     if ((GS::GetGame().GetMapchangecounter() < 0) && (GS::GetGame().GetMapchangecounter() > -59))
+    {
       GS::GetGame().changemap();
+    }
 
     // Game Stats save
     if (GS::GetGame().GetMainTickCounter() % CVar::log_filesupdate == 0)
@@ -532,19 +621,27 @@ void updateframe()
     }
 
     if (GS::GetGame().GetMainTickCounter() % second == 0)
-      if ((lastreqip[0] != "") && (lastreqip[0] == lastreqip[1]) &&
+    {
+      if ((!lastreqip[0].empty()) && (lastreqip[0] == lastreqip[1]) &&
           (lastreqip[1] == lastreqip[2]) && (lastreqip[2] == lastreqip[3]))
       {
         dropip = lastreqip[0];
         GS::GetMainConsole().console(string("Firewalled IP ") + dropip, 0);
       }
+    }
 
     if (GS::GetGame().GetMainTickCounter() % (second * 3) == 0)
+    {
       for (j = 0; j <= 3; j++)
+      {
         lastreqip[j] = ""; // Reset last 4 IP requests in 3 seconds
+      }
+    }
 
     if (GS::GetGame().GetMainTickCounter() % (second * 30) == 0)
+    {
       dropip = ""; // Clear temporary firewall IP
+    }
 
     if (GS::GetGame().GetMainTickCounter() % minute == 0)
     {
@@ -572,9 +669,15 @@ void updateframe()
 
     // Leftover from old Ban Timers code
     if (GS::GetGame().GetMainTickCounter() % (second * 10) == 0)
+    {
       if (GS::GetGame().GetPlayersNum() == 0)
+      {
         if (GS::GetGame().GetMapchangecounter() > 99999999)
+        {
           GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
+        }
+      }
+    }
 
     {
       auto v = GS::GetGame().GetSinusCounter() + iluminatespeed;
@@ -584,15 +687,21 @@ void updateframe()
     // Wave respawn count
     waverespawncounter = waverespawncounter - 1;
     if (waverespawncounter < 1)
+    {
       waverespawncounter = waverespawntime;
+    }
 
     GS::GetGame().TickVote();
 
     // Time Limit decrease
     if (GS::GetGame().GetMapchangecounter() < 99999999)
+    {
       // if (MapChangeCounter<0) then
       if (GS::GetGame().GetTimelimitcounter() > 0)
+      {
         GS::GetGame().SetTimelimitcounter(GS::GetGame().GetTimelimitcounter() - 1);
+      }
+    }
     if (GS::GetGame().GetTimelimitcounter() == 1)
     {
       nextmap();
@@ -607,10 +716,12 @@ void updateframe()
       if (GS::GetGame().GetTimelimitcounter() < five_minutes + 1)
       {
         if (GS::GetGame().GetTimelimitcounter() % minute == 0)
+        {
           GS::GetMainConsole().console(string("Time Left: ") +
                                          inttostr(GS::GetGame().GetTimelimitcounter() / minute) +
                                          " minutes",
                                        game_message_color);
+        }
       }
       else if (GS::GetGame().GetTimelimitcounter() % five_minutes == 0)
       {
@@ -630,9 +741,15 @@ void updateframe()
     GS::GetMainConsole().Update();
 
     if (!CVar::sv_advancemode)
+    {
       for (j = 1; j <= max_sprites; j++)
+      {
         for (i = 1; i <= 10; i++)
+        {
           GS::GetGame().GetWeaponsel()[j][i] = 1;
+        }
+      }
+    }
   } // bullettime off
 
   LogTraceG("UpdateFrame 3");
@@ -640,22 +757,34 @@ void updateframe()
   // Infiltration mode blue team score point
   j = CVar::sv_inf_bluelimit * second;
   if (GS::GetGame().GetPlayersTeamNum(1) < GS::GetGame().GetPlayersTeamNum(2))
+  {
     j = CVar::sv_inf_bluelimit * second +
         2 * second * (GS::GetGame().GetPlayersTeamNum(2) - GS::GetGame().GetPlayersTeamNum(1));
+  }
 
   if (CVar::sv_gamemode == gamestyle_inf)
+  {
     if (GS::GetGame().GetMapchangecounter() < 0)
+    {
       if (things[GS::GetGame().GetTeamFlag(2)].inbase)
+      {
         if ((GS::GetGame().GetPlayersTeamNum(1) > 0) && (GS::GetGame().GetPlayersTeamNum(2) > 0))
+        {
           if (GS::GetGame().GetMainTickCounter() % j == 0)
           {
             GS::GetGame().SetTeamScore(2, GS::GetGame().GetTeamScore(2) + 1);
             GS::GetGame().sortplayers();
           }
+        }
+      }
+    }
+  }
 
   // HTF mode team score point
   if (GS::GetGame().GetPlayersTeamNum(2) == GS::GetGame().GetPlayersTeamNum(1))
+  {
     htftime = CVar::sv_htf_pointstime * 60;
+  }
 
   if (CVar::sv_gamemode == gamestyle_htf)
   {
@@ -675,17 +804,23 @@ void updateframe()
                                            GS::GetGame().GetTeamScore(sprite.player->team) + 1);
 
                 if (sprite.player->team == team_alpha)
+                {
                   htftime = htf_sec_point + 2 * second *
                                               (GS::GetGame().GetPlayersTeamNum(1) -
                                                GS::GetGame().GetPlayersTeamNum(2));
+                }
 
                 if (sprite.player->team == team_bravo)
+                {
                   htftime = htf_sec_point + 2 * second *
                                               (GS::GetGame().GetPlayersTeamNum(2) -
                                                GS::GetGame().GetPlayersTeamNum(1));
+                }
 
                 if (htftime < htf_sec_point)
+                {
                   htftime = htf_sec_point;
+                }
 
                 GS::GetGame().sortplayers();
               }
@@ -698,14 +833,21 @@ void updateframe()
 
   // Spawn Rambo bow if nobody has it and not on map
   if (CVar::sv_gamemode == gamestyle_rambo)
+  {
     if (GS::GetGame().GetMainTickCounter() % second == 0)
     {
       _x = 0;
 
       for (j = 1; j <= max_things; j++)
+      {
         if (things[j].active)
+        {
           if (things[j].style == object_rambo_bow)
+          {
             _x = 1;
+          }
+        }
+      }
 
       for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
       {
@@ -722,26 +864,40 @@ void updateframe()
         j = creatething(m, 255, object_rambo_bow, 255);
       }
     }
+  }
 
   // Destroy flags if > 1
   if ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf))
+  {
     if (GS::GetGame().GetMainTickCounter() % (second * 2) == 0)
     {
       _x = 0;
 
       for (j = 1; j <= max_things; j++)
+      {
         if (things[j].active)
+        {
           if (things[j].style == object_alpha_flag)
+          {
             _x += 1;
+          }
+        }
+      }
 
       if (_x > 1)
+      {
         for (j = max_things; j >= 1; j--)
+        {
           if (things[j].active)
+          {
             if (things[j].style == object_alpha_flag)
             {
               things[j].kill();
               break;
             }
+          }
+        }
+      }
 
       if (_x == 0)
       {
@@ -755,18 +911,30 @@ void updateframe()
       _x = 0;
 
       for (j = 1; j <= max_things; j++)
+      {
         if (things[j].active)
+        {
           if (things[j].style == object_bravo_flag)
+          {
             _x += 1;
+          }
+        }
+      }
 
       if (_x > 1)
+      {
         for (j = max_things; j >= 1; j--)
+        {
           if (things[j].active)
+          {
             if (things[j].style == object_bravo_flag)
             {
               things[j].kill();
               break;
             }
+          }
+        }
+      }
 
       if (_x == 0)
       {
@@ -777,35 +945,52 @@ void updateframe()
         }
       }
     }
+  }
 
   if ((CVar::sv_gamemode == gamestyle_pointmatch) || (CVar::sv_gamemode == gamestyle_htf))
+  {
     if (GS::GetGame().GetMainTickCounter() % (second * 2) == 0)
     {
       _x = 0;
 
       for (j = 1; j <= max_things; j++)
+      {
         if (things[j].active)
+        {
           if (things[j].style == object_pointmatch_flag)
+          {
             _x += 1;
+          }
+        }
+      }
 
       if (_x > 1)
+      {
         for (j = max_things; j >= 1; j--)
+        {
           if (things[j].active)
+          {
             if (things[j].style == object_pointmatch_flag)
             {
               things[j].kill();
               break;
             }
+          }
+        }
+      }
 
       if (_x == 0)
+      {
         if (randomizestart(m, 14))
         {
           auto v = creatething(m, 255, object_pointmatch_flag, 255);
           GS::GetGame().SetTeamFlag(1, v);
         }
+      }
     }
+  }
   auto &map = GS::GetGame().GetMap();
-  if ((CVar::demo_autorecord) && (GS::GetDemoRecorder().active() == false) && (map.name != ""))
+  if ((CVar::demo_autorecord) && (!GS::GetDemoRecorder().active()) && (!map.name.empty()))
   {
     NotImplemented();
 #if 0

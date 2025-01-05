@@ -51,8 +51,8 @@ bool weaponscleaned = false;
 }
 
 template <Config::Module M>
-std::int32_t createsprite(tvector2 &spos, SpriteId id, std::shared_ptr<tplayer> player,
-                          const tsprite::Style style)
+auto createsprite(tvector2 &spos, SpriteId id, std::shared_ptr<tplayer> player,
+                  const tsprite::Style style) -> std::int32_t
 {
   LogDebug(LOG, "CreateSprite");
   auto &game = GS::GetGame();
@@ -149,33 +149,27 @@ std::int32_t createsprite(tvector2 &spos, SpriteId id, std::shared_ptr<tplayer> 
 }
 
 template <Config::Module M>
-bool teamcollides(PolygonType polytype, std::int32_t team, const bool bullet)
+auto teamcollides(PolygonType polytype, std::int32_t team, const bool bullet) -> bool
 {
   bool result;
   result = true;
   if (bullet)
   {
     if ((polytype == poly_type_red_bullets) || (polytype == poly_type_red_player))
-      if ((team == team_alpha) && (polytype == poly_type_red_bullets))
-        result = true;
-      else
-        result = false;
+    {
+      result = (team == team_alpha) && (polytype == poly_type_red_bullets);
+    }
     else if ((polytype == poly_type_blue_bullets) || (polytype == poly_type_blue_player))
-      if ((team == team_bravo) && (polytype == poly_type_yellow_bullets))
-        result = true;
-      else
-        result = false;
+    {
+      result = (team == team_bravo) && (polytype == poly_type_yellow_bullets);
+    }
     else if ((polytype == poly_type_yellow_bullets) || (polytype == poly_type_yellow_player))
-      if ((team == team_charlie) && (polytype == poly_type_yellow_bullets))
-        result = true;
-      else
-        result = false;
+    {
+      result = (team == team_charlie) && (polytype == poly_type_yellow_bullets);
+    }
     else if ((polytype == poly_type_green_bullets) || (polytype == poly_type_green_player))
     {
-      if ((team == team_delta) && (polytype == poly_type_green_bullets))
-        result = true;
-      else
-        result = false;
+      result = (team == team_delta) && (polytype == poly_type_green_bullets);
     }
   }
   else
@@ -183,22 +177,32 @@ bool teamcollides(PolygonType polytype, std::int32_t team, const bool bullet)
     if (((polytype == poly_type_red_bullets) && (team == team_alpha)) ||
         (((polytype == poly_type_red_bullets) || (polytype == poly_type_red_player)) &&
          (team != team_alpha)))
+    {
       result = false;
+    }
     else if (((polytype == poly_type_blue_bullets) && (team == team_bravo)) ||
              (((polytype == poly_type_blue_bullets) || (polytype == poly_type_blue_player)) &&
               (team != team_bravo)))
+    {
       result = false;
+    }
     else if (((polytype == poly_type_yellow_bullets) && (team == team_charlie)) ||
              (((polytype == poly_type_yellow_bullets) || (polytype == poly_type_yellow_player)) &&
               (team != team_charlie)))
+    {
       result = false;
+    }
     else if (((polytype == poly_type_green_bullets) && (team == team_delta)) ||
              (((polytype == poly_type_green_bullets) || (polytype == poly_type_green_player)) &&
               (team != team_delta)))
+    {
       result = false;
+    }
   }
   if (polytype == poly_type_non_flagger_collides)
+  {
     result = false;
+  }
   return result;
 }
 
@@ -222,13 +226,18 @@ void Sprite<M>::update()
 #ifndef SERVER
   std::int32_t k;
   std::int32_t rnd;
-  tvector2 m3, m4;
+  tvector2 m3;
+  tvector2 m4;
   SfxEffect weaponreloadsound;
 #endif
-  tvector2 mouseaim, p, m;
+  tvector2 mouseaim;
+  tvector2 p;
+  tvector2 m;
   // rotation vars
-  tvector2 rnorm, legvector;
-  float bodyy, arms;
+  tvector2 rnorm;
+  tvector2 legvector;
+  float bodyy;
+  float arms;
   float legdistance = 0.0;
 
   auto &map = GS::GetGame().GetMap();
@@ -253,7 +262,9 @@ void Sprite<M>::update()
   {
     ZoneScopedN("NextPushCopy");
     for (i = 0; i <= max_pushtick - 1; i++)
+    {
       nextpush[i] = nextpush[i + 1];
+    }
   }
 #endif
   nextpush[max_pushtick].x = 0;
@@ -278,7 +289,9 @@ void Sprite<M>::update()
   if (((player->controlmethod == human) && (noclientupdatetime[num] < clientstopmove_retrys)) ||
       (player->controlmethod == bot))
 #endif
+  {
     controlsprite(SpriteSystem::Get().GetSprite(num));
+  }
 
   if (isspectator())
   {
@@ -319,15 +332,23 @@ void Sprite<M>::update()
     if (bodyanimation.id == AnimationType::Prone)
     {
       if (bodyanimation.currframe > 9)
+      {
         bodyy = -2;
+      }
       else
+      {
         bodyy = 14 - bodyanimation.currframe;
+      }
     }
     else
+    {
       bodyy = 9;
+    }
 
     if (bodyanimation.id == AnimationType::ProneMove)
+    {
       bodyy = 0;
+    }
   }
   break;
   }
@@ -335,22 +356,34 @@ void Sprite<M>::update()
   if (bodyanimation.id == AnimationType::GetUp)
   {
     if (bodyanimation.currframe > 18)
+    {
       bodyy = 8;
+    }
     else
+    {
       bodyy = 4;
+    }
   }
 
   if (flaggrabcooldown > 0)
+  {
     flaggrabcooldown -= 1;
+  }
 
   // Reset the background poly test before collision checks on the corpse
   if (deadmeat)
+  {
     bgstate.backgroundtestprepare();
+  }
 
   if (control.mouseaimx >= spritePartsPos.x)
+  {
     direction = 1;
+  }
   else
+  {
     direction = -1;
+  }
 
   for (i = 1; i <= 20; i++)
   {
@@ -359,6 +392,7 @@ void Sprite<M>::update()
       skeleton.oldpos[i] = skeleton.pos[i];
 
       if (!halfdead)
+      {
         // legs
         if ((i == 1) || (i == 4) || (i == 2) || (i == 3) || (i == 5) || (i == 6) || (i == 17) ||
             (i == 18))
@@ -368,6 +402,7 @@ void Sprite<M>::update()
           skeleton.pos[i].y =
             spritePartsPos.y + legsanimation.frames[legsanimation.currframe].pos[i].y;
         }
+      }
 
       // body
       if ((i == 7) || (i == 8) || (i == 9) || (i == 10) || (i == 11) || (i == 12) || (i == 13) ||
@@ -376,11 +411,15 @@ void Sprite<M>::update()
         skeleton.pos[i].x =
           spritePartsPos.x + direction * bodyanimation.frames[bodyanimation.currframe].pos[i].x;
         if (!halfdead)
+        {
           skeleton.pos[i].y = (skeleton.pos[6].y - (spritePartsPos.y - bodyy)) + spritePartsPos.y +
                               bodyanimation.frames[bodyanimation.currframe].pos[i].y;
+        }
         else
+        {
           skeleton.pos[i].y =
             9 + spritePartsPos.y + bodyanimation.frames[bodyanimation.currframe].pos[i].y;
+        }
       }
     }
   }
@@ -408,9 +447,13 @@ void Sprite<M>::update()
     }
 
     if (bodyanimation.id == AnimationType::Throw)
+    {
       arms = -5;
+    }
     else
+    {
       arms = -7;
+    }
 
     // arm
     i = 15;
@@ -447,9 +490,13 @@ void Sprite<M>::update()
     }
 
     if (bodyanimation.id == AnimationType::Throw)
+    {
       arms = -6;
+    }
     else
+    {
       arms = -8;
+    }
 
     // arm
     i = 19;
@@ -512,33 +559,51 @@ void Sprite<M>::update()
             vec2scale(m3, m3, 0.35);
 
             if (sparkscount > 300)
+            {
               rnd = blood_random_low;
+            }
             else if (sparkscount > 50)
+            {
               rnd = blood_random_normal;
+            }
             else
+            {
               rnd = blood_random_high;
+            }
 
             if (deadtime > lessbleed_time)
+            {
               rnd = 2 * rnd;
+            }
             if (deadtime > nobleed_time)
+            {
               rnd = 100 * rnd;
+            }
 
             if (CVar::r_maxsparks < (max_sparks - 10))
+            {
               rnd = 2 * rnd;
+            }
 
             if ((k != 10) && (k != 11))
             {
               if (Random(rnd) == 0)
+              {
                 createspark(m4, m3, 5, num, 85 - Random(25));
+              }
               else if (Random(rnd / 3) == 0)
+              {
                 createspark(m4, m3, 4, num, 85 - Random(25));
+              }
             }
           }
         } // bleed
 
         // fire
         if (deadtime < onfire_time)
+        {
           if (onfire > 0)
+          {
             if (i % onfire == 0)
             {
               m4 = skeleton.pos[i];
@@ -548,24 +613,38 @@ void Sprite<M>::update()
 
               rnd = fire_random_normal;
               if (sparkscount > 170)
+              {
                 rnd = fire_random_low;
+              }
               if (sparkscount < 17)
+              {
                 rnd = fire_random_high;
+              }
 
               if (CVar::r_maxsparks < (max_sparks - 10))
+              {
                 rnd = 2 * rnd;
+              }
 
               if (Random(rnd) == 0)
               {
                 createspark(m4, m3, 36, num, 35);
                 if (Random(8) == 0)
+                {
                   playsound(SfxEffect::onfire, spritePartsPos);
+                }
                 if (Random(2) == 0)
+                {
                   playsound(SfxEffect::firecrack, spritePartsPos);
+                }
               }
               else if (Random(rnd / 3) == 0)
+              {
                 createspark(m4, m3, 37, num, 75);
+              }
             }
+          }
+        }
 #endif
       }
     }
@@ -574,7 +653,9 @@ void Sprite<M>::update()
   // If no background poly contact in CheckSkeletonMapCollision() then reset any background poly
   // status
   if (deadmeat)
+  {
     bgstate.backgroundtestreset();
+  }
 
 #ifdef SERVER
   LogTraceG("TSprite.Update 2");
@@ -618,9 +699,13 @@ void Sprite<M>::update()
       {
         // If walking in facing direction
         if (control.left ^ (direction == 1))
+        {
           arms = 0.25;
-        else // Walking backwards
+        }
+        else
+        { // Walking backwards
           bodyy = 0.25;
+        }
       }
 
       // If a leg is inside a polygon, caused by the modification of ArmS and
@@ -629,13 +714,17 @@ void Sprite<M>::update()
       {
         legvector = vector2(spritePartsPos.x + 2, spritePartsPos.y + 1.9);
         if (map.raycast(legvector, legvector, legdistance, 10))
+        {
           bodyy = 0.25;
+        }
       }
       if (arms == 0)
       {
         legvector = vector2(spritePartsPos.x - 2, spritePartsPos.y + 1.9);
         if (map.raycast(legvector, legvector, legdistance, 10))
+        {
           arms = 0.25;
+        }
       }
 
       // Legs collison check. If collided then don't check the other side as a possible double
@@ -654,8 +743,10 @@ void Sprite<M>::update()
 
       // Change the permanent state if the player has had the same OnGround state for two
       // frames in a row
-      if (!(onground ^ ongroundlastframe))
+      if ((onground ^ ongroundlastframe) == 0)
+      {
         ongroundpermanent = onground;
+      }
 
       ongroundlastframe = onground;
 
@@ -667,16 +758,20 @@ void Sprite<M>::update()
       if ((num == mysprite) || (weapon.fireinterval <= fireinterval_net) or
           !GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y, camerafollowsprite))
 #endif
+      {
         if ((weapon.fireintervalcount > 0) &&
             ((weapon.ammocount > 0) || (weapon.num == spas12_num)))
         {
           weapon.fireintervalprev = weapon.fireintervalcount;
           weapon.fireintervalcount -= 1;
         }
+      }
 
       // If fire button is released, then the reload can begin
       if (!control.fire)
+      {
         canautoreloadspas = true;
+      }
 
       // reload
       if ((weapon.ammocount == 0) &&
@@ -689,7 +784,9 @@ void Sprite<M>::update()
       {
 #ifndef SERVER
         if (reloadsoundchannel > -2)
+        {
           setsoundpaused(reloadsoundchannel, false);
+        }
 #endif
 
         if (bodyanimation.id != AnimationType::GetUp)
@@ -699,10 +796,14 @@ void Sprite<M>::update()
           if (weapon.num == spas12_num)
           {
             if ((weapon.fireintervalcount == 0) && canautoreloadspas)
+            {
               bodyapplyanimation(AnimationType::Reload, 1);
+            }
           }
           else if ((weapon.num == bow_num) || (weapon.num == bow2_num))
+          {
             bodyapplyanimation(AnimationType::ReloadBow, 1);
+          }
           else if ((bodyanimation.id != AnimationType::ClipIn) &&
                    (bodyanimation.id != AnimationType::SlideBack))
           {
@@ -714,7 +815,9 @@ void Sprite<M>::update()
                                                  (bodyanimation.id != AnimationType::Change) &&
                                                  (bodyanimation.id != AnimationType::Throw) &&
                                                  (bodyanimation.id != AnimationType::ThrowWeapon)))
+            {
               bodyapplyanimation(AnimationType::ClipOut, 1);
+            }
           }
 
           burstcount = 0;
@@ -726,30 +829,54 @@ void Sprite<M>::update()
         {
 
           if (weapon.num == eagle_num)
+          {
             weaponreloadsound = SfxEffect::deserteagle_reload;
+          }
           else if (weapon.num == mp5_num)
+          {
             weaponreloadsound = SfxEffect::mp5_reload;
+          }
           else if (weapon.num == ak74_num)
+          {
             weaponreloadsound = SfxEffect::ak74_reload;
+          }
           else if (weapon.num == steyraug_num)
+          {
             weaponreloadsound = SfxEffect::steyraug_reload;
+          }
           else if (weapon.num == ruger77_num)
+          {
             weaponreloadsound = SfxEffect::ruger77_reload;
+          }
           else if (weapon.num == m79_num)
+          {
             weaponreloadsound = SfxEffect::m79_reload;
+          }
           else if (weapon.num == barrett_num)
+          {
             weaponreloadsound = SfxEffect::barretm82_reload;
+          }
           else if (weapon.num == m249_num)
+          {
             weaponreloadsound = SfxEffect::m249_reload;
+          }
           else if (weapon.num == minigun_num)
+          {
             weaponreloadsound = SfxEffect::minigun_reload;
+          }
           else if (weapon.num == colt_num)
+          {
             weaponreloadsound = SfxEffect::colt1911_reload;
+          }
           else
+          {
             weaponreloadsound = SfxEffect::INVALID;
+          }
 
           if (weaponreloadsound != SfxEffect::INVALID)
+          {
             playsound(weaponreloadsound, spritePartsPos, reloadsoundchannel);
+          }
         }
 
         m3.x = skeleton.pos[15].x;
@@ -768,17 +895,29 @@ void Sprite<M>::update()
             createspark(m3, m4, 18, num, 255);
           }
           else if (weapon.num == mp5_num)
+          {
             createspark(m3, m4, 11, num, 255);
+          }
           else if (weapon.num == ak74_num)
+          {
             createspark(m3, m4, 9, num, 255);
+          }
           else if (weapon.num == steyraug_num)
+          {
             createspark(m3, m4, 19, num, 255);
+          }
           else if (weapon.num == barrett_num)
+          {
             createspark(m3, m4, 20, num, 255);
+          }
           else if (weapon.num == m249_num)
+          {
             createspark(m3, m4, 10, num, 255);
+          }
           else if (weapon.num == colt_num)
+          {
             createspark(m3, m4, 23, num, 255);
+          }
         }
 #endif
 
@@ -788,7 +927,9 @@ void Sprite<M>::update()
           // If it ever does, be sure to put this back outside.
           weapon.reloadtimeprev = weapon.reloadtimecount;
           if (weapon.reloadtimecount > 0)
+          {
             weapon.reloadtimecount -= 1;
+          }
 
           // spas waits for fire interval to hit 0.
           // doing this next line for the spas would cause it to never reload when empty.
@@ -820,7 +961,9 @@ void Sprite<M>::update()
           weapon.ammocount = weapon.ammo;
         }
         if (weapon.reloadtimecount > weapon.reloadtime)
+        {
           weapon.reloadtimecount = weapon.reloadtime;
+        }
 #endif
 
         if (weapon.num != spas12_num)
@@ -847,6 +990,7 @@ void Sprite<M>::update()
 
           // didn't we just do this right above? :S
           if (weapon.num != spas12_num)
+          {
             if (weapon.reloadtimecount < 1)
             {
               bodyapplyanimation(AnimationType::Change, 36);
@@ -857,6 +1001,7 @@ void Sprite<M>::update()
               weapon.startuptimecount = weapon.startuptime;
               weapon.ammocount = weapon.ammo;
             }
+          }
 #endif
         }
       }
@@ -876,16 +1021,22 @@ void Sprite<M>::update()
             m4.y = -0.25;
             createspark(m3, m4, 1, num, 20);
             if (weapon.ammocount == 0)
+            {
               playsound(SfxEffect::chainsaw_o, spritePartsPos, gattlingsoundchannel);
+            }
             else
+            {
               playsound(SfxEffect::chainsaw_m, spritePartsPos, defaultchannel);
+            }
           }
         }
 
         if (control.fire)
         {
           if (weapon.ammocount > 0)
+          {
             playsound(SfxEffect::chainsaw_r, spritePartsPos, gattlingsoundchannel);
+          }
         }
       }
 
@@ -893,7 +1044,9 @@ void Sprite<M>::update()
       if ((weapon.num == law_num) || (weapon.num == chainsaw_num))
       {
         if (weapon.ammocount == 0)
+        {
           if (CVar::r_maxsparks > (max_sparks - 10))
+          {
             if (Random(4) == 0)
             {
               m3 = skeleton.pos[9];
@@ -903,16 +1056,20 @@ void Sprite<M>::update()
               m4.y = -0.3;
               createspark(m3, m4, 1, num, 20);
             }
+          }
+        }
       }
 
       // flame arrow on fire
       if (weapon.num == bow2_num)
+      {
         if (Random(10) == 0)
         {
           m3.x = skeleton.pos[15].x + direction * 6;
           m3.y = skeleton.pos[15].y - 5;
           createspark(m3, vector2(0, -0.5), 36, num, 40);
         }
+      }
 #endif
 
       // JETS
@@ -923,11 +1080,15 @@ void Sprite<M>::update()
         (((player->controlmethod == human) && (noclientupdatetime[num] < clientstopmove_retrys)) ||
          (player->controlmethod == bot))
 #endif
+      {
         if ((jetscount < map.startjet) && !control.jetpack)
         {
           if (onground || (GS::GetGame().GetMainTickCounter() % 2 == 0))
+          {
             jetscount += 1;
+          }
         }
+      }
 
       if (ceasefirecounter > -1)
       {
@@ -940,7 +1101,9 @@ void Sprite<M>::update()
       }
 
       if (bonusstyle == bonus_predator)
+      {
         alpha = predatoralpha;
+      }
 
 #ifndef SERVER
       // bleed when BERSERKER
@@ -954,10 +1117,14 @@ void Sprite<M>::update()
         rnd = blood_random_high;
 
         if (CVar::r_maxsparks < (max_sparks - 10))
+        {
           rnd = 2 * rnd;
+        }
 
         if (Random(rnd) == 0)
+        {
           createspark(m4, m3, 5, num, 55 - Random(20));
+        }
       }
 
       if (bonusstyle == bonus_flamegod)
@@ -970,10 +1137,14 @@ void Sprite<M>::update()
         rnd = blood_random_high;
 
         if (CVar::r_maxsparks < (max_sparks - 10))
+        {
           rnd = 2 * rnd;
+        }
 
         if (Random(rnd) == 0)
+        {
           createspark(m4, m3, 36, num, 40 - Random(10));
+        }
       }
 
       // bleed when hurt
@@ -986,10 +1157,14 @@ void Sprite<M>::update()
         rnd = blood_random_normal;
 
         if (CVar::r_maxsparks < (max_sparks - 10))
+        {
           rnd = 2 * rnd;
+        }
 
         if (Random(rnd) == 0)
+        {
           createspark(m4, m3, 4, num, 65 - Random(10));
+        }
       }
 #endif
 
@@ -1009,7 +1184,9 @@ void Sprite<M>::update()
         }
       }
       else
+      {
         bonusstyle = bonus_none;
+      }
 
       // MULITKILL TIMER
 
@@ -1033,6 +1210,7 @@ void Sprite<M>::update()
 #ifndef SERVER
       // smoke
       if (hascigar == 10)
+      {
         if (GS::GetGame().GetMainTickCounter() % 160 == 0)
         {
           {
@@ -1063,10 +1241,13 @@ void Sprite<M>::update()
             }
           }
         }
+      }
 
       // winter breath
       if (map.weather == 3)
+      {
         if (CVar::r_maxsparks > (max_sparks - 10))
+        {
           if (GS::GetGame().GetMainTickCounter() % 160 == 0)
           {
             {
@@ -1078,13 +1259,19 @@ void Sprite<M>::update()
               createspark(m3, m4, 31, num, 55);
             }
           }
+        }
+      }
 #endif
 
       // parachuter
       para = 0;
       if ((holdedthing > 0) && (holdedthing < max_things + 1))
+      {
         if (things[holdedthing].style == object_parachute)
+        {
           para = 1;
+        }
+      }
 
       if (para == 1)
       {
@@ -1092,12 +1279,15 @@ void Sprite<M>::update()
         spriteForces.y = para_speed;
 #ifdef SERVER
         if (ceasefirecounter < 1)
+        {
 #else
         if (((CVar::sv_survivalmode) &&
              (ceasefirecounter < GS::GetGame().GetCeasefiretime() * 3 - 30)) ||
             (ceasefirecounter < GS::GetGame().GetCeasefiretime() - 30))
+        {
 #endif
           if (onground || control.jetpack)
+          {
             if ((holdedthing > 0) && (holdedthing < max_things + 1))
             {
               things[holdedthing].holdingsprite = 0;
@@ -1105,6 +1295,8 @@ void Sprite<M>::update()
               things[holdedthing].timeout = 3 * 60;
               holdedthing = 0;
             }
+          }
+        }
       }
 
 #ifdef SERVER
@@ -1162,7 +1354,9 @@ void Sprite<M>::update()
         if (respawncounter == 1)
         {
           if (!GS::GetGame().GetSurvivalEndRound())
+          {
             respawncounter += 2;
+          }
           else
           {
             if (respawncounter < 3)
@@ -1199,13 +1393,18 @@ void Sprite<M>::update()
       // parachuter
       para = 0;
       if ((holdedthing > 0) && (holdedthing < max_things + 1))
+      {
         if (things[holdedthing].style == object_parachute)
+        {
           para = 1;
+        }
+      }
 
       if (para == 1)
       {
         skeleton.forces[12].y = 25 * para_speed;
         if (onground)
+        {
           if ((holdedthing > 0) && (holdedthing < max_things + 1))
           {
             things[holdedthing].holdingsprite = 0;
@@ -1213,6 +1412,7 @@ void Sprite<M>::update()
             things[holdedthing].timeout = 3 * 60;
             holdedthing = 0;
           }
+        }
       }
 
       deadtime += 1;
@@ -1221,13 +1421,21 @@ void Sprite<M>::update()
 
   // Safety
   if (spriteVelocity.x > max_velocity)
+  {
     spriteVelocity.x = max_velocity;
+  }
   if (spriteVelocity.x < -max_velocity)
+  {
     spriteVelocity.x = -max_velocity;
+  }
   if (spriteVelocity.y > max_velocity)
+  {
     spriteVelocity.y = max_velocity;
+  }
   if (spriteVelocity.y < -max_velocity)
+  {
     spriteVelocity.y = -max_velocity;
+  }
 }
 
 template <Config::Module M>
@@ -1261,11 +1469,13 @@ void Sprite<M>::kill()
   }
 
   if ((holdedthing > 0) && (holdedthing < max_things + 1))
+  {
     if (things[holdedthing].style < object_ussocom)
     {
       things[holdedthing].holdingsprite = 0;
       holdedthing = 0;
     }
+  }
 
   if (stat > 0)
   {
@@ -1279,10 +1489,12 @@ void Sprite<M>::kill()
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
       if (isinsameteam(sprite) && (sprite.num != num))
+      {
         left = true;
+      }
     }
 
-    if (left == false)
+    if (!left)
     {
       GS::GetGame().SetTeamScore(player->team, team_none);
     }
@@ -1306,7 +1518,9 @@ void Sprite<M>::kill()
 // TODO move into Sprite
 void selectdefaultweapons(std::uint8_t mysprite)
 {
-  std::int32_t i, j, k;
+  std::int32_t i;
+  std::int32_t j;
+  std::int32_t k;
 
   auto &weaponSystem = GS::GetWeaponSystem();
 
@@ -1350,8 +1564,10 @@ void selectdefaultweapons(std::uint8_t mysprite)
         CVar::cl_player_secwep = (SpriteSystem::Get().GetSprite(mysprite).player->secwep);
 
         if (limbomenu->active && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+        {
           SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
             GS::GetWeaponSystem().GetGuns()[j].num, 2);
+        }
         clientspritesnapshot();
         break;
       }
@@ -1359,7 +1575,7 @@ void selectdefaultweapons(std::uint8_t mysprite)
   }
 }
 
-float deg2rad(float deg)
+auto deg2rad(float deg) -> float
 {
   float result;
   result = deg / (180 / std::numbers::pi);
@@ -1371,7 +1587,8 @@ template <Config::Module M>
 void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std::int32_t what,
                     tvector2 impact)
 {
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
   float k;
   std::string s;
   tvector2 a;
@@ -1384,9 +1601,13 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
   LogTraceG("TSprite.Die");
 
   if ((who < 1) || (who > max_sprites))
+  {
     return;
+  }
   if (what > max_bullets)
+  {
     return;
+  }
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
   auto &bullet = GS::GetBulletSystem().GetBullets();
@@ -1396,6 +1617,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
   {
     // bullet time
     if (CVar::sv_bullettime)
+    {
       if (GS::GetGame().IsDefaultGoalTicks())
       {
         k = 0;
@@ -1405,8 +1627,12 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
           auto &spritePartsPosWho = SpriteSystem::Get().GetSpritePartsPos(who);
           if (sprite.active && (sprite.num != who) && (!sprite.player->demoplayer) and
               sprite.isnotspectator())
+          {
             if (distance(spritePartsPos, spritePartsPosWho) > bullettime_mindistance)
+            {
               k = 1;
+            }
+          }
         }
 
         if (k < 1)
@@ -1414,27 +1640,36 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
           GS::GetGame().togglebullettime(true);
         }
       }
+    }
 
 #ifdef SERVER
     if ((CVar::sv_gamemode == gamestyle_inf) || (CVar::sv_gamemode == gamestyle_teammatch) ||
         (CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_htf))
+    {
       respawncounter = waverespawncounter + CVar::sv_respawntime_minwave;
+    }
     else
+    {
       respawncounter = CVar::sv_respawntime;
+    }
 #endif
     player->deaths += 1;
 
 #ifdef SERVER
     if (what > 0)
+    {
       if (((bullet[what].style == bullet_style_arrow) && (CVar::sv_gamemode != gamestyle_rambo)) ||
           ((bullet[what].style == bullet_style_flamearrow) &&
            (CVar::sv_gamemode != gamestyle_rambo)))
-        if (bullet[what].dontcheat == false)
+      {
+        if (!bullet[what].dontcheat)
         {
           kickplayer(SpriteSystem::Get().GetSprite(who).num, true, kick_cheat, day,
                      "Not allowed weapon");
           return;
         }
+      }
+    }
 
     // Anti-Team Killer Protection
     if (CVar::sv_punishtk)
@@ -1465,7 +1700,9 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             0, 255, msgtype_pub);
         }
         if (SpriteSystem::Get().GetSprite(who).player->tkwarnings > (CVar::sv_warnings_tk - 1))
+        {
           kickplayer(who, true, kick_console, 3600 * 15, "Team Killing");
+        }
       }
     }
 #endif
@@ -1490,24 +1727,38 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         // add another point for holding the flag
         if ((SpriteSystem::Get().GetSprite(who).holdedthing > 0) &&
             (SpriteSystem::Get().GetSprite(who).holdedthing < max_things + 1))
+        {
           if (things[SpriteSystem::Get().GetSprite(who).holdedthing].style ==
               object_pointmatch_flag)
+          {
             i = i * 2;
+          }
+        }
 
             // add points for multikill
 #ifdef SERVER
         if (SpriteSystem::Get().GetSprite(who).multikilltime > 0)
         {
           if (SpriteSystem::Get().GetSprite(who).multikills == 2)
+          {
             i = i * 2;
+          }
           if (SpriteSystem::Get().GetSprite(who).multikills == 3)
+          {
             i = i * 4;
+          }
           if (SpriteSystem::Get().GetSprite(who).multikills == 4)
+          {
             i = i * 8;
+          }
           if (SpriteSystem::Get().GetSprite(who).multikills == 5)
+          {
             i = i * 16;
+          }
           if (SpriteSystem::Get().GetSprite(who).multikills > 5)
+          {
             i = i * 32;
+          }
         }
 #endif
 
@@ -1572,9 +1823,13 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
       if (CVar::sv_gamemode == gamestyle_rambo)
       {
         if (what > 0)
+        {
           i = bullet[what].ownerweapon;
+        }
         else
+        {
           i = -1;
+        }
         if ((i == bow_num) ||                             // Shooter is Rambo
             (i == bow2_num) || (weapon.num == bow_num) || // Shootee is Rambo
             (weapon.num == bow2_num))
@@ -1590,13 +1845,17 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         {
           // Punish for killing non-Rambos when someone is Rambo
           for (i = 1; i <= max_players; i++)
+          {
             if ((SpriteSystem::Get().GetSprite(i).weapon.num == bow_num) ||
                 (SpriteSystem::Get().GetSprite(i).weapon.num == bow2_num))
+            {
               if (SpriteSystem::Get().GetSprite(who).player->kills > 0)
               {
                 SpriteSystem::Get().GetSprite(who).player->kills -= 1;
                 break;
               }
+            }
+          }
         }
       }
     }
@@ -1604,7 +1863,9 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     if (idlerandom == 7)
     {
       if (weapon.num == noweapon_num)
+      {
         how = brutal_death;
+      }
     }
 
     bodyanimation.currframe = 0;
@@ -1618,42 +1879,74 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         auto &b = bullet[what];
         s = weaponnamebynum(b.ownerweapon, guns);
         if (b.ownerweapon == 0)
+        {
           s = "USSOCOM";
+        }
         if (b.style == bullet_style_fragnade)
+        {
           s = "Grenade";
+        }
         if (b.style == bullet_style_cluster)
+        {
           s = "Cluster Grenades";
+        }
         if (b.style == bullet_style_punch)
+        {
           s = guns[noweapon].name;
+        }
         if (b.style == bullet_style_m2)
+        {
           s = "Stationary gun";
+        }
       }
       else
       {
         // if Bullet[What].OwnerWeapon = noweapon_num then S := 'Selfkill';
         s = weaponnamebynum(what, guns);
         if (what == 222)
+        {
           s = "Grenade";
+        }
         if (what == 210)
+        {
           s = "Clusters";
+        }
         if (what == 211)
+        {
           s = guns[knife].name;
+        }
         if (what == 212)
+        {
           s = guns[chainsaw].name;
+        }
         if (what == 224)
+        {
           s = guns[law].name;
+        }
         if (what == 225)
+        {
           s = "Stationary gun";
+        }
         if (what == 205)
+        {
           s = guns[flamer].name;
+        }
         if (what == 207)
+        {
           s = guns[bow].name;
+        }
         if (what == 208)
+        {
           s = guns[bow2].name;
+        }
         if (what == 206)
+        {
           s = guns[noweapon].name;
+        }
         if (what == 250)
+        {
           s = "Selfkill";
+        }
       }
     }
     else
@@ -1716,12 +2009,20 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
       if (CVar::bots_chat)
       {
         if (player->controlmethod == bot)
+        {
           if (Random(brain.chatfreq / 2) == 0)
+          {
             serversendstringmessage((brain.chatdead), all_players, num, msgtype_pub);
+          }
+        }
         if ((who != num) && (SpriteSystem::Get().GetSprite(who).player->controlmethod == bot))
+        {
           if (Random(SpriteSystem::Get().GetSprite(who).brain.chatfreq / 3) == 0)
+          {
             serversendstringmessage((SpriteSystem::Get().GetSprite(who).brain.chatkill),
                                     all_players, who, msgtype_pub);
+          }
+        }
       }
 
       k = weapon.hitmultiply;
@@ -1749,7 +2050,9 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         GS::GetGame().ispointonscreen(skeleton.pos[9]))
     {
       if ((who == mysprite) && (num == mysprite))
+      {
         ;
+      }
       else
       {
         screencounter = 5;
@@ -1767,7 +2070,9 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     extern float shotricochetServer;
     auto &b = bullet[what];
     if (((what == 1) && (where == 1)) || (b.style == bullet_style_flame) || deadmeat)
+    {
       ;
+    }
     else
     {
       a = vec2subtract(GetBulletParts().pos[what], b.initial);
@@ -1782,8 +2087,12 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
 #ifndef SERVER
   if (what > 0)
+  {
     if ((where == 12) && ((bullet[what].ownerweapon == ruger77_num)))
+    {
       how = headchop_death;
+    }
+  }
 #endif
   switch (how)
   {
@@ -1792,7 +2101,9 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
     // the sound of death...
     if (!deadmeat)
+    {
       playsound(SfxEffect::death + Random(3), spritePartsPos);
+    }
 #endif
   }
   break;
@@ -1803,15 +2114,22 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #endif
     {
       if (where == 12)
+      {
         skeleton.constraints[20].active = false;
+      }
       if (where == 3)
+      {
         skeleton.constraints[2].active = false;
+      }
       if (where == 4)
+      {
         skeleton.constraints[4].active = false;
+      }
     }
 
 #ifndef SERVER
     if (what > 0)
+    {
       if (!deadmeat && (where == 12) &&
           ((bullet[what].ownerweapon == barrett_num) || (bullet[what].ownerweapon == ruger77_num)))
       {
@@ -1833,12 +2151,17 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         }
 
         if (bullet[what].ownerweapon == barrett_num)
+        {
           // corpse explode
           playsound(SfxEffect::bryzg, skeleton.pos[12]);
+        }
 
         if (who == mysprite)
+        {
           playsound(SfxEffect::boomheadshot);
+        }
       }
+    }
 
     // siup leb!
     if (!deadmeat)
@@ -1872,6 +2195,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifndef SERVER
   if (deadmeat)
 #endif
+  {
     if (SpriteSystem::Get().GetSprite(who).bonusstyle == bonus_berserker)
     {
       skeleton.constraints[2].active = false;
@@ -1884,11 +2208,16 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
       playsound(SfxEffect::killberserk, skeleton.pos[12]);
 #endif
     }
+  }
 
 #ifndef SERVER
   if (!deadmeat && (what > 0))
+  {
     if (bullet[what].ownerweapon == flamer_num)
+    {
       playsound(SfxEffect::burn, skeleton.pos[12]);
+    }
+  }
 #endif
 
   if (!deadmeat && (hascigar == 10))
@@ -1901,6 +2230,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
   // Survival Mode
   if (CVar::sv_survivalmode)
+  {
     if (!deadmeat)
     {
       if ((CVar::sv_gamemode == gamestyle_deathmatch) || (CVar::sv_gamemode == gamestyle_rambo))
@@ -1910,7 +2240,9 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
         {
           if (!sprite.deadmeat && sprite.isnotspectator())
+          {
             alivenum += 1;
+          }
         }
 
         alivenum -= 1;
@@ -1941,6 +2273,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifndef SERVER
         if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
 #endif
+        {
           GS::GetMainConsole().console(
 #ifdef SERVER
             std::string("Players left: ") +
@@ -1949,6 +2282,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #endif
               (inttostr(alivenum)),
             game_message_color);
+        }
       }
 
       if ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf) ||
@@ -1958,45 +2292,71 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         GS::GetGame().CalculateTeamAliveNum(player->team);
 #ifndef SERVER
         if (mysprite > 0)
+        {
           if (isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
+          {
             if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+            {
               GS::GetMainConsole().console(
                 _("Players left on your team:") + ' ' +
                   (inttostr(GS::GetGame().GetTeamAliveNum(
                     SpriteSystem::Get().GetSprite(mysprite).player->team))),
                 game_message_color);
+            }
+          }
+        }
 #endif
       }
     }
+  }
 
 #ifdef SERVER
   // Fire on from bullet
   if (what > 0)
   {
     if (bullet[what].style == bullet_style_fragnade)
+    {
       if (Random(12) == 0)
+      {
         onfire = 4;
+      }
+    }
 
     if (bullet[what].style == bullet_style_m79)
+    {
       if (Random(8) == 0)
+      {
         onfire = 2;
+      }
+    }
 
     if (bullet[what].style == bullet_style_flame)
+    {
       onfire = 1;
+    }
 
     if (bullet[what].style == bullet_style_flamearrow)
+    {
       if (Random(4) == 0)
+      {
         onfire = 1;
+      }
+    }
 
     if (bullet[what].style == bullet_style_cluster)
+    {
       if (Random(3) == 0)
+      {
         onfire = 3;
+      }
+    }
   }
 #endif
 
   for (i = 1; i <= max_things; i++)
   {
     if (things[i].holdingsprite == num)
+    {
       if (things[i].style < object_ussocom)
       {
         things[i].holdingsprite = 0;
@@ -2011,12 +2371,16 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
           if (isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
           {
-            if (things[i].style == object_alpha_flag) // Alpha
+            if (things[i].style == object_alpha_flag)
+            { // Alpha
               bigmessage(wideformat(_("{} Flag dropped!"), _("Red")), capturemessagewait,
                          capture_message_color);
-            else if (things[i].style == object_bravo_flag) // Bravo
+            }
+            else if (things[i].style == object_bravo_flag)
+            { // Bravo
               bigmessage(wideformat(_("{} Flag dropped!"), _("Blue")), capturemessagewait,
                          capture_message_color);
+            }
 
             playsound(SfxEffect::infilt_point);
           }
@@ -2026,9 +2390,12 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         scrptdispatcher.onflagdrop(num, things[i].style, false);
 #endif
       }
+    }
 
     if (things[i].owner == num)
+    {
       things[i].owner = 255;
+    }
 
     if (stat == num)
     {
@@ -2040,7 +2407,9 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
   // send net info, so the death is smooth
 #ifdef SERVER
   if (!deadmeat)
+  {
     serverspritedeath(num, who, what, where);
+  }
 
   LogTraceG("TSprite.Die 3");
 #endif
@@ -2073,15 +2442,19 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         {
           j = 0;
           for (i = 1; i <= primary_weapons; i++)
+          {
             if ((weaponsel[who][i] == 0) && (weaponSystem.IsEnabled((i))))
+            {
               j = 1;
+            }
+          }
 
           if (j == 1)
           {
             do
             {
               j = Random(primary_weapons) + 1;
-            } while (!((weaponsel[who][j] == 0) && (weaponSystem.IsEnabled(j))));
+            } while ((weaponsel[who][j] != 0) || !(weaponSystem.IsEnabled(j)));
             weaponsel[who][j] = 1;
           }
         }
@@ -2093,8 +2466,12 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
       {
         j = 0;
         for (i = 1; i <= primary_weapons; i++)
+        {
           if (weaponsel[num][i] == 1)
+          {
             j = 1;
+          }
+        }
 
         if (j == 1)
         {
@@ -2108,11 +2485,15 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
 #ifndef SERVER
       if ((num == mysprite) || (who == mysprite))
+      {
         for (i = 1; i <= primary_weapons; i++)
         {
           if (weaponSystem.IsEnabled(i))
+          {
             limbomenu->button[i - 1].active = (bool)(weaponsel[mysprite][i]);
+          }
         }
+      }
 #endif
     }
   }
@@ -2126,9 +2507,13 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
   bonusstyle = bonus_none;
   bonustime = 0;
   if ((deadtime > 0) && (onfire == 0))
+  {
     deadtime = deadtime / 2;
+  }
   else
+  {
     deadtime = 0;
+  }
 
   auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
 
@@ -2141,7 +2526,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 }
 
 template <Config::Module M>
-std::int32_t Sprite<M>::dropweapon()
+auto Sprite<M>::dropweapon() -> std::int32_t
 {
   std::int32_t result;
   result = -1;
@@ -2154,48 +2539,75 @@ std::int32_t Sprite<M>::dropweapon()
   // drop weapon
 #ifdef SERVER
   if (weapon.num == colt_num)
+  {
     result = creatething(skeleton.pos[16], num, object_ussocom, 255);
+  }
   else if (weapon.num == eagle_num)
+  {
     result = creatething(skeleton.pos[16], num, object_desert_eagle, 255);
+  }
   else if (weapon.num == mp5_num)
+  {
     result = creatething(skeleton.pos[16], num, object_hk_mp5, 255);
+  }
   else if (weapon.num == ak74_num)
+  {
     result = creatething(skeleton.pos[16], num, object_ak74, 255);
+  }
   else if (weapon.num == steyraug_num)
+  {
     result = creatething(skeleton.pos[16], num, object_steyr_aug, 255);
+  }
   else if (weapon.num == spas12_num)
+  {
     result = creatething(skeleton.pos[16], num, object_spas12, 255);
+  }
   else if (weapon.num == ruger77_num)
+  {
     result = creatething(skeleton.pos[16], num, object_ruger77, 255);
+  }
   else if (weapon.num == m79_num)
+  {
     result = creatething(skeleton.pos[16], num, object_m79, 255);
+  }
   else if (weapon.num == barrett_num)
+  {
     result = creatething(skeleton.pos[16], num, object_barret_m82a1, 255);
+  }
   else if (weapon.num == m249_num)
+  {
     result = creatething(skeleton.pos[16], num, object_minimi, 255);
+  }
   else if (weapon.num == minigun_num)
+  {
     result = creatething(skeleton.pos[16], num, object_minigun, 255);
+  }
   else if (weapon.num == knife_num)
+  {
     result = creatething(skeleton.pos[16], num, object_combat_knife, 255);
+  }
   else if (weapon.num == chainsaw_num)
+  {
     result = creatething(skeleton.pos[16], num, object_chainsaw, 255);
+  }
   else if (weapon.num == law_num)
+  {
     result = creatething(skeleton.pos[16], num, object_law, 255);
+  }
 
   if (CVar::sv_gamemode == gamestyle_rambo)
   {
     if ((weapon.num == bow_num) || (weapon.num == bow2_num))
     {
       result = creatething(skeleton.pos[16], num, object_rambo_bow, 255);
-#ifndef SERVER
-      gamethingtarget = result;
-#endif
     }
   }
 
   auto &things = GS::GetThingSystem().GetThings();
   if (result > 0)
+  {
     things[result].ammocount = weapon.ammocount;
+  }
 
     // This should be called before weapon is actually applied
     // so that sprite still holds old values
@@ -2224,7 +2636,9 @@ void Sprite<M>::legsapplyanimation(const AnimationType anim, std::int32_t curr)
   LogTraceG("TSprite.LegsApplyAnimation");
 
   if ((legsanimation.id == AnimationType::Prone) || (legsanimation.id == AnimationType::ProneMove))
+  {
     return;
+  }
 
   if (anim != legsanimation.id)
   {
@@ -2241,12 +2655,14 @@ void Sprite<M>::bodyapplyanimation(const AnimationType anim, std::int32_t curr)
 
 #ifndef SERVER
   if (anim == AnimationType::Stand)
+  {
     if (wasreloading)
     {
       bodyapplyanimation(AnimationType::Reload, 1);
       wasreloading = false;
       return;
     }
+  }
 #endif
 
   if (anim != bodyanimation.id)
@@ -2263,32 +2679,46 @@ void Sprite<M>::moveskeleton(float x1, float y1, bool fromzero)
 
   ZoneScopedN("Sprite::MoveSkeleton");
   if (!fromzero)
+  {
     for (i = 1; i <= num_particles; i++)
+    {
       if (skeleton.active[i])
       {
         skeleton.pos[i].x = skeleton.pos[i].x + x1;
         skeleton.pos[i].y = skeleton.pos[i].y + y1;
         skeleton.oldpos[i] = skeleton.pos[i];
       }
+    }
+  }
 
   if (fromzero)
+  {
     for (i = 1; i <= num_particles; i++)
+    {
       if (skeleton.active[i])
       {
         skeleton.pos[i].x = x1;
         skeleton.pos[i].y = y1;
         skeleton.oldpos[i] = skeleton.pos[i];
       }
+    }
+  }
 }
 
 template <Config::Module M>
-bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
+auto Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided) -> bool
 {
-  std::int32_t k, z;
+  std::int32_t k;
+  std::int32_t z;
   std::int32_t b = 0;
-  tvector2 spos, pos, perp, step;
+  tvector2 spos;
+  tvector2 pos;
+  tvector2 perp;
+  tvector2 step;
   tvector2 norm;
-  tvector2 p1, p2, p3;
+  tvector2 p1;
+  tvector2 p2;
+  tvector2 p3;
   float d = 0.0;
   std::int32_t detacc;
   bool teamcol;
@@ -2306,7 +2736,9 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
   // make step
   detacc = trunc(vec2length(spriteVelocity));
   if (detacc == 0)
+  {
     detacc = 1;
+  }
   vec2scale(step, spriteVelocity, (float)(1) / detacc);
 
   // make steps for accurate collision detection
@@ -2327,7 +2759,9 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
 
         if (((holdedthing == 0) && (polytype == poly_type_only_flaggers)) ||
             ((holdedthing != 0) && (polytype == poly_type_not_flaggers)))
+        {
           teamcol = false;
+        }
         if (teamcol && (polytype != poly_type_doesnt) && (polytype != poly_type_only_bullets))
         {
           for (k = 1; k <= 3; k++)
@@ -2340,10 +2774,14 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
             if (map.pointinpolyedges(pos.x, pos.y, w.Index))
             {
               if (bgstate.backgroundtest(w))
+              {
                 continue;
+              }
 
               if (!hascollided)
+              {
                 handlespecialpolytypes(polytype, pos);
+              }
 
               perp = map.closestperpendicular(w.Index, spos, d, b);
 
@@ -2394,11 +2832,14 @@ bool Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided)
 }
 
 template <Config::Module M>
-bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
+auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
 {
   ZoneScopedN("CheckMapCollision");
   std::int32_t k = 0;
-  tvector2 spos, pos, perp, step;
+  tvector2 spos;
+  tvector2 pos;
+  tvector2 perp;
+  tvector2 step;
   float d = 0.0;
   bool teamcol;
 
@@ -2435,10 +2876,12 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
           ((holdedthing != 0) && (polytype == poly_type_only_flaggers)) ||
           ((holdedthing == 0) && (polytype == poly_type_not_flaggers)))
       {
-        if (map.PointInPoly(pos, w))
+        if (Polymap::PointInPoly(pos, w))
         {
           if (bgstate.backgroundtest(w))
+          {
             continue;
+          }
 
 #ifdef SERVER
           player->standingpolytype = polytype;
@@ -2449,7 +2892,9 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 #ifndef SERVER
           if ((fabs(spriteVelocity.y) > 2.2) && (fabs(spriteVelocity.y) < 3.4) &&
               (polytype != poly_type_bouncy))
+          {
             playsound(SfxEffect::fall, spritePartsPos);
+          }
 #endif
 
           if (fabs(spriteVelocity.y) > 3.5)
@@ -2460,6 +2905,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 
             // Hit ground
             if (CVar::sv_realisticmode)
+            {
               if ((spriteVelocity.y > 3.5) && (polytype != poly_type_bouncy))
               {
                 healthhit(spriteVelocity.y * 5, num, 12, -1, spos);
@@ -2467,6 +2913,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                 playsound(SfxEffect::fall, spritePartsPos);
 #endif
               }
+            }
           }
 
 #ifndef SERVER
@@ -2476,6 +2923,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
               ((legsanimation.currframe == 16) || (legsanimation.currframe == 32)))
           {
             if (CVar::r_maxsparks > (max_sparks - 10))
+            {
               if (fabs(spriteVelocity.x) > 1.0)
               {
                 spos.x = (float)(spriteVelocity.x) / 4;
@@ -2483,8 +2931,10 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                 vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
                 createspark(pos, spos, 1, num, 70);
               }
+            }
 
             if (CVar::r_maxsparks > (max_sparks - 10))
+            {
               if ((((direction == 1) && (spriteVelocity.x < 0.01)) ||
                    ((direction == -1) && (spriteVelocity.x > 0.01))) &&
                   (legsanimation.id == AnimationType::Run))
@@ -2494,14 +2944,21 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                 vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
                 createspark(pos, spos, 1, num, 70);
               }
+            }
 
             if (map.steps == 0)
+            {
               playsound(SfxEffect::step + Random(4), spritePartsPos);
+            }
             if (map.steps == 1)
+            {
               playsound(SfxEffect::step5 + Random(4), spritePartsPos);
+            }
 
             if (map.weather == 1)
+            {
               playsound(SfxEffect::water_step, spritePartsPos);
+            }
           }
 
           // Crouch
@@ -2511,9 +2968,13 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
               (legsanimation.count == 1))
           {
             if (Random(2) == 0)
+            {
               playsound(SfxEffect::crouch_move, spritePartsPos);
+            }
             else if (Random(2) == 0)
+            {
               playsound(SfxEffect::crouch_movel, spritePartsPos);
+            }
           }
 
           // Prone
@@ -2589,6 +3050,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
               {
 #ifndef SERVER
                 if (CVar::r_maxsparks > (max_sparks - 10))
+                {
                   if (Random(15) == 0)
                   {
                     spos.x = spriteVelocity.x * 3;
@@ -2596,6 +3058,7 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
                     vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
                     createspark(pos, spos, 1, num, 70);
                   }
+                }
 #endif
               }
 
@@ -2664,10 +3127,12 @@ bool Sprite<M>::checkmapcollision(float x, float y, std::int32_t area)
 }
 
 template <Config::Module M>
-bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascollided)
+auto Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascollided) -> bool
 {
   std::int32_t i;
-  tvector2 pos, dir, vert;
+  tvector2 pos;
+  tvector2 dir;
+  tvector2 vert;
   float d;
   bool teamcol;
 
@@ -2703,10 +3168,14 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
           if (d < r) // collision
           {
             if (bgstate.backgroundtest(w))
+            {
               continue;
+            }
 
             if (!hascollided)
+            {
               handlespecialpolytypes(polytype, pos);
+            }
 
             dir = vec2subtract(pos, vert);
             vec2normalize(dir, dir);
@@ -2724,11 +3193,12 @@ bool Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascol
 }
 
 template <Config::Module M>
-bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
+auto Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y) -> bool
 {
   ZoneScopedN("CheckSkeletonMapCollision");
   std::int32_t b = 0;
-  tvector2 pos, perp;
+  tvector2 pos;
+  tvector2 perp;
 #ifndef SERVER
   tvector2 a;
 #endif
@@ -2763,7 +3233,9 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
         if (map.pointinpolyedges(pos.x, pos.y, w.Index))
         {
           if (bgstate.backgroundtest(w))
+          {
             continue;
+          }
 
           perp = map.closestperpendicular(w.Index, pos, d, b);
 
@@ -2777,10 +3249,14 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
           a = vec2subtract(skeleton.pos[i], skeleton.oldpos[i]);
 
           if ((fabs(a.y) > 0.8) && (deadcollidecount < 13))
+          {
             playsound(SfxEffect::bodyfall, skeleton.pos[i]);
+          }
 
           if ((fabs(a.y) > 2.1) && (deadcollidecount < 4))
+          {
             playsound(SfxEffect::bonecrack, skeleton.pos[i]);
+          }
 #endif
 
           deadcollidecount += 1;
@@ -2811,7 +3287,9 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
           if (map.pointinpolyedges(pos.x, pos.y, w.Index))
           {
             if (bgstate.backgroundtest(w))
+            {
               continue;
+            }
 
             perp = map.closestperpendicular(w.Index, pos, d, b);
 
@@ -2833,7 +3311,8 @@ bool Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y)
 template <Config::Module M>
 void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &pos)
 {
-  tvector2 a, b;
+  tvector2 a;
+  tvector2 b;
   auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
 #ifndef SERVER
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
@@ -2867,19 +3346,26 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 #else
 
         if (polytype == poly_type_hurts)
+        {
           playsound(SfxEffect::arg, spritePartsPos);
+        }
         else if (polytype == poly_type_lava)
+        {
           playsound(SfxEffect::lava, spritePartsPos);
+        }
 #endif
       }
 #ifdef SERVER
       if (GetHealth() < 1)
+      {
         healthhit(10, num, 12, -1, spriteVelocity);
+      }
 #endif
     }
 
     // lava
     if (Random(3) == 0)
+    {
       if (polytype == poly_type_lava)
       {
         a = pos;
@@ -2895,10 +3381,12 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
           createbullet(a, b, flamer_num, num, 255, guns[flamer].hitmultiply, false, true);
         }
       }
+    }
   }
   break;
   case poly_type_regenerates: {
     if (Health < GS::GetGame().GetStarthealth())
+    {
       if (GS::GetGame().GetMainTickCounter() % 12 == 0)
       {
 #ifdef SERVER
@@ -2907,6 +3395,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
         playsound(SfxEffect::regenerate, spritePartsPos);
 #endif
       }
+    }
   }
   break;
   case poly_type_explodes: {
@@ -2928,6 +3417,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
   break;
   case poly_type_hurts_flaggers: {
     if (!deadmeat && (holdedthing > 0) && (things[holdedthing].style < object_ussocom))
+    {
       if (Random(10) == 0)
       {
 #ifdef SERVER
@@ -2936,9 +3426,12 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
         playsound(SfxEffect::arg, spritePartsPos);
 #endif
       }
+    }
 #ifdef SERVER
     if (Health < 1)
+    {
       healthhit(10, num, 12, -1, spriteVelocity);
+    }
 #endif
   }
   break;
@@ -2946,7 +3439,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 }
 
 template <Config::Module M>
-bool BackgroundState<M>::backgroundtest(const PolyMapSector::Poly &poly)
+auto BackgroundState<M>::backgroundtest(const PolyMapSector::Poly &poly) -> bool
 {
   bool result;
   result = false;
@@ -2965,7 +3458,9 @@ bool BackgroundState<M>::backgroundtest(const PolyMapSector::Poly &poly)
   {
     backgroundtestresult = true;
     if (backgroundstatus == background_normal)
+    {
       backgroundstatus = background_transition;
+    }
 
     result = true;
   }
@@ -2982,10 +3477,12 @@ void BackgroundState<M>::backgroundtestbigpolycenter(const tvector2 &pos)
     {
       backgroundpoly = backgroundfindcurrentpoly(pos);
       if (backgroundpoly != background_poly_none)
+      {
         backgroundtestresult = true;
+      }
     }
     else if ((backgroundpoly != background_poly_none) and
-             (map.pointinpoly(pos, map.polys[backgroundpoly])))
+             (Polymap::pointinpoly(pos, map.polys[backgroundpoly])))
     {
       backgroundtestresult = true;
     }
@@ -2993,7 +3490,7 @@ void BackgroundState<M>::backgroundtestbigpolycenter(const tvector2 &pos)
 }
 
 template <Config::Module M>
-std::int16_t BackgroundState<M>::backgroundfindcurrentpoly(const tvector2 &pos)
+auto BackgroundState<M>::backgroundfindcurrentpoly(const tvector2 &pos) -> std::int16_t
 {
   auto &map = GS::GetGame().GetMap();
   std::int32_t i;
@@ -3001,7 +3498,7 @@ std::int16_t BackgroundState<M>::backgroundfindcurrentpoly(const tvector2 &pos)
   std::int16_t result;
   for (i = 1; i <= map.backpolycount; i++)
   {
-    if (map.pointinpoly(pos, *map.backpolys[i]))
+    if (Polymap::pointinpoly(pos, *map.backpolys[i]))
     {
       result = i;
       return result;
@@ -3037,7 +3534,9 @@ void Sprite<M>::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32
   LogTraceG("TSprite.ApplyWeaponByNum");
 
   if (player->knifewarnings > 0)
+  {
     player->knifewarnings -= 1;
+  }
 #endif
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
@@ -3059,7 +3558,9 @@ void Sprite<M>::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32
   }
 
   if (ammo > -1)
+  {
     weapon.ammocount = ammo;
+  }
 
 #ifndef SERVER
   weapon.startuptimecount = weapon.startuptime;
@@ -3067,7 +3568,9 @@ void Sprite<M>::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32
 
 #ifdef SERVER
   if (weapon.num == knife_num)
+  {
     knifecan[num] = true;
+  }
 #endif
 
   if (wnum != noweapon_num)
@@ -3101,19 +3604,26 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
   // Friendly Fire
   if ((!CVar::sv_friendlyfire) && isnotsolo() && isinsameteam(SpriteSystem::Get().GetSprite(who)) &&
       (num != who))
+  {
     return;
+  }
 
 #ifdef SERVER
   if (SpriteSystem::Get().GetSprite(who).isspectator() &&
       (SpriteSystem::Get().GetSprite(who).player->controlmethod == human))
+  {
     return;
+  }
 #endif
 
   if (bonusstyle == bonus_flamegod)
+  {
     return;
+  }
 
   // no health hit if someone is rambo
   if (CVar::sv_gamemode == gamestyle_rambo)
+  {
     if (num != who)
     {
       for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
@@ -3121,10 +3631,13 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
         if ((who != sprite.num) && (num != sprite.num))
         {
           if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
+          {
             return;
+          }
         }
       }
     }
+  }
 
   hm = amount;
 
@@ -3140,7 +3653,9 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
 #else
   if ((SpriteSystem::Get().GetSprite(who).bonusstyle == bonus_berserker) && (who != num))
 #endif
+  {
     hm = 4 * amount;
+  }
 
 #ifdef SCRIPT
   if (!this->deadmeat)
@@ -3175,8 +3690,10 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
   }
 
   if (!this->deadmeat && (what > 0))
+  {
     // Check to prevent one AoE explosion counting as multiple hits on one bullet
     if ((who != this->num) && (!bullet[what].hashit) && (who == mysprite))
+    {
       for (j = 1; j <= 20; j++)
       {
         if (wepstats[j].name == s)
@@ -3185,6 +3702,8 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
           bullet[what].hashit = true;
         }
       }
+    }
+  }
 #endif
 
   // helmet fall off
@@ -3201,29 +3720,43 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
 
   // safety precautions
   if (Health < (brutaldeathhealth - 1))
+  {
     Health = brutaldeathhealth;
+  }
   if (Health > GS::GetGame().GetStarthealth())
+  {
     Health = GS::GetGame().GetStarthealth();
+  }
 
   // death!
   t = impact;
   if ((Health < 1) && (Health > headchopdeathhealth))
+  {
     die(normal_death, who, where, what, t);
+  }
   else if ((Health < headchopdeathhealth + 1) && (Health > brutaldeathhealth))
+  {
     die(headchop_death, who, where, what, t);
+  }
   else if (Health < brutaldeathhealth + 1)
+  {
     die(brutal_death, who, where, what, t);
+  }
 
   brain.targetnum = who;
 
   // Bot Chat
 #ifdef SERVER
   if (CVar::bots_chat)
+  {
     if ((GetHealth() < hurt_health) && (player->controlmethod == bot))
     {
       if (Random(10 * brain.chatfreq) == 0)
+      {
         serversendstringmessage((brain.chatlowhealth), all_players, num, msgtype_pub);
+      }
     }
+  }
 #endif
 }
 
@@ -3262,7 +3795,9 @@ void Sprite<M>::checkoutofbounds()
   auto &map = GS::GetGame().GetMap();
 
   if (GS::GetGame().GetSurvivalEndRound())
+  {
     return;
+  }
 
   bound = map.sectorsnum * map.GetSectorsDivision() - 50;
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
@@ -3287,7 +3822,9 @@ void Sprite<M>::checkskeletonoutofbounds()
   auto &map = GS::GetGame().GetMap();
 
   if (GS::GetGame().GetSurvivalEndRound())
+  {
     return;
+  }
 
   bound = map.sectorsnum * map.GetSectorsDivision() - 50;
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
@@ -3327,6 +3864,7 @@ void Sprite<M>::respawn()
 
   LogTraceG("TSprite.Respawn");
   if (CVar::sv_survivalmode_clearweapons)
+  {
     if (GS::GetGame().GetSurvivalEndRound() && !weaponscleaned)
     {
       for (j = 1; j <= max_things; j++)
@@ -3340,20 +3878,27 @@ void Sprite<M>::respawn()
       }
       weaponscleaned = true;
     }
+  }
 
   if (isspectator())
+  {
     return;
+  }
 
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(num);
   auto &spriteForces = SpriteSystem::Get().GetForces(num);
   auto &weaponsel = GS::GetGame().GetWeaponsel();
 
 #ifndef SERVER
-  if ((player->name == "") or (player->demoplayer))
+  if ((player->name.empty()) or (player->demoplayer))
+  {
     return;
+  }
 
   if (num == mysprite)
+  {
     playsound(SfxEffect::wermusic, spritePartsPos);
+  }
 #endif
 
 #ifdef SERVER
@@ -3371,7 +3916,9 @@ void Sprite<M>::respawn()
   wearhelmet = 1;
 
   if (player->headcap == 0)
+  {
     wearhelmet = 0;
+  }
   skeleton.constraints = AnimationSystem::Get().GetSkeleton(Gostek).constraints;
   auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
   spriteVelocity.x = 0;
@@ -3382,7 +3929,9 @@ void Sprite<M>::respawn()
   jetscountprev = map.startjet;
   ceasefirecounter = GS::GetGame().GetCeasefiretime();
   if (CVar::sv_advancemode)
+  {
     ceasefirecounter = ceasefirecounter * 3;
+  }
   brain.pissedoff = 0;
   brain.gothing = false;
   vest = 0;
@@ -3430,51 +3979,69 @@ void Sprite<M>::respawn()
   if ((holdedthing > 0) && (holdedthing < max_things + 1))
   {
     if (things[holdedthing].style != object_parachute)
+    {
       things[holdedthing].respawn();
+    }
     else
+    {
       things[holdedthing].kill();
+    }
   }
 
   holdedthing = 0;
 
 #ifndef SERVER
   if (selweapon > 0)
+  {
     if (weaponsel[num][selweapon] == 0)
+    {
       selweapon = 0;
+    }
+  }
 #endif
 
   SetFirstWeapon(guns[noweapon]);
   auto &weaponSystem = GS::GetWeaponSystem();
 
   if (selweapon > 0)
+  {
 #ifndef SERVER
     if ((weaponSystem.IsEnabled(selweapon)) && (weaponsel[num][selweapon] == 1))
-    {
 #endif
+    {
       applyweaponbynum(selweapon, 1);
 #ifndef SERVER
       if (num == mysprite)
+      {
         clientspritesnapshot();
-    }
+      }
 #endif
+    }
+  }
 
   secwep = player->secwep + 1;
 
   if ((secwep >= 1) && (secwep <= secondary_weapons) &&
       (weaponSystem.IsEnabled(primary_weapons + secwep)) &&
       (weaponsel[num][primary_weapons + secwep] == 1))
+  {
     SetSecondWeapon(guns[primary_weapons + secwep]);
+  }
   else
+  {
     SetSecondWeapon(guns[noweapon]);
+  }
 
 #ifdef SERVER
   if (CVar::sv_advancemode)
 #endif
+  {
     if ((selweapon > 0) && (!weaponSystem.IsEnabled(selweapon) || (weaponsel[num][selweapon] == 0)))
     {
       SetFirstWeapon(secondaryweapon);
       SetSecondWeapon(guns[noweapon]);
     }
+  }
 
 #ifdef SERVER
   if (player->controlmethod == bot)
@@ -3483,11 +4050,11 @@ void Sprite<M>::respawn()
 
     if ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf) ||
         (CVar::sv_gamemode == gamestyle_htf))
+    {
       brain.pathnum = player->team;
+    }
 
-#ifdef SERVER
     LogTraceG("TSprite.Respawn 2");
-#endif
 
     // randomize bot weapon
     if ((brain.favweapon != noweapon_num) && (brain.favweapon != knife_num) &&
@@ -3507,7 +4074,9 @@ void Sprite<M>::respawn()
         do
         {
           if (Random(2) == 0)
+          {
             applyweaponbynum(brain.favweapon, 1);
+          }
           else
           {
             k = Random(9) + 1;
@@ -3516,13 +4085,19 @@ void Sprite<M>::respawn()
 
           if ((weaponSystem.GetWeaponsInGame() < 6) && (weaponSystem.IsEnabled(minigun)) &&
               (weaponsel[num][minigun] == 1))
+          {
             SetFirstWeapon(guns[minigun]);
+          }
 
           if (CVar::sv_advancemode)
           {
             for (j = 1; j <= primary_weapons; j++)
+            {
               if (weaponsel[num][j] == 1)
+              {
                 break;
+              }
+            }
             applyweaponbynum(j, 1);
           }
         } while (!((weaponSystem.IsEnabled(weapon.num)) or (CVar::sv_advancemode)));
@@ -3565,10 +4140,12 @@ void Sprite<M>::respawn()
     // Disarm bot if the primary weapon isn't allowed and selectable
     weaponindex = weapon.num;
     if ((weaponindex >= 1) && (weaponindex <= primary_weapons))
+    {
       if ((!weaponSystem.IsEnabled(weaponindex)) || (weaponsel[num][weaponindex] == 0))
       {
         SetFirstWeapon(guns[noweapon]);
       }
+    }
   }
 #endif
 
@@ -3596,7 +4173,9 @@ void Sprite<M>::respawn()
 #ifndef SERVER
   // Spawn sound
   if (num != mysprite)
+  {
     playsound(SfxEffect::spawn, spritePartsPos);
+  }
 
   // spawn spark
   createspark(spritePartsPos, spriteVelocity, 25, num, 33);
@@ -3615,11 +4194,13 @@ void Sprite<M>::respawn()
       for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
       {
         if (sprite.player->team != team_spectator)
+        {
           if (sprite.deadmeat)
           {
             survivalcheckendround = true;
             break;
           }
+        }
       }
       GS::GetGame().SetSurvivalendround(survivalcheckendround);
     }
@@ -3644,16 +4225,21 @@ template <Config::Module M>
 void Sprite<M>::parachute(tvector2 &a)
 {
   tvector2 b;
-  std::int32_t n, i;
+  std::int32_t n;
+  std::int32_t i;
   float d = 0.0;
   auto &map = GS::GetGame().GetMap();
   auto &things = GS::GetThingSystem().GetThings();
 
   LogTraceG("Parachute");
   if (holdedthing > 0)
+  {
     return;
+  }
   if (isspectator())
+  {
     return;
+  }
 
   for (i = 1; i <= max_things; i++)
   {
@@ -3667,6 +4253,7 @@ void Sprite<M>::parachute(tvector2 &a)
   b = a;
   b.y = b.y + para_distance;
   if (!map.raycast(a, b, d, para_distance + 50, true, false, false, false, player->team))
+  {
     if (d > para_distance - 10)
     {
       a.y = a.y + 70;
@@ -3677,7 +4264,9 @@ void Sprite<M>::parachute(tvector2 &a)
 #endif
       holdedthing = n;
     }
+  }
 }
+
 #ifdef SERVER
 template <Config::Module M>
 void Sprite<M>::changeteam(std::int32_t team, bool adminchange, std::uint8_t jointype)
@@ -3696,7 +4285,9 @@ void Sprite<M>::changeteam(std::int32_t team)
 #endif
 
   if (team > team_spectator)
+  {
     return;
+  }
 
   auto &things = GS::GetThingSystem().GetThings();
 
@@ -3704,19 +4295,25 @@ void Sprite<M>::changeteam(std::int32_t team)
   {
 #ifdef SERVER
     for (i = team_none; i <= team_spectator; i++)
+    {
       teamscount[i] = 0;
+    }
 
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
       if (sprite.isnotspectator())
+      {
         teamscount[sprite.player->team] = teamscount[sprite.player->team] + 1;
+      }
     }
 
     // Check for uneven teams
-    if ((CVar::sv_balanceteams) && (adminchange == false))
+    if ((CVar::sv_balanceteams) && (!adminchange))
     {
       if (isspectator() && (team == findlowestteam(teamscount)))
+      {
         ;
+      }
       else if ((teamscount[team] >= teamscount[player->team]) && (team < team_spectator))
       {
         const char *teams[] = {"Alpha", "Bravo", "Charlie", "Delta"};
@@ -3726,15 +4323,17 @@ void Sprite<M>::changeteam(std::int32_t team)
     }
 
     if ((teamscount[team_spectator] >= CVar::sv_maxspectators) && (team == team_spectator) &&
-        (adminchange == false))
+        (!adminchange))
     {
       writeconsole(num, "Spectators are full", rgb(0, 0, 255));
       return;
     }
 
     if ((CVar::sv_gamemode != gamestyle_teammatch) &&
-        ((team == team_charlie) || (team == team_delta)) && (adminchange == false))
+        ((team == team_charlie) || (team == team_delta)) && (!adminchange))
+    {
       return;
+    }
 
 #ifdef SCRIPT
     spriteoldteam = player->team;
@@ -3776,7 +4375,9 @@ void Sprite<M>::changeteam(std::int32_t team)
     knifecan[num] = true;
 
     if (!player->demoplayer)
+    {
       serversendnewplayerinfo(num, jointype);
+    }
     GS::GetGame().sortplayers();
     LogDebugG("Player switched teams");
 #endif
@@ -3843,7 +4444,9 @@ void Sprite<M>::changeteam(std::int32_t team)
         gamemenushow(limbomenu, false);
       }
       else
+      {
         camerafollowsprite = mysprite;
+      }
     }
 #endif
 
@@ -3851,7 +4454,9 @@ void Sprite<M>::changeteam(std::int32_t team)
 #ifdef SERVER
     if ((GS::GetGame().GetMapchangecounter() > -60) &&
         (GS::GetGame().GetMapchangecounter() < 99999999))
+    {
       servermapchange(num);
+    }
 #endif
 
 #ifdef SCRIPT
@@ -3864,9 +4469,13 @@ void Sprite<M>::changeteam(std::int32_t team)
 template <Config::Module M>
 void Sprite<M>::fire()
 {
-  tvector2 a, b, d, m;
+  tvector2 a;
+  tvector2 b;
+  tvector2 d;
+  tvector2 m;
   tvector2 aimdirection;
-  std::int32_t i, bn;
+  std::int32_t i;
+  std::int32_t bn;
   float inaccuracy;
   float maxdeviation;
   tvector2 collisiontestperpendicular;
@@ -3888,9 +4497,13 @@ void Sprite<M>::fire()
   // Create a normalized directional vector
   if ((weapon.bulletstyle == bullet_style_knife) || (bodyanimation.id == AnimationType::Mercy) ||
       (bodyanimation.id == AnimationType::Mercy2))
+  {
     aimdirection = gethandsaimdirection();
+  }
   else
+  {
     aimdirection = getcursoraimdirection();
+  }
 
   b = aimdirection;
 
@@ -3941,13 +4554,14 @@ void Sprite<M>::fire()
   inaccuracy = inaccuracy * 0.25;
 
   if (inaccuracy > max_inaccuracy)
+  {
     inaccuracy = max_inaccuracy;
+  }
 
   // Calculate the maximum bullet deviation between 0 and MAX_INACCURACY.
   // The scaling is modeled after Sin(x) where x = 0 -> Pi/2 to gracefully reach
   // the maximum. Then multiply by a float between -1.0 and 1.0.
-  maxdeviation =
-    max_inaccuracy * sin(((float)(inaccuracy) / max_inaccuracy) * (pi / 2));
+  maxdeviation = max_inaccuracy * sin((inaccuracy / max_inaccuracy) * (pi / 2));
   d.x = (float)(Random() * 2 - 1) * maxdeviation;
   d.y = (float)(Random() * 2 - 1) * maxdeviation;
 
@@ -4120,11 +4734,15 @@ void Sprite<M>::fire()
   // Shouldn't we dec on server too?
 #ifndef SERVER
   if (weapon.ammocount > 0)
+  {
     weapon.ammocount -= 1;
+  }
 #endif
 
   if (weapon.num == spas12_num)
+  {
     canautoreloadspas = false;
+  }
 
   weapon.fireintervalprev = weapon.fireinterval;
   weapon.fireintervalcount = weapon.fireinterval;
@@ -4141,8 +4759,12 @@ void Sprite<M>::fire()
   col = map.collisiontest(a, b);
 
   if (CVar::r_maxsparks < (max_sparks - 10))
+  {
     if (Random(2) == 0)
+    {
       col = true;
+    }
+  }
 #endif
 
 #ifdef SERVER
@@ -4154,133 +4776,193 @@ void Sprite<M>::fire()
   {
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::ak74_fire, spritePartsPos);
+    }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
+    {
       bodyapplyanimation(AnimationType::SmallRecoil, 1);
+    }
     if (position == pos_crouch)
     {
       if (bodyanimation.id == AnimationType::HandSupAim)
+      {
         bodyapplyanimation(AnimationType::HandSupRecoil, 1);
+      }
       else
+      {
         bodyapplyanimation(AnimationType::AimRecoil, 1);
+      }
     }
 #ifndef SERVER
     if (!col)
+    {
       createspark(a, c, 68, num, 255); // shell
+    }
 #endif
   }
   if (weapon.num == m249_num)
   {
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::m249_fire, spritePartsPos);
+    }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
+    {
       bodyapplyanimation(AnimationType::SmallRecoil, 1);
+    }
     if (position == pos_crouch)
     {
       if (bodyanimation.id == AnimationType::HandSupAim)
+      {
         bodyapplyanimation(AnimationType::HandSupRecoil, 1);
+      }
       else
+      {
         bodyapplyanimation(AnimationType::AimRecoil, 1);
+      }
     }
 #ifndef SERVER
     if (!col)
+    {
       createspark(a, c, 72, num, 255); // shell
+    }
 #endif
   }
   if (weapon.num == ruger77_num)
   {
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::ruger77_fire, spritePartsPos);
+    }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
+    {
       bodyapplyanimation(AnimationType::Recoil, 1);
+    }
     if (position == pos_crouch)
     {
       if (bodyanimation.id == AnimationType::HandSupAim)
+      {
         bodyapplyanimation(AnimationType::HandSupRecoil, 1);
+      }
       else
+      {
         bodyapplyanimation(AnimationType::AimRecoil, 1);
+      }
     }
 #ifndef SERVER
     if (!col)
+    {
       createspark(a, c, 70, num, 255); // shell
+    }
 #endif
   }
   if (weapon.num == mp5_num)
   {
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::mp5_fire, spritePartsPos);
+    }
     a.x = skeleton.pos[15].x + 2 - 0.2 * b.x;
     a.y = skeleton.pos[15].y - 2 - 0.2 * b.y;
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
+    {
       bodyapplyanimation(AnimationType::SmallRecoil, 1);
+    }
     if (position == pos_crouch)
     {
       if (bodyanimation.id == AnimationType::HandSupAim)
+      {
         bodyapplyanimation(AnimationType::HandSupRecoil, 1);
+      }
       else
+      {
         bodyapplyanimation(AnimationType::AimRecoil, 1);
+      }
     }
 #ifndef SERVER
     if (!col)
+    {
       createspark(a, c, 67, num, 255); // shell
+    }
 #endif
   }
   if (weapon.num == spas12_num)
   {
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::spas12_fire, spritePartsPos);
+    }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position != pos_prone) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
+    {
       bodyapplyanimation(AnimationType::Shotgun, 1);
+    }
 
     // make sure firing interrupts reloading when prone
     if ((position == pos_prone) && (bodyanimation.id == AnimationType::Reload))
+    {
       bodyanimation.currframe = bodyanimation.numframes;
+    }
   }
   if (weapon.num == m79_num)
   {
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::m79_fire, spritePartsPos);
+    }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position != pos_prone) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
+    {
       bodyapplyanimation(AnimationType::SmallRecoil, 1);
+    }
   }
   if (weapon.num == eagle_num)
   {
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::deserteagle_fire, spritePartsPos);
+    }
     a.x = skeleton.pos[15].x + 3 - 0.17 * b.x;
     a.y = skeleton.pos[15].y - 2 - 0.15 * b.y;
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
+    {
       bodyapplyanimation(AnimationType::SmallRecoil, 1);
+    }
     if (position == pos_crouch)
     {
       if (bodyanimation.id == AnimationType::HandSupAim)
+      {
         bodyapplyanimation(AnimationType::HandSupRecoil, 1);
+      }
       else
+      {
         bodyapplyanimation(AimRecoil, 1);
+      }
     }
 #ifndef SERVER
     if (!col)
+    {
       createspark(a, c, 66, num, 255); // shell
+    }
     if (!col)
     {
       a.x = skeleton.pos[15].x - 3 - 0.25 * b.x;
@@ -4295,92 +4977,134 @@ void Sprite<M>::fire()
   {
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::steyraug_fire, spritePartsPos);
+    }
     if (!col)
+    {
       createspark(a, c, 69, num, 255); // shell
+    }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
+    {
       bodyapplyanimation(AnimationType::SmallRecoil, 1);
+    }
     if (position == pos_crouch)
     {
       if (bodyanimation.id == AnimationType::HandSupAim)
+      {
         bodyapplyanimation(AnimationType::HandSupRecoil, 1);
+      }
       else
+      {
         bodyapplyanimation(AnimationType::AimRecoil, 1);
+      }
     }
   }
   if (weapon.num == barrett_num)
   {
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::barretm82_fire, spritePartsPos);
+    }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (bodyanimation.id != AnimationType::GetUp) &&
         (bodyanimation.id != AnimationType::Melee))
+    {
       bodyapplyanimation(AnimationType::Barret, 1);
+    }
 #ifndef SERVER
     if (!col)
+    {
       createspark(a, c, 71, num, 255); // shell
+    }
 #endif
   }
   if (weapon.num == minigun_num)
   {
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::minigun_fire, spritePartsPos);
+    }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
+    {
       bodyapplyanimation(AnimationType::SmallRecoil, 2);
+    }
 #ifndef SERVER
     if (!col)
+    {
       createspark(a, c, 73, num, 255); // shell
+    }
 #endif
   }
   if (weapon.num == colt_num)
   {
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::colt1911_fire, spritePartsPos);
+    }
     a.x = skeleton.pos[15].x + 2 - 0.2 * b.x;
     a.y = skeleton.pos[15].y - 2 - 0.2 * b.y;
     if (!col)
+    {
       createspark(a, c, 65, num, 255); // shell
+    }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
+    {
       bodyapplyanimation(AnimationType::SmallRecoil, 1);
+    }
     if (position == pos_crouch)
     {
       if (bodyanimation.id == AnimationType::HandSupAim)
+      {
         bodyapplyanimation(AnimationType::HandSupRecoil, 1);
+      }
       else
+      {
         bodyapplyanimation(AnimationType::AimRecoil, 1);
+      }
     }
   }
   if ((weapon.num == bow_num) || (weapon.num == bow2_num))
   {
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::bow_fire, spritePartsPos);
+    }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
+    {
       bodyapplyanimation(AnimationType::SmallRecoil, 1);
+    }
     if (position == pos_crouch)
     {
       if (bodyanimation.id == AnimationType::HandSupAim)
+      {
         bodyapplyanimation(AnimationType::HandSupRecoil, 1);
+      }
       else
+      {
         bodyapplyanimation(AnimationType::AimRecoil, 1);
+      }
     }
   }
 #ifndef SERVER
   if (weapon.num == law_num)
   {
     if (bonusstyle != bonus_predator)
+    {
       playsound(SfxEffect::law, spritePartsPos);
+    }
   }
 
   // smoke from muzzle
@@ -4392,7 +5116,9 @@ void Sprite<M>::fire()
 #endif
 
   if (burstcount < 255)
+  {
     burstcount += 1;
+  }
 
     // TODO(skoskav): Make bink and self-bink sprite-specific so bots can also use it
 #ifndef SERVER
@@ -4406,7 +5132,9 @@ void Sprite<M>::fire()
           (legsanimation.id == AnimationType::CrouchRunBack) ||
           (legsanimation.id == AnimationType::Prone) ||
           (legsanimation.id == AnimationType::ProneMove))
+      {
         hitspraycounter = calculatebink(hitspraycounter, round((float)(-weapon.bink) / 2));
+      }
       else
       {
         hitspraycounter = calculatebink(hitspraycounter, -weapon.bink);
@@ -4415,8 +5143,7 @@ void Sprite<M>::fire()
   }
 
   // Screen shake
-  if (((mysprite > 0) && (camerafollowsprite != 0)) and
-      (!((num != mysprite) && !CVar::cl_screenshake)))
+  if (((mysprite > 0) && (camerafollowsprite != 0)) and ((num == mysprite) || CVar::cl_screenshake))
   {
     if (weapon.num != chainsaw_num)
     {
@@ -4447,10 +5174,14 @@ void Sprite<M>::fire()
     if (onground)
     {
       if ((legsanimation.id == AnimationType::Crouch) && (legsanimation.currframe > 13))
-        rc = (float)(rc) / 2;
+      {
+        rc = rc / 2;
+      }
 
       if ((legsanimation.id == AnimationType::Prone) && (legsanimation.currframe > 23))
-        rc = (float)(rc) / 3;
+      {
+        rc = rc / 3;
+      }
     }
 
     if (rc > 0)
@@ -4467,14 +5198,21 @@ void Sprite<M>::fire()
 template <Config::Module M>
 void Sprite<M>::throwflag()
 {
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
   tvector2 b;
   float d = 0.0;
   tvector2 cursordirection;
-  tvector2 boffset, bperp;
-  tvector2 lookpoint1, lookpoint2, lookpoint3;
+  tvector2 boffset;
+  tvector2 bperp;
+  tvector2 lookpoint1;
+  tvector2 lookpoint2;
+  tvector2 lookpoint3;
   tvector2 newposdiff;
-  tvector2 futurepoint1, futurepoint2, futurepoint3, futurepoint4;
+  tvector2 futurepoint1;
+  tvector2 futurepoint2;
+  tvector2 futurepoint3;
+  tvector2 futurepoint4;
   auto &map = GS::GetGame().GetMap();
   auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
   auto &things = GS::GetThingSystem().GetThings();
@@ -4569,9 +5307,14 @@ void Sprite<M>::throwflag()
 template <Config::Module M>
 void Sprite<M>::throwgrenade()
 {
-  tvector2 a, b, c, e;
+  tvector2 a;
+  tvector2 b;
+  tvector2 c;
+  tvector2 e;
   float f = 0.0;
-  float grenadearcsize, grenadearcx, grenadearcy;
+  float grenadearcsize;
+  float grenadearcx;
+  float grenadearcy;
   tvector2 playervelocity;
   auto &map = GS::GetGame().GetMap();
   auto &spriteVelocity = SpriteSystem::Get().GetVelocity(num);
@@ -4579,7 +5322,9 @@ void Sprite<M>::throwgrenade()
 
   // Start throw animation
   if (!control.thrownade)
+  {
     grenadecanthrow = true;
+  }
 
   if (grenadecanthrow && control.thrownade && (bodyanimation.id != AnimationType::Roll) &&
       (bodyanimation.id != AnimationType::RollBack))
@@ -4598,7 +5343,9 @@ void Sprite<M>::throwgrenade()
     b = gethandsaimdirection();
     vec2scale(b, b, (float)(bodyanimation.currframe) / guns[fraggrenade].speed);
     if (bodyanimation.currframe < 24)
+    {
       vec2scale(b, b, 0.65);
+    }
     b = vec2add(b, spriteVelocity);
     a.x = skeleton.pos[15].x + b.x * 3;
     a.y = skeleton.pos[15].y - 2 + b.y * 3;
@@ -4634,7 +5381,9 @@ void Sprite<M>::throwgrenade()
 
       vec2scale(b, b, (float)(bodyanimation.currframe) / guns[fraggrenade].speed);
       if (bodyanimation.currframe < 24)
+      {
         vec2scale(b, b, 0.65);
+      }
 
       vec2scale(playervelocity, spriteVelocity, guns[fraggrenade].inheritedvelocity);
 
@@ -4655,11 +5404,15 @@ void Sprite<M>::throwgrenade()
         if (((player->controlmethod == human) && (num == mysprite)) ||
             (player->controlmethod == bot))
 #endif
+        {
           tertiaryweapon.ammocount -= 1;
+        }
 
 #ifndef SERVER
-        if ((num == mysprite) && (guns[fraggrenade].bink < 0))
-          hitspraycounter = calculatebink(hitspraycounter, -guns[fraggrenade].bink);
+      if ((num == mysprite) && (guns[fraggrenade].bink < 0))
+      {
+        hitspraycounter = calculatebink(hitspraycounter, -guns[fraggrenade].bink);
+      }
 
         playsound(SfxEffect::grenade_throw, a);
 #endif
@@ -4667,16 +5420,24 @@ void Sprite<M>::throwgrenade()
     }
 
     if (control.thrownade)
+    {
       grenadecanthrow = false;
+    }
 
     if (weapon.ammocount == 0)
     {
       if (weapon.reloadtimecount > weapon.clipouttime)
+      {
         bodyapplyanimation(AnimationType::ClipOut, 1);
+      }
       if (weapon.reloadtimecount < weapon.clipouttime)
+      {
         bodyapplyanimation(AnimationType::ClipIn, 1);
+      }
       if ((weapon.reloadtimecount < weapon.clipintime) && (weapon.reloadtimecount > 0))
+      {
         bodyapplyanimation(AnimationType::SlideBack, 1);
+      }
 #ifndef SERVER
       setsoundpaused(reloadsoundchannel, false);
 #endif
@@ -4685,7 +5446,7 @@ void Sprite<M>::throwgrenade()
 }
 
 template <Config::Module M>
-float Sprite<M>::getmoveacc()
+auto Sprite<M>::getmoveacc() -> float
 {
   float moveacc;
 
@@ -4698,9 +5459,13 @@ float Sprite<M>::getmoveacc()
 #else
   if (player->controlmethod == bot)
 #endif
+  {
     moveacc = 0;
+  }
   else
+  {
     moveacc = weapon.movementacc;
+  }
 
   if (moveacc > 0)
   {
@@ -4727,7 +5492,7 @@ float Sprite<M>::getmoveacc()
 }
 
 template <Config::Module M>
-tvector2 Sprite<M>::getcursoraimdirection()
+auto Sprite<M>::getcursoraimdirection() -> tvector2
 {
   tvector2 mouseaim;
 
@@ -4741,7 +5506,7 @@ tvector2 Sprite<M>::getcursoraimdirection()
 }
 
 template <Config::Module M>
-tvector2 Sprite<M>::gethandsaimdirection()
+auto Sprite<M>::gethandsaimdirection() -> tvector2
 {
   tvector2 aimdirection = vec2subtract(skeleton.pos[15], skeleton.pos[16]);
   vec2normalize(aimdirection, aimdirection);
@@ -4750,19 +5515,19 @@ tvector2 Sprite<M>::gethandsaimdirection()
 }
 
 template <Config::Module M>
-bool Sprite<M>::issolo()
+auto Sprite<M>::issolo() -> bool
 {
   return player->team == team_none;
 }
 
 template <Config::Module M>
-bool Sprite<M>::isnotsolo()
+auto Sprite<M>::isnotsolo() -> bool
 {
   return player->team != team_none;
 }
 
 template <Config::Module M>
-bool Sprite<M>::isinteam()
+auto Sprite<M>::isinteam() -> bool
 {
   bool result;
   switch (player->team)
@@ -4780,25 +5545,25 @@ bool Sprite<M>::isinteam()
 }
 
 template <Config::Module M>
-bool Sprite<M>::isspectator()
+auto Sprite<M>::isspectator() -> bool
 {
   return player->team == team_spectator;
 }
 
 template <Config::Module M>
-bool Sprite<M>::isinsameteam(const Sprite &otherplayer)
+auto Sprite<M>::isinsameteam(const Sprite &otherplayer) -> bool
 {
   return player->team == otherplayer.player->team;
 }
 
 template <Config::Module M>
-bool Sprite<M>::isnotinsameteam(const Sprite &otherplayer)
+auto Sprite<M>::isnotinsameteam(const Sprite &otherplayer) -> bool
 {
   return player->team != otherplayer.player->team;
 }
 
 template <Config::Module M>
-bool Sprite<M>::canrespawn(bool deadmeatbeforerespawn)
+auto Sprite<M>::canrespawn(bool deadmeatbeforerespawn) -> bool
 {
   bool result;
   result = (CVar::sv_survivalmode == false) or (GS::GetGame().GetSurvivalEndRound()) or
@@ -4813,7 +5578,7 @@ void Sprite<M>::SetHealth(float health)
 }
 
 template <Config::Module M>
-float Sprite<M>::GetHealth()
+auto Sprite<M>::GetHealth() -> float
 {
   // LogDebugG("Health {}", Health);
   return Health;
@@ -4853,7 +5618,7 @@ void Sprite<M>::CopyOldSpritePos()
 }
 
 template <Config::Module M>
-tvector2 Sprite<M>::GetOldSpritePos(int32_t idx)
+auto Sprite<M>::GetOldSpritePos(int32_t idx) -> tvector2
 {
   auto i = max_oldpos - 1;
   if (idx < max_oldpos)

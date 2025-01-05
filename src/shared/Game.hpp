@@ -43,8 +43,8 @@ public:
   void number27timing();
   void togglebullettime(bool turnon, std::int32_t duration = 30);
   void updategamestats();
-  bool pointvisible(float x, float y, const int32_t i);
-  bool pointvisible2(float x, float y, const int32_t i);
+  auto pointvisible(float x, float y, const int32_t i) -> bool;
+  auto pointvisible2(float x, float y, const int32_t i) -> bool;
   void startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targetvote,
                  std::string reasonvote);
 
@@ -55,9 +55,9 @@ public:
 #endif
   void showmapchangescoreboard();
   void showmapchangescoreboard(const std::string nextmap);
-  bool isteamgame();
+  auto isteamgame() -> bool;
 #ifndef SERVER
-  bool ispointonscreen(const tvector2 &point);
+  auto ispointonscreen(const tvector2 &point) -> bool;
 #endif
   void changemap();
   void sortplayers();

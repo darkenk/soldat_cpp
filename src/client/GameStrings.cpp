@@ -9,7 +9,7 @@
 tmofile translationfile;
 #endif
 
-bool inittranslation(TStream* stream)
+auto inittranslation(TStream *stream) -> bool
 {
 #if ENABLE_STUBS
   NotImplemented("localization");
@@ -29,7 +29,7 @@ bool inittranslation(TStream* stream)
 #endif
 }
 
-std::wstring _(const std::wstring &inputtext)
+auto _(const std::wstring &inputtext) -> std::wstring
 {
 #if ENABLE_STUBS
   NotImplemented("localization", __PRETTY_FUNCTION__);
@@ -51,7 +51,7 @@ std::wstring _(const std::wstring &inputtext)
 #endif
 }
 
-std::string _(const std::string &inputtext)
+auto _(const std::string &inputtext) -> std::string
 {
 #if ENABLE_STUBS
   NotImplemented("localization", "No translations only stubs available");

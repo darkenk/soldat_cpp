@@ -11,7 +11,8 @@ std::vector<tbanhw> bannedhwlist;
 std::string lastban;
 std::string lastbanhw;
 
-static bool matchesmask([[maybe_unused]] const std::string &v, [[maybe_unused]] const std::string &mask)
+static auto matchesmask([[maybe_unused]] const std::string &v,
+                        [[maybe_unused]] const std::string &mask) -> bool
 {
   NotImplemented();
   return false;
@@ -19,17 +20,22 @@ static bool matchesmask([[maybe_unused]] const std::string &v, [[maybe_unused]] 
 
 void addbannedip(const std::string &ip, std::string reason, std::int32_t duration)
 {
-  std::int32_t i, findex;
+  std::int32_t i;
+  std::int32_t findex;
 
   findex = 0;
   if (checkbannedip(ip))
+  {
     return;
+  }
   for (i = 1; i <= high(bannediplist); i++)
-    if (bannediplist[i].ip == "")
+  {
+    if (bannediplist[i].ip.empty())
     {
       findex = i;
       break;
     }
+  }
 
   if (findex == 0)
   {
@@ -47,50 +53,56 @@ void addbannedip(const std::string &ip, std::string reason, std::int32_t duratio
   lastban = ip;
 }
 
-bool delbannedip(const std::string &ip)
+auto delbannedip(const std::string &ip) -> bool
 {
   std::int32_t i;
 
   bool result;
   result = false;
   for (i = 1; i <= high(bannediplist); i++)
-    if ((bannediplist[i].ip == ip) && (ip != ""))
+  {
+    if ((bannediplist[i].ip == ip) && (!ip.empty()))
     {
       bannediplist[i].ip = "";
       bannediplist[i].time = permanent;
       bannediplist[i].reason = "";
       result = true;
     }
+  }
   return result;
 }
 
-bool checkbannedip(const std::string &ip)
+auto checkbannedip(const std::string &ip) -> bool
 {
   std::int32_t i;
 
   bool result;
   result = false;
   for (i = 1; i <= high(bannediplist); i++)
+  {
     if (matchesmask(ip, bannediplist[i].ip))
     {
       result = true;
       break;
     }
+  }
   return result;
 }
 
-std::int32_t findban(const std::string &ip)
+auto findban(const std::string &ip) -> std::int32_t
 {
   std::int32_t i;
 
   std::int32_t result;
   result = -1;
   for (i = 1; i <= high(bannediplist); i++)
+  {
     if (matchesmask(ip, bannediplist[i].ip))
     {
       result = i;
       break;
     }
+  }
   return result;
 }
 
@@ -156,13 +168,16 @@ void updateipbanlist()
   std::uint8_t j;
 
   for (j = 1; j <= high(bannediplist); j++)
-    if (bannediplist[j].ip != "")
+  {
+    if (!bannediplist[j].ip.empty())
     {
       if (bannediplist[j].time > 0)
       {
         bannediplist[j].time -= 3600;
         if ((bannediplist[j].time < 0) && !(bannediplist[j].time == permanent))
+        {
           bannediplist[j].time = 0;
+        }
       }
       if ((bannediplist[j].time == 0) && !(bannediplist[j].time == permanent))
       {
@@ -173,22 +188,28 @@ void updateipbanlist()
         savetxtlists();
       }
     }
+  }
 }
 
 // hardware id bans
 void addbannedhw(const std::string &hw, std::string reason, std::int32_t duration)
 {
-  std::int32_t i, findex;
+  std::int32_t i;
+  std::int32_t findex;
 
   findex = 0;
   if (checkbannedhw(hw))
+  {
     return;
+  }
   for (i = 1; i <= high(bannedhwlist); i++)
-    if (bannedhwlist[i].hw == "")
+  {
+    if (bannedhwlist[i].hw.empty())
     {
       findex = i;
       break;
     }
+  }
 
   if (findex == 0)
   {
@@ -206,50 +227,56 @@ void addbannedhw(const std::string &hw, std::string reason, std::int32_t duratio
   lastbanhw = hw;
 }
 
-bool delbannedhw(const std::string &hw)
+auto delbannedhw(const std::string &hw) -> bool
 {
   std::int32_t i;
 
   bool result;
   result = false;
   for (i = 1; i <= high(bannedhwlist); i++)
-    if ((bannedhwlist[i].hw == hw) && (hw != ""))
+  {
+    if ((bannedhwlist[i].hw == hw) && (!hw.empty()))
     {
       bannedhwlist[i].hw = "";
       bannedhwlist[i].time = permanent;
       bannedhwlist[i].reason = "";
       result = true;
     }
+  }
   return result;
 }
 
-bool checkbannedhw(const std::string &hw)
+auto checkbannedhw(const std::string &hw) -> bool
 {
   std::int32_t i;
 
   bool result;
   result = false;
   for (i = 1; i <= high(bannedhwlist); i++)
+  {
     if (matchesmask(hw, bannedhwlist[i].hw))
     {
       result = true;
       break;
     }
+  }
   return result;
 }
 
-std::int32_t findbanhw(const std::string &hw)
+auto findbanhw(const std::string &hw) -> std::int32_t
 {
   std::int32_t i;
 
   std::int32_t result;
   result = -1;
   for (i = 1; i <= high(bannedhwlist); i++)
+  {
     if (matchesmask(hw, bannedhwlist[i].hw))
     {
       result = i;
       break;
     }
+  }
   return result;
 }
 
@@ -315,13 +342,16 @@ void updatehwbanlist()
   std::uint8_t j;
 
   for (j = 1; j <= high(bannedhwlist); j++)
-    if (bannedhwlist[j].hw != "")
+  {
+    if (!bannedhwlist[j].hw.empty())
     {
       if (bannedhwlist[j].time > 0)
       {
         bannedhwlist[j].time -= 3600;
         if ((bannedhwlist[j].time < 0) && !(bannedhwlist[j].time == permanent))
+        {
           bannedhwlist[j].time = 0;
+        }
       }
       if ((bannedhwlist[j].time == 0) && !(bannedhwlist[j].time == permanent))
       {
@@ -332,4 +362,5 @@ void updatehwbanlist()
         savetxtlists();
       }
     }
+  }
 }

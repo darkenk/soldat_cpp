@@ -23,15 +23,20 @@ void clienthandlenewplayer(NetworkContext *netmessage)
 {
   tmsg_newplayer *newplayermsg;
   tvector2 a;
-  std::int32_t i, d;
+  std::int32_t i;
+  std::int32_t d;
 
   if (!verifypacket(sizeof(tmsg_newplayer), netmessage->size, msgid_newplayer))
+  {
     return;
+  }
 
   newplayermsg = pmsg_newplayer(netmessage->packet);
   i = newplayermsg->num;
   if ((i < 1) || (i > max_sprites))
+  {
     return;
+  }
 
   auto player = SpriteSystem::Get().GetSprite(i).player; // reuse object
   player->name = returnfixedplayername(newplayermsg->name.data());
@@ -106,7 +111,9 @@ void clienthandlenewplayer(NetworkContext *netmessage)
     mysprite = i;
 
     if (demoplayer.active())
+    {
       SpriteSystem::Get().GetSprite(mysprite).player->demoplayer = true;
+    }
 
     // TODO wat?
     SpriteSystem::Get().GetSprite(mysprite).bulletcount =
@@ -119,7 +126,9 @@ void clienthandlenewplayer(NetworkContext *netmessage)
       gamemenushow(limbomenu, false);
     }
     else
+    {
       camerafollowsprite = mysprite;
+    }
 
     gamemenushow(teammenu, false);
     clientplayerreceived = true;
@@ -160,6 +169,7 @@ void clienthandlenewplayer(NetworkContext *netmessage)
   }
 
   if (newplayermsg->jointype != join_silent)
+  {
     switch (newplayermsg->team)
     {
     case team_none:
@@ -187,6 +197,7 @@ void clienthandlenewplayer(NetworkContext *netmessage)
                                    deltaj_message_color);
       break;
     }
+  }
 }
 
 void clientvotekick(std::uint8_t num, bool ban, std::string reason)
@@ -214,7 +225,9 @@ void clienthandlevoteresponse(NetworkContext *netmessage)
   tmsg_votemapreply *votemsgreply;
 
   if (!verifypacket(sizeof(tmsg_votemapreply), netmessage->size, msgid_votemapreply))
+  {
     return;
+  }
 
   votemsgreply = pmsg_votemapreply(netmessage->packet);
   votemapname = votemsgreply->mapname.data();
@@ -238,14 +251,19 @@ void clienthandleplayerdisconnect(NetworkContext *netmessage)
   tmsg_playerdisconnect *playermsg;
 
   if (!verifypacket(sizeof(tmsg_playerdisconnect), netmessage->size, msgid_playerdisconnect))
+  {
     return;
+  }
 
   playermsg = pmsg_playerdisconnect(netmessage->packet);
   if ((playermsg->num < 1) || (playermsg->num > max_sprites))
+  {
     return;
+  }
 
   if ((playermsg->why == kick_unknown) || (playermsg->why >= _kick_end) ||
       (playermsg->why == kick_leftgame))
+  {
     switch (SpriteSystem::Get().GetSprite(playermsg->num).player->team)
     {
     case 0:
@@ -285,6 +303,7 @@ void clienthandleplayerdisconnect(NetworkContext *netmessage)
         deltaj_message_color);
       break;
     }
+  }
 
   switch (playermsg->why)
   {
@@ -356,52 +375,76 @@ void clienthandleplayerdisconnect(NetworkContext *netmessage)
     break;
   }
   if (GS::GetGame().IsVoteActive())
+  {
     switch (playermsg->why)
     {
     case kick_noresponse:
       if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+      {
         GS::GetGame().stopvote();
+      }
       break;
     case kick_nocheatresponse:
       if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+      {
         GS::GetGame().stopvote();
+      }
       break;
     case kick_ping:
       if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+      {
         GS::GetGame().stopvote();
+      }
       break;
     case kick_flooding:
       if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+      {
         GS::GetGame().stopvote();
+      }
       break;
     case kick_console:
       if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+      {
         GS::GetGame().stopvote();
+      }
       break;
     case kick_connectcheat:
       if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+      {
         GS::GetGame().stopvote();
+      }
       break;
     case kick_cheat:
       if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+      {
         GS::GetGame().stopvote();
+      }
       break;
     case kick_voted:
       if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+      {
         GS::GetGame().stopvote();
+      }
       break;
     case kick_ac:
       if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+      {
         GS::GetGame().stopvote();
+      }
       break;
     case kick_silent:
       if (GS::GetGame().GetVoteTarget() == inttostr(playermsg->num))
+      {
         GS::GetGame().stopvote();
+      }
       break;
     }
+  }
 
   if (playermsg->why != kick_changeteam)
+  {
     SpriteSystem::Get().GetSprite(playermsg->num).kill();
+  }
 
   GS::GetGame().sortplayers();
 
@@ -423,7 +466,9 @@ void clienthandlemapchange(NetworkContext *netmessage)
   tmsg_mapchange *mapchange;
 
   if (!verifypacket(sizeof(tmsg_mapchange), netmessage->size, msgid_mapchange))
+  {
     return;
+  }
 
   mapchange = pmsg_mapchange(netmessage->packet);
 
@@ -441,7 +486,9 @@ void clienthandlemapchange(NetworkContext *netmessage)
   heartbeattimewarnings = 0;
 
   if (CVar::cl_endscreenshot)
+  {
     screentaken = true;
+  }
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
@@ -463,33 +510,43 @@ void clienthandlemapchange(NetworkContext *netmessage)
                                game_message_color);
 
   if (!CVar::sv_survivalmode)
+  {
     if ((CVar::sv_gamemode == gamestyle_deathmatch) ||
         (CVar::sv_gamemode == gamestyle_pointmatch) || (CVar::sv_gamemode == gamestyle_rambo))
     {
       if (GS::GetGame().GetSortedPlayers(1).playernum > 0)
+      {
         camerafollowsprite = GS::GetGame().GetSortedPlayers(1).playernum;
+      }
       if (!escmenu->active)
       {
         mx = gamewidthhalf;
         my = gameheighthalf;
       }
     }
+  }
 }
 
 void clienthandleflaginfo(NetworkContext *netmessage)
 {
   std::int32_t j;
-  tvector2 a, b;
+  tvector2 a;
+  tvector2 b;
   auto &things = GS::GetThingSystem().GetThings();
 
   if (!verifypacket(sizeof(tmsg_serverflaginfo), netmessage->size, msgid_flaginfo))
+  {
     return;
+  }
 
   if ((pmsg_serverflaginfo(netmessage->packet)->who < 1) ||
       (pmsg_serverflaginfo(netmessage->packet)->who > max_sprites))
+  {
     return;
+  }
 
   if (pmsg_serverflaginfo(netmessage->packet)->style == returnred)
+  {
     if (CVar::sv_gamemode == gamestyle_ctf)
     {
       playsound(SfxEffect::capture);
@@ -502,9 +559,13 @@ void clienthandleflaginfo(NetworkContext *netmessage)
                       .player->name)),
         alpha_message_color);
       if (GS::GetGame().GetTeamFlag(1) > 0)
+      {
         things[GS::GetGame().GetTeamFlag(1)].respawn();
+      }
     }
+  }
   if (pmsg_serverflaginfo(netmessage->packet)->style == returnblue)
+  {
     if (CVar::sv_gamemode == gamestyle_ctf)
     {
       playsound(SfxEffect::capture);
@@ -517,8 +578,11 @@ void clienthandleflaginfo(NetworkContext *netmessage)
                       .player->name)),
         bravo_message_color);
       if (GS::GetGame().GetTeamFlag(2) > 0)
+      {
         things[GS::GetGame().GetTeamFlag(2)].respawn();
+      }
     }
+  }
   if (pmsg_serverflaginfo(netmessage->packet)->style == capturered)
   {
     bigmessage(_("Alpha Team Scores!"), capturectfmessagewait, alpha_message_color);
@@ -541,13 +605,19 @@ void clienthandleflaginfo(NetworkContext *netmessage)
         b.y = 0;
         createspark(a, b, 36, 0, 35);
         if (Random(2) == 0)
+        {
           createspark(a, b, 37, 0, 75);
+        }
       }
     }
     else
+    {
       playsound(SfxEffect::ctf);
+    }
     if (GS::GetGame().GetTeamFlag(2) > 0)
+    {
       things[GS::GetGame().GetTeamFlag(2)].respawn();
+    }
 
     // cap spark
     createspark(things[GS::GetGame().GetTeamFlag(1)].skeleton.pos[2], b, 61,
@@ -568,7 +638,9 @@ void clienthandleflaginfo(NetworkContext *netmessage)
       bravo_message_color);
     playsound(SfxEffect::ctf);
     if (GS::GetGame().GetTeamFlag(1) > 0)
+    {
       things[GS::GetGame().GetTeamFlag(1)].respawn();
+    }
 
     // cap spark
     createspark(things[GS::GetGame().GetTeamFlag(2)].skeleton.pos[2], b, 61,
@@ -586,12 +658,16 @@ void clienthandleidleanimation(NetworkContext *netmessage)
   std::int32_t i;
 
   if (!verifypacket(sizeof(tmsg_idleanimation), netmessage->size, msgid_idleanimation))
+  {
     return;
+  }
 
   i = pmsg_idleanimation(netmessage->packet)->num;
 
   if (!SpriteSystem::Get().GetSprite(i).active)
+  {
     return;
+  }
 
   SpriteSystem::Get().GetSprite(i).idletime = 1;
   SpriteSystem::Get().GetSprite(i).idlerandom = pmsg_idleanimation(netmessage->packet)->idlerandom;

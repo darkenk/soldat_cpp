@@ -26,17 +26,21 @@
 void encodekeys(tsprite &SpriteC, uint16_t &Keys16);
 void decodekeys(tsprite &SpriteC, std::uint32_t Keys16);
 
-std::string ArrayToString(const char *c);
+auto ArrayToString(const char *c) -> std::string;
 
 #ifndef SERVER
 void playradiosound(std::uint8_t RadioID)
 {
   if ((radiocooldown > 0) or (CVar::sv_radio))
+  {
     return;
+  }
   if ((CVar::sv_gamemode != Constants::GAMESTYLE_CTF) and
       (CVar::sv_gamemode != Constants::GAMESTYLE_HTF) and
       (CVar::sv_gamemode != Constants::GAMESTYLE_INF))
+  {
     return;
+  }
 
   radiocooldown = 3;
   const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
@@ -80,32 +84,58 @@ void encodekeys(Sprite<M> &SpriteC, std::uint16_t &Keys16)
 
   Keys16 = 0;
   if (Controls.left)
+  {
     Keys16 = Keys16 | B1;
+  }
   if (Controls.right)
+  {
     Keys16 = Keys16 | B2;
+  }
   if (Controls.up)
+  {
     Keys16 = Keys16 | B3;
+  }
   if (Controls.down)
+  {
     Keys16 = Keys16 | B4;
+  }
   if (Controls.fire)
+  {
     Keys16 = Keys16 | B5;
+  }
   if (Controls.jetpack)
+  {
     Keys16 = Keys16 | B6;
+  }
   if (Controls.thrownade)
+  {
     Keys16 = Keys16 | B7;
+  }
   if (Controls.changeweapon)
+  {
     Keys16 = Keys16 | B8;
+  }
   if (Controls.throwweapon)
+  {
     Keys16 = Keys16 | B9;
+  }
   if (Controls.reload)
+  {
     Keys16 = Keys16 | B10;
+  }
   if (Controls.flagthrow)
+  {
     Keys16 = Keys16 | B11;
+  }
 
   if (SpriteC.bodyanimation.id == AnimationType::Change)
+  {
     Keys16 = Keys16 | B8;
+  }
   if (SpriteC.bodyanimation.id == AnimationType::ThrowWeapon)
+  {
     Keys16 = Keys16 | B9;
+  }
 }
 
 template <Config::Module M>
@@ -128,7 +158,7 @@ void decodekeys(Sprite<M> &SpriteC, uint16_t Keys16)
 
 // Sets the player name to Major if it is invalid
 template <Config::Module M>
-std::string fixplayername(const char *Name)
+auto fixplayername(const char *Name) -> std::string
 {
   NotImplemented();
   return Name;
@@ -140,10 +170,10 @@ std::string fixplayername(const char *Name)
 }
 
 template <Config::Module M>
-bool verifypacket(std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId,
-                  const source_location &location)
+auto verifypacket(std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId,
+                  const source_location &location) -> bool
 {
-  std::string Dropped = "";
+  std::string Dropped;
   auto Result = true;
   SoldatAssert(ValidSize == ReceiveSize);
   LogDebug("net_msg", "{}", location.function_name());
@@ -162,10 +192,10 @@ bool verifypacket(std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t
 }
 
 template <Config::Module M>
-bool verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
-                               std::int32_t PacketId, const source_location &location)
+auto verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
+                               std::int32_t PacketId, const source_location &location) -> bool
 {
-  std::string Dropped = "";
+  std::string Dropped;
   auto Result = true;
   SoldatAssert(ValidSize <= ReceiveSize);
   LogDebug("net_msg", "{}", location.function_name());
@@ -185,42 +215,39 @@ bool verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
 
 #ifdef SERVER
 // Checks if the IP std::string is inside the remote IPs list
-bool isremoteadminip(const std::string &ip)
+auto isremoteadminip(const std::string &ip) -> bool
 {
   return std::find(remoteips.begin(), remoteips.end(), ip) != remoteips.end();
 }
 
 // Checks if the IP std::string is inside the admin IPs list
-bool isadminip(const std::string &ip)
+auto isadminip(const std::string &ip) -> bool
 {
   return std::find(adminips.begin(), adminips.end(), ip) != adminips.end();
 }
 
 // Retruns true if the password is not empty and equal to the Admin password
 // Server passwords are not allowed to be empty else everyone could login
-bool isadminpassword(std::string Password)
+auto isadminpassword(std::string Password) -> bool
 {
   return (CVar::sv_adminpassword != "") and (Password == CVar::sv_adminpassword);
 }
 
 // Checks if the given passwords match
 // If the password is not set then this returns false
-bool iswronggamepassword(std::string GamePassword)
+auto iswronggamepassword(std::string GamePassword) -> bool
 {
   return (CVar::sv_password != "") and (GamePassword != CVar::sv_password);
 }
 
 // Checks if server has MAX_PLAYERS slots taken and adding even and admin
 // wouldn"t work
-bool isservertotallyfull()
-{
-  return GS::GetGame().GetPlayersNum() >= max_players;
-}
+auto isservertotallyfull() -> bool { return GS::GetGame().GetPlayersNum() >= max_players; }
 
 // Checks if allowed server slots are taken
 // If MaxPlayers slots is lower than MAX_PLAYERS there are still slots for
 // admins to join
-bool isserverfull()
+auto isserverfull() -> bool
 {
   return ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetBotsNum()) >= CVar::sv_maxplayers) or
          (isservertotallyfull());
@@ -229,7 +256,7 @@ bool isserverfull()
 
 // Checks if the Requested and the current Soldat version are the same
 template <Config::Module M>
-bool iswronggameversion(std::string RequestVersion)
+auto iswronggameversion(std::string RequestVersion) -> bool
 {
   NotImplemented();
   return false;
@@ -239,7 +266,7 @@ bool iswronggameversion(std::string RequestVersion)
 }
 
 #ifndef SERVER
-std::string returnfixedplayername(std::string name)
+auto returnfixedplayername(std::string name) -> std::string
 {
   std::string r;
   r = "";
@@ -262,7 +289,8 @@ std::string returnfixedplayername(std::string name)
 void newplayerweapon()
 
 {
-  std::int32_t j, i;
+  std::int32_t j;
+  std::int32_t i;
   std::int32_t SecWep;
   if (SpriteSystem::Get().GetSprite(mysprite).weapon.num == noweapon_num)
   {
@@ -312,7 +340,7 @@ void newplayerweapon()
 }
 #endif
 #ifdef SERVER
-bool checkweaponnotallowed(std::uint8_t i)
+auto checkweaponnotallowed(std::uint8_t i) -> bool
 {
   std::int32_t WeaponIndex;
   LogTraceG("CheckWeaponNotAllowed");
@@ -342,7 +370,7 @@ bool checkweaponnotallowed(std::uint8_t i)
 
 // Searches for the flood ip in the flood ips array
 // Returns 0 when nothing was found
-std::int32_t findfloodid(std::string SrcIP)
+auto findfloodid(std::string SrcIP) -> std::int32_t
 {
   std::int32_t i;
   auto Result = 0;
@@ -359,7 +387,7 @@ std::int32_t findfloodid(std::string SrcIP)
 
 // Adds a flooding ip to the Flood ips array
 // If the array is full the flood ip will not be added
-std::int32_t addfloodip(std::string SrcIP)
+auto addfloodip(std::string SrcIP) -> std::int32_t
 {
   std::int32_t i;
   constexpr auto FLOOD_ID_NOT_FOUND = 0;
@@ -377,15 +405,13 @@ std::int32_t addfloodip(std::string SrcIP)
   return Result;
 }
 
-std::int32_t updateantiflood(std::string SrcIP)
+auto updateantiflood(std::string SrcIP) -> std::int32_t
 {
   std::int32_t FloodID;
   constexpr auto FLOOD_ID_NOT_FOUND = 0;
 
-#ifdef SERVER
   lastreqip[lastreqid] = SrcIP;
   lastreqid = (lastreqid + 1) % 4;
-#endif
 
   FloodID = findfloodid(SrcIP);
 
@@ -406,17 +432,19 @@ std::int32_t updateantiflood(std::string SrcIP)
   return FloodID;
 }
 
-bool isfloodid(std::int32_t ID)
+auto isfloodid(std::int32_t ID) -> bool
 {
   constexpr auto FLOOD_ID_NOT_FOUND = 0;
   return (ID != FLOOD_ID_NOT_FOUND) and (floodnum[ID] > floodip_max);
 }
 
-bool addiptoremoteadmins(std::string SrcIP)
+auto addiptoremoteadmins(std::string SrcIP) -> bool
 {
   auto Result = false;
   if (SrcIP == " ")
+  {
     return Result;
+  }
 
   if (not isadminip(SrcIP))
   {

@@ -27,19 +27,26 @@ namespace
 /*$WARN 5024 OFF : Parameter "$1" not used*/
 void commandaddbot(std::vector<std::string> &args, std::uint8_t sender)
 {
-  std::string name, tempstr;
+  std::string name;
+  std::string tempstr;
   std::int32_t teamset;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   if (GS::GetGame().GetPlayersNum() == max_players)
+  {
     return;
+  }
 
   tempstr = args[0];
   teamset = strtointdef({tempstr[6], 1}, 1);
@@ -49,10 +56,14 @@ void commandaddbot(std::vector<std::string> &args, std::uint8_t sender)
 void commandaddbots(std::vector<std::string> &args, std::uint8_t sender)
 {
   if (length(args) == 1)
+  {
     return;
+  }
 
   if (GS::GetGame().GetPlayersNum() == max_players)
+  {
     return;
+  }
 
   auto amount = strtointdef(args[1], 2);
   for (auto i = 0; i < amount; i++)
@@ -71,10 +82,14 @@ void commandmap(std::vector<std::string> &args, std::uint8_t sender)
   tmapinfo status;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   if (length(args[1]) < 1)
+  {
     return;
+  }
 
   if (getmapinfo(GS::GetFileSystem(), args[1], GS::GetGame().GetUserDirectory(), status))
   {
@@ -139,16 +154,22 @@ void commandkick(std::vector<std::string> &args, std::uint8_t sender)
   tcommandtargets targets;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   targets = commandtarget(name, sender);
   for (i = 0; i <= high(targets); i++)
+  {
     kickplayer(targets[i], false, kick_console, 0);
+  }
 }
 
 void commandkicklast(std::vector<std::string> &args, std::uint8_t sender)
@@ -164,44 +185,64 @@ void commandkicklast(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandban(std::vector<std::string> &args, std::uint8_t sender)
 {
-  std::string name, tempstr;
+  std::string name;
+  std::string tempstr;
   std::int32_t i;
   tcommandtargets targets;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   if (sender == 255)
+  {
     tempstr = "an admin";
+  }
   else
+  {
     tempstr = SpriteSystem::Get().GetSprite(sender).player->name;
+  }
 
   targets = commandtarget(name, sender);
   for (i = 0; i <= high(targets); i++)
+  {
     kickplayer(targets[i], true, kick_console, (day * 30), std::string("Banned by ") + tempstr);
+  }
 }
 
 void commandbaniphw(std::vector<std::string> &args, std::uint8_t sender)
 {
-  std::string name, tempstr;
+  std::string name;
+  std::string tempstr;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   if (sender == 255)
+  {
     tempstr = "an admin";
+  }
   else
+  {
     tempstr = SpriteSystem::Get().GetSprite(sender).player->name;
+  }
 
   if (args[0] == "banhw")
   {
@@ -224,20 +265,28 @@ void commandunban(std::vector<std::string> &args, std::uint8_t sender)
   std::string name;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   if (delbannedip(name))
+  {
     GS::GetMainConsole().console(string("IP number ") + name + " unbanned", client_message_color,
-                                   sender);
+                                 sender);
+  }
 
   if (delbannedhw(name))
+  {
     GS::GetMainConsole().console(string("HWID ") + name + " unbanned", client_message_color,
-                                   sender);
+                                 sender);
+  }
 
   savetxtlists();
 }
@@ -245,12 +294,16 @@ void commandunban(std::vector<std::string> &args, std::uint8_t sender)
 void commandunbanlast(std::vector<std::string> &args, std::uint8_t sender)
 {
   if (delbannedip(lastban))
-    GS::GetMainConsole().console(string("IP number ") + lastban + " unbanned",
-                                   client_message_color, sender);
+  {
+    GS::GetMainConsole().console(string("IP number ") + lastban + " unbanned", client_message_color,
+                                 sender);
+  }
 
   if (delbannedhw(lastbanhw))
+  {
     GS::GetMainConsole().console(string("HWID ") + lastbanhw + " unbanned", client_message_color,
-                                   sender);
+                                 sender);
+  }
 
   savetxtlists();
 }
@@ -262,15 +315,20 @@ void commandadm(std::vector<std::string> &args, std::uint8_t sender)
   tcommandtargets targets;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   targets = commandtarget(name, sender);
   for (i = 0; i <= high(targets); i++)
+  {
     if (isremoteadminip(SpriteSystem::Get().GetSprite(targets[i]).player->ip))
     {
       remoteips.add(SpriteSystem::Get().GetSprite(targets[i]).player->ip);
@@ -280,6 +338,7 @@ void commandadm(std::vector<std::string> &args, std::uint8_t sender)
                                      client_message_color, sender);
       savetxtlists();
     }
+  }
 }
 
 void commandadmip(std::vector<std::string> &args, std::uint8_t sender)
@@ -287,12 +346,16 @@ void commandadmip(std::vector<std::string> &args, std::uint8_t sender)
   std::string name;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   if (!isremoteadminip(name))
   {
@@ -308,12 +371,16 @@ void commandunadm(std::vector<std::string> &args, std::uint8_t sender)
   std::string name;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   if (isremoteadminip(name))
   {
@@ -331,17 +398,22 @@ void commandunadm(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandsetteam(std::vector<std::string> &args, std::uint8_t sender)
 {
-  std::string name, tempstr;
+  std::string name;
+  std::string tempstr;
   std::int32_t i;
   tcommandtargets targets;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   tempstr = args[0];
   NotImplemented();
@@ -362,12 +434,16 @@ void commandsay(std::vector<std::string> &args, std::uint8_t sender)
   std::string name;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   serversendstringmessage((name), all_players, 255, msgtype_pub);
 }
@@ -380,7 +456,9 @@ void commandkill(std::vector<std::string> &args, std::uint8_t sender)
   tcommandtargets targets;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
@@ -402,12 +480,18 @@ void commandloadwep(std::vector<std::string> &args, std::uint8_t sender)
   if (length(args) == 1)
   {
     if (CVar::sv_realisticmode)
+    {
       name = "weapons_floatistic";
+    }
     else
+    {
       name = "weapons";
+    }
   }
   else
+  {
     name = args[1];
+  }
 
   loadweapons(name);
 
@@ -425,7 +509,9 @@ void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
   std::string name;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
@@ -475,7 +561,9 @@ void commandloadlist(std::vector<std::string> &args, std::uint8_t sender)
 #endif
   }
   else
+  {
     name = args[1];
+  }
 
   if (fileexists(GS::GetGame().GetUserDirectory() + name + ".txt"))
   {
@@ -488,12 +576,15 @@ void commandloadlist(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandpm(std::vector<std::string> &args, std::uint8_t sender)
 {
-  std::string pmtoid, pmmessage;
+  std::string pmtoid;
+  std::string pmmessage;
   std::int32_t i;
   tcommandtargets targets;
 
   if (length(args) <= 2)
+  {
     return;
+  }
 
   pmtoid = args[1];
 
@@ -513,28 +604,35 @@ void commandpm(std::vector<std::string> &args, std::uint8_t sender)
 void commandgmute(std::vector<std::string> &args, std::uint8_t sender)
 {
   std::string name;
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
   tcommandtargets targets;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   targets = commandtarget(name, sender);
   for (i = 0; i <= high(targets); i++)
   {
     SpriteSystem::Get().GetSprite(targets[i]).player->muted = 1;
     for (j = 1; j <= max_players; j++)
-      if (trim(mutelist[j]) == "")
+    {
+      if (trim(mutelist[j]).empty())
       {
         mutelist[j] = SpriteSystem::Get().GetSprite(targets[i]).player->ip;
         mutename[j] = SpriteSystem::Get().GetSprite(targets[i]).player->name;
         break;
       }
+    }
     GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name +
                                      " has been muted.",
                                    client_message_color, sender);
@@ -544,27 +642,34 @@ void commandgmute(std::vector<std::string> &args, std::uint8_t sender)
 void commandungmute(std::vector<std::string> &args, std::uint8_t sender)
 {
   std::string name;
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
   tcommandtargets targets;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   targets = commandtarget(name, sender);
   for (i = 0; i <= high(targets); i++)
   {
     SpriteSystem::Get().GetSprite(targets[i]).player->muted = 0;
     for (j = 1; j <= max_players; j++)
+    {
       if (trim(mutelist[j]) == SpriteSystem::Get().GetSprite(targets[i]).player->ip)
       {
         mutelist[j] = "";
         break;
       }
+    }
     GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(targets[i]).player->name +
                                      " has been unmuted.",
                                    client_message_color, sender);
@@ -576,12 +681,16 @@ void commandaddmap(std::vector<std::string> &args, std::uint8_t sender)
   std::string name;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   // if not (MapExists(Name, userdirectory)) then
   // begin
@@ -602,12 +711,16 @@ void commanddelmap(std::vector<std::string> &args, std::uint8_t sender)
   std::int32_t tempint;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   for (tempint = 0; tempint <= (mapslist.size() - 1); tempint++)
   {
@@ -627,15 +740,20 @@ void commanddelmap(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandtempban(std::vector<std::string> &args, std::uint8_t sender)
 {
-  std::string name, tempstr;
+  std::string name;
+  std::string tempstr;
 
   if (length(args) <= 2)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   tempstr = args[2];
   // *BAN*
@@ -652,12 +770,16 @@ void commandweaponon(std::vector<std::string> &args, std::uint8_t sender)
   std::int32_t j;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
@@ -665,7 +787,9 @@ void commandweaponon(std::vector<std::string> &args, std::uint8_t sender)
     {
       j = strtointdef(name, -1);
       if ((j > -1) && (j < 15))
+      {
         setweaponactive(sprite.num, j, true);
+      }
     }
   }
 }
@@ -676,12 +800,16 @@ void commandweaponoff(std::vector<std::string> &args, std::uint8_t sender)
   std::int32_t j;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   name = args[1];
 
   if (length(name) < 1)
+  {
     return;
+  }
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
@@ -689,7 +817,9 @@ void commandweaponoff(std::vector<std::string> &args, std::uint8_t sender)
     {
       j = strtointdef(name, -1);
       if ((j > -1) && (j < 15))
+      {
         setweaponactive(sprite.num, j, false);
+      }
     }
   }
 }
@@ -794,7 +924,9 @@ void commandplayercommand(std::vector<std::string> &args, std::uint8_t sender)
     SpriteSystem::Get().GetSprite(sender).idlerandom = 7;
     SpriteSystem::Get().GetSprite(sender).idletime = 1;
     if (SpriteSystem::Get().GetSprite(sender).player->kills > 0)
+    {
       SpriteSystem::Get().GetSprite(sender).player->kills -= 1;
+    }
   }
   else if (command == "pwn")
   {
@@ -806,31 +938,41 @@ void commandplayercommand(std::vector<std::string> &args, std::uint8_t sender)
     SpriteSystem::Get().GetSprite(sender).vest = 0;
     SpriteSystem::Get().GetSprite(sender).healthhit(150, sender, 1, -1, a);
     if (SpriteSystem::Get().GetSprite(sender).player->kills > 0)
+    {
       SpriteSystem::Get().GetSprite(sender).player->kills -= 1;
+    }
   }
   else if (command == "brutalkill")
   {
     SpriteSystem::Get().GetSprite(sender).vest = 0;
     SpriteSystem::Get().GetSprite(sender).healthhit(3423, sender, 1, -1, a);
     if (SpriteSystem::Get().GetSprite(sender).player->kills > 0)
+    {
       SpriteSystem::Get().GetSprite(sender).player->kills -= 1;
+    }
   }
 }
 
 void commandinfo(std::vector<std::string> &args, std::uint8_t sender)
 {
-  std::string gametype = "";
+  std::string gametype;
 #ifdef SCRIPT
   std::int8_t i;
   tstringlist scriptlist;
 #endif
 
   if (length((std::string)CVar::sv_greeting) > 0)
+  {
     serversendstringmessage((CVar::sv_greeting), sender, 255, msgtype_pub);
+  }
   if (length((std::string)CVar::sv_greeting2) > 0)
+  {
     serversendstringmessage((CVar::sv_greeting2), sender, 255, msgtype_pub);
+  }
   if (length((std::string)CVar::sv_greeting3) > 0)
+  {
     serversendstringmessage((CVar::sv_greeting3), sender, 255, msgtype_pub);
+  }
 
   serversendstringmessage(string("Server: ") + string(CVar::sv_hostname), sender, 255, msgtype_pub);
   serversendstringmessage(string("Address: ") + (serverip) + ':' + (inttostr(serverport)), sender,
@@ -882,10 +1024,12 @@ void commandinfo(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 
   if (GS::GetWeaponSystem().GetLoadedWMChecksum() != GS::GetWeaponSystem().GetDefaultWMChecksum())
+  {
     serversendstringmessage(string("Server uses weapon mod \"") + (wmname) + " v" + (wmversion) +
                               "\" (checksum " +
                               (inttostr(GS::GetWeaponSystem().GetLoadedWMChecksum())) + ')',
                             sender, 255, msgtype_pub);
+  }
 }
 
 void commandadminlog(std::vector<std::string> &args, std::uint8_t sender)
@@ -893,7 +1037,9 @@ void commandadminlog(std::vector<std::string> &args, std::uint8_t sender)
   std::string adminlog;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   adminlog = args[1];
   if (length((std::string)CVar::sv_adminpassword) > 0)
@@ -901,7 +1047,9 @@ void commandadminlog(std::vector<std::string> &args, std::uint8_t sender)
     if (adminlog == CVar::sv_adminpassword)
     {
       if (!isadminip(SpriteSystem::Get().GetSprite(sender).player->ip))
+      {
         adminips.add(SpriteSystem::Get().GetSprite(sender).player->ip);
+      }
       GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(sender).player->name +
                                        " added to Game Admins",
                                      server_message_color, sender);
@@ -920,7 +1068,9 @@ void commandvotemap(std::vector<std::string> &args, std::uint8_t sender)
   std::string mapname;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   mapname = args[1];
 
@@ -928,11 +1078,15 @@ void commandvotemap(std::vector<std::string> &args, std::uint8_t sender)
   {
     // check if the vote target is actually the target
     if (GS::GetGame().GetVoteTarget() != string(mapname))
+    {
       return;
+    }
 
     // check if he already voted
     if (GS::GetGame().HasVoted(sender))
+    {
       return;
+    }
 
 #ifdef SCRIPT
     scrptdispatcher.onvotemap(sender, mapname);
@@ -957,12 +1111,16 @@ void commandvotemap(std::vector<std::string> &args, std::uint8_t sender)
         }
       }
       else
+      {
         serversendstringmessage("Can't vote for 2:00 minutes after joining game or last vote",
                                 sender, 255, msgtype_pub);
+      }
     }
     else
+    {
       serversendstringmessage(string("Map not found (") + (mapname) + ')', sender, 255,
                               msgtype_pub);
+    }
   }
 }
 
@@ -999,7 +1157,9 @@ void commandrecord(std::vector<std::string> &args, std::uint8_t sender)
   std::string str1;
 
   if (length(args) == 2)
+  {
     str1 = args[1];
+  }
   else
   {
     NotImplemented();

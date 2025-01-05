@@ -107,7 +107,7 @@ void NetworkClientImpl::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t
 
 NetworkClientImpl::NetworkClientImpl(): mPeer(k_HSteamNetConnection_Invalid) {}
 
-bool NetworkClientImpl::ConnectImpl(const std::string_view host, std::uint32_t port)
+auto NetworkClientImpl::ConnectImpl(const std::string_view host, std::uint32_t port) -> bool
 {
   SteamNetworkingIPAddr address; // NOLINT
   std::array<SteamNetworkingConfigValue_t, 2> initSettings; // NOLINT
@@ -128,7 +128,7 @@ bool NetworkClientImpl::ConnectImpl(const std::string_view host, std::uint32_t p
   return mPeer != k_HSteamNetConnection_Invalid;
 }
 
-bool NetworkClientImpl::IsConnected()
+auto NetworkClientImpl::IsConnected() -> bool
 {
   if (mPeer == k_HSteamNetConnection_Invalid)
   {
@@ -139,7 +139,7 @@ bool NetworkClientImpl::IsConnected()
   return status.m_eState == k_ESteamNetworkingConnectionState_Connected;
 }
 
-bool NetworkClientImpl::IsDisconnected()
+auto NetworkClientImpl::IsDisconnected() -> bool
 {
   if (mPeer == k_HSteamNetConnection_Invalid)
   {
@@ -167,7 +167,7 @@ void NetworkClientImpl::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
     return; // truncated packet
   }
 
-  const auto PacketHeader = static_cast<pmsgheader>(IncomingMsg->m_pData);
+  auto *const PacketHeader = static_cast<pmsgheader>(IncomingMsg->m_pData);
 
   if (GS::GetDemoRecorder().active())
   {
@@ -366,17 +366,21 @@ void NetworkClientImpl::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
   }
 }
 
-bool NetworkClientImpl::SendDataImpl(const std::byte *data, std::int32_t size, bool reliable,
-                             const source_location &location)
+auto NetworkClientImpl::SendDataImpl(const std::byte *data, std::int32_t size, bool reliable,
+                                     const source_location &location) -> bool
 {
   if (size < sizeof(tmsgheader))
+  {
     return false; // truncated packet
+  }
 
   LogDebug(NETMSG, "Senddata {} from {}", reinterpret_cast<const tmsgheader *>(data)->id,
            location.function_name());
 
   if (mPeer == k_HSteamNetConnection_Invalid)
+  {
     return false; // not connected
+  }
 
   auto flags = reliable ? k_nSteamNetworkingSend_Reliable : k_nSteamNetworkingSend_Unreliable;
   auto ret = mNetworkingSockets->SendMessageToConnection(mPeer, data, size, flags, nullptr);
@@ -389,7 +393,7 @@ bool NetworkClientImpl::SendDataImpl(const std::byte *data, std::int32_t size, b
   return true;
 }
 
-bool NetworkClientImpl::DisconnectImpl(bool now)
+auto NetworkClientImpl::DisconnectImpl(bool now) -> bool
 {
   mNetworkingSockets->CloseConnection(mPeer, 0, "", !now);
   mPeer = k_HSteamNetConnection_Invalid;
@@ -409,13 +413,11 @@ void DeinitClientNetwork() requires(Config::IsClient())
 }
 
 template <Config::Module M>
-NetworkClientImpl *GetNetwork() requires(Config::IsClient())
-{
-  return gUDP;
-}
+auto GetNetwork() -> NetworkClientImpl *requires(Config::IsClient()) { return gUDP; }
 
 template <Config::Module M>
-void InitClientNetwork() requires(Config::IsClient())
+void InitClientNetwork()
+  requires(Config::IsClient())
 {
   gUDP = new NetworkClientImpl();
 }

@@ -16,9 +16,9 @@ struct tmemorystream
   std::int32_t position;
   std::int32_t size;
 
-  bool writebuffer(const void *buff, std::int32_t size);
+  auto writebuffer(const void *buff, std::int32_t size) -> bool;
 
-  bool savetofile(const std::string &filename);
+  auto savetofile(const std::string &filename) -> bool;
 
   void write1(const void *buff, std::int32_t size);
   void read1(void *buff, std::int32_t size);
@@ -77,12 +77,12 @@ class tdemorecorder : public tdemo<>
 {
 private:
   std::int32_t fticksnum;
-  std::int32_t createdemoplayer();
+  auto createdemoplayer() -> std::int32_t;
 #ifndef SERVER
   void savecamera();
 #endif
 public:
-  bool startrecord(const std::string &filename);
+  auto startrecord(const std::string &filename) -> bool;
   void stoprecord();
   void saverecord(const void *r, std::int32_t size);
   void savenextframe();
@@ -105,7 +105,7 @@ private:
 public:
   bool opendemo(const std::string &filename);
   void stopdemo();
-  void processdemo();
+  static void processdemo();
   void position(std::int32_t ticks);
   std::int32_t skipto()
   {

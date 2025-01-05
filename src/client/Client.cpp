@@ -47,30 +47,23 @@ bool progready;
 Console sBigConsole;
 ConsoleMain sKillConsole;
 
-Console &InitBigConsole(FileUtility* filesystem, const std::int32_t newMessageWait, const std::int32_t countMax,
-                           const std::int32_t scrollTickMax)
+auto InitBigConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
+                    const std::int32_t countMax, const std::int32_t scrollTickMax) -> Console &
 {
   return *new (&sBigConsole) Console(filesystem, newMessageWait, countMax, scrollTickMax);
 }
 
-ConsoleMain &InitKillConsole(FileUtility* filesystem, const std::int32_t newMessageWait, const std::int32_t countMax,
-                                const std::int32_t scrollTickMax)
+auto InitKillConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
+                     const std::int32_t countMax, const std::int32_t scrollTickMax) -> ConsoleMain &
 {
   return *new (&sKillConsole) ConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax);
 }
 
 } // namespace
 
+auto GetBigConsole() -> Console & { return sBigConsole; }
 
-Console &GetBigConsole()
-{
-  return sBigConsole;
-}
-
-ConsoleMain &GetKillConsole()
-{
-  return sKillConsole;
-}
+auto GetKillConsole() -> ConsoleMain & { return sKillConsole; }
 
 // Client.cpp variables
 static bool gamelooprun;
@@ -197,11 +190,11 @@ static void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName = gundispl
   std::unique_ptr<std::byte[]> buff;
   std::size_t fileSize = 0;
   {
-    auto f = fs.Open(weaponNamesFile, FileUtility::FileMode::Read);
-    fileSize = fs.Size(f);
+    auto *f = fs.Open(weaponNamesFile, FileUtility::FileMode::Read);
+    fileSize = FileUtility::Size(f);
     buff = std::make_unique<std::byte[]>(fileSize);
-    fs.Read(f, buff.get(), fileSize);
-    fs.Close(f);
+    FileUtility::Read(f, buff.get(), fileSize);
+    FileUtility::Close(f);
   }
 #if __EMSCRIPTEN__
   std::istringstream sd(std::string(reinterpret_cast<char*>(buff.get()), fileSize));
@@ -275,16 +268,20 @@ void exittomenu()
   // resetsynccvars;
 
   if (GS::GetDemoRecorder().active())
+  {
     GS::GetDemoRecorder().stoprecord();
+  }
 
   if (demoplayer.active())
+  {
     demoplayer.stopdemo();
+  }
 
   if (mysprite > 0)
   {
     clientdisconnect(*GetNetwork());
   }
-  if (GetNetwork())
+  if (GetNetwork() != nullptr)
   {
     GetNetwork()->Disconnect(true);
   }
@@ -310,7 +307,9 @@ void exittomenu()
                 [](auto &sprite) { sprite.kill(); });
   GS::GetBulletSystem().KillAll();
   for (i = 1; i <= max_sparks; i++)
+  {
     spark[i].kill();
+  }
   GS::GetThingSystem().KillAll();
 
   // Reset World and Big Texts
@@ -347,7 +346,9 @@ void exittomenu()
   gamethingtarget = 0;
 
   if (redirecttoserver)
+  {
     redirectdialog();
+  }
 }
 
 static void CreateDirectoryStructure(FileUtility &fs)
@@ -361,9 +362,9 @@ static void CreateDirectoryStructure(FileUtility &fs)
   SoldatEnsure(fs.MkDir("/user/mods"));
 }
 
-static bool MountAssets(FileUtility &fu, const std::string &userdirectory,
+static auto MountAssets(FileUtility &fu, const std::string &userdirectory,
                         const std::string &basedirectory, tsha1digest &outGameModChecksum,
-                        tsha1digest &outCustomModChecksum)
+                        tsha1digest &outCustomModChecksum) -> bool
 {
   LogDebugG("[FS] Mounting game archive");
   if (CVar::fs_localmount)
@@ -433,8 +434,8 @@ void startgame(int argc, const char *argv[])
   }
 
   auto &fs = GS::GetFileSystem();
-  const auto userDirectory = fs.GetPrefPath("client");
-  const auto baseDirectory = fs.GetBasePath();
+  const auto userDirectory = FileUtility::GetPrefPath("client");
+  const auto baseDirectory = FileUtility::GetBasePath();
 
   LogDebugG("[FS] userDirectory: {}", userDirectory);
   LogDebugG("[FS] baseDirectory: {}", baseDirectory);
@@ -525,9 +526,13 @@ void startgame(int argc, const char *argv[])
   {
     // avoid black bars in windowed mode
     if (((float)(screenwidth) / screenheight) >= ((float)(renderwidth) / renderheight))
+    {
       screenwidth = round(screenheight * ((float)(renderwidth) / renderheight));
+    }
     else
+    {
       screenheight = round(screenwidth * ((float)(renderheight) / renderwidth));
+    }
   }
 
   // window size equals "screen" size except in windowed fullscreen
@@ -571,7 +576,9 @@ void startgame(int argc, const char *argv[])
     fragx = floor((float)(renderwidth) / 2 - 300) - 25;
 
     if (renderheight > gameheight)
+    {
       fragy = round(10 * _rscala.y);
+    }
   }
 
   gamerenderingparams.interfacename = CVar::ui_style;
@@ -619,7 +626,9 @@ void startgame(int argc, const char *argv[])
 
   loadsounds("");
   if (length(moddir) > 0)
+  {
     loadsounds(moddir);
+  }
 
   GS::GetConsoleLogFile().Log("Creating network interface.");
 
@@ -632,7 +641,9 @@ void startgame(int argc, const char *argv[])
 
   AnimationSystem::Get().LoadAnimObjects("");
   if (length(moddir) > 0)
+  {
     AnimationSystem::Get().LoadAnimObjects(moddir);
+  }
 
   // greet!
   // GS::GetMainConsole().console(("Welcome to Soldat ") + soldat_version, default_message_color);
@@ -661,7 +672,9 @@ void startgame(int argc, const char *argv[])
   shotdistanceshow = -1;
 
   if (CVar::r_compatibility)
+  {
     CVar::cl_actionsnap = false;
+  }
 
   GS::GetConsoleLogFile().WriteToFile();
   rundeferredcommands();
@@ -769,7 +782,7 @@ void joinserver()
   if (joinport == "0")
   {
     demoplayer.opendemo(GS::GetGame().GetUserDirectory() + "demos/" + joinip + ".sdm");
-    demoplayer.processdemo();
+    tdemoplayer::processdemo();
     progready = true;
     gamelooprun = true;
     rendergameinfo(("Loading"));
@@ -815,8 +828,8 @@ namespace
 class ClientFixture
 {
 public:
-  ClientFixture() {}
-  ~ClientFixture() {}
+  ClientFixture() = default;
+  ~ClientFixture() = default;
   ClientFixture(const ClientFixture &) = delete;
 
 protected:
@@ -830,9 +843,9 @@ TEST_SUITE("Client")
     FileUtility fu;
     fu.Mount("tmpfs.memory", "/user");
     CreateDirectoryStructure(fu);
-    auto f = fu.Open("/user/logs/nice_log.txt", FileUtility::FileMode::Write);
+    auto *f = fu.Open("/user/logs/nice_log.txt", FileUtility::FileMode::Write);
     CHECK_NE(nullptr, f);
-    fu.Close(f);
+    FileUtility::Close(f);
   }
 
   TEST_CASE_FIXTURE(ClientFixture, "Mount soldat.smod test")
@@ -872,10 +885,10 @@ TEST_SUITE("Client")
     // NOLINTEND
 
     FileUtility fu;
-    auto testDir = fu.GetPrefPath("mount_test", true);
+    auto testDir = FileUtility::GetPrefPath("mount_test", true);
     std::filesystem::remove_all(testDir);
     // recreate directory
-    testDir = fu.GetPrefPath("mount_test", true);
+    testDir = FileUtility::GetPrefPath("mount_test", true);
     {
       std::ofstream s(testDir + "/soldat.smod", std::ios_base::binary | std::ios_base::trunc);
       s.write((char*)soldat_smod, soldat_smod_len);
@@ -890,8 +903,8 @@ TEST_SUITE("Client")
   {
     FileUtility fs;
     GunArray ga;
-    const auto userDirectory = fs.GetPrefPath("client");
-    const auto baseDirectory = fs.GetBasePath();
+    const auto userDirectory = FileUtility::GetPrefPath("client");
+    const auto baseDirectory = FileUtility::GetBasePath();
     tsha1digest checksum1;
     tsha1digest checksum2;
     auto ret = MountAssets(fs, userDirectory, baseDirectory, checksum1, checksum2);

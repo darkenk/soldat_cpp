@@ -8,9 +8,9 @@ public:
   {
   }
 
-  ~MemoryStream() = default;
+  ~MemoryStream() override = default;
 
-  bool ReadLine(std::string &out) override
+  auto ReadLine(std::string &out) -> bool override
   {
     if (Stream.eof())
     {
@@ -29,7 +29,7 @@ private:
   std::istringstream Stream;
 };
 
-std::unique_ptr<TStream> ReadAsMemoryStream(const std::string_view &content)
+auto ReadAsMemoryStream(const std::string_view &content) -> std::unique_ptr<TStream>
 {
   return std::make_unique<MemoryStream>(content);
 }

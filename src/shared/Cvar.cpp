@@ -2,10 +2,11 @@
 #include <map>
 
 template <>
-bool FromString<std::int32_t>(const std::string_view &value, std::int32_t &outValue) noexcept
+auto FromString<std::int32_t>(const std::string_view &value,
+                              std::int32_t &outValue) noexcept -> bool
 {
-  auto ret = std::find_if(std::begin(value), std::end(value),
-                          [](auto const &c) { return !std::isdigit(c); });
+  const auto *ret = std::find_if(std::begin(value), std::end(value),
+                                 [](auto const &c) { return !std::isdigit(c); });
   if (ret != std::end(value))
   {
     return false;
@@ -15,7 +16,7 @@ bool FromString<std::int32_t>(const std::string_view &value, std::int32_t &outVa
 }
 
 template <>
-bool FromString<bool>(const std::string_view &value, bool &outValue) noexcept
+auto FromString<bool>(const std::string_view &value, bool &outValue) noexcept -> bool
 {
   const std::map<const std::string_view, bool> conversionTable = {
     {"true", true}, {"True", true}, {"false", false}, {"False", false}};
@@ -29,17 +30,18 @@ bool FromString<bool>(const std::string_view &value, bool &outValue) noexcept
 }
 
 template <>
-bool FromString<std::string>(const std::string_view &value, std::string &outValue) noexcept
+auto FromString<std::string>(const std::string_view &value, std::string &outValue) noexcept -> bool
 {
   outValue = value;
   return true;
 }
 
 template <>
-bool FromString<float>(const std::string_view &value, float &outValue) noexcept
+auto FromString<float>(const std::string_view &value, float &outValue) noexcept -> bool
 {
-  auto ret = std::find_if(std::begin(value), std::end(value),
-                          [](auto const &c) { return !(std::isdigit(c) || c == '.' || c == 'f'); });
+  const auto *ret = std::find_if(std::begin(value), std::end(value), [](auto const &c) {
+    return !(std::isdigit(c) || c == '.' || c == 'f');
+  });
   if (ret != std::end(value))
   {
     return false;
@@ -514,7 +516,7 @@ TEST_CASE_FIXTURE(CVarFixture, "IterateOverAllCVars")
     {
     }
     std::int32_t value;
-    bool operator==(const Dummy &other) const
+    auto operator==(const Dummy &other) const -> bool
     {
       return value == other.value;
     }

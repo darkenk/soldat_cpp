@@ -146,8 +146,8 @@ public:
     tgfxcolor color;
   } fpixel;
   void update(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, std::uint8_t *data);
-  void setwrap(tgfxtexturewrap s, tgfxtexturewrap t);
-  void setfilter(tgfxtexturefilter min, tgfxtexturefilter mag);
+  void setwrap(tgfxtexturewrap s, tgfxtexturewrap t) const;
+  void setfilter(tgfxtexturefilter min, tgfxtexturefilter mag) const;
 
 public:
   tgfxtexture(std::int32_t width, std::int32_t height, std::int32_t comp, bool rt, bool msaa,
@@ -185,7 +185,7 @@ private:
 public:
   tgfxvertexbuffer(std::int32_t cap, bool _static, pgfxvertex data);
   ~tgfxvertexbuffer();
-  void update(std::int32_t offset, std::int32_t count, pgfxvertex data);
+  void update(std::int32_t offset, std::int32_t count, pgfxvertex data) const;
   std::int32_t capacity()
   {
     return fcapacity;
@@ -204,7 +204,7 @@ private:
   std::int32_t fcapacity;
 
 public:
-  void update(std::int32_t offset, std::int32_t count, std::uint16_t *data);
+  void update(std::int32_t offset, std::int32_t count, std::uint16_t *data) const;
   tgfxindexbuffer(std::int32_t cap, bool _static, std::uint16_t *data);
   ~tgfxindexbuffer();
   std::int32_t capacity()

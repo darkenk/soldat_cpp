@@ -33,7 +33,9 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
   std::uint32_t state;
 
   if (!verifypacketlargerorequal(sizeof(tmsg_requestgame), size, msgid_requestgame))
+  {
     return;
+  }
 
   std::int32_t banindex = 0;
   bool banhw = false;
@@ -41,7 +43,9 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
 
   // Fancy packet filter
   if (const std::int32_t id = updateantiflood(player->ip); isfloodid(id))
+  {
     return;
+  }
 
   auto *requestmsg = reinterpret_cast<pmsg_requestgame>(netmessage);
 
@@ -64,14 +68,20 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
 #endif
 
   if (isservertotallyfull())
+  {
     state = server_full;
+  }
   else if (isremoteadminip(player->ip))
+  {
     state = ok;
+  }
   else if (isadminpassword(requestmsg->password.data()))
   {
     if (addiptoremoteadmins(player->ip))
+    {
       GS::GetMainConsole().console(player->ip + " added to Game Admins via Request password",
                                    server_message_color);
+    }
     state = ok;
   }
   else
@@ -93,11 +103,17 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
         banreason = std::string(" (") + bannedhwlist[banindex].reason + ')';
       }
       else if (iswronggamepassword(requestmsg->password.data()))
+      {
         state = wrong_password;
+      }
       else if (isserverfull())
+      {
         state = server_full;
+      }
       else
+      {
         state = ok;
+      }
     }
   }
 
@@ -143,17 +159,21 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
 void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   pmsg_playerinfo playerinfomsg;
-  std::string fixedplayername, finalplayername;
+  std::string fixedplayername;
+  std::string finalplayername;
   bool playernameunused;
   std::int32_t suffixlen;
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
   tvector2 a;
 #ifdef SCRIPT
   std::int8_t newteam;
 #endif
 
   if (!verifypacket(sizeof(tmsg_playerinfo), size, msgid_playerinfo))
+  {
     return;
+  }
 
   auto &things = GS::GetThingSystem().GetThings();
 
@@ -221,7 +241,9 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
 
         // Truncate nick too long to append (NN) for duplicate names
         if (length(finalplayername) + suffixlen <= 24)
+        {
           finalplayername = fixedplayername + '(' + jstring + ')';
+        }
         else
         {
 #if 0
@@ -258,19 +280,25 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   case gamestyle_pointmatch:
   case gamestyle_rambo:
     if ((player->team != team_none) && (player->team != team_spectator))
+    {
       player->team = team_spectator;
+    }
     break;
     // two teams
   case gamestyle_ctf:
   case gamestyle_inf:
   case gamestyle_htf:
     if ((player->team < team_alpha) || (player->team > team_bravo))
+    {
       player->team = team_spectator;
+    }
     break;
     // four teams
   case gamestyle_teammatch:
     if ((player->team < team_alpha) || (player->team > team_delta))
+    {
       player->team = team_spectator;
+    }
     break;
   }
 
@@ -287,43 +315,63 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
 
   // restore warnings across sessions
   for (j = 1; j <= max_players; j++)
+  {
     if (trim(mutelist[j]) == player->ip)
     {
       player->muted = 1;
       player->name = mutename[j];
       break;
     }
+  }
   player->tkwarnings = 0;
   for (j = 1; j <= max_players; j++)
+  {
     if (trim(tklist[j]) == player->ip)
     {
       player->tkwarnings = tklistkills[j];
       break;
     }
+  }
 
   player->playtime = 0;
 
   player->hairstyle = 0;
   if ((playerinfomsg->look & B1) == B1)
+  {
     player->hairstyle = 1;
+  }
   if ((playerinfomsg->look & B2) == B2)
+  {
     player->hairstyle = 2;
+  }
   if ((playerinfomsg->look & B3) == B3)
+  {
     player->hairstyle = 3;
+  }
   if ((playerinfomsg->look & B4) == B4)
+  {
     player->hairstyle = 4;
+  }
 
   player->headcap = 0;
   if ((playerinfomsg->look & B5) == B5)
+  {
     player->headcap = GFX::GOSTEK_HELM;
+  }
   if ((playerinfomsg->look & B6) == B6)
+  {
     player->headcap = GFX::GOSTEK_KAP;
+  }
 
   player->chain = 0;
   if ((playerinfomsg->look & B7) == B7)
+  {
     player->chain = 1;
+  }
   if ((playerinfomsg->look & B8) == B8)
+  {
     player->chain = 2;
+  }
 
 #ifdef SCRIPT
   newteam = scrptdispatcher.onbeforejointeam(player.spritenum, player.team, 255);
@@ -355,14 +403,20 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   // FIXME english
   // TODO do a good bit of these things in CreateSprite instead?
   if (SpriteSystem::Get().GetSprite(player->spritenum).holdedthing > 0)
+  {
     if (things[SpriteSystem::Get().GetSprite(player->spritenum).holdedthing].style < object_ussocom)
     {
       things[SpriteSystem::Get().GetSprite(player->spritenum).holdedthing].respawn();
       SpriteSystem::Get().GetSprite(player->spritenum).holdedthing = 0;
     }
+  }
   for (i = 1; i <= max_things; i++)
+  {
     if (things[player->spritenum].holdingsprite == player->spritenum)
+    {
       things[player->spritenum].respawn();
+    }
+  }
   SpriteSystem::Get().GetSprite(player->spritenum).haspack = false;
   SpriteSystem::Get().GetSprite(player->spritenum).respawn(); // FIXME do this later?
 
@@ -393,11 +447,17 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
 
   // greetings message
   if (length((std::string)CVar::sv_greeting) > 0)
+  {
     serversendstringmessage((CVar::sv_greeting), player->spritenum, 255, msgtype_pub);
+  }
   if (length((std::string)CVar::sv_greeting2) > 0)
+  {
     serversendstringmessage((CVar::sv_greeting2), player->spritenum, 255, msgtype_pub);
+  }
   if (length((std::string)CVar::sv_greeting3) > 0)
+  {
     serversendstringmessage((CVar::sv_greeting3), player->spritenum, 255, msgtype_pub);
+  }
 
   switch (player->team)
   {
@@ -425,7 +485,9 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   // check if map change is in progress
   if ((GS::GetGame().GetMapchangecounter() > -60) &&
       (GS::GetGame().GetMapchangecounter() < 99999999))
+  {
     servermapchange(player->spritenum);
+  }
 
 #ifdef SCRIPT
   scrptdispatcher.onjointeam(SpriteSystem::Get().GetSprite(player.spritenum).num, player.team,
@@ -448,24 +510,32 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   // feature)
   j = 0;
   for (i = 1; i <= max_floodips; i++)
+  {
     if (floodip[i] == player->ip)
     {
       j = i;
       break;
     }
+  }
   if (j > 0)
   {
     floodnum[j] += 1;
     if (floodnum[j] > floodip_max)
+    {
       kickplayer(player->spritenum, true, kick_flooding, twenty_minutes, "Join game flood");
+    }
   }
   if (j == 0)
+  {
     for (i = 1; i <= max_floodips; i++)
+    {
       if (floodip[i] == " ")
       {
         floodip[i] = player->ip;
         break;
       }
+    }
+  }
 }
 #endif
 
@@ -514,21 +584,37 @@ void serversendplaylist(HSoldatNetConnection peer)
 
       playerslist.look[i] = 0;
       if (s.player->hairstyle == 1)
+      {
         playerslist.look[i] = playerslist.look[i] | B1;
+      }
       if (s.player->hairstyle == 2)
+      {
         playerslist.look[i] = playerslist.look[i] | B2;
+      }
       if (s.player->hairstyle == 3)
+      {
         playerslist.look[i] = playerslist.look[i] | B3;
+      }
       if (s.player->hairstyle == 4)
+      {
         playerslist.look[i] = playerslist.look[i] | B4;
+      }
       if (s.player->headcap == GFX::GOSTEK_HELM)
+      {
         playerslist.look[i] = playerslist.look[i] | B5;
+      }
       if (s.player->headcap == GFX::GOSTEK_KAP)
+      {
         playerslist.look[i] = playerslist.look[i] | B6;
+      }
       if (s.player->chain == 1)
+      {
         playerslist.look[i] = playerslist.look[i] | B7;
+      }
       if (s.player->chain == 2)
+      {
         playerslist.look[i] = playerslist.look[i] | B8;
+      }
 
       const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(s.num);
       const auto &spriteVelocity = SpriteSystem::Get().GetVelocity(s.num);
@@ -562,7 +648,7 @@ void serversendplaylist(HSoldatNetConnection peer)
 }
 
 #ifdef SERVER
-std::string getbanstrforindex(std::int32_t banindex, bool banhw)
+auto getbanstrforindex(std::int32_t banindex, bool banhw) -> std::string
 {
   std::string bantimestr;
 
@@ -584,9 +670,13 @@ std::string getbanstrforindex(std::int32_t banindex, bool banhw)
       else
       {
         if ((bannedhwlist[banindex].time / 3600) >= minsperhour)
+        {
           bantimestr = inttostr((bannedhwlist[banindex].time + 1) / 3600 / minsperhour) + 'h';
+        }
         else
+        {
           bantimestr = inttostr((bannedhwlist[banindex].time + 1) / 3600) + 'm';
+        }
       }
       // add ban reason
       bantimestr = bannedhwlist[banindex].reason + " (" + bantimestr + ')';
@@ -601,9 +691,13 @@ std::string getbanstrforindex(std::int32_t banindex, bool banhw)
       else
       {
         if ((bannediplist[banindex].time / 3600) >= minsperhour)
+        {
           bantimestr = inttostr((bannediplist[banindex].time + 1) / 3600 / minsperhour) + 'h';
+        }
         else
+        {
           bantimestr = inttostr((bannediplist[banindex].time + 1) / 3600) + 'm';
+        }
       }
       // add ban reason
       bantimestr = bannediplist[banindex].reason + " (" + bantimestr + ')';
@@ -655,25 +749,43 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
   //  STEAM}UInt64(SpriteSystem::Get().GetSprite(Num).Player.SteamID){$ELSE}0{$ENDIF};
 
   if (newplayer.team == team_spectator)
+  {
     newplayer.shirtcolor = colortohex(0xffffff);
+  }
 
   newplayer.look = 0;
   if (SpriteSystem::Get().GetSprite(num).player->hairstyle == 1)
+  {
     newplayer.look = newplayer.look | B1;
+  }
   if (SpriteSystem::Get().GetSprite(num).player->hairstyle == 2)
+  {
     newplayer.look = newplayer.look | B2;
+  }
   if (SpriteSystem::Get().GetSprite(num).player->hairstyle == 3)
+  {
     newplayer.look = newplayer.look | B3;
+  }
   if (SpriteSystem::Get().GetSprite(num).player->hairstyle == 4)
+  {
     newplayer.look = newplayer.look | B4;
+  }
   if (SpriteSystem::Get().GetSprite(num).player->headcap == GFX::GOSTEK_HELM)
+  {
     newplayer.look = newplayer.look | B5;
+  }
   if (SpriteSystem::Get().GetSprite(num).player->headcap == GFX::GOSTEK_KAP)
+  {
     newplayer.look = newplayer.look | B6;
+  }
   if (SpriteSystem::Get().GetSprite(num).player->chain == 1)
+  {
     newplayer.look = newplayer.look | B7;
+  }
   if (SpriteSystem::Get().GetSprite(num).player->chain == 2)
+  {
     newplayer.look = newplayer.look | B8;
+  }
 
 #ifdef SERVER
   // NOTE we also send to pending players to avoid desynchronization of the players list
@@ -682,7 +794,7 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
     auto players = GetServerNetwork()->GetPlayers();
     for (auto &player : players)
     {
-      newplayer.adoptspriteid = num == player->spritenum;
+      newplayer.adoptspriteid = static_cast<std::uint8_t>(num == player->spritenum);
       GetServerNetwork()->SendData(&newplayer, sizeof(newplayer), player->peer,
                                    true);
     }
@@ -692,7 +804,7 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
     if (GS::GetDemoRecorder().active())
     {
       newplayer.adoptspriteid =
-        (std::uint8_t)(SpriteSystem::Get().GetSprite(num).player->demoplayer == true);
+        (std::uint8_t)(SpriteSystem::Get().GetSprite(num).player->demoplayer);
       GS::GetDemoRecorder().saverecord(&newplayer, sizeof(newplayer));
     }
   }
@@ -767,9 +879,13 @@ void serverping(std::uint8_t tonum)
   pingmsg.pingticks = SpriteSystem::Get().GetSprite(tonum).player->pingticks;
 
   if (pingsendcount[tonum] < 8)
+  {
     pingsendcount[tonum] += 1;
+  }
   else
+  {
     pingsendcount[tonum] = 1;
+  }
   pingtime[tonum][pingsendcount[tonum]] = GS::GetGame().GetMainTickCounter();
 
   pingmsg.pingnum = pingsendcount[tonum];
@@ -781,7 +897,7 @@ void serverping(std::uint8_t tonum)
 #endif
 
 template <typename T>
-std::uint8_t CopyCVarsToBuffer(BitStream &bs, bool fullsync)
+auto CopyCVarsToBuffer(BitStream &bs, bool fullsync) -> std::uint8_t
 {
   std::uint8_t fieldcount = 0;
   // TODO: always sync all variables, make use of fullsync
@@ -813,7 +929,7 @@ void serversynccvars(std::uint8_t tonum, HSoldatNetConnection peer, bool fullsyn
   fieldcount += CopyCVarsToBuffer<std::string>(bs, fullsync);
 
   std::uint32_t buffersize = bs.Data().size();
-  auto data = new uint8_t[sizeof(tmsg_serversynccvars) + buffersize];
+  auto *data = new uint8_t[sizeof(tmsg_serversynccvars) + buffersize];
   varsmsg = new (data) tmsg_serversynccvars();
   varsmsg->itemcount = fieldcount;
   varsmsg->header.id = msgid_synccvars;
@@ -826,9 +942,13 @@ void serversynccvars(std::uint8_t tonum, HSoldatNetConnection peer, bool fullsyn
     {
 
       if ((tonum == 0) || (sprite.num == tonum))
+      {
         if (sprite.player->controlmethod == human)
+        {
           GetServerNetwork()->SendData(varsmsg, sizeof(tmsg_serversynccvars) + buffersize,
                                        sprite.player->peer, true);
+        }
+      }
     }
   }
   else
@@ -852,7 +972,7 @@ void servervars(std::uint8_t tonum)
 
   for (std::int32_t i = 1; i <= main_weapons; i++)
   {
-    varsmsg.weaponactive[i - 1] = weaponSystem.IsEnabled(i);
+    varsmsg.weaponactive[i - 1] = static_cast<std::uint8_t>(weaponSystem.IsEnabled(i));
   }
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
@@ -893,15 +1013,19 @@ void servervars(std::uint8_t tonum)
 void serverhandlepong(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
   if (!verifypacket(sizeof(tmsg_pong), size, msgid_pong))
+  {
     return;
+  }
 
-  const auto pongmsg = reinterpret_cast<pmsg_pong>(netmessage);
+  auto *const pongmsg = reinterpret_cast<pmsg_pong>(netmessage);
   const std::int32_t i = player->spritenum;
 
   messagesasecnum[i] += 1;
 
   if ((pongmsg->pingnum < 1) || (pongmsg->pingnum > 8))
+  {
     return;
+  }
 
   player->pingticks = GS::GetGame().GetMainTickCounter() - pingtime[i][pongmsg->pingnum];
   player->pingtime = player->pingticks * 1000 / 60;

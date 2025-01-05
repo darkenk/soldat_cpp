@@ -29,7 +29,7 @@ void commandbind(std::vector<std::string> &args, std::uint8_t sender)
 
   if (length(args) < 3)
   {
-    GS::GetMainConsole().console("Usage: bind \"key\" \"command\"", game_message_color);
+    GS::GetMainConsole().console(R"(Usage: bind "key" "command")", game_message_color);
     return;
   }
 
@@ -40,11 +40,17 @@ void commandbind(std::vector<std::string> &args, std::uint8_t sender)
   if (bindkeyname.find("+") != std::string::npos)
   {
     if (bindkeyname.find("ctrl") != std::string::npos)
+    {
       modifier = modifier | km_ctrl;
+    }
     if (bindkeyname.find("shift") != std::string::npos)
+    {
       modifier = modifier | km_shift;
+    }
     if (bindkeyname.find("alt") != std::string::npos)
+    {
       modifier = modifier | km_alt;
+    }
 
     bindkeyname = std::regex_replace(bindkeyname, std::regex("shift"), "");
     bindkeyname = std::regex_replace(bindkeyname, std::regex("alt"), "");
@@ -53,9 +59,13 @@ void commandbind(std::vector<std::string> &args, std::uint8_t sender)
   }
 
   if (args[2][0] == '+')
+  {
     bindkey(bindkeyname, commandstring, commandstring, modifier);
+  }
   else
+  {
     bindkey(bindkeyname, "+bind", commandstring, modifier);
+  }
 }
 
 void commandconnect(std::vector<std::string> &args, std::uint8_t sender)
@@ -87,11 +97,17 @@ void commandconnect(std::vector<std::string> &args, std::uint8_t sender)
   {
     joinip = args[1];
     if (length(args) == 2)
+    {
       joinport = "23073";
+    }
     else
+    {
       joinport = args[2];
+    }
     if (length(args) > 3)
+    {
       joinpassword = args[3];
+    }
   }
   joinserver();
 }
@@ -150,7 +166,9 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
   tcommandtargets targets;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   str1 = args[1];
 
@@ -159,9 +177,13 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
     muteall = !muteall;
 
     if (muteall)
+    {
       GS::GetMainConsole().console(("Everyone is muted"), client_message_color);
+    }
     else
+    {
       GS::GetMainConsole().console(("Everyone is unmuted"), client_message_color);
+    }
 
     return;
   }
@@ -188,7 +210,9 @@ void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
   tcommandtargets targets;
 
   if (length(args) == 1)
+  {
     return;
+  }
 
   str1 = args[1];
 
@@ -230,9 +254,9 @@ void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)
 
     playsound(SfxEffect::snapshot);
 
-    if (showscreen)
+    if (showscreen != 0u)
     {
-      showscreen = false;
+      showscreen = 0u;
     }
   }
 }
@@ -245,7 +269,9 @@ void commandswitchcam(std::vector<std::string> &args, std::uint8_t sender)
     return;
   }
   if (SpriteSystem::Get().GetSprite(mysprite).isspectator())
+  {
     camerafollowsprite = strtointdef(args[1], 0);
+  }
 }
 
 void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
@@ -277,9 +303,13 @@ void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
 void commanddemotick(std::vector<std::string> &args, std::uint8_t sender)
 {
   if (args[0] == "demo_tick")
+  {
     demoplayer.position(strtointdef(args[1], 0));
+  }
   else
+  {
     demoplayer.position(GS::GetGame().GetMainTickCounter() + strtointdef(args[1], 0));
+  }
 }
 
 } // namespace

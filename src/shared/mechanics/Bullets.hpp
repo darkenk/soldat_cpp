@@ -49,18 +49,18 @@ public:
   void render(double timeelapsed);
 #endif
   void kill();
-  tvector2 checkmapcollision(float x, float y);
-  tvector2 checkspritecollision(float lasthitdist);
-  tvector2 checkthingcollision(float lasthitdist);
-  tvector2 checkcollidercollision(float lasthitdist);
+  auto checkmapcollision(float x, float y) -> tvector2;
+  auto checkspritecollision(float lasthitdist) -> tvector2;
+  auto checkthingcollision(float lasthitdist) -> tvector2;
+  auto checkcollidercollision(float lasthitdist) -> tvector2;
   void hit(std::int32_t t, std::int32_t spritehit = 0, std::int32_t where = 0);
   void explosionhit(std::int32_t typ, std::int32_t spritehit, std::int32_t where);
   void checkoutofbounds();
-  std::int32_t filterspritesbydistance(tspriteindexes &spriteindexes);
-  bool targetablesprite(std::int32_t i);
-  float getcomparablespritedistance(std::int32_t i);
-  tvector2 getspritecollisionpoint(std::int32_t i);
-  std::uint8_t getweaponindex();
+  auto filterspritesbydistance(tspriteindexes &spriteindexes) -> std::int32_t;
+  auto targetablesprite(std::int32_t i) -> bool;
+  auto getcomparablespritedistance(std::int32_t i) -> float;
+  auto getspritecollisionpoint(std::int32_t i) -> tvector2;
+  auto getweaponindex() -> std::uint8_t;
 };
 
 using tbullet = Bullet<Config::GetModule()>;
@@ -92,4 +92,4 @@ void calculaterecoil(float px, float py, float &cx, float &cy, float da);
 void hitspray();
 #endif
 template <Config::Module M = Config::GetModule()>
-bool bulletcansend(float x, float y, const std::int32_t i, float vx);
+auto bulletcansend(float x, float y, const std::int32_t i, float vx) -> bool;

@@ -34,7 +34,7 @@ bool shouldrenderframes = true; // false during game request phase
 std::uint8_t actionsnap = 1;
 bool actionsnaptaken = false;
 std::int32_t capscreen = 255;
-std::uint8_t showscreen = false;
+std::uint8_t showscreen = 0u;
 std::uint8_t screencounter = 255;
 
 // resolution
@@ -49,7 +49,7 @@ std::int32_t windowheight = 0;
 // cha std::uint8_t f
 std::string chattext, lastchattext, firechattext;
 std::uint8_t chattype;
-std::string completionbase = "";
+std::string completionbase;
 std::int32_t completionbaseseparator;
 std::uint8_t currenttabcompleteplayer = 0;
 std::uint8_t cursorposition = 0;
@@ -93,13 +93,15 @@ void resetframetiming()
   frametiming.fpsaccum = 0;
 
   if (CVar::r_fpslimit)
+  {
     frametiming.mindeltatime = 1.0 / CVar::r_maxfps;
+  }
 
   GS::GetGame().SetTickTime(0);
   GS::GetGame().SetTickTimeLast(0);
 }
 
-float getcurrenttime()
+auto getcurrenttime() -> float
 {
   auto x = SDL_GetPerformanceCounter();
   return (float)((x - frametiming.starttime)) / frametiming.frequency;
@@ -107,7 +109,8 @@ float getcurrenttime()
 
 void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col)
 {
-  float w, s;
+  float w;
+  float s;
 
   gfxtextpixelratio(vector2(1, 1));
   setfontstyle(font_big);
@@ -124,7 +127,9 @@ void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col)
   bigposy[1] = 420.f * _iscala.y;
 
   if (CVar::r_scaleinterface)
+  {
     bigposx[1] = bigposx[1] * ((float)(gamewidth) / renderwidth);
+  }
 }
 
 // In-game nickname tab completion
@@ -133,18 +138,26 @@ void tabcomplete()
   std::int32_t i;
   std::int32_t chattextlen;
   std::int32_t offset;
-  std::int32_t continuedtabcompleteplayer, next, availablechatspace;
+  std::int32_t continuedtabcompleteplayer;
+  std::int32_t next;
+  std::int32_t availablechatspace;
   std::string spacefittedname;
 
   if (mysprite < 1)
+  {
     return;
+  }
 
   chattextlen = length(chattext);
 
   if ((chattextlen > 1) && (chattext[2] == '^'))
+  {
     offset = 1;
+  }
   else
+  {
     offset = 0;
+  }
 
   // If not already tab-completing, save and use this base text for tab completetion
   if (currenttabcompleteplayer == 0)
@@ -175,7 +188,8 @@ void tabcomplete()
       auto &sprite = SpriteSystem::Get().GetSprite(next);
       if (sprite.IsActive() && (!sprite.player->demoplayer) && (next != mysprite))
       {
-        if ((completionbase == "") || std::string::npos != sprite.player->name.find(completionbase))
+        if ((completionbase.empty()) ||
+            std::string::npos != sprite.player->name.find(completionbase))
         {
           availablechatspace = maxchattext - completionbaseseparator;
           spacefittedname = sprite.player->name.substr(0, availablechatspace);
@@ -203,10 +217,7 @@ void resetweaponstats()
   }
 }
 
-std::int32_t getgamefps()
-{
-  return frametiming.fps;
-}
+auto getgamefps() -> std::int32_t { return frametiming.fps; }
 
 void gameloop()
 {
@@ -214,8 +225,11 @@ void gameloop()
   std::int32_t maincontrol;
   std::int32_t heavysendersnum;
   float adjust;
-  double currenttime, frametime, simtime;
-  double framepercent, dt;
+  double currenttime;
+  double frametime;
+  double simtime;
+  double framepercent;
+  double dt;
   bool gamepaused;
 
   gamepaused = (GS::GetGame().GetMapchangecounter() >= 0);
@@ -232,7 +246,9 @@ void gameloop()
   game.SetTickTimeLast(game.GetTickTime());
 
   if (frametime > 2)
+  {
     frametime = 0;
+  }
 
   dt = (float)(1) / game.GetGoalTicks();
 
@@ -246,35 +262,47 @@ void gameloop()
   for (maincontrol = 1; maincontrol <= (game.GetTickTime() - game.GetTickTimeLast()); maincontrol++)
   { // frame rate independant code
     if (!gamepaused)
+    {
       frametiming.elapsed = frametiming.elapsed + ((float)(1) / default_goalticks);
+    }
 
     clienttickcount += 1;
     // Update main tick counter
     GS::GetGame().TickMainTickCounter();
 
     if (menutimer > -1)
+    {
       menutimer -= 1;
+    }
 
     // General game updating
     update_frame();
 
     if (GS::GetDemoRecorder().active() &&
         (GS::GetGame().GetMainTickCounter() % CVar::demo_rate == 0))
+    {
       GS::GetDemoRecorder().saveposition();
+    }
 
     if ((game.GetMapchangecounter() < 0) && (escmenu->active))
     {
       // DEMO
       if (GS::GetDemoRecorder().active())
+      {
         GS::GetDemoRecorder().savenextframe();
+      }
       if (demoplayer.active())
-        demoplayer.processdemo();
+      {
+        tdemoplayer::processdemo();
+      }
     }
 
     // Radio Cooldown
     if ((GS::GetGame().GetMainTickCounter() % second == 0) && (radiocooldown > 0) &&
         (CVar::sv_radio))
+    {
       radiocooldown -= 1;
+    }
 
     // Packet rate send adjusting
     if (packetadjusting == 1)
@@ -282,20 +310,30 @@ void gameloop()
       heavysendersnum = GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum();
 
       if (heavysendersnum < 5)
+      {
         adjust = 0.75;
+      }
       else if (heavysendersnum < 9)
+      {
         adjust = 0.87;
+      }
       else
+      {
         adjust = 1.0;
+      }
     }
     else
+    {
       adjust = 1.0;
+    }
 
     if ((mysprite > 0) && (!demoplayer.active()))
     {
       // connection problems
       if ((game.GetMapchangecounter() < 0) && escmenu->active)
+      {
         noheartbeattime += 1;
+      }
 
       if (noheartbeattime > connectionproblem_time)
       {
@@ -326,7 +364,9 @@ void gameloop()
       }
 
       if (noheartbeattime < 0)
+      {
         noheartbeattime = 0;
+      }
 
       clientstopmovingcounter -= 1;
 
@@ -340,13 +380,19 @@ void gameloop()
           {
             if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(7 * adjust) == 1) &&
                 (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(5 * adjust) != 0))
+            {
               clientspritesnapshot();
+            }
             if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(5 * adjust) == 0) ||
                 forceclientspritesnapshotmov)
+            {
               clientspritesnapshotmov();
+            }
           }
           else if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) == 0)
+          {
             clientspritesnapshotdead();
+          }
         }
       }
       else if (connection == LAN)
@@ -354,14 +400,20 @@ void gameloop()
         if (!sprite.deadmeat)
         {
           if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(4 * adjust) == 0)
+          {
             clientspritesnapshot();
+          }
 
           if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(3 * adjust) == 0) ||
               forceclientspritesnapshotmov)
+          {
             clientspritesnapshotmov();
+          }
         }
         else if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(15 * adjust) == 0)
+        {
           clientspritesnapshotdead();
+        }
       }
 
       forceclientspritesnapshotmov = false;
@@ -372,7 +424,9 @@ void gameloop()
 
   // this shouldn't happen but still done for safety
   if (frametiming.prevrendertime > currenttime)
+  {
     frametiming.prevrendertime = currenttime - frametiming.mindeltatime;
+  }
 
   if (shouldrenderframes &&
       ((currenttime - frametiming.prevrendertime) >= frametiming.mindeltatime))
@@ -388,9 +442,13 @@ void gameloop()
     }
 
     if (gamepaused)
+    {
       renderframe(frametiming.elapsed, framepercent, true);
+    }
     else
+    {
       renderframe(frametiming.elapsed - dt * (1 - framepercent), framepercent, false);
+    }
   }
 
   if ((game.GetMapchangecounter() < 0) && (game.GetMapchangecounter() > -59))
@@ -414,9 +472,10 @@ void gameloop()
   }
 }
 
-std::uint8_t getcameratarget(bool backwards)
+auto getcameratarget(bool backwards) -> std::uint8_t
 {
-  std::uint8_t newcam, numloops;
+  std::uint8_t newcam;
+  std::uint8_t numloops;
   bool validcam;
 
   validcam = false;
@@ -434,20 +493,34 @@ std::uint8_t getcameratarget(bool backwards)
     }
 
     if (!backwards)
+    {
       newcam += 1;
+    }
     else
+    {
       newcam -= 1;
+    }
     if (newcam > max_sprites)
+    {
       newcam = 1;
+    }
     else if (newcam < 1)
+    {
       newcam = max_sprites;
+    }
 
     if (!SpriteSystem::Get().GetSprite(newcam).active)
+    {
       continue; // Sprite slot empty
+    }
     if (SpriteSystem::Get().GetSprite(newcam).deadmeat)
+    {
       continue; // Sprite is dead
+    }
     if (SpriteSystem::Get().GetSprite(newcam).isspectator())
+    {
       continue; // Sprite is a spectator
+    }
 
     if (SpriteSystem::Get().GetSprite(mysprite).control.up && (!CVar::sv_realisticmode) &&
         SpriteSystem::Get().GetSprite(mysprite).isnotspectator())
@@ -465,16 +538,18 @@ std::uint8_t getcameratarget(bool backwards)
         validcam = true;
         break;
       }
-      else
-      { // Allow spectators to go into Free Cam
-        validcam = true;
-        break;
-      } // Let spectator view all players
+
+      // Allow spectators to go into Free Cam
+      validcam = true;
+      break;
+      // Let spectator view all players
     }
 
     if (SpriteSystem::Get().GetSprite(newcam).isnotinsameteam(
           SpriteSystem::Get().GetSprite(mysprite)))
+    {
       continue; // Dont swap camera to a player not on my team
+    }
 
     validcam = true;
   } while (!validcam);

@@ -60,7 +60,8 @@ void ReadConf(const TIniFile::Entries &conf, const std::string_view entry, float
 
 template <typename T>
 void ReadConf(const TIniFile::Entries &conf, const std::string_view entry, T &out,
-              bool allowEmpty = false) requires std::is_integral<T>::value
+              bool allowEmpty = false)
+  requires std::is_integral_v<T>
 {
   std::string s;
   ReadConf(conf, entry, s, allowEmpty);
@@ -79,12 +80,12 @@ void ReadConfColor(const TIniFile::Entries &conf, const std::string_view entry, 
   ReadConf(conf, entry, s, allowEmpty);
   SoldatAssert(s[0] == '$');
   s.erase(0, 1);
-  out = std::stoi(s, 0, 16);
+  out = std::stoi(s, nullptr, 16);
 }
 
 } // namespace
 
-bool loadbotconfig(TIniFile &ini, tsprite &spritec, GunsDescription &guns)
+auto loadbotconfig(TIniFile &ini, tsprite &spritec, GunsDescription &guns) -> bool
 {
   TIniFile::Entries conf;
   std::string filename;
@@ -124,7 +125,9 @@ bool loadbotconfig(TIniFile &ini, tsprite &spritec, GunsDescription &guns)
     // setlength(spritec.player.name, min(length(spritec.player.name), playername_chars));
 
     if (spritec.player->team == team_none)
+    {
       ReadConfColor(conf, "Color1", spritec.player->shirtcolor);
+    }
     ReadConfColor(conf, "Color2", spritec.player->pantscolor);
     ReadConfColor(conf, "Skin_Color", spritec.player->skincolor);
     ReadConfColor(conf, "Hair_Color", spritec.player->haircolor);
@@ -161,8 +164,8 @@ bool loadbotconfig(TIniFile &ini, tsprite &spritec, GunsDescription &guns)
   return true;
 }
 
-bool loadweaponsconfig(TIniFile &iniFile, std::string &modname, std::string &modversion,
-                       GunsDescription &gunDesc)
+auto loadweaponsconfig(TIniFile &iniFile, std::string &modname, std::string &modversion,
+                       GunsDescription &gunDesc) -> bool
 {
   TIniFile::Entries conf;
 

@@ -203,8 +203,8 @@ void ActivateServer(int argc, const char *argv[])
   commandinit();
   parsecommandline(argc, argv);
 
-  const auto userDirectory = fs.GetPrefPath("server");
-  const auto baseDirectory = fs.GetBasePath();
+  const auto userDirectory = FileUtility::GetPrefPath("server");
+  const auto baseDirectory = FileUtility::GetBasePath();
 
   LogDebugG("[FS]  userdirectory {}", userDirectory);
   LogDebugG("[FS]  basedirectory {}", baseDirectory);
@@ -276,7 +276,9 @@ void ActivateServer(int argc, const char *argv[])
 
   AnimationSystem::Get().LoadAnimObjects("");
   if (length(ModDir) > 0)
+  {
     AnimationSystem::Get().LoadAnimObjects(ModDir);
+  }
 
   // greet!
   WriteLn(" Hit CTRL+C to Exit");
@@ -301,9 +303,13 @@ void ActivateServer(int argc, const char *argv[])
     WriteLn("  No maps list found (adding default). Please add maps in configs/mapslist.txt");
     WriteLn("");
     if (not GS::GetGame().isteamgame())
+    {
       mapslist.add("Arena");
+    }
     else
+    {
       mapslist.add("ctf_Ash");
+    }
   }
 #if 0
         for (i = 1; i < max_sprites; i++)
@@ -338,9 +344,13 @@ void ActivateServer(int argc, const char *argv[])
 
   // Flood IP stuff
   for (i = 1; i < max_floodips; i++)
+  {
     floodip[i] = " ";
+  }
   for (i = 1; i < max_floodips; i++)
+  {
     floodnum[i] = 0;
+  }
 
 #ifdef RCON
   if sv_adminpassword
@@ -475,11 +485,11 @@ void loadweapons(const std::string &Filename)
   }
 }
 
-std::int8_t addbotplayer(const std::string& name, std::int32_t team)
+auto addbotplayer(const std::string &name, std::int32_t team) -> std::int8_t
 {
   tvector2 a;
   std::int32_t p;
-  std::string TempStr = "";
+  std::string TempStr;
   LogDebugG("AddBotPlayer");
   std::int8_t Result = 0;
 
@@ -561,7 +571,9 @@ std::int8_t addbotplayer(const std::string& name, std::int32_t team)
 void startserver()
 {
   tvector2 a;
-  std::int32_t i, k, j;
+  std::int32_t i;
+  std::int32_t k;
+  std::int32_t j;
   tmapinfo StartMap;
   LogDebugG("StartServer");
 #ifdef SCRIPT
@@ -686,7 +698,7 @@ void startserver()
   {
     for (i = 1; i <= primary_weapons; i++)
     {
-      GS::GetGame().GetWeaponsel()[j][i] = weaponSystem.IsEnabled(i);
+      GS::GetGame().GetWeaponsel()[j][i] = static_cast<unsigned char>(weaponSystem.IsEnabled(i));
     }
   }
 
@@ -769,7 +781,9 @@ void startserver()
 
     // spawn grenadekits
     if (CVar::sv_maxgrenades > 0)
+    {
       spawnthings(Constants::OBJECT_GRENADE_KIT, map.grenades);
+    }
   }
   else
   {
@@ -848,7 +862,7 @@ void startserver()
     }
   });
 
-  if (GetServerNetwork()->IsActive() == true)
+  if (GetServerNetwork()->IsActive())
   {
     WriteLn("[NET] Game networking initialized.");
     WriteLn("[NET] Server is listening on " + GetServerNetwork()->GetStringAddress(true));
@@ -889,18 +903,26 @@ void startserver()
   }
 
   for (k = 0; k < CVar::bots_random_alpha; k++)
+  {
     addbotplayer(randombot(), 1);
+  }
   for (k = 0; k < CVar::bots_random_bravo; k++)
+  {
     addbotplayer(randombot(), 2);
+  }
   for (k = 0; k < CVar::bots_random_charlie; k++)
+  {
     addbotplayer(randombot(), 3);
+  }
   for (k = 0; k < CVar::bots_random_delta; k++)
+  {
     addbotplayer(randombot(), 4);
+  }
 
   GS::GetGame().updategamestats();
 }
 
-bool preparemapchange(std::string Name)
+auto preparemapchange(std::string Name) -> bool
 {
   tmapinfo Status;
   bool Result = false;
@@ -923,7 +945,7 @@ void nextmap()
 {
   LogDebugG("NextMap");
 
-  if (mapslist.size() < 1)
+  if (mapslist.empty())
   {
     GS::GetMainConsole().console("Can"
                                  "t load maps from mapslist",
@@ -934,14 +956,19 @@ void nextmap()
     mapindex = mapindex + 1;
 
     if (mapindex >= mapslist.size())
+    {
       mapindex = 0;
+    }
     preparemapchange(mapslist[mapindex]);
   }
 }
 
 void spawnthings(std::int8_t Style, std::int8_t Amount)
 {
-  std::int32_t i, k, l, team;
+  std::int32_t i;
+  std::int32_t k;
+  std::int32_t l;
+  std::int32_t team;
   tvector2 a;
 
   LogTraceG("SpawnThings");
@@ -995,11 +1022,17 @@ void spawnthings(std::int8_t Style, std::int8_t Amount)
     if (team == 0)
     {
       if (not randomizestart(a, k))
+      {
         return;
+      }
     }
     else if (not spawnboxes(a, k, max_things - 1))
+    {
       if (not randomizestart(a, k))
+      {
         return;
+      }
+    }
 
     a.x = a.x - Constants::SPAWNRANDOMVELOCITY +
           (Random(round(2 * 100 * Constants::SPAWNRANDOMVELOCITY)) / 100);
@@ -1014,7 +1047,8 @@ void spawnthings(std::int8_t Style, std::int8_t Amount)
   }
 }
 
-bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, std::string Reason)
+auto kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
+                std::string Reason) -> bool
 {
   std::int32_t i;
   std::string timestr;
@@ -1031,7 +1065,9 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
   i = num;
 
   if ((not SpriteSystem::Get().GetSprite(i).IsActive()))
+  {
     return Result;
+  }
 
   if (((why == kick_cheat)) and (CVar::sv_anticheatkick))
   {
@@ -1121,15 +1157,19 @@ bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time, 
 #endif
     }
     else
+    {
       GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name +
                                      " has been kicked and permanently banned (" + Reason + ")",
                                    client_message_color);
+    }
   }
 
   savetxtlists();
 
   if (not SpriteSystem::Get().GetSprite(i).IsActive())
+  {
     return Result;
+  }
 #ifdef SCRIPT
   if (why in[KICK_AC, KICK_CHEAT, KICK_CONSOLE, KICK_PING, KICK_NORESPONSE, KICK_NOCHEATRESPONSE,
              KICK_FLOODING, KICK_VOTED, KICK_SILENT])

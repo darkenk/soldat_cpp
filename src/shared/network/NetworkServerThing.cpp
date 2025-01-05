@@ -45,14 +45,20 @@ void serverthingsnapshot(std::uint8_t tonum)
                     thingmsg.oldpos[0].y) > minmovedelta) ||
           (distance(thingmsg.pos[1].x, thingmsg.pos[1].y, thingmsg.oldpos[1].x,
                     thingmsg.oldpos[1].y) > minmovedelta))
+      {
         send = true;
+      }
 
       if (GS::GetGame().GetMainTickCounter() % 2 == 0)
       {
         if (thing.style < object_ussocom)
+        {
           send = true;
+        }
         if (thing.style == object_rambo_bow)
+        {
           send = true;
+        }
       }
 
       if (send)
@@ -74,7 +80,9 @@ void serverthingmustsnapshot(const std::uint8_t i)
   auto &thing = things[i];
 
   if (thing.style == object_parachute)
+  {
     return;
+  }
 
   thingmsg.header.id = msgid_serverthingmustsnapshot;
   // assign thing values to ThingMsg
@@ -88,7 +96,9 @@ void serverthingmustsnapshot(const std::uint8_t i)
   }
   thingmsg.timeout = thing.timeout;
   if (thing.timeout < 1)
+  {
     thingmsg.timeout = 1;
+  }
   thingmsg.owner = thing.owner;
   thingmsg.style = thing.style;
   thingmsg.holdingsprite = thing.holdingsprite;
@@ -107,13 +117,15 @@ void serverthingmustsnapshot(const std::uint8_t i)
 void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
 {
   tmsg_serverthingmustsnapshot thingmsg;
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
 
   auto &things = GS::GetThingSystem().GetThings();
   for (i = 1; i <= max_things; i++)
   {
     auto &thing = things[i];
     if (thing.active)
+    {
       if (((thing.style < object_ussocom) || (thing.style > object_minigun)) &&
           (thing.style != object_parachute))
       {
@@ -129,7 +141,9 @@ void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
         }
         thingmsg.timeout = std::int16_t(thing.timeout);
         if (thing.timeout < 1)
+        {
           thingmsg.timeout = 1;
+        }
         thingmsg.owner = thing.owner;
         thingmsg.style = thing.style;
         thingmsg.holdingsprite = thing.holdingsprite;
@@ -142,6 +156,7 @@ void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
         GS::GetDemoRecorder().saverecord(thingmsg, sizeof(thingmsg));
 #endif
       }
+    }
   }
 }
 
@@ -155,7 +170,9 @@ void serverthingmustsnapshotonconnectto(const std::uint8_t i, const std::uint8_t
   auto &thing = things[i];
 
   if (thing.style == object_parachute)
+  {
     return;
+  }
 
   thingmsg.header.id = msgid_serverthingmustsnapshot;
   // assign thing values to ThingMsg
@@ -169,7 +186,9 @@ void serverthingmustsnapshotonconnectto(const std::uint8_t i, const std::uint8_t
   }
   thingmsg.timeout = thing.timeout;
   if (thing.timeout < 1)
+  {
     thingmsg.timeout = 1;
+  }
   thingmsg.owner = thing.owner;
   thingmsg.style = thing.style;
   thingmsg.holdingsprite = thing.holdingsprite;
@@ -208,7 +227,9 @@ void serverhandlerequestthing(tmsgheader* netmessage, std::int32_t size, Network
   pmsg_requestthing msg;
 
   if (!verifypacket(sizeof(tmsg_requestthing), size, msgid_requestthing))
+  {
     return;
+  }
   msg = pmsg_requestthing(netmessage);
   serverthingmustsnapshotonconnectto(msg->thingid, player->spritenum);
 }

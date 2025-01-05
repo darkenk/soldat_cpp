@@ -6,7 +6,7 @@
 #include <Tracy.hpp>
 #include <fstream>
 
-std::ifstream &operator>>(std::ifstream &in, twaypoint &waypoint)
+auto operator>>(std::ifstream &in, twaypoint &waypoint) -> std::ifstream &
 {
   twaypoint &w = waypoint;
   in >> w.active;
@@ -23,7 +23,7 @@ std::ifstream &operator>>(std::ifstream &in, twaypoint &waypoint)
   return in;
 }
 
-std::ofstream &operator<<(std::ofstream &in, twaypoint &waypoint)
+auto operator<<(std::ofstream &in, twaypoint &waypoint) -> std::ofstream &
 {
   twaypoint &w = waypoint;
   in << w.active;
@@ -43,7 +43,8 @@ std::ofstream &operator<<(std::ofstream &in, twaypoint &waypoint)
 void twaypoints::loadfromfile(const std::string &filename)
 {
   // file<tpathrec> addrfile;
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
 
   std::ifstream addrfile(filename, std::ios::binary);
   i = 0;
@@ -86,8 +87,8 @@ void twaypoints::savetofile(const std::string &filename)
   }
 }
 
-std::int32_t twaypoints::findclosest(float x, float y, std::int32_t radius,
-                                     std::int32_t currwaypoint) const
+auto twaypoints::findclosest(float x, float y, std::int32_t radius,
+                             std::int32_t currwaypoint) const -> std::int32_t
 
 {
   ZoneScopedN("TWaypoints::FindClosest");
@@ -113,7 +114,8 @@ std::int32_t twaypoints::findclosest(float x, float y, std::int32_t radius,
   return result;
 }
 
-std::int32_t twaypoints::createwaypoint(std::int32_t sx, std::int32_t sy, std::int32_t spath)
+auto twaypoints::createwaypoint(std::int32_t sx, std::int32_t sy,
+                                std::int32_t spath) -> std::int32_t
 {
   std::int32_t i;
 

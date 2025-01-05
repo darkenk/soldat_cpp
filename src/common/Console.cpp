@@ -48,7 +48,9 @@ void ConsoleMain::Update(const bool killConsole)
     return;
   }
   if ((this->mCount > -1) && (this->mNumMessage[this->mCount] == -255))
+  {
     this->ScrollConsole();
+  }
 }
 
 void ConsoleMain::console(const std::string_view what, std::int32_t col) // overload;

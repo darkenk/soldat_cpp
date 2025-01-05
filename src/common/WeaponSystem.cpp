@@ -15,7 +15,7 @@ void WeaponSystem::EnableAllWeapons()
   WeaponsInGame = main_weapons;
 }
 
-uint32_t WeaponSystem::CountEnabledPrimaryWeapons() const
+auto WeaponSystem::CountEnabledPrimaryWeapons() const -> uint32_t
 {
   auto pricount = 0;
   for (auto i = 1; i <= primary_weapons; i++)
@@ -25,7 +25,7 @@ uint32_t WeaponSystem::CountEnabledPrimaryWeapons() const
   return pricount;
 }
 
-uint32_t WeaponSystem::CountEnabledSecondaryWeapons() const
+auto WeaponSystem::CountEnabledSecondaryWeapons() const -> uint32_t
 {
   auto seccount = 0;
   for (auto i = 1; i <= secondary_weapons; i++)

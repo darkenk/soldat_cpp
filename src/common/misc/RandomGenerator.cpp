@@ -9,13 +9,13 @@ void Randomize()
   NotImplemented();
 }
 
-float Random()
+auto Random() -> float
 {
   std::uniform_real_distribution<> dis(0.0f, 1.0);
   return dis(generator);
 }
 
-std::int32_t Random(std::uint32_t range)
+auto Random(std::uint32_t range) -> std::int32_t
 {
   if (range == 0)
   {
@@ -25,7 +25,7 @@ std::int32_t Random(std::uint32_t range)
   return distrib(generator);
 }
 
-int32_t randomrange(uint32_t lowerBound, uint32_t upperBound)
+auto randomrange(uint32_t lowerBound, uint32_t upperBound) -> int32_t
 {
   std::uniform_int_distribution<> distrib(lowerBound, upperBound);
   return distrib(generator);

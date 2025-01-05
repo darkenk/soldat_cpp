@@ -9,13 +9,13 @@
 #include <steam/isteamnetworkingutils.h>
 
 static_assert(sizeof(HSoldatNetConnection) == sizeof(HSteamNetConnection));
-static_assert(std::is_same_v<HSoldatNetConnection, HSteamNetConnection> == true);
+static_assert(std::is_same_v<HSoldatNetConnection, HSteamNetConnection>);
 
 auto constexpr LOG_MSG = "net_msg";
 
 void NetworksGlobalCallback(SteamNetConnectionStatusChangedCallback_t* pInfo)
 {
-  auto network = reinterpret_cast<TNetwork*>(pInfo->m_info.m_nUserData);
+  auto *network = reinterpret_cast<TNetwork *>(pInfo->m_info.m_nUserData);
   network->EmplaceSteamNetConnectionStatusChangeMessage(pInfo);
 }
 
@@ -57,7 +57,7 @@ TNetwork::~TNetwork()
 #endif
 }
 
-std::string TNetwork::GetStringAddress(bool withPort)
+auto TNetwork::GetStringAddress(bool withPort) -> std::string
 {
   if (!withPort)
   {

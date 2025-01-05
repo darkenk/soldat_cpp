@@ -18,7 +18,7 @@ public:
 
 public:
   void update();
-  void render();
+  void render() const;
   bool checkmapcollision(float x, float y);
   void kill();
   void checkoutofbounds();

@@ -22,7 +22,7 @@
 //    System.Writeln1(S);
 // end;
 
-std::string idtoname(std::int32_t id)
+auto idtoname(std::int32_t id) -> std::string
 {
   std::string result;
   result = "";
@@ -33,16 +33,20 @@ std::string idtoname(std::int32_t id)
   }
 
   if (SpriteSystem::Get().GetSprite(id).IsActive())
+  {
     result = SpriteSystem::Get().GetSprite(id).player->name;
+  }
   return result;
 }
 
-std::string teamtoname(std::int32_t id)
+auto teamtoname(std::int32_t id) -> std::string
 {
   std::string result;
   result = "UNKNOWN";
   if (id > 5)
+  {
     return result;
+  }
 
   switch (id)
   {
@@ -68,51 +72,62 @@ std::string teamtoname(std::int32_t id)
   return result;
 }
 
-std::int32_t nametoid(std::string name)
+auto nametoid(std::string name) -> std::int32_t
 {
   std::int32_t i;
 
   std::int32_t result;
   result = 0;
   for (i = 1; i <= max_sprites; i++)
+  {
     if (SpriteSystem::Get().GetSprite(i).player->name == name)
+    {
       result = i;
+    }
+  }
   return result;
 }
 
-std::string nametohw(std::string name)
+auto nametohw(std::string name) -> std::string
 {
   std::int32_t i;
 
   std::string result;
   result = "0";
   for (i = 1; i <= max_sprites; i++)
+  {
     if (SpriteSystem::Get().GetSprite(i).player->name == name)
+    {
       result = SpriteSystem::Get().GetSprite(i).player->hwid;
+    }
+  }
   return result;
 }
 
-std::uint32_t rgb(std::uint8_t r, std::uint8_t g, std::uint8_t b)
+auto rgb(std::uint8_t r, std::uint8_t g, std::uint8_t b) -> std::uint32_t
 {
   return (r | (g << 8) | (b << 16));
 }
 
-std::int32_t findlowestteam(const std::vector<std::int32_t> &arr)
+auto findlowestteam(const std::vector<std::int32_t> &arr) -> std::int32_t
 {
-  std::int32_t i, tmp;
+  std::int32_t i;
+  std::int32_t tmp;
 
   std::int32_t result;
   tmp = 1;
   for (i = 1; i <= iif(CVar::sv_gamemode == gamestyle_teammatch, 4, 2); i++)
   {
     if (arr[tmp] > arr[i])
+    {
       tmp = i;
+    }
   }
   result = tmp;
   return result;
 }
 
-std::uint8_t fixteam(std::uint8_t team)
+auto fixteam(std::uint8_t team) -> std::uint8_t
 {
   std::uint8_t result;
   result = team_spectator;
@@ -124,20 +139,26 @@ std::uint8_t fixteam(std::uint8_t team)
   case gamestyle_rambo: {
     // Choose to team 0 or leave at team spectator
     if ((team != team_none) && (team != team_spectator))
+    {
       result = team_none;
+    }
   }
   break;
   case gamestyle_teammatch: {
     if ((team != team_alpha) && (team != team_bravo) && (team != team_charlie) &&
         (team != team_delta) && (team != team_spectator))
+    {
       result = Random(4) + 1; // team 1..4
+    }
   }
   break;
   case gamestyle_ctf:
   case gamestyle_inf:
   case gamestyle_htf: {
     if ((team != team_alpha) && (team != team_bravo) && (team != team_spectator))
+    {
       result = Random(2) + 1; // team 1..2
+    }
   }
   break;
   }
@@ -171,14 +192,14 @@ std::string weaponnamebynum(std::int32_t num)
 }
 #endif
 
-std::string checknextmap()
+auto checknextmap() -> std::string
 {
   std::int32_t m;
 
   std::string result;
   LogTraceG("CheckNextMap");
   result = "NOMAP";
-  if (mapslist.size() < 1)
+  if (mapslist.empty())
   {
     result = "NOMAP";
   }
@@ -187,7 +208,9 @@ std::string checknextmap()
     m = mapindex + 1;
 
     if (m >= mapslist.size())
+    {
       m = 0;
+    }
 
     result = mapslist[m];
   }
@@ -232,7 +255,7 @@ void writepid()
 #endif
 }
 
-std::int32_t soldat_getpid()
+auto soldat_getpid() -> std::int32_t
 {
   NotImplemented();
   return 0;
@@ -253,13 +276,17 @@ void updatewaverespawntime()
 {
   waverespawntime = round(GS::GetGame().GetPlayersNum() * waverespawn_time_mulitplier) * 60;
   if (waverespawntime > CVar::sv_respawntime_minwave)
+  {
     waverespawntime = CVar::sv_respawntime_maxwave;
+  }
   waverespawntime = waverespawntime - CVar::sv_respawntime_minwave;
   if (waverespawntime < 1)
+  {
     waverespawntime = 1;
+  }
 }
 
-std::string randombot()
+auto randombot() -> std::string
 {
   NotImplemented();
   return {};
@@ -304,10 +331,14 @@ void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
   std::string thebot;
 
   if (!CVar::sv_botbalance)
+  {
     return;
+  }
   if ((CVar::sv_gamemode != gamestyle_ctf) && (CVar::sv_gamemode != gamestyle_htf) &&
       (CVar::sv_gamemode != gamestyle_inf))
+  {
     return;
+  }
 
   teams[1] = 0;
   teams[2] = 0;

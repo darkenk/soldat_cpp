@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <fstream>
 
-std::int32_t charcount(const char character, const std::string &str1)
+auto charcount(const char character, const std::string &str1) -> std::int32_t
 {
   std::int32_t result = 0;
   for (std::size_t i = 0; i < str1.length(); i++)
@@ -19,13 +19,13 @@ std::int32_t charcount(const char character, const std::string &str1)
   return result;
 }
 
-tstringarray splitstr(const std::string source, const char delimiter, std::int32_t limit)
+auto splitstr(const std::string source, const char delimiter, std::int32_t limit) -> tstringarray
 {
 
   size_t last = 0;
   size_t next = 0;
   tstringarray ret;
-  while (((next = source.find(delimiter, last)) != std::string::npos) && limit--)
+  while (((next = source.find(delimiter, last)) != std::string::npos) && ((limit--) != 0))
   {
     ret.push_back(source.substr(last, next - last));
     last = next + 1;
@@ -34,20 +34,18 @@ tstringarray splitstr(const std::string source, const char delimiter, std::int32
   return ret;
 }
 
-std::string getpiece(const std::string source, const char delimiter, const std::int32_t piece)
+auto getpiece(const std::string source, const char delimiter,
+              const std::int32_t piece) -> std::string
 {
   return splitstr(source, delimiter, piece)[piece - 1];
 }
 
-std::int32_t posex(const std::string substr, std::string s, std::uint32_t offset)
+auto posex(const std::string substr, std::string s, std::uint32_t offset) -> std::int32_t
 {
   return s.find(substr, offset);
 }
 
-std::uint32_t colortohex(tcolor color)
-{
-  return color;
-}
+auto colortohex(tcolor color) -> std::uint32_t { return color; }
 
 #if 0 // not used
 tcolor std::stringtocolor(const std::string s)
@@ -58,12 +56,10 @@ tcolor std::stringtocolor(const std::string s)
 }
 #endif
 
-std::string numberformat(std::uint32_t num)
-{
-  return std::to_string(num);
-}
+auto numberformat(std::uint32_t num) -> std::string { return std::to_string(num); }
 
-std::string overridefileext(FileUtility& fs, const std::string &filename, const std::string &ext)
+auto overridefileext(FileUtility &fs, const std::string &filename,
+                     const std::string &ext) -> std::string
 {
   auto result = filename;
   auto dotPos = filename.find_last_of('.');
@@ -104,7 +100,7 @@ std::string md5stringhelper(std::string text)
 
 // makes sure the directory exists
 // returns false on error and true if everything is allright
-bool createdirifmissing(const std::string &dir)
+auto createdirifmissing(const std::string &dir) -> bool
 {
   std::filesystem::path p(dir);
   if (std::filesystem::is_directory(p))
@@ -114,7 +110,7 @@ bool createdirifmissing(const std::string &dir)
   return std::filesystem::create_directory(p);
 }
 
-bool createfileifmissing(const std::string &filename)
+auto createfileifmissing(const std::string &filename) -> bool
 {
   std::filesystem::path p(filename);
   if (std::filesystem::is_regular_file(p))
@@ -125,7 +121,7 @@ bool createfileifmissing(const std::string &filename)
   return true;
 }
 
-std::string getsize(std::int64_t bytes)
+auto getsize(std::int64_t bytes) -> std::string
 {
   std::int64_t filesize;
 
@@ -144,27 +140,26 @@ std::string getsize(std::int64_t bytes)
     {
       return std::to_string(filesize / 1024) + " Gb";
     }
-    else
-    {
-      return std::to_string(filesize) + " Mb";
-    }
+
+    return std::to_string(filesize) + " Mb";
   }
   return std::to_string(filesize) + " Kb";
 }
 
-bool verifymapchecksum(FileUtility &fs, const tmapinfo &map, const tsha1digest &checksum,
-                       const tsha1digest &defaultgamemodchecksum)
+auto verifymapchecksum(FileUtility &fs, const tmapinfo &map, const tsha1digest &checksum,
+                       const tsha1digest &defaultgamemodchecksum) -> bool
 {
   return getmapchecksum(fs, map, defaultgamemodchecksum) == checksum;
 }
 
-tsha1digest getmapchecksum(FileUtility &fs, const tmapinfo &map, const tsha1digest &defaultgamemodchecksum)
+auto getmapchecksum(FileUtility &fs, const tmapinfo &map,
+                    const tsha1digest &defaultgamemodchecksum) -> tsha1digest
 {
   if (fs.Exists(std::string("maps/") + map.mapname + ".pms"))
   {
     return defaultgamemodchecksum;
   }
-  else if (fileexists(map.path))
+  if (fileexists(map.path))
   {
     return sha1file(map.path);
   }
@@ -172,9 +167,11 @@ tsha1digest getmapchecksum(FileUtility &fs, const tmapinfo &map, const tsha1dige
 }
 
 // for string delimiter
-std::vector<std::string> split_string(std::string s, std::string delimiter)
+auto split_string(std::string s, std::string delimiter) -> std::vector<std::string>
 {
-  size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+  size_t pos_start = 0;
+  size_t pos_end;
+  size_t delim_len = delimiter.length();
   std::string token;
   std::vector<std::string> res;
 
@@ -189,8 +186,8 @@ std::vector<std::string> split_string(std::string s, std::string delimiter)
   return res;
 }
 
-bool getmapinfo(FileUtility& fs, const std::string &mapname, const std::string &directory,
-                tmapinfo &mapinfo) // dk out MapInfo
+auto getmapinfo(FileUtility &fs, const std::string &mapname, const std::string &directory,
+                tmapinfo &mapinfo) -> bool // dk out MapInfo
 {
   tstringarray split;
   std::uint64_t itemid;

@@ -153,13 +153,13 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 }
 
 template <Config::Module M>
-tanimation &TAnimationSystem<M>::GetAnimation(AnimationType type)
+auto TAnimationSystem<M>::GetAnimation(AnimationType type) -> tanimation &
 {
   return Animations[type];
 }
 
 template <Config::Module M>
-const particlesystem &TAnimationSystem<M>::GetSkeleton(const SkeletonType type) const
+auto TAnimationSystem<M>::GetSkeleton(const SkeletonType type) const -> const particlesystem &
 {
   return Skeletons[type];
 }

@@ -24,7 +24,7 @@ void RunTests(int argc, const char *argv[])
   }
 }
 
-int main(int argc, const char *argv[])
+auto main(int argc, const char *argv[]) -> int
 {
   InitLogging();
   RunTests(argc, argv);

@@ -57,25 +57,41 @@ static void sPreprocessSprites(SpriteSystem &spriteSystem, tmsg_playerslist *pla
 
     newplayer->hairstyle = 0;
     if ((playerslistmsg->look[i] & B1) == B1)
+    {
       newplayer->hairstyle = 1;
+    }
     if ((playerslistmsg->look[i] & B2) == B2)
+    {
       newplayer->hairstyle = 2;
+    }
     if ((playerslistmsg->look[i] & B3) == B3)
+    {
       newplayer->hairstyle = 3;
+    }
     if ((playerslistmsg->look[i] & B4) == B4)
+    {
       newplayer->hairstyle = 4;
+    }
 
     newplayer->headcap = 0;
     if ((playerslistmsg->look[i] & B5) == B5)
+    {
       newplayer->headcap = GFX::GOSTEK_HELM;
+    }
     if ((playerslistmsg->look[i] & B6) == B6)
+    {
       newplayer->headcap = GFX::GOSTEK_KAP;
+    }
 
     newplayer->chain = 0;
     if ((playerslistmsg->look[i] & B7) == B7)
+    {
       newplayer->chain = 1;
+    }
     if ((playerslistmsg->look[i] & B8) == B8)
+    {
       newplayer->chain = 2;
+    }
 
     createsprite(pos, id, newplayer);
     auto &sprite = spriteSystem.GetSprite(id);
@@ -98,9 +114,9 @@ template <typename T>
 void clientrequestgame(NetworkBase<T> &network, std::string_view password)
 {
   const std::int32_t size = tmsg_requestgame::sCalculateSize(password);
-  auto buff = static_cast<uint8_t *>(alloca(size));
+  auto *buff = static_cast<uint8_t *>(alloca(size));
 
-  auto requestmsg = new (buff) tmsg_requestgame(password);
+  auto *requestmsg = new (buff) tmsg_requestgame(password);
   SoldatAssert(requestmsg->GetSize() == size);
 
   std::strcpy(requestmsg->version.data(), soldat_version);
@@ -131,21 +147,27 @@ void clientsendplayerinfo()
   tmsg_changeteam changemsg;
 
   if ((spectator == 1) && (selteam == 0))
+  {
     selteam = team_spectator;
+  }
   spectator = 0; // allow joining other teams after first join
   if ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf) ||
       (CVar::sv_gamemode == gamestyle_htf))
+  {
     if ((selteam < team_alpha) || ((selteam > team_bravo) && (selteam < team_spectator)))
     {
       gamemenushow(teammenu);
       return;
     }
+  }
   if (CVar::sv_gamemode == gamestyle_teammatch)
+  {
     if (selteam < team_alpha)
     {
       gamemenushow(teammenu);
       return;
     }
+  }
 
   // sent a team change request instead if we're already ingame
   if (mysprite > 0)
@@ -171,21 +193,37 @@ void clientsendplayerinfo()
   playerinfo.team = selteam;
   playerinfo.look = 0;
   if (CVar::cl_player_hairstyle == 1)
+  {
     playerinfo.look = playerinfo.look | B1;
+  }
   if (CVar::cl_player_hairstyle == 2)
+  {
     playerinfo.look = playerinfo.look | B2;
+  }
   if (CVar::cl_player_hairstyle == 3)
+  {
     playerinfo.look = playerinfo.look | B3;
+  }
   if (CVar::cl_player_hairstyle == 4)
+  {
     playerinfo.look = playerinfo.look | B4;
+  }
   if (CVar::cl_player_headstyle == headstyle_helmet)
+  {
     playerinfo.look = playerinfo.look | B5;
+  }
   if (CVar::cl_player_headstyle == headstyle_hat)
+  {
     playerinfo.look = playerinfo.look | B6;
+  }
   if (CVar::cl_player_chainstyle == 1)
+  {
     playerinfo.look = playerinfo.look | B7;
+  }
   if (CVar::cl_player_chainstyle == 2)
+  {
     playerinfo.look = playerinfo.look | B8;
+  }
 
   playerinfo.gamemodchecksum.Dummy[0] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[0]);
   playerinfo.gamemodchecksum.Dummy[1] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[1]);
@@ -233,26 +271,33 @@ void clientpong(NetworkBase<T> &network, const std::uint8_t pingnum)
 void clienthandleplayerslist(NetworkContext *netmessage)
 {
   tmsg_playerslist *playerslistmsg;
-  tvector2 pos, vel;
+  tvector2 pos;
+  tvector2 vel;
   std::string downloadurl;
   bool forcegraphicsreload = false;
   std::string modname;
   std::string mapname;
 
   if (!verifypacket(sizeof(*playerslistmsg), netmessage->size, msgid_playerslist))
+  {
     return;
+  }
 
   if (!(requestinggame || demoplayer.active()))
+  {
     return;
+  }
 
   requestinggame = false;
 
   playerslistmsg = reinterpret_cast<pmsg_playerslist>(netmessage->packet);
 
   if (!demoplayer.active())
+  {
     GS::GetMainConsole().console(_("Connection accepted to") + ' ' +
                                    (GetNetwork()->GetStringAddress(true)),
                                  client_message_color);
+  }
 
   gClientServerIP = GetNetwork()->GetStringAddress(false);
   NotImplemented("network", "no sha1 checks");
@@ -280,8 +325,8 @@ void clienthandleplayerslist(NetworkContext *netmessage)
             sha1file(GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod");
           playerslistmsg->modchecksum == checksum)
       {
-        if (!PHYSFS_mount((pchar)(GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod"),
-                          (pchar)(string("mods/") + modname + '/'), false))
+        if (PHYSFS_mount((pchar)(GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod"),
+                         (pchar)(string("mods/") + modname + '/'), 0) == 0)
         {
           showmessage(_(string("Could not load mod archive (") + modname + ")."));
           return;
@@ -374,7 +419,9 @@ void clienthandleplayerslist(NetworkContext *netmessage)
   sPreprocessSprites(SpriteSystem::Get(), playerslistmsg, pos, vel);
 
   if (!demoplayer.active())
+  {
     rendergameinfo(_("Waiting to join game..."));
+  }
 
   mysprite = 0;
   camerafollowsprite = 0;
@@ -400,7 +447,9 @@ void clienthandleplayerslist(NetworkContext *netmessage)
   limbolock = false;
 
   if (GS::GetGame().IsVoteActive())
+  {
     GS::GetGame().stopvote();
+  }
 
   resetweaponstats();
 
@@ -409,8 +458,10 @@ void clienthandleplayerslist(NetworkContext *netmessage)
   clientplayerreceivedcounter = clientplayerrecieved_time;
 
   // Begin rendering so that the team menu selection is visible
-  if (!(demoplayer.active() && (demoplayer.skipto() == -1)))
+  if (!demoplayer.active() || (demoplayer.skipto() != -1))
+  {
     shouldrenderframes = true;
+  }
 
   if (CVar::cl_player_team > 0)
   {
@@ -419,15 +470,21 @@ void clienthandleplayerslist(NetworkContext *netmessage)
     clientsendplayerinfo();
   }
   else if (spectator == 1)
+  {
     clientsendplayerinfo();
+  }
   else
   {
     if ((CVar::sv_gamemode == gamestyle_deathmatch) ||
         (CVar::sv_gamemode == gamestyle_pointmatch) || (CVar::sv_gamemode == gamestyle_rambo))
+    {
       clientsendplayerinfo();
+    }
 
     if (CVar::sv_gamemode == gamestyle_teammatch)
+    {
       gamemenushow(teammenu);
+    }
 
     if ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf) ||
         (CVar::sv_gamemode == gamestyle_htf))
@@ -437,11 +494,17 @@ void clienthandleplayerslist(NetworkContext *netmessage)
       {
         selteam = 0;
         if (GS::GetGame().GetPlayersTeamNum(1) < GS::GetGame().GetPlayersTeamNum(2))
+        {
           selteam = 1;
+        }
         if (GS::GetGame().GetPlayersTeamNum(2) < GS::GetGame().GetPlayersTeamNum(1))
+        {
           selteam = 2;
+        }
         if (selteam > 0)
+        {
           clientsendplayerinfo();
+        }
       }
     }
   }
@@ -453,17 +516,23 @@ void clienthandleplayerslist(NetworkContext *netmessage)
     GS::GetMainConsole().console(_("Realistic Mode ON"), mode_message_color);
   }
   if (CVar::sv_survivalmode)
+  {
     GS::GetMainConsole().console(_("Survival Mode ON"), mode_message_color);
+  }
   if (CVar::sv_advancemode)
+  {
     GS::GetMainConsole().console(_("Advance Mode ON"), mode_message_color);
+  }
 
   // newby stuff
   if (CVar::cl_runs < 3)
   {
     if (Random(3) == 0)
+    {
       GS::GetMainConsole().console(
         _("(!) Jet fuel is map specific. There can be more or less on certain maps."),
         info_message_color);
+    }
     else
     {
       GS::GetMainConsole().console(_("(!) To leave your current weapon after respawn"),
@@ -473,8 +542,10 @@ void clienthandleplayerslist(NetworkContext *netmessage)
     }
 
     if (CVar::sv_realisticmode)
+    {
       GS::GetMainConsole().console(
         _("(!) To prevent weapon recoil fire float shots or short bursts."), info_message_color);
+    }
   }
 
   mx = gamewidthhalf;
@@ -490,15 +561,21 @@ void clienthandleunaccepted(NetworkContext *netmessage)
   std::string text;
 
   if (!verifypacketlargerorequal(sizeof(unacceptedmsg), netmessage->size, msgid_unaccepted))
+  {
     return;
+  }
 
   unacceptedmsg = reinterpret_cast<pmsg_unaccepted>(netmessage->packet);
   std::int32_t textlen = netmessage->size - sizeof(tmsg_unaccepted);
 
   if ((textlen > 0) && (unacceptedmsg->text[textlen - 1] == '\0'))
+  {
     text = unacceptedmsg->text.data();
+  }
   else
+  {
     text = "";
+  }
 
   GS::GetConsoleLogFile().Log(string("*UA ") + inttostr(unacceptedmsg->state));
 
@@ -550,23 +627,33 @@ void clienthandleunaccepted(NetworkContext *netmessage)
 void clienthandleserverdisconnect(NetworkContext *netmessage)
 {
   if (!verifypacket(sizeof(tmsg_serverdisconnect), netmessage->size, msgid_serverdisconnect))
+  {
     return;
+  }
 
   GS::GetGame().showmapchangescoreboard("");
 
   if (!demoplayer.active())
+  {
     GS::GetMainConsole().console(_("Server disconnected"), server_message_color);
+  }
   else
+  {
     demoplayer.stopdemo();
+  }
 }
 
 void clienthandleping(NetworkContext *netmessage)
 {
   if (!verifypacket(sizeof(tmsg_ping), netmessage->size, msgid_ping))
+  {
     return;
+  }
 
   if (demoplayer.active())
+  {
     return;
+  }
 
   if (mysprite != 0)
   {
@@ -584,7 +671,9 @@ void clienthandleping(NetworkContext *netmessage)
 void clienthandleservervars(NetworkContext *netmessage)
 {
   if (!verifypacket(sizeof(tmsg_servervars), netmessage->size, msgid_servervars))
+  {
     return;
+  }
 
   const auto *varsmsg = pmsg_servervars(netmessage->packet);
 
@@ -639,7 +728,9 @@ void clienthandleservervars(NetworkContext *netmessage)
     SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
       SpriteSystem::Get().GetSprite(mysprite).secondaryweapon.num, 2);
     if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+    {
       clientspritesnapshot();
+    }
   }
 
   GS::GetWeaponSystem().SetLoadedWMChecksum(createwmchecksum(GS::GetWeaponSystem().GetGuns()));
@@ -656,7 +747,7 @@ void clienthandleservervars(NetworkContext *netmessage)
 }
 
 template <typename T>
-bool ReadAndSetValue(BitStream &bs, std::uint8_t cvarid)
+auto ReadAndSetValue(BitStream &bs, std::uint8_t cvarid) -> bool
 {
   auto &cvi = CVarBase<T>::Find(cvarid);
   if (!cvi.IsValid())
@@ -673,9 +764,11 @@ bool ReadAndSetValue(BitStream &bs, std::uint8_t cvarid)
 void clienthandlesynccvars(NetworkContext *netmessage)
 {
   if (!verifypacketlargerorequal(sizeof(tmsg_serversynccvars), netmessage->size, msgid_synccvars))
+  {
     return;
+  }
 
-  auto varsmsg = reinterpret_cast<pmsg_serversynccvars>(netmessage->packet);
+  auto *varsmsg = reinterpret_cast<pmsg_serversynccvars>(netmessage->packet);
   std::int32_t size = netmessage->size - (sizeof(varsmsg->header) + sizeof(varsmsg->itemcount));
   auto *data = reinterpret_cast<std::uint8_t *>(&varsmsg->data);
   BitStream bs(data, size);
@@ -741,13 +834,15 @@ protected:
 };
 
 // Add helper functions
-static bool verifyPlayer(const tsprite &sprite, const std::string &name, std::uint32_t shirtcolor,
+auto verifyPlayer(const tsprite &sprite, const std::string &name, std::uint32_t shirtcolor,
                   std::uint32_t pantscolor, std::uint32_t skincolor, std::uint32_t haircolor,
                   std::uint32_t jetcolor, std::int32_t team, std::int32_t hairstyle,
-                  std::int32_t headcap, std::int32_t chain)
+                  std::int32_t headcap, std::int32_t chain) -> bool
 {
   if (!sprite.player)
+  {
     return false;
+  }
   // Check each player attribute separately
   CHECK_EQ(sprite.player->name, name);
   CHECK_EQ(sprite.player->shirtcolor, shirtcolor);
@@ -767,16 +862,22 @@ static bool verifyPlayer(const tsprite &sprite, const std::string &name, std::ui
 class TestClient : public NetworkBase<TestClient>
 {
 public:
-  template<typename T>
-  [[nodiscard]] T& GetData() const { SoldatAssert(GetSize() >= sizeof(T)); return *reinterpret_cast<T*>(mMessage.get()); }
-  [[nodiscard]] std::int32_t GetSize() const { return mSize; }
-  [[nodiscard]] bool GetReliable() const { return mReliable;}
+  template <typename T>
+  [[nodiscard]] auto GetData() const -> T &
+  {
+    SoldatAssert(GetSize() >= sizeof(T));
+    return *reinterpret_cast<T *>(mMessage.get());
+  }
+  [[nodiscard]] auto GetSize() const -> std::int32_t { return mSize; }
+  [[nodiscard]] auto GetReliable() const -> bool { return mReliable; }
+
 private:
   friend class NetworkBase<TestClient>;
   std::unique_ptr<std::byte[]> mMessage;
   std::int32_t mSize = 0;
   bool mReliable = false;
-  bool SendDataImpl(const std::byte *data, std::int32_t size, bool reliable, source_location)
+  auto SendDataImpl(const std::byte *data, std::int32_t size, bool reliable,
+                    source_location /*unused*/) -> bool
   {
     mMessage = std::make_unique<std::byte[]>(size);
     std::memcpy(mMessage.get(), data, size);
@@ -834,7 +935,8 @@ TEST_SUITE("NetworkClientConnection")
   {
     auto &ss = SpriteSystem::Get();
     tmsg_playerslist msg;
-    tvector2 pos, vel;
+    tvector2 pos;
+    tvector2 vel;
 
     // Initialize empty list
     for (auto &name : msg.name)
@@ -855,7 +957,8 @@ TEST_SUITE("NetworkClientConnection")
   {
     auto &ss = SpriteSystem::Get();
     tmsg_playerslist msg;
-    tvector2 pos{1.0f, 2.0f}, vel{3.0f, 4.0f};
+    tvector2 pos{1.0f, 2.0f};
+    tvector2 vel{3.0f, 4.0f};
     for (auto &name : msg.name)
     {
       std::strcpy(name.data(), "0 ");
@@ -891,7 +994,8 @@ TEST_SUITE("NetworkClientConnection")
   {
     auto &ss = SpriteSystem::Get();
     tmsg_playerslist msg;
-    tvector2 pos, vel;
+    tvector2 pos;
+    tvector2 vel;
 
     for (auto &name : msg.name)
     {
@@ -948,7 +1052,8 @@ TEST_SUITE("NetworkClientConnection")
   {
     auto &ss = SpriteSystem::Get();
     tmsg_playerslist msg;
-    tvector2 pos{1.0f, 2.0f}, vel{3.0f, 4.0f};
+    tvector2 pos{1.0f, 2.0f};
+    tvector2 vel{3.0f, 4.0f};
 
     // Reset sprite system
     for (int i = 1; i <= max_sprites; i++)

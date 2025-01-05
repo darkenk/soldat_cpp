@@ -41,37 +41,51 @@ void clientsendbullet(std::uint8_t i)
 void clienthandlebulletsnapshot(NetworkContext *netmessage)
 {
   tmsg_bulletsnapshot *bulletsnap;
-  tvector2 a, b, bx;
+  tvector2 a;
+  tvector2 b;
+  tvector2 bx;
   tvector2 bstraight;
   tvector2 bnorm;
   float hm;
-  std::int32_t pa, c, d;
+  std::int32_t pa;
+  std::int32_t c;
+  std::int32_t d;
   std::int16_t weaponindex;
   std::uint8_t style;
   float bulletspread;
 
   if (!verifypacket(sizeof(tmsg_bulletsnapshot), netmessage->size, msgid_bulletsnapshot))
+  {
     return;
+  }
 
   bulletsnap = pmsg_bulletsnapshot(netmessage->packet);
 
   bulletsnap->Dump();
 
   if ((bulletsnap->owner < 1) || (bulletsnap->owner > max_sprites))
+  {
     return;
+  }
 
   if (!bulletsnap->forced)
+  {
     if ((oldbulletsnapshotmsg[bulletsnap->owner].weaponnum == bulletsnap->weaponnum) &&
         (oldbulletsnapshotmsg[bulletsnap->owner].pos.x == bulletsnap->pos.x) &&
         (oldbulletsnapshotmsg[bulletsnap->owner].pos.y == bulletsnap->pos.y) &&
         (oldbulletsnapshotmsg[bulletsnap->owner].velocity.x == bulletsnap->velocity.x) &&
         (oldbulletsnapshotmsg[bulletsnap->owner].velocity.y == bulletsnap->velocity.y))
+    {
       return;
+    }
+  }
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
   weaponindex = weaponnumtoindex(bulletsnap->weaponnum, guns);
   if (weaponindex == -1)
+  {
     return;
+  }
 
   style = guns[weaponindex].bulletstyle;
 
@@ -82,7 +96,9 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
   // on the other side, how the hell it works now? (because it does)
   hm = SpriteSystem::Get().GetSprite(bulletsnap->owner).weapon.hitmultiply;
   if (style == bullet_style_fragnade)
+  {
     hm = guns[fraggrenade].hitmultiply;
+  }
 
   const auto i = createbullet(a, b, bulletsnap->weaponnum, bulletsnap->owner, 255, hm, false, true);
 
@@ -121,6 +137,7 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
       auto &b = bullet[k];
 
       if ((mysprite > 0) && (bulletsnap->owner > 0))
+      {
         for (c = 1; c <= pa; c++)
         {
           if (b.active)
@@ -128,9 +145,12 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
             GetBulletParts().doeulertimestepfor(k);
             b.update();
             if (!b.active)
+            {
               break;
+            }
           }
         }
+      }
     }
     else if (style == bullet_style_shotgun) // SPAS-12 pellets
     {
@@ -155,13 +175,17 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
         if ((mysprite > 0) && (bulletsnap->owner > 0))
         {
           for (c = 1; c <= pa; c++)
+          {
             if (b.active)
             {
               GetBulletParts().doeulertimestepfor(k);
               b.update();
               if (!b.active)
+              {
                 break;
+              }
             }
+          }
         }
       }
     }
@@ -175,22 +199,36 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
   }
 
   if (bul.active)
+  {
     if ((mysprite > 0) && (bulletsnap->owner > 0))
+    {
       for (c = 1; c <= pa; c++)
       {
         GetBulletParts().doeulertimestepfor(i);
         bul.update();
         if (!bul.active)
+        {
           break;
+        }
       }
+    }
+  }
 
   auto &things = GS::GetThingSystem().GetThings();
   // stat gun
   if (!bulletsnap->forced)
+  {
     if (style == bullet_style_m2)
+    {
       for (auto i = 1; i <= max_things; i++)
+      {
         if ((things[i].active) && (things[i].style == object_stationary_gun))
+        {
           things[i].checkstationaryguncollision(true);
+        }
+      }
+    }
+  }
 
   oldbulletsnapshotmsg[bulletsnap->owner] = *bulletsnap;
 }

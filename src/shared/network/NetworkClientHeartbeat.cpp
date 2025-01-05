@@ -20,7 +20,9 @@ void clienthandleheartbeat(NetworkContext *netmessage)
   std::int32_t i;
 
   if (!verifypacket(sizeof(tmsg_heartbeat), netmessage->size, msgid_heartbeat))
+  {
     return;
+  }
 
   heartbeat = pmsg_heartbeat(netmessage->packet);
 
@@ -47,18 +49,32 @@ void clienthandleheartbeat(NetworkContext *netmessage)
 
   // play bding sound
   if (CVar::sv_gamemode == gamestyle_inf)
+  {
     if (heartbeat->teamscore[team_bravo] > GS::GetGame().GetTeamScore(team_bravo))
+    {
       if (heartbeat->teamscore[team_bravo] % 5 == 0)
+      {
         playsound(SfxEffect::infilt_point);
+      }
+    }
+  }
 
   if (CVar::sv_gamemode == gamestyle_htf)
   {
     if (heartbeat->teamscore[team_alpha] > GS::GetGame().GetTeamScore(team_alpha))
+    {
       if (heartbeat->teamscore[team_alpha] % 5 == 0)
+      {
         playsound(SfxEffect::infilt_point);
+      }
+    }
     if (heartbeat->teamscore[team_bravo] > GS::GetGame().GetTeamScore(team_bravo))
+    {
       if (heartbeat->teamscore[team_bravo] % 5 == 0)
+      {
         playsound(SfxEffect::infilt_point);
+      }
+    }
   }
 
   for (i = team_alpha; i <= team_delta; i++)
@@ -73,7 +89,9 @@ void clienthandleheartbeat(NetworkContext *netmessage)
     badmapidcount -= 1;
   }
   else
+  {
     badmapidcount = 2;
+  }
 
   if (badmapidcount < 1)
   {

@@ -20,7 +20,7 @@ void AssertImpl(const bool condition, const MsgLineWrapper &msg)
   if (logger == nullptr)
   {
     logger = spdlog::stdout_color_mt(loggerName, spdlog::color_mode::always);
-    auto sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>(logger->sinks()[0].get());
+    auto *sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>(logger->sinks()[0].get());
     sink->set_color(spdlog::level::err, sink->red);
   }
   logger->error("{}:{}: {}: {}", msg.location.file_name(), msg.location.line(),

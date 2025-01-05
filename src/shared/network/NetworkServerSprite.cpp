@@ -50,22 +50,34 @@ void serverspritesnapshot(std::uint8_t r)
 
       servermsg.look = 0;
       if (sprite.wearhelmet == 0)
+      {
         servermsg.look = servermsg.look | B1;
+      }
       if (sprite.hascigar == 5)
+      {
         servermsg.look = servermsg.look | B2;
+      }
       if (sprite.hascigar == 10)
+      {
         servermsg.look = servermsg.look | B3;
+      }
       if (sprite.wearhelmet == 2)
+      {
         servermsg.look = servermsg.look | B4;
+      }
 
       servermsg.weaponnum = sprite.weapon.num;
       servermsg.secondaryweaponnum = sprite.secondaryweapon.num;
       servermsg.ammocount = sprite.weapon.ammocount;
       servermsg.grenadecount = sprite.tertiaryweapon.ammocount;
       if (sprite.vest < 0)
+      {
         sprite.vest = 0;
+      }
       if (sprite.vest > defaultvest)
+      {
         sprite.vest = defaultvest;
+      }
       servermsg.vest = sprite.vest;
 
       b = vec2subtract(servermsg.velocity, oldspritesnapshotmsg[i].velocity);
@@ -84,6 +96,7 @@ void serverspritesnapshot(std::uint8_t r)
       {
         // send to all
         if (r == netw)
+        {
           for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
           {
             if (sprite.player->controlmethod == human)
@@ -92,9 +105,12 @@ void serverspritesnapshot(std::uint8_t r)
                                            false);
             }
           }
+        }
       }
       if (r == netw)
+      {
         oldspritesnapshotmsg[i] = servermsg;
+      }
     }
   }
 }
@@ -141,8 +157,10 @@ void serverspritesnapshotmajor(std::uint8_t r)
           for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
           {
             if (sprite.player->controlmethod == human)
+            {
               GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), sprite.player->peer,
                                            false);
+            }
           }
         }
       }
@@ -215,9 +233,13 @@ void serverskeletonsnapshot(std::uint8_t r)
       // assign sprite values to SkeletonMsg
       skeletonmsg.num = sprite.num;
       if (sprite.respawncounter > 0)
+      {
         skeletonmsg.respawncounter = sprite.respawncounter;
+      }
       else
+      {
         skeletonmsg.respawncounter = 0;
+      }
 
       // send to all
       if (r == netw)
@@ -254,7 +276,9 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
   spritedeathmsg.shotricochet = shotricochetServer;
 
   if (bulletnum == -1)
+  {
     spritedeathmsg.killbullet = 250;
+  }
   else
   {
     // if Bullet[BulletNum].OwnerWeapon = 0 then
@@ -263,27 +287,49 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
     auto &b = bullet[bulletnum];
     spritedeathmsg.killbullet = b.ownerweapon;
     if (b.style == 2)
+    {
       spritedeathmsg.killbullet = 222;
+    }
     if (b.style == 10)
+    {
       spritedeathmsg.killbullet = 210;
+    }
     if (b.style == 5)
+    {
       spritedeathmsg.killbullet = 205;
+    }
     if (b.style == 7)
+    {
       spritedeathmsg.killbullet = 207;
+    }
     if (b.style == 8)
+    {
       spritedeathmsg.killbullet = 208;
+    }
     if (b.style == 6)
+    {
       spritedeathmsg.killbullet = 206;
+    }
     if (b.ownerweapon == knife_num)
+    {
       spritedeathmsg.killbullet = 211;
+    }
     if (b.ownerweapon == chainsaw_num)
+    {
       spritedeathmsg.killbullet = 212;
+    }
     if (b.style == 12)
+    {
       spritedeathmsg.killbullet = 224;
+    }
     if (b.style == 13)
+    {
       spritedeathmsg.killbullet = 211;
+    }
     if (b.style == 14)
+    {
       spritedeathmsg.killbullet = 225;
+    }
   }
 
   for (j = 1; j <= 16; j++)
@@ -296,15 +342,25 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
 
   spritedeathmsg.constraints = 0;
   if (!SpriteSystem::Get().GetSprite(who).skeleton.constraints[2].active)
+  {
     spritedeathmsg.constraints = spritedeathmsg.constraints | B1;
+  }
   if (!SpriteSystem::Get().GetSprite(who).skeleton.constraints[4].active)
+  {
     spritedeathmsg.constraints = spritedeathmsg.constraints | B2;
+  }
   if (!SpriteSystem::Get().GetSprite(who).skeleton.constraints[20].active)
+  {
     spritedeathmsg.constraints = spritedeathmsg.constraints | B3;
+  }
   if (!SpriteSystem::Get().GetSprite(who).skeleton.constraints[21].active)
+  {
     spritedeathmsg.constraints = spritedeathmsg.constraints | B4;
+  }
   if (!SpriteSystem::Get().GetSprite(who).skeleton.constraints[23].active)
+  {
     spritedeathmsg.constraints = spritedeathmsg.constraints | B5;
+  }
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
@@ -323,7 +379,8 @@ void serverspritedeltas(const std::uint8_t i)
   tmsg_serverspritedelta_weapons weaponsmsg;
   tmsg_serverspritedelta_helmet helmetmsg;
   std::int32_t j;
-  tvector2 a, b;
+  tvector2 a;
+  tvector2 b;
 
   const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
   auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
@@ -354,6 +411,7 @@ void serverspritedeltas(const std::uint8_t i)
   {
     if (SpriteSystem::Get().GetSprite(j).active &&
         (SpriteSystem::Get().GetSprite(j).player->controlmethod == human) && (j != i))
+    {
       if (GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y,
                                      SpriteSystem::Get().GetSprite(j).player->camera) or
           (SpriteSystem::Get().GetSprite(j).isspectator() &&
@@ -371,14 +429,17 @@ void serverspritedeltas(const std::uint8_t i)
           oldmovementmsg[j][i] = movementmsg;
         }
       }
+    }
   }
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     const auto j = sprite.num;
     if ((sprite.player->controlmethod == human) && (j != i))
+    {
       if ((weaponsmsg.weaponnum != oldweaponsmsg[j][i].weaponnum) ||
           (weaponsmsg.secondaryweaponnum != oldweaponsmsg[j][i].secondaryweaponnum))
+      {
         if (GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y,
                                        sprite.player->camera) or
             (sprite.isspectator() && (sprite.player->port == 0))) // visible to sprite
@@ -387,18 +448,22 @@ void serverspritedeltas(const std::uint8_t i)
                                        false);
           oldweaponsmsg[j][i] = weaponsmsg;
         }
+      }
+    }
   }
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     const auto j = sprite.num;
     if ((sprite.player->controlmethod == human) && (j != i))
+    {
       if (helmetmsg.wearhelmet != oldhelmetmsg[j][i].wearhelmet)
       {
         GetServerNetwork()->SendData(&helmetmsg, sizeof(helmetmsg), sprite.player->peer,
                                      false);
         oldhelmetmsg[j][i] = helmetmsg;
       }
+    }
   }
 }
 
@@ -428,9 +493,10 @@ void serverhandleclientspritesnapshot(tmsgheader* netmessage, std::int32_t size,
   pmsg_clientspritesnapshot clientmsg;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_clientspritesnapshot), size,
-                    msgid_clientspritesnapshot))
+  if (!verifypacket(sizeof(tmsg_clientspritesnapshot), size, msgid_clientspritesnapshot))
+  {
     return;
+  }
   clientmsg = pmsg_clientspritesnapshot(netmessage);
   i = player->spritenum;
 
@@ -439,7 +505,9 @@ void serverhandleclientspritesnapshot(tmsgheader* netmessage, std::int32_t size,
   messagesasecnum[i] += 1;
 
   if (sprite.deadmeat)
+  {
     return;
+  }
 
   sprite.player->camera = i;
 
@@ -471,13 +539,21 @@ void serverhandleclientspritesnapshot(tmsgheader* netmessage, std::int32_t size,
 #endif
 
   if (sprite.weapon.num == colt_num)
+  {
     sprite.player->secwep = 0;
+  }
   if (sprite.weapon.num == knife_num)
+  {
     sprite.player->secwep = 1;
+  }
   if (sprite.weapon.num == chainsaw_num)
+  {
     sprite.player->secwep = 2;
+  }
   if (sprite.weapon.num == law_num)
+  {
     sprite.player->secwep = 3;
+  }
 
   sprite.weapon.ammocount = clientmsg->ammocount;
   sprite.secondaryweapon.ammocount = clientmsg->secondaryammocount;
@@ -499,9 +575,10 @@ void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t s
 {
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_clientspritesnapshot_mov), size,
-                    msgid_clientspritesnapshot_mov))
+  if (!verifypacket(sizeof(tmsg_clientspritesnapshot_mov), size, msgid_clientspritesnapshot_mov))
+  {
     return;
+  }
 
   tmsg_clientspritesnapshot_mov &clientmovmsg = *pmsg_clientspritesnapshot_mov(netmessage);
   i = player->spritenum;
@@ -511,7 +588,9 @@ void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t s
   auto &sprite = SpriteSystem::Get().GetSprite(i);
 
   if (sprite.deadmeat)
+  {
     return;
+  }
 
   auto &map = GS::GetGame().GetMap();
   map.checkoutofbounds(clientmovmsg.pos.x, clientmovmsg.pos.y);
@@ -532,8 +611,10 @@ void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t s
 
   decodekeys(sprite, clientmovmsg.keys16);
 
-  if (sprite.control.throwweapon == false)
+  if (!sprite.control.throwweapon)
+  {
     sprite.player->knifewarnings = 0;
+  }
 
   serverspritedeltas(i);
 
@@ -545,9 +626,10 @@ void serverhandleclientspritesnapshot_dead(tmsgheader* netmessage, std::int32_t 
   pmsg_clientspritesnapshot_dead clientdeadmsg;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), size,
-                    msgid_clientspritesnapshot_dead))
+  if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), size, msgid_clientspritesnapshot_dead))
+  {
     return;
+  }
   clientdeadmsg = pmsg_clientspritesnapshot_dead(netmessage);
   i = player->spritenum;
 
@@ -556,9 +638,13 @@ void serverhandleclientspritesnapshot_dead(tmsgheader* netmessage, std::int32_t 
   auto &sprite = SpriteSystem::Get().GetSprite(i);
 
   if (!sprite.deadmeat)
+  {
     return;
+  }
 
   // assign received sprite info to sprite
   if (clientdeadmsg->camerafocus < max_sprites + 1)
+  {
     sprite.player->camera = clientdeadmsg->camerafocus;
+  }
 }

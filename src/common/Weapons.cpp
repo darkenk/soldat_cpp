@@ -1216,7 +1216,7 @@ void buildweapons(GunsDescription &guns)
 #if OPTION_R == 1 /*$R-*/
 #define NoRangeCheck
 #endif
-std::uint32_t createwmchecksum(GunsDescription &guns)
+auto createwmchecksum(GunsDescription &guns) -> std::uint32_t
 {
   std::uint32_t hash;
   std::int32_t weaponindex;
@@ -1256,7 +1256,7 @@ std::uint32_t createwmchecksum(GunsDescription &guns)
 #ifdef NoOverflowCheck /*$Q+*/ /*$UNDEF NoOverflowCheck*/
 #endif
 
-std::int32_t weaponnumtoindex(std::uint8_t num, GunsDescription &guns)
+auto weaponnumtoindex(std::uint8_t num, GunsDescription &guns) -> std::int32_t
 {
   std::uint8_t weaponindex;
 
@@ -1273,7 +1273,7 @@ std::int32_t weaponnumtoindex(std::uint8_t num, GunsDescription &guns)
   return result;
 }
 
-std::int32_t weaponnametonum(const std::string &name, GunsDescription &guns)
+auto weaponnametonum(const std::string &name, GunsDescription &guns) -> std::int32_t
 {
   std::uint8_t i;
 
@@ -1290,7 +1290,7 @@ std::int32_t weaponnametonum(const std::string &name, GunsDescription &guns)
   return result;
 }
 
-std::string weaponnumtoname(std::int32_t num, GunsDescription &guns)
+auto weaponnumtoname(std::int32_t num, GunsDescription &guns) -> std::string
 {
   std::string result;
   switch (num)
@@ -1370,7 +1370,7 @@ std::string weaponnumtoname(std::int32_t num, GunsDescription &guns)
   return result;
 }
 
-std::uint8_t weaponnuminternaltoexternal(std::uint8_t num)
+auto weaponnuminternaltoexternal(std::uint8_t num) -> std::uint8_t
 {
   std::uint8_t result;
   switch (num)
@@ -1399,7 +1399,7 @@ std::uint8_t weaponnuminternaltoexternal(std::uint8_t num)
   return result;
 }
 
-std::uint8_t weaponnumexternaltointernal(std::uint8_t num)
+auto weaponnumexternaltointernal(std::uint8_t num) -> std::uint8_t
 {
   std::uint8_t result;
   switch (num)
@@ -1428,7 +1428,7 @@ std::uint8_t weaponnumexternaltointernal(std::uint8_t num)
   return result;
 }
 
-std::string weaponnamebynum(std::int32_t num, GunsDescription &guns)
+auto weaponnamebynum(std::int32_t num, GunsDescription &guns) -> std::string
 {
   std::int32_t weaponindex;
 
@@ -1446,28 +1446,28 @@ std::string weaponnamebynum(std::int32_t num, GunsDescription &guns)
   return result;
 }
 
-bool ismainweaponindex(std::int16_t weaponindex)
+auto ismainweaponindex(std::int16_t weaponindex) -> bool
 {
   bool result;
   result = (weaponindex >= 1) && (weaponindex <= main_weapons);
   return result;
 }
 
-bool issecondaryweaponindex(std::int16_t weaponindex)
+auto issecondaryweaponindex(std::int16_t weaponindex) -> bool
 {
   bool result;
   result = (weaponindex >= primary_weapons + 1) && (weaponindex <= main_weapons);
   return result;
 }
 
-bool isdoubleweaponindex(std::int16_t weaponindex)
+auto isdoubleweaponindex(std::int16_t weaponindex) -> bool
 {
   bool result;
   result = (weaponindex >= 1) && (weaponindex <= double_weapons);
   return result;
 }
 
-std::uint32_t calculatebink(std::uint32_t accumulated, std::uint32_t bink)
+auto calculatebink(std::uint32_t accumulated, std::uint32_t bink) -> std::uint32_t
 {
   // Adding bink has diminishing returns as more gets accumulated
   std::uint64_t result;

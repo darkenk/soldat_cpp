@@ -34,9 +34,9 @@ class TAnimationSystem : public GlobalSubsystem<TAnimationSystem<M>>
 public:
   void LoadAnimObjects(const std::string &moddir);
 
-  tanimation &GetAnimation(AnimationType type);
+  auto GetAnimation(AnimationType type) -> tanimation &;
 
-  [[nodiscard]] const particlesystem &GetSkeleton(const SkeletonType type) const;
+  [[nodiscard]] auto GetSkeleton(const SkeletonType type) const -> const particlesystem &;
 
 private:
   std::vector<tanimation> Animations;

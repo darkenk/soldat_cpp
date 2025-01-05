@@ -25,8 +25,8 @@ auto LOG_NET = "network";
 
 NetworkServer::NetworkServer(const std::string_view host, std::uint32_t port)
 {
-  static_assert(std::is_same_v<HSoldatListenSocket, HSteamListenSocket> == true);
-  static_assert(std::is_same_v<HSoldatNetPollGroup, HSteamNetPollGroup> == true);
+  static_assert(std::is_same_v<HSoldatListenSocket, HSteamListenSocket>);
+  static_assert(std::is_same_v<HSoldatNetPollGroup, HSteamNetPollGroup>);
 
   SteamNetworkingIPAddr serverAddress; // NOLINT
   std::array<SteamNetworkingConfigValue_t, 2> initSettings; // NOLINT
@@ -107,7 +107,7 @@ void NetworkServer::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
     // performed explicitly.
     auto it = mConnectionMap.find(pInfo->m_hConn);
     SoldatAssert(it != mConnectionMap.end());
-    auto Player = it->second.get();
+    auto *Player = it->second.get();
 
     if (Player == nullptr)
     {
@@ -180,21 +180,25 @@ void NetworkServer::HandleMessages(SteamNetworkingMessage_t *msg)
     return; // truncated packet
   }
 
-  auto player = GetPlayer(msg);
-  auto packet = pmsgheader(msg->m_pData);
+  auto *player = GetPlayer(msg);
+  auto *packet = pmsgheader(msg->m_pData);
 
   switch (packet->id)
   {
   case msgid_requestgame:
     // only allowed if the player has not yet joined the game
     if ((player->spritenum == 0) and (not player->gamerequested))
+    {
       serverhandlerequestgame(packet, msg->m_cbSize, *this, player);
+    }
     break;
 
   case msgid_playerinfo:
     // allowed once after RequestGame was received, sets spritenum
     if ((player->spritenum == 0) and player->gamerequested)
+    {
       serverhandleplayerinfo(packet, msg->m_cbSize, *this, player);
+    }
     break;
 
 #ifdef ENABLE_FAE
@@ -267,8 +271,8 @@ void NetworkServer::HandleMessages(SteamNetworkingMessage_t *msg)
   }
 }
 
-bool NetworkServer::SendData(const std::byte *data, std::int32_t size, HSoldatNetConnection Peer,
-                             bool reliable)
+auto NetworkServer::SendData(const std::byte *data, std::int32_t size, HSoldatNetConnection Peer,
+                             bool reliable) -> bool
 {
   SoldatAssert(size >= sizeof(tmsgheader));
   if (size < sizeof(tmsgheader))
@@ -278,13 +282,17 @@ bool NetworkServer::SendData(const std::byte *data, std::int32_t size, HSoldatNe
   }
 
   if (mHost == k_HSteamNetConnection_Invalid)
+  {
     return false;
+  }
 
   if (GS::GetDemoRecorder().active())
   {
     NotImplemented("network", "check peer comparision");
     if (Peer == std::numeric_limits<std::uint32_t>::max())
+    {
       GS::GetDemoRecorder().saverecord(data, size);
+    }
   }
   auto flags = reliable ? k_nSteamNetworkingSend_Reliable : k_nSteamNetworkingSend_Unreliable;
   auto ret = mNetworkingSockets->SendMessageToConnection(Peer, data, size, flags, nullptr);
@@ -303,7 +311,7 @@ void NetworkServer::UpdateNetworkStats(std::shared_ptr<TServerPlayer> &player) c
   }
 }
 
-bool NetworkServer::Disconnect(bool now)
+auto NetworkServer::Disconnect(bool now) -> bool
 {
   if (mHost == k_HSteamNetPollGroup_Invalid)
   {
@@ -322,7 +330,7 @@ void NetworkServer::CloseConnection(HSoldatNetConnection peer, bool now)
   mNetworkingSockets->CloseConnection(peer, 0, "", !now);
 }
 
-TServerPlayer *NetworkServer::GetPlayer(const SteamNetworkingMessage_t *msg)
+auto NetworkServer::GetPlayer(const SteamNetworkingMessage_t *msg) -> TServerPlayer *
 {
   if (const auto it = mConnectionMap.find(msg->GetConnection()); it != mConnectionMap.end())
   {
@@ -339,7 +347,7 @@ void NetworkServer::FlushMsg()
   }
 }
 
-std::string NetworkServer::GetDetailedConnectionStatus(HSoldatNetConnection hConn) const
+auto NetworkServer::GetDetailedConnectionStatus(HSoldatNetConnection hConn) const -> std::string
 {
   std::array<char, 2048> buf; // NOLINT
   if (mNetworkingSockets->GetDetailedConnectionStatus(hConn, buf.data(), buf.size()) == 0)
@@ -359,18 +367,15 @@ namespace
 NetworkServer *gUDP;
 }
 
-bool InitNetworkServer(const std::string_view &host, uint32_t port)
+auto InitNetworkServer(const std::string_view &host, uint32_t port) -> bool
 {
   gUDP = new NetworkServer(host, port);
   return gUDP != nullptr;
 }
 
-NetworkServer *GetServerNetwork()
-{
-  return gUDP;
-}
+auto GetServerNetwork() -> NetworkServer * { return gUDP; }
 
-bool DeinitServerNetwork()
+auto DeinitServerNetwork() -> bool
 {
   delete gUDP;
   gUDP = nullptr;
@@ -387,8 +392,8 @@ namespace
 class NetworkServerFixture
 {
 public:
-  NetworkServerFixture() {}
-  ~NetworkServerFixture() {}
+  NetworkServerFixture() = default;
+  ~NetworkServerFixture() = default;
   NetworkServerFixture(const NetworkServerFixture &) = delete;
 
 protected:

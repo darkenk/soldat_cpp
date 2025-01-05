@@ -33,13 +33,13 @@ auto TSpriteSystem<TSprite>::CreateSprite(const SpriteId reuseSpriteId) -> TSpri
 }
 
 template <class TSprite>
-TSprite &TSpriteSystem<TSprite>::GetSprite(const SpriteId id)
+auto TSpriteSystem<TSprite>::GetSprite(const SpriteId id) -> TSprite &
 {
   return Sprites[id.GetId() - 1];
 }
 
 template <class TSprite>
-typename TSpriteSystem<TSprite>::TActiveSprites &TSpriteSystem<TSprite>::GetActiveSprites()
+auto TSpriteSystem<TSprite>::GetActiveSprites() -> typename TSpriteSystem<TSprite>::TActiveSprites &
 {
   return ActiveSprites;
 }

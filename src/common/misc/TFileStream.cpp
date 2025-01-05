@@ -7,14 +7,14 @@
 class TFileStream : public TStream
 {
 public:
-  explicit TFileStream(FileUtility &fs, const std::string_view filename) : Stream()
+  explicit TFileStream(FileUtility &fs, const std::string_view filename)
   {
     std::size_t fileSize = 0;
-    auto f = fs.Open(filename, FileUtility::FileMode::Read);
-    fileSize = fs.Size(f);
+    auto *f = fs.Open(filename, FileUtility::FileMode::Read);
+    fileSize = FileUtility::Size(f);
     buff = std::make_unique<std::byte[]>(fileSize);
-    fs.Read(f, buff.get(), fileSize);
-    fs.Close(f);
+    FileUtility::Read(f, buff.get(), fileSize);
+    FileUtility::Close(f);
 
 #if __EMSCRIPTEN__
     Stream.str(std::string(reinterpret_cast<char*>(buff.get()), fileSize));
@@ -25,11 +25,9 @@ public:
 
   }
 
-  ~TFileStream()
-  {
-  }
+  ~TFileStream() override = default;
 
-  bool ReadLine(std::string &out) override
+  auto ReadLine(std::string &out) -> bool override
   {
     std::getline(Stream, out);
     return Stream.good();
@@ -46,7 +44,7 @@ private:
   std::unique_ptr<std::byte[]> buff;
 };
 
-std::unique_ptr<TStream> ReadAsFileStream(FileUtility &fs, const std::string_view &file)
+auto ReadAsFileStream(FileUtility &fs, const std::string_view &file) -> std::unique_ptr<TStream>
 {
   if (!fs.Exists(file))
   {
@@ -73,13 +71,11 @@ public:
 TestEntry=1.0
 )";
     FS.Mount("tmpfs.memory", "/fs_mem");
-    auto f = FS.Open(TestFile, FileUtility::FileMode::Write);
-    FS.Write(f, reinterpret_cast<const std::byte*>(testData.data()), testData.size());
-    FS.Close(f);
+    auto *f = FS.Open(TestFile, FileUtility::FileMode::Write);
+    FileUtility::Write(f, reinterpret_cast<const std::byte *>(testData.data()), testData.size());
+    FileUtility::Close(f);
   }
-  ~TFileStreamFixture() {
-    FS.Unmount("tmpfs.memory");
-  }
+  ~TFileStreamFixture() { FileUtility::Unmount("tmpfs.memory"); }
 
 protected:
   TFileStreamFixture(const TFileStreamFixture &) = delete;
@@ -127,7 +123,10 @@ TEST_CASE_FIXTURE(TFileStreamFixture, "Reset allows ReadLine to read file from t
   auto success = fileStream->ReadLine(line);
   CHECK_EQ(true, success);
   CHECK_EQ(0, std::strcmp("; Some comments", line.c_str()));
-  while(fileStream->ReadLine(line));
+  while (fileStream->ReadLine(line))
+  {
+    ;
+  }
   CHECK_NE(0, std::strcmp("; Some comments", line.c_str()));
   fileStream->Reset();
   success = fileStream->ReadLine(line);

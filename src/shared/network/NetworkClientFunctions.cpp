@@ -18,7 +18,9 @@ void clienthandlevoteon(NetworkContext *netmessage)
   std::int32_t i;
 
   if (!verifypacket(sizeof(tmsg_voteon), netmessage->size, msgid_voteon))
+  {
     return;
+  }
 
   voteonmsg = pmsg_voteon(netmessage->packet);
 
@@ -40,7 +42,9 @@ void clienthandleserversyncmsg(NetworkContext *netmessage)
   tmsg_serversyncmsg *syncmsg;
 
   if (!verifypacket(sizeof(tmsg_serversyncmsg), netmessage->size, msgid_serversyncmsg))
+  {
     return;
+  }
 
   syncmsg = pmsg_serversyncmsg(netmessage->packet);
 
@@ -68,7 +72,9 @@ void clienthandleforceposition(NetworkContext *netmessage)
   tmsg_forceposition *forceposition;
 
   if (!verifypacket(sizeof(tmsg_forceposition), netmessage->size, msgid_forceposition))
+  {
     return;
+  }
 
   forceposition = pmsg_forceposition(netmessage->packet);
 
@@ -83,7 +89,9 @@ void clienthandleforcevelocity(NetworkContext *netmessage)
   tmsg_forcevelocity *forcevelocity;
 
   if (!verifypacket(sizeof(tmsg_forcevelocity), netmessage->size, msgid_forcevelocity))
+  {
     return;
+  }
 
   forcevelocity = pmsg_forcevelocity(netmessage->packet);
 
@@ -96,7 +104,9 @@ void clienthandleforceweapon(NetworkContext *netmessage)
   tmsg_forceweapon *forceweapon;
 
   if (!verifypacket(sizeof(tmsg_forceweapon), netmessage->size, msgid_forceweapon))
+  {
     return;
+  }
 
   forceweapon = pmsg_forceweapon(netmessage->packet);
 
@@ -114,9 +124,10 @@ void clienthandleweaponactivemessage(NetworkContext *netmessage)
   tmsg_weaponactivemessage *wactivemessage;
   std::int32_t i;
 
-  if (!verifypacket(sizeof(tmsg_weaponactivemessage), netmessage->size,
-                    msgid_weaponactivemessage))
+  if (!verifypacket(sizeof(tmsg_weaponactivemessage), netmessage->size, msgid_weaponactivemessage))
+  {
     return;
+  }
 
   wactivemessage = pmsg_weaponactivemessage(netmessage->packet);
   auto &weaponSystem = GS::GetWeaponSystem();
@@ -141,7 +152,9 @@ void clienthandleclientfreecam(NetworkContext *netmessage)
   tmsg_clientfreecam *freecammsg;
 
   if (!verifypacket(sizeof(tmsg_clientfreecam), netmessage->size, msgid_clientfreecam))
+  {
     return;
+  }
 
   freecammsg = pmsg_clientfreecam(netmessage->packet);
 
@@ -172,7 +185,9 @@ void clienthandlejoinserver(NetworkContext *netmessage)
   tmsg_joinserver *joinservermsg;
 
   if (!verifypacket(sizeof(tmsg_joinserver), netmessage->size, msgid_joinserver))
+  {
     return;
+  }
 
   joinservermsg = pmsg_joinserver(netmessage->packet);
   NotImplemented("network");
@@ -202,7 +217,9 @@ void clienthandleplaysound(NetworkContext *netmessage)
   auto& fs = GS::GetFileSystem();
 
   if (!verifypacket(sizeof(tmsg_playsound), netmessage->size, msgid_playsound))
+  {
     return;
+  }
 
   playsoundmsg = pmsg_playsound(netmessage->packet);
 

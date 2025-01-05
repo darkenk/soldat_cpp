@@ -22,7 +22,7 @@ static void OpenGLGladDebug(const char *name, void * /*funcptr*/, int /*len_args
   SoldatAssert(error_code == GL_NO_ERROR);
 }
 
-static SDL_GLContext CreateOpenGLContext(SDL_Window *window)
+static auto CreateOpenGLContext(SDL_Window *window) -> SDL_GLContext
 {
   SDL_GLContext context = nullptr;
   struct OpenGLVersion
@@ -48,7 +48,7 @@ static SDL_GLContext CreateOpenGLContext(SDL_Window *window)
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
 
     context = SDL_GL_CreateContext(window);
-    if (context)
+    if (context != nullptr)
     {
       // gOpenGLES = v.profile == SDL_GL_CONTEXT_PROFILE_ES;
       break;
@@ -61,7 +61,7 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
 {
   AbortIf(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0,
           "Cannot init SDL. Error {}", SDL_GetError());
-  const SDL_WindowFlags window_flags =
+  const auto window_flags =
     (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
   Window = SDL_CreateWindow(appTitle.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width,
                             height, window_flags);
@@ -71,7 +71,7 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
   AbortIf(Context == nullptr, "Failed to create gl context");
 
   glad_set_post_callback(OpenGLGladDebug);
-  AbortIf(not gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress), "Failed to initialize GLAD");
+  AbortIf(gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress) == 0, "Failed to initialize GLAD");
 
   SDL_GL_MakeCurrent(Window, Context);
   SDL_GL_SetSwapInterval(1);
@@ -84,7 +84,7 @@ SdlApp::~SdlApp()
   SDL_Quit();
 }
 
-bool SdlApp::RegisterEventHandler(SDL_EventType evt, HandlerType handler)
+auto SdlApp::RegisterEventHandler(SDL_EventType evt, HandlerType handler) -> bool
 {
   if (EventHandlers.contains(evt))
   {
@@ -103,7 +103,7 @@ void SdlApp::RegisterEventInterception(HandlerType handler)
 void SdlApp::ProcessEvents()
 {
   SDL_Event event;
-  while (SDL_PollEvent(&event))
+  while (SDL_PollEvent(&event) != 0)
   {
     for (auto &intercept : EventInterceptors)
     {

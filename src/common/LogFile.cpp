@@ -8,7 +8,7 @@
 
 static constexpr std::int32_t max_logfilesize = 512000;
 
-static std::string sGetCurrentDate(const std::string_view format)
+static auto sGetCurrentDate(const std::string_view format) -> std::string
 {
   auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   std::stringstream ss;
@@ -54,7 +54,7 @@ void LogFile::CreateNewLogFile(const std::string &prefix)
     mLogList.clear();
   }
 
-  auto logfile = mFileUtility.Open(mLogName, FileUtility::FileMode::Write);
+  auto *logfile = mFileUtility.Open(mLogName, FileUtility::FileMode::Write);
   if (logfile == nullptr)
   {
     LogErrorG("File logging error {}", mLogName);
@@ -71,7 +71,7 @@ void LogFile::CreateNewLogFile(const std::string &prefix)
     }
 #endif
   }
-  mFileUtility.Close(logfile);
+  FileUtility::Close(logfile);
 
   Log("   Console Log Started");
 }
@@ -120,17 +120,17 @@ void LogFile::WriteToFile()
     return;
   }
 
-  auto logfile = mFileUtility.Open(mLogName, FileUtility::FileMode::Write);
+  auto *logfile = mFileUtility.Open(mLogName, FileUtility::FileMode::Write);
   {
     std::lock_guard lock(mLogLock);
     for (auto &line : mLogList)
     {
-      mFileUtility.Write(logfile, reinterpret_cast<const std::byte *>(line.c_str()), line.size());
-      mFileUtility.Write(logfile, reinterpret_cast<const std::byte *>("\n"), 1);
+      FileUtility::Write(logfile, reinterpret_cast<const std::byte *>(line.c_str()), line.size());
+      FileUtility::Write(logfile, reinterpret_cast<const std::byte *>("\n"), 1);
     }
     mLogList.clear();
   }
-  mFileUtility.Close(logfile);
+  FileUtility::Close(logfile);
 }
 
 void LogFile::CreateNewLogIfCurrentLogIsTooBig()
@@ -161,16 +161,16 @@ public:
     logFile.Enable(true);
     logFile.Init(logName);
   }
-  ~LogFileFixture() { mockFileUtility.Unmount("tmpfs.memory"); }
+  ~LogFileFixture() { FileUtility::Unmount("tmpfs.memory"); }
 
-  std::string ReadFile(const std::string_view filename)
+  auto ReadFile(const std::string_view filename) -> std::string
   {
-    auto file = mockFileUtility.Open(filename, FileUtility::FileMode::Read);
+    auto *file = mockFileUtility.Open(filename, FileUtility::FileMode::Read);
     std::string content;
     auto size = mockFileUtility.Size(filename);
     content.resize(size);
-    mockFileUtility.Read(file, reinterpret_cast<std::byte *>(content.data()), size);
-    mockFileUtility.Close(file);
+    FileUtility::Read(file, reinterpret_cast<std::byte *>(content.data()), size);
+    FileUtility::Close(file);
     return content;
   }
 };
@@ -268,8 +268,8 @@ TEST_SUITE("LogFile")
     logFile.SetLogLevel(1);
     std::string date {sGetCurrentDate("%y-%m-%d")};
     auto existing_log = std::format("/user/logfile-{}.txt", date);
-    auto h = mockFileUtility.Open(existing_log, FileUtility::FileMode::Write);
-    mockFileUtility.Close(h);
+    auto *h = mockFileUtility.Open(existing_log, FileUtility::FileMode::Write);
+    FileUtility::Close(h);
 
     std::string expectedName = std::format("/user/logfile-{}-01.txt", date);
 

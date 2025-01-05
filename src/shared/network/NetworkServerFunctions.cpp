@@ -42,9 +42,10 @@ void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state)
   }
   else if ((SpriteSystem::Get().GetSprite(id).active) &&
            (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
+  {
     GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg),
-                                 SpriteSystem::Get().GetSprite(id).player->peer,
-                                 true);
+                                 SpriteSystem::Get().GetSprite(id).player->peer, true);
+  }
 }
 
 void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, std::uint8_t ammo,
@@ -57,10 +58,14 @@ void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
   if (ammo > guns[weaponnumtoindex(primary, guns)].ammo)
+  {
     ammo = guns[weaponnumtoindex(primary, guns)].ammo;
+  }
 
   if (secammo > guns[weaponnumtoindex(secondary, guns)].ammo)
+  {
     secammo = guns[weaponnumtoindex(secondary, guns)].ammo;
+  }
 
   SpriteSystem::Get().GetSprite(id).weapon.ammo = ammo;
   SpriteSystem::Get().GetSprite(id).secondaryweapon.ammo = secammo;
@@ -91,7 +96,9 @@ void moveplayer(const std::uint8_t id, float x, float y)
   tmsg_forceposition movemsg;
 
   if (!SpriteSystem::Get().GetSprite(id).active)
+  {
     return;
+  }
 
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(id);
 
@@ -107,8 +114,9 @@ void moveplayer(const std::uint8_t id, float x, float y)
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     if (sprite.player->controlmethod == human)
-      GetServerNetwork()->SendData(&movemsg, sizeof(movemsg), sprite.player->peer,
-                                   true);
+    {
+      GetServerNetwork()->SendData(&movemsg, sizeof(movemsg), sprite.player->peer, true);
+    }
   }
 }
 
@@ -117,7 +125,9 @@ void modifyplayervelocity(const std::uint8_t id, float velx, float vely)
   tmsg_forcevelocity velmsg;
 
   if (!SpriteSystem::Get().GetSprite(id).active)
+  {
     return;
+  }
 
   auto &spriteVelocity = SpriteSystem::Get().GetVelocity(id);
 
@@ -132,8 +142,9 @@ void modifyplayervelocity(const std::uint8_t id, float velx, float vely)
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     if (sprite.player->controlmethod == human)
-      GetServerNetwork()->SendData(&velmsg, sizeof(velmsg), sprite.player->peer,
-                                   true);
+    {
+      GetServerNetwork()->SendData(&velmsg, sizeof(velmsg), sprite.player->peer, true);
+    }
   }
 }
 
@@ -152,9 +163,10 @@ void forwardclient(std::uint8_t id, const std::string &targetip, std::int32_t ta
 
   if ((SpriteSystem::Get().GetSprite(id).active) &&
       (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
+  {
     GetServerNetwork()->SendData(&joinservermsg, sizeof(joinservermsg),
-                                 SpriteSystem::Get().GetSprite(id).player->peer,
-                                 true);
+                                 SpriteSystem::Get().GetSprite(id).player->peer, true);
+  }
 }
 
 void playsound(std::uint8_t id, const std::string &name, float x, float y)
@@ -172,17 +184,21 @@ void playsound(std::uint8_t id, const std::string &name, float x, float y)
   if (id == 0)
   {
     for (id = 1; id <= max_players; id++)
+    {
       if ((SpriteSystem::Get().GetSprite(id).active) &&
           (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
+      {
         GetServerNetwork()->SendData(&playsoundmsg, sizeof(playsoundmsg),
-                                     SpriteSystem::Get().GetSprite(id).player->peer,
-                                     true);
+                                     SpriteSystem::Get().GetSprite(id).player->peer, true);
+      }
+    }
   }
   else if ((SpriteSystem::Get().GetSprite(id).active) &&
            (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
+  {
     GetServerNetwork()->SendData(&playsoundmsg, sizeof(playsoundmsg),
-                                 SpriteSystem::Get().GetSprite(id).player->peer,
-                                 true);
+                                 SpriteSystem::Get().GetSprite(id).player->peer, true);
+  }
 }
 
 void serverhandleclientfreecam(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
@@ -191,7 +207,9 @@ void serverhandleclientfreecam(tmsgheader* netmessage, std::int32_t size, Networ
   std::int32_t i;
 
   if (!verifypacket(sizeof(tmsg_clientfreecam), size, msgid_clientfreecam))
+  {
     return;
+  }
   freecammsg = pmsg_clientfreecam(netmessage);
   i = player->spritenum;
   SpriteSystem::Get().GetSprite(i).targetx = freecammsg->targetpos.x;

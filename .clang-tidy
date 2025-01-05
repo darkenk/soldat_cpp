@@ -1,5 +1,5 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*,-*,readability-*,portability-*,-readability-identifier-length,-readability-uppercase-literal-suffix,-readability-avoid-unconditional-preprocessor-if'
+Checks:          'clang-diagnostic-*,clang-analyzer-*,-*,readability-*,portability-*,modernize-*,-readability-identifier-length,-readability-uppercase-literal-suffix,-readability-avoid-unconditional-preprocessor-if,-readability-magic-numbers,-readability-function-cognitive-complexity'
 WarningsAsErrors: ''
 HeaderFileExtensions:
   - ''
@@ -42,7 +42,7 @@ CheckOptions:
   readability-else-after-return.WarnOnConditionVariables: 'true'
   readability-else-after-return.WarnOnUnfixable: 'true'
   readability-function-cognitive-complexity.DescribeBasicIncrements: 'true'
-  readability-function-cognitive-complexity.IgnoreMacros: 'false'
+  readability-function-cognitive-complexity.IgnoreMacros: 'true'
   readability-function-cognitive-complexity.Threshold: '25'
   readability-function-size.BranchThreshold: none
   readability-function-size.LineThreshold: none

@@ -17,7 +17,7 @@ void DefaultShowNotImplementedMessage([[maybe_unused]] const std::string_view ar
   if (logger == nullptr)
   {
     logger = spdlog::stdout_color_mt(LOG_NI, spdlog::color_mode::always);
-    auto sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>(logger->sinks()[0].get());
+    auto *sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>(logger->sinks()[0].get());
     sink->set_color(spdlog::level::warn, sink->yellow);
   }
   if (msg.empty())

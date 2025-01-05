@@ -76,20 +76,23 @@ void tanimation::loadfromfile(TStream &stream)
   currframe = 1;
 }
 
-std::int32_t tanimation::checksum()
+auto tanimation::checksum() -> std::int32_t
 {
   float chk;
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
 
   chk = 0.5;
 
   for (i = 1; i <= numframes; i++)
+  {
     for (j = 1; j <= 20; j++)
     {
       chk = chk + frames[i].pos[j].x;
       chk = chk + frames[i].pos[j].y;
       chk = chk + frames[i].pos[j].z;
     }
+  }
 
   return std::truncf(chk);
 }

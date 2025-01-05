@@ -17,17 +17,20 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
 {
   tvector2 a;
 
-  if (!verifypacket(sizeof(tmsg_serverthingsnapshot), netmessage->size,
-                    msgid_serverthingsnapshot))
+  if (!verifypacket(sizeof(tmsg_serverthingsnapshot), netmessage->size, msgid_serverthingsnapshot))
+  {
     return;
+  }
 
-  tmsg_serverthingsnapshot *thingsnap = pmsg_serverthingsnapshot(netmessage->packet);
+  auto *thingsnap = pmsg_serverthingsnapshot(netmessage->packet);
 
   // assign received Thing info to thing
   const auto i = thingsnap->num;
 
   if ((thingsnap->num < 1) || (thingsnap->num > max_things))
+  {
     return;
+  }
 
   a.x = thingsnap->pos[1].x;
   a.y = thingsnap->pos[1].y;
@@ -75,8 +78,10 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
   }
 
   if ((thing.holdingsprite == 0) && (thing.style != object_stationary_gun))
+  {
     if ((distance(thing.skeleton.pos[1], thingsnap->pos[1]) > 10) &&
         (distance(thing.skeleton.pos[2], thingsnap->pos[2]) > 10))
+    {
       for (auto d = 1; d <= 4; d++)
       {
         [[deprecated("maybe change d scope from 1 to 0?")]] auto dminus1 = d - 1;
@@ -85,11 +90,14 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
         thing.skeleton.oldpos[d].x = thingsnap->oldpos[dminus1].x;
         thing.skeleton.oldpos[d].y = thingsnap->oldpos[dminus1].y;
       }
+    }
+  }
 
   if ((thing.holdingsprite > 0) && (thing.style != object_parachute))
   {
     auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(thing.holdingsprite);
     if (distance(thing.skeleton.pos[1], spritePartsPos) > 330)
+    {
       for (auto d = 1; d <= 4; d++)
       {
         [[deprecated("maybe change d scope from 1 to 0?")]] auto dminus1 = d - 1;
@@ -98,12 +106,15 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
         thing.skeleton.oldpos[d].x = thingsnap->oldpos[dminus1].x;
         thing.skeleton.oldpos[d].y = thingsnap->oldpos[dminus1].y;
       }
+    }
   }
 
   thing.statictype = false;
 
   if (thing.style == object_rambo_bow)
+  {
     gamethingtarget = i;
+  }
 }
 
 void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
@@ -116,7 +127,9 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
 
   if (!verifypacket(sizeof(tmsg_serverthingmustsnapshot), netmessage->size,
                     msgid_serverthingmustsnapshot))
+  {
     return;
+  }
 
   thingmustsnap = pmsg_serverthingmustsnapshot(netmessage->packet);
 
@@ -124,15 +137,21 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
   const auto i = thingmustsnap->num;
 
   if ((i < 1) || (i > max_things))
+  {
     return;
+  }
 
   auto &things = GS::GetThingSystem().GetThings();
   auto &thing = things[i];
 
   if ((thingmustsnap->owner > 0) && (thingmustsnap->owner < max_sprites + 1))
+  {
     spritethingowner = &SpriteSystem::Get().GetSprite(thingmustsnap->owner);
+  }
   else
+  {
     spritethingowner = nullptr;
+  }
 
   if ((!thing.active) or (thing.style != thingmustsnap->style))
   {
@@ -200,9 +219,13 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
       if (weaponthing > -1)
       {
         if (spritethingowner->weapon.num == weaponthing)
+        {
           spritethingowner->applyweaponbynum(noweapon_num, 1);
+        }
         else if (spritethingowner->secondaryweapon.num == weaponthing)
+        {
           spritethingowner->applyweaponbynum(noweapon_num, 2);
+        }
         if ((spritethingowner->num == mysprite) && !spritethingowner->deadmeat)
         {
           clientspritesnapshot();
@@ -238,6 +261,7 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
   }
 
   if ((thing.holdingsprite == 0) && (!(thing.style == object_stationary_gun)))
+  {
     for (d = 1; d <= 4; d++)
     {
       [[deprecated("indexing")]] auto dminus1 = d - 1;
@@ -246,17 +270,21 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
       thing.skeleton.oldpos[d].x = thingmustsnap->oldpos[dminus1].x;
       thing.skeleton.oldpos[d].y = thingmustsnap->oldpos[dminus1].y;
     }
+  }
 
   thing.timeout = thingmustsnap->timeout;
   thing.statictype = false;
   if (thing.style == object_rambo_bow)
+  {
     gamethingtarget = i;
+  }
 }
 
 void clienthandlethingtaken(NetworkContext *netmessage)
 {
   tmsg_serverthingtaken *thingtakensnap;
-  std::int32_t j, n;
+  std::int32_t j;
+  std::int32_t n;
   tmsg_requestthing requestthingmsg;
   std::uint8_t weaponindex;
   std::uint32_t capcolor = capture_message_color;
@@ -264,7 +292,9 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   std::string smallcaptext;
 
   if (!verifypacket(sizeof(tmsg_serverthingtaken), netmessage->size, msgid_thingtaken))
+  {
     return;
+  }
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
@@ -272,19 +302,27 @@ void clienthandlethingtaken(NetworkContext *netmessage)
 
   const auto i = thingtakensnap->num;
   if ((i < 1) || (i > max_things))
+  {
     return;
+  }
 
   auto &things = GS::GetThingSystem().GetThings();
   auto &thing = things[i];
 
   if (thingtakensnap->who == 255)
+  {
     thing.kill();
+  }
 
   if ((thingtakensnap->who < 1) || (thingtakensnap->who > max_sprites))
+  {
     return;
+  }
 
   if (!SpriteSystem::Get().GetSprite(thingtakensnap->who).active)
+  {
     return;
+  }
 
   if ((!thing.active) && ((thingtakensnap->style == object_stationary_gun) ||
                           (thingtakensnap->style < object_ussocom)))
@@ -301,9 +339,13 @@ void clienthandlethingtaken(NetworkContext *netmessage)
 
   j = thingtakensnap->who;
   if (SpriteSystem::Get().GetSprite(j).weapon.num == noweapon_num)
+  {
     n = 1;
+  }
   else
+  {
     n = 2;
+  }
 
   switch (thing.style)
   {
@@ -404,7 +446,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
       break;
     }
 
-    if (smallcaptext != "")
+    if (!smallcaptext.empty())
     {
       bigmessage(bigcaptext, capturemessagewait, capcolor);
       NotImplemented("network");
@@ -431,7 +473,9 @@ void clienthandlethingtaken(NetworkContext *netmessage)
       .GetSprite(thingtakensnap->who)
       .applyweaponbynum(guns[weaponindex].num, n, thingtakensnap->ammocount);
     if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+    {
       clientspritesnapshot();
+    }
   }
   break;
   case object_rambo_bow: {
@@ -445,14 +489,20 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     gamethingtarget = 0;
 
     if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+    {
       clientspritesnapshot();
+    }
 
     if (thingtakensnap->who == mysprite)
+    {
       bigmessage(_("You got the Bow!"), capturemessagewait, capture_message_color);
+    }
     else
+    {
       bigmessage(wideformat(_("{} got the Bow!"),
                             SpriteSystem::Get().GetSprite(thingtakensnap->who).player->name),
                  capturemessagewait, capture_message_color);
+    }
   }
   break;
   case object_medical_kit: {
@@ -481,7 +531,9 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     {
       bigmessage(_("Flame God Mode!"), capturemessagewait, bonus_message_color);
       if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+      {
         clientspritesnapshot();
+      }
     }
     thing.kill();
   }
@@ -492,7 +544,9 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     SpriteSystem::Get().GetSprite(thingtakensnap->who).bonustime = predatorbonustime;
     SpriteSystem::Get().GetSprite(thingtakensnap->who).bonusstyle = bonus_predator;
     if (thingtakensnap->who == mysprite)
+    {
       bigmessage(_("Predator Mode!"), capturemessagewait, bonus_message_color);
+    }
     thing.kill();
   }
   break;
@@ -500,7 +554,9 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     playsound(SfxEffect::vesttake, thing.skeleton.pos[1]);
     SpriteSystem::Get().GetSprite(thingtakensnap->who).vest = defaultvest;
     if (thingtakensnap->who == mysprite)
+    {
       bigmessage(_("Bulletproof Vest!"), capturemessagewait, capture_message_color);
+    }
     thing.kill();
   }
   break;
@@ -509,7 +565,9 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     SpriteSystem::Get().GetSprite(thingtakensnap->who).bonusstyle = bonus_berserker;
     SpriteSystem::Get().GetSprite(thingtakensnap->who).bonustime = berserkerbonustime;
     if (thingtakensnap->who == mysprite)
+    {
       bigmessage(_("Berserker Mode!"), capturemessagewait, bonus_message_color);
+    }
     thing.kill();
   }
   break;
@@ -518,7 +576,9 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     SpriteSystem::Get().GetSprite(thingtakensnap->who).SetThirdWeapon(guns[clustergrenade]);
     SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon.ammocount = cluster_grenades;
     if (thingtakensnap->who == mysprite)
+    {
       bigmessage(_("Cluster Grenades!"), capturemessagewait, capture_message_color);
+    }
     thing.kill();
   }
   break;
@@ -532,7 +592,9 @@ void clienthandlethingtaken(NetworkContext *netmessage)
       .GetSprite(thingtakensnap->who)
       .applyweaponbynum(guns[weaponindex].num, n, thingtakensnap->ammocount);
     if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+    {
       clientspritesnapshot();
+    }
   }
   break;
   case object_stationary_gun: {
