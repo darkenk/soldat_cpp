@@ -43,13 +43,13 @@ struct TBinPack final
 static tbprect ScoreRect(TBinPack &bp, std::int32_t w, std::int32_t h, std::int32_t &besty,
                          std::int32_t &bestx);
 
-static void PlaceRect(TBinPack &bp, const tbprect rect);
+static void PlaceRect(TBinPack &bp, const tbprect& rect);
 
-static bool SplitFreeRect(TBinPack &bp, tbprect freerect, const tbprect usedrect);
+static bool SplitFreeRect(TBinPack &bp, tbprect freerect, const tbprect& usedrect);
 
 static void PruneFreeList(TBinPack &bp);
 
-static bool IsContainedIn(const tbprect a, tbprect b);
+static bool IsContainedIn(const tbprect& a, const tbprect& b);
 
 // PackRects
 
@@ -175,7 +175,7 @@ tbprect ScoreRect(TBinPack &bp, std::int32_t w, std::int32_t h, std::int32_t &be
   return bestrect;
 }
 
-void PlaceRect(TBinPack &bp, const tbprect rect)
+void PlaceRect(TBinPack &bp, const tbprect& rect)
 {
   std::int32_t i, n;
 
@@ -198,7 +198,7 @@ void PlaceRect(TBinPack &bp, const tbprect rect)
   bp.used.Push(rect);
 }
 
-bool SplitFreeRect(TBinPack &bp, tbprect freerect, const tbprect usedrect)
+bool SplitFreeRect(TBinPack &bp, tbprect freerect, const tbprect& usedrect)
 {
   tbprect rect;
 
@@ -282,7 +282,7 @@ void PruneFreeList(TBinPack &bp)
   }
 }
 
-bool IsContainedIn(const tbprect a, tbprect b)
+bool IsContainedIn(const tbprect& a, const tbprect& b)
 {
   return (a.x >= b.x) && (a.y >= b.y) && ((a.x + a.w) <= (b.x + b.w)) &&
          ((a.y + a.h) <= (b.y + b.h));

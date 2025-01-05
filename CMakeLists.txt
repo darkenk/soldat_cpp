@@ -38,7 +38,7 @@ ExternalProject_Add(doctest
   PREFIX ${CMAKE_BINARY_DIR}/third_party/doctest
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/doctest
 )
-include_directories(${DOCTEST_INCLUDE_DIR})
+include_directories(SYSTEM ${DOCTEST_INCLUDE_DIR})
 
 ExternalProject_Get_Property(doctest source_dir)
 set(DOCTEST_INCLUDE_DIR ${source_dir}/doctest CACHE INTERNAL "Path to include folder for doctest")
@@ -98,10 +98,7 @@ set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/imgui-1.87)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace")
-#set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
-#set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 #add_definitions(-DTRACY_ENABLE)
 
 # Add Library
@@ -129,6 +126,7 @@ find_package(spdlog REQUIRED)
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 option(ENABLE_MOLD "Enable MOLD Linker" OFF)
 option(ENABLE_COVERAGE "Enable Code Coverage" OFF)
+option(ENABLE_CLANG_TIDY "Enable Clang Tidy" OFF)
 
 if (ENABLE_ASAN)
   # Add compile options for AddressSanitizer (ASan)
@@ -158,10 +156,17 @@ if (ENABLE_COVERAGE)
   add_compile_options(
     "$<$<CXX_COMPILER_ID:Clang>:-coverage>"
     "$<$<CXX_COMPILER_ID:GNU>:-coverage>"
+    "$<$<CXX_COMPILER_ID:GNU>:-fprofile-abs-path>"
   )
   add_link_options(
     "$<$<CXX_COMPILER_ID:Clang>:-coverage>"
     "$<$<CXX_COMPILER_ID:GNU>:-coverage>"
+  )
+endif()
+
+if (ENABLE_CLANG_TIDY)
+  set(CMAKE_CXX_CLANG_TIDY clang-tidy
+    #--config-file=${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy
   )
 endif()
 

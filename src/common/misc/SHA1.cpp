@@ -19,13 +19,13 @@
                          -- Zlatko Michailov <zlatko@michailov.org>
                              */
 #include "SHA1.hpp"
-
+// NOLINTBEGIN
 namespace
 {
-static const size_t BLOCK_INTS = 16; /* number of 32bit integers per SHA1 block */
-static const size_t BLOCK_BYTES = BLOCK_INTS * 4;
+const size_t BLOCK_INTS = 16; /* number of 32bit integers per SHA1 block */
+const size_t BLOCK_BYTES = BLOCK_INTS * 4;
 
-inline static void reset(uint32_t digest[], std::string &buffer, uint64_t &transforms)
+inline void reset(uint32_t digest[], std::string &buffer, uint64_t &transforms)
 {
   /* SHA1 initialization constants */
   digest[0] = 0x67452301;
@@ -39,12 +39,12 @@ inline static void reset(uint32_t digest[], std::string &buffer, uint64_t &trans
   transforms = 0;
 }
 
-inline static uint32_t rol(const uint32_t value, const size_t bits)
+inline uint32_t rol(const uint32_t value, const size_t bits)
 {
   return (value << bits) | (value >> (32 - bits));
 }
 
-inline static uint32_t blk(const uint32_t block[BLOCK_INTS], const size_t i)
+inline uint32_t blk(const uint32_t block[BLOCK_INTS], const size_t i)
 {
   return rol(block[(i + 13) & 15] ^ block[(i + 8) & 15] ^ block[(i + 2) & 15] ^ block[i], 1);
 }
@@ -53,14 +53,14 @@ inline static uint32_t blk(const uint32_t block[BLOCK_INTS], const size_t i)
  * (R0+R1), R2, R3, R4 are the different operations used in SHA1
  */
 
-inline static void R0(const uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w,
+inline void R0(const uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w,
                       const uint32_t x, const uint32_t y, uint32_t &z, const size_t i)
 {
   z += ((w & (x ^ y)) ^ y) + block[i] + 0x5a827999 + rol(v, 5);
   w = rol(w, 30);
 }
 
-inline static void R1(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w, const uint32_t x,
+inline void R1(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w, const uint32_t x,
                       const uint32_t y, uint32_t &z, const size_t i)
 {
   block[i] = blk(block, i);
@@ -68,7 +68,7 @@ inline static void R1(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w,
   w = rol(w, 30);
 }
 
-inline static void R2(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w, const uint32_t x,
+inline void R2(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w, const uint32_t x,
                       const uint32_t y, uint32_t &z, const size_t i)
 {
   block[i] = blk(block, i);
@@ -76,7 +76,7 @@ inline static void R2(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w,
   w = rol(w, 30);
 }
 
-inline static void R3(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w, const uint32_t x,
+inline void R3(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w, const uint32_t x,
                       const uint32_t y, uint32_t &z, const size_t i)
 {
   block[i] = blk(block, i);
@@ -84,7 +84,7 @@ inline static void R3(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w,
   w = rol(w, 30);
 }
 
-inline static void R4(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w, const uint32_t x,
+inline void R4(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w, const uint32_t x,
                       const uint32_t y, uint32_t &z, const size_t i)
 {
   block[i] = blk(block, i);
@@ -96,7 +96,7 @@ inline static void R4(uint32_t block[BLOCK_INTS], const uint32_t v, uint32_t &w,
  * Hash a single 512-bit block. This is the core of the algorithm.
  */
 
-inline static void transform(uint32_t digest[], uint32_t block[BLOCK_INTS], uint64_t &transforms)
+inline void transform(uint32_t digest[], uint32_t block[BLOCK_INTS], uint64_t &transforms)
 {
   /* Copy digest[] to working vars */
   uint32_t a = digest[0];
@@ -198,7 +198,7 @@ inline static void transform(uint32_t digest[], uint32_t block[BLOCK_INTS], uint
   transforms++;
 }
 
-inline static void buffer_to_block(const std::string &buffer, uint32_t block[BLOCK_INTS])
+inline void buffer_to_block(const std::string &buffer, uint32_t block[BLOCK_INTS])
 {
   /* Convert the std::string (byte buffer) to a uint32_t array (MSB) */
   for (size_t i = 0; i < BLOCK_INTS; i++)
@@ -292,3 +292,4 @@ std::array<std::uint32_t, 5> SHA1::from_file(const std::string &filename)
   checksum.update(stream);
   return checksum.final();
 }
+// NOLINTEND

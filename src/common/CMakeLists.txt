@@ -37,7 +37,7 @@ target_link_libraries(CommonLib
     GameNetworkingSockets::GameNetworkingSockets_s
 )
 
-target_include_directories(CommonLib PRIVATE
+target_include_directories(CommonLib SYSTEM PRIVATE
     ${TRACY_INCLUDE_DIR}
     ${PHYSFS_INC}
     ${DOCTEST_INCLUDE_DIR}

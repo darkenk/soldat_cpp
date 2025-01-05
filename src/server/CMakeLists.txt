@@ -40,6 +40,8 @@ target_compile_definitions(SoldatServerLib PRIVATE SERVER=1)
 target_include_directories(SoldatServerLib PRIVATE
     ./config
     ../
+)
+target_include_directories(SoldatServerLib SYSTEM PRIVATE
     ${PHYSFS_INC}
     ${GLAD_INC}
     ${STB_INCLUDE_DIR}

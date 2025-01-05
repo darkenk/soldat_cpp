@@ -905,7 +905,7 @@ TEST_SUITE("GostekGraphics")
     VerifyGostSkprites(gosteksprites);
   }
 }
-
+// NOLINTBEGIN
 template <typename T>
 void GostekGraphicsFixture::VerifyGostSkprites(const T &gosteksprites)
 {
@@ -2486,3 +2486,5 @@ void GostekGraphicsFixture::VerifyGostekBase(const tgostekspriteset &gostekbase)
   CHECK_FALSE(gostekbase.contains(129));
   CHECK(gostekbase.contains(130));
 }
+
+// NOLINTEND

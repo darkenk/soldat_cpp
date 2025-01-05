@@ -56,6 +56,9 @@ add_library(SoldatClientLib OBJECT ${SRC} ${SHARED_SRC})
 target_include_directories(SoldatClientLib PRIVATE
     ./config
     ../
+)
+
+target_include_directories(SoldatClientLib SYSTEM PRIVATE
     ${PHYSFS_INC}
     ${GLAD_INC}
     ${STB_INCLUDE_DIR}

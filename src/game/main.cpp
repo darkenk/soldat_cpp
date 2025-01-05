@@ -30,12 +30,12 @@ int main(int argc, const char *argv[])
   RunTests(argc, argv);
   GlobalSystems<Config::CLIENT_MODULE>::Init();
   GlobalSystems<Config::SERVER_MODULE>::Init();
-  std::thread t1([=]() { RunServer(argc, argv); });
-  SetThreadName(t1, "Server");
+  std::thread serverThread([=]() { RunServer(argc, argv); });
+  SetThreadName(serverThread, "Server");
   SetCurrentThreadName("Client");
   startgame(argc, argv);
   ShutdownServer();
-  t1.join();
+  serverThread.join();
   GlobalSystems<Config::SERVER_MODULE>::Deinit();
   GlobalSystems<Config::CLIENT_MODULE>::Deinit();
   return 0;

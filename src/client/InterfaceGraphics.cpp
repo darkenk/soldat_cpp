@@ -27,6 +27,9 @@
 
 using string = std::string;
 
+// TODO: fix that later
+// NOLINTBEGIN(readability-magic-numbers)
+
 // Chat stuff
 PascalArray<std::string, 1, max_sprites> chatmessage;
 PascalArray<bool, 1, max_sprites> chatteam;
@@ -136,7 +139,7 @@ void loadinterfacearchives(const std::string &path, bool firstonly)
     return;
   }
 
-  for (auto &f : std::filesystem::directory_iterator(path))
+  for (const auto &f : std::filesystem::directory_iterator(path))
   {
     if (f.path().extension() != ".sint")
     {
@@ -144,7 +147,7 @@ void loadinterfacearchives(const std::string &path, bool firstonly)
     }
     std::string name = f.path().stem();
     if (PHYSFS_mount((pchar)(path + f.path().filename().c_str()),
-                     (pchar)(string("custom-interfaces/") + name + '/'), false))
+                     (pchar)(string("custom-interfaces/") + name + '/'), 0) != 0)
     {
       LogDebugG("Mounted interface: {}", f.path().c_str());
       if (firstonly)
@@ -297,7 +300,7 @@ bool loadinterfacedata(const std::string &interfacename)
 
   addrfile = fs.ReadFile(moddir + custom_interface_dir + interfacename + "/setup.sif");
 
-  addrrec = *(pinterface)(&addrfile[0]);
+  addrrec = *(pinterface)(addrfile.data());
   int_ = addrrec;
 
   if (fs.Exists(moddir + custom_interface_dir + interfacename + "/health.bmp"))
@@ -369,19 +372,16 @@ bool isinteractiveinterface()
          ((camerafollowsprite > 0) && (CVar::sv_advancedspectator));
 }
 
-float pixelalignx(float x)
-{
-  return pixelsize.x * floor((float)(x) / pixelsize.x);
-}
+float pixelalignx(float x) { return pixelsize.x * floor(x / pixelsize.x); }
 
-float pixelaligny(float y)
-{
-  return pixelsize.y * floor((float)(y) / pixelsize.y);
-}
+float pixelaligny(float y) { return pixelsize.y * floor(y / pixelsize.y); }
 
 void drawline(float x, float y, float w, tgfxcolor color)
 {
-  float x0, y0, x1, y1;
+  float x0;
+  float y0;
+  float x1;
+  float y1;
 
   x0 = pixelalignx(x);
   y0 = pixelaligny(y);
@@ -410,12 +410,16 @@ tvector2 tominimap(const tvector2 pos, float scale = 1)
 void renderbar(std::int32_t t, std::uint8_t postype, std::int32_t x, std::int32_t rx,
                std::int32_t y, std::int32_t ry, std::int32_t w, std::int32_t h, std::int32_t r,
                float p, bool leftalign = true)
+
 {
-  float px, py;
+  float px;
+  float py;
   tgfxrect rc;
 
   if (postype == textstyle)
+  {
     return;
+  }
 
   p = max(0.f, min(1.f, p));
   w = textures[t]->width;
@@ -466,12 +470,10 @@ void getweaponattribs(std::int32_t i, std::vector<tattr> &attrs)
   auto &curgun = GS::GetWeaponSystem().GetGuns()[i];
   auto &defgun = GS::GetWeaponSystem().GetDefaultGuns()[i];
 
-  attrs[0].cur = (float)(curgun.hitmultiply *
-                         (curgun.modifierlegs + curgun.modifierchest + curgun.modifierhead)) /
-                 3;
-  attrs[0].def = (float)(defgun.hitmultiply *
-                         (defgun.modifierlegs + defgun.modifierchest + defgun.modifierhead)) /
-                 3;
+  attrs[0].cur =
+    (curgun.hitmultiply * (curgun.modifierlegs + curgun.modifierchest + curgun.modifierhead)) / 3;
+  attrs[0].def =
+    (defgun.hitmultiply * (defgun.modifierlegs + defgun.modifierchest + defgun.modifierhead)) / 3;
   attrs[0].des = ("Damage");
 
   attrs[1].cur = curgun.ammo;
@@ -526,14 +528,17 @@ void getweaponattribs(std::int32_t i, std::vector<tattr> &attrs)
 std::string getweaponattribdesc(tattr &attr)
 {
   return string("    |-") + attr.des + " : " +
-         (attr.def != 0 ? inttostr(round((float)(attr.cur) / attr.def * 100)) + "%" : "NEW") +
-         " (" + formatfloat("0.####", attr.cur) + '/' + formatfloat("0.####", attr.def) + ')';
+         (attr.def != 0 ? inttostr(round(attr.cur / attr.def * 100)) + "%" : "NEW") + " (" +
+         formatfloat("0.####", attr.cur) + '/' + formatfloat("0.####", attr.def) + ')';
 }
 
 void renderweaponmenutext()
 {
-  std::int32_t i, cursoronindex;
-  float x, y, tipy;
+  std::int32_t i;
+  std::int32_t cursoronindex;
+  float x;
+  float y;
+  float tipy;
   struct tgamebutton *btn;
   std::vector<tattr> attrs{13};
   std::string str1;
@@ -565,7 +570,9 @@ void renderweaponmenutext()
     if (btn->active)
     {
       if (btn == hoveredbutton)
+      {
         cursoronindex = i;
+      }
 
       x = btn->x1 + 85;
       y = btn->y1 + (float)((btn->y2 - btn->y1)) / 2 - 2;
@@ -576,9 +583,13 @@ void renderweaponmenutext()
           ((i + 1) == 11 + CVar::cl_player_secwep))
       {
         if (btn == hoveredbutton)
+        {
           gfxtextcolor(rgba(85, 105, 55, 230));
+        }
         else
+        {
           gfxtextcolor(rgba(55, 165, 55, 230));
+        }
       }
       else if (btn == hoveredbutton)
       {
@@ -614,7 +625,9 @@ void renderweaponmenutext()
       for (i = low(attrs); i <= high(attrs); i++)
       {
         if (attrs[i].cur != attrs[i].def)
+        {
           str1 = str1 + getweaponattribdesc(attrs[i]);
+        }
 
         str1 = str1 + '\12';
       }
@@ -651,14 +664,19 @@ void renderweaponmenutext()
 void renderescmenutext(float w, float h)
 {
   std::int32_t i;
-  float x, y, sx, sy, dx, dy;
+  float x;
+  float y;
+  float sx;
+  float sy;
+  float dx;
+  float dy;
   struct tgamebutton *btn;
 
   sx = (float)(escmenu->w) / background_width;
   sy = (float)(escmenu->h) / background_width;
 
-  dx = ((float)(w) / 2 - ((float)(escmenu->w) / 2)) - escmenu->x;
-  dy = ((float)(h) / 2 - ((float)(escmenu->h) / 2)) - escmenu->y;
+  dx = (w / 2 - ((float)(escmenu->w) / 2)) - escmenu->x;
+  dy = (h / 2 - ((float)(escmenu->h) / 2)) - escmenu->y;
 
   gfxdrawsprite(textures[GFX::INTERFACE_BACK], escmenu->x + dx, escmenu->y + dy, sx, sy,
                 rgba(0xffffff, CVar::ui_status_transparency * 0.56));
@@ -689,7 +707,7 @@ void renderescmenutext(float w, float h)
     {
       x = btn->x1 + dx + ord(btn == hoveredbutton) + 10;
       y = btn->y1 + dy - ord(btn == hoveredbutton) + (float)((btn->y2 - btn->y1)) / 2 -
-          (float)(rectheight(gfxtextmetrics(btn->caption))) / 2;
+          rectheight(gfxtextmetrics(btn->caption)) / 2;
 
       gfxdrawtext(x, y);
     }
@@ -700,14 +718,19 @@ void renderteammenutext()
 {
   std::int32_t i;
   std::uint8_t alpha;
-  float x, y;
+  float x;
+  float y;
   struct tgamebutton *btn;
   std::array<std::array<tgfxcolor, 2>, 6> colors;
 
   if (fragsmenushow || statsmenushow)
+  {
     alpha = 80;
+  }
   else
+  {
     alpha = 255;
+  }
 
   colors[0][0] = rgba(255, 255, 255, alpha); // DM, etc.
   colors[0][1] = rgba(255, 255, 255, 250);
@@ -734,22 +757,28 @@ void renderteammenutext()
     if (btn->active)
     {
       if (i == 2)
+      {
         gfxtextshadow(1, 1, rgba(0x333333));
+      }
       else
+      {
         gfxtextshadow(1, 1, rgba(0));
+      }
 
       gfxtextcolor(colors[i][ord(btn == hoveredbutton)]);
 
       x = btn->x1 + 10 + ord(btn == hoveredbutton);
       y = btn->y1 - ord(btn == hoveredbutton) + (float)((btn->y2 - btn->y1)) / 2 -
-          (float)(rectheight(gfxtextmetrics(btn->caption))) / 2;
+          rectheight(gfxtextmetrics(btn->caption)) / 2;
 
       gfxdrawtext(x, y);
 
       x = 269 + ord(btn == hoveredbutton);
 
       if ((i > 0) && (i < 5))
+      {
         gfxdrawtext(string("(") + inttostr(GS::GetGame().GetPlayersTeamNum(i)) + ')', x, y);
+      }
     }
   }
 }
@@ -757,7 +786,8 @@ void renderteammenutext()
 void renderkickwindowtext()
 {
   std::int32_t i;
-  float x, y;
+  float x;
+  float y;
   struct tgamebutton *btn;
 
   gfxdrawsprite(textures[GFX::INTERFACE_BACK], kickmenu->x, kickmenu->y,
@@ -772,7 +802,7 @@ void renderkickwindowtext()
     auto &sprite = SpriteSystem::Get().GetSprite(kickmenuindex);
     if (sprite.IsActive())
     {
-      btn = &kickmenu->button[0];
+      btn = kickmenu->button.data();
       gfxtextcolor(argb(sprite.player->shirtcolor));
       gfxdrawtext(sprite.player->name, btn->x1, btn->y1 - 15);
     }
@@ -788,7 +818,7 @@ void renderkickwindowtext()
     {
       x = btn->x1 + 10 + std::int32_t(btn == hoveredbutton);
       y = btn->y1 + (float)((btn->y2 - btn->y1)) / 2 - std::int32_t(btn == hoveredbutton) -
-          (float)(rectheight(gfxtextmetrics(btn->caption))) / 2;
+          rectheight(gfxtextmetrics(btn->caption)) / 2;
 
       gfxdrawtext(x, y);
     }
@@ -798,7 +828,8 @@ void renderkickwindowtext()
 void rendermapwindowtext()
 {
   std::int32_t i;
-  float x, y;
+  float x;
+  float y;
   std::string str1;
   struct tgamebutton *btn;
 
@@ -813,7 +844,7 @@ void rendermapwindowtext()
 
   if (mapmenuindex > -1)
   {
-    btn = &mapmenu->button[0];
+    btn = mapmenu->button.data();
     gfxtextcolor(rgba(135, 235, 135, 230));
     gfxdrawtext(str1, btn->x1, btn->y1 - 15);
   }
@@ -828,7 +859,7 @@ void rendermapwindowtext()
     {
       x = btn->x1 + 10 + std::int32_t(btn == hoveredbutton);
       y = btn->y1 + (float)((btn->y2 - btn->y1)) / 2 - std::int32_t(btn == hoveredbutton) -
-          (float)(rectheight(gfxtextmetrics(btn->caption))) / 2;
+          rectheight(gfxtextmetrics(btn->caption)) / 2;
 
       gfxdrawtext(x, y);
     }
@@ -838,26 +869,39 @@ void rendermapwindowtext()
 void rendergamemenutexts(float w, float h)
 {
   if (limbomenu->active)
+  {
     renderweaponmenutext();
+  }
 
   if (escmenu->active)
+  {
     renderescmenutext(w, h);
+  }
 
   if (teammenu->active)
+  {
     renderteammenutext();
+  }
 
   if (kickmenu->active)
+  {
     renderkickwindowtext();
+  }
 
   if (mapmenu->active)
+  {
     rendermapwindowtext();
+  }
 }
 
 void renderplayerinterfacetexts(std::int32_t playerindex)
 {
   tsprite *me;
-  std::int32_t i, pos;
-  float x, y, t;
+  std::int32_t i;
+  std::int32_t pos;
+  float x;
+  float y;
+  float t;
   std::string str1;
 
   me = &SpriteSystem::Get().GetSprite(playerindex);
@@ -875,7 +919,7 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
       x = relinfo.healthbar_rel_x * _iscala.x + (int_.healthbar_x - relinfo.healthbar_rel_x);
       y = relinfo.healthbar_rel_y * _iscala.y + (int_.healthbar_y - relinfo.healthbar_rel_y);
 
-      t = (float)(me->GetHealth()) / GS::GetGame().GetStarthealth();
+      t = me->GetHealth() / GS::GetGame().GetStarthealth();
       gfxdrawtext(inttostr(trunc(t * 100)) + '%', x, y);
     }
 
@@ -906,7 +950,7 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
       x = relinfo.healthbar_rel_x * _iscala.x + (int_.vestbar_x - relinfo.healthbar_rel_x);
       y = relinfo.healthbar_rel_y * _iscala.y + (int_.vestbar_y - relinfo.healthbar_rel_y);
 
-      t = (float)(me->vest) / defaultvest;
+      t = me->vest / defaultvest;
       gfxdrawtext(inttostr(trunc(t * 100)) + '%', x, y);
     }
 
@@ -932,7 +976,9 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
         gfxdrawtext(x - rectwidth(gfxtextmetrics((inttostr(me->weapon.ammocount)))), y);
       }
       else
+      {
         gfxdrawtext(inttostr(me->weapon.ammocount), x, y);
+      }
     }
 
     // weapon
@@ -946,9 +992,13 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
       gfxtextcolor(rgba(255, 245, 177, int_.alpha));
 
       if (intalign.weapon == 1)
+      {
         gfxdrawtext(x - rectwidth(gfxtextmetrics((gundisplayname[me->weapon.num]))), y);
+      }
       else
+      {
         gfxdrawtext(gundisplayname[me->weapon.num], x, y);
+      }
     }
   } // not DeadMeat
 
@@ -1015,7 +1065,7 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
     break;
   }
 
-  if (str1 != "")
+  if (!str1.empty())
   {
     str1 = str1 + " - " + (floattostrf((float)(me->bonustime) / 60, fffixed, 7, 1));
 
@@ -1027,8 +1077,11 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
 
 void renderteamscoretexts()
 {
-  std::int32_t i, teamcount, spacing;
-  float x, y;
+  std::int32_t i;
+  std::int32_t teamcount;
+  std::int32_t spacing;
+  float x;
+  float y;
 
   setfontstyle(font_menu);
 
@@ -1126,7 +1179,8 @@ void renderendgametexts(float fragmenubottom)
 
 void renderweaponstatstexts()
 {
-  std::int32_t i, j;
+  std::int32_t i;
+  std::int32_t j;
   struct tweaponstat *stat;
 
   setfontstyle(font_small);
@@ -1172,8 +1226,14 @@ void renderweaponstatstexts()
 void renderfragsmenutexts(float fragmenubottom)
 {
   tgfxcolor color;
-  float x, y, py;
-  std::int32_t i, j, k, z, nextitemstep;
+  float x;
+  float y;
+  float py;
+  std::int32_t i;
+  std::int32_t j;
+  std::int32_t k;
+  std::int32_t z;
+  std::int32_t nextitemstep;
   std::array<std::int32_t, 6> ids;
   std::array<std::int32_t, 6> totalteamkills;
   std::array<tvector2, 6> lines;
@@ -1196,11 +1256,17 @@ void renderfragsmenutexts(float fragmenubottom)
 
       i = iif(j < 6, j % 5, 5);
       if ((CVar::ui_hidespectators) && (i == 5))
+      {
         z = 0;
+      }
       else if (i == 5)
+      {
         z = GS::GetGame().GetSpectatorsNum();
+      }
       else
+      {
         z = GS::GetGame().GetTeamplayersnum(i);
+      }
 
       if (z > 0)
       {
@@ -1245,9 +1311,13 @@ void renderfragsmenutexts(float fragmenubottom)
 
   // columns
   if ((CVar::sv_gamemode == gamestyle_deathmatch) || (CVar::sv_gamemode == gamestyle_teammatch))
+  {
     str1 = ("Kills:");
+  }
   else
+  {
     str1 = ("Points:");
+  }
 
   j = iif(length(str1) > 7, 80, 0);
 
@@ -1280,8 +1350,7 @@ void renderfragsmenutexts(float fragmenubottom)
   // demo name
   if (GS::GetDemoRecorder().active())
   {
-    gfxtextcolor(
-      rgba(0, 128, 0, fabs(round(sin((float)(GS::GetGame().GetSinusCounter()) / 2) * 255))));
+    gfxtextcolor(rgba(0, 128, 0, fabs(round(sin(GS::GetGame().GetSinusCounter() / 2) * 255))));
     gfxdrawtext(GS::GetDemoRecorder().name(), x + 280, y + fragmenubottom - 10);
   }
 
@@ -1330,20 +1399,32 @@ void renderfragsmenutexts(float fragmenubottom)
     i = GS::GetGame().GetSortedPlayers(j).playernum;
 
     if (i <= 0)
+    {
       continue;
+    }
 
     if (CVar::ui_hidespectators && SpriteSystem::Get().GetSprite(i).isspectator())
+    {
       continue;
+    }
 
     if (SpriteSystem::Get().GetSprite(i).isspectator())
+    {
       k = 5;
+    }
     else if (GS::GetGame().isteamgame())
+    {
       k = SpriteSystem::Get().GetSprite(i).player->team;
+    }
 
     if (k == 5)
+    {
       gfxtextcolor(rgba(220, 50, 200, 113));
+    }
     else
+    {
       gfxtextcolor(rgba(SpriteSystem::Get().GetSprite(i).player->shirtcolor, 255));
+    }
 
     py = lines[k].y + 20 + fragsmenu_player_height * ids[k];
 
@@ -1352,13 +1433,17 @@ void renderfragsmenutexts(float fragmenubottom)
     gfxdrawtext(inttostr(SpriteSystem::Get().GetSprite(i).player->deaths), x + 394, py);
 
     if (SpriteSystem::Get().GetSprite(i).player->flags > 0)
+    {
       gfxdrawtext(string("x") + inttostr(SpriteSystem::Get().GetSprite(i).player->flags), x + 348,
                   py);
+    }
 
     if ((SpriteSystem::Get().GetSprite(i).player->jetcolor & 0xff000000) != color_transparency_bot)
+    {
       gfxdrawtext(inttostr(SpriteSystem::Get().GetSprite(i).player->realping), x + 534, py);
+    }
 
-    if ((chattext != "") && (chattext[1] == '/'))
+    if ((!chattext.empty()) && (chattext[1] == '/'))
     {
       gfxtextcolor(rgba(245, 255, 230, 155));
       gfxdrawtext(
@@ -1377,9 +1462,13 @@ void renderfragsmenutexts(float fragmenubottom)
       // see above ("team lines") to know what's up with this
       i = iif(j < 6, j % 5, 5);
       if (i == 5)
+      {
         z = GS::GetGame().GetSpectatorsNum();
+      }
       else
+      {
         z = GS::GetGame().GetTeamplayersnum(i);
+      }
 
       if (z > 0)
       {
@@ -1457,7 +1546,7 @@ void renderfragsmenutexts(float fragmenubottom)
 
 void renderconsoletexts(float w)
 {
-  auto *console = chattext != "" ? &GetBigConsole() : &GS::GetMainConsole();
+  auto *console = !chattext.empty() ? &GetBigConsole() : &GS::GetMainConsole();
 
   setfontstyle(font_small);
 
@@ -1468,12 +1557,16 @@ void renderconsoletexts(float w)
   if (fragsmenushow || statsmenushow or teammenu->active or
       ((console == &GetBigConsole()) && limbomenu->active) or
       ((console == &GS::GetMainConsole()) && escmenu->active && noobshow))
+  {
     alpha = 60;
+  }
 
   for (std::int32_t i = 1; i <= console->GetCount(); i++)
   {
-    if (console->GetTextMessage(i) == "")
+    if (console->GetTextMessage(i).empty())
+    {
       continue;
+    }
 
     gfxtextcolor(rgba(console->GetTextMessageColor(i), alpha));
 
@@ -1482,14 +1575,20 @@ void renderconsoletexts(float w)
       tiny = !tiny;
 
       if (tiny)
+      {
         setfontstyle(font_smallest);
+      }
       else
+      {
         setfontstyle(font_small);
+      }
 
       gfxdrawtext(console->GetTextMessage(i), 5, 1 + (i - 1) * l);
     }
     else
+    {
       gfxdrawtext(5, 1 + (i - 1) * l);
+    }
   }
 }
 
@@ -1504,28 +1603,40 @@ void renderkillconsoletexts(float w)
   if (w < 1024)
   {
     if (fragsmenushow || statsmenushow)
+    {
       alpha = 80;
+    }
 
     if (length(chattext) > 0)
+    {
       alpha = 180;
+    }
   }
 
   for (std::int32_t i = 1; i <= GetKillConsole().GetCount(); i++)
   {
-    if (GetKillConsole().GetTextMessage(i) == "")
+    if (GetKillConsole().GetTextMessage(i).empty())
+    {
       continue;
+    }
 
     if (GetKillConsole().GetNumMessage(i) > -255)
+    {
       dy = dy + killconsole_separate_height;
+    }
 
     if ((length(GetKillConsole().GetTextMessage(i)) > 14) != tiny)
     {
       tiny = !tiny;
 
       if (tiny)
+      {
         setfontstyle(font_smallest);
+      }
       else
+      {
         setfontstyle(font_weapons_menu);
+      }
     }
 
     float x = 595 * _iscala.x - rectwidth(gfxtextmetrics(GetKillConsole().GetTextMessage(i)));
@@ -1539,7 +1650,10 @@ void renderkillconsoletexts(float w)
 void renderchattexts()
 {
   std::int32_t i;
-  float x, y, dx, dy;
+  float x;
+  float y;
+  float dx;
+  float dy;
   bool hide;
   std::string str1;
 
@@ -1549,7 +1663,9 @@ void renderchattexts()
   for (i = 1; i <= max_sprites; i++)
   {
     if ((!SpriteSystem::Get().GetSprite(i).typing) && (chatdelay[i] <= 0))
+    {
       continue;
+    }
 
     hide =
       (CVar::sv_realisticmode) && (SpriteSystem::Get().GetSprite(i).visible == 0) and
@@ -1564,7 +1680,7 @@ void renderchattexts()
 
     if (SpriteSystem::Get().GetSprite(i).typing && !hide)
     {
-      dx = (float)(-rectwidth(gfxtextmetrics("..."))) / 2;
+      dx = (-rectwidth(gfxtextmetrics("..."))) / 2;
       NotImplemented("rendering");
 #if 0
             str1 =  (copy("...", 1, GS::GetGame().GetMainTickCounter() / 30 % 3 + 1));
@@ -1578,7 +1694,7 @@ void renderchattexts()
 
     if ((chatdelay[i] > 0) && (length(chatmessage[i]) < morechattext) && !(hide && chatteam[i]))
     {
-      dx = (float)(-rectwidth(gfxtextmetrics(chatmessage[i]))) / 2;
+      dx = (-rectwidth(gfxtextmetrics(chatmessage[i]))) / 2;
 
       gfxtextcolor(rgba(abovechat_message_color, max(0, min(255, 9 * chatdelay[i]))));
       gfxdrawtext(x + dx, y + dy);
@@ -1593,25 +1709,38 @@ void renderchatinput(float w, float h, double t)
   std::string str1;
   tgfxrect rc;
   std::string strhalf;
-  float x, y;
+  float x;
+  float y;
 
   if (chattype == msgtype_pub)
+  {
     str1 = "Say:";
+  }
   else if (chattype == msgtype_team)
+  {
     str1 = "Team Say:";
+  }
   else if (chattype == msgtype_cmd)
+  {
     str1 = "Cmd:";
+  }
 
-  if (str1 != "")
+  if (!str1.empty())
   {
     setfontstyle(font_small);
 
     if (chattype == msgtype_pub)
+    {
       gfxtextcolor(rgba(chat_message_color));
+    }
     else if (chattype == msgtype_team)
+    {
       gfxtextcolor(rgba(teamchat_message_color));
+    }
     else if (chattype == msgtype_cmd)
+    {
       gfxtextcolor(rgba(enter_message_color));
+    }
 
     if (chatchanged)
     {
@@ -1625,14 +1754,18 @@ void renderchatinput(float w, float h, double t)
     rc = gfxtextmetrics(str1);
 
     if (rectwidth(rc) >= (w - 80))
+    {
       setfontstyle(font_smallest);
+    }
 
     gfxtextverticalalign(gfx_baseline);
     gfxdrawtext(str1, 5, 420 * _iscala.y);
     strhalf = str1;
 
     if (cursorposition < length(chattext))
+    {
       strhalf.resize(cursorposition + 4 + ord(chattext[1] == '/'));
+    }
 
     x = rectwidth(gfxtextmetrics(strhalf));
 
@@ -1683,9 +1816,13 @@ void renderrespawnandsurvivaltexts()
       gfxtextcolor(rgba(115, 255, 100));
 
       if (!GS::GetGame().isteamgame())
+      {
         str1 = (inttostr(game.GetAlivenum())) + ' ' + ("players left");
+      }
       else
+      {
         str1 = (inttostr(game.GetTeamAliveNum(me->player->team))) + ' ' + ("team players left");
+      }
     }
     else if (game.GetSurvivalEndRound())
     {
@@ -1718,11 +1855,14 @@ void renderradiomenutexts()
   std::set<std::int32_t> radio_gamestyles = {gamestyle_ctf, gamestyle_inf, gamestyle_htf};
   std::string s;
   std::uint8_t alpha;
-  float sx, sy;
+  float sx;
+  float sy;
   std::array<tgfxcolor, 2> color;
 
   if (!(radio_gamestyles.contains(CVar::sv_gamemode)))
+  {
     return;
+  }
 
   color[0] = rgba(0xffffff, CVar::ui_status_transparency * 0.56);
   sx = (float)(180) / background_width;
@@ -1731,7 +1871,9 @@ void renderradiomenutexts()
   gfxdrawsprite(textures[GFX::INTERFACE_BACK], 5, 250, sx, sy, color[0]);
 
   if (rmenustate[0] != ' ')
+  {
     gfxdrawsprite(textures[GFX::INTERFACE_BACK], 185, 250, sx, sy, color[0]);
+  }
 
   alpha = iif(fragsmenushow || statsmenushow, 80, 230);
 
@@ -1766,7 +1908,8 @@ void renderradiomenutexts()
 void rendervotemenutexts()
 {
   std::int32_t i;
-  float x, y;
+  float x;
+  float y;
   std::array<std::string, 2> str1;
 
   if (GS::GetGame().IsVoteActive())
@@ -1776,9 +1919,13 @@ void rendervotemenutexts()
     x = 45 * _iscala.x;
     y = 400 * _iscala.y;
     if (GS::GetGame().GetVoteType() == vote_kick)
+    {
       str1[0] = ("Kick");
+    }
     else
+    {
       str1[0] = ("Map");
+    }
 
     str1[1] = (GS::GetGame().GetVoteTarget());
 
@@ -1787,7 +1934,9 @@ void rendervotemenutexts()
       i = strtoint(GS::GetGame().GetVoteTarget());
 
       if ((i > 0) && (i <= max_sprites))
+      {
         str1[1] = (SpriteSystem::Get().GetSprite(i).player->name);
+      }
     }
 
     gfxtextcolor(rgba(254, 104, 104, 225));
@@ -1816,7 +1965,12 @@ void renderplayername(float width, float height, std::int32_t i, bool onlyoffscr
 {
   std::uint8_t alpha;
   tgfxrect rc;
-  float x, y, w, h, dx, dy;
+  float x;
+  float y;
+  float w;
+  float h;
+  float dx;
+  float dy;
   auto &things = GS::GetThingSystem().GetThings();
 
   dy = iif(onlyoffscreen, -10, 5) + 15;
@@ -1829,7 +1983,7 @@ void renderplayername(float width, float height, std::int32_t i, bool onlyoffscr
 
   if (!onlyoffscreen || (x < 0) || (x > width) || (y < 0) || (y > height))
   {
-    x = max(0.f, min(width - w, x - (float)(w) / 2));
+    x = max(0.f, min(width - w, x - w / 2));
     y = max(0.f, min(height - h, y - (float)((std::int32_t)(!onlyoffscreen) * h) / 2));
 
     dx = fabs(SpriteSystem::Get().GetSprite(mysprite).skeleton.pos[7].x -
@@ -1837,15 +1991,21 @@ void renderplayername(float width, float height, std::int32_t i, bool onlyoffscr
     dy = fabs(SpriteSystem::Get().GetSprite(mysprite).skeleton.pos[7].y -
               SpriteSystem::Get().GetSprite(i).skeleton.pos[7].y);
 
-    alpha = min(255.0f, 50 + round(100000 / (dx + (float)(dy) / 2)));
+    alpha = min(255.0f, 50 + round(100000 / (dx + dy / 2)));
 
     if ((SpriteSystem::Get().GetSprite(i).holdedthing > 0) &&
         (things[SpriteSystem::Get().GetSprite(i).holdedthing].style < 4))
+    {
       gfxtextcolor(rgba(outofscreenflag_message_color, alpha));
+    }
     else if (SpriteSystem::Get().GetSprite(i).deadmeat)
+    {
       gfxtextcolor(rgba(outofscreendead_message_color, alpha));
+    }
     else
+    {
       gfxtextcolor(rgba(outofscreen_message_color, alpha));
+    }
 
     gfxdrawtext(x, y);
   }
@@ -1861,7 +2021,7 @@ void renderplayernames(float width, float height)
     {
       for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
       {
-        if (sprite.isinteam() and !((CVar::sv_realisticmode) && (sprite.visible == 0)))
+        if (sprite.isinteam() and (!(CVar::sv_realisticmode) || (sprite.visible != 0)))
         {
           renderplayername(width, height, sprite.num, false);
         }
@@ -1882,7 +2042,8 @@ void renderplayernames(float width, float height)
 
 void renderceasefirecounter()
 {
-  float x, y;
+  float x;
+  float y;
 
   auto &sprite = SpriteSystem::Get().GetSprite(mysprite);
   x = sprite.skeleton.pos[9].x - 2;
@@ -1909,10 +2070,20 @@ void renderactionsnaptext(double t)
 
 void renderinterface(float timeelapsed, float width, float height)
 {
-  std::int32_t i, j, k, z, l, l2;
+  std::int32_t i;
+  std::int32_t j;
+  std::int32_t k;
+  std::int32_t z;
+  std::int32_t l;
+  std::int32_t l2;
   std::int32_t spectnumber;
-  tvector2 p, _scala;
-  float scale, maxsize, roto, dx, dy;
+  tvector2 p;
+  tvector2 _scala;
+  float scale;
+  float maxsize;
+  float roto;
+  float dx;
+  float dy;
   float x;
   float y;
   float fragmenubottom;
@@ -1927,7 +2098,8 @@ void renderinterface(float timeelapsed, float width, float height)
   tvector2 characteroffset;
   tvector2 indicatoroffset;
   std::uint64_t dotcolor;
-  std::int32_t f1, f2;
+  std::int32_t f1;
+  std::int32_t f2;
   std::array<std::int32_t, 6> ids;
   std::uint64_t nextitemstep;
   std::array<std::uint64_t, 6> teamposstep; // = (0,0,0,0,0,0);
@@ -1947,8 +2119,8 @@ void renderinterface(float timeelapsed, float width, float height)
   spriteme = nullptr;
   tgfxspritearray &t = textures;
 
-  pixelsize.x = (float)(width) / renderwidth;
-  pixelsize.y = (float)(height) / renderheight;
+  pixelsize.x = width / renderwidth;
+  pixelsize.y = height / renderheight;
 
   gfxtextpixelratio(pixelsize);
 
@@ -1964,7 +2136,9 @@ void renderinterface(float timeelapsed, float width, float height)
   auto &map = GS::GetGame().GetMap();
 
   if (mysprite > 0)
+  {
     spriteme = &SpriteSystem::Get().GetSprite(mysprite);
+  }
 
   widescreencut = (CVar::sv_bullettime) && (notexts == 0) &&
                   (GS::GetGame().GetGoalTicks() < default_goalticks) &&
@@ -1984,15 +2158,17 @@ void renderinterface(float timeelapsed, float width, float height)
         // somebody might have defined color as $RRGGBB not $AARRGGBB
         // effectively leaving AA component 0
         if (alfa == 0)
+        {
           alfa = 255;
+        }
         alfa = max(min(3 * bigdelay[i] + 25, alfa), 0);
         scale = bigscale[i] * ((float)(renderheight) / 480) * 4.8;
 
         if (scale * fontstylesize(font_big) > maxsize)
         {
           y = scale;
-          scale = (float)(maxsize) / fontstylesize(font_big);
-          gfxtextscale((float)(y) / scale);
+          scale = maxsize / fontstylesize(font_big);
+          gfxtextscale(y / scale);
         }
 
         if (i == 1)
@@ -2000,7 +2176,9 @@ void renderinterface(float timeelapsed, float width, float height)
           gfxtextverticalalign(gfx_baseline);
 
           if (widescreencut)
+          {
             dy = -30 * _iscala.y;
+          }
         }
 
         setfontstyle(font_big, scale);
@@ -2017,7 +2195,9 @@ void renderinterface(float timeelapsed, float width, float height)
         // somebody might have defined color as $RRGGBB not $AARRGGBB
         // effectively leaving AA component 0
         if (alfa == 0)
+        {
           alfa = 255;
+        }
         alfa = max(min(3 * worlddelay[i] + 25, alfa), 0);
         x = worldposx[i] + (0.5 * gamewidth - camerax) * _rscala.x;
         y = worldposy[i] + (0.5 * gameheight - cameray) * _rscala.y;
@@ -2025,10 +2205,14 @@ void renderinterface(float timeelapsed, float width, float height)
         scale = worldscale[i];
 
         if (worldscale[i] * fontstylesize(font_world) > maxsize)
-          scale = (float)(maxsize) / fontstylesize(font_world);
+        {
+          scale = maxsize / fontstylesize(font_world);
+        }
 
         if (scale != worldscale[i])
+        {
           gfxtextscale((float)(worldscale[i]) / scale);
+        }
 
         setfontstyle(font_world, scale);
         gfxtextcolor(rgba(worldcolor[i], alfa));
@@ -2071,8 +2255,8 @@ void renderinterface(float timeelapsed, float width, float height)
       {
         _scala.x = t[GFX::INTERFACE_OVERLAY]->scale;
         _scala.y = t[GFX::INTERFACE_OVERLAY]->scale;
-        _scala.x = (float)(width) / (t[GFX::INTERFACE_OVERLAY]->width * _scala.x);
-        _scala.y = (float)(height) / (t[GFX::INTERFACE_OVERLAY]->height * _scala.y);
+        _scala.x = width / (t[GFX::INTERFACE_OVERLAY]->width * _scala.x);
+        _scala.y = height / (t[GFX::INTERFACE_OVERLAY]->height * _scala.y);
         gfxdrawsprite(t[GFX::INTERFACE_OVERLAY], 0, 0, _scala.x, _scala.y, color);
       }
     }
@@ -2092,8 +2276,7 @@ void renderinterface(float timeelapsed, float width, float height)
         renderbar(GFX::INTERFACE_HEALTH_BAR, int_.healthbar_pos, int_.healthbar_x,
                   relinfo.healthbar_rel_x, int_.healthbar_y, relinfo.healthbar_rel_y,
                   int_.healthbar_width, int_.healthbar_height, int_.healthbar_rotate,
-                  (float)(spriteme->GetHealth()) / GS::GetGame().GetStarthealth(),
-                  intalign.healthbar == 0);
+                  spriteme->GetHealth() / GS::GetGame().GetStarthealth(), intalign.healthbar == 0);
       }
 
       if (int_.vest && (spriteme->vest > 0))
@@ -2101,7 +2284,7 @@ void renderinterface(float timeelapsed, float width, float height)
         renderbar(GFX::INTERFACE_VEST_BAR, int_.vestbar_pos, int_.vestbar_x,
                   relinfo.healthbar_rel_x, int_.vestbar_y, relinfo.healthbar_rel_y,
                   int_.vestbar_width, int_.vestbar_height, int_.vestbar_rotate,
-                  (float)(spriteme->vest) / defaultvest, intalign.vestbar == 0);
+                  spriteme->vest / defaultvest, intalign.vestbar == 0);
       }
 
       if (int_.ammo)
@@ -2116,8 +2299,7 @@ void renderinterface(float timeelapsed, float width, float height)
           renderbar(GFX::INTERFACE_RELOAD_BAR, int_.ammobar_pos, int_.ammobar_x,
                     relinfo.ammobar_rel_x, int_.ammobar_y, relinfo.ammobar_rel_y,
                     int_.ammobar_width, int_.ammobar_height, int_.ammobar_rotate,
-                    1 - (float)(weapon->reloadtimefloat) / weapon->reloadtime,
-                    intalign.reloadbar == 0);
+                    1 - weapon->reloadtimefloat / weapon->reloadtime, intalign.reloadbar == 0);
         }
         else if (weapon->ammocount > 0)
         {
@@ -2141,7 +2323,7 @@ void renderinterface(float timeelapsed, float width, float height)
 
         renderbar(GFX::INTERFACE_FIRE_BAR, int_.firebar_pos, int_.fireico_x, relinfo.firebar_rel_x,
                   int_.fireico_y, relinfo.firebar_rel_y, int_.firebar_width, int_.firebar_height,
-                  int_.fireico_rotate, (float)(weapon->fireintervalfloat) / weapon->fireinterval,
+                  int_.fireico_rotate, weapon->fireintervalfloat / weapon->fireinterval,
                   intalign.firebar == 0);
       }
 
@@ -2156,7 +2338,7 @@ void renderinterface(float timeelapsed, float width, float height)
         {
           renderbar(GFX::INTERFACE_JET_BAR, int_.jetbar_pos, int_.jetbar_x, relinfo.jetbar_rel_x,
                     int_.jetbar_y, relinfo.jetbar_rel_y, int_.jetbar_width, int_.jetbar_height,
-                    int_.jetbar_rotate, (float)(spriteme->jetscountfloat) / map.startjet,
+                    int_.jetbar_rotate, spriteme->jetscountfloat / map.startjet,
                     intalign.jetbar == 0);
         }
       }
@@ -2166,9 +2348,13 @@ void renderinterface(float timeelapsed, float width, float height)
         i = 0;
 
         if (spriteme->tertiaryweapon.num == fraggrenade_num)
+        {
           i = GFX::INTERFACE_NADE;
+        }
         else if (spriteme->tertiaryweapon.num == clustergrenade_num)
+        {
           i = GFX::INTERFACE_CLUSTER_NADE;
+        }
 
         if (i != 0)
         {
@@ -2204,13 +2390,17 @@ void renderinterface(float timeelapsed, float width, float height)
          (GS::GetGame().GetMapchangecounter() == 999999999)) &&
         !(demoplayer.active() && (!CVar::demo_showcrosshair)) &&
         !((spectnumber > 0) && (spectnumber <= 32) &&
-          (SpriteSystem::Get().GetSprite(spectnumber).player->demoplayer == false)))
+          (!SpriteSystem::Get().GetSprite(spectnumber).player->demoplayer)))
     {
       // Set base scale for the crosshair
       if (sniperline_client_hpp == 1)
+      {
         cursorscale = 0.5;
+      }
       else
+      {
         cursorscale = 1;
+      }
 
       cursorsize.x = t[GFX::INTERFACE_CURSOR]->width * t[GFX::INTERFACE_CURSOR]->scale;
       cursorsize.y = t[GFX::INTERFACE_CURSOR]->height * t[GFX::INTERFACE_CURSOR]->scale;
@@ -2225,7 +2415,7 @@ void renderinterface(float timeelapsed, float width, float height)
       // Embiggen the crosshair when binked, keeping it centered
       if (inaccuracy > 0)
       {
-        cursorbinkscale = (float)(power(inaccuracy, 0.6)) / 20 * cursorscale;
+        cursorbinkscale = power(inaccuracy, 0.6) / 20 * cursorscale;
         // CursorBinkOffset.x := CursorSize.x / 2 * CursorBinkScale / _rscala.x;
         // CursorBinkOffset.y := CursorSize.y / 2 * CursorBinkScale / _rscala.y;
         // TODO: Finish
@@ -2238,16 +2428,24 @@ void renderinterface(float timeelapsed, float width, float height)
         alfa = CVar::ui_status_transparency - 50;
 
         if (cursorfriendly)
+        {
           cursorcolor = 0x33ff33;
+        }
         else
+        {
           cursorcolor = 0xff3333;
+        }
       }
       else
       {
         if (sniperline_client_hpp == 1)
+        {
           alfa = CVar::ui_status_transparency / 2;
+        }
         else
+        {
           alfa = CVar::ui_status_transparency;
+        }
 
         cursorcolor = 0xffffff;
       }
@@ -2264,10 +2462,10 @@ void renderinterface(float timeelapsed, float width, float height)
           x = pixelalignx(characteroffset.x * _rscala.x);
           y = pixelaligny(characteroffset.y * _rscala.y);
 
-          gfxdrawsprite(t[GFX::INTERFACE_SIGHT], x - 1, y - 1, ((float)(roto) / 240) * _rscala.x,
-                        ((float)(roto) / 480) * _rscala.y, 1, 1,
+          gfxdrawsprite(t[GFX::INTERFACE_SIGHT], x - 1, y - 1, (roto / 240) * _rscala.x,
+                        (roto / 480) * _rscala.y, 1, 1,
                         -angle2points(vector2(x, y), vector2(mx * _rscala.x, my * _rscala.y)),
-                        rgba(0xffffff, round(((float)(roto) / 240) * _rscala.x * 32)));
+                        rgba(0xffffff, round((roto / 240) * _rscala.x * 32)));
         }
       }
 
@@ -2307,8 +2505,8 @@ void renderinterface(float timeelapsed, float width, float height)
       x = t[GFX::INTERFACE_ARROW]->width * t[GFX::INTERFACE_ARROW]->scale;
       y = t[GFX::INTERFACE_ARROW]->height * t[GFX::INTERFACE_ARROW]->scale;
 
-      indicatoroffset.x = (float)(x) / 2 / _rscala.x;
-      indicatoroffset.y = (float)(y) / 2 / _rscala.y;
+      indicatoroffset.x = x / 2 / _rscala.x;
+      indicatoroffset.y = y / 2 / _rscala.y;
 
       x = characteroffset.x - indicatoroffset.x;
       y = characteroffset.y - indicatoroffset.y - 15;
@@ -2345,26 +2543,46 @@ void renderinterface(float timeelapsed, float width, float height)
       _scala.y = 0.45 + (float)(spriteme->player->realping) / 600;
 
       if (spriteme->player->realping <= 50)
+      {
         dotcolor = 0xff00;
+      }
       else if (spriteme->player->realping <= 100)
+      {
         dotcolor = 0x22ff00;
+      }
       else if (spriteme->player->realping <= 150)
+      {
         dotcolor = 0x54c700;
+      }
       else if (spriteme->player->realping <= 200)
+      {
         dotcolor = 0x76a700;
+      }
       else if (spriteme->player->realping <= 250)
+      {
         dotcolor = 0x938800;
+      }
       else if (spriteme->player->realping <= 300)
+      {
         dotcolor = 0xa17700;
+      }
       else if (spriteme->player->realping <= 350)
+      {
         dotcolor = 0xcc4800;
+      }
       else
+      {
         dotcolor = 0xff0000;
+      }
 
       if (spriteme->player->realping > 255)
+      {
         alfa = 255;
+      }
       else
+      {
         alfa = spriteme->player->realping;
+      }
 
       gfxdrawsprite(t[GFX::INTERFACE_DOT], x, y, _scala.x, _scala.y, rgba(dotcolor, alfa));
     }
@@ -2379,9 +2597,13 @@ void renderinterface(float timeelapsed, float width, float height)
       if (renderwidth < 1024)
       {
         if (fragsmenushow || statsmenushow)
+        {
           alfa = 50;
+        }
         if (length(chattext) > 0)
+        {
           alfa = 150;
+        }
       }
 
       l2 = 0;
@@ -2412,8 +2634,10 @@ void renderinterface(float timeelapsed, float width, float height)
   // Minimap
 
   if (minimapshow)
+  {
     renderminimap(pixelalignx(CVar::ui_minimap_posx * _rscala.x),
                   pixelaligny(CVar::ui_minimap_posy), round(CVar::ui_status_transparency * 0.85));
+  }
 
   if (minimapshow && (!CVar::sv_minimap))
   {
@@ -2456,7 +2680,9 @@ void renderinterface(float timeelapsed, float width, float height)
       for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
       {
         if (sprite.isspectator() || (spriteme->isnotspectator() && !spriteme->isinsameteam(sprite)))
+        {
           continue;
+        }
 
         if ((sprite.holdedthing > 0) && (things[sprite.holdedthing].style < 4))
         {
@@ -2549,42 +2775,62 @@ void renderinterface(float timeelapsed, float width, float height)
       i = 0;
 
       if (game.GetTeamplayersnum(1) > 0)
+      {
         i = i + 15;
+      }
       if (game.GetTeamplayersnum(2) > 0)
+      {
         i = i + 15;
+      }
       if (game.GetTeamplayersnum(3) > 0)
+      {
         i = i + 15;
+      }
       if (game.GetTeamplayersnum(4) > 0)
+      {
         i = i + 15;
+      }
       if (game.GetTeamplayersnum(0) > 0)
+      {
         i = i + 15;
+      }
       if (GS::GetGame().GetSpectatorsNum() > 0)
+      {
         i = i + 15;
+      }
 
       if (CVar::ui_hidespectators)
+      {
         fragmenubottom = 70 +
                          ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum() + 1) *
                           fragsmenu_player_height) +
                          i;
+      }
       else
+      {
         fragmenubottom = 70 + ((GS::GetGame().GetPlayersNum() + 1) * fragsmenu_player_height) + i;
+      }
 
       _scala.x = (float)(590) / background_width;
-      _scala.y = (float)(fragmenubottom) / background_width;
+      _scala.y = fragmenubottom / background_width;
       y = y - (fragsscrolllev * 20);
 
       gfxdrawsprite(t[GFX::INTERFACE_BACK], x, y, _scala.x, _scala.y,
                     rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
 
       if ((_scala.y * background_width) > height - 80)
+      {
         fragsscrollmax = round((float)((_scala.y * background_width - height + 80)) / 20);
+      }
       else
+      {
         fragsscrollmax = 0;
+      }
 
       if (fragsscrollmax != 0)
       {
         x = 580 + fragx;
-        y = (float)(height) / 2;
+        y = height / 2;
         gfxdrawsprite(t[GFX::INTERFACE_SCROLL], x, y,
                       rgba(0xffffff, fabs(round(sin(5.1 * timeelapsed) * 255))));
       }
@@ -2642,7 +2888,9 @@ void renderinterface(float timeelapsed, float width, float height)
                 SpriteSystem::Get()
                   .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                   .isspectator())
+            {
               continue;
+            }
 
             if (GS::GetGame().isteamgame())
             {
@@ -2718,14 +2966,18 @@ void renderinterface(float timeelapsed, float width, float height)
                 SpriteSystem::Get()
                   .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                   .isnotspectator())
+            {
               gfxdrawsprite(t[GFX::INTERFACE_DEADDOT], pixelalignx(x), pixelaligny(y + 1),
                             rgba(0xffffff, CVar::ui_status_transparency));
+            }
 
             x = 31 + fragx;
 
             if (GS::GetGame().GetSortedPlayers(j).playernum == mysprite)
+            {
               gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], pixelalignx(x), pixelaligny(y + 1),
                             rgba(0xffffff, CVar::ui_status_transparency));
+            }
 
             x = 30 + fragx;
 #ifdef STEAM
@@ -2743,17 +2995,23 @@ void renderinterface(float timeelapsed, float width, float height)
                    .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                    .player->jetcolor &
                  0xff000000) == color_transparency_registered)
+            {
               l = GFX::INTERFACE_STAR;
+            }
             else if ((SpriteSystem::Get()
                         .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                         .player->jetcolor &
                       0xff000000) == color_transparency_special)
+            {
               l = GFX::INTERFACE_PROT;
+            }
 
             color = rgba(0xffffff, CVar::ui_status_transparency);
 
             if (l != 0)
+            {
               gfxdrawsprite(t[l], pixelalignx(fragx + 259), pixelaligny(y - 1), color);
+            }
 
             // flag icon
             if ((SpriteSystem::Get()
@@ -2762,21 +3020,27 @@ void renderinterface(float timeelapsed, float width, float height)
                 SpriteSystem::Get()
                   .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                   .isnotspectator())
+            {
               gfxdrawsprite(t[GFX::INTERFACE_FLAG], pixelalignx(fragx + 337), pixelaligny(y - 1),
                             color);
+            }
 
             // mute sign
             if (SpriteSystem::Get().GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).muted or
                 muteall)
+            {
               gfxdrawsprite(t[GFX::INTERFACE_MUTE], pixelalignx(fragx + 246), pixelaligny(y - 1),
                             color);
+            }
 
             // bot icon
             if ((SpriteSystem::Get()
                    .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                    .player->jetcolor &
                  0xff000000) == color_transparency_bot)
+            {
               gfxdrawsprite(t[GFX::INTERFACE_BOT], pixelalignx(fragx + 534), pixelaligny(y), color);
+            }
 
             gfxdrawsprite(
               t[GFX::INTERFACE_CONNECTION], pixelalignx(fragx + 520), pixelaligny(y + 2),
@@ -2797,9 +3061,11 @@ void renderinterface(float timeelapsed, float width, float height)
   }
 
   if (teammenu->active)
+  {
     gfxdrawsprite(t[GFX::INTERFACE_BACK], 45, 140, (float)(262) / background_width,
                   (float)(250) / background_width,
                   rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
+  }
 
   if (limbomenu->active)
   {
@@ -2838,11 +3104,15 @@ void renderinterface(float timeelapsed, float width, float height)
         dy = (float)(max(0.f, 18 - spr->height * spr->scale)) / 2;
 
         if (CVar::cl_player_secwep == i)
+        {
           gfxdrawsprite(spr, x, pixelaligny(y + k * 18 + dy),
                         rgba(0xffffff, CVar::ui_status_transparency));
+        }
         else
+        {
           gfxdrawsprite(spr, x, pixelaligny(y + k * 18 + dy),
                         rgba(0xffffff, round(CVar::ui_status_transparency * 0.5)));
+        }
       }
     }
   }
@@ -2873,12 +3143,16 @@ void renderinterface(float timeelapsed, float width, float height)
         y = pixelaligny((int_.teambox_y + 5) * _iscala.y);
 
         if (!things[GS::GetGame().GetTeamFlag(1)].inbase)
+        {
           gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff0000, round(int_.alpha)));
+        }
 
         x = pixelalignx(x + 31);
 
         if (!things[GS::GetGame().GetTeamFlag(2)].inbase)
+        {
           gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff, round(int_.alpha)));
+        }
       }
       else if (CVar::sv_gamemode == gamestyle_inf)
       {
@@ -2924,19 +3198,27 @@ void renderinterface(float timeelapsed, float width, float height)
     {
       if (SpriteSystem::Get().GetSprite(mysprite).isspectator() && (camerafollowsprite > 0) &&
           (CVar::sv_advancedspectator))
+      {
         renderplayerinterfacetexts(camerafollowsprite);
+      }
       else
+      {
         renderplayerinterfacetexts(mysprite);
+      }
     }
 
     if (int_.team)
+    {
       renderteamscoretexts();
+    }
 
     if (GS::GetGame().GetMapchangecounter() > 0)
     {
       if (fragsmenushow && (GS::GetGame().GetPlayersNum() > 1) &&
           (GS::GetGame().GetMapchangecounter() < 999999999))
+      {
         renderendgametexts(fragmenubottom);
+      }
 
       if (GS::GetGame().GetMapchangecounter() > 99999999)
       {
@@ -2947,27 +3229,41 @@ void renderinterface(float timeelapsed, float width, float height)
     }
 
     if (statsmenushow)
+    {
       renderweaponstatstexts();
+    }
 
     if (fragsmenushow)
+    {
       renderfragsmenutexts(fragmenubottom);
+    }
 
     if (CVar::ui_console)
+    {
       renderconsoletexts(width);
+    }
 
     if (mysprite > 0)
+    {
       renderrespawnandsurvivaltexts();
+    }
 
     rendervotemenutexts();
 
     if (showradiomenu && (CVar::sv_radio) && !escmenu->active)
+    {
       renderradiomenutexts();
+    }
 
-    if (chattext != "")
+    if (!chattext.empty())
+    {
       renderchatinput(width, height, timeelapsed);
+    }
 
     if (CVar::ui_killconsole)
+    {
       renderkillconsoletexts(width);
+    }
 
 #ifdef STEAM
     if (CVar::cl_voicechat)
@@ -2980,11 +3276,15 @@ void renderinterface(float timeelapsed, float width, float height)
     renderchattexts();
 
     if (playernamesshow)
+    {
       renderplayernames(width, height);
+    }
 
     if ((CVar::sv_survivalmode) && SpriteSystem::Get().GetSprite(mysprite).active and
         (SpriteSystem::Get().GetSprite(mysprite).ceasefirecounter > 0))
+    {
       renderceasefirecounter();
+    }
   }
 
   if (notexts == 0)
@@ -3005,7 +3305,7 @@ void renderinterface(float timeelapsed, float width, float height)
     // free camera / following player
     if (camerafollowsprite == 0)
     {
-      x = (float)((width - rectwidth(gfxtextmetrics(("Free Camera"))))) / 2;
+      x = (width - rectwidth(gfxtextmetrics(("Free Camera")))) / 2;
       gfxtextcolor(rgba(205, 205, 205));
       gfxdrawtext(x, 430 * _iscala.y);
     }
@@ -3013,9 +3313,9 @@ void renderinterface(float timeelapsed, float width, float height)
              (camerafollowsprite != mysprite))
     {
       i = (std::int32_t)(SpriteSystem::Get().GetSprite(camerafollowsprite).deadmeat);
-      x = (float)((width - rectwidth(gfxtextmetrics((
-                             "Following " +
-                             (SpriteSystem::Get().GetSprite(camerafollowsprite).player->name)))))) /
+      x = (width -
+           rectwidth(gfxtextmetrics(
+             ("Following " + (SpriteSystem::Get().GetSprite(camerafollowsprite).player->name))))) /
           2;
 
       gfxtextcolor(rgba(205, 205 - i * 105, 205 - i * 105));
@@ -3033,9 +3333,11 @@ void renderinterface(float timeelapsed, float width, float height)
       gfxdrawtext(string("FPS: ") + inttostr(getgamefps()), 460 * x, 10 * y);
 
       if (mysprite > 0)
+      {
         gfxdrawtext(string("Ping: ") +
                       inttostr(SpriteSystem::Get().GetSprite(mysprite).player->realping),
                     550 * x, 10 * y);
+      }
 
       if (demoplayer.active())
       {
@@ -3097,7 +3399,7 @@ void renderinterface(float timeelapsed, float width, float height)
     }
 
     // default keys help
-    if (noobshow && escmenu->active && (chattext == ""))
+    if (noobshow && escmenu->active && (chattext.empty()))
     {
       setfontstyle(font_smallest);
       gfxtextcolor(rgba(250, 90, 95));
@@ -3140,7 +3442,7 @@ void renderinterface(float timeelapsed, float width, float height)
     }
 
     // action snap
-    if ((screencounter < 255) && (showscreen == false) && (CVar::cl_actionsnap))
+    if ((screencounter < 255) && (!static_cast<bool>(showscreen)) && (CVar::cl_actionsnap))
     {
       gfxtextcolor(rgba(230, 65, 60, 150 + fabs(round(sin(5.1 * timeelapsed) * 100))));
       gfxdrawtext(string("[[ ") + ("Press F5 to View Screen Cap") + " ]]", 30 * _iscala.x,
@@ -3183,7 +3485,9 @@ void renderinterface(float timeelapsed, float width, float height)
   // Menu cursor
   alfa = mysprite;
   if (alfa < 1)
+  {
     alfa = max_players;
+  }
   if (escmenu->active or limbomenu->active or teammenu->active or
       SpriteSystem::Get().GetSprite(alfa).deadmeat)
   {
@@ -3197,3 +3501,4 @@ void renderinterface(float timeelapsed, float width, float height)
     }
   }
 }
+// NOLINTEND(readability-magic-numbers)
