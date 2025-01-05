@@ -9,8 +9,8 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-enum-enum-conversion"
 #endif // __GNUC__
 #include "misc/single_file/imgui_single_file.h"
-#include "backends/imgui_impl_opengl3.cpp"
-#include "backends/imgui_impl_sdl.cpp"
+#include "backends/imgui_impl_opengl3.cpp" // NOLINT
+#include "backends/imgui_impl_sdl.cpp" // NOLINT
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif // __GNUC__

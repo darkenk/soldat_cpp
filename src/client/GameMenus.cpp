@@ -208,8 +208,6 @@ void gamemenushow(pgamemenu menu, bool show)
   {
     hideall();
 
-    if (show)
-    {
       switch (CVar::sv_gamemode)
       {
       case gamestyle_ctf:
@@ -238,7 +236,6 @@ void gamemenushow(pgamemenu menu, bool show)
         menu->button[4].active = false;
       }
       }
-    }
   }
   else if ((menu == mapmenu) && show)
   {

@@ -1258,36 +1258,26 @@ auto createwmchecksum(GunsDescription &guns) -> std::uint32_t
 
 auto weaponnumtoindex(std::uint8_t num, GunsDescription &guns) -> std::int32_t
 {
-  std::uint8_t weaponindex;
-
-  std::uint32_t result;
-  for (weaponindex = guns.StartIdx(); weaponindex <= guns.EndIdx(); weaponindex++)
+  for (auto weaponindex = guns.StartIdx(); weaponindex <= guns.EndIdx(); weaponindex++)
   {
     if (num == guns[weaponindex].num)
     {
-      result = weaponindex;
-      return result;
+      return weaponindex;
     }
   }
-  result = -1;
-  return result;
+  return -1;
 }
 
 auto weaponnametonum(const std::string &name, GunsDescription &guns) -> std::int32_t
 {
-  std::uint8_t i;
-
-  std::int32_t result;
-  for (i = 1; i <= high(guns); i++)
+  for (auto i = 1; i <= high(guns); i++)
   {
     if (name == guns[i].name)
     {
-      result = guns[i].num;
-      return result;
+      return guns[i].num;
     }
   }
-  result = -1;
-  return result;
+  return -1;
 }
 
 auto weaponnumtoname(std::int32_t num, GunsDescription &guns) -> std::string

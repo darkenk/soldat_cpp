@@ -77,12 +77,12 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
 static inline auto U16toString(const std::u16string &wstr) -> std::string
 {
   std::string str;
-  char cstr[3] = "\0";
+  char cstr[4] = "\0";
   mbstate_t mbs;
   for (const auto &it : wstr)
   {
     std::memset(&mbs, 0, sizeof(mbs)); // set shift state to the initial state
-    std::memmove(cstr, "\0\0\0", 3);
+    std::memmove(cstr, "\0\0\0", 4);
     std::c16rtomb(cstr, it, &mbs);
     str.append(std::string(cstr));
   } // for

@@ -75,10 +75,10 @@ TestEntry=1.0
     FileUtility::Write(f, reinterpret_cast<const std::byte *>(testData.data()), testData.size());
     FileUtility::Close(f);
   }
+  TFileStreamFixture(const TFileStreamFixture &) = delete;
   ~TFileStreamFixture() { FileUtility::Unmount("tmpfs.memory"); }
 
 protected:
-  TFileStreamFixture(const TFileStreamFixture &) = delete;
   FileUtility FS;
 };
 

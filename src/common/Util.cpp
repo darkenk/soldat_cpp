@@ -125,8 +125,6 @@ auto getsize(std::int64_t bytes) -> std::string
 {
   std::int64_t filesize;
 
-  std::string getsize_result;
-
   if (bytes < 1024)
   {
     return std::to_string(bytes) + " B";

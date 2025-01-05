@@ -463,7 +463,8 @@ void startgame(int argc, const char *argv[])
   GS::GetConsoleLogFile().Init("/user/logs/consolelog");
 
   std::string systemlang = "en_US";
-  std::string systemfallbacklang = "en_US";
+  // todo this variable is needed when code is refactored
+  const std::string systemfallbacklang = "en_US"; // NOLINT
 
   // TODO remove HWIDs, replace by Fae auth tickets
   hwid = "00000000000";

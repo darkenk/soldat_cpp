@@ -433,9 +433,6 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
     switch (keycode)
     {
     case SDL_SCANCODE_F4:
-      exittomenu();
-      break;
-
     case SDL_SCANCODE_F9:
       exittomenu();
       break;

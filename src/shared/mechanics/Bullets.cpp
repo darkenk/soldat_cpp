@@ -380,8 +380,6 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
           wepstats[j].textureid = GFX::INTERFACE_GUNS_FLAMER;
           break;
         case 15:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_BOW;
-          break;
         case 16:
           wepstats[j].textureid = GFX::INTERFACE_GUNS_BOW;
           break;

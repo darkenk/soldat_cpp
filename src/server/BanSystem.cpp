@@ -165,9 +165,7 @@ void savebannedlist(const std::string &filename)
 
 void updateipbanlist()
 {
-  std::uint8_t j;
-
-  for (j = 1; j <= high(bannediplist); j++)
+  for (auto j = 1; j <= high(bannediplist); j++)
   {
     if (!bannediplist[j].ip.empty())
     {
@@ -339,9 +337,7 @@ void savebannedlisthw(const std::string &filename)
 
 void updatehwbanlist()
 {
-  std::uint8_t j;
-
-  for (j = 1; j <= high(bannedhwlist); j++)
+  for (auto j = 1; j <= high(bannedhwlist); j++)
   {
     if (!bannedhwlist[j].hw.empty())
     {

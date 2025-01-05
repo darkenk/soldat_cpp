@@ -303,7 +303,7 @@ auto FileUtility::Open(const std::string_view path, FileUtility::FileMode fm) ->
     break;
   }
   SoldatAssert(f != nullptr);
-  static_assert(sizeof(f) == sizeof(File *));
+  static_assert(sizeof(f) == sizeof(File *)); // NOLINT
   return reinterpret_cast<File *>(f);
 }
 

@@ -59,14 +59,14 @@ void DrawLine(const Line &line, const tvector2 &offset)
 
 } // namespace
 
-int main(int argc, char *argv[])
+auto main(int argc, char *argv[]) -> int
 {
   InitLogging();
   if (SDL_Init(SDL_INIT_VIDEO) != 0)
   {
     std::abort();
   }
-  SDL_Window *window = NULL;
+  SDL_Window *window = nullptr;
 
   if (SDL_CreateWindowAndRenderer(640, 480, 0, &window, &renderer) != 0)
   {
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     SoldatAssert(0 != ret);
   }
   {
-    auto ret = PHYSFS_mount("./soldat.smod", "/", false);
+    auto ret = PHYSFS_mount("./soldat.smod", "/", 0);
     SoldatAssert(0 != ret);
   }
   twaypoints tw;
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 
   Line raycastLine{-100.0f, -100.0f, 400.0f, 40.0f};
 
-  while (!done)
+  while (done == 0u)
   {
     SDL_Event event;
 
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 
     SDL_RenderPresent(renderer);
 
-    while (SDL_PollEvent(&event))
+    while (SDL_PollEvent(&event) != 0)
     {
       switch (event.type)
       {
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
         done = SDL_TRUE;
         break;
       case SDL_MOUSEMOTION:
-        if (event.motion.state & SDL_BUTTON_RMASK)
+        if ((event.motion.state & SDL_BUTTON_RMASK) != 0u)
         {
           offset.x += event.motion.xrel;
           offset.y += event.motion.yrel;

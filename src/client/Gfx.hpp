@@ -333,13 +333,13 @@ void gfxgeneratemipmap(tgfxtexture *texture);
 void gfxdeletetexture(tgfxtexture *&texture);
 
 // vertex buffer
-tgfxvertexbuffer *gfxcreatebuffer(std::int32_t capacity, bool static_ = false,
+tgfxvertexbuffer *gfxcreatebuffer(std::int32_t capacity, bool _static = false,
                                   pgfxvertex data = nullptr);
 void gfxupdatebuffer(tgfxvertexbuffer *b, std::int32_t i, std::int32_t n, pgfxvertex data);
 void gfxdeletebuffer(tgfxvertexbuffer *b);
 
 // index buffer
-tgfxindexbuffer *gfxcreateindexbuffer(std::int32_t capacity, bool static_ = false,
+tgfxindexbuffer *gfxcreateindexbuffer(std::int32_t capacity, bool _static = false,
                                       std::uint16_t *data = nullptr);
 void gfxupdateindexbuffer(tgfxindexbuffer &b, std::int32_t i, std::int32_t n, uint16_t *data);
 void gfxdeleteindexbuffer(tgfxindexbuffer *b);

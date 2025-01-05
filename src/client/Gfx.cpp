@@ -34,10 +34,11 @@
 #pragma GCC diagnostic pop
 #endif // __GNUC__
 // clang-format on
-#include "shared/misc/MemoryUtils.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "shared/misc/MemoryUtils.hpp"
 #include <Tracy.hpp>
 #include <algorithm>
+#include <cstddef>
 #include <glad/glad.h>
 #include <iostream>
 #include <iterator>
@@ -349,7 +350,7 @@ auto initshaderprogram(bool dithering) -> bool
   const std::string_view vert_source = GetVertexShaderSource();
   const std::string_view frag_source = GetFragmentShaderSource();
 
-  const std::array<std::uint8_t, 8 * 8> dither = {
+  const std::array<std::uint8_t, static_cast<std::size_t>(8 * 8)> dither = {
     {0,  32, 8,  40, 2,  34, 10, 42, 48, 16, 56, 24, 50, 18, 58, 26, 12, 44, 4,  36, 14, 46,
      6,  38, 60, 28, 52, 20, 62, 30, 54, 22, 3,  35, 11, 43, 1,  33, 9,  41, 51, 19, 59, 27,
      49, 17, 57, 25, 15, 47, 7,  39, 13, 45, 5,  37, 63, 31, 55, 23, 61, 29, 53, 21}};
@@ -883,8 +884,8 @@ void tscreenshotthread::execute()
   src = fdata;
   dst = fdata;
 
-  src += stride * fheight;
-  dst += stride * (fheight - 1);
+  src += static_cast<ptrdiff_t>(stride * fheight);
+  dst += static_cast<ptrdiff_t>(stride * (fheight - 1));
 
   for (y = 1; y <= fheight; y++)
   {
@@ -903,10 +904,10 @@ void gfxsavescreen(const std::string &filename, std::int32_t x, std::int32_t y, 
   std::uint8_t *data;
   std::uint8_t *src;
 
-  getmem(data, 2 * w * h * 4);
+  getmem(data, static_cast<std::size_t>(2 * w * h * 4));
 
   src = data;
-  src += w * h * 4;
+  src += static_cast<ptrdiff_t>(w * h * 4);
   glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, src);
 
   NotImplemented("rendering", "Lack of screenshot");
@@ -1506,7 +1507,7 @@ void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx,
 
 void addfontpage(pfont f)
 {
-  fillchar(f->buffer, 4 * f->width * f->height, 0);
+  fillchar(f->buffer, static_cast<std::size_t>(4 * f->width * f->height), 0);
 
   setlength(f->pages, length(f->pages) + 1);
   f->pages[high(f->pages)] = gfxcreatetexture(f->width, f->height, 4, f->buffer, "Font page");
@@ -1599,7 +1600,7 @@ void DumpGlyph(const FT_Bitmap &glyph)
     std::string line;
     for (auto x = 0u; x < glyph.width; x++)
     {
-      line += *(glyph.buffer + y * glyph.pitch + x);
+      line += *(glyph.buffer + static_cast<size_t>(y * glyph.pitch) + x);
     }
     LogDebugG("    {}", line);
   }
@@ -2367,8 +2368,8 @@ tgfximage::tgfximage(const std::string &filename, tgfxcolor colorkey)
 
 tgfximage::tgfximage(std::int32_t width, std::int32_t height, std::int32_t comp)
 {
-  getmem(fdata, width * height * comp);
-  fillchar(fdata, width * height * comp, 0);
+  getmem(fdata, static_cast<std::size_t>(width * height * comp));
+  fillchar(fdata, static_cast<std::size_t>(width * height * comp), 0);
   fwidth = width;
   fheight = height;
   fcomponents = comp;
@@ -2391,7 +2392,7 @@ tgfximage::~tgfximage()
 auto tgfximage::getimagedata(std::int32_t frame) -> std::uint8_t *
 {
   auto *result = fdata;
-  result += (fwidth * fheight * fcomponents + 2) * frame;
+  result += static_cast<ptrdiff_t>((fwidth * fheight * fcomponents + 2) * frame);
   return result;
 }
 
@@ -2488,7 +2489,7 @@ void tgfximage::resize(std::int32_t w, std::int32_t h)
   }
 
   size = w * h * fcomponents + (2 * std::int32_t(fnumframes > 1));
-  getmem(data, fnumframes * size);
+  getmem(data, static_cast<std::size_t>(fnumframes * size));
 
   dst = data;
 
@@ -2734,7 +2735,8 @@ void tgfxvertexbuffer::update(std::int32_t offset, std::int32_t count, pgfxverte
   const std::int32_t size = sizeof(tgfxvertex);
 
   glBindBuffer(GL_ARRAY_BUFFER, fhandle);
-  glBufferSubData(GL_ARRAY_BUFFER, size * offset, size * count, data);
+  glBufferSubData(GL_ARRAY_BUFFER, static_cast<GLintptr>(size * offset),
+                  static_cast<GLsizeiptr>(size * count), data);
 }
 
 /******************************************************************************/
@@ -2774,7 +2776,8 @@ void tgfxindexbuffer::update(std::int32_t offset, std::int32_t count, uint16_t *
   const std::int32_t size = sizeof(std::uint16_t);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fhandle);
-  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, size * offset, size * count, data);
+  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLintptr>(size * offset),
+                  static_cast<GLsizeiptr>(size * count), data);
 }
 
 /******************************************************************************/
@@ -3026,7 +3029,7 @@ void tgfxspritesheet::loadnextimage()
       ld->imagestargetsize[i].x = 0;
       ld->imagestargetsize[i].y = 0;
       ld->imagestargetscale[i] = 1;
-      fillchar(ld->images[i]->getimagedata(0), 16 * 16 * 4, 255);
+      fillchar(ld->images[i]->getimagedata(0), static_cast<std::size_t>(16 * 16 * 4), 255);
     }
 
     if (ld->imagestargetscale[i] == 0)

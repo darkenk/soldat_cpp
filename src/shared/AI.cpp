@@ -940,8 +940,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
 
             // Special waypoint
             if (((CVar::sv_gamemode == gamestyle_inf) && (spritec.player->team == team_bravo) &&
-                 static_cast<int>((((things[GS::GetGame().GetTeamFlag(2)].inbase)) &
-                                   static_cast<int>(spritec.holdedthing == 0)) != 0)) ||
+                    (things[GS::GetGame().GetTeamFlag(2)].inbase) &&
+                     (spritec.holdedthing == 0)) ||
                 ((CVar::sv_gamemode == gamestyle_ctf) && (spritec.holdedthing == 0)) ||
                 ((CVar::sv_gamemode != gamestyle_inf) && (CVar::sv_gamemode != gamestyle_ctf) &&
                  (CVar::sv_gamemode != gamestyle_htf)))

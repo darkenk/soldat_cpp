@@ -11,6 +11,7 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <set>
 
 using string = std::string;
@@ -524,7 +525,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
   setlength(mg.animations, animtotal);
   setlength(mg.animationscmd, animtotal);
   setlength(mg.animduration, animtotal);
-  setlength(mg.animationsbuffer, 4 * animtotal);
+  setlength(mg.animationsbuffer, static_cast<std::size_t>(4 * animtotal));
 
   // setup props
 
@@ -602,7 +603,8 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
 
   if (animtotal > 0)
   {
-    std::memcpy(mg.animationsbuffer.data(), vb.data(), 4 * animtotal * sizeof(tgfxvertex));
+    std::memcpy(mg.animationsbuffer.data(), vb.data(),
+                static_cast<unsigned long>(4 * animtotal) * sizeof(tgfxvertex));
   }
 
   for (i = low(mg.animations); i <= high(mg.animations); i++)

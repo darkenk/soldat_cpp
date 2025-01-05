@@ -8,8 +8,8 @@ struct NetworkContext;
 
 template<typename T>
 void clientrequestgame(NetworkBase<T>& network, std::string_view password);
-template<typename T>
-void clientdisconnect(NetworkBase<T>& network);
+template <typename T>
+void clientdisconnect(NetworkBase<T> &client);
 void clientsendplayerinfo();
 template<typename T>
 void clientpong(NetworkBase<T>& network, std::uint8_t pingnum);
