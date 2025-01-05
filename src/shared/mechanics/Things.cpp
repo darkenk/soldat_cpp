@@ -2016,54 +2016,22 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
          (SpriteSystem::Get().GetSprite(j).bonusstyle == bonus_none) &&
          (SpriteSystem::Get().GetSprite(j).ceasefirecounter < 1)) ||
         ((style == object_vest_kit)
-#ifdef SERVER
          && (SpriteSystem::Get().GetSprite(j).vest < defaultvest)
-#endif
            ) ||
         ((style == object_cluster_kit)
-#ifdef SERVER
          && ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num == fraggrenade_num) ||
              (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount == 0))
-#endif
            ))
     {
-#ifndef SERVER
-      auto &spritePartsPos =
-        SpriteSystem::Get().GetSpritePartsPos(SpriteSystem::Get().GetSprite(j).num);
-      if (((style > object_pointmatch_flag) && (style < object_rambo_bow)) ||
-          (style > object_parachute)) // take sound
-        playsound(SfxEffect::takegun, spritePartsPos);
-      else if (style == object_rambo_bow) // rambo sound
-        playsound(SfxEffect::takebow, spritePartsPos);
-      else if (style == object_medical_kit) // take medikit sound
-        playsound(SfxEffect::takemedikit, spritePartsPos);
-      else if (style == object_grenade_kit) // take grenade kit sound
-        playsound(SfxEffect::pickupgun, spritePartsPos);
-      else if (style == object_flamer_kit) // take flamer kit sound
-        playsound(SfxEffect::godflame, spritePartsPos);
-      else if (style == object_predator_kit) // take predator kit sound
-        playsound(SfxEffect::predator, spritePartsPos);
-      else if (style == object_vest_kit) // take vest kit sound
-        playsound(SfxEffect::vesttake, spritePartsPos);
-      else if (style == object_berserk_kit) // take berserker kit sound
-        playsound(SfxEffect::berserker, spritePartsPos);
-      else if (style == object_cluster_kit) // take cluster kit sound
-        playsound(SfxEffect::pickupgun, spritePartsPos);
-#endif
-
-#ifdef SERVER
       // Send thing take info through NET
       serverthingtaken(num, j);
-#endif
       if (style != object_rambo_bow)
       {
         kill();
       }
     }
 
-#ifdef SERVER
     knifecan[j] = true;
-#endif
 
     switch (style)
     {
@@ -2091,14 +2059,8 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
       {
         if ((holdingsprite == 0) && (SpriteSystem::Get().GetSprite(j).flaggrabcooldown < 1))
         {
-#ifndef SERVER
-          // capture sound
-          playsound(SfxEffect::capture, skeleton.pos[1]);
-#endif
           holdingsprite = j;
-#ifdef SERVER
           serverthingtaken(num, j);
-#endif
 
           capcolor = capture_message_color;
           switch (CVar::sv_gamemode)
@@ -2117,17 +2079,12 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
             break;
           }
 
-#ifdef SERVER
           smallcaptextstr = "";
-#else
-          smallcaptext = "";
-#endif
 
           switch (CVar::sv_gamemode)
           {
           case gamestyle_pointmatch:
           case gamestyle_htf: {
-#ifdef SERVER
             smallcaptextstr =
               SpriteSystem::Get().GetSprite(j).player->name + " got the Yellow Flag";
             if (CVar::sv_gamemode == gamestyle_htf)
@@ -2135,10 +2092,6 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
               SpriteSystem::Get().GetSprite(j).player->grabbedinbase = things[2].inbase;
               SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
             }
-#else
-            bigcaptext = iif(j == mysprite, _("You got the Flag!"), _("Yellow Flag captured!"));
-            smallcaptext = _("{} got the Yellow Flag");
-#endif
 #ifdef SCRIPT
             scrptdispatcher.onflaggrab(j, style,
                                        SpriteSystem::Get().GetSprite(j).player->grabbedinbase);
@@ -2151,23 +2104,13 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
               switch (SpriteSystem::Get().GetSprite(j).player->team)
               {
               case team_alpha: {
-#ifdef SERVER
                 smallcaptextstr =
                   SpriteSystem::Get().GetSprite(j).player->name + " returned the Red Flag";
-#else
-                bigcaptext = _("Red flag returned!");
-                smallcaptext = _("%s returned the Red Flag");
-#endif
               }
               break;
               case team_bravo: {
-#ifdef SERVER
                 smallcaptextstr =
                   SpriteSystem::Get().GetSprite(j).player->name + " returned the Blue Flag";
-#else
-                bigcaptext = _("Blue Flag returned!");
-                smallcaptext = _("%s returned the Blue Flag");
-#endif
               }
               break;
               }
@@ -2181,29 +2124,17 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
               switch (SpriteSystem::Get().GetSprite(j).player->team)
               {
               case team_alpha: {
-#ifdef SERVER
                 smallcaptextstr =
                   SpriteSystem::Get().GetSprite(j).player->name + " captured the Blue Flag";
                 SpriteSystem::Get().GetSprite(j).player->grabbedinbase = things[2].inbase;
                 SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
-#else
-                bigcaptext =
-                  iif(j == mysprite, _("You got the Blue Flag!"), _("Blue Flag captured!"));
-                smallcaptext = _("%s captured the Blue Flag");
-#endif
               }
               break;
               case team_bravo: {
-#ifdef SERVER
                 smallcaptextstr =
                   SpriteSystem::Get().GetSprite(j).player->name + " captured the Red Flag";
                 SpriteSystem::Get().GetSprite(j).player->grabbedinbase = things[1].inbase;
                 SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
-#else
-                bigcaptext =
-                  iif(j == mysprite, _("You got the Red Flag!"), _("Red Flag captured!"));
-                smallcaptext = _("%s captured the Red Flag");
-#endif
               }
               break;
               }
@@ -2218,16 +2149,10 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
             {
               if (SpriteSystem::Get().GetSprite(j).player->team == team_bravo)
               {
-#ifdef SERVER
                 smallcaptextstr =
                   SpriteSystem::Get().GetSprite(j).player->name + " returned the Objective";
                 SpriteSystem::Get().GetSprite(j).player->grabbedinbase = things[2].inbase;
                 SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
-#else
-                bigcaptext =
-                  iif(j == mysprite, _("You returned the Objective!"), _("Objective returned!"));
-                smallcaptext = _("%s returned the Objective");
-#endif
               }
 #ifdef SCRIPT
               scrptdispatcher.onflagreturn(j, style);
@@ -2238,16 +2163,10 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
             {
               if (SpriteSystem::Get().GetSprite(j).player->team == team_alpha)
               {
-#ifdef SERVER
                 smallcaptextstr =
                   SpriteSystem::Get().GetSprite(j).player->name + " captured the Objective";
                 SpriteSystem::Get().GetSprite(j).player->grabbedinbase = things[2].inbase;
                 SpriteSystem::Get().GetSprite(j).player->grabspersecond += 1;
-#else
-                bigcaptext =
-                  iif(j == mysprite, _("You got the Objective!"), _("Objective captured!"));
-                smallcaptext = _("%s captured the Objective");
-#endif
               }
 #ifdef SCRIPT
               scrptdispatcher.onflaggrab(j, style,
@@ -2257,20 +2176,10 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
             break;
           }
 
-#ifdef SERVER
           if (!smallcaptextstr.empty())
           {
             GS::GetMainConsole().console(smallcaptextstr, capcolor);
           }
-#else
-          if (smallcaptext != "")
-          {
-            bigmessage(bigcaptext, capturemessagewait, capcolor);
-            GS::GetMainConsole().console(
-              wideformat(smallcaptext, set::of(SpriteSystem::Get().GetSprite(j).player->name, eos)),
-              capcolor);
-          }
-#endif
         }
       }
     }
@@ -2316,10 +2225,6 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
                   SpriteSystem::Get().GetSprite(j).weapon.fireinterval;
                 SpriteSystem::Get().GetSprite(j).weapon.fireintervalcount =
                   SpriteSystem::Get().GetSprite(j).weapon.fireinterval;
-#ifndef SERVER
-                if (j == mysprite)
-                  clientspritesnapshot;
-#endif
 #ifdef SCRIPT
               }
 #endif
@@ -2356,25 +2261,8 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
               SpriteSystem::Get().GetSprite(j).weapon.fireintervalcount =
                 SpriteSystem::Get().GetSprite(j).weapon.fireinterval;
               SpriteSystem::Get().GetSprite(j).wearhelmet = 1;
-#ifndef SERVER
-              if (j == mysprite)
-                clientspritesnapshot;
-#endif
 #ifdef SCRIPT
             }
-#endif
-
-#ifndef SERVER
-            if (j == mysprite)
-            {
-              bigmessage(_("You got the Bow!"), capturemessagewait, capture_message_color);
-              if (!limbolock)
-                gamemenushow(limbomenu, false);
-            }
-            else
-              bigmessage(wideformat(_("%s got the Bow!"),
-                                    set::of(SpriteSystem::Get().GetSprite(j).player->name, eos)),
-                         capturemessagewait, capture_message_color);
 #endif
           }
         }
@@ -2384,17 +2272,13 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
       if (SpriteSystem::Get().GetSprite(j).GetHealth() < GS::GetGame().GetStarthealth())
       {
         // pickup health pack
-#ifdef SERVER
         if (!SpriteSystem::Get().GetSprite(j).haspack)
-#endif
         {
           team = SpriteSystem::Get().GetSprite(j).player->team;
-#ifdef SERVER
           if (CVar::sv_healthcooldown > 0)
           {
             SpriteSystem::Get().GetSprite(j).haspack = true;
           }
-#endif
           SpriteSystem::Get().GetSprite(j).SetHealth(GS::GetGame().GetStarthealth());
           respawn();
 
@@ -2445,22 +2329,10 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
 #endif
             SpriteSystem::Get().GetSprite(j).applyweaponbynum(
               SpriteSystem::Get().GetSprite(j).weapon.num, 2
-#ifndef SERVER
-              ,
-              -1, true
-#endif
             );
             SpriteSystem::Get().GetSprite(j).applyweaponbynum(flamer_num, 1);
             SpriteSystem::Get().GetSprite(j).bonustime = flamerbonustime;
             SpriteSystem::Get().GetSprite(j).bonusstyle = bonus_flamegod;
-
-#ifndef SERVER
-            if (j == mysprite)
-            {
-              bigmessage(_("Flame God Mode!"), capturemessagewait, bonus_message_color);
-              clientspritesnapshot();
-            }
-#endif
 
             SpriteSystem::Get().GetSprite(j).SetHealth(GS::GetGame().GetStarthealth());
 #ifdef SCRIPT
@@ -2477,11 +2349,6 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
         SpriteSystem::Get().GetSprite(j).bonustime = predatorbonustime;
         SpriteSystem::Get().GetSprite(j).bonusstyle = bonus_predator;
 
-#ifndef SERVER
-        if (j == mysprite)
-          bigmessage(_("Predator Mode!"), capturemessagewait, bonus_message_color);
-#endif
-
         SpriteSystem::Get().GetSprite(j).SetHealth(GS::GetGame().GetStarthealth());
 
 #ifdef SCRIPT
@@ -2491,11 +2358,6 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
       break;
     case object_vest_kit: {
       SpriteSystem::Get().GetSprite(j).vest = defaultvest;
-
-#ifndef SERVER
-      if (j == mysprite)
-        bigmessage(_("Bulletproof Vest!"), capturemessagewait, capture_message_color);
-#endif
 
 #ifdef SCRIPT
       scrptdispatcher.onkitpickup(j, num);
@@ -2509,11 +2371,6 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
         SpriteSystem::Get().GetSprite(j).bonusstyle = bonus_berserker;
         SpriteSystem::Get().GetSprite(j).bonustime = berserkerbonustime;
 
-#ifndef SERVER
-        if (j == mysprite)
-          bigmessage(_("Berserker Mode!"), capturemessagewait, bonus_message_color);
-#endif
-
         SpriteSystem::Get().GetSprite(j).SetHealth(GS::GetGame().GetStarthealth());
 
 #ifdef SCRIPT
@@ -2522,18 +2379,11 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
       }
       break;
     case object_cluster_kit:
-#ifdef SERVER
       if ((SpriteSystem::Get().GetSprite(j).tertiaryweapon.num == fraggrenade_num) ||
           (SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount == 0))
-#endif
       {
         SpriteSystem::Get().GetSprite(j).SetThirdWeapon(guns[clustergrenade]);
         SpriteSystem::Get().GetSprite(j).tertiaryweapon.ammocount = cluster_grenades;
-
-#ifndef SERVER
-        if (j == mysprite)
-          bigmessage(_("Cluster grenades!"), capturemessagewait, capture_message_color);
-#endif
 
 #ifdef SCRIPT
         scrptdispatcher.onkitpickup(j, num);
@@ -2573,10 +2423,6 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
                   SpriteSystem::Get().GetSprite(j).weapon.fireinterval;
                 SpriteSystem::Get().GetSprite(j).weapon.fireintervalcount =
                   SpriteSystem::Get().GetSprite(j).weapon.fireinterval;
-#ifndef SERVER
-                if (j == mysprite)
-                  clientspritesnapshot;
-#endif
 #ifdef SCRIPT
               }
 #endif
