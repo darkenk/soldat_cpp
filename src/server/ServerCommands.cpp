@@ -425,7 +425,7 @@ void commandsetteam(std::vector<std::string> &args, std::uint8_t sender)
   targets = commandtarget(name, sender);
   for (i = 0; i <= high(targets); i++)
   {
-    SpriteSystem::Get().GetSprite(targets[i]).changeteam(teamset, true);
+    SpriteSystem::Get().GetSprite(targets[i]).changeteam_ServerVariant(teamset, true);
   }
 }
 

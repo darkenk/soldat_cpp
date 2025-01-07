@@ -1874,7 +1874,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     // game log
     if (what > 0)
     {
-      if constexpr (Config::IsServer())
+      if constexpr (Config::IsServer(M))
       {
         auto &b = bullet[what];
         s = weaponnamebynum(b.ownerweapon, guns);
@@ -4267,13 +4267,8 @@ void Sprite<M>::parachute(tvector2 &a)
   }
 }
 
-#ifdef SERVER
 template <Config::Module M>
-void Sprite<M>::changeteam(std::int32_t team, bool adminchange, std::uint8_t jointype)
-#else
-template <Config::Module M>
-void Sprite<M>::changeteam(std::int32_t team)
-#endif
+void Sprite<M>::changeteam_ServerVariant(std::int32_t team, bool adminchange, std::uint8_t jointype)
 {
   std::int32_t i;
   tvector2 a;
@@ -5628,7 +5623,7 @@ auto Sprite<M>::GetOldSpritePos(int32_t idx) -> tvector2
   return oldspritepos[i];
 }
 
-template class Sprite<>;
+template class Sprite<Config::GetModule()>;
 template bool teamcollides(PolygonType polytype, std::int32_t team, const bool bullet);
 template class BackgroundState<>;
 

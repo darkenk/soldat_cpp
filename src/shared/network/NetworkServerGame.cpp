@@ -341,7 +341,7 @@ void serverhandlechangeteam(tmsgheader* netmessage, std::int32_t size, NetworkSe
   }
   changeteammsg = pmsg_changeteam(netmessage);
   i = player->spritenum;
-  SpriteSystem::Get().GetSprite(i).changeteam(changeteammsg->team);
+  SpriteSystem::Get().GetSprite(i).changeteam_ServerVariant(changeteammsg->team);
 }
 
 void serversyncmsg(std::int32_t tonum)

@@ -90,8 +90,8 @@ private:
 };
 
 template <Config::Module M = Config::GetModule()>
-void InitClientNetwork() requires(Config::IsClient());
+void InitClientNetwork() requires(Config::IsClient(M));
 template <Config::Module M = Config::GetModule()>
-NetworkClientImpl *GetNetwork() requires(Config::IsClient());
+NetworkClientImpl *GetNetwork() requires(Config::IsClient(M));
 template <Config::Module M = Config::GetModule()>
-void DeinitClientNetwork() requires(Config::IsClient());
+void DeinitClientNetwork() requires(Config::IsClient(M));

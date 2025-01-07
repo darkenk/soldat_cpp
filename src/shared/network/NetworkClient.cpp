@@ -406,18 +406,17 @@ NetworkClientImpl *gUDP = nullptr;
 }
 
 template <Config::Module M>
-void DeinitClientNetwork() requires(Config::IsClient())
+void DeinitClientNetwork() requires(Config::IsClient(M))
 {
   delete gUDP;
   gUDP = nullptr;
 }
 
 template <Config::Module M>
-auto GetNetwork() -> NetworkClientImpl *requires(Config::IsClient()) { return gUDP; }
+auto GetNetwork() -> NetworkClientImpl *requires(Config::IsClient(M)) { return gUDP; }
 
 template <Config::Module M>
-void InitClientNetwork()
-  requires(Config::IsClient())
+void InitClientNetwork() requires(Config::IsClient(M))
 {
   gUDP = new NetworkClientImpl();
 }

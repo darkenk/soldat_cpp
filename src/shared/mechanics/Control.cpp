@@ -24,13 +24,16 @@
 #include <Tracy.hpp>
 
 #ifndef SERVER
-bool wasrunningleft;
-bool wasjumping;
-bool wasthrowinggrenade;
-bool waschangingweapon;
-bool wasthrowingweapon;
-bool wasreloadingweapon;
-bool freecampressed;
+namespace
+{
+  bool wasrunningleft;
+  bool wasjumping;
+  bool wasthrowinggrenade;
+  bool waschangingweapon;
+  bool wasthrowingweapon;
+  bool wasreloadingweapon;
+  bool freecampressed;
+};
 #endif
 
 auto checkspritelineofsightvisibility(tsprite &looksprite, tsprite &spritetocheck) -> bool

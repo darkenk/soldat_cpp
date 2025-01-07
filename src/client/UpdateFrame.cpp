@@ -18,10 +18,10 @@
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include <Tracy.hpp>
 #include <cstdint>
-#include <shared/network/NetworkClient.hpp>
 
 std::int32_t idlecounter, oldmousex;
 

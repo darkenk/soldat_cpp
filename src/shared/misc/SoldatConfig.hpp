@@ -32,12 +32,12 @@ using namespace defaults;
 
 namespace Config
 {
-constexpr bool IsServer(Config::Module module = Config::GetModule()) noexcept
+constexpr bool IsServer(Config::Module module) noexcept
 {
   return module == Module::SERVER_MODULE;
 }
 
-constexpr bool IsClient(Config::Module module = Config::GetModule()) noexcept
+constexpr bool IsClient(Config::Module module) noexcept
 {
   return module == Module::CLIENT_MODULE;
 }

@@ -419,7 +419,8 @@ static auto sConvertKillBulletToGFX(const std::uint8_t killbullet) -> std::int32
   }
 }
 
-static void sFillPos(Sprite<> &sprite, const tmsg_spritedeath *deathsnap)
+template<Config::Module M>
+static void sFillPos(Sprite<M> &sprite, const tmsg_spritedeath *deathsnap)
 {
   for (std::int32_t d = 0; d < 16; d++)
   {
@@ -967,7 +968,7 @@ TEST_SUITE("NetworkClientSprite")
 
   TEST_CASE("Fill sprite positions with valid data")
   {
-    Sprite<> sprite{1};
+    Sprite<Config::Module::CLIENT_MODULE> sprite{1};
     tmsg_spritedeath deathsnap;
     for (std::int32_t d = 0; d < 16; d++)
     {
@@ -988,7 +989,7 @@ TEST_SUITE("NetworkClientSprite")
 
   TEST_CASE("Fill sprite positions with zero data")
   {
-    Sprite<> sprite{1};
+    Sprite<Config::Module::CLIENT_MODULE> sprite{1};
     tmsg_spritedeath deathsnap;
     for (std::int32_t d = 0; d < 16; d++)
     {
@@ -1009,7 +1010,7 @@ TEST_SUITE("NetworkClientSprite")
 
   TEST_CASE("Fill sprite positions with mixed data")
   {
-    Sprite<> sprite{1};
+    Sprite<Config::Module::CLIENT_MODULE> sprite{1};
     tmsg_spritedeath deathsnap;
     for (std::int32_t d = 0; d < 16; d++)
     {
@@ -1040,7 +1041,7 @@ TEST_SUITE("NetworkClientSprite")
   }
   TEST_CASE("Fill sprite positions with valid data including special cases")
   {
-    Sprite<> sprite{1};
+    Sprite<Config::Module::CLIENT_MODULE> sprite{1};
     tmsg_spritedeath deathsnap;
     for (std::int32_t d = 0; d < 16; d++)
     {

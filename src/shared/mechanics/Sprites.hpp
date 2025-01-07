@@ -58,6 +58,10 @@ constexpr std::int32_t pos_prone = 4;
 typedef PascalArray<std::int32_t, 1, max_sprites> tspriteindexes;
 typedef PascalArray<float, 1, max_sprites> tspritedistances;
 
+class TServerPlayer;
+
+struct EmptyClass {};
+
 struct tcontrol
 {
   bool left, right, up, down, fire, jetpack, thrownade, changeweapon, throwweapon, reload, prone,
@@ -86,7 +90,7 @@ struct tbotdata
   std::uint8_t fallsave;
 };
 
-template <Config::Module M = Config::GetModule()>
+template <Config::Module M>
 class Sprite
 {
 public:
@@ -146,31 +150,26 @@ public:
   tgun weapon, secondaryweapon, tertiaryweapon;
   bool grenadecanthrow;
   tbotdata brain;
-#ifdef SERVER
-  std::shared_ptr<TServerPlayer> player;
-#else
-  std::shared_ptr<tplayer> player;
-#endif
+  std::shared_ptr<std::conditional_t<Config::IsServer(M), TServerPlayer, tplayer>> player;
   bool typing;
   bool autoreloadwhencanfire;
   bool canautoreloadspas;
   tbackgroundstate bgstate;
-#ifdef SERVER
-  bool haspack;
-  float targetx, targety;
-#else
-  std::uint32_t gattlingsoundchannel2, reloadsoundchannel, jetssoundchannel, gattlingsoundchannel;
-  bool olddeadmeat = false;
-  bool muted;
-#endif
+  [[no_unique_address]] std::conditional_t<Config::IsServer(M), bool, EmptyClass> haspack;
+  [[no_unique_address]] std::conditional_t<Config::IsServer(M), float, EmptyClass> targetx;
+  [[no_unique_address]] std::conditional_t<Config::IsServer(M), float, EmptyClass> targety;
+  [[no_unique_address]] std::conditional_t<Config::IsClient(M), std::uint32_t, EmptyClass> gattlingsoundchannel2;
+  [[no_unique_address]] std::conditional_t<Config::IsClient(M), std::uint32_t, EmptyClass> reloadsoundchannel;
+  [[no_unique_address]] std::conditional_t<Config::IsClient(M), std::uint32_t, EmptyClass> jetssoundchannel;
+  [[no_unique_address]] std::conditional_t<Config::IsClient(M), std::uint32_t, EmptyClass> gattlingsoundchannel;
+  [[no_unique_address]] std::conditional_t<Config::IsClient(M), bool, EmptyClass> olddeadmeat;
+  [[no_unique_address]] std::conditional_t<Config::IsClient(M), bool, EmptyClass> muted;
   bool dontdrop;
   PascalArray<tvector2, 0, max_pushtick> nextpush;
   std::uint16_t bulletcount;
-#ifdef SERVER
-  std::array<std::uint64_t, bulletcheckarraysize> bulletcheck;
-  std::int32_t bulletcheckindex;
-  std::int32_t bulletcheckamount;
-#endif
+  [[no_unique_address]] std::conditional_t<Config::IsServer(M), std::array<std::uint64_t, bulletcheckarraysize>, EmptyClass> bulletcheck;
+  [[no_unique_address]] std::conditional_t<Config::IsServer(M), std::int32_t, EmptyClass> bulletcheckindex;
+  [[no_unique_address]] std::conditional_t<Config::IsServer(M), std::int32_t, EmptyClass> bulletcheckamount;
   //  public
   void update();
   void kill();
@@ -194,11 +193,11 @@ public:
   void checkskeletonoutofbounds();
   void respawn();
   void parachute(tvector2 &a);
-#ifndef SERVER
-  void changeteam(std::int32_t team);
-#else
-  void changeteam(std::int32_t team, bool adminchange = false, std::uint8_t jointype = join_normal);
-#endif
+  void changeteam(std::int32_t team) requires(Config::IsClient(M))
+  {
+    changeteam_ServerVariant(team);
+  }
+  void changeteam_ServerVariant(std::int32_t team, bool adminchange = false, std::uint8_t jointype = join_normal);
   void fire();
   void throwflag();
   void throwgrenade();
