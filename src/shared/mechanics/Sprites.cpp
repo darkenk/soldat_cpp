@@ -68,11 +68,7 @@ auto createsprite(tvector2 &spos, SpriteId id, std::shared_ptr<tplayer> player,
   {
     sprite.player->spritenum = 0;
   }
-#if SERVER
-  sprite.player = std::static_pointer_cast<TServerPlayer>(player);
-#else
-  sprite.player = player;
-#endif
+  sprite.player = std::static_pointer_cast<std::conditional_t<Config::IsServer(M), TServerPlayer, tplayer>>(player);
   sprite.player->spritenum = sprite.num;
   sprite.ceasefirecounter = game.GetCeasefiretime();
 
@@ -118,9 +114,10 @@ auto createsprite(tvector2 &spos, SpriteId id, std::shared_ptr<tplayer> player,
   sprite.SetSecondWeapon(guns[secGun]);
 
   sprite.jetscount = map.startjet;
-#ifndef SERVER
-  sprite.jetscountprev = map.startjet;
-#endif
+  if constexpr(Config::IsClient(M))
+  {
+    sprite.jetscountprev = map.startjet;
+  }
   sprite.tertiaryweapon.ammocount = CVar::sv_maxgrenades / 2;
 
   if (sprite.player->headcap == 0)
@@ -2043,7 +2040,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
       freecontrols();
     }
-#endif
+#endif // SERVER
 
 #ifndef SERVER
     if (((who == mysprite) || (num == mysprite)) && (what > 0) &&
