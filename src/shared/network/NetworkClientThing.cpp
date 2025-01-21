@@ -5,11 +5,11 @@
 #include "../../client/Sound.hpp"
 #include "../Cvar.hpp"
 #include "../Game.hpp"
-#include "../GameStrings.hpp"
 #include "NetworkClient.hpp"
 #include "NetworkClientSprite.hpp"
 #include "NetworkUtils.hpp"
 #include "common/Calc.hpp"
+#include "common/GameStrings.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 

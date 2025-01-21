@@ -4,7 +4,6 @@
 #ifndef SERVER
 #include "../../client/Client.hpp"
 #include "../../client/GameMenus.hpp"
-#include "../../client/GameStrings.hpp"
 #include "../../client/Sound.hpp"
 #include "../../shared/network/NetworkClientSprite.hpp"
 #else
@@ -23,6 +22,7 @@
 #include "SpriteSystem.hpp"
 #include "common/Calc.hpp"
 #include "common/Console.hpp"
+#include "common/GameStrings.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
@@ -2267,18 +2267,21 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #endif
         }
 
-#ifndef SERVER
-        if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
-#endif
         {
-          GS::GetMainConsole().console(
-#ifdef SERVER
-            std::string("Players left: ") +
-#else
-          _("Players left:") + ' ' +
-#endif
-              (inttostr(alivenum)),
-            game_message_color);
+          auto show_log = true;
+          if constexpr(!Config::IsServer(M))
+          {
+            extern std::uint8_t mysprite;
+            show_log = !SpriteSystem::Get().GetSprite(mysprite).deadmeat;
+          }
+
+          if (show_log)
+          {
+            GS::GetMainConsole().console(
+              _("Players left:") + ' ' +
+                (inttostr(alivenum)),
+              game_message_color);
+          }
         }
       }
 

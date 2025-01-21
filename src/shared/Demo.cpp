@@ -7,10 +7,10 @@
 #else
 #include "../client/Client.hpp"
 #include "../client/ClientGame.hpp"
-#include "../client/GameStrings.hpp"
 #include "../client/InterfaceGraphics.hpp"
 #endif
 #include "Cvar.hpp"
+#include "common/GameStrings.hpp"
 #include "common/MapFile.hpp"
 #include "common/Util.hpp"
 #include "common/Console.hpp"

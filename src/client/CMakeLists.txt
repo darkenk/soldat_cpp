@@ -7,7 +7,6 @@ set(SRC
     ${GLAD_SRC}
     GameMenus.cpp
     Input.cpp
-    GameStrings.cpp
     BinPack.cpp
     Sound.cpp
     MapGraphics.cpp

@@ -13,6 +13,7 @@ set(SRC
     Console.cpp
     DefaultFont.cpp
     FileUtility.cpp
+    GameStrings.cpp
     Logging.cpp
     MapFile.cpp
     Parts.cpp
