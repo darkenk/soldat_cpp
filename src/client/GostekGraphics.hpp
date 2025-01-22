@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common/misc/TIniFile.hpp"
-#include "shared/misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include "Gfx.hpp"
 
 template <Config::Module M>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "misc/FlagSet.hpp"
-#include "misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include <algorithm>
 #include <cstdint>
 #include <map>

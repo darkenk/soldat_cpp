@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shared/misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp"
 template <Config::Module M>
 class Sprite;
 

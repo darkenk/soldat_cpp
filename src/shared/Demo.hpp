@@ -1,6 +1,6 @@
 #pragma once
 
-#include "misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include <array>
 #include <cstdint>
 #include <string>

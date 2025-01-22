@@ -1274,15 +1274,16 @@ void Sprite<M>::update()
       {
         auto &spriteForces = SpriteSystem::Get().GetForces(num);
         spriteForces.y = para_speed;
-#ifdef SERVER
-        if (ceasefirecounter < 1)
+
+        auto ceasefire = ceasefirecounter < 1;
+        if constexpr(Config::IsClient(M))
         {
-#else
-        if (((CVar::sv_survivalmode) &&
-             (ceasefirecounter < GS::GetGame().GetCeasefiretime() * 3 - 30)) ||
-            (ceasefirecounter < GS::GetGame().GetCeasefiretime() - 30))
+          ceasefire = (CVar::sv_survivalmode &&
+                       (ceasefirecounter < GS::GetGame().GetCeasefiretime() * 3 - 30)) ||
+                      (ceasefirecounter < GS::GetGame().GetCeasefiretime() - 30);
+        }
+        if (ceasefire)
         {
-#endif
           if (onground || control.jetpack)
           {
             if ((holdedthing > 0) && (holdedthing < max_things + 1))
@@ -2420,15 +2421,22 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
   auto &weaponsel = GS::GetGame().GetWeaponsel();
 
   // BREAD
-#ifdef SERVER
-  if (!CVar::sv_advancemode)
+  bool bread = false;
+  if constexpr (Config::IsServer(M))
   {
-    auto &weaponSystem = GS::GetWeaponSystem();
+    bread = !CVar::sv_advancemode;
+  }
+  else
+  {
+    bread = CVar::sv_advancemode;
+  }
+  if (bread)
+  {
+    auto &weaponSystem = GlobalSystems<M>::GetWeaponSystem();
+    
+#ifdef SERVER
     if (!deadmeat && (num != who))
 #else
-  if (CVar::sv_advancemode)
-  {
-    auto &weaponSystem = GS::GetWeaponSystem();
     if (!deadmeat)
 #endif
     {
@@ -3648,11 +3656,12 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
     hm = round(0.25 * amount);
   }
 
-#ifdef SERVER
-  if (SpriteSystem::Get().GetSprite(who).bonusstyle == bonus_berserker)
-#else
-  if ((SpriteSystem::Get().GetSprite(who).bonusstyle == bonus_berserker) && (who != num))
-#endif
+  bool enable_berserker = who != num;
+  if constexpr (Config::IsServer(M))
+  {
+    enable_berserker = true;
+  }
+  if (SpriteSystem::Get().GetSprite(who).bonusstyle == bonus_berserker && enable_berserker)
   {
     hm = 4 * amount;
   }
@@ -4005,9 +4014,12 @@ void Sprite<M>::respawn()
 
   if (selweapon > 0)
   {
-#ifndef SERVER
-    if ((weaponSystem.IsEnabled(selweapon)) && (weaponsel[num][selweapon] == 1))
-#endif
+    bool is_weapon_enabled = (weaponSystem.IsEnabled(selweapon)) && (weaponsel[num][selweapon] == 1);
+    if constexpr(Config::IsServer(M))
+    {
+      is_weapon_enabled = true;
+    }
+    if (is_weapon_enabled)
     {
       applyweaponbynum(selweapon, 1);
 #ifndef SERVER
@@ -4032,9 +4044,13 @@ void Sprite<M>::respawn()
     SetSecondWeapon(guns[noweapon]);
   }
 
-#ifdef SERVER
-  if (CVar::sv_advancemode)
-#endif
+  bool advanced_mode = CVar::sv_advancemode;
+  if constexpr(Config::IsClient(M))
+  {
+    advanced_mode = true;
+  }
+
+  if (advanced_mode)
   {
     if ((selweapon > 0) && (!weaponSystem.IsEnabled(selweapon) || (weaponsel[num][selweapon] == 0)))
     {
@@ -5393,12 +5409,14 @@ void Sprite<M>::throwgrenade()
         createbullet(a, b, tertiaryweapon.num, num, 255, guns[fraggrenade].hitmultiply, true,
                      false);
 
-#ifdef SERVER
-        if (player->controlmethod == bot)
-#else
-        if (((player->controlmethod == human) && (num == mysprite)) ||
-            (player->controlmethod == bot))
-#endif
+        extern std::uint8_t mysprite;
+        bool is_current_sprite = ((player->controlmethod == human) && (num == mysprite));
+        if constexpr(Config::IsServer(M))
+        {
+          is_current_sprite = false;
+        }
+
+        if (is_current_sprite || (player->controlmethod == bot))
         {
           tertiaryweapon.ammocount -= 1;
         }
@@ -5449,11 +5467,12 @@ auto Sprite<M>::getmoveacc() -> float
   result = 0;
 
   // No moveacc for bots on harder difficulties
-#ifdef SERVER
-  if ((player->controlmethod == bot) && (CVar::bots_difficulty < 50))
-#else
-  if (player->controlmethod == bot)
-#endif
+  bool bots_difficulty_low = true;
+  if constexpr (Config::IsServer(M))
+  {
+    bots_difficulty_low = CVar::bots_difficulty < 50;
+  }
+  if (player->controlmethod == bot && bots_difficulty_low)
   {
     moveacc = 0;
   }

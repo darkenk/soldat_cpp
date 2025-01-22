@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common/PolyMap.hpp"
-#include "shared/misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp"
 
 template <Config::Module M = Config::GetModule()>
 class BackgroundState

@@ -1,6 +1,6 @@
 #include "Net.hpp"
 #include "../Constants.hpp"
-#include "../misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Demo.hpp"

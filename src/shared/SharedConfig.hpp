@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common/misc/TIniFile.hpp"
-#include "misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp"
 
 template <Config::Module M>
 class Sprite;

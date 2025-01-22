@@ -1,6 +1,6 @@
 #pragma once
 #include "common/Vector.hpp"
-#include "shared/misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include <cstdint>
 
 class Polymap;

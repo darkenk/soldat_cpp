@@ -2,7 +2,7 @@
 
 #include "common/Anims.hpp"
 #include "common/misc/GlobalSubsystem.hpp"
-#include "misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include <string>
 
 class particlesystem;

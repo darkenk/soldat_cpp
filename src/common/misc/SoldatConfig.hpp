@@ -1,5 +1,5 @@
 #pragma once
-#include "common/misc/Config.hpp"
+#include "Config.hpp"
 
 namespace Config
 {
