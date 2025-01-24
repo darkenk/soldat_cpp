@@ -121,6 +121,12 @@ public:
 
   void UpdateSpriteParts();
 
+  TSprite& GetMySprite() requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
+  {
+    extern std::uint8_t mysprite;
+    return GetSprite(mysprite);
+  }
+
 protected:
   TSpriteSystem();
 

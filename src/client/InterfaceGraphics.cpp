@@ -368,7 +368,7 @@ auto loadinterfacedata(const std::string &interfacename) -> bool
 // Does the HUD overlay belong to the player?
 auto isinteractiveinterface() -> bool
 {
-  return SpriteSystem::Get().GetSprite(mysprite).isnotspectator() or
+  return SpriteSystem::Get().GetMySprite().isnotspectator() or
          ((camerafollowsprite > 0) && (CVar::sv_advancedspectator));
 }
 
