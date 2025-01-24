@@ -507,7 +507,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
   else if (action == taction::radio)
   {
     if ((chattext.empty()) && (CVar::sv_radio) && (mysprite > 0) and
-        (SpriteSystem::Get().GetMySprite().isnotspectator)())
+        (SpriteSystem::Get().GetPlayerSprite().isnotspectator)())
     {
       showradiomenu = !showradiomenu;
       rmenustate[0] = ' ';
@@ -606,7 +606,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
       }
 
       // force spectator chat to teamchat in survival mode when Round hasn't ended
-      if ((CVar::sv_survivalmode) && SpriteSystem::Get().GetMySprite().isspectator() &&
+      if ((CVar::sv_survivalmode) && SpriteSystem::Get().GetPlayerSprite().isspectator() &&
           !game.GetSurvivalEndRound() && (CVar::sv_survivalmode_antispy))
       {
         chattype = msgtype_team;
@@ -618,7 +618,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
   else if (action == taction::teamchat)
   {
     if ((chattext.empty()) && (mysprite > 0) &&
-        (SpriteSystem::Get().GetMySprite().isspectator() || GS::GetGame().isteamgame()))
+        (SpriteSystem::Get().GetPlayerSprite().isspectator() || GS::GetGame().isteamgame()))
     {
       SDL_StartTextInput();
       chattext = ' ';
@@ -651,9 +651,9 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
   else if (action == taction::weapons)
   {
     if ((chattext.empty()) && (mysprite > 0) && !escmenu->active &&
-        !SpriteSystem::Get().GetMySprite().isspectator())
+        !SpriteSystem::Get().GetPlayerSprite().isspectator())
     {
-      if (SpriteSystem::Get().GetMySprite().deadmeat)
+      if (SpriteSystem::Get().GetPlayerSprite().deadmeat)
       {
         gamemenushow(limbomenu, !limbomenu->active);
         limbolock = !limbomenu->active;
@@ -665,8 +665,8 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
         auto &weaponSystem = GS::GetWeaponSystem();
         auto pricount = weaponSystem.CountEnabledPrimaryWeapons();
         auto seccount = weaponSystem.CountEnabledSecondaryWeapons();
-        auto prinum = SpriteSystem::Get().GetMySprite().weapon.num;
-        auto secnum = SpriteSystem::Get().GetMySprite().secondaryweapon.num;
+        auto prinum = SpriteSystem::Get().GetPlayerSprite().weapon.num;
+        auto secnum = SpriteSystem::Get().GetPlayerSprite().secondaryweapon.num;
 
         if (!limbomenu->active or (((prinum != noweapon_num) || (pricount == 0)) &&
                                    ((secnum != noweapon_num) || (seccount == 0))))

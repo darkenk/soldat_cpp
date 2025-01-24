@@ -292,7 +292,7 @@ void newplayerweapon()
   std::int32_t j;
   std::int32_t i;
   std::int32_t SecWep;
-  if (SpriteSystem::Get().GetMySprite().weapon.num == noweapon_num)
+  if (SpriteSystem::Get().GetPlayerSprite().weapon.num == noweapon_num)
   {
     gamemenushow(limbomenu);
   }

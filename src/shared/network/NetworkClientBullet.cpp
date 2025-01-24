@@ -107,7 +107,7 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
 
   bul.ownerpingtick =
     SpriteSystem::Get().GetSprite(bulletsnap->owner).player->pingticks + pingticksadd;
-  pa = SpriteSystem::Get().GetMySprite().player->pingticks + bul.ownerpingtick;
+  pa = SpriteSystem::Get().GetPlayerSprite().player->pingticks + bul.ownerpingtick;
   bul.pingadd = pa;
   bul.pingaddstart = pa;
   if (!bulletsnap->forced)

@@ -472,7 +472,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     SpriteSystem::Get()
       .GetSprite(thingtakensnap->who)
       .applyweaponbynum(guns[weaponindex].num, n, thingtakensnap->ammocount);
-    if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetMySprite().deadmeat)
+    if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetPlayerSprite().deadmeat)
     {
       clientspritesnapshot();
     }
@@ -488,7 +488,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     thing.kill();
     gamethingtarget = 0;
 
-    if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetMySprite().deadmeat)
+    if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetPlayerSprite().deadmeat)
     {
       clientspritesnapshot();
     }
@@ -530,7 +530,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     if (thingtakensnap->who == mysprite)
     {
       bigmessage(_("Flame God Mode!"), capturemessagewait, bonus_message_color);
-      if (!SpriteSystem::Get().GetMySprite().deadmeat)
+      if (!SpriteSystem::Get().GetPlayerSprite().deadmeat)
       {
         clientspritesnapshot();
       }
@@ -591,7 +591,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     SpriteSystem::Get()
       .GetSprite(thingtakensnap->who)
       .applyweaponbynum(guns[weaponindex].num, n, thingtakensnap->ammocount);
-    if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetMySprite().deadmeat)
+    if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetPlayerSprite().deadmeat)
     {
       clientspritesnapshot();
     }

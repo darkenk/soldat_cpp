@@ -268,7 +268,7 @@ void commandswitchcam(std::vector<std::string> &args, std::uint8_t sender)
     GS::GetMainConsole().console("Usage: switchcam \"id\"", game_message_color);
     return;
   }
-  if (SpriteSystem::Get().GetMySprite().isspectator())
+  if (SpriteSystem::Get().GetPlayerSprite().isspectator())
   {
     camerafollowsprite = strtointdef(args[1], 0);
   }
@@ -286,7 +286,7 @@ void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
 
   auto &things = GS::GetThingSystem().GetThings();
 
-  if (SpriteSystem::Get().GetMySprite().isspectator())
+  if (SpriteSystem::Get().GetPlayerSprite().isspectator())
   {
     for (i = 1; i <= max_things; i++)
     {

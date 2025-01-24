@@ -368,7 +368,7 @@ auto loadinterfacedata(const std::string &interfacename) -> bool
 // Does the HUD overlay belong to the player?
 auto isinteractiveinterface() -> bool
 {
-  return SpriteSystem::Get().GetMySprite().isnotspectator() or
+  return SpriteSystem::Get().GetPlayerSprite().isnotspectator() or
          ((camerafollowsprite > 0) && (CVar::sv_advancedspectator));
 }
 
@@ -579,7 +579,7 @@ void renderweaponmenutext()
 
       gfxtextcolor(rgba(0xffffff, 230));
 
-      if (((i + 1) == SpriteSystem::Get().GetMySprite().selweapon) ||
+      if (((i + 1) == SpriteSystem::Get().GetPlayerSprite().selweapon) ||
           ((i + 1) == 11 + CVar::cl_player_secwep))
       {
         if (btn == hoveredbutton)
@@ -1668,8 +1668,8 @@ void renderchattexts()
     }
 
     hide = (CVar::sv_realisticmode) && (SpriteSystem::Get().GetSprite(i).visible == 0) and
-           SpriteSystem::Get().GetMySprite().isnotinsameteam(SpriteSystem::Get().GetSprite(i)) &&
-           SpriteSystem::Get().GetMySprite().isnotspectator();
+           SpriteSystem::Get().GetPlayerSprite().isnotinsameteam(SpriteSystem::Get().GetSprite(i)) &&
+           SpriteSystem::Get().GetPlayerSprite().isnotspectator();
 
     x =
       (SpriteSystem::Get().GetSprite(i).skeleton.pos[12].x - camerax + 0.5 * gamewidth) * _rscala.x;
@@ -1791,7 +1791,7 @@ void renderrespawnandsurvivaltexts()
   float p;
   std::string str1;
 
-  me = &SpriteSystem::Get().GetMySprite();
+  me = &SpriteSystem::Get().GetPlayerSprite();
 
   auto &game = GS::GetGame();
 
@@ -1985,9 +1985,9 @@ void renderplayername(float width, float height, std::int32_t i, bool onlyoffscr
     x = max(0.f, min(width - w, x - w / 2));
     y = max(0.f, min(height - h, y - (float)((std::int32_t)(!onlyoffscreen) * h) / 2));
 
-    dx = fabs(SpriteSystem::Get().GetMySprite().skeleton.pos[7].x -
+    dx = fabs(SpriteSystem::Get().GetPlayerSprite().skeleton.pos[7].x -
               SpriteSystem::Get().GetSprite(i).skeleton.pos[7].x);
-    dy = fabs(SpriteSystem::Get().GetMySprite().skeleton.pos[7].y -
+    dy = fabs(SpriteSystem::Get().GetPlayerSprite().skeleton.pos[7].y -
               SpriteSystem::Get().GetSprite(i).skeleton.pos[7].y);
 
     alpha = min(255.0f, 50 + round(100000 / (dx + dy / 2)));
@@ -2014,7 +2014,7 @@ void renderplayernames(float width, float height)
 {
   setfontstyle(font_weapons_menu);
 
-  if (SpriteSystem::Get().GetMySprite().isspectator())
+  if (SpriteSystem::Get().GetPlayerSprite().isspectator())
   {
     if (!demoplayer.active())
     {
@@ -2027,11 +2027,11 @@ void renderplayernames(float width, float height)
       }
     }
   }
-  else if (SpriteSystem::Get().GetMySprite().isinteam())
+  else if (SpriteSystem::Get().GetPlayerSprite().isinteam())
   {
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
-      if ((sprite.num != mysprite) && sprite.isinsameteam(SpriteSystem::Get().GetMySprite()))
+      if ((sprite.num != mysprite) && sprite.isinsameteam(SpriteSystem::Get().GetPlayerSprite()))
       {
         renderplayername(width, height, sprite.num, true);
       }
@@ -2044,7 +2044,7 @@ void renderceasefirecounter()
   float x;
   float y;
 
-  auto &sprite = SpriteSystem::Get().GetMySprite();
+  auto &sprite = SpriteSystem::Get().GetPlayerSprite();
   x = sprite.skeleton.pos[9].x - 2;
   y = sprite.skeleton.pos[9].y - 15;
   x = (x - camerax + 0.5 * gamewidth) * _rscala.x;
@@ -2136,7 +2136,7 @@ void renderinterface(float timeelapsed, float width, float height)
 
   if (mysprite > 0)
   {
-    spriteme = &SpriteSystem::Get().GetMySprite();
+    spriteme = &SpriteSystem::Get().GetPlayerSprite();
   }
 
   widescreencut = (CVar::sv_bullettime) && (notexts == 0) &&
@@ -2224,12 +2224,12 @@ void renderinterface(float timeelapsed, float width, float height)
 
   if ((mysprite > 0) && (notexts == 0))
   {
-    if (SpriteSystem::Get().GetMySprite().isspectator() && (camerafollowsprite > 0) and
+    if (SpriteSystem::Get().GetPlayerSprite().isspectator() && (camerafollowsprite > 0) and
         (CVar::sv_advancedspectator))
     {
       spectnumber = mysprite;
       mysprite = camerafollowsprite;
-      spriteme = &SpriteSystem::Get().GetMySprite();
+      spriteme = &SpriteSystem::Get().GetPlayerSprite();
     }
 
     // Bonus all colored
@@ -2530,7 +2530,7 @@ void renderinterface(float timeelapsed, float width, float height)
         SpriteSystem::Get().GetSprite(spectnumber).isspectator() && (CVar::sv_advancedspectator))
     {
       mysprite = spectnumber;
-      spriteme = &SpriteSystem::Get().GetMySprite();
+      spriteme = &SpriteSystem::Get().GetPlayerSprite();
     }
 
     // Ping dot
@@ -3195,7 +3195,7 @@ void renderinterface(float timeelapsed, float width, float height)
   {
     if (mysprite > 0)
     {
-      if (SpriteSystem::Get().GetMySprite().isspectator() && (camerafollowsprite > 0) &&
+      if (SpriteSystem::Get().GetPlayerSprite().isspectator() && (camerafollowsprite > 0) &&
           (CVar::sv_advancedspectator))
       {
         renderplayerinterfacetexts(camerafollowsprite);
@@ -3279,8 +3279,8 @@ void renderinterface(float timeelapsed, float width, float height)
       renderplayernames(width, height);
     }
 
-    if ((CVar::sv_survivalmode) && SpriteSystem::Get().GetMySprite().active and
-        (SpriteSystem::Get().GetMySprite().ceasefirecounter > 0))
+    if ((CVar::sv_survivalmode) && SpriteSystem::Get().GetPlayerSprite().active and
+        (SpriteSystem::Get().GetPlayerSprite().ceasefirecounter > 0))
     {
       renderceasefirecounter();
     }
@@ -3333,7 +3333,7 @@ void renderinterface(float timeelapsed, float width, float height)
 
       if (mysprite > 0)
       {
-        gfxdrawtext(string("Ping: ") + inttostr(SpriteSystem::Get().GetMySprite().player->realping),
+        gfxdrawtext(string("Ping: ") + inttostr(SpriteSystem::Get().GetPlayerSprite().player->realping),
                     550 * x, 10 * y);
       }
 

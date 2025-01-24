@@ -112,11 +112,11 @@ void clienthandlenewplayer(NetworkContext *netmessage)
 
     if (demoplayer.active())
     {
-      SpriteSystem::Get().GetMySprite().player->demoplayer = true;
+      SpriteSystem::Get().GetPlayerSprite().player->demoplayer = true;
     }
 
     // TODO wat?
-    SpriteSystem::Get().GetMySprite().bulletcount =
+    SpriteSystem::Get().GetPlayerSprite().bulletcount =
       Random(std::numeric_limits<std::uint16_t>::max());
 
     if (player->team == team_spectator)

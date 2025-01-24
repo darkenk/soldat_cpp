@@ -215,7 +215,7 @@ void tspark::render() const
         if (SpriteSystem::Get().GetSprite(owner).visible == 0)
         {
           if (map.raycast(GetSparkParts().pos[num],
-                          SpriteSystem::Get().GetMySprite().skeleton.pos[9], grenvel, gamewidth,
+                          SpriteSystem::Get().GetPlayerSprite().skeleton.pos[9], grenvel, gamewidth,
                           true) or
               (SpriteSystem::Get().GetSprite(owner).visible == 0))
           {

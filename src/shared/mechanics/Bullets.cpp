@@ -324,7 +324,7 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
     }
     else
     {
-      j = SpriteSystem::Get().GetMySprite().weapon.num;
+      j = SpriteSystem::Get().GetPlayerSprite().weapon.num;
       if (j == noweapon_num)
       {
         j = 17;
@@ -392,7 +392,7 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
       }
       if (wepstats[j].name.empty())
       {
-        wepstats[j].name = SpriteSystem::Get().GetMySprite().weapon.name;
+        wepstats[j].name = SpriteSystem::Get().GetPlayerSprite().weapon.name;
       }
     }
   }
@@ -540,7 +540,7 @@ void hitspray()
 {
   std::int16_t bink;
 
-  bink = SpriteSystem::Get().GetMySprite().weapon.bink;
+  bink = SpriteSystem::Get().GetPlayerSprite().weapon.bink;
   if (bink > 0)
   {
     hitspraycounter = calculatebink(hitspraycounter, bink);
@@ -922,7 +922,7 @@ void Bullet<M>::render(double timeelapsed)
       {
         if (SpriteSystem::Get().GetSprite(owner).visible == 0)
         {
-          if (map.raycast(bulletpos, SpriteSystem::Get().GetMySprite().skeleton.pos[9], grenvel,
+          if (map.raycast(bulletpos, SpriteSystem::Get().GetPlayerSprite().skeleton.pos[9], grenvel,
                           gamewidth, true))
           {
             return;
@@ -3109,7 +3109,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
     if (mysprite > 0)
     {
       const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
-      if (SpriteSystem::Get().GetMySprite().GetHealth() > -50)
+      if (SpriteSystem::Get().GetPlayerSprite().GetHealth() > -50)
       {
         if (distance(GetBulletParts().pos[num], spritePartsPos) < grenadeeffect_dist)
         {

@@ -136,8 +136,8 @@ void controlsprite(tsprite &spritec)
     {
       spritec.freecontrols();
 
-      SpriteSystem::Get().GetMySprite().control.mouseaimx = round(mx - gamewidthhalf + camerax);
-      SpriteSystem::Get().GetMySprite().control.mouseaimy = round(my - gameheighthalf + cameray);
+      SpriteSystem::Get().GetPlayerSprite().control.mouseaimx = round(mx - gamewidthhalf + camerax);
+      SpriteSystem::Get().GetPlayerSprite().control.mouseaimy = round(my - gameheighthalf + cameray);
 
       if (!teammenu->active && !limbomenu->active)
       {
@@ -329,8 +329,8 @@ void controlsprite(tsprite &spritec)
                 for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
                 {
                   if (sprite.isnotspectator() and
-                      (sprite.isinsameteam(SpriteSystem::Get().GetMySprite()) or
-                       SpriteSystem::Get().GetMySprite().isspectator()))
+                      (sprite.isinsameteam(SpriteSystem::Get().GetPlayerSprite()) or
+                       SpriteSystem::Get().GetPlayerSprite().isspectator()))
                   {
                     i = 1;
                     break;

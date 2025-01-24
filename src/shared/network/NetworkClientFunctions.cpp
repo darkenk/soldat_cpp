@@ -112,10 +112,10 @@ void clienthandleforceweapon(NetworkContext *netmessage)
 
   if (mysprite > 0)
   {
-    SpriteSystem::Get().GetMySprite().applyweaponbynum(forceweapon->weaponnum, 1);
-    SpriteSystem::Get().GetMySprite().applyweaponbynum(forceweapon->secondaryweaponnum, 2);
-    SpriteSystem::Get().GetMySprite().weapon.ammocount = forceweapon->ammocount;
-    SpriteSystem::Get().GetMySprite().secondaryweapon.ammocount = forceweapon->secammocount;
+    SpriteSystem::Get().GetPlayerSprite().applyweaponbynum(forceweapon->weaponnum, 1);
+    SpriteSystem::Get().GetPlayerSprite().applyweaponbynum(forceweapon->secondaryweaponnum, 2);
+    SpriteSystem::Get().GetPlayerSprite().weapon.ammocount = forceweapon->ammocount;
+    SpriteSystem::Get().GetPlayerSprite().secondaryweapon.ammocount = forceweapon->secammocount;
   }
 }
 

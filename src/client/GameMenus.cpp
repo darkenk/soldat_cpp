@@ -334,7 +334,7 @@ auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
       gamemenushow(menu, false);
       selteam = buttonindex;
 
-      if ((mysprite == 0) || (buttonindex != SpriteSystem::Get().GetMySprite().player->team))
+      if ((mysprite == 0) || (buttonindex != SpriteSystem::Get().GetPlayerSprite().player->team))
       {
         // NOTE this actually sends a change team request
         clientsendplayerinfo();
@@ -444,18 +444,18 @@ auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
         {
           if (weaponSystem.IsEnabled(i) && (GS::GetGame().GetWeaponsel()[mysprite][i] == 1))
           {
-            SpriteSystem::Get().GetMySprite().selweapon = GS::GetWeaponSystem().GetGuns()[i].num;
+            SpriteSystem::Get().GetPlayerSprite().selweapon = GS::GetWeaponSystem().GetGuns()[i].num;
           }
 
-          if (SpriteSystem::Get().GetMySprite().selweapon > 0)
+          if (SpriteSystem::Get().GetPlayerSprite().selweapon > 0)
           {
             gamemenushow(limbomenu, false);
-            if (!SpriteSystem::Get().GetMySprite().deadmeat and
-                SpriteSystem::Get().GetMySprite().weapon.num != bow_num and
-                SpriteSystem::Get().GetMySprite().weapon.num != bow2_num)
+            if (!SpriteSystem::Get().GetPlayerSprite().deadmeat and
+                SpriteSystem::Get().GetPlayerSprite().weapon.num != bow_num and
+                SpriteSystem::Get().GetPlayerSprite().weapon.num != bow2_num)
             {
-              SpriteSystem::Get().GetMySprite().applyweaponbynum(
-                SpriteSystem::Get().GetMySprite().selweapon, 1);
+              SpriteSystem::Get().GetPlayerSprite().applyweaponbynum(
+                SpriteSystem::Get().GetPlayerSprite().selweapon, 1);
               clientspritesnapshot();
             }
           }
@@ -463,8 +463,8 @@ auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
         else
         {
           CVar::cl_player_secwep = (i - 11);
-          SpriteSystem::Get().GetMySprite().player->secwep = i - 11;
-          SpriteSystem::Get().GetMySprite().applyweaponbynum(GS::GetWeaponSystem().GetGuns()[i].num,
+          SpriteSystem::Get().GetPlayerSprite().player->secwep = i - 11;
+          SpriteSystem::Get().GetPlayerSprite().applyweaponbynum(GS::GetWeaponSystem().GetGuns()[i].num,
                                                              2);
 
           auto count = weaponSystem.CountEnabledPrimaryWeapons();
@@ -472,13 +472,13 @@ auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
           if (count == 0)
           {
             gamemenushow(limbomenu, false);
-            SpriteSystem::Get().GetMySprite().SetFirstWeapon(
-              SpriteSystem::Get().GetMySprite().secondaryweapon);
-            SpriteSystem::Get().GetMySprite().SetSecondWeapon(
+            SpriteSystem::Get().GetPlayerSprite().SetFirstWeapon(
+              SpriteSystem::Get().GetPlayerSprite().secondaryweapon);
+            SpriteSystem::Get().GetPlayerSprite().SetSecondWeapon(
               GS::GetWeaponSystem().GetGuns()[noweapon]);
           }
 
-          if (!SpriteSystem::Get().GetMySprite().deadmeat)
+          if (!SpriteSystem::Get().GetPlayerSprite().deadmeat)
           {
             clientspritesnapshot();
           }

@@ -296,11 +296,11 @@ void clientspritesnapshot()
 
   clientmsg.header.id = msgid_clientspritesnapshot;
 
-  clientmsg.ammocount = SpriteSystem::Get().GetMySprite().weapon.ammocount;
-  clientmsg.secondaryammocount = SpriteSystem::Get().GetMySprite().secondaryweapon.ammocount;
-  clientmsg.weaponnum = SpriteSystem::Get().GetMySprite().weapon.num;
-  clientmsg.secondaryweaponnum = SpriteSystem::Get().GetMySprite().secondaryweapon.num;
-  clientmsg.position = SpriteSystem::Get().GetMySprite().position;
+  clientmsg.ammocount = SpriteSystem::Get().GetPlayerSprite().weapon.ammocount;
+  clientmsg.secondaryammocount = SpriteSystem::Get().GetPlayerSprite().secondaryweapon.ammocount;
+  clientmsg.weaponnum = SpriteSystem::Get().GetPlayerSprite().weapon.num;
+  clientmsg.secondaryweaponnum = SpriteSystem::Get().GetPlayerSprite().secondaryweapon.num;
+  clientmsg.position = SpriteSystem::Get().GetPlayerSprite().position;
 
   if ((clientmsg.ammocount == oldclientsnapshotmsg.ammocount) &&
       (clientmsg.weaponnum == oldclientsnapshotmsg.weaponnum) &&
@@ -327,12 +327,12 @@ void clientspritesnapshotmov()
 
   clientmsg.pos = spritePartsPos;
   clientmsg.velocity = spriteVelocity;
-  clientmsg.mouseaimx = SpriteSystem::Get().GetMySprite().control.mouseaimx;
-  clientmsg.mouseaimy = SpriteSystem::Get().GetMySprite().control.mouseaimy;
+  clientmsg.mouseaimx = SpriteSystem::Get().GetPlayerSprite().control.mouseaimx;
+  clientmsg.mouseaimy = SpriteSystem::Get().GetPlayerSprite().control.mouseaimy;
 
-  encodekeys(SpriteSystem::Get().GetMySprite(), clientmsg.keys16);
+  encodekeys(SpriteSystem::Get().GetPlayerSprite(), clientmsg.keys16);
 
-  if (SpriteSystem::Get().GetMySprite().dontdrop)
+  if (SpriteSystem::Get().GetPlayerSprite().dontdrop)
   {
     clientmsg.keys16 = clientmsg.keys16 & ~B9;
   }
@@ -342,8 +342,8 @@ void clientspritesnapshotmov()
 
   if ((vec2length(posdiff) > posdelta) || (vec2length(veldiff) > veldelta) ||
       (clientmsg.keys16 != oldclientsnapshotmovmsg.keys16) || ((clientmsg.keys16 & B6) == B6) ||
-      (((SpriteSystem::Get().GetMySprite().weapon.fireinterval > fireinterval_net) ||
-        (SpriteSystem::Get().GetMySprite().weapon.ammocount <= 0) ||
+      (((SpriteSystem::Get().GetPlayerSprite().weapon.fireinterval > fireinterval_net) ||
+        (SpriteSystem::Get().GetPlayerSprite().weapon.ammocount <= 0) ||
         (round(mx) != oldclientsnapshotmovmsg.mouseaimx) ||
         (round(my) != oldclientsnapshotmovmsg.mouseaimy)) &&
        ((fabs(mx - oldclientsnapshotmovmsg.mouseaimx) >= mouseaimdelta) ||
@@ -812,7 +812,7 @@ void clienthandledelta_weapons(NetworkContext *netmessage)
   sprite.weapon.ammocount =
     pmsg_serverspritedelta_weapons(netmessage->packet)->ammocount;
 
-  if ((i == mysprite) && !SpriteSystem::Get().GetMySprite().deadmeat)
+  if ((i == mysprite) && !SpriteSystem::Get().GetPlayerSprite().deadmeat)
   {
     clientspritesnapshot();
   }
