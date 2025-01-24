@@ -673,7 +673,7 @@ void Game<M>::changemap()
   heartbeattime = maintickcounter;
   heartbeattimewarnings = 0;
 
-  if ((mysprite > 0) && SpriteSystem::Get().GetSprite(mysprite).isnotspectator())
+  if ((mysprite > 0) && SpriteSystem::Get().GetMySprite().isnotspectator())
   {
     camerafollowsprite = mysprite;
   }

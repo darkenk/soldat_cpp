@@ -185,8 +185,8 @@ void update_frame()
       j = sprite.num;
       if (sprite.isnotspectator() && (j != mysprite) && (sprite.bonusstyle != bonus_predator) and
           ((sprite.position == pos_stand) or
-           (sprite.isnotsolo() && sprite.isinsameteam(SpriteSystem::Get().GetSprite(mysprite))) or
-           SpriteSystem::Get().GetSprite(mysprite).deadmeat or sprite.deadmeat) and
+           (sprite.isnotsolo() && sprite.isinsameteam(SpriteSystem::Get().GetMySprite())) or
+           SpriteSystem::Get().GetMySprite().deadmeat or sprite.deadmeat) and
           ((sprite.visible > 40) or (!CVar::sv_realisticmode)))
       {
         const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(j);
@@ -196,7 +196,7 @@ void update_frame()
           cursortext = sprite.player->name;
           if (game.isteamgame())
           {
-            if (sprite.isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
+            if (sprite.isinsameteam(SpriteSystem::Get().GetMySprite()))
             {
               cursortext = cursortext + ' ' +
                            inttostr(round((sprite.GetHealth() / game.GetStarthealth()) * 100)) +
@@ -280,8 +280,8 @@ void update_frame()
     {
       if (game.GetMapchangecounter() < 99999999)
       {
-        if (SpriteSystem::Get().GetSprite(mysprite).isnotspectator() &&
-            (!SpriteSystem::Get().GetSprite(mysprite).player->demoplayer))
+        if (SpriteSystem::Get().GetMySprite().isnotspectator() &&
+            (!SpriteSystem::Get().GetMySprite().player->demoplayer))
         {
           if (oldmousex - round(mx) == 0)
           {
@@ -462,7 +462,7 @@ void update_frame()
   }
 
   // safety
-  if ((mysprite > 0) && (SpriteSystem::Get().GetSprite(mysprite).isspectator()))
+  if ((mysprite > 0) && (SpriteSystem::Get().GetMySprite().isspectator()))
   {
     if ((camerax > max_sectorz * map.GetSectorsDivision()) ||
         (camerax < min_sectorz * map.GetSectorsDivision()) ||

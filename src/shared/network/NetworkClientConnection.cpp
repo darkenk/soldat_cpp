@@ -657,7 +657,7 @@ void clienthandleping(NetworkContext *netmessage)
 
   if (mysprite != 0)
   {
-    auto &player = SpriteSystem::Get().GetSprite(mysprite).player;
+    auto &player = SpriteSystem::Get().GetMySprite().player;
     player->pingticks = pmsg_ping(netmessage->packet)->pingticks;
     player->pingtime = player->pingticks * 1000 / 60;
   }
@@ -723,11 +723,11 @@ void clienthandleservervars(NetworkContext *netmessage)
 
   if (mysprite > 0)
   {
-    SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
-      SpriteSystem::Get().GetSprite(mysprite).weapon.num, 1);
-    SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
-      SpriteSystem::Get().GetSprite(mysprite).secondaryweapon.num, 2);
-    if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+    SpriteSystem::Get().GetMySprite().applyweaponbynum(SpriteSystem::Get().GetMySprite().weapon.num,
+                                                       1);
+    SpriteSystem::Get().GetMySprite().applyweaponbynum(
+      SpriteSystem::Get().GetMySprite().secondaryweapon.num, 2);
+    if (!SpriteSystem::Get().GetMySprite().deadmeat)
     {
       clientspritesnapshot();
     }

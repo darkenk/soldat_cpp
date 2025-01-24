@@ -370,7 +370,7 @@ void gameloop()
 
       clientstopmovingcounter -= 1;
 
-      auto &sprite = SpriteSystem::Get().GetSprite(mysprite);
+      auto &sprite = SpriteSystem::Get().GetMySprite();
 
       if (connection == INTERNET)
       {
@@ -522,17 +522,17 @@ auto getcameratarget(bool backwards) -> std::uint8_t
       continue; // Sprite is a spectator
     }
 
-    if (SpriteSystem::Get().GetSprite(mysprite).control.up && (!CVar::sv_realisticmode) &&
-        SpriteSystem::Get().GetSprite(mysprite).isnotspectator())
+    if (SpriteSystem::Get().GetMySprite().control.up && (!CVar::sv_realisticmode) &&
+        SpriteSystem::Get().GetMySprite().isnotspectator())
     {
       newcam = 0;
       validcam = true;
       break;
     } // Freecam if not Realistic
 
-    if (SpriteSystem::Get().GetSprite(mysprite).isspectator())
+    if (SpriteSystem::Get().GetMySprite().isspectator())
     {
-      if (SpriteSystem::Get().GetSprite(mysprite).control.up)
+      if (SpriteSystem::Get().GetMySprite().control.up)
       {
         newcam = 0;
         validcam = true;
@@ -545,8 +545,7 @@ auto getcameratarget(bool backwards) -> std::uint8_t
       // Let spectator view all players
     }
 
-    if (SpriteSystem::Get().GetSprite(newcam).isnotinsameteam(
-          SpriteSystem::Get().GetSprite(mysprite)))
+    if (SpriteSystem::Get().GetSprite(newcam).isnotinsameteam(SpriteSystem::Get().GetMySprite()))
     {
       continue; // Dont swap camera to a player not on my team
     }

@@ -2272,8 +2272,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
           auto show_log = true;
           if constexpr(!Config::IsServer(M))
           {
-            extern std::uint8_t mysprite;
-            show_log = !SpriteSystem::Get().GetSprite(mysprite).deadmeat;
+            show_log = !TSpriteSystem<Sprite<M>>::Get().GetMySprite().deadmeat;
           }
 
           if (show_log)
@@ -2294,15 +2293,14 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifndef SERVER
         if (mysprite > 0)
         {
-          if (isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
+          if (isinsameteam(SpriteSystem::Get().GetMySprite()))
           {
-            if (!SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+            if (!SpriteSystem::Get().GetMySprite().deadmeat)
             {
-              GS::GetMainConsole().console(
-                _("Players left on your team:") + ' ' +
-                  (inttostr(GS::GetGame().GetTeamAliveNum(
-                    SpriteSystem::Get().GetSprite(mysprite).player->team))),
-                game_message_color);
+              GS::GetMainConsole().console(_("Players left on your team:") + ' ' +
+                                             (inttostr(GS::GetGame().GetTeamAliveNum(
+                                               SpriteSystem::Get().GetMySprite().player->team))),
+                                           game_message_color);
             }
           }
         }
@@ -2370,7 +2368,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                        iif(player->team == team_alpha, _("Blue"), _("Red"))),
             iif(player->team == team_alpha, bravo_message_color, alpha_message_color));
 
-          if (isinsameteam(SpriteSystem::Get().GetSprite(mysprite)))
+          if (isinsameteam(SpriteSystem::Get().GetMySprite()))
           {
             if (things[i].style == object_alpha_flag)
             { // Alpha
