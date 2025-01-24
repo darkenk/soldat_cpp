@@ -127,6 +127,18 @@ public:
     return GetSprite(mysprite);
   }
 
+  bool IsPlayerSpriteValid() requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
+  {
+    extern std::uint8_t mysprite;
+    return mysprite > 0;
+  }
+
+  bool IsPlayerSprite(std::uint8_t spriteId) requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
+  {
+    extern std::uint8_t mysprite;
+    return spriteId == mysprite;
+  }
+
 protected:
   TSpriteSystem();
 
