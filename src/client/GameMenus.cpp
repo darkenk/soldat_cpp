@@ -303,7 +303,8 @@ auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
         gamemenushow(kickmenu, !kickmenu->active);
         break;
       case 3: {
-        result = (mysprite > 0) && (GS::GetGame().GetMapchangecounter() < 0);
+        result =
+          (SpriteSystem::Get().IsPlayerSpriteValid()) && (GS::GetGame().GetMapchangecounter() < 0);
 
         if (result)
         {
@@ -311,7 +312,7 @@ auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
           GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
           selteam = 0;
         }
-        else if ((mysprite == 0) && GS::GetGame().isteamgame())
+        else if ((!SpriteSystem::Get().IsPlayerSpriteValid()) && GS::GetGame().isteamgame())
         {
           result = true;
           gamemenushow(teammenu);
@@ -334,7 +335,8 @@ auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
       gamemenushow(menu, false);
       selteam = buttonindex;
 
-      if ((mysprite == 0) || (buttonindex != SpriteSystem::Get().GetPlayerSprite().player->team))
+      if ((!SpriteSystem::Get().IsPlayerSpriteValid()) ||
+          (buttonindex != SpriteSystem::Get().GetPlayerSprite().player->team))
       {
         // NOTE this actually sends a change team request
         clientsendplayerinfo();
@@ -432,7 +434,7 @@ auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
         }
       }
     }
-    else if ((menu == limbomenu) && (mysprite > 0))
+    else if ((menu == limbomenu) && (SpriteSystem::Get().IsPlayerSpriteValid()))
     {
       result = true;
       i = buttonindex + 1;

@@ -579,7 +579,7 @@ void Game<M>::changemap()
     }
 
 #ifndef SERVER
-    if (mysprite > 0)
+    if (SpriteSystem::Get().IsPlayerSpriteValid())
     {
       for (auto i = 1; i <= main_weapons; i++)
       {
@@ -603,7 +603,7 @@ void Game<M>::changemap()
   fragsmenushow = false;
   statsmenushow = false;
 
-  if (mysprite > 0)
+  if (SpriteSystem::Get().IsPlayerSpriteValid())
   {
     gamemenushow(limbomenu);
   }
@@ -673,7 +673,8 @@ void Game<M>::changemap()
   heartbeattime = maintickcounter;
   heartbeattimewarnings = 0;
 
-  if ((mysprite > 0) && SpriteSystem::Get().GetPlayerSprite().isnotspectator())
+  if ((SpriteSystem::Get().IsPlayerSpriteValid()) &&
+      SpriteSystem::Get().GetPlayerSprite().isnotspectator())
   {
     camerafollowsprite = mysprite;
   }
@@ -701,7 +702,7 @@ void Game<M>::changemap()
   }
 
   // Spawn sound
-  if (mysprite > 0)
+  if (SpriteSystem::Get().IsPlayerSpriteValid())
   {
     auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
     playsound(SfxEffect::spawn, spritePartsPos);

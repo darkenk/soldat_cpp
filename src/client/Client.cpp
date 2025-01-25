@@ -277,7 +277,7 @@ void exittomenu()
     demoplayer.stopdemo();
   }
 
-  if (mysprite > 0)
+  if (SpriteSystem::Get().IsPlayerSpriteValid())
   {
     clientdisconnect(*GetNetwork());
   }

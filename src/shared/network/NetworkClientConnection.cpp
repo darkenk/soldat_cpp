@@ -170,7 +170,7 @@ void clientsendplayerinfo()
   }
 
   // sent a team change request instead if we're already ingame
-  if (mysprite > 0)
+  if (SpriteSystem::Get().IsPlayerSpriteValid())
   {
     changemsg.header.id = msgid_changeteam;
     changemsg.team = selteam;
@@ -242,7 +242,7 @@ void clientdisconnect(NetworkBase<T> &client)
 {
   tmsg_playerdisconnect playermsg;
 
-  if (mysprite > 0)
+  if (SpriteSystem::Get().IsPlayerSpriteValid())
   { // send disconnection info to server
     playermsg.header.id = msgid_playerdisconnect;
     playermsg.num = mysprite;
@@ -687,7 +687,7 @@ void clienthandleservervars(NetworkContext *netmessage)
     limbomenu->button[i - 1].active = weaponSystem.IsEnabled(i);
   }
 
-  if (mysprite > 0)
+  if (SpriteSystem::Get().IsPlayerSpriteValid())
   {
     selectdefaultweapons(mysprite);
     newplayerweapon();
@@ -721,7 +721,7 @@ void clienthandleservervars(NetworkContext *netmessage)
 
   buildweapons(GS::GetWeaponSystem().GetGuns());
 
-  if (mysprite > 0)
+  if (SpriteSystem::Get().IsPlayerSpriteValid())
   {
     SpriteSystem::Get().GetPlayerSprite().applyweaponbynum(SpriteSystem::Get().GetPlayerSprite().weapon.num,
                                                        1);

@@ -136,7 +136,7 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
         createbullet(a, bx, bulletsnap->weaponnum, bulletsnap->owner, 255, i, false, true);
       auto &b = bullet[k];
 
-      if ((mysprite > 0) && (bulletsnap->owner > 0))
+      if ((SpriteSystem::Get().IsPlayerSpriteValid()) && (bulletsnap->owner > 0))
       {
         for (c = 1; c <= pa; c++)
         {
@@ -172,7 +172,7 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
 
         auto &b = bullet[k];
 
-        if ((mysprite > 0) && (bulletsnap->owner > 0))
+        if ((SpriteSystem::Get().IsPlayerSpriteValid()) && (bulletsnap->owner > 0))
         {
           for (c = 1; c <= pa; c++)
           {
@@ -200,7 +200,7 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
 
   if (bul.active)
   {
-    if ((mysprite > 0) && (bulletsnap->owner > 0))
+    if ((SpriteSystem::Get().IsPlayerSpriteValid()) && (bulletsnap->owner > 0))
     {
       for (c = 1; c <= pa; c++)
       {

@@ -143,7 +143,7 @@ void tabcomplete()
   std::int32_t availablechatspace;
   std::string spacefittedname;
 
-  if (mysprite < 1)
+  if (!SpriteSystem::Get().IsPlayerSpriteValid())
   {
     return;
   }
@@ -327,7 +327,7 @@ void gameloop()
       adjust = 1.0;
     }
 
-    if ((mysprite > 0) && (!demoplayer.active()))
+    if ((SpriteSystem::Get().IsPlayerSpriteValid()) && (!demoplayer.active()))
     {
       // connection problems
       if ((game.GetMapchangecounter() < 0) && escmenu->active)

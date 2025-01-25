@@ -2134,7 +2134,7 @@ void renderinterface(float timeelapsed, float width, float height)
 
   auto &map = GS::GetGame().GetMap();
 
-  if (mysprite > 0)
+  if (SpriteSystem::Get().IsPlayerSpriteValid())
   {
     spriteme = &SpriteSystem::Get().GetPlayerSprite();
   }
@@ -2222,7 +2222,7 @@ void renderinterface(float timeelapsed, float width, float height)
     }
   }
 
-  if ((mysprite > 0) && (notexts == 0))
+  if ((SpriteSystem::Get().IsPlayerSpriteValid()) && (notexts == 0))
   {
     if (SpriteSystem::Get().GetPlayerSprite().isspectator() && (camerafollowsprite > 0) and
         (CVar::sv_advancedspectator))
@@ -2674,7 +2674,7 @@ void renderinterface(float timeelapsed, float width, float height)
       gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xffffff, alfa));
     }
 
-    if (mysprite > 0)
+    if (SpriteSystem::Get().IsPlayerSpriteValid())
     {
       for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
       {
@@ -3193,7 +3193,7 @@ void renderinterface(float timeelapsed, float width, float height)
 
   if (notexts == 0)
   {
-    if (mysprite > 0)
+    if (SpriteSystem::Get().IsPlayerSpriteValid())
     {
       if (SpriteSystem::Get().GetPlayerSprite().isspectator() && (camerafollowsprite > 0) &&
           (CVar::sv_advancedspectator))
@@ -3242,7 +3242,7 @@ void renderinterface(float timeelapsed, float width, float height)
       renderconsoletexts(width);
     }
 
-    if (mysprite > 0)
+    if (SpriteSystem::Get().IsPlayerSpriteValid())
     {
       renderrespawnandsurvivaltexts();
     }
@@ -3270,7 +3270,7 @@ void renderinterface(float timeelapsed, float width, float height)
 #endif
   }
 
-  if (mysprite > 0)
+  if (SpriteSystem::Get().IsPlayerSpriteValid())
   {
     renderchattexts();
 
@@ -3331,7 +3331,7 @@ void renderinterface(float timeelapsed, float width, float height)
 
       gfxdrawtext(string("FPS: ") + inttostr(getgamefps()), 460 * x, 10 * y);
 
-      if (mysprite > 0)
+      if (SpriteSystem::Get().IsPlayerSpriteValid())
       {
         gfxdrawtext(string("Ping: ") + inttostr(SpriteSystem::Get().GetPlayerSprite().player->realping),
                     550 * x, 10 * y);

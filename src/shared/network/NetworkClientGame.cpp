@@ -161,7 +161,7 @@ void clienthandlenewplayer(NetworkContext *netmessage)
     SpriteSystem::Get().GetSprite(i).SetFirstWeapon(guns[noweapon]);
     SpriteSystem::Get().GetSprite(i).SetSecondWeapon(guns[noweapon]);
 
-    if (mysprite > 0)
+    if (SpriteSystem::Get().IsPlayerSpriteValid())
     {
       gamemenushow(limbomenu);
       newplayerweapon();

@@ -178,7 +178,7 @@ void update_frame()
   cursorfriendly = false;
 
   // TODO(helloer): While watching demos this code needs to use SpectNumber instead of MySprite
-  if ((mysprite > 0) && (!demoplayer.active()))
+  if ((SpriteSystem::Get().IsPlayerSpriteValid()) && (!demoplayer.active()))
   {
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
@@ -276,7 +276,7 @@ void update_frame()
     }
 
     // Idle counter
-    if (mysprite > 0)
+    if (SpriteSystem::Get().IsPlayerSpriteValid())
     {
       if (game.GetMapchangecounter() < 99999999)
       {
@@ -462,7 +462,8 @@ void update_frame()
   }
 
   // safety
-  if ((mysprite > 0) && (SpriteSystem::Get().GetPlayerSprite().isspectator()))
+  if ((SpriteSystem::Get().IsPlayerSpriteValid()) &&
+      (SpriteSystem::Get().GetPlayerSprite().isspectator()))
   {
     if ((camerax > max_sectorz * map.GetSectorsDivision()) ||
         (camerax < min_sectorz * map.GetSectorsDivision()) ||

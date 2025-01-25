@@ -110,7 +110,7 @@ void clienthandleforceweapon(NetworkContext *netmessage)
 
   forceweapon = pmsg_forceweapon(netmessage->packet);
 
-  if (mysprite > 0)
+  if (SpriteSystem::Get().IsPlayerSpriteValid())
   {
     SpriteSystem::Get().GetPlayerSprite().applyweaponbynum(forceweapon->weaponnum, 1);
     SpriteSystem::Get().GetPlayerSprite().applyweaponbynum(forceweapon->secondaryweaponnum, 2);
@@ -158,7 +158,7 @@ void clienthandleclientfreecam(NetworkContext *netmessage)
 
   freecammsg = pmsg_clientfreecam(netmessage->packet);
 
-  if (mysprite > 0)
+  if (SpriteSystem::Get().IsPlayerSpriteValid())
   {
     if (freecammsg->freecamon == 1)
     {

@@ -166,7 +166,7 @@ auto chatkeydown(std::uint8_t keymods, SDL_Keycode keycode) -> bool
             return result;
           }
         }
-        if (mysprite > 0)
+        if (SpriteSystem::Get().IsPlayerSpriteValid())
         {
           if (votekickreasontype)
           {
@@ -506,7 +506,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
   }
   else if (action == taction::radio)
   {
-    if ((chattext.empty()) && (CVar::sv_radio) && (mysprite > 0) and
+    if ((chattext.empty()) && (CVar::sv_radio) && (SpriteSystem::Get().IsPlayerSpriteValid()) and
         (SpriteSystem::Get().GetPlayerSprite().isnotspectator)())
     {
       showradiomenu = !showradiomenu;
@@ -617,7 +617,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
   }
   else if (action == taction::teamchat)
   {
-    if ((chattext.empty()) && (mysprite > 0) &&
+    if ((chattext.empty()) && (SpriteSystem::Get().IsPlayerSpriteValid()) &&
         (SpriteSystem::Get().GetPlayerSprite().isspectator() || GS::GetGame().isteamgame()))
     {
       SDL_StartTextInput();
@@ -650,7 +650,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
   }
   else if (action == taction::weapons)
   {
-    if ((chattext.empty()) && (mysprite > 0) && !escmenu->active &&
+    if ((chattext.empty()) && (SpriteSystem::Get().IsPlayerSpriteValid()) && !escmenu->active &&
         !SpriteSystem::Get().GetPlayerSprite().isspectator())
     {
       if (SpriteSystem::Get().GetPlayerSprite().deadmeat)

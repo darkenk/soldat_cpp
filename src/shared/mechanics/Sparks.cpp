@@ -136,7 +136,8 @@ void tspark::update()
   }
 
   // wobble the screen when explosion
-  if ((mysprite > 0) && (camerafollowsprite > 0) && (!demoplayer.active()))
+  if ((SpriteSystem::Get().IsPlayerSpriteValid()) && (camerafollowsprite > 0) &&
+      (!demoplayer.active()))
   {
     if ((style == 17) || (style == 12) || (style == 14) || (style == 15) || (style == 28))
     {

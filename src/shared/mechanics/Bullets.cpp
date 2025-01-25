@@ -3106,7 +3106,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
   // Grenade Effect
   if (CVar::snd_effects_explosions)
   {
-    if (mysprite > 0)
+    if (SpriteSystem::Get().IsPlayerSpriteValid())
     {
       const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
       if (SpriteSystem::Get().GetPlayerSprite().GetHealth() > -50)

@@ -26,6 +26,7 @@
 #include "common/Logging.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include <Tracy.hpp>
 #include <client/ClientGame.hpp>
@@ -2291,7 +2292,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
         GS::GetGame().CalculateTeamAliveNum(player->team);
 #ifndef SERVER
-        if (mysprite > 0)
+        if (SpriteSystem::Get().IsPlayerSpriteValid())
         {
           if (isinsameteam(SpriteSystem::Get().GetPlayerSprite()))
           {
@@ -5152,7 +5153,8 @@ void Sprite<M>::fire()
   }
 
   // Screen shake
-  if (((mysprite > 0) && (camerafollowsprite != 0)) and ((num == mysprite) || CVar::cl_screenshake))
+  if (((SpriteSystem::Get().IsPlayerSpriteValid()) && (camerafollowsprite != 0)) and
+      ((num == mysprite) || CVar::cl_screenshake))
   {
     if (weapon.num != chainsaw_num)
     {
