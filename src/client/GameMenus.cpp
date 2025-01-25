@@ -379,7 +379,7 @@ auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
         break;
 
         case 2: { // kick
-          result = (kickmenuindex != mysprite);
+          result = (!SpriteSystem::Get().IsPlayerSprite(kickmenuindex));
 
           if (result)
           {

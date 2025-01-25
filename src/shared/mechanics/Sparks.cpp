@@ -43,7 +43,7 @@ auto createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::ui
 
   if (camerafollowsprite > 0)
   {
-    if (camerafollowsprite == mysprite)
+    if (SpriteSystem::Get().IsPlayerSprite(camerafollowsprite))
     {
       if (!GS::GetGame().pointvisible(spos.x, spos.y, camerafollowsprite) && (sstyle != 38))
       {
@@ -52,7 +52,7 @@ auto createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::ui
       }
     }
 
-    if (camerafollowsprite != mysprite)
+    if (!SpriteSystem::Get().IsPlayerSprite(camerafollowsprite))
     {
       if (!GS::GetGame().pointvisible2(spos.x, spos.y, camerafollowsprite) && (sstyle != 38))
       {

@@ -186,7 +186,8 @@ void tabcomplete()
     {
       next = ((i - 1) % max_players) + 1;
       auto &sprite = SpriteSystem::Get().GetSprite(next);
-      if (sprite.IsActive() && (!sprite.player->demoplayer) && (next != mysprite))
+      if (sprite.IsActive() && (!sprite.player->demoplayer) &&
+          (!SpriteSystem::Get().IsPlayerSprite(next)))
       {
         if ((completionbase.empty()) ||
             std::string::npos != sprite.player->name.find(completionbase))

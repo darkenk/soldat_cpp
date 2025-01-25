@@ -183,7 +183,8 @@ void update_frame()
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
       j = sprite.num;
-      if (sprite.isnotspectator() && (j != mysprite) && (sprite.bonusstyle != bonus_predator) and
+      if (sprite.isnotspectator() && (!SpriteSystem::Get().IsPlayerSprite(j)) &&
+          (sprite.bonusstyle != bonus_predator) and
           ((sprite.position == pos_stand) or
            (sprite.isnotsolo() && sprite.isinsameteam(SpriteSystem::Get().GetPlayerSprite())) or
            SpriteSystem::Get().GetPlayerSprite().deadmeat or sprite.deadmeat) and

@@ -116,7 +116,7 @@ void controlsprite(tsprite &spritec)
       spritec.applyweaponbynum(spritec.weapon.num, 1);
       spritec.weapon.ammocount = 0;
 #ifndef SERVER
-      if ((spritec.num == mysprite) && !spritec.deadmeat)
+      if ((SpriteSystem::Get().IsPlayerSprite(spritec.num)) && !spritec.deadmeat)
       {
         clientspritesnapshot();
       }
@@ -132,7 +132,7 @@ void controlsprite(tsprite &spritec)
       spritec.bodyanimation.speed = 1;
     }
 #ifndef SERVER
-    if ((spritec.num == mysprite) && !escmenu->active)
+    if ((SpriteSystem::Get().IsPlayerSprite(spritec.num)) && !escmenu->active)
     {
       spritec.freecontrols();
 
@@ -710,7 +710,7 @@ void controlsprite(tsprite &spritec)
 
     // TARGET MODE
 #ifndef SERVER
-    if ((spritec.num == mysprite) && targetmode && spritec.control.fire)
+    if ((SpriteSystem::Get().IsPlayerSprite(spritec.num)) && targetmode && spritec.control.fire)
     {
       clientfreecamtarget();
       targetmode = false;
@@ -860,7 +860,8 @@ void controlsprite(tsprite &spritec)
 #ifdef SERVER
       if (spritec.player->controlmethod == bot)
 #else
-      if ((spritec.num == mysprite) || (spritec.player->controlmethod == bot))
+      if ((SpriteSystem::Get().IsPlayerSprite(spritec.num)) ||
+          (spritec.player->controlmethod == bot))
 #endif
       {
         new (&tempgun) tgun(spritec.weapon);
@@ -917,7 +918,8 @@ void controlsprite(tsprite &spritec)
 #ifdef SERVER
       if (spritec.player->controlmethod == bot)
 #else
-      if ((spritec.player->controlmethod == bot) || (spritec.num == mysprite))
+      if ((spritec.player->controlmethod == bot) ||
+          (SpriteSystem::Get().IsPlayerSprite(spritec.num)))
 #endif
       {
         // Set the dont drop flag so ThrowWeapon will not be sent to the server after
@@ -940,7 +942,7 @@ void controlsprite(tsprite &spritec)
         spritec.applyweaponbynum(noweapon_num, 1);
         spritec.bodyapplyanimation(AnimationType::Stand, 1);
 #ifndef SERVER
-        if ((spritec.num == mysprite) && !spritec.deadmeat)
+        if ((SpriteSystem::Get().IsPlayerSprite(spritec.num)) && !spritec.deadmeat)
         {
           clientspritesnapshot();
         }
@@ -1589,7 +1591,7 @@ void controlsprite(tsprite &spritec)
                       SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
           }
 
-          if (spritec.num == mysprite)
+          if (SpriteSystem::Get().IsPlayerSprite(spritec.num))
           {
             clientsendstringmessage("/KILL", spritec.num);
           }
@@ -1828,7 +1830,7 @@ void controlsprite(tsprite &spritec)
       }
     }
 #ifndef SERVER
-    if (targetmode && (spritec.num == mysprite))
+    if (targetmode && (SpriteSystem::Get().IsPlayerSprite(spritec.num)))
     {
       spritec.freecontrols();
     }

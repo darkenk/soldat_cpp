@@ -79,7 +79,7 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
   {
     if (
 #ifndef SERVER
-      (sowner != mysprite) &&
+      (!SpriteSystem::Get().IsPlayerSprite(sowner)) &&
 #endif
       (SpriteSystem::Get().GetSprite(sowner).player->controlmethod != bot) &&
       ((SpriteSystem::Get().GetSprite(sowner).weapon.fireinterval > fireinterval_net) ||
@@ -236,7 +236,7 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
   // SEND BULLLET THROUGH NETWORK
   if (net)
   {
-    if ((sowner == mysprite) && (clientstopmovingcounter > 0))
+    if ((SpriteSystem::Get().IsPlayerSprite(sowner)) && (clientstopmovingcounter > 0))
     {
       if ((SpriteSystem::Get().GetSprite(sowner).weapon.fireinterval > fireinterval_net) ||
           mustcreate || (b.style == bullet_style_fragnade) ||
@@ -256,7 +256,7 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
     }
   }
 
-  if (sowner == mysprite)
+  if (SpriteSystem::Get().IsPlayerSprite(sowner))
   {
     if (b.style == bullet_style_fragnade)
     {
@@ -523,7 +523,7 @@ auto canhitspray(std::int32_t victim, std::int32_t attacker) -> bool
   bool result;
   result = false;
 
-  if (victim == mysprite)
+  if (SpriteSystem::Get().IsPlayerSprite(victim))
   {
     if ((victim == attacker) or (CVar::sv_friendlyfire) or
         SpriteSystem::Get().GetSprite(victim).issolo() or
@@ -796,7 +796,7 @@ void Bullet<M>::update()
 
 #ifndef SERVER
   // Bullet Tracking
-  if (owner == mysprite)
+  if (SpriteSystem::Get().IsPlayerSprite(owner))
   {
     if (tracking == 255)
     {
@@ -804,7 +804,7 @@ void Bullet<M>::update()
     }
   }
 
-  if (tracking == mysprite)
+  if (SpriteSystem::Get().IsPlayerSprite(tracking))
   {
     if (SpriteSystem::Get().GetSprite(owner).position != pos_stand)
     {
@@ -1842,7 +1842,7 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
               }
 
               // Shake screen
-              if ((owner == mysprite) && (ownerweapon == chainsaw_num))
+              if ((SpriteSystem::Get().IsPlayerSprite(owner)) && (ownerweapon == chainsaw_num))
               {
                 camerax = camerax - 3 + Random(7);
                 cameray = cameray - 3 + Random(7);
@@ -2010,7 +2010,7 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
                      SpriteSystem::Get().GetSprite(owner).isinsameteam(
                        SpriteSystem::Get().GetSprite(j))
 #ifndef SERVER
-                     && (num != mysprite)
+                     && (!SpriteSystem::Get().IsPlayerSprite(num))
 #endif
                        ) ||
                     (SpriteSystem::Get().GetSprite(j).bonusstyle == bonus_flamegod))

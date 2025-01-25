@@ -226,7 +226,8 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
         {
           spritethingowner->applyweaponbynum(noweapon_num, 2);
         }
-        if ((spritethingowner->num == mysprite) && !spritethingowner->deadmeat)
+        if ((SpriteSystem::Get().IsPlayerSprite(spritethingowner->num)) &&
+            !spritethingowner->deadmeat)
         {
           clientspritesnapshot();
         }
@@ -385,7 +386,8 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     {
     case gamestyle_pointmatch:
     case gamestyle_htf: {
-      bigcaptext = iif(j == mysprite, _("You got the Flag!"), _("Yellow Flag captured!"));
+      bigcaptext = iif(SpriteSystem::Get().IsPlayerSprite(j), _("You got the Flag!"),
+                       _("Yellow Flag captured!"));
       smallcaptext = _("{} got the Yellow Flag");
     }
     break;
@@ -412,12 +414,14 @@ void clienthandlethingtaken(NetworkContext *netmessage)
         switch (SpriteSystem::Get().GetSprite(j).player->team)
         {
         case team_alpha: {
-          bigcaptext = iif(j == mysprite, _("You got the Blue Flag!"), _("Blue Flag captured!"));
+          bigcaptext = iif(SpriteSystem::Get().IsPlayerSprite(j), _("You got the Blue Flag!"),
+                           _("Blue Flag captured!"));
           smallcaptext = _("{} captured the Blue Flag");
         }
         break;
         case team_bravo: {
-          bigcaptext = iif(j == mysprite, _("You got the Red Flag!"), _("Red Flag captured!"));
+          bigcaptext = iif(SpriteSystem::Get().IsPlayerSprite(j), _("You got the Red Flag!"),
+                           _("Red Flag captured!"));
           smallcaptext = _("{} captured the Red Flag");
         }
         break;
@@ -429,8 +433,8 @@ void clienthandlethingtaken(NetworkContext *netmessage)
       {
         if (SpriteSystem::Get().GetSprite(j).player->team == team_bravo)
         {
-          bigcaptext =
-            iif(j == mysprite, _("You returned the Objective!"), _("Objective returned!"));
+          bigcaptext = iif(SpriteSystem::Get().IsPlayerSprite(j), _("You returned the Objective!"),
+                           _("Objective returned!"));
           smallcaptext = _("{} returned the Objective");
         }
         thing.respawn();
@@ -439,7 +443,8 @@ void clienthandlethingtaken(NetworkContext *netmessage)
       {
         if (SpriteSystem::Get().GetSprite(j).player->team == team_alpha)
         {
-          bigcaptext = iif(j == mysprite, _("You got the Objective!"), _("Objective captured!"));
+          bigcaptext = iif(SpriteSystem::Get().IsPlayerSprite(j), _("You got the Objective!"),
+                           _("Objective captured!"));
           smallcaptext = _("{} captured the Objective");
         }
       }
@@ -472,7 +477,8 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     SpriteSystem::Get()
       .GetSprite(thingtakensnap->who)
       .applyweaponbynum(guns[weaponindex].num, n, thingtakensnap->ammocount);
-    if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetPlayerSprite().deadmeat)
+    if ((SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who)) &&
+        !SpriteSystem::Get().GetPlayerSprite().deadmeat)
     {
       clientspritesnapshot();
     }
@@ -488,12 +494,13 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     thing.kill();
     gamethingtarget = 0;
 
-    if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetPlayerSprite().deadmeat)
+    if ((SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who)) &&
+        !SpriteSystem::Get().GetPlayerSprite().deadmeat)
     {
       clientspritesnapshot();
     }
 
-    if (thingtakensnap->who == mysprite)
+    if (SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who))
     {
       bigmessage(_("You got the Bow!"), capturemessagewait, capture_message_color);
     }
@@ -527,7 +534,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
       .GetSprite(thingtakensnap->who)
       .applyweaponbynum(SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.num, 2, -1, true);
     SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(flamer_num, 1);
-    if (thingtakensnap->who == mysprite)
+    if (SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who))
     {
       bigmessage(_("Flame God Mode!"), capturemessagewait, bonus_message_color);
       if (!SpriteSystem::Get().GetPlayerSprite().deadmeat)
@@ -543,7 +550,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     SpriteSystem::Get().GetSprite(thingtakensnap->who).alpha = predatoralpha;
     SpriteSystem::Get().GetSprite(thingtakensnap->who).bonustime = predatorbonustime;
     SpriteSystem::Get().GetSprite(thingtakensnap->who).bonusstyle = bonus_predator;
-    if (thingtakensnap->who == mysprite)
+    if (SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who))
     {
       bigmessage(_("Predator Mode!"), capturemessagewait, bonus_message_color);
     }
@@ -553,7 +560,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   case object_vest_kit: {
     playsound(SfxEffect::vesttake, thing.skeleton.pos[1]);
     SpriteSystem::Get().GetSprite(thingtakensnap->who).vest = defaultvest;
-    if (thingtakensnap->who == mysprite)
+    if (SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who))
     {
       bigmessage(_("Bulletproof Vest!"), capturemessagewait, capture_message_color);
     }
@@ -564,7 +571,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     playsound(SfxEffect::berserker, thing.skeleton.pos[1]);
     SpriteSystem::Get().GetSprite(thingtakensnap->who).bonusstyle = bonus_berserker;
     SpriteSystem::Get().GetSprite(thingtakensnap->who).bonustime = berserkerbonustime;
-    if (thingtakensnap->who == mysprite)
+    if (SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who))
     {
       bigmessage(_("Berserker Mode!"), capturemessagewait, bonus_message_color);
     }
@@ -575,7 +582,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
     SpriteSystem::Get().GetSprite(thingtakensnap->who).SetThirdWeapon(guns[clustergrenade]);
     SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon.ammocount = cluster_grenades;
-    if (thingtakensnap->who == mysprite)
+    if (SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who))
     {
       bigmessage(_("Cluster Grenades!"), capturemessagewait, capture_message_color);
     }
@@ -591,7 +598,8 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     SpriteSystem::Get()
       .GetSprite(thingtakensnap->who)
       .applyweaponbynum(guns[weaponindex].num, n, thingtakensnap->ammocount);
-    if ((thingtakensnap->who == mysprite) && !SpriteSystem::Get().GetPlayerSprite().deadmeat)
+    if ((SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who)) &&
+        !SpriteSystem::Get().GetPlayerSprite().deadmeat)
     {
       clientspritesnapshot();
     }

@@ -448,7 +448,8 @@ void clienthandleplayerdisconnect(NetworkContext *netmessage)
 
   GS::GetGame().sortplayers();
 
-  if ((playermsg->num == mysprite) && (GS::GetGame().GetMapchangecounter() < 1))
+  if ((SpriteSystem::Get().IsPlayerSprite(playermsg->num)) &&
+      (GS::GetGame().GetMapchangecounter() < 1))
   {
     GS::GetGame().showmapchangescoreboard();
     gamemenushow(teammenu, false);

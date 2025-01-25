@@ -67,7 +67,7 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
 
   sprite.deadmeat = false;
 
-  if (i != mysprite)
+  if (!SpriteSystem::Get().IsPlayerSprite(i))
   {
     if (sprite.GetHealth() == spritesnap->health)
     {
@@ -158,7 +158,7 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
     sprite.vest = defaultvest;
   }
 
-  if (i == mysprite)
+  if (SpriteSystem::Get().IsPlayerSprite(i))
   {
     if (!targetmode)
     {
@@ -213,7 +213,7 @@ void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
 
   sprite.deadmeat = false;
 
-  if (i != mysprite)
+  if (!SpriteSystem::Get().IsPlayerSprite(i))
   {
     if (sprite.GetHealth() == spritesnapmajor->health)
     {
@@ -249,7 +249,7 @@ void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
 
   sprite.SetHealth(spritesnapmajor->health);
 
-  if (i == mysprite)
+  if (SpriteSystem::Get().IsPlayerSprite(i))
   {
     if (!targetmode)
     {
@@ -542,7 +542,7 @@ void clienthandlespritedeath(NetworkContext *netmessage)
     SpriteSystem::Get().GetSprite(deathsnap->killer).multikills += 1;
   }
 
-  if (i == mysprite)
+  if (SpriteSystem::Get().IsPlayerSprite(i))
   {
     bigmessage(
       wideformat(_("Killed by {}"), SpriteSystem::Get().GetSprite(deathsnap->killer).player->name),
@@ -555,7 +555,7 @@ void clienthandlespritedeath(NetworkContext *netmessage)
     playsound(SfxEffect::playerdeath);
   }
 
-  if (deathsnap->killer == mysprite)
+  if (SpriteSystem::Get().IsPlayerSprite(deathsnap->killer))
   {
     bigmessage(wideformat(_("You killed {}"), sprite.player->name), killmessagewait,
                kill_message_color);
@@ -580,7 +580,8 @@ void clienthandlespritedeath(NetworkContext *netmessage)
     }
   }
 
-  if ((deathsnap->killer == mysprite) && (i == mysprite))
+  if ((SpriteSystem::Get().IsPlayerSprite(deathsnap->killer)) &&
+      (SpriteSystem::Get().IsPlayerSprite(i)))
   {
     bigmessage(_("You killed yourself"), killmessagewait, die_message_color);
   }
@@ -812,7 +813,7 @@ void clienthandledelta_weapons(NetworkContext *netmessage)
   sprite.weapon.ammocount =
     pmsg_serverspritedelta_weapons(netmessage->packet)->ammocount;
 
-  if ((i == mysprite) && !SpriteSystem::Get().GetPlayerSprite().deadmeat)
+  if ((SpriteSystem::Get().IsPlayerSprite(i)) && !SpriteSystem::Get().GetPlayerSprite().deadmeat)
   {
     clientspritesnapshot();
   }

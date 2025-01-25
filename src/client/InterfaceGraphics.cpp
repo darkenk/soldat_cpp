@@ -2031,7 +2031,8 @@ void renderplayernames(float width, float height)
   {
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
-      if ((sprite.num != mysprite) && sprite.isinsameteam(SpriteSystem::Get().GetPlayerSprite()))
+      if ((!SpriteSystem::Get().IsPlayerSprite(sprite.num)) &&
+          sprite.isinsameteam(SpriteSystem::Get().GetPlayerSprite()))
       {
         renderplayername(width, height, sprite.num, true);
       }
@@ -2689,12 +2690,12 @@ void renderinterface(float timeelapsed, float width, float height)
           gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xffff00, alfa));
         }
         else if (((sprite.num == camerafollowsprite) && spriteme->isspectator()) or
-                 (sprite.num == mysprite))
+                 (SpriteSystem::Get().IsPlayerSprite(sprite.num)))
         {
           p = tominimap(sprite.skeleton.pos[7], 0.8);
           gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, 0.8, rgba(0xffffff, alfa));
         }
-        else if (!sprite.issolo() && (sprite.num != mysprite))
+        else if (!sprite.issolo() && (!SpriteSystem::Get().IsPlayerSprite(sprite.num)))
         {
           color = rgba(0);
           p = tominimap(sprite.skeleton.pos[7], 0.65);
@@ -2972,7 +2973,7 @@ void renderinterface(float timeelapsed, float width, float height)
 
             x = 31 + fragx;
 
-            if (GS::GetGame().GetSortedPlayers(j).playernum == mysprite)
+            if (SpriteSystem::Get().IsPlayerSprite(GS::GetGame().GetSortedPlayers(j).playernum))
             {
               gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], pixelalignx(x), pixelaligny(y + 1),
                             rgba(0xffffff, CVar::ui_status_transparency));
@@ -3309,7 +3310,7 @@ void renderinterface(float timeelapsed, float width, float height)
       gfxdrawtext(x, 430 * _iscala.y);
     }
     else if ((camerafollowsprite > 0) && (camerafollowsprite <= max_sprites) &&
-             (camerafollowsprite != mysprite))
+             (!SpriteSystem::Get().IsPlayerSprite(camerafollowsprite)))
     {
       i = (std::int32_t)(SpriteSystem::Get().GetSprite(camerafollowsprite).deadmeat);
       x = (width -

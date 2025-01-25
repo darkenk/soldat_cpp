@@ -296,7 +296,7 @@ void Sprite<M>::update()
     deadmeat = true;
 
 #ifndef SERVER
-    if (num == mysprite)
+    if (SpriteSystem::Get().IsPlayerSprite(num))
     {
       respawncounter = 19999;
       gamemenushow(limbomenu, false);
@@ -753,7 +753,7 @@ void Sprite<M>::update()
 
       // WEAPON HANDLING
 #ifndef SERVER
-      if ((num == mysprite) || (weapon.fireinterval <= fireinterval_net) or
+      if ((SpriteSystem::Get().IsPlayerSprite(num)) || (weapon.fireinterval <= fireinterval_net) or
           !GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y, camerafollowsprite))
 #endif
       {
@@ -1954,7 +1954,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     }
 
 #ifndef SERVER
-    if ((who != num) && (who == mysprite))
+    if ((who != num) && (SpriteSystem::Get().IsPlayerSprite(who)))
     {
       for (auto &w : wepstats)
       {
@@ -2045,10 +2045,10 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #endif // SERVER
 
 #ifndef SERVER
-    if (((who == mysprite) || (num == mysprite)) && (what > 0) &&
-        GS::GetGame().ispointonscreen(skeleton.pos[9]))
+    if (((SpriteSystem::Get().IsPlayerSprite(who)) || (SpriteSystem::Get().IsPlayerSprite(num))) &&
+        (what > 0) && GS::GetGame().ispointonscreen(skeleton.pos[9]))
     {
-      if ((who == mysprite) && (num == mysprite))
+      if ((SpriteSystem::Get().IsPlayerSprite(who)) && (SpriteSystem::Get().IsPlayerSprite(num)))
       {
         ;
       }
@@ -2155,7 +2155,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
           playsound(SfxEffect::bryzg, skeleton.pos[12]);
         }
 
-        if (who == mysprite)
+        if (SpriteSystem::Get().IsPlayerSprite(who))
         {
           playsound(SfxEffect::boomheadshot);
         }
@@ -2491,7 +2491,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
       }
 
 #ifndef SERVER
-      if ((num == mysprite) || (who == mysprite))
+      if ((SpriteSystem::Get().IsPlayerSprite(num)) || (SpriteSystem::Get().IsPlayerSprite(who)))
       {
         for (i = 1; i <= primary_weapons; i++)
         {
@@ -3700,7 +3700,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
   if (!this->deadmeat && (what > 0))
   {
     // Check to prevent one AoE explosion counting as multiple hits on one bullet
-    if ((who != this->num) && (!bullet[what].hashit) && (who == mysprite))
+    if ((who != this->num) && (!bullet[what].hashit) && (SpriteSystem::Get().IsPlayerSprite(who)))
     {
       for (j = 1; j <= 20; j++)
       {
@@ -3903,7 +3903,7 @@ void Sprite<M>::respawn()
     return;
   }
 
-  if (num == mysprite)
+  if (SpriteSystem::Get().IsPlayerSprite(num))
   {
     playsound(SfxEffect::wermusic, spritePartsPos);
   }
@@ -3955,7 +3955,7 @@ void Sprite<M>::respawn()
   idlerandom = -1;
 
 #ifndef SERVER
-  if (num == mysprite)
+  if (SpriteSystem::Get().IsPlayerSprite(num))
   {
     camerafollowsprite = mysprite;
     grenadeeffecttimer = 0;
@@ -4022,7 +4022,7 @@ void Sprite<M>::respawn()
     {
       applyweaponbynum(selweapon, 1);
 #ifndef SERVER
-      if (num == mysprite)
+      if (SpriteSystem::Get().IsPlayerSprite(num))
       {
         clientspritesnapshot();
       }
@@ -4187,7 +4187,7 @@ void Sprite<M>::respawn()
 
 #ifndef SERVER
   // Spawn sound
-  if (num != mysprite)
+  if (!SpriteSystem::Get().IsPlayerSprite(num))
   {
     playsound(SfxEffect::spawn, spritePartsPos);
   }
@@ -4445,7 +4445,7 @@ void Sprite<M>::changeteam_ServerVariant(std::int32_t team, bool adminchange, st
       player->deaths -= 1;
     }
 #ifndef SERVER
-    if (num == mysprite)
+    if (SpriteSystem::Get().IsPlayerSprite(num))
     {
       if (player->team == team_spectator)
       {
@@ -4522,7 +4522,7 @@ void Sprite<M>::fire()
 
 #ifndef SERVER
   // TODO(skoskav): Make bink and self-bink sprite-specific so bots can also use it
-  if (num == mysprite)
+  if (SpriteSystem::Get().IsPlayerSprite(num))
   {
     // Bink && self-bink
     if (hitspraycounter > 0)
@@ -5132,7 +5132,7 @@ void Sprite<M>::fire()
 
     // TODO(skoskav): Make bink and self-bink sprite-specific so bots can also use it
 #ifndef SERVER
-  if (num == mysprite)
+  if (SpriteSystem::Get().IsPlayerSprite(num))
   {
     // Increase self-bink for next shot
     if (weapon.bink < 0)
@@ -5154,7 +5154,7 @@ void Sprite<M>::fire()
 
   // Screen shake
   if (((SpriteSystem::Get().IsPlayerSpriteValid()) && (camerafollowsprite != 0)) and
-      ((num == mysprite) || CVar::cl_screenshake))
+      ((SpriteSystem::Get().IsPlayerSprite(num)) || CVar::cl_screenshake))
   {
     if (weapon.num != chainsaw_num)
     {
@@ -5176,7 +5176,7 @@ void Sprite<M>::fire()
   }
 
   // Recoil!
-  if (mysprite == num)
+  if (SpriteSystem::Get().IsPlayerSprite(num))
   {
     rc = (float)(burstcount) / 10.f;
     rc = rc * (float)weapon.recoil;
@@ -5409,11 +5409,11 @@ void Sprite<M>::throwgrenade()
         createbullet(a, b, tertiaryweapon.num, num, 255, guns[fraggrenade].hitmultiply, true,
                      false);
 
-        extern std::uint8_t mysprite;
-        bool is_current_sprite = ((player->controlmethod == human) && (num == mysprite));
-        if constexpr(Config::IsServer(M))
+        bool is_current_sprite = false;
+          
+        if constexpr(Config::IsClient(M))
         {
-          is_current_sprite = false;
+          is_current_sprite = ((player->controlmethod == human) && (TSpriteSystem<Sprite<M>>::Get().IsPlayerSprite(num)));
         }
 
         if (is_current_sprite || (player->controlmethod == bot))
@@ -5422,9 +5422,9 @@ void Sprite<M>::throwgrenade()
         }
 
 #ifndef SERVER
-      if ((num == mysprite) && (guns[fraggrenade].bink < 0))
-      {
-        hitspraycounter = calculatebink(hitspraycounter, -guns[fraggrenade].bink);
+        if ((SpriteSystem::Get().IsPlayerSprite(num)) && (guns[fraggrenade].bink < 0))
+        {
+          hitspraycounter = calculatebink(hitspraycounter, -guns[fraggrenade].bink);
       }
 
         playsound(SfxEffect::grenade_throw, a);

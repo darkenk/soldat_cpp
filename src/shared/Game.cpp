@@ -284,7 +284,7 @@ void Game<M>::startvote(std::uint8_t startervote, std::uint8_t typevote, std::st
     VoteStarter = SpriteSystem::Get().GetSprite(startervote).player->name;
     VoteCooldown[startervote] = default_vote_time;
 #ifndef SERVER
-    if (startervote == mysprite)
+    if (SpriteSystem::Get().IsPlayerSprite(startervote))
     {
       if (VoteType == vote_kick)
       {

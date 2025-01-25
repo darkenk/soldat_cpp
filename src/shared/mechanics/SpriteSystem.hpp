@@ -121,6 +121,7 @@ public:
 
   void UpdateSpriteParts();
 
+  // NOLINTBEGIN(soldat-*)
   TSprite& GetPlayerSprite() requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
   {
     extern std::uint8_t mysprite;
@@ -138,6 +139,7 @@ public:
     extern std::uint8_t mysprite;
     return spriteId == mysprite;
   }
+  // NOLINTEND(soldat-*)
 
 protected:
   TSpriteSystem();
