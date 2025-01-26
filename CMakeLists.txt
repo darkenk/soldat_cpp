@@ -209,7 +209,7 @@ add_subdirectory(src/common)
 add_subdirectory(src/client)
 add_subdirectory(src/server)
 add_subdirectory(src/game)
-add_subdirectory(src/samples)
+#add_subdirectory(src/samples)
 add_subdirectory(assets)
 
 #find_package(GTest REQUIRED)

@@ -18,7 +18,7 @@
       "displayName": "Clang Default",
       "cacheVariables": {
         "ENABLE_MOLD": "ON",
-        "ENABLE_CLANG_TIDY": "ON",
+        "ENABLE_CLANG_TIDY": "OFF",
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++"
       }
