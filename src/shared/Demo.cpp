@@ -241,10 +241,10 @@ void tdemorecorder<M>::saveposition()
     movementmsg.pos = spritePartsPos;
     movementmsg.servertick = GS::GetGame().GetMainTickCounter();
 
-    encodekeys(SpriteSystem::Get().GetSprite(mysprite), movementmsg.keys16);
+    encodekeys(SpriteSystem::Get().GetPlayerSprite(), movementmsg.keys16);
 
-    movementmsg.mouseaimx = SpriteSystem::Get().GetSprite(mysprite).control.mouseaimx;
-    movementmsg.mouseaimy = SpriteSystem::Get().GetSprite(mysprite).control.mouseaimy;
+    movementmsg.mouseaimx = SpriteSystem::Get().GetPlayerSprite().control.mouseaimx;
+    movementmsg.mouseaimy = SpriteSystem::Get().GetPlayerSprite().control.mouseaimy;
 
     saverecord(&movementmsg, sizeof(movementmsg));
 #endif

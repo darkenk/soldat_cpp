@@ -274,5 +274,5 @@ bool teamcollides(const PolygonType poly, const std::int32_t team, const bool bu
 
 #ifndef SERVER
 extern bool wasreloading;
-void selectdefaultweapons(std::uint8_t mysprite);
+void selectdefaultweapons(std::uint8_t sprite_id);
 #endif

@@ -655,7 +655,7 @@ void clienthandleping(NetworkContext *netmessage)
     return;
   }
 
-  if (mysprite != 0)
+  if (SpriteSystem::Get().IsPlayerSpriteValid())
   {
     auto &player = SpriteSystem::Get().GetPlayerSprite().player;
     player->pingticks = pmsg_ping(netmessage->packet)->pingticks;

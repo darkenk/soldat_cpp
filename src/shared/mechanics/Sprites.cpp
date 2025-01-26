@@ -1515,11 +1515,12 @@ void Sprite<M>::kill()
 
 #ifndef SERVER
 // TODO move into Sprite
-void selectdefaultweapons(std::uint8_t mysprite)
+void selectdefaultweapons(std::uint8_t sprite_id)
 {
   std::int32_t i;
   std::int32_t j;
   std::int32_t k;
+  SoldatAssert(SpriteSystem::Get().IsPlayerSprite(sprite_id));
 
   auto &weaponSystem = GS::GetWeaponSystem();
 
@@ -1533,14 +1534,14 @@ void selectdefaultweapons(std::uint8_t mysprite)
     {
       if (weaponSystem.IsEnabled(j))
       {
-        weaponsel[mysprite][j] = 1;
+        weaponsel[sprite_id][j] = 1;
         limbomenu->button[j - 1].active = true;
-        SpriteSystem::Get().GetSprite(mysprite).selweapon = j;
+        SpriteSystem::Get().GetSprite(sprite_id).selweapon = j;
 
-        if (limbomenu->active && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+        if (limbomenu->active && !SpriteSystem::Get().GetSprite(sprite_id).deadmeat)
         {
-          SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
-            SpriteSystem::Get().GetSprite(mysprite).selweapon, 1);
+          SpriteSystem::Get().GetSprite(sprite_id).applyweaponbynum(
+            SpriteSystem::Get().GetSprite(sprite_id).selweapon, 1);
           clientspritesnapshot();
         }
         break;
@@ -1556,15 +1557,15 @@ void selectdefaultweapons(std::uint8_t mysprite)
     {
       if (weaponSystem.IsEnabled(j))
       {
-        weaponsel[mysprite][j] = 1;
+        weaponsel[sprite_id][j] = 1;
         limbomenu->button[j - 1].active = true;
-        SpriteSystem::Get().GetSprite(mysprite).player->secwep = j - primary_weapons - 1;
+        SpriteSystem::Get().GetSprite(sprite_id).player->secwep = j - primary_weapons - 1;
 
-        CVar::cl_player_secwep = (SpriteSystem::Get().GetSprite(mysprite).player->secwep);
+        CVar::cl_player_secwep = (SpriteSystem::Get().GetSprite(sprite_id).player->secwep);
 
-        if (limbomenu->active && !SpriteSystem::Get().GetSprite(mysprite).deadmeat)
+        if (limbomenu->active && !SpriteSystem::Get().GetSprite(sprite_id).deadmeat)
         {
-          SpriteSystem::Get().GetSprite(mysprite).applyweaponbynum(
+          SpriteSystem::Get().GetSprite(sprite_id).applyweaponbynum(
             GS::GetWeaponSystem().GetGuns()[j].num, 2);
         }
         clientspritesnapshot();
