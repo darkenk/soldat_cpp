@@ -135,6 +135,7 @@ void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col)
 // In-game nickname tab completion
 void tabcomplete()
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
   std::int32_t chattextlen;
   std::int32_t offset;
@@ -143,7 +144,7 @@ void tabcomplete()
   std::int32_t availablechatspace;
   std::string spacefittedname;
 
-  if (!SpriteSystem::Get().IsPlayerSpriteValid())
+  if (!sprite_system.IsPlayerSpriteValid())
   {
     return;
   }
@@ -185,9 +186,9 @@ void tabcomplete()
     for (i = continuedtabcompleteplayer; i <= (continuedtabcompleteplayer + max_players - 1); i++)
     {
       next = ((i - 1) % max_players) + 1;
-      auto &sprite = SpriteSystem::Get().GetSprite(next);
+      auto &sprite = sprite_system.GetSprite(next);
       if (sprite.IsActive() && (!sprite.player->demoplayer) &&
-          (!SpriteSystem::Get().IsPlayerSprite(next)))
+          (!sprite_system.IsPlayerSprite(next)))
       {
         if ((completionbase.empty()) ||
             std::string::npos != sprite.player->name.find(completionbase))
@@ -223,6 +224,7 @@ auto getgamefps() -> std::int32_t { return frametiming.fps; }
 void gameloop()
 {
   ZoneScopedN("gameloop");
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t maincontrol;
   std::int32_t heavysendersnum;
   float adjust;
@@ -328,7 +330,7 @@ void gameloop()
       adjust = 1.0;
     }
 
-    if ((SpriteSystem::Get().IsPlayerSpriteValid()) && (!demoplayer.active()))
+    if ((sprite_system.IsPlayerSpriteValid()) && (!demoplayer.active()))
     {
       // connection problems
       if ((game.GetMapchangecounter() < 0) && escmenu->active)
@@ -371,7 +373,7 @@ void gameloop()
 
       clientstopmovingcounter -= 1;
 
-      auto &sprite = SpriteSystem::Get().GetPlayerSprite();
+      auto &sprite = sprite_system.GetPlayerSprite();
 
       if (connection == INTERNET)
       {
@@ -475,6 +477,7 @@ void gameloop()
 
 auto getcameratarget(bool backwards) -> std::uint8_t
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::uint8_t newcam;
   std::uint8_t numloops;
   bool validcam;
@@ -510,30 +513,30 @@ auto getcameratarget(bool backwards) -> std::uint8_t
       newcam = max_sprites;
     }
 
-    if (!SpriteSystem::Get().GetSprite(newcam).active)
+    if (!sprite_system.GetSprite(newcam).active)
     {
       continue; // Sprite slot empty
     }
-    if (SpriteSystem::Get().GetSprite(newcam).deadmeat)
+    if (sprite_system.GetSprite(newcam).deadmeat)
     {
       continue; // Sprite is dead
     }
-    if (SpriteSystem::Get().GetSprite(newcam).isspectator())
+    if (sprite_system.GetSprite(newcam).isspectator())
     {
       continue; // Sprite is a spectator
     }
 
-    if (SpriteSystem::Get().GetPlayerSprite().control.up && (!CVar::sv_realisticmode) &&
-        SpriteSystem::Get().GetPlayerSprite().isnotspectator())
+    if (sprite_system.GetPlayerSprite().control.up && (!CVar::sv_realisticmode) &&
+        sprite_system.GetPlayerSprite().isnotspectator())
     {
       newcam = 0;
       validcam = true;
       break;
     } // Freecam if not Realistic
 
-    if (SpriteSystem::Get().GetPlayerSprite().isspectator())
+    if (sprite_system.GetPlayerSprite().isspectator())
     {
-      if (SpriteSystem::Get().GetPlayerSprite().control.up)
+      if (sprite_system.GetPlayerSprite().control.up)
       {
         newcam = 0;
         validcam = true;
@@ -546,7 +549,7 @@ auto getcameratarget(bool backwards) -> std::uint8_t
       // Let spectator view all players
     }
 
-    if (SpriteSystem::Get().GetSprite(newcam).isnotinsameteam(SpriteSystem::Get().GetPlayerSprite()))
+    if (sprite_system.GetSprite(newcam).isnotinsameteam(sprite_system.GetPlayerSprite()))
     {
       continue; // Dont swap camera to a player not on my team
     }

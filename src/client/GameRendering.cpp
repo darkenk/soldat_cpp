@@ -874,6 +874,7 @@ void restorestate(tinterpolationstate &s)
 void renderframe(double timeelapsed, double framepercent, bool paused)
 {
   ZoneScopedN("RenderFrame");
+  auto &sprite_system = SpriteSystem::Get();
   tmapgraphics *mg;
   std::int32_t i;
   float dx;
@@ -1010,7 +1011,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
       {
         ZoneScopedN("RenderAllGosteks");
-        auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+        auto &activeSprites = sprite_system.GetActiveSprites();
         std::for_each(std::begin(activeSprites), std::end(activeSprites),
                       [](auto &sprite) { rendergostek(sprite); });
       }

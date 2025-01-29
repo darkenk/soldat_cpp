@@ -161,6 +161,7 @@ void commandrecord(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandmute(std::vector<std::string> &args, std::uint8_t sender)
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::string str1;
   std::int32_t i;
   tcommandtargets targets;
@@ -191,9 +192,9 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
   targets = commandtarget(str1, sender);
   for (i = 0; i <= high(targets); i++)
   {
-    SpriteSystem::Get().GetSprite(targets[i]).muted = true;
-    GS::GetMainConsole().console(
-      SpriteSystem::Get().GetSprite(targets[i]).player->name + " is muted", client_message_color);
+    sprite_system.GetSprite(targets[i]).muted = true;
+    GS::GetMainConsole().console(sprite_system.GetSprite(targets[i]).player->name + " is muted",
+                                 client_message_color);
   }
 }
 
@@ -205,6 +206,7 @@ void commandunbindall(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::string str1;
   std::int32_t i;
   tcommandtargets targets;
@@ -219,9 +221,9 @@ void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
   targets = commandtarget(str1, sender);
   for (i = 0; i <= high(targets); i++)
   {
-    SpriteSystem::Get().GetSprite(targets[i]).muted = false;
-    GS::GetMainConsole().console(
-      SpriteSystem::Get().GetSprite(targets[i]).player->name + " is unmuted", client_message_color);
+    sprite_system.GetSprite(targets[i]).muted = false;
+    GS::GetMainConsole().console(sprite_system.GetSprite(targets[i]).player->name + " is unmuted",
+                                 client_message_color);
   }
 }
 
@@ -263,12 +265,13 @@ void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandswitchcam(std::vector<std::string> &args, std::uint8_t sender)
 {
+  auto &sprite_system = SpriteSystem::Get();
   if (length(args) <= 1)
   {
     GS::GetMainConsole().console("Usage: switchcam \"id\"", game_message_color);
     return;
   }
-  if (SpriteSystem::Get().GetPlayerSprite().isspectator())
+  if (sprite_system.GetPlayerSprite().isspectator())
   {
     camerafollowsprite = strtointdef(args[1], 0);
   }
@@ -276,6 +279,7 @@ void commandswitchcam(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
 
   if (length(args) <= 1)
@@ -286,7 +290,7 @@ void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
 
   auto &things = GS::GetThingSystem().GetThings();
 
-  if (SpriteSystem::Get().GetPlayerSprite().isspectator())
+  if (sprite_system.GetPlayerSprite().isspectator())
   {
     for (i = 1; i <= max_things; i++)
     {

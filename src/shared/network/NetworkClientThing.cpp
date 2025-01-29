@@ -15,6 +15,7 @@
 
 void clienthandleserverthingsnapshot(NetworkContext *netmessage)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tvector2 a;
 
   if (!verifypacket(sizeof(tmsg_serverthingsnapshot), netmessage->size, msgid_serverthingsnapshot))
@@ -57,7 +58,7 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
   // is not holded anymore
   if (thing.holdingsprite == 0)
   {
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    for (auto &sprite : sprite_system.GetActiveSprites())
     {
       if (sprite.holdedthing == i)
       {
@@ -70,11 +71,11 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
   {
     if (thing.holdingsprite > 0)
     {
-      SpriteSystem::Get().GetSprite(thingsnap->owner).holdedthing = i;
-      SpriteSystem::Get().GetSprite(thingsnap->owner).onground = false;
+      sprite_system.GetSprite(thingsnap->owner).holdedthing = i;
+      sprite_system.GetSprite(thingsnap->owner).onground = false;
     }
 
-    thing.color = SpriteSystem::Get().GetSprite(thingsnap->owner).player->shirtcolor;
+    thing.color = sprite_system.GetSprite(thingsnap->owner).player->shirtcolor;
   }
 
   if ((thing.holdingsprite == 0) && (thing.style != object_stationary_gun))
@@ -95,7 +96,7 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
 
   if ((thing.holdingsprite > 0) && (thing.style != object_parachute))
   {
-    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(thing.holdingsprite);
+    auto &spritePartsPos = sprite_system.GetSpritePartsPos(thing.holdingsprite);
     if (distance(thing.skeleton.pos[1], spritePartsPos) > 330)
     {
       for (auto d = 1; d <= 4; d++)
@@ -119,6 +120,7 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
 
 void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_serverthingmustsnapshot *thingmustsnap;
   std::int32_t d;
   tvector2 a;
@@ -146,7 +148,7 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
 
   if ((thingmustsnap->owner > 0) && (thingmustsnap->owner < max_sprites + 1))
   {
-    spritethingowner = &SpriteSystem::Get().GetSprite(thingmustsnap->owner);
+    spritethingowner = &sprite_system.GetSprite(thingmustsnap->owner);
   }
   else
   {
@@ -226,8 +228,7 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
         {
           spritethingowner->applyweaponbynum(noweapon_num, 2);
         }
-        if ((SpriteSystem::Get().IsPlayerSprite(spritethingowner->num)) &&
-            !spritethingowner->deadmeat)
+        if ((sprite_system.IsPlayerSprite(spritethingowner->num)) && !spritethingowner->deadmeat)
         {
           clientspritesnapshot();
         }
@@ -241,7 +242,7 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
   // is not holded anymore
   if (thing.holdingsprite == 0)
   {
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    for (auto &sprite : sprite_system.GetActiveSprites())
     {
       if (sprite.holdedthing == i)
       {
@@ -283,6 +284,7 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
 
 void clienthandlethingtaken(NetworkContext *netmessage)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_serverthingtaken *thingtakensnap;
   std::int32_t j;
   std::int32_t n;
@@ -320,7 +322,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     return;
   }
 
-  if (!SpriteSystem::Get().GetSprite(thingtakensnap->who).active)
+  if (!sprite_system.GetSprite(thingtakensnap->who).active)
   {
     return;
   }
@@ -339,7 +341,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   thing.style = thingtakensnap->style;
 
   j = thingtakensnap->who;
-  if (SpriteSystem::Get().GetSprite(j).weapon.num == noweapon_num)
+  if (sprite_system.GetSprite(j).weapon.num == noweapon_num)
   {
     n = 1;
   }
@@ -368,7 +370,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
       break;
     case gamestyle_htf:
     case gamestyle_ctf:
-      switch (SpriteSystem::Get().GetSprite(j).player->team)
+      switch (sprite_system.GetSprite(j).player->team)
       {
       case team_alpha:
         capcolor = alpha_message_color;
@@ -386,15 +388,15 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     {
     case gamestyle_pointmatch:
     case gamestyle_htf: {
-      bigcaptext = iif(SpriteSystem::Get().IsPlayerSprite(j), _("You got the Flag!"),
-                       _("Yellow Flag captured!"));
+      bigcaptext =
+        iif(sprite_system.IsPlayerSprite(j), _("You got the Flag!"), _("Yellow Flag captured!"));
       smallcaptext = _("{} got the Yellow Flag");
     }
     break;
     case gamestyle_ctf:
-      if (SpriteSystem::Get().GetSprite(j).player->team == thing.style)
+      if (sprite_system.GetSprite(j).player->team == thing.style)
       {
-        switch (SpriteSystem::Get().GetSprite(j).player->team)
+        switch (sprite_system.GetSprite(j).player->team)
         {
         case team_alpha: {
           bigcaptext = _("Red Flag returned!");
@@ -411,16 +413,16 @@ void clienthandlethingtaken(NetworkContext *netmessage)
       }
       else
       {
-        switch (SpriteSystem::Get().GetSprite(j).player->team)
+        switch (sprite_system.GetSprite(j).player->team)
         {
         case team_alpha: {
-          bigcaptext = iif(SpriteSystem::Get().IsPlayerSprite(j), _("You got the Blue Flag!"),
+          bigcaptext = iif(sprite_system.IsPlayerSprite(j), _("You got the Blue Flag!"),
                            _("Blue Flag captured!"));
           smallcaptext = _("{} captured the Blue Flag");
         }
         break;
         case team_bravo: {
-          bigcaptext = iif(SpriteSystem::Get().IsPlayerSprite(j), _("You got the Red Flag!"),
+          bigcaptext = iif(sprite_system.IsPlayerSprite(j), _("You got the Red Flag!"),
                            _("Red Flag captured!"));
           smallcaptext = _("{} captured the Red Flag");
         }
@@ -429,11 +431,11 @@ void clienthandlethingtaken(NetworkContext *netmessage)
       }
       break;
     case gamestyle_inf:
-      if (SpriteSystem::Get().GetSprite(j).player->team == thing.style)
+      if (sprite_system.GetSprite(j).player->team == thing.style)
       {
-        if (SpriteSystem::Get().GetSprite(j).player->team == team_bravo)
+        if (sprite_system.GetSprite(j).player->team == team_bravo)
         {
-          bigcaptext = iif(SpriteSystem::Get().IsPlayerSprite(j), _("You returned the Objective!"),
+          bigcaptext = iif(sprite_system.IsPlayerSprite(j), _("You returned the Objective!"),
                            _("Objective returned!"));
           smallcaptext = _("{} returned the Objective");
         }
@@ -441,9 +443,9 @@ void clienthandlethingtaken(NetworkContext *netmessage)
       }
       else
       {
-        if (SpriteSystem::Get().GetSprite(j).player->team == team_alpha)
+        if (sprite_system.GetSprite(j).player->team == team_alpha)
         {
-          bigcaptext = iif(SpriteSystem::Get().IsPlayerSprite(j), _("You got the Objective!"),
+          bigcaptext = iif(sprite_system.IsPlayerSprite(j), _("You got the Objective!"),
                            _("Objective captured!"));
           smallcaptext = _("{} captured the Objective");
         }
@@ -474,11 +476,10 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   case object_minigun: {
     // Objects 1-3 are flags, so we need for WeaponIndex subtract by flags+1
     weaponindex = weaponnumtoindex(thing.style - (object_num_flags + 1), guns);
-    SpriteSystem::Get()
-      .GetSprite(thingtakensnap->who)
+    sprite_system.GetSprite(thingtakensnap->who)
       .applyweaponbynum(guns[weaponindex].num, n, thingtakensnap->ammocount);
-    if ((SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who)) &&
-        !SpriteSystem::Get().GetPlayerSprite().deadmeat)
+    if ((sprite_system.IsPlayerSprite(thingtakensnap->who)) &&
+        !sprite_system.GetPlayerSprite().deadmeat)
     {
       clientspritesnapshot();
     }
@@ -486,58 +487,56 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   break;
   case object_rambo_bow: {
     playsound(SfxEffect::takebow, thing.skeleton.pos[1]);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(bow_num, 1, 1);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(bow2_num, 2, 1);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.ammocount = 1;
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.fireinterval = 10;
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).wearhelmet = 1;
+    sprite_system.GetSprite(thingtakensnap->who).applyweaponbynum(bow_num, 1, 1);
+    sprite_system.GetSprite(thingtakensnap->who).applyweaponbynum(bow2_num, 2, 1);
+    sprite_system.GetSprite(thingtakensnap->who).weapon.ammocount = 1;
+    sprite_system.GetSprite(thingtakensnap->who).weapon.fireinterval = 10;
+    sprite_system.GetSprite(thingtakensnap->who).wearhelmet = 1;
     thing.kill();
     gamethingtarget = 0;
 
-    if ((SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who)) &&
-        !SpriteSystem::Get().GetPlayerSprite().deadmeat)
+    if ((sprite_system.IsPlayerSprite(thingtakensnap->who)) &&
+        !sprite_system.GetPlayerSprite().deadmeat)
     {
       clientspritesnapshot();
     }
 
-    if (SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who))
+    if (sprite_system.IsPlayerSprite(thingtakensnap->who))
     {
       bigmessage(_("You got the Bow!"), capturemessagewait, capture_message_color);
     }
     else
     {
-      bigmessage(wideformat(_("{} got the Bow!"),
-                            SpriteSystem::Get().GetSprite(thingtakensnap->who).player->name),
-                 capturemessagewait, capture_message_color);
+      bigmessage(
+        wideformat(_("{} got the Bow!"), sprite_system.GetSprite(thingtakensnap->who).player->name),
+        capturemessagewait, capture_message_color);
     }
   }
   break;
   case object_medical_kit: {
     playsound(SfxEffect::takemedikit, thing.skeleton.pos[1]);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).SetHealth(GS::GetGame().GetStarthealth());
+    sprite_system.GetSprite(thingtakensnap->who).SetHealth(GS::GetGame().GetStarthealth());
     thing.kill();
   }
   break;
   case object_grenade_kit: {
     playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).SetThirdWeapon(guns[fraggrenade]);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon.ammocount =
-      CVar::sv_maxgrenades;
+    sprite_system.GetSprite(thingtakensnap->who).SetThirdWeapon(guns[fraggrenade]);
+    sprite_system.GetSprite(thingtakensnap->who).tertiaryweapon.ammocount = CVar::sv_maxgrenades;
     thing.kill();
   }
   break;
   case object_flamer_kit: {
     playsound(SfxEffect::godflame, thing.skeleton.pos[1]);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).bonustime = flamerbonustime;
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).bonusstyle = bonus_flamegod;
-    SpriteSystem::Get()
-      .GetSprite(thingtakensnap->who)
-      .applyweaponbynum(SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.num, 2, -1, true);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).applyweaponbynum(flamer_num, 1);
-    if (SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who))
+    sprite_system.GetSprite(thingtakensnap->who).bonustime = flamerbonustime;
+    sprite_system.GetSprite(thingtakensnap->who).bonusstyle = bonus_flamegod;
+    sprite_system.GetSprite(thingtakensnap->who)
+      .applyweaponbynum(sprite_system.GetSprite(thingtakensnap->who).weapon.num, 2, -1, true);
+    sprite_system.GetSprite(thingtakensnap->who).applyweaponbynum(flamer_num, 1);
+    if (sprite_system.IsPlayerSprite(thingtakensnap->who))
     {
       bigmessage(_("Flame God Mode!"), capturemessagewait, bonus_message_color);
-      if (!SpriteSystem::Get().GetPlayerSprite().deadmeat)
+      if (!sprite_system.GetPlayerSprite().deadmeat)
       {
         clientspritesnapshot();
       }
@@ -547,10 +546,10 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   break;
   case object_predator_kit: {
     playsound(SfxEffect::predator, thing.skeleton.pos[1]);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).alpha = predatoralpha;
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).bonustime = predatorbonustime;
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).bonusstyle = bonus_predator;
-    if (SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who))
+    sprite_system.GetSprite(thingtakensnap->who).alpha = predatoralpha;
+    sprite_system.GetSprite(thingtakensnap->who).bonustime = predatorbonustime;
+    sprite_system.GetSprite(thingtakensnap->who).bonusstyle = bonus_predator;
+    if (sprite_system.IsPlayerSprite(thingtakensnap->who))
     {
       bigmessage(_("Predator Mode!"), capturemessagewait, bonus_message_color);
     }
@@ -559,8 +558,8 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   break;
   case object_vest_kit: {
     playsound(SfxEffect::vesttake, thing.skeleton.pos[1]);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).vest = defaultvest;
-    if (SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who))
+    sprite_system.GetSprite(thingtakensnap->who).vest = defaultvest;
+    if (sprite_system.IsPlayerSprite(thingtakensnap->who))
     {
       bigmessage(_("Bulletproof Vest!"), capturemessagewait, capture_message_color);
     }
@@ -569,9 +568,9 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   break;
   case object_berserk_kit: {
     playsound(SfxEffect::berserker, thing.skeleton.pos[1]);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).bonusstyle = bonus_berserker;
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).bonustime = berserkerbonustime;
-    if (SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who))
+    sprite_system.GetSprite(thingtakensnap->who).bonusstyle = bonus_berserker;
+    sprite_system.GetSprite(thingtakensnap->who).bonustime = berserkerbonustime;
+    if (sprite_system.IsPlayerSprite(thingtakensnap->who))
     {
       bigmessage(_("Berserker Mode!"), capturemessagewait, bonus_message_color);
     }
@@ -580,9 +579,9 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   break;
   case object_cluster_kit: {
     playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).SetThirdWeapon(guns[clustergrenade]);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).tertiaryweapon.ammocount = cluster_grenades;
-    if (SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who))
+    sprite_system.GetSprite(thingtakensnap->who).SetThirdWeapon(guns[clustergrenade]);
+    sprite_system.GetSprite(thingtakensnap->who).tertiaryweapon.ammocount = cluster_grenades;
+    if (sprite_system.IsPlayerSprite(thingtakensnap->who))
     {
       bigmessage(_("Cluster Grenades!"), capturemessagewait, capture_message_color);
     }
@@ -595,11 +594,10 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     // There are in total OBJECT_NUM_NONWEAPON non-weapon objects before the
     // knife so we need to subtract it+1 for the WeaponIndex (like before)
     weaponindex = weaponnumtoindex(thing.style - (object_num_nonweapon + 1), guns);
-    SpriteSystem::Get()
-      .GetSprite(thingtakensnap->who)
+    sprite_system.GetSprite(thingtakensnap->who)
       .applyweaponbynum(guns[weaponindex].num, n, thingtakensnap->ammocount);
-    if ((SpriteSystem::Get().IsPlayerSprite(thingtakensnap->who)) &&
-        !SpriteSystem::Get().GetPlayerSprite().deadmeat)
+    if ((sprite_system.IsPlayerSprite(thingtakensnap->who)) &&
+        !sprite_system.GetPlayerSprite().deadmeat)
     {
       clientspritesnapshot();
     }
@@ -607,8 +605,8 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   break;
   case object_stationary_gun: {
     thing.statictype = true;
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).stat = i;
-    const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(thingtakensnap->who);
+    sprite_system.GetSprite(thingtakensnap->who).stat = i;
+    const auto &spritePartsPos = sprite_system.GetSpritePartsPos(thingtakensnap->who);
     playsound(SfxEffect::m2use, spritePartsPos);
   }
   break;
@@ -618,10 +616,10 @@ void clienthandlethingtaken(NetworkContext *netmessage)
       ((thing.style > object_parachute) && (thing.style < object_stationary_gun)))
   {
     playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.fireintervalprev =
-      SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.fireinterval;
-    SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.fireintervalcount =
-      SpriteSystem::Get().GetSprite(thingtakensnap->who).weapon.fireinterval;
+    sprite_system.GetSprite(thingtakensnap->who).weapon.fireintervalprev =
+      sprite_system.GetSprite(thingtakensnap->who).weapon.fireinterval;
+    sprite_system.GetSprite(thingtakensnap->who).weapon.fireintervalcount =
+      sprite_system.GetSprite(thingtakensnap->who).weapon.fireinterval;
     thing.kill();
   }
 }

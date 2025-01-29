@@ -96,6 +96,7 @@ auto tdemorecorder<M>::startrecord(const string &filename) -> bool
 template <Config::Module M>
 void tdemorecorder<M>::stoprecord()
 {
+  auto &sprite_system = SpriteSystem::Get();
   if (!active())
   {
     return;
@@ -110,7 +111,7 @@ void tdemorecorder<M>::stoprecord()
       " (" + (fname) + ')',
     info_message_color);
 
-  SpriteSystem::Get().GetSprite(max_sprites).kill();
+  sprite_system.GetSprite(max_sprites).kill();
 
   fdemofile.position = 0;
 
@@ -138,6 +139,7 @@ void tdemorecorder<M>::stoprecord()
 template <Config::Module M>
 auto tdemorecorder<M>::createdemoplayer() -> std::int32_t
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t p;
 #if SERVER
   auto player = std::make_shared<TServerPlayer>();
@@ -148,7 +150,7 @@ auto tdemorecorder<M>::createdemoplayer() -> std::int32_t
 
   std::int32_t createdemoplayer_result = -1;
 
-  if (SpriteSystem::Get().GetSprite(max_sprites).IsActive())
+  if (sprite_system.GetSprite(max_sprites).IsActive())
   {
     GS::GetMainConsole().console(
       "Failed to create Demo Recorder player. Demos can be recorded with up to 31 players",
@@ -389,6 +391,7 @@ void tdemoplayer::processdemo()
 
 void tdemoplayer::position(std::int32_t ticks)
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
 
   fskipto = ticks;
@@ -402,7 +405,7 @@ void tdemoplayer::position(std::int32_t ticks)
 
     for (i = 1; i <= max_sprites; i++)
     {
-      SpriteSystem::Get().GetSprite(i).kill();
+      sprite_system.GetSprite(i).kill();
     }
     GS::GetBulletSystem().KillAll();
     for (i = 1; i <= max_sparks; i++)

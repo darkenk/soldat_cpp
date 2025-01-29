@@ -11,6 +11,7 @@
 #ifdef SERVER
 void serverthingsnapshot(std::uint8_t tonum)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_serverthingsnapshot thingmsg;
   auto &things = GS::GetThingSystem().GetThings();
 
@@ -64,8 +65,7 @@ void serverthingsnapshot(std::uint8_t tonum)
       if (send)
       {
         GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
-                                     SpriteSystem::Get().GetSprite(tonum).player->peer,
-                                     false);
+                                     sprite_system.GetSprite(tonum).player->peer, false);
       }
     }
   }
@@ -116,6 +116,7 @@ void serverthingmustsnapshot(const std::uint8_t i)
 
 void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_serverthingmustsnapshot thingmsg;
   std::int32_t i;
   std::int32_t j;
@@ -150,8 +151,7 @@ void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
 
 #ifdef SERVER
         GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
-                                     SpriteSystem::Get().GetSprite(tonum).player->peer,
-                                     false);
+                                     sprite_system.GetSprite(tonum).player->peer, false);
 #else
         GS::GetDemoRecorder().saverecord(thingmsg, sizeof(thingmsg));
 #endif
@@ -163,6 +163,7 @@ void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
 #ifdef SERVER
 void serverthingmustsnapshotonconnectto(const std::uint8_t i, const std::uint8_t tonum)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_serverthingmustsnapshot thingmsg;
   std::int32_t j;
 
@@ -194,8 +195,7 @@ void serverthingmustsnapshotonconnectto(const std::uint8_t i, const std::uint8_t
   thingmsg.holdingsprite = thing.holdingsprite;
 
   GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
-                               SpriteSystem::Get().GetSprite(tonum).player->peer,
-                               false);
+                               sprite_system.GetSprite(tonum).player->peer, false);
 }
 
 void serverthingtaken(const std::uint8_t i, const std::uint8_t w)

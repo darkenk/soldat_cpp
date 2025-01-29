@@ -57,6 +57,7 @@ void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
 
 void clienthandlechatmessage(NetworkContext *netmessage)
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::string cs;
   std::string prefix;
   std::int32_t i;
@@ -84,13 +85,13 @@ void clienthandlechatmessage(NetworkContext *netmessage)
 
   if ((i > 0) && (i < max_players))
   {
-    if (!SpriteSystem::Get().GetSprite(i).active)
+    if (!sprite_system.GetSprite(i).active)
     {
       return;
     }
   }
 
-  if ((SpriteSystem::Get().GetSprite(i).muted) or muteall)
+  if ((sprite_system.GetSprite(i).muted) or muteall)
   {
     return;
   }
@@ -115,7 +116,7 @@ void clienthandlechatmessage(NetworkContext *netmessage)
 
   col = chat_message_color;
 
-  if (SpriteSystem::Get().GetSprite(i).player->team == team_spectator)
+  if (sprite_system.GetSprite(i).player->team == team_spectator)
   {
     col = spectator_c_message_color;
   }
@@ -128,12 +129,12 @@ void clienthandlechatmessage(NetworkContext *netmessage)
   if (length(cs) < morechattext)
   {
     GS::GetMainConsole().console(
-      prefix + "[" + (SpriteSystem::Get().GetSprite(i).player->name) + "] " + cs, col);
+      prefix + "[" + (sprite_system.GetSprite(i).player->name) + "] " + cs, col);
   }
   else
   {
-    GS::GetMainConsole().console(
-      prefix + "[" + (SpriteSystem::Get().GetSprite(i).player->name) + "] ", col);
+    GS::GetMainConsole().console(prefix + "[" + (sprite_system.GetSprite(i).player->name) + "] ",
+                                 col);
     GS::GetMainConsole().console(std::string(" ") + cs, col);
   }
 

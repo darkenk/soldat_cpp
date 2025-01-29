@@ -143,6 +143,7 @@ void clientrequestgame(NetworkBase<T> &network, std::string_view password)
 // SEND INFO ABOUT NAME, COLOR, PASS etc. TO SERVER OR CHANGE TEAM
 void clientsendplayerinfo()
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_playerinfo playerinfo;
   tmsg_changeteam changemsg;
 
@@ -170,7 +171,7 @@ void clientsendplayerinfo()
   }
 
   // sent a team change request instead if we're already ingame
-  if (SpriteSystem::Get().IsPlayerSpriteValid())
+  if (sprite_system.IsPlayerSpriteValid())
   {
     changemsg.header.id = msgid_changeteam;
     changemsg.team = selteam;
@@ -240,9 +241,10 @@ void clientsendplayerinfo()
 template <typename T>
 void clientdisconnect(NetworkBase<T> &client)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_playerdisconnect playermsg;
 
-  if (SpriteSystem::Get().IsPlayerSpriteValid())
+  if (sprite_system.IsPlayerSpriteValid())
   { // send disconnection info to server
     playermsg.header.id = msgid_playerdisconnect;
     playermsg.num = mysprite;
@@ -270,6 +272,7 @@ void clientpong(NetworkBase<T> &network, const std::uint8_t pingnum)
 
 void clienthandleplayerslist(NetworkContext *netmessage)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_playerslist *playerslistmsg;
   tvector2 pos;
   tvector2 vel;
@@ -416,7 +419,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
   GS::GetGame().SetPlayersNum(playerslistmsg->players);
   GS::GetGame().SetTimelimitcounter(playerslistmsg->currenttime);
 
-  sPreprocessSprites(SpriteSystem::Get(), playerslistmsg, pos, vel);
+  sPreprocessSprites(sprite_system, playerslistmsg, pos, vel);
 
   if (!demoplayer.active())
   {
@@ -645,6 +648,7 @@ void clienthandleserverdisconnect(NetworkContext *netmessage)
 
 void clienthandleping(NetworkContext *netmessage)
 {
+  auto &sprite_system = SpriteSystem::Get();
   if (!verifypacket(sizeof(tmsg_ping), netmessage->size, msgid_ping))
   {
     return;
@@ -655,9 +659,9 @@ void clienthandleping(NetworkContext *netmessage)
     return;
   }
 
-  if (SpriteSystem::Get().IsPlayerSpriteValid())
+  if (sprite_system.IsPlayerSpriteValid())
   {
-    auto &player = SpriteSystem::Get().GetPlayerSprite().player;
+    auto &player = sprite_system.GetPlayerSprite().player;
     player->pingticks = pmsg_ping(netmessage->packet)->pingticks;
     player->pingtime = player->pingticks * 1000 / 60;
   }
@@ -670,6 +674,7 @@ void clienthandleping(NetworkContext *netmessage)
 
 void clienthandleservervars(NetworkContext *netmessage)
 {
+  auto &sprite_system = SpriteSystem::Get();
   if (!verifypacket(sizeof(tmsg_servervars), netmessage->size, msgid_servervars))
   {
     return;
@@ -687,7 +692,7 @@ void clienthandleservervars(NetworkContext *netmessage)
     limbomenu->button[i - 1].active = weaponSystem.IsEnabled(i);
   }
 
-  if (SpriteSystem::Get().IsPlayerSpriteValid())
+  if (sprite_system.IsPlayerSpriteValid())
   {
     selectdefaultweapons(mysprite);
     newplayerweapon();
@@ -721,13 +726,12 @@ void clienthandleservervars(NetworkContext *netmessage)
 
   buildweapons(GS::GetWeaponSystem().GetGuns());
 
-  if (SpriteSystem::Get().IsPlayerSpriteValid())
+  if (sprite_system.IsPlayerSpriteValid())
   {
-    SpriteSystem::Get().GetPlayerSprite().applyweaponbynum(SpriteSystem::Get().GetPlayerSprite().weapon.num,
-                                                       1);
-    SpriteSystem::Get().GetPlayerSprite().applyweaponbynum(
-      SpriteSystem::Get().GetPlayerSprite().secondaryweapon.num, 2);
-    if (!SpriteSystem::Get().GetPlayerSprite().deadmeat)
+    sprite_system.GetPlayerSprite().applyweaponbynum(sprite_system.GetPlayerSprite().weapon.num, 1);
+    sprite_system.GetPlayerSprite().applyweaponbynum(
+      sprite_system.GetPlayerSprite().secondaryweapon.num, 2);
+    if (!sprite_system.GetPlayerSprite().deadmeat)
     {
       clientspritesnapshot();
     }

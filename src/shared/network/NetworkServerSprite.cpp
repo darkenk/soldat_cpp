@@ -23,19 +23,20 @@ float shotricochetServer;
 // SERVER SNAPSHOT
 void serverspritesnapshot(std::uint8_t r)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_serverspritesnapshot servermsg;
   tvector2 b;
 
   // SERVER SPRITES SNAPSHOT
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : sprite_system.GetActiveSprites())
   {
     const auto i = sprite.num;
     if (!sprite.deadmeat && sprite.isnotspectator())
     { // active player/sprite
       servermsg.header.id = msgid_serverspritesnapshot;
       // assign sprite values to ServerMsg
-      auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
-      auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
+      auto &spritePartsPos = sprite_system.GetSpritePartsPos(i);
+      auto &spriteVelocity = sprite_system.GetVelocity(i);
       servermsg.pos = spritePartsPos;
       servermsg.velocity = spriteVelocity;
       servermsg.num = sprite.num;
@@ -97,7 +98,7 @@ void serverspritesnapshot(std::uint8_t r)
         // send to all
         if (r == netw)
         {
-          for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+          for (auto &sprite : sprite_system.GetActiveSprites())
           {
             if (sprite.player->controlmethod == human)
             {
@@ -118,19 +119,20 @@ void serverspritesnapshot(std::uint8_t r)
 // SERVER SNAPSHOT MAJOR
 void serverspritesnapshotmajor(std::uint8_t r)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_serverspritesnapshot_major servermsg;
   tvector2 b;
 
   // SERVER SPRITES SNAPSHOT
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : sprite_system.GetActiveSprites())
   {
     const auto i = sprite.num;
     if (!sprite.deadmeat && sprite.isnotspectator())
     { // active player/sprite
       servermsg.header.id = msgid_serverspritesnapshot_major;
       // assign sprite values to ServerMsg
-      auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
-      auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
+      auto &spritePartsPos = sprite_system.GetSpritePartsPos(i);
+      auto &spriteVelocity = sprite_system.GetVelocity(i);
       servermsg.pos = spritePartsPos;
       servermsg.velocity = spriteVelocity;
       servermsg.num = sprite.num;
@@ -154,7 +156,7 @@ void serverspritesnapshotmajor(std::uint8_t r)
         // send to all
         if (r == netw)
         {
-          for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+          for (auto &sprite : sprite_system.GetActiveSprites())
           {
             if (sprite.player->controlmethod == human)
             {
@@ -178,30 +180,31 @@ void serverspritesnapshotmajor(std::uint8_t r)
 
 void serverspritesnapshotmajorfloat(const std::uint8_t who, std::uint8_t r)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_serverspritesnapshot_major servermsg;
 
   servermsg.header.id = msgid_serverspritesnapshot_major;
 
-  auto &spriteVelocity = SpriteSystem::Get().GetVelocity(who);
-  auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(who);
+  auto &spriteVelocity = sprite_system.GetVelocity(who);
+  auto &spritePartsPos = sprite_system.GetSpritePartsPos(who);
 
   // assign sprite values to ServerMsg
   servermsg.pos = spritePartsPos;
   servermsg.velocity = spriteVelocity;
-  servermsg.num = SpriteSystem::Get().GetSprite(who).num;
-  servermsg.health = SpriteSystem::Get().GetSprite(who).GetHealth();
-  servermsg.position = SpriteSystem::Get().GetSprite(who).position;
+  servermsg.num = sprite_system.GetSprite(who).num;
+  servermsg.health = sprite_system.GetSprite(who).GetHealth();
+  servermsg.position = sprite_system.GetSprite(who).position;
   servermsg.serverticks = servertickcounter;
 
-  encodekeys(SpriteSystem::Get().GetSprite(who), servermsg.keys16);
+  encodekeys(sprite_system.GetSprite(who), servermsg.keys16);
 
-  servermsg.mouseaimy = SpriteSystem::Get().GetSprite(who).control.mouseaimy;
-  servermsg.mouseaimx = SpriteSystem::Get().GetSprite(who).control.mouseaimx;
+  servermsg.mouseaimy = sprite_system.GetSprite(who).control.mouseaimy;
+  servermsg.mouseaimx = sprite_system.GetSprite(who).control.mouseaimx;
 
   // send to all
   if (r == netw)
   {
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    for (auto &sprite : sprite_system.GetActiveSprites())
     {
       if (sprite.player->controlmethod == human)
       {
@@ -260,6 +263,7 @@ void serverskeletonsnapshot(std::uint8_t r)
 void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulletnum,
                        std::int32_t where)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_spritedeath spritedeathmsg;
   std::int32_t j;
 
@@ -268,9 +272,9 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
   spritedeathmsg.num = who;
   spritedeathmsg.killer = killer;
   spritedeathmsg.where = where;
-  spritedeathmsg.respawncounter = SpriteSystem::Get().GetSprite(who).respawncounter;
-  spritedeathmsg.health = SpriteSystem::Get().GetSprite(who).GetHealth();
-  spritedeathmsg.onfire = SpriteSystem::Get().GetSprite(who).onfire;
+  spritedeathmsg.respawncounter = sprite_system.GetSprite(who).respawncounter;
+  spritedeathmsg.health = sprite_system.GetSprite(who).GetHealth();
+  spritedeathmsg.onfire = sprite_system.GetSprite(who).onfire;
   spritedeathmsg.shotdistance = shotdistanceServer;
   spritedeathmsg.shotlife = shotlifeServer;
   spritedeathmsg.shotricochet = shotricochetServer;
@@ -334,35 +338,35 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
 
   for (j = 1; j <= 16; j++)
   {
-    spritedeathmsg.pos[j].x = SpriteSystem::Get().GetSprite(who).skeleton.pos[j].x;
-    spritedeathmsg.pos[j].y = SpriteSystem::Get().GetSprite(who).skeleton.pos[j].y;
-    spritedeathmsg.oldpos[j].x = SpriteSystem::Get().GetSprite(who).skeleton.oldpos[j].x;
-    spritedeathmsg.oldpos[j].y = SpriteSystem::Get().GetSprite(who).skeleton.oldpos[j].y;
+    spritedeathmsg.pos[j].x = sprite_system.GetSprite(who).skeleton.pos[j].x;
+    spritedeathmsg.pos[j].y = sprite_system.GetSprite(who).skeleton.pos[j].y;
+    spritedeathmsg.oldpos[j].x = sprite_system.GetSprite(who).skeleton.oldpos[j].x;
+    spritedeathmsg.oldpos[j].y = sprite_system.GetSprite(who).skeleton.oldpos[j].y;
   }
 
   spritedeathmsg.constraints = 0;
-  if (!SpriteSystem::Get().GetSprite(who).skeleton.constraints[2].active)
+  if (!sprite_system.GetSprite(who).skeleton.constraints[2].active)
   {
     spritedeathmsg.constraints = spritedeathmsg.constraints | B1;
   }
-  if (!SpriteSystem::Get().GetSprite(who).skeleton.constraints[4].active)
+  if (!sprite_system.GetSprite(who).skeleton.constraints[4].active)
   {
     spritedeathmsg.constraints = spritedeathmsg.constraints | B2;
   }
-  if (!SpriteSystem::Get().GetSprite(who).skeleton.constraints[20].active)
+  if (!sprite_system.GetSprite(who).skeleton.constraints[20].active)
   {
     spritedeathmsg.constraints = spritedeathmsg.constraints | B3;
   }
-  if (!SpriteSystem::Get().GetSprite(who).skeleton.constraints[21].active)
+  if (!sprite_system.GetSprite(who).skeleton.constraints[21].active)
   {
     spritedeathmsg.constraints = spritedeathmsg.constraints | B4;
   }
-  if (!SpriteSystem::Get().GetSprite(who).skeleton.constraints[23].active)
+  if (!sprite_system.GetSprite(who).skeleton.constraints[23].active)
   {
     spritedeathmsg.constraints = spritedeathmsg.constraints | B5;
   }
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : sprite_system.GetActiveSprites())
   {
     if (sprite.player->controlmethod == human)
     {
@@ -375,6 +379,7 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
 // SEND DELTAS OF SPRITE
 void serverspritedeltas(const std::uint8_t i)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_serverspritedelta_movement movementmsg;
   tmsg_serverspritedelta_weapons weaponsmsg;
   tmsg_serverspritedelta_helmet helmetmsg;
@@ -382,12 +387,12 @@ void serverspritedeltas(const std::uint8_t i)
   tvector2 a;
   tvector2 b;
 
-  const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
-  auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
+  const auto &spritePartsPos = sprite_system.GetSpritePartsPos(i);
+  auto &spriteVelocity = sprite_system.GetVelocity(i);
 
   helmetmsg.header.id = msgid_delta_helmet;
   helmetmsg.num = i;
-  helmetmsg.wearhelmet = SpriteSystem::Get().GetSprite(i).wearhelmet;
+  helmetmsg.wearhelmet = sprite_system.GetSprite(i).wearhelmet;
 
   movementmsg.header.id = msgid_delta_movement;
   movementmsg.num = i;
@@ -396,43 +401,42 @@ void serverspritedeltas(const std::uint8_t i)
   movementmsg.pos = spritePartsPos;
   movementmsg.servertick = servertickcounter;
 
-  encodekeys(SpriteSystem::Get().GetSprite(i), movementmsg.keys16);
+  encodekeys(sprite_system.GetSprite(i), movementmsg.keys16);
 
-  movementmsg.mouseaimy = SpriteSystem::Get().GetSprite(i).control.mouseaimy;
-  movementmsg.mouseaimx = SpriteSystem::Get().GetSprite(i).control.mouseaimx;
+  movementmsg.mouseaimy = sprite_system.GetSprite(i).control.mouseaimy;
+  movementmsg.mouseaimx = sprite_system.GetSprite(i).control.mouseaimx;
 
   weaponsmsg.header.id = msgid_delta_weapons;
   weaponsmsg.num = i;
-  weaponsmsg.weaponnum = SpriteSystem::Get().GetSprite(i).weapon.num;
-  weaponsmsg.secondaryweaponnum = SpriteSystem::Get().GetSprite(i).secondaryweapon.num;
-  weaponsmsg.ammocount = SpriteSystem::Get().GetSprite(i).weapon.ammocount;
+  weaponsmsg.weaponnum = sprite_system.GetSprite(i).weapon.num;
+  weaponsmsg.secondaryweaponnum = sprite_system.GetSprite(i).secondaryweapon.num;
+  weaponsmsg.ammocount = sprite_system.GetSprite(i).weapon.ammocount;
 
   for (j = 1; j <= max_sprites; j++)
   {
-    if (SpriteSystem::Get().GetSprite(j).active &&
-        (SpriteSystem::Get().GetSprite(j).player->controlmethod == human) && (j != i))
+    if (sprite_system.GetSprite(j).active &&
+        (sprite_system.GetSprite(j).player->controlmethod == human) && (j != i))
     {
       if (GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y,
-                                     SpriteSystem::Get().GetSprite(j).player->camera) or
-          (SpriteSystem::Get().GetSprite(j).isspectator() &&
-           (SpriteSystem::Get().GetSprite(j).player->port == 0))) // visible to sprite
+                                     sprite_system.GetSprite(j).player->camera) or
+          (sprite_system.GetSprite(j).isspectator() &&
+           (sprite_system.GetSprite(j).player->port == 0))) // visible to sprite
       {
         a = vec2subtract(movementmsg.pos, oldmovementmsg[j][i].pos);
         b = vec2subtract(movementmsg.velocity, oldmovementmsg[j][i].velocity);
-        if ((SpriteSystem::Get().GetSprite(i).player->controlmethod == human) ||
+        if ((sprite_system.GetSprite(i).player->controlmethod == human) ||
             (((vec2length(a) > posdelta) || (vec2length(b) > veldelta)) &&
              (movementmsg.keys16 != oldmovementmsg[j][i].keys16)))
         {
           GetServerNetwork()->SendData(&movementmsg, sizeof(movementmsg),
-                                       SpriteSystem::Get().GetSprite(j).player->peer,
-                                       false);
+                                       sprite_system.GetSprite(j).player->peer, false);
           oldmovementmsg[j][i] = movementmsg;
         }
       }
     }
   }
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : sprite_system.GetActiveSprites())
   {
     const auto j = sprite.num;
     if ((sprite.player->controlmethod == human) && (j != i))
@@ -452,7 +456,7 @@ void serverspritedeltas(const std::uint8_t i)
     }
   }
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : sprite_system.GetActiveSprites())
   {
     const auto j = sprite.num;
     if ((sprite.player->controlmethod == human) && (j != i))
@@ -469,14 +473,15 @@ void serverspritedeltas(const std::uint8_t i)
 
 void serverspritedeltasmouse(std::uint8_t i)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_serverspritedelta_mouseaim mouseaimmsg;
 
   mouseaimmsg.header.id = msgid_delta_mouseaim;
   mouseaimmsg.num = i;
-  mouseaimmsg.mouseaimy = SpriteSystem::Get().GetSprite(i).control.mouseaimy;
-  mouseaimmsg.mouseaimx = SpriteSystem::Get().GetSprite(i).control.mouseaimx;
+  mouseaimmsg.mouseaimy = sprite_system.GetSprite(i).control.mouseaimy;
+  mouseaimmsg.mouseaimx = sprite_system.GetSprite(i).control.mouseaimx;
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : sprite_system.GetActiveSprites())
   {
     const auto j = sprite.num;
     if ((sprite.player->controlmethod == human) && (j != i))
@@ -490,6 +495,7 @@ void serverspritedeltasmouse(std::uint8_t i)
 
 void serverhandleclientspritesnapshot(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
+  auto &sprite_system = SpriteSystem::Get();
   pmsg_clientspritesnapshot clientmsg;
   std::int32_t i;
 
@@ -500,7 +506,7 @@ void serverhandleclientspritesnapshot(tmsgheader* netmessage, std::int32_t size,
   clientmsg = pmsg_clientspritesnapshot(netmessage);
   i = player->spritenum;
 
-  auto &sprite = SpriteSystem::Get().GetSprite(i);
+  auto &sprite = sprite_system.GetSprite(i);
 
   messagesasecnum[i] += 1;
 
@@ -573,6 +579,7 @@ void serverhandleclientspritesnapshot(tmsgheader* netmessage, std::int32_t size,
 }
 void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
 
   if (!verifypacket(sizeof(tmsg_clientspritesnapshot_mov), size, msgid_clientspritesnapshot_mov))
@@ -585,7 +592,7 @@ void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t s
 
   messagesasecnum[i] += 1;
 
-  auto &sprite = SpriteSystem::Get().GetSprite(i);
+  auto &sprite = sprite_system.GetSprite(i);
 
   if (sprite.deadmeat)
   {
@@ -598,8 +605,8 @@ void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t s
 
   sprite.player->camera = i;
 
-  auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
-  auto &spriteVelocity = SpriteSystem::Get().GetVelocity(i);
+  auto &spritePartsPos = sprite_system.GetSpritePartsPos(i);
+  auto &spriteVelocity = sprite_system.GetVelocity(i);
 
   spritePartsPos = clientmovmsg.pos;
   spriteVelocity = clientmovmsg.velocity;
@@ -623,6 +630,7 @@ void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t s
 
 void serverhandleclientspritesnapshot_dead(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
+  auto &sprite_system = SpriteSystem::Get();
   pmsg_clientspritesnapshot_dead clientdeadmsg;
   std::int32_t i;
 
@@ -635,7 +643,7 @@ void serverhandleclientspritesnapshot_dead(tmsgheader* netmessage, std::int32_t 
 
   messagesasecnum[i] += 1;
 
-  auto &sprite = SpriteSystem::Get().GetSprite(i);
+  auto &sprite = sprite_system.GetSprite(i);
 
   if (!sprite.deadmeat)
   {

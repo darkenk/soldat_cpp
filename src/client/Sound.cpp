@@ -275,6 +275,7 @@ public:
   void fplaysound(SfxEffect samplenum, float listenerx, float listenery, float emitterx,
                   float emittery, std::int32_t chan)
   {
+    auto &sprite_system = SpriteSystem::Get();
     float dist;
     std::int32_t looping;
     std::int32_t i;
@@ -287,7 +288,7 @@ public:
 
     if (camerafollowsprite > 0)
     {
-      const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(camerafollowsprite);
+      const auto &spritePartsPos = sprite_system.GetSpritePartsPos(camerafollowsprite);
       listenerx = spritePartsPos.x;
       listenery = spritePartsPos.y;
     }

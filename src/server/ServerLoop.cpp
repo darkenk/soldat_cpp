@@ -25,6 +25,7 @@ using string = std::string;
 void apponidle()
 {
   ZoneScopedN("AppOnIdle");
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t maincontrol;
   std::int32_t j;
   std::int32_t heavysendersnum;
@@ -94,7 +95,7 @@ void apponidle()
 
     if (GS::GetGame().GetMainTickCounter() % 1000 == 0)
     {
-      for (auto &s : SpriteSystem::Get().GetSprites())
+      for (auto &s : sprite_system.GetSprites())
       {
         s.player->knifewarnings = 0;
       }
@@ -127,7 +128,7 @@ void apponidle()
       {
         if (GS::GetGame().GetMainTickCounter() % (second * 6) == 0)
         {
-          for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+          for (auto &sprite : sprite_system.GetActiveSprites())
           {
             if ((sprite.player->controlmethod == human) &&
                 ((sprite.player->realping > (CVar::sv_maxping)) ||
@@ -146,7 +147,7 @@ void apponidle()
       }
 
       // Player Packet Flooding
-      for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+      for (auto &sprite : sprite_system.GetActiveSprites())
       {
         j = sprite.num;
         if (((CVar::net_lan == LAN) && (messagesasecnum[j] > CVar::net_floodingpacketslan)) ||
@@ -168,7 +169,7 @@ void apponidle()
 
     if (GS::GetGame().GetMainTickCounter() % (second * 10) == 0)
     {
-      for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+      for (auto &sprite : sprite_system.GetActiveSprites())
       {
         GetServerNetwork()->UpdateNetworkStats(sprite.player);
       }
@@ -211,14 +212,14 @@ void apponidle()
 
       if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(59 * adjust) == 0)
       {
-        serverheartbeat(*GetServerNetwork(), SpriteSystem::Get(), GS::GetGame());
+        serverheartbeat(*GetServerNetwork(), sprite_system, GS::GetGame());
       }
 
       if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(4 * adjust) == 0) &&
           (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) != 0) &&
           (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(60 * adjust) != 0))
       {
-        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        for (auto &sprite : sprite_system.GetActiveSprites())
         {
           if (sprite.player->controlmethod == bot)
           {
@@ -257,7 +258,7 @@ void apponidle()
             (std::int32_t)round(CVar::net_t1_heartbeat * adjust) ==
           0)
       {
-        serverheartbeat(*GetServerNetwork(), SpriteSystem::Get(), GS::GetGame());
+        serverheartbeat(*GetServerNetwork(), sprite_system, GS::GetGame());
       }
 
       if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(CVar::net_t1_delta * adjust) ==
@@ -269,7 +270,7 @@ void apponidle()
              (std::int32_t)round(CVar::net_t1_majorsnapshot * adjust) !=
            0))
       {
-        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        for (auto &sprite : sprite_system.GetActiveSprites())
         {
           if (sprite.player->controlmethod == bot)
           {
@@ -279,7 +280,7 @@ void apponidle()
       }
     }
 
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    for (auto &sprite : sprite_system.GetActiveSprites())
     {
       if ((sprite.player->controlmethod == human) && (sprite.player->port > 0))
       {
@@ -372,6 +373,7 @@ void apponidle()
 void updateframe()
 {
   ZoneScopedN("UpdateFrame");
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
   std::int32_t j;
   tvector2 m;
@@ -384,12 +386,12 @@ void updateframe()
   {
     {
       ZoneScopedN("SpriteParts");
-      SpriteSystem::Get().UpdateSpriteParts();
+      sprite_system.UpdateSpriteParts();
     }
 
     {
       ZoneScopedN("UpdateSprites");
-      auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+      auto &activeSprites = sprite_system.GetActiveSprites();
       std::for_each(std::begin(activeSprites), std::end(activeSprites),
                     [](auto &sprite) { sprite.update(); });
     }
@@ -561,7 +563,7 @@ void updateframe()
     {
       if (CVar::sv_antimassflag)
       {
-        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        for (auto &sprite : sprite_system.GetActiveSprites())
         {
 
           if ((sprite.player->grabspersecond > 0) && (sprite.player->scorespersecond > 0) &&
@@ -593,7 +595,7 @@ void updateframe()
     {
       if (GS::GetGame().GetMainTickCounter() % (CVar::sv_healthcooldown * second) == 0)
       {
-        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        for (auto &sprite : sprite_system.GetActiveSprites())
         {
           if (sprite.haspack)
           {
@@ -606,7 +608,7 @@ void updateframe()
     // Anti-Chat Flood
     if (GS::GetGame().GetMainTickCounter() % second == 0)
     {
-      for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+      for (auto &sprite : sprite_system.GetActiveSprites())
       {
         if (sprite.player->chatwarnings > 5)
         {
@@ -662,7 +664,7 @@ void updateframe()
 
     if (GS::GetGame().GetMainTickCounter() % minute == 0)
     {
-      auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+      auto &activeSprites = sprite_system.GetActiveSprites();
       std::for_each(std::begin(activeSprites), std::end(activeSprites),
                     [](auto &sprite) { sprite.player->playtime += 1; });
     }
@@ -794,7 +796,7 @@ void updateframe()
       {
         if (GS::GetGame().GetMainTickCounter() % htftime == 0)
         {
-          for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+          for (auto &sprite : sprite_system.GetActiveSprites())
           {
             if ((sprite.holdedthing > 0))
             {
@@ -849,7 +851,7 @@ void updateframe()
         }
       }
 
-      for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+      for (auto &sprite : sprite_system.GetActiveSprites())
       {
         if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
         {

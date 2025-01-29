@@ -419,6 +419,7 @@ auto SetValue(const std::string &cvarName, const std::string &value) -> bool
 template <Config::Module M>
 auto parseinput(const std::string &input, std::uint8_t sender) -> bool
 {
+  [[maybe_unused]] auto &sprite_system = SpriteSystem::Get();
   tstringlist inputparse;
 
   pcommand commandptr;
@@ -461,8 +462,8 @@ auto parseinput(const std::string &input, std::uint8_t sender) -> bool
 #ifdef SERVER
       if (commandptr->flags & cmd_adminonly)
       {
-        if ((sender != 255) && !isremoteadminip(SpriteSystem::Get().GetSprite(sender).player->ip) &&
-            !isadminip(SpriteSystem::Get().GetSprite(sender).player->ip))
+        if ((sender != 255) && !isremoteadminip(sprite_system.GetSprite(sender).player->ip) &&
+            !isadminip(sprite_system.GetSprite(sender).player->ip))
         {
           return result;
         }
@@ -582,20 +583,22 @@ void parsecommandline(int argc, const char *argv[])
 
 static void addplayer(std::uint8_t id, std::vector<std::uint8_t> &players)
 {
+  auto &sprite_system = SpriteSystem::Get();
   setlength(players, length(players) + 1);
-  players[high(players)] = SpriteSystem::Get().GetSprite(id).num;
+  players[high(players)] = sprite_system.GetSprite(id).num;
 }
 
 template <Config::Module M>
 auto commandtarget(const std::string &target, std::uint8_t sender) -> tcommandtargets
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::vector<std::uint8_t> players;
   std::int32_t targetid;
 
   targetid = strtointdef(target, 0);
   setlength(players, 0);
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : sprite_system.GetActiveSprites())
   {
     if ((targetid != 0) && (sprite.num == targetid))
     {
@@ -645,7 +648,7 @@ auto commandtarget(const std::string &target, std::uint8_t sender) -> tcommandta
     {
       if ((sender > 0) && (sender <= max_players))
       {
-        if (SpriteSystem::Get().GetSprite(sender).player->camera == sprite.num)
+        if (sprite_system.GetSprite(sender).player->camera == sprite.num)
         {
           addplayer(sprite.num, players);
         }
@@ -655,9 +658,9 @@ auto commandtarget(const std::string &target, std::uint8_t sender) -> tcommandta
     {
       if ((sender > 0) && (sender <= max_players))
       {
-        if (SpriteSystem::Get().GetSprite(sender).num == sprite.num)
+        if (sprite_system.GetSprite(sender).num == sprite.num)
         {
-          addplayer(SpriteSystem::Get().GetSprite(sender).num, players);
+          addplayer(sprite_system.GetSprite(sender).num, players);
         }
       }
     }
@@ -665,7 +668,7 @@ auto commandtarget(const std::string &target, std::uint8_t sender) -> tcommandta
     {
       if ((sender > 0) && (sender <= max_players))
       {
-        if (!(SpriteSystem::Get().GetSprite(sender).num == sprite.num))
+        if (!(sprite_system.GetSprite(sender).num == sprite.num))
         {
           addplayer(sprite.num, players);
         }

@@ -257,6 +257,7 @@ void redirectdialog()
 
 void exittomenu()
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
 
   GS::GetGame().ResetGoalTicks();
@@ -277,7 +278,7 @@ void exittomenu()
     demoplayer.stopdemo();
   }
 
-  if (SpriteSystem::Get().IsPlayerSpriteValid())
+  if (sprite_system.IsPlayerSpriteValid())
   {
     clientdisconnect(*GetNetwork());
   }
@@ -301,7 +302,7 @@ void exittomenu()
   GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
   // WindowReady := False;
 
-  auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+  auto &activeSprites = sprite_system.GetActiveSprites();
 
   std::for_each(std::begin(activeSprites), std::end(activeSprites),
                 [](auto &sprite) { sprite.kill(); });

@@ -31,6 +31,7 @@ auto ArrayToString(const char *c) -> std::string;
 #ifndef SERVER
 void playradiosound(std::uint8_t RadioID)
 {
+  auto &sprite_system = SpriteSystem::Get();
   if ((radiocooldown > 0) or (CVar::sv_radio))
   {
     return;
@@ -43,7 +44,7 @@ void playradiosound(std::uint8_t RadioID)
   }
 
   radiocooldown = 3;
-  const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
+  const auto &spritePartsPos = sprite_system.GetSpritePartsPos(mysprite);
   switch (RadioID)
   {
   case 11:
@@ -289,17 +290,18 @@ auto returnfixedplayername(std::string name) -> std::string
 void newplayerweapon()
 
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t j;
   std::int32_t i;
   std::int32_t SecWep;
-  if (SpriteSystem::Get().GetPlayerSprite().weapon.num == noweapon_num)
+  if (sprite_system.GetPlayerSprite().weapon.num == noweapon_num)
   {
     gamemenushow(limbomenu);
   }
 
   i = mysprite;
 
-  SpriteSystem::Get().GetSprite(i).player->secwep = CVar::cl_player_secwep;
+  sprite_system.GetSprite(i).player->secwep = CVar::cl_player_secwep;
   auto &weaponsel = GS::GetGame().GetWeaponsel();
 
   for (j = 1; j < main_weapons; j++)
@@ -324,24 +326,25 @@ void newplayerweapon()
     }
   }
 
-  SecWep = SpriteSystem::Get().GetSprite(i).player->secwep + 1;
+  SecWep = sprite_system.GetSprite(i).player->secwep + 1;
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
   if ((SecWep >= 1) and (SecWep <= secondary_weapons) and
       (weaponSystem.IsEnabled(primary_weapons + SecWep)))
   {
-    SpriteSystem::Get().GetSprite(i).SetSecondWeapon(guns[primary_weapons + SecWep]);
+    sprite_system.GetSprite(i).SetSecondWeapon(guns[primary_weapons + SecWep]);
   }
   else
   {
-    SpriteSystem::Get().GetSprite(i).SetSecondWeapon(guns[noweapon]);
+    sprite_system.GetSprite(i).SetSecondWeapon(guns[noweapon]);
   }
 }
 #endif
 #ifdef SERVER
 auto checkweaponnotallowed(std::uint8_t i) -> bool
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t WeaponIndex;
   LogTraceG("CheckWeaponNotAllowed");
 
@@ -349,17 +352,17 @@ auto checkweaponnotallowed(std::uint8_t i) -> bool
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
   auto &weaponSystem = GS::GetWeaponSystem();
-  WeaponIndex = weaponnumtoindex(SpriteSystem::Get().GetSprite(i).weapon.num, guns);
+  WeaponIndex = weaponnumtoindex(sprite_system.GetSprite(i).weapon.num, guns);
   if (ismainweaponindex(WeaponIndex) and (!weaponSystem.IsEnabled(WeaponIndex)))
   {
     return Result;
   }
 
-  if (((SpriteSystem::Get().GetSprite(i).weapon.num == bow_num) and
+  if (((sprite_system.GetSprite(i).weapon.num == bow_num) and
        (CVar::sv_gamemode != gamestyle_rambo)) or
-      ((SpriteSystem::Get().GetSprite(i).weapon.num == bow2_num) and
+      ((sprite_system.GetSprite(i).weapon.num == bow2_num) and
        (CVar::sv_gamemode != gamestyle_rambo)) or
-      ((SpriteSystem::Get().GetSprite(i).weapon.num == flamer_num) and (CVar::sv_bonus_flamer)))
+      ((sprite_system.GetSprite(i).weapon.num == flamer_num) and (CVar::sv_bonus_flamer)))
   {
     return Result;
   }

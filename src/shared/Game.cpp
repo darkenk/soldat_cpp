@@ -81,6 +81,7 @@ void Game<M>::number27timing()
 template <Config::Module M>
 void Game<M>::updategamestats()
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
   tstringlist s;
 
@@ -130,11 +131,11 @@ void Game<M>::updategamestats()
     {
       for (i = 1; i <= playersnum; i++)
       {
-        s.add(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->name);
-        s.add(inttostr(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->kills));
-        s.add(inttostr(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->deaths));
-        s.add(inttostr(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->team));
-        s.add(inttostr(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player->realping));
+        s.add(sprite_system.GetSprite(sortedplayers[i].playernum).player->name);
+        s.add(inttostr(sprite_system.GetSprite(sortedplayers[i].playernum).player->kills));
+        s.add(inttostr(sprite_system.GetSprite(sortedplayers[i].playernum).player->deaths));
+        s.add(inttostr(sprite_system.GetSprite(sortedplayers[i].playernum).player->team));
+        s.add(inttostr(sprite_system.GetSprite(sortedplayers[i].playernum).player->realping));
       }
     }
 #ifndef SERVER
@@ -274,6 +275,7 @@ template <Config::Module M>
 void Game<M>::startvote(std::uint8_t startervote, std::uint8_t typevote, std::string targetvote,
                         std::string reasonvote)
 {
+  auto &sprite_system = SpriteSystem::Get();
   VoteActive = true;
   if ((startervote < 1) || (startervote > max_players))
   {
@@ -281,15 +283,15 @@ void Game<M>::startvote(std::uint8_t startervote, std::uint8_t typevote, std::st
   }
   else
   {
-    VoteStarter = SpriteSystem::Get().GetSprite(startervote).player->name;
+    VoteStarter = sprite_system.GetSprite(startervote).player->name;
     VoteCooldown[startervote] = default_vote_time;
 #ifndef SERVER
-    if (SpriteSystem::Get().IsPlayerSprite(startervote))
+    if (sprite_system.IsPlayerSprite(startervote))
     {
       if (VoteType == vote_kick)
       {
         GS::GetMainConsole().console(("You have voted to kick ") +
-                                       (SpriteSystem::Get().GetSprite(kickmenuindex).player->name) +
+                                       (sprite_system.GetSprite(kickmenuindex).player->name) +
                                        (" from the game"),
                                      vote_message_color);
         VoteActive = false;
@@ -307,7 +309,7 @@ void Game<M>::startvote(std::uint8_t startervote, std::uint8_t typevote, std::st
   VoteTimeRemaining = default_voting_time;
   VoteNumVotes = 0;
   VoteMaxVotes = 0;
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : sprite_system.GetActiveSprites())
   {
     if (sprite.player->controlmethod == human)
     {
@@ -365,6 +367,7 @@ void Game<M>::timervote()
 template <Config::Module M>
 void Game<M>::countvote(std::uint8_t voter)
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
   float edge;
   // Status: TMapInfo;
@@ -388,7 +391,7 @@ void Game<M>::countvote(std::uint8_t voter)
         {
           kickplayer(i, true, kick_voted, day, "Vote Kicked by Server");
         }
-        dobalancebots(1, SpriteSystem::Get().GetSprite(i).player->team);
+        dobalancebots(1, sprite_system.GetSprite(i).player->team);
       }
       else if (VoteType == vote_map)
       {
@@ -455,6 +458,7 @@ void Game<M>::changemap()
 #ifdef SERVER
   tvector2 a;
 #endif
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t secwep;
 #ifndef SERVER
   tmapinfo mapchangestatus;
@@ -522,11 +526,11 @@ void Game<M>::changemap()
 #endif
 
   {
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    for (auto &sprite : sprite_system.GetActiveSprites())
     {
       if (sprite.isnotspectator())
       {
-        auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(sprite.num);
+        auto &spritePartsPos = sprite_system.GetSpritePartsPos(sprite.num);
         randomizestart(spritePartsPos, sprite.player->team);
         sprite.respawn();
         sprite.player->kills = 0;
@@ -579,7 +583,7 @@ void Game<M>::changemap()
     }
 
 #ifndef SERVER
-    if (SpriteSystem::Get().IsPlayerSpriteValid())
+    if (sprite_system.IsPlayerSpriteValid())
     {
       for (auto i = 1; i <= main_weapons; i++)
       {
@@ -603,7 +607,7 @@ void Game<M>::changemap()
   fragsmenushow = false;
   statsmenushow = false;
 
-  if (SpriteSystem::Get().IsPlayerSpriteValid())
+  if (sprite_system.IsPlayerSpriteValid())
   {
     gamemenushow(limbomenu);
   }
@@ -673,15 +677,14 @@ void Game<M>::changemap()
   heartbeattime = maintickcounter;
   heartbeattimewarnings = 0;
 
-  if ((SpriteSystem::Get().IsPlayerSpriteValid()) &&
-      SpriteSystem::Get().GetPlayerSprite().isnotspectator())
+  if ((sprite_system.IsPlayerSpriteValid()) && sprite_system.GetPlayerSprite().isnotspectator())
   {
     camerafollowsprite = mysprite;
   }
   else
   {
     // If in freecam or the previous followee is gone, then find a new followee
-    if ((camerafollowsprite == 0) or !SpriteSystem::Get().GetSprite(camerafollowsprite).IsActive())
+    if ((camerafollowsprite == 0) or !sprite_system.GetSprite(camerafollowsprite).IsActive())
     {
       camerafollowsprite = getcameratarget(0);
       // If no appropriate player found, then just center the camera
@@ -702,9 +705,9 @@ void Game<M>::changemap()
   }
 
   // Spawn sound
-  if (SpriteSystem::Get().IsPlayerSpriteValid())
+  if (sprite_system.IsPlayerSpriteValid())
   {
-    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(mysprite);
+    auto &spritePartsPos = sprite_system.GetSpritePartsPos(mysprite);
     playsound(SfxEffect::spawn, spritePartsPos);
   }
 
@@ -968,12 +971,13 @@ void Game<M>::TickVote()
 template <Config::Module M>
 void Game<M>::CalculateTeamAliveNum(int32_t player)
 {
+  auto &sprite_system = SpriteSystem::Get();
   teamalivenum[1] = 0;
   teamalivenum[2] = 0;
   teamalivenum[3] = 0;
   teamalivenum[4] = 0;
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : sprite_system.GetActiveSprites())
   {
     if (!sprite.deadmeat and (sprite.player->team == team_alpha))
     {
@@ -1008,7 +1012,7 @@ void Game<M>::CalculateTeamAliveNum(int32_t player)
       ((teamalivenum[1] < 1) && (teamalivenum[2] < 1) && (teamalivenum[3] < 1) &&
        (teamalivenum[4] < 1)))
   {
-    auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+    auto &activeSprites = sprite_system.GetActiveSprites();
     std::for_each(std::begin(activeSprites), std::end(activeSprites),
                   [](auto &sprite) { sprite.respawncounter = survival_respawntime; });
 
@@ -1049,7 +1053,7 @@ void Game<M>::CalculateTeamAliveNum(int32_t player)
 
     survivalendround = true;
 
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    for (auto &sprite : sprite_system.GetActiveSprites())
     {
       if (!sprite.deadmeat)
       {

@@ -57,6 +57,7 @@ auto checkdistance(float posa, float posb) -> std::int32_t
 
 void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tvector2 tv;
   std::int32_t disttotargetx;
   std::int32_t disttotargety;
@@ -65,13 +66,13 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
   std::int32_t i;
 
   {
-    auto &with = SpriteSystem::Get().GetSprite(snum);
-    auto &targetVelocity = SpriteSystem::Get().GetVelocity(with.brain.targetnum);
+    auto &with = sprite_system.GetSprite(snum);
+    auto &targetVelocity = sprite_system.GetVelocity(with.brain.targetnum);
 
-    const auto &m = SpriteSystem::Get().GetSpritePartsPos(snum);
-    const auto &t = SpriteSystem::Get().GetSpritePartsPos(with.brain.targetnum);
+    const auto &m = sprite_system.GetSpritePartsPos(snum);
+    const auto &t = sprite_system.GetSpritePartsPos(with.brain.targetnum);
 
-    if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
+    if (!sprite_system.GetSprite(snum).brain.gothing)
     {
       with.control.right = false;
       with.control.left = false;
@@ -90,7 +91,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 
     if (disttotargetx == dist_too_close)
     {
-      if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
+      if (!sprite_system.GetSprite(snum).brain.gothing)
       {
         with.control.right = false;
         with.control.left = false;
@@ -108,7 +109,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 
     else if (disttotargetx == dist_very_close)
     {
-      if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
+      if (!sprite_system.GetSprite(snum).brain.gothing)
       {
         with.control.right = false;
         with.control.left = false;
@@ -118,7 +119,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
       // if reloading
       if (with.weapon.ammocount == 0)
       {
-        if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
+        if (!sprite_system.GetSprite(snum).brain.gothing)
         {
           with.control.right = false;
           with.control.left = false;
@@ -137,7 +138,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 
     else if (disttotargetx == dist_close)
     {
-      if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
+      if (!sprite_system.GetSprite(snum).brain.gothing)
       {
         with.control.right = false;
         with.control.left = false;
@@ -148,7 +149,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
       // if reloading
       if (with.weapon.ammocount == 0)
       {
-        if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
+        if (!sprite_system.GetSprite(snum).brain.gothing)
         {
           with.control.right = false;
           with.control.left = false;
@@ -174,7 +175,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
       // if reloading
       if (with.weapon.ammocount == 0)
       {
-        if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
+        if (!sprite_system.GetSprite(snum).brain.gothing)
         {
           with.control.right = false;
           with.control.left = false;
@@ -198,7 +199,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 
       if (with.brain.camper > 127)
       {
-        if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
+        if (!sprite_system.GetSprite(snum).brain.gothing)
         {
           with.control.up = false;
           with.control.down = true;
@@ -224,7 +225,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
           }
         }
 
-        if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
+        if (!sprite_system.GetSprite(snum).brain.gothing)
         {
           with.control.right = false;
           with.control.left = false;
@@ -251,7 +252,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
           }
         }
 
-        if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
+        if (!sprite_system.GetSprite(snum).brain.gothing)
         {
           with.control.right = false;
           with.control.left = false;
@@ -262,11 +263,10 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
     }
 
     // move when other player camps
-    if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
+    if (!sprite_system.GetSprite(snum).brain.gothing)
     {
-      if ((SpriteSystem::Get().GetSprite(with.brain.targetnum).brain.currentwaypoint > 0) &&
-          (botpath
-             .waypoint[SpriteSystem::Get().GetSprite(with.brain.targetnum).brain.currentwaypoint]
+      if ((sprite_system.GetSprite(with.brain.targetnum).brain.currentwaypoint > 0) &&
+          (botpath.waypoint[sprite_system.GetSprite(with.brain.targetnum).brain.currentwaypoint]
              .c1 > 0))
       {
         with.control.right = false;
@@ -323,7 +323,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
     // if target behind collider and bot doesn't escape
     if (CVar::bots_difficulty < 201)
     {
-      if ((SpriteSystem::Get().GetSprite(with.brain.targetnum).colliderdistance < 255) &&
+      if ((sprite_system.GetSprite(with.brain.targetnum).colliderdistance < 255) &&
           (with.colliderdistance > 254))
       {
         if (with.brain.camper > 0)
@@ -342,12 +342,12 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 
     // go prone
     // Fists!
-    if (((SpriteSystem::Get().GetSprite(snum).weapon.num == noweapon_num) ||
-         (SpriteSystem::Get().GetSprite(snum).weapon.num == knife_num) ||
-         (SpriteSystem::Get().GetSprite(snum).weapon.num == chainsaw_num)) &&
-        (((SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num != noweapon_num) &&
-          (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num != knife_num) &&
-          (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num != chainsaw_num)) ||
+    if (((sprite_system.GetSprite(snum).weapon.num == noweapon_num) ||
+         (sprite_system.GetSprite(snum).weapon.num == knife_num) ||
+         (sprite_system.GetSprite(snum).weapon.num == chainsaw_num)) &&
+        (((sprite_system.GetSprite(with.brain.targetnum).weapon.num != noweapon_num) &&
+          (sprite_system.GetSprite(with.brain.targetnum).weapon.num != knife_num) &&
+          (sprite_system.GetSprite(with.brain.targetnum).weapon.num != chainsaw_num)) ||
          (t.y > m.y)))
     {
       with.control.right = false;
@@ -367,7 +367,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
     // Y - Distance
     disttotargety = checkdistance(m.y, t.y);
 
-    if (!SpriteSystem::Get().GetSprite(snum).brain.gothing)
+    if (!sprite_system.GetSprite(snum).brain.gothing)
     {
       if ((disttotargety >= dist_rock_throw) && (m.y > t.y))
       {
@@ -376,7 +376,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
     }
 
     // Flame god see
-    if (SpriteSystem::Get().GetSprite(with.brain.targetnum).bonusstyle == bonus_flamegod)
+    if (sprite_system.GetSprite(with.brain.targetnum).bonusstyle == bonus_flamegod)
     {
       with.control.right = false;
       with.control.left = false;
@@ -425,7 +425,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
       }
     }
 
-    if (SpriteSystem::Get().GetSprite(snum).stat > 0)
+    if (sprite_system.GetSprite(snum).stat > 0)
     {
       with.control.right = false;
       with.control.left = false;
@@ -463,9 +463,9 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
     }
 
     // Knife Throw
-    if ((SpriteSystem::Get().GetSprite(snum).ceasefirecounter < 30) &&
-        (SpriteSystem::Get().GetSprite(snum).weapon.num == knife_num) &&
-        (SpriteSystem::Get().GetSprite(snum).brain.favweapon == knife_num))
+    if ((sprite_system.GetSprite(snum).ceasefirecounter < 30) &&
+        (sprite_system.GetSprite(snum).weapon.num == knife_num) &&
+        (sprite_system.GetSprite(snum).brain.favweapon == knife_num))
     {
       with.control.fire = false;
       with.control.throwweapon = true;
@@ -486,7 +486,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
                                       with.brain.accuracy + Random(with.brain.accuracy));
     }
 
-    if (SpriteSystem::Get().GetSprite(snum).stat > 0)
+    if (sprite_system.GetSprite(snum).stat > 0)
     {
       with.control.mouseaimy = sround(t.y - (0.5f * disttotargetx / (30.f)) - with.brain.accuracy +
                                       Random(with.brain.accuracy));
@@ -495,16 +495,17 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
     // impossible
     if (CVar::bots_difficulty < 60)
     {
-      if ((SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num == barrett_num) ||
-          (SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.num == ruger77_num))
+      if ((sprite_system.GetSprite(with.brain.targetnum).weapon.num == barrett_num) ||
+          (sprite_system.GetSprite(with.brain.targetnum).weapon.num == ruger77_num))
       {
         dist = round(sqrt(sqr(m.x - t.x) + sqr(m.y - t.y)));
         with.control.mouseaimx = sround(t.x);
         with.control.mouseaimy = sround(t.y);
 
-        for (i = 1; i <= round(((float)(dist) /
-                                SpriteSystem::Get().GetSprite(with.brain.targetnum).weapon.speed) *
-                               1.0);
+        for (i = 1;
+             i <=
+             round(((float)(dist) / sprite_system.GetSprite(with.brain.targetnum).weapon.speed) *
+                   1.0);
              i++)
         {
           with.control.mouseaimx = with.control.mouseaimx + sround(targetVelocity.x);
@@ -543,15 +544,16 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 
 void gotothing(std::uint8_t snum, std::uint8_t tnum)
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t disttotargetx;
   std::int32_t disttotargety;
 
   auto &things = GS::GetThingSystem().GetThings();
   {
-    auto &with = SpriteSystem::Get().GetSprite(snum);
+    auto &with = sprite_system.GetSprite(snum);
     auto &thing = things[tnum];
 
-    const auto &m = SpriteSystem::Get().GetSpritePartsPos(snum);
+    const auto &m = sprite_system.GetSpritePartsPos(snum);
     auto t = thing.skeleton.pos[2];
 
     if ((thing.skeleton.pos[2].x > thing.skeleton.pos[1].x) && (m.x < thing.skeleton.pos[2].x))
@@ -587,7 +589,7 @@ void gotothing(std::uint8_t snum, std::uint8_t tnum)
 
     if ((thing.holdingsprite > 0) && (GS::GetGame().GetTeamFlag(with.player->team) > team_none))
     {
-      if ((with.player->team == SpriteSystem::Get().GetSprite(thing.holdingsprite).player->team) and
+      if ((with.player->team == sprite_system.GetSprite(thing.holdingsprite).player->team) and
           (!thing.inbase))
       {
         // X - Distance
@@ -600,7 +602,7 @@ void gotothing(std::uint8_t snum, std::uint8_t tnum)
           with.control.down = true;
         }
 
-        with.control.jetpack = SpriteSystem::Get().GetSprite(thing.holdingsprite).control.jetpack;
+        with.control.jetpack = sprite_system.GetSprite(thing.holdingsprite).control.jetpack;
       }
     }
 
@@ -616,6 +618,7 @@ void gotothing(std::uint8_t snum, std::uint8_t tnum)
 void controlbot(tsprite &spritec, const twaypoints &botpath)
 {
   ZoneScopedN("ControlBot");
+  auto &sprite_system = SpriteSystem::Get();
   tvector2 b;
   tvector2 lookpoint;
   tvector2 startpoint;
@@ -658,7 +661,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
 
     {
       ZoneScopedN("SearchingForTarget");
-      for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+      for (auto &sprite : sprite_system.GetActiveSprites())
       {
         if ((sprite.num != spritec.num) && (sprite.player->name != spritec.brain.friend_) &&
             ((sprite.alpha == 255) || (sprite.holdedthing > 0)) && sprite.isnotspectator())
@@ -724,8 +727,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
 
     if (spritec.brain.targetnum > 0)
     {
-      if ((SpriteSystem::Get().GetSprite(spritec.brain.targetnum).weapon.num == bow_num) ||
-          (SpriteSystem::Get().GetSprite(spritec.brain.targetnum).weapon.num == bow2_num))
+      if ((sprite_system.GetSprite(spritec.brain.targetnum).weapon.num == bow_num) ||
+          (sprite_system.GetSprite(spritec.brain.targetnum).weapon.num == bow2_num))
       {
         spritec.brain.pissedoff = 0;
       }
@@ -739,7 +742,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
     if (spritec.brain.pissedoff > 0)
     {
       if (GS::GetGame().isteamgame() && (!CVar::sv_friendlyfire) &&
-          SpriteSystem::Get().GetSprite(spritec.brain.pissedoff).isinsameteam(spritec))
+          sprite_system.GetSprite(spritec.brain.pissedoff).isinsameteam(spritec))
       {
         spritec.brain.pissedoff = 0;
       }
@@ -748,7 +751,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
     if (spritec.brain.targetnum > 0)
     {
       if (GS::GetGame().isteamgame() and (CVar::sv_friendlyfire) &&
-          SpriteSystem::Get().GetSprite(spritec.brain.targetnum).isnotinsameteam(spritec))
+          sprite_system.GetSprite(spritec.brain.targetnum).isnotinsameteam(spritec))
       {
         spritec.brain.pissedoff = 0;
       }
@@ -758,7 +761,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
     {
       lookpoint.x = spritec.skeleton.pos[12].x;
       lookpoint.y = spritec.skeleton.pos[12].y - 2;
-      startpoint = SpriteSystem::Get().GetSprite(spritec.brain.pissedoff).skeleton.pos[12];
+      startpoint = sprite_system.GetSprite(spritec.brain.pissedoff).skeleton.pos[12];
       if (!map.raycast(lookpoint, startpoint, d2, 651))
       {
         spritec.brain.targetnum = spritec.brain.pissedoff;
@@ -779,7 +782,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
         if ((things[spritec.holdedthing].style == object_alpha_flag) ||
             (things[spritec.holdedthing].style == object_bravo_flag))
         {
-          if (SpriteSystem::Get().GetSprite(spritec.brain.targetnum).holdedthing == 0)
+          if (sprite_system.GetSprite(spritec.brain.targetnum).holdedthing == 0)
           {
             seeclosest = false;
             runaway = true;
@@ -804,7 +807,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
             i = waypointseekradius; // Radius of waypoint seeking
           }
 
-          auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(spritec.num);
+          auto &spritePartsPos = sprite_system.GetSpritePartsPos(spritec.num);
           k = botpath.findclosest(spritePartsPos.x, spritePartsPos.y, i,
                                   spritec.brain.currentwaypoint);
 
@@ -983,8 +986,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
             {
               if (spritec.brain.pissedoff > 0)
               {
-                auto &spritePartsPos =
-                  SpriteSystem::Get().GetSpritePartsPos(spritec.brain.pissedoff);
+                auto &spritePartsPos = sprite_system.GetSpritePartsPos(spritec.brain.pissedoff);
                 spritec.control.mouseaimx = sround(spritePartsPos.x);
                 spritec.control.mouseaimy =
                   round(spritePartsPos.y - (1.75 * 100 / spritec.weapon.speed) -
@@ -1010,8 +1012,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
               {
                 if ((spritec.control.left or spritec.control.right) and !spritec.control.down)
                 {
-                  auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(spritec.num);
-                  auto &spritePartsOldPos = SpriteSystem::Get().GetSpritePartsOldPos(spritec.num);
+                  auto &spritePartsPos = sprite_system.GetSpritePartsPos(spritec.num);
+                  auto &spritePartsOldPos = sprite_system.GetSpritePartsOldPos(spritec.num);
                   if (distance(spritePartsPos, spritePartsOldPos) < 3)
                   {
                     spritec.brain.oneplacecount += 1;
@@ -1117,8 +1119,8 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
         if (Random(790 * spritec.brain.chatfreq) == 0)
         {
           serversendstringmessage(
-            std::string("Die ") +
-              (SpriteSystem::Get().GetSprite(spritec.brain.targetnum).player->name) + "!",
+            std::string("Die ") + (sprite_system.GetSprite(spritec.brain.targetnum).player->name) +
+              "!",
             all_players, spritec.num, msgtype_pub);
         }
       }
@@ -1268,7 +1270,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
       spritec.brain.gothing = false;
     }
 
-    auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(spritec.num);
+    auto &spritePartsPos = sprite_system.GetSpritePartsPos(spritec.num);
     // Runaway from grenade!
     auto &bullet = GS::GetBulletSystem().GetBullets();
     if (CVar::bots_difficulty < 201)
@@ -1319,7 +1321,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
     }
 
     // fall damage save
-    auto &spriteVelocity = SpriteSystem::Get().GetVelocity(spritec.num);
+    auto &spriteVelocity = sprite_system.GetVelocity(spritec.num);
     d = spriteVelocity.y;
     if (d > 3.35)
     {

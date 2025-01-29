@@ -14,7 +14,8 @@
 template <Config::Module M>
 void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 {
-  auto& fs = GS::GetFileSystem();
+  auto &sprite_system = SpriteSystem::Get();
+  auto &fs = GS::GetFileSystem();
   Animations.clear();
   GS::GetConsoleLogFile().Log(std::string("Loading Animations. ") + moddir);
   struct AnimData
@@ -89,7 +90,7 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 
   GS::GetConsoleLogFile().Log("Loading objects.");
 
-  SpriteSystem::Get().ResetSpriteParts();
+  sprite_system.ResetSpriteParts();
 
   Skeletons.clear();
 

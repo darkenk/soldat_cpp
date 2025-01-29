@@ -40,6 +40,7 @@ void clientsendbullet(std::uint8_t i)
 
 void clienthandlebulletsnapshot(NetworkContext *netmessage)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_bulletsnapshot *bulletsnap;
   tvector2 a;
   tvector2 b;
@@ -94,7 +95,7 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
 
   // FIXME (falcon): Also serialize HitMultiply for CreateBullet()
   // on the other side, how the hell it works now? (because it does)
-  hm = SpriteSystem::Get().GetSprite(bulletsnap->owner).weapon.hitmultiply;
+  hm = sprite_system.GetSprite(bulletsnap->owner).weapon.hitmultiply;
   if (style == bullet_style_fragnade)
   {
     hm = guns[fraggrenade].hitmultiply;
@@ -105,9 +106,8 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
   auto &bullet = GS::GetBulletSystem().GetBullets();
   auto &bul = bullet[i];
 
-  bul.ownerpingtick =
-    SpriteSystem::Get().GetSprite(bulletsnap->owner).player->pingticks + pingticksadd;
-  pa = SpriteSystem::Get().GetPlayerSprite().player->pingticks + bul.ownerpingtick;
+  bul.ownerpingtick = sprite_system.GetSprite(bulletsnap->owner).player->pingticks + pingticksadd;
+  pa = sprite_system.GetPlayerSprite().player->pingticks + bul.ownerpingtick;
   bul.pingadd = pa;
   bul.pingaddstart = pa;
   if (!bulletsnap->forced)
@@ -136,7 +136,7 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
         createbullet(a, bx, bulletsnap->weaponnum, bulletsnap->owner, 255, i, false, true);
       auto &b = bullet[k];
 
-      if ((SpriteSystem::Get().IsPlayerSpriteValid()) && (bulletsnap->owner > 0))
+      if ((sprite_system.IsPlayerSpriteValid()) && (bulletsnap->owner > 0))
       {
         for (c = 1; c <= pa; c++)
         {
@@ -172,7 +172,7 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
 
         auto &b = bullet[k];
 
-        if ((SpriteSystem::Get().IsPlayerSpriteValid()) && (bulletsnap->owner > 0))
+        if ((sprite_system.IsPlayerSpriteValid()) && (bulletsnap->owner > 0))
         {
           for (c = 1; c <= pa; c++)
           {
@@ -194,13 +194,13 @@ void clienthandlebulletsnapshot(NetworkContext *netmessage)
         (style != bullet_style_cluster) && (style != bullet_style_thrownknife) &&
         (style != bullet_style_m2))
     {
-      SpriteSystem::Get().GetSprite(bulletsnap->owner).fire();
+      sprite_system.GetSprite(bulletsnap->owner).fire();
     }
   }
 
   if (bul.active)
   {
-    if ((SpriteSystem::Get().IsPlayerSpriteValid()) && (bulletsnap->owner > 0))
+    if ((sprite_system.IsPlayerSpriteValid()) && (bulletsnap->owner > 0))
     {
       for (c = 1; c <= pa; c++)
       {

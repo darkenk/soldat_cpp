@@ -81,6 +81,7 @@ auto areconflictingkeyspressed(tsprite &spritec) -> bool
 void controlsprite(tsprite &spritec)
 {
   ZoneScopedN("ControlSprite");
+  auto &sprite_system = SpriteSystem::Get();
   tvector2 a;
   tvector2 b;
   tvector2 lookpoint;
@@ -116,7 +117,7 @@ void controlsprite(tsprite &spritec)
       spritec.applyweaponbynum(spritec.weapon.num, 1);
       spritec.weapon.ammocount = 0;
 #ifndef SERVER
-      if ((SpriteSystem::Get().IsPlayerSprite(spritec.num)) && !spritec.deadmeat)
+      if ((sprite_system.IsPlayerSprite(spritec.num)) && !spritec.deadmeat)
       {
         clientspritesnapshot();
       }
@@ -132,12 +133,12 @@ void controlsprite(tsprite &spritec)
       spritec.bodyanimation.speed = 1;
     }
 #ifndef SERVER
-    if ((SpriteSystem::Get().IsPlayerSprite(spritec.num)) && !escmenu->active)
+    if ((sprite_system.IsPlayerSprite(spritec.num)) && !escmenu->active)
     {
       spritec.freecontrols();
 
-      SpriteSystem::Get().GetPlayerSprite().control.mouseaimx = round(mx - gamewidthhalf + camerax);
-      SpriteSystem::Get().GetPlayerSprite().control.mouseaimy = round(my - gameheighthalf + cameray);
+      sprite_system.GetPlayerSprite().control.mouseaimx = round(mx - gamewidthhalf + camerax);
+      sprite_system.GetPlayerSprite().control.mouseaimy = round(my - gameheighthalf + cameray);
 
       if (!teammenu->active && !limbomenu->active)
       {
@@ -326,11 +327,11 @@ void controlsprite(tsprite &spritec)
                 }
 
                 i = 0;
-                for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+                for (auto &sprite : sprite_system.GetActiveSprites())
                 {
                   if (sprite.isnotspectator() and
-                      (sprite.isinsameteam(SpriteSystem::Get().GetPlayerSprite()) or
-                       SpriteSystem::Get().GetPlayerSprite().isspectator()))
+                      (sprite.isinsameteam(sprite_system.GetPlayerSprite()) or
+                       sprite_system.GetPlayerSprite().isspectator()))
                   {
                     i = 1;
                     break;
@@ -364,9 +365,9 @@ void controlsprite(tsprite &spritec)
       {
         for (i = 1; i <= max_sprites; i++)
         {
-          if (SpriteSystem::Get().GetSprite(i).visible > 0)
+          if (sprite_system.GetSprite(i).visible > 0)
           {
-            SpriteSystem::Get().GetSprite(i).visible -= 1;
+            sprite_system.GetSprite(i).visible -= 1;
           }
         }
 
@@ -374,13 +375,13 @@ void controlsprite(tsprite &spritec)
         lookpoint.y = spritec.skeleton.pos[7].y - 2;
         spritec.visible = 45;
 
-        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        for (auto &sprite : sprite_system.GetActiveSprites())
         {
           // Following sprites
           if ((spritec.num != camerafollowsprite) and spritec.isnotinsameteam(sprite) &&
               spritec.isnotspectator())
           {
-            if (checkspritelineofsightvisibility(SpriteSystem::Get().GetSprite(camerafollowsprite),
+            if (checkspritelineofsightvisibility(sprite_system.GetSprite(camerafollowsprite),
                                                  sprite))
             {
               sprite.visible = 45;
@@ -528,12 +529,12 @@ void controlsprite(tsprite &spritec)
           if ((spritec.weapon.num != noweapon_num) && (spritec.weapon.num != knife_num) &&
               (spritec.weapon.num != chainsaw_num))
           {
-            for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+            for (auto &sprite : sprite_system.GetActiveSprites())
             {
               if (!sprite.deadmeat and (sprite.position == pos_stand) &&
                   (sprite.num != spritec.num) && sprite.isnotspectator())
               {
-                auto &secSpritePartsPos = SpriteSystem::Get().GetSpritePartsPos(sprite.num);
+                auto &secSpritePartsPos = sprite_system.GetSpritePartsPos(sprite.num);
                 if (distance(spritePartsPos, secSpritePartsPos) < melee_dist)
                 {
                   spritec.bodyapplyanimation(AnimationType::Melee, 1);
@@ -710,7 +711,7 @@ void controlsprite(tsprite &spritec)
 
     // TARGET MODE
 #ifndef SERVER
-    if ((SpriteSystem::Get().IsPlayerSprite(spritec.num)) && targetmode && spritec.control.fire)
+    if ((sprite_system.IsPlayerSprite(spritec.num)) && targetmode && spritec.control.fire)
     {
       clientfreecamtarget();
       targetmode = false;
@@ -860,8 +861,7 @@ void controlsprite(tsprite &spritec)
 #ifdef SERVER
       if (spritec.player->controlmethod == bot)
 #else
-      if ((SpriteSystem::Get().IsPlayerSprite(spritec.num)) ||
-          (spritec.player->controlmethod == bot))
+      if ((sprite_system.IsPlayerSprite(spritec.num)) || (spritec.player->controlmethod == bot))
 #endif
       {
         new (&tempgun) tgun(spritec.weapon);
@@ -918,8 +918,7 @@ void controlsprite(tsprite &spritec)
 #ifdef SERVER
       if (spritec.player->controlmethod == bot)
 #else
-      if ((spritec.player->controlmethod == bot) ||
-          (SpriteSystem::Get().IsPlayerSprite(spritec.num)))
+      if ((spritec.player->controlmethod == bot) || (sprite_system.IsPlayerSprite(spritec.num)))
 #endif
       {
         // Set the dont drop flag so ThrowWeapon will not be sent to the server after
@@ -942,7 +941,7 @@ void controlsprite(tsprite &spritec)
         spritec.applyweaponbynum(noweapon_num, 1);
         spritec.bodyapplyanimation(AnimationType::Stand, 1);
 #ifndef SERVER
-        if ((SpriteSystem::Get().IsPlayerSprite(spritec.num)) && !spritec.deadmeat)
+        if ((sprite_system.IsPlayerSprite(spritec.num)) && !spritec.deadmeat)
         {
           clientspritesnapshot();
         }
@@ -1578,20 +1577,20 @@ void controlsprite(tsprite &spritec)
           if (spritec.weapon.num == knife_num)
           {
             playsound(SfxEffect::slash, spritePartsPos,
-                      SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
+                      sprite_system.GetSprite(spritec.num).gattlingsoundchannel);
           }
           if (spritec.weapon.num == chainsaw_num)
           {
             playsound(SfxEffect::chainsaw_r, spritePartsPos,
-                      SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
+                      sprite_system.GetSprite(spritec.num).gattlingsoundchannel);
           }
           if (spritec.weapon.num == noweapon_num)
           {
             playsound(SfxEffect::dead_hit, spritePartsPos,
-                      SpriteSystem::Get().GetSprite(spritec.num).gattlingsoundchannel);
+                      sprite_system.GetSprite(spritec.num).gattlingsoundchannel);
           }
 
-          if (SpriteSystem::Get().IsPlayerSprite(spritec.num))
+          if (sprite_system.IsPlayerSprite(spritec.num))
           {
             clientsendstringmessage("/KILL", spritec.num);
           }
@@ -1792,12 +1791,12 @@ void controlsprite(tsprite &spritec)
       // raise weapon above teammate when crouching
       if (GS::GetGame().isteamgame())
       {
-        for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+        for (auto &sprite : sprite_system.GetActiveSprites())
         {
           if (sprite.isinsameteam(spritec) and (sprite.position == pos_crouch) &&
               (sprite.num != spritec.num) && spritec.isnotspectator())
           {
-            auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(sprite.num);
+            auto &spritePartsPos = sprite_system.GetSpritePartsPos(sprite.num);
             a = spritePartsPos;
 
             b = vec2subtract(spritec.skeleton.pos[15], spritec.skeleton.pos[16]);
@@ -1830,7 +1829,7 @@ void controlsprite(tsprite &spritec)
       }
     }
 #ifndef SERVER
-    if (targetmode && (SpriteSystem::Get().IsPlayerSprite(spritec.num)))
+    if (targetmode && (sprite_system.IsPlayerSprite(spritec.num)))
     {
       spritec.freecontrols();
     }

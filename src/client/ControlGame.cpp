@@ -54,6 +54,7 @@ auto filterchattext(const std::string &str1) -> std::string
 
 auto chatkeydown(std::uint8_t keymods, SDL_Keycode keycode) -> bool
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t len;
   std::string str1;
   std::string consolestr;
@@ -166,7 +167,7 @@ auto chatkeydown(std::uint8_t keymods, SDL_Keycode keycode) -> bool
             return result;
           }
         }
-        if (SpriteSystem::Get().IsPlayerSpriteValid())
+        if (sprite_system.IsPlayerSpriteValid())
         {
           if (votekickreasontype)
           {
@@ -251,6 +252,7 @@ auto menukeydown(std::uint8_t keymods, SDL_Scancode keycode) -> bool
 
 auto keydown(SDL_KeyboardEvent &keyevent) -> bool
 {
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
   std::uint8_t keymods;
   SDL_Scancode keycode;
@@ -326,9 +328,9 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
         {
           i = strtoint(game.GetVoteTarget());
           clientvotekick(i, true, "");
-          GS::GetMainConsole().console(wideformat(_("You have voted to kick " +
-                                                    SpriteSystem::Get().GetSprite(i).player->name)),
-                                       vote_message_color);
+          GS::GetMainConsole().console(
+            wideformat(_("You have voted to kick " + sprite_system.GetSprite(i).player->name)),
+            vote_message_color);
         }
       }
     }
@@ -506,8 +508,8 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
   }
   else if (action == taction::radio)
   {
-    if ((chattext.empty()) && (CVar::sv_radio) && (SpriteSystem::Get().IsPlayerSpriteValid()) and
-        (SpriteSystem::Get().GetPlayerSprite().isnotspectator)())
+    if ((chattext.empty()) && (CVar::sv_radio) && (sprite_system.IsPlayerSpriteValid()) and
+        (sprite_system.GetPlayerSprite().isnotspectator)())
     {
       showradiomenu = !showradiomenu;
       rmenustate[0] = ' ';
@@ -606,7 +608,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
       }
 
       // force spectator chat to teamchat in survival mode when Round hasn't ended
-      if ((CVar::sv_survivalmode) && SpriteSystem::Get().GetPlayerSprite().isspectator() &&
+      if ((CVar::sv_survivalmode) && sprite_system.GetPlayerSprite().isspectator() &&
           !game.GetSurvivalEndRound() && (CVar::sv_survivalmode_antispy))
       {
         chattype = msgtype_team;
@@ -617,8 +619,8 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
   }
   else if (action == taction::teamchat)
   {
-    if ((chattext.empty()) && (SpriteSystem::Get().IsPlayerSpriteValid()) &&
-        (SpriteSystem::Get().GetPlayerSprite().isspectator() || GS::GetGame().isteamgame()))
+    if ((chattext.empty()) && (sprite_system.IsPlayerSpriteValid()) &&
+        (sprite_system.GetPlayerSprite().isspectator() || GS::GetGame().isteamgame()))
     {
       SDL_StartTextInput();
       chattext = ' ';
@@ -650,10 +652,10 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
   }
   else if (action == taction::weapons)
   {
-    if ((chattext.empty()) && (SpriteSystem::Get().IsPlayerSpriteValid()) && !escmenu->active &&
-        !SpriteSystem::Get().GetPlayerSprite().isspectator())
+    if ((chattext.empty()) && (sprite_system.IsPlayerSpriteValid()) && !escmenu->active &&
+        !sprite_system.GetPlayerSprite().isspectator())
     {
-      if (SpriteSystem::Get().GetPlayerSprite().deadmeat)
+      if (sprite_system.GetPlayerSprite().deadmeat)
       {
         gamemenushow(limbomenu, !limbomenu->active);
         limbolock = !limbomenu->active;
@@ -665,8 +667,8 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
         auto &weaponSystem = GS::GetWeaponSystem();
         auto pricount = weaponSystem.CountEnabledPrimaryWeapons();
         auto seccount = weaponSystem.CountEnabledSecondaryWeapons();
-        auto prinum = SpriteSystem::Get().GetPlayerSprite().weapon.num;
-        auto secnum = SpriteSystem::Get().GetPlayerSprite().secondaryweapon.num;
+        auto prinum = sprite_system.GetPlayerSprite().weapon.num;
+        auto secnum = sprite_system.GetPlayerSprite().secondaryweapon.num;
 
         if (!limbomenu->active or (((prinum != noweapon_num) || (pricount == 0)) &&
                                    ((secnum != noweapon_num) || (seccount == 0))))

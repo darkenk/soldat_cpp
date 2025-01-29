@@ -69,6 +69,7 @@ void clienthandleserversyncmsg(NetworkContext *netmessage)
 
 void clienthandleforceposition(NetworkContext *netmessage)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_forceposition *forceposition;
 
   if (!verifypacket(sizeof(tmsg_forceposition), netmessage->size, msgid_forceposition))
@@ -78,14 +79,15 @@ void clienthandleforceposition(NetworkContext *netmessage)
 
   forceposition = pmsg_forceposition(netmessage->packet);
 
-  auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(forceposition->playerid);
+  auto &spritePartsPos = sprite_system.GetSpritePartsPos(forceposition->playerid);
 
   spritePartsPos = forceposition->pos;
-  SpriteSystem::Get().SetSpritePartsOldPos(forceposition->playerid, spritePartsPos);
+  sprite_system.SetSpritePartsOldPos(forceposition->playerid, spritePartsPos);
 }
 
 void clienthandleforcevelocity(NetworkContext *netmessage)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_forcevelocity *forcevelocity;
 
   if (!verifypacket(sizeof(tmsg_forcevelocity), netmessage->size, msgid_forcevelocity))
@@ -95,12 +97,13 @@ void clienthandleforcevelocity(NetworkContext *netmessage)
 
   forcevelocity = pmsg_forcevelocity(netmessage->packet);
 
-  auto &spriteVelocity = SpriteSystem::Get().GetVelocity(forcevelocity->playerid);
+  auto &spriteVelocity = sprite_system.GetVelocity(forcevelocity->playerid);
   spriteVelocity = forcevelocity->vel;
 }
 
 void clienthandleforceweapon(NetworkContext *netmessage)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_forceweapon *forceweapon;
 
   if (!verifypacket(sizeof(tmsg_forceweapon), netmessage->size, msgid_forceweapon))
@@ -110,12 +113,12 @@ void clienthandleforceweapon(NetworkContext *netmessage)
 
   forceweapon = pmsg_forceweapon(netmessage->packet);
 
-  if (SpriteSystem::Get().IsPlayerSpriteValid())
+  if (sprite_system.IsPlayerSpriteValid())
   {
-    SpriteSystem::Get().GetPlayerSprite().applyweaponbynum(forceweapon->weaponnum, 1);
-    SpriteSystem::Get().GetPlayerSprite().applyweaponbynum(forceweapon->secondaryweaponnum, 2);
-    SpriteSystem::Get().GetPlayerSprite().weapon.ammocount = forceweapon->ammocount;
-    SpriteSystem::Get().GetPlayerSprite().secondaryweapon.ammocount = forceweapon->secammocount;
+    sprite_system.GetPlayerSprite().applyweaponbynum(forceweapon->weaponnum, 1);
+    sprite_system.GetPlayerSprite().applyweaponbynum(forceweapon->secondaryweaponnum, 2);
+    sprite_system.GetPlayerSprite().weapon.ammocount = forceweapon->ammocount;
+    sprite_system.GetPlayerSprite().secondaryweapon.ammocount = forceweapon->secammocount;
   }
 }
 
@@ -149,6 +152,7 @@ void clienthandleweaponactivemessage(NetworkContext *netmessage)
 
 void clienthandleclientfreecam(NetworkContext *netmessage)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_clientfreecam *freecammsg;
 
   if (!verifypacket(sizeof(tmsg_clientfreecam), netmessage->size, msgid_clientfreecam))
@@ -158,7 +162,7 @@ void clienthandleclientfreecam(NetworkContext *netmessage)
 
   freecammsg = pmsg_clientfreecam(netmessage->packet);
 
-  if (SpriteSystem::Get().IsPlayerSpriteValid())
+  if (sprite_system.IsPlayerSpriteValid())
   {
     if (freecammsg->freecamon == 1)
     {

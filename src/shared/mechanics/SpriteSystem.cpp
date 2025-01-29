@@ -92,17 +92,19 @@ public:
 
 TEST_CASE_FIXTURE(SpriteSystemFixture, "Test for CreateSprite")
 {
-  auto &sprite = SpriteSystem::Get().CreateSprite();
+  auto &sprite_system = SpriteSystem::Get();
+  auto &sprite = sprite_system.CreateSprite();
   sprite.active = true;
   CHECK(sprite.num == 1);
-  auto &sprite2 = SpriteSystem::Get().CreateSprite(sprite.num);
+  auto &sprite2 = sprite_system.CreateSprite(sprite.num);
   CHECK(sprite2.num == 1);
-  auto &sprite3 = SpriteSystem::Get().CreateSprite();
+  auto &sprite3 = sprite_system.CreateSprite();
   CHECK(sprite3.num == 2);
 }
 
 TEST_CASE_FIXTURE(SpriteSystemFixture, "All sprites are inactive at the beggining")
 {
-  auto &active = SpriteSystem::Get().GetActiveSprites();
+  auto &sprite_system = SpriteSystem::Get();
+  auto &active = sprite_system.GetActiveSprites();
   CHECK(std::count_if(active.begin(), active.end(), [](const auto &) { return true; }) == 0);
 }

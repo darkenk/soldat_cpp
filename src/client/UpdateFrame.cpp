@@ -28,6 +28,7 @@ std::int32_t idlecounter, oldmousex;
 void update_frame()
 {
   ZoneScopedN("update_frame");
+  auto &sprite_system = SpriteSystem::Get();
   std::int32_t j;
   tvector2 norm;
   tvector2 camv;
@@ -62,13 +63,13 @@ void update_frame()
       ZoneScopedN("SpriteParts");
       if (clientstopmovingcounter > 0)
       {
-        SpriteSystem::Get().UpdateSpriteParts();
+        sprite_system.UpdateSpriteParts();
       }
     }
 
     {
       ZoneScopedN("UpdateSprites");
-      auto &activeSprites = SpriteSystem::Get().GetActiveSprites();
+      auto &activeSprites = sprite_system.GetActiveSprites();
       std::for_each(std::begin(activeSprites), std::end(activeSprites),
                     [](auto &sprite) { sprite.update(); });
     }
@@ -134,7 +135,7 @@ void update_frame()
     // Change spectate target away from dead player
     if (GS::GetGame().GetMainTickCounter() % (second * 5) == 0)
     {
-      if ((camerafollowsprite > 0) && SpriteSystem::Get().GetSprite(camerafollowsprite).deadmeat and
+      if ((camerafollowsprite > 0) && sprite_system.GetSprite(camerafollowsprite).deadmeat and
           (CVar::sv_realisticmode) && (CVar::sv_survivalmode) && !game.GetSurvivalEndRound())
       {
         camerafollowsprite = getcameratarget(false);
@@ -178,26 +179,26 @@ void update_frame()
   cursorfriendly = false;
 
   // TODO(helloer): While watching demos this code needs to use SpectNumber instead of MySprite
-  if ((SpriteSystem::Get().IsPlayerSpriteValid()) && (!demoplayer.active()))
+  if ((sprite_system.IsPlayerSpriteValid()) && (!demoplayer.active()))
   {
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    for (auto &sprite : sprite_system.GetActiveSprites())
     {
       j = sprite.num;
-      if (sprite.isnotspectator() && (!SpriteSystem::Get().IsPlayerSprite(j)) &&
+      if (sprite.isnotspectator() && (!sprite_system.IsPlayerSprite(j)) &&
           (sprite.bonusstyle != bonus_predator) and
           ((sprite.position == pos_stand) or
-           (sprite.isnotsolo() && sprite.isinsameteam(SpriteSystem::Get().GetPlayerSprite())) or
-           SpriteSystem::Get().GetPlayerSprite().deadmeat or sprite.deadmeat) and
+           (sprite.isnotsolo() && sprite.isinsameteam(sprite_system.GetPlayerSprite())) or
+           sprite_system.GetPlayerSprite().deadmeat or sprite.deadmeat) and
           ((sprite.visible > 40) or (!CVar::sv_realisticmode)))
       {
-        const auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(j);
+        const auto &spritePartsPos = sprite_system.GetSpritePartsPos(j);
         if (distance(-gamewidthhalf + camerax + mx, -gameheighthalf + cameray + my,
                      spritePartsPos.x, spritePartsPos.y) < cursorsprite_distance)
         {
           cursortext = sprite.player->name;
           if (game.isteamgame())
           {
-            if (sprite.isinsameteam(SpriteSystem::Get().GetPlayerSprite()))
+            if (sprite.isinsameteam(sprite_system.GetPlayerSprite()))
             {
               cursortext = cursortext + ' ' +
                            inttostr(round((sprite.GetHealth() / game.GetStarthealth()) * 100)) +
@@ -277,12 +278,12 @@ void update_frame()
     }
 
     // Idle counter
-    if (SpriteSystem::Get().IsPlayerSpriteValid())
+    if (sprite_system.IsPlayerSpriteValid())
     {
       if (game.GetMapchangecounter() < 99999999)
       {
-        if (SpriteSystem::Get().GetPlayerSprite().isnotspectator() &&
-            (!SpriteSystem::Get().GetPlayerSprite().player->demoplayer))
+        if (sprite_system.GetPlayerSprite().isnotspectator() &&
+            (!sprite_system.GetPlayerSprite().player->demoplayer))
         {
           if (oldmousex - round(mx) == 0)
           {
@@ -408,25 +409,24 @@ void update_frame()
   // MOVE -=CAMERA=-
   if ((camerafollowsprite > 0) && (camerafollowsprite < max_sprites + 1))
   {
-    if (SpriteSystem::Get().GetSprite(camerafollowsprite).IsActive() &&
-        SpriteSystem::Get().GetSprite(camerafollowsprite).isnotspectator())
+    if (sprite_system.GetSprite(camerafollowsprite).IsActive() &&
+        sprite_system.GetSprite(camerafollowsprite).isnotspectator())
     {
       // FIXME(skoskav): Scope zoom and non-default resolution makes this a bit complicated.
       // Why does the magic number ~6.8 work so well?
 
       m.x = exp(CVar::r_zoom) *
-            ((mx - gamewidthhalf) / SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef *
+            ((mx - gamewidthhalf) / sprite_system.GetSprite(camerafollowsprite).aimdistcoef *
              (((float)(2 * 640) / gamewidth - 1) +
               (float)((gamewidth - 640)) / (float)gamewidth *
-                (float)(defaultaimdist -
-                        SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef) /
+                (float)(defaultaimdist - sprite_system.GetSprite(camerafollowsprite).aimdistcoef) /
                 6.8));
 
       m.y = exp(CVar::r_zoom) *
-            ((my - gameheighthalf) / SpriteSystem::Get().GetSprite(camerafollowsprite).aimdistcoef);
+            ((my - gameheighthalf) / sprite_system.GetSprite(camerafollowsprite).aimdistcoef);
       camv.x = camerax;
       camv.y = cameray;
-      auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(camerafollowsprite);
+      auto &spritePartsPos = sprite_system.GetSpritePartsPos(camerafollowsprite);
       p.x = spritePartsPos.x;
       p.y = spritePartsPos.y;
       norm = vec2subtract(p, camv);
@@ -463,8 +463,7 @@ void update_frame()
   }
 
   // safety
-  if ((SpriteSystem::Get().IsPlayerSpriteValid()) &&
-      (SpriteSystem::Get().GetPlayerSprite().isspectator()))
+  if ((sprite_system.IsPlayerSpriteValid()) && (sprite_system.GetPlayerSprite().isspectator()))
   {
     if ((camerax > max_sectorz * map.GetSectorsDivision()) ||
         (camerax < min_sectorz * map.GetSectorsDivision()) ||

@@ -175,6 +175,7 @@ void NetworkServer::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
 
 void NetworkServer::HandleMessages(SteamNetworkingMessage_t *msg)
 {
+  auto &sprite_system = SpriteSystem::Get();
   if (msg->m_cbSize < sizeof(tmsgheader))
   {
     return; // truncated packet
@@ -209,7 +210,7 @@ void NetworkServer::HandleMessages(SteamNetworkingMessage_t *msg)
 
   // all the following commands can only be issued after the player has joined the game.
   if ((player->spritenum == 0) or
-      (SpriteSystem::Get().GetSprite(player->spritenum).player.get() != player))
+      (sprite_system.GetSprite(player->spritenum).player.get() != player))
   {
     return;
   }

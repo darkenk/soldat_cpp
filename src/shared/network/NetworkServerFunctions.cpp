@@ -10,6 +10,7 @@
 
 void serversendfreecam(std::uint8_t tonum, bool freecam, tvector2 pos)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_clientfreecam freecammsg;
 
   freecammsg.header.id = msgid_clientfreecam;
@@ -17,12 +18,12 @@ void serversendfreecam(std::uint8_t tonum, bool freecam, tvector2 pos)
   freecammsg.targetpos = pos;
 
   GetServerNetwork()->SendData(&freecammsg, sizeof(freecammsg),
-                               SpriteSystem::Get().GetSprite(tonum).player->peer,
-                               true);
+                               sprite_system.GetSprite(tonum).player->peer, true);
 }
 
 void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_weaponactivemessage wepmsg;
 
   wepmsg.header.id = msgid_weaponactivemessage;
@@ -31,7 +32,7 @@ void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state)
 
   if (id == 0)
   {
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    for (auto &sprite : sprite_system.GetActiveSprites())
     {
       if (sprite.player->controlmethod == human)
       {
@@ -40,21 +41,22 @@ void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state)
       }
     }
   }
-  else if ((SpriteSystem::Get().GetSprite(id).active) &&
-           (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
+  else if ((sprite_system.GetSprite(id).active) &&
+           (sprite_system.GetSprite(id).player->controlmethod == human))
   {
-    GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg),
-                                 SpriteSystem::Get().GetSprite(id).player->peer, true);
+    GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg), sprite_system.GetSprite(id).player->peer,
+                                 true);
   }
 }
 
 void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, std::uint8_t ammo,
                  std::uint8_t secammo)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_forceweapon wepmsg;
 
-  SpriteSystem::Get().GetSprite(id).applyweaponbynum(primary, 1);
-  SpriteSystem::Get().GetSprite(id).applyweaponbynum(secondary, 2);
+  sprite_system.GetSprite(id).applyweaponbynum(primary, 1);
+  sprite_system.GetSprite(id).applyweaponbynum(secondary, 2);
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
   if (ammo > guns[weaponnumtoindex(primary, guns)].ammo)
@@ -67,10 +69,10 @@ void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, 
     secammo = guns[weaponnumtoindex(secondary, guns)].ammo;
   }
 
-  SpriteSystem::Get().GetSprite(id).weapon.ammo = ammo;
-  SpriteSystem::Get().GetSprite(id).secondaryweapon.ammo = secammo;
+  sprite_system.GetSprite(id).weapon.ammo = ammo;
+  sprite_system.GetSprite(id).secondaryweapon.ammo = secammo;
 
-  if (SpriteSystem::Get().GetSprite(id).player->controlmethod == human)
+  if (sprite_system.GetSprite(id).player->controlmethod == human)
   {
     wepmsg.header.id = msgid_forceweapon;
     wepmsg.weaponnum = primary;
@@ -78,8 +80,7 @@ void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, 
     wepmsg.ammocount = ammo;
     wepmsg.secammocount = secammo;
 
-    GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg),
-                                 SpriteSystem::Get().GetSprite(id).player->peer,
+    GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg), sprite_system.GetSprite(id).player->peer,
                                  true);
   }
 
@@ -93,25 +94,26 @@ void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, 
 
 void moveplayer(const std::uint8_t id, float x, float y)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_forceposition movemsg;
 
-  if (!SpriteSystem::Get().GetSprite(id).active)
+  if (!sprite_system.GetSprite(id).active)
   {
     return;
   }
 
-  auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(id);
+  auto &spritePartsPos = sprite_system.GetSpritePartsPos(id);
 
   spritePartsPos.x = x;
   spritePartsPos.y = y;
-  SpriteSystem::Get().SetSpritePartsOldPos(id, spritePartsPos);
+  sprite_system.SetSpritePartsOldPos(id, spritePartsPos);
 
   movemsg.header.id = msgid_forceposition;
 
   movemsg.pos = spritePartsPos;
   movemsg.playerid = id;
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : sprite_system.GetActiveSprites())
   {
     if (sprite.player->controlmethod == human)
     {
@@ -122,14 +124,15 @@ void moveplayer(const std::uint8_t id, float x, float y)
 
 void modifyplayervelocity(const std::uint8_t id, float velx, float vely)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_forcevelocity velmsg;
 
-  if (!SpriteSystem::Get().GetSprite(id).active)
+  if (!sprite_system.GetSprite(id).active)
   {
     return;
   }
 
-  auto &spriteVelocity = SpriteSystem::Get().GetVelocity(id);
+  auto &spriteVelocity = sprite_system.GetVelocity(id);
 
   spriteVelocity.x = velx;
   spriteVelocity.y = vely;
@@ -139,7 +142,7 @@ void modifyplayervelocity(const std::uint8_t id, float velx, float vely)
   velmsg.vel = spriteVelocity;
   velmsg.playerid = id;
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+  for (auto &sprite : sprite_system.GetActiveSprites())
   {
     if (sprite.player->controlmethod == human)
     {
@@ -151,6 +154,7 @@ void modifyplayervelocity(const std::uint8_t id, float velx, float vely)
 void forwardclient(std::uint8_t id, const std::string &targetip, std::int32_t targetport,
                    const std::string &showmsg)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_joinserver joinservermsg;
 
   joinservermsg.header.id = msgid_joinserver;
@@ -161,16 +165,17 @@ void forwardclient(std::uint8_t id, const std::string &targetip, std::int32_t ta
 #endif
   stringtoarray(joinservermsg.showmsg.data(), showmsg);
 
-  if ((SpriteSystem::Get().GetSprite(id).active) &&
-      (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
+  if ((sprite_system.GetSprite(id).active) &&
+      (sprite_system.GetSprite(id).player->controlmethod == human))
   {
     GetServerNetwork()->SendData(&joinservermsg, sizeof(joinservermsg),
-                                 SpriteSystem::Get().GetSprite(id).player->peer, true);
+                                 sprite_system.GetSprite(id).player->peer, true);
   }
 }
 
 void playsound(std::uint8_t id, const std::string &name, float x, float y)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_playsound playsoundmsg;
   tvector2 pos;
 
@@ -185,24 +190,25 @@ void playsound(std::uint8_t id, const std::string &name, float x, float y)
   {
     for (id = 1; id <= max_players; id++)
     {
-      if ((SpriteSystem::Get().GetSprite(id).active) &&
-          (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
+      if ((sprite_system.GetSprite(id).active) &&
+          (sprite_system.GetSprite(id).player->controlmethod == human))
       {
         GetServerNetwork()->SendData(&playsoundmsg, sizeof(playsoundmsg),
-                                     SpriteSystem::Get().GetSprite(id).player->peer, true);
+                                     sprite_system.GetSprite(id).player->peer, true);
       }
     }
   }
-  else if ((SpriteSystem::Get().GetSprite(id).active) &&
-           (SpriteSystem::Get().GetSprite(id).player->controlmethod == human))
+  else if ((sprite_system.GetSprite(id).active) &&
+           (sprite_system.GetSprite(id).player->controlmethod == human))
   {
     GetServerNetwork()->SendData(&playsoundmsg, sizeof(playsoundmsg),
-                                 SpriteSystem::Get().GetSprite(id).player->peer, true);
+                                 sprite_system.GetSprite(id).player->peer, true);
   }
 }
 
 void serverhandleclientfreecam(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
+  auto &sprite_system = SpriteSystem::Get();
   tmsg_clientfreecam *freecammsg;
   std::int32_t i;
 
@@ -212,6 +218,6 @@ void serverhandleclientfreecam(tmsgheader* netmessage, std::int32_t size, Networ
   }
   freecammsg = pmsg_clientfreecam(netmessage);
   i = player->spritenum;
-  SpriteSystem::Get().GetSprite(i).targetx = freecammsg->targetpos.x;
-  SpriteSystem::Get().GetSprite(i).targety = freecammsg->targetpos.y;
+  sprite_system.GetSprite(i).targetx = freecammsg->targetpos.x;
+  sprite_system.GetSprite(i).targety = freecammsg->targetpos.y;
 }

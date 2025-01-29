@@ -17,6 +17,7 @@
 void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
                              std::uint8_t msgtype)
 {
+  auto &sprite_system = SpriteSystem::Get();
   pmsg_stringmessage pchatmessage;
   std::int32_t size;
 
@@ -38,7 +39,7 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
 
   if (((from > 0) && (from < max_players + 1)) || (from == 255))
   {
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
+    for (auto &sprite : sprite_system.GetActiveSprites())
     {
       if (sprite.player->controlmethod == human)
       {
@@ -48,7 +49,7 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
           { // TODO: Simplify it.
             if ((((msgtype != msgtype_team) && (msgtype != msgtype_radio)) || (from == 255)) or
                 (((msgtype == msgtype_team) || (msgtype == msgtype_radio)) and
-                 SpriteSystem::Get().GetSprite(from).isinsameteam(sprite)))
+                 sprite_system.GetSprite(from).isinsameteam(sprite)))
             {
               GetServerNetwork()->SendData(pchatmessage, size, sprite.player->peer, true);
             }
@@ -65,12 +66,11 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
   }
 
   // show text on servers side
-  if (SpriteSystem::Get().GetSprite(from).player->controlmethod == bot)
+  if (sprite_system.GetSprite(from).player->controlmethod == bot)
   {
     auto msg = iif(msgtype == msgtype_team, std::string("(TEAM)"), std::string(""));
-    GS::GetMainConsole().console(msg + "[" + SpriteSystem::Get().GetSprite(from).player->name +
-                                   "] " + text,
-                                 teamchat_message_color);
+    GS::GetMainConsole().console(
+      msg + "[" + sprite_system.GetSprite(from).player->name + "] " + text, teamchat_message_color);
   }
 }
 
