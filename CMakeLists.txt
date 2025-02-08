@@ -33,6 +33,7 @@ message(STATUS "Using third party: ${THIRD_PARTY_OUT_DIR}")
 
 include(CMakePrintHelpers)
 include(ExternalProject)
+include(FetchContent)
 
 ExternalProject_Add(doctest 
   PREFIX ${CMAKE_BINARY_DIR}/third_party/doctest
@@ -45,6 +46,29 @@ set(DOCTEST_INCLUDE_DIR ${source_dir}/doctest CACHE INTERNAL "Path to include fo
 include(${source_dir}/scripts/cmake/doctest.cmake)
 
 
+### Third party
+
+FetchContent_Declare(
+  SDL3
+  GIT_REPOSITORY https://github.com/darkenk/SDL.git
+  GIT_TAG        main
+  FIND_PACKAGE_ARGS NAMES SDL3
+)
+FetchContent_MakeAvailable(SDL3)
+
+
+# FetchContent_Declare(
+#   soloud
+#   GIT_REPOSITORY https://github.com/darkenk/soloud.git
+#   GIT_TAG        master
+# )
+# FetchContent_MakeAvailable(soloud)
+
+add_subdirectory(third_party/src/soloud)
+
+### Third party end
+
+
 set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/libsodium-1.0.18/contrib
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/GameNetworkingSockets-1.3.0/cmake
@@ -54,7 +78,6 @@ set(CMAKE_MODULE_PATH
 set(CMAKE_PREFIX_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party/gamenetworkingsockets/out/
     ${THIRD_PARTY_OUT_DIR}/libsodium/out/
-    ${THIRD_PARTY_OUT_DIR}/sdl/out
     ${THIRD_PARTY_OUT_DIR}/freetype/out/
     ${THIRD_PARTY_OUT_DIR}/openal/out/
     ${THIRD_PARTY_OUT_DIR}/spdlog/out/
@@ -66,7 +89,6 @@ set(CMAKE_PREFIX_PATH
 set(CMAKE_FIND_ROOT_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party/gamenetworkingsockets/out/
   ${THIRD_PARTY_OUT_DIR}/libsodium/out/
-  ${THIRD_PARTY_OUT_DIR}/sdl/out/
   ${THIRD_PARTY_OUT_DIR}/freetype/out/
   ${THIRD_PARTY_OUT_DIR}/openal/out/
   ${THIRD_PARTY_OUT_DIR}/spdlog/out/
@@ -88,8 +110,8 @@ set(GLAD_INC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/glad/debug/include)
 set(GLAD_SRC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/glad/debug/src/glad.c)
 set(STB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/stb)
 # soloud
-set(SOLOUD_INCLUDE_DIR ${THIRD_PARTY_OUT_DIR}/soloud/out/include)
-set(SOLOUD_LIBRARY ${THIRD_PARTY_OUT_DIR}/soloud/out/lib/libsoloud_static.a)
+set(SOLOUD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/soloud/include)
+set(SOLOUD_LIBRARY soloud)
 #tracy
 set(TRACY_SRC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8/TracyClient.cpp)
 set(TRACY_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8)
@@ -115,9 +137,7 @@ set_target_properties(
 )
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON")
-set(SDL2_DIR ${THIRD_PARTY_OUT_DIR}/sdl/out)
 #set(LibreSSL_DIR ${THIRD_PARTY_OUT_DIR}/libressl/out)
-find_package(SDL2 REQUIRED)
 #find_package(LibreSSL 3.4.3 REQUIRED EXACT)
 find_package(Freetype REQUIRED)
 find_package(GameNetworkingSockets REQUIRED)
@@ -211,6 +231,7 @@ add_subdirectory(src/server)
 add_subdirectory(src/game)
 #add_subdirectory(src/samples)
 add_subdirectory(assets)
+
 
 #find_package(GTest REQUIRED)
 #enable_testing()

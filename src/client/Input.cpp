@@ -81,7 +81,7 @@ void unbindall()
 void startinput()
 {
   //SDL_SetRelativeMouseMode(SDL_TRUE);
-  SDL_StopTextInput();
+  SDL_StopTextInput(gamewindow);
 }
 
 auto GetActionEnum(const std::string_view &name) -> taction

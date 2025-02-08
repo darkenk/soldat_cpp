@@ -4,3 +4,6 @@
 [submodule "assets/base"]
 	path = assets/base
 	url = git@github.com:darkenk/base.git
+[submodule "third_party/src/soloud"]
+	path = third_party/src/soloud
+	url = git@github.com:darkenk/soloud.git

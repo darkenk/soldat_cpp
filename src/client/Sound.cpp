@@ -11,7 +11,7 @@
 #include "shared/Cvar.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <array>
 #include <soloud.h>
 #include <soloud_wav.h>
@@ -213,7 +213,7 @@ public:
   auto InitSound() -> bool
   {
     LogDebug(AUDIO, "InitSound");
-    if (Engine.init(SoLoud::Soloud::CLIP_ROUNDOFF, SoLoud::Soloud::SDL2) != 0)
+    if (Engine.init(SoLoud::Soloud::CLIP_ROUNDOFF, SoLoud::Soloud::SDL3) != 0)
     {
       return false;
     }

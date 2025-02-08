@@ -21,7 +21,7 @@
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientGame.hpp"
 #include "shared/network/NetworkClientMessages.hpp"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <numeric>
 #include <shared/network/NetworkClient.hpp>
 
@@ -36,7 +36,7 @@ void clearchattext()
   cursorposition = 1;
   votekickreasontype = false;
   chattext = "";
-  SDL_StopTextInput();
+  SDL_StopTextInput(gamewindow);
 }
 
 auto filterchattext(const std::string &str1) -> std::string
@@ -64,7 +64,7 @@ auto chatkeydown(std::uint8_t keymods, SDL_Keycode keycode) -> bool
 
   if (length(chattext) > 0)
   {
-    if ((keymods == km_ctrl) && (keycode == SDLK_v))
+    if ((keymods == km_ctrl) && (keycode == SDLK_V))
     {
       str1 = filterchattext(SDL_GetClipboardText());
       len = length(chattext);
@@ -261,13 +261,13 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
 
   bool result = true;
   auto &game = GS::GetGame();
-  keycode = keyevent.keysym.scancode;
+  keycode = keyevent.scancode;
 
-  keymods = (ord(0 != (keyevent.keysym.mod & KMOD_ALT)) << 0) |
-            (ord(0 != (keyevent.keysym.mod & KMOD_CTRL)) << 1) |
-            (ord(0 != (keyevent.keysym.mod & KMOD_SHIFT)) << 2);
+  keymods = (ord(0 != (keyevent.mod & SDL_KMOD_ALT)) << 0) |
+            (ord(0 != (keyevent.mod & SDL_KMOD_CTRL)) << 1) |
+            (ord(0 != (keyevent.mod & SDL_KMOD_SHIFT)) << 2);
 
-  if (chatkeydown(keymods, keyevent.keysym.sym))
+  if (chatkeydown(keymods, keyevent.key))
   {
     return result;
   }
@@ -575,7 +575,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
     if ((chattext.empty()) && !escmenu->active)
     {
       i = iif(action == taction::mousesensitivitydown, -5, 5);
-      CVar::cl_sensitivity = ((float)(max(0.f, i + floor(100 * CVar::cl_sensitivity))) / 100);
+      CVar::cl_sensitivity = ((float)(max(0.0, i + floor(100 * CVar::cl_sensitivity))) / 100);
       GS::GetMainConsole().console(
         _("Sensitivity:") + (std::string(" ") + inttostr(floor(100 * CVar::cl_sensitivity)) + "%"),
         music_message_color);
@@ -590,14 +590,14 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
       chatchanged = true;
       cursorposition = 1;
       votekickreasontype = false;
-      SDL_StartTextInput();
+      SDL_StartTextInput(gamewindow);
     }
   }
   else if (action == taction::chat)
   {
     if (chattext.empty())
     {
-      SDL_StartTextInput();
+      SDL_StartTextInput(gamewindow);
       chatchanged = true;
       chattext = ' ';
       chattype = msgtype_pub;
@@ -622,7 +622,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
     if ((chattext.empty()) && (sprite_system.IsPlayerSpriteValid()) &&
         (sprite_system.GetPlayerSprite().isspectator() || GS::GetGame().isteamgame()))
     {
-      SDL_StartTextInput();
+      SDL_StartTextInput(gamewindow);
       chattext = ' ';
       chattype = msgtype_team;
       chatchanged = true;
@@ -721,11 +721,11 @@ auto keyup(SDL_KeyboardEvent &keyevent) -> bool
 
   bool result;
   result = true;
-  keycode = keyevent.keysym.scancode;
+  keycode = keyevent.scancode;
 
-  keymods = (ord(0 != (keyevent.keysym.mod & KMOD_ALT)) << 0) |
-            (ord(0 != (keyevent.keysym.mod & KMOD_CTRL)) << 1) |
-            (ord(0 != (keyevent.keysym.mod & KMOD_SHIFT)) << 2);
+  keymods = (ord(0 != (keyevent.mod & SDL_KMOD_ALT)) << 0) |
+            (ord(0 != (keyevent.mod & SDL_KMOD_CTRL)) << 1) |
+            (ord(0 != (keyevent.mod & SDL_KMOD_SHIFT)) << 2);
 
   if (keyevent.repeat != 0)
   {
@@ -773,27 +773,27 @@ void gameinput()
   {
     switch (event.type)
     {
-    case SDL_QUIT: {
+    case SDL_EVENT_QUIT: {
       clientdisconnect(*GetNetwork());
       shutdown();
     }
     break;
 
-    case SDL_KEYDOWN: {
+    case SDL_EVENT_KEY_DOWN: {
       if (!keydown(event.key))
       {
-        keystatus[event.key.keysym.scancode] = true;
+        keystatus[event.key.scancode] = true;
       }
     }
     break;
 
-    case SDL_KEYUP: {
-      keystatus[event.key.keysym.scancode] = false;
+    case SDL_EVENT_KEY_UP: {
+      keystatus[event.key.scancode] = false;
       keyup(event.key);
     }
     break;
 
-    case SDL_MOUSEBUTTONDOWN: {
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
       if (!gamemenuclick())
       {
         keystatus[event.button.button + 300] = true;
@@ -801,11 +801,11 @@ void gameinput()
     }
     break;
 
-    case SDL_MOUSEBUTTONUP:
+    case SDL_EVENT_MOUSE_BUTTON_UP:
       keystatus[event.button.button + 300] = false;
       break;
 
-    case SDL_TEXTINPUT: {
+    case SDL_EVENT_TEXT_INPUT: {
       if (chatenabled)
       {
         str1 = event.text.text[0];
@@ -839,7 +839,7 @@ void gameinput()
     }
     break;
 
-    case SDL_MOUSEMOTION: {
+    case SDL_EVENT_MOUSE_MOTION: {
       if (0 != (SDL_GetWindowFlags(gamewindow) & SDL_WINDOW_INPUT_FOCUS))
       {
         mx = max(0.f, min((float)gamewidth, mx + event.motion.xrel * CVar::cl_sensitivity));

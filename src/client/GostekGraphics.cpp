@@ -476,12 +476,12 @@ void applygostekconstraints(tgfxspritearray textures)
 
     if (gs.image != 0)
     {
-      float w = texwidth(gs.image);
+      auto w = texwidth(gs.image);
       w = max(w, texwidth(gs.image + ord(gs.flip)));
       w = max(w, texwidth(gs.image + t2 * ord(gs.team)));
       w = max(w, texwidth(gs.image + t2 * ord(gs.team) + ord(gs.flip)));
 
-      float h = texheight(gs.image);
+      auto h = texheight(gs.image);
       h = max(h, texheight(gs.image + ord(gs.flip)));
       h = max(h, texheight(gs.image + t2 * ord(gs.team)));
       h = max(h, texheight(gs.image + t2 * ord(gs.team) + ord(gs.flip)));
@@ -594,7 +594,7 @@ void rendergostek(tsprite &soldier)
   }
 
   alpha[alpha_base] = soldier.alpha;
-  alpha[alpha_blood] = max(0.0f, min(255.0f, 200 - round(soldier.GetHealth())));
+  alpha[alpha_blood] = max(0.0, min(255.0, 200 - round(soldier.GetHealth())));
 
   if (soldier.GetHealth() > (90 - 40 * static_cast<int>(CVar::sv_realisticmode)))
   {
@@ -925,7 +925,7 @@ void rendergostek(tsprite &soldier)
       }
       else if (gs.flex > 0)
       {
-        sx = min(1.5f, sqrt(sqr(x2 - x1) + sqr(y2 - y1)) / gs.flex);
+        sx = min(1.5, sqrt(sqr(x2 - x1) + sqr(y2 - y1)) / gs.flex);
       }
 
       drawgosteksprite(textures[tex], x1, y1 + 1, sx, sy, cx, cy, r, color[gs.color]);

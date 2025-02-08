@@ -24,7 +24,7 @@
 #include "shared/mechanics/Things.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <Tracy.hpp>
 #include <algorithm>
 #include <array>
@@ -527,32 +527,32 @@ auto initgamegraphics() -> bool
     return result;
   }
 
-  std::uint32_t windowflags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
+  std::uint32_t windowflags = SDL_WINDOW_OPENGL;
 
   if (CVar::r_fullscreen == 2)
   {
-    windowflags = windowflags | SDL_WINDOW_FULLSCREEN_DESKTOP;
+    NotImplemented("sdl2_port");
+    //windowflags = windowflags | SDL_WINDOW_FULLSCREEN_DESKTOP;
   }
   else if (CVar::r_fullscreen == 1)
   {
     windowflags = windowflags | SDL_WINDOW_FULLSCREEN;
   }
 
-  gamewindow = SDL_CreateWindow("Soldat", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                windowwidth, windowheight, windowflags);
+  gamewindow = SDL_CreateWindow("Soldat", windowwidth, windowheight, windowflags);
 
   auto& fs = GS::GetFileSystem();
   filebuffer = fs.ReadFile("/icon.bmp");
 
-  SDL_RWops *iconfile = SDL_RWFromMem(filebuffer.data(), length(filebuffer));
+  SDL_IOStream *iconfile = SDL_IOFromMem(filebuffer.data(), length(filebuffer));
 
-  IconSurface = SDL_LoadBMP_RW(iconfile, 1);
+  IconSurface = SDL_LoadBMP_IO(iconfile, 1);
 
   SDL_SetWindowIcon(gamewindow, IconSurface);
 
   if (gamewindow == nullptr)
   {
-    showmessage("Error creating sdl2 window");
+    showmessage("Error creating sdl3 window");
     result = false;
     return result;
   }
@@ -565,7 +565,7 @@ auto initgamegraphics() -> bool
 
   startinput();
 
-  if (SDL_GL_SetSwapInterval(CVar::r_swapeffect) == -1)
+  if (SDL_GL_SetSwapInterval(CVar::r_swapeffect) == false)
   {
     gfxlog(string("Error while setting SDL_GL_SetSwapInterval:") + SDL_GetError());
   }
@@ -670,7 +670,7 @@ void destroygamegraphics()
   }
 
   SDL_SetWindowIcon(gamewindow, nullptr);
-  SDL_FreeSurface(IconSurface);
+  SDL_DestroySurface(IconSurface);
   IconSurface = nullptr;
 
   freeandnullptr(mainspritesheet);
@@ -705,6 +705,12 @@ void destroygamegraphics()
 
 #if __EMSCRIPTEN__
 float lerp(float a, float b, float x)
+{
+  return a + (b - a) * x;
+}
+
+#else
+constexpr float lerp(float a, float b, float x)
 {
   return a + (b - a) * x;
 }

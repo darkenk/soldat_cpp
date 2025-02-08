@@ -7,7 +7,7 @@
 /*#include "Strutils.h"*/
 /*#include "SDL2.h"*/
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <array>
 #include <cstdint>
 #include <map>

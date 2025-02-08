@@ -20,7 +20,7 @@
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <Tracy.hpp>
 
 #ifndef SERVER
@@ -299,7 +299,7 @@ void controlsprite(tsprite &spritec)
 
       if ((length(chattext) > 0) && keystatus[301])
       {
-        SDL_StopTextInput();
+        SDL_StopTextInput(gamewindow);
         firechattext = chattext;
         chattext = "";
       }

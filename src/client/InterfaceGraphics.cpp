@@ -1996,7 +1996,7 @@ void renderplayername(float width, float height, std::int32_t i, bool onlyoffscr
     dy = fabs(sprite_system.GetPlayerSprite().skeleton.pos[7].y -
               sprite_system.GetSprite(i).skeleton.pos[7].y);
 
-    alpha = min(255.0f, 50 + round(100000 / (dx + dy / 2)));
+    alpha = min(255.0, 50.0 + round(100000 / (dx + dy / 2)));
 
     if ((sprite_system.GetSprite(i).holdedthing > 0) &&
         (things[sprite_system.GetSprite(i).holdedthing].style < 4))

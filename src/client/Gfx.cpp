@@ -10,7 +10,7 @@
 #include "shared/Cvar.hpp"
 #include "shared/misc/FontAtlas.hpp"
 #include "shared/misc/SignalUtils.hpp"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <cmath>
 // clang-format off
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
@@ -504,7 +504,7 @@ auto gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline) -> bool
 
   struct OpenGLVersion
   {
-    SDL_GLprofile profile;
+    SDL_GLProfile profile;
     std::uint32_t major;
     std::uint32_t minor;
   };

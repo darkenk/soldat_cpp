@@ -27,7 +27,7 @@ static auto CreateOpenGLContext(SDL_Window *window) -> SDL_GLContext
   SDL_GLContext context = nullptr;
   struct OpenGLVersion
   {
-    SDL_GLprofile profile;
+    SDL_GLProfile profile;
     std::uint32_t major;
     std::uint32_t minor;
   };
@@ -59,12 +59,11 @@ static auto CreateOpenGLContext(SDL_Window *window) -> SDL_GLContext
 
 SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32_t height)
 {
-  AbortIf(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0,
+  AbortIf(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)== false,
           "Cannot init SDL. Error {}", SDL_GetError());
   const auto window_flags =
-    (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-  Window = SDL_CreateWindow(appTitle.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width,
-                            height, window_flags);
+    (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+  Window = SDL_CreateWindow(appTitle.data(), width, height, window_flags);
   AbortIf(Window == nullptr, "Failed to create sdl window");
 
   Context = CreateOpenGLContext(Window);
@@ -79,7 +78,7 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
 
 SdlApp::~SdlApp()
 {
-  SDL_GL_DeleteContext(Context);
+  SDL_GL_DestroyContext(Context);
   SDL_DestroyWindow(Window);
   SDL_Quit();
 }

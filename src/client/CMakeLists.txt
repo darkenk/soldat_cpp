@@ -68,8 +68,7 @@ target_include_directories(SoldatClientLib SYSTEM PRIVATE
     ${IMGUI_INCLUDE_DIR}
 )
 target_link_libraries(SoldatClientLib
-    SDL2::SDL2main
-    SDL2::SDL2-static
+    SDL3::SDL3
     Freetype::Freetype
     GameNetworkingSockets::GameNetworkingSockets_s
     spdlog::spdlog
@@ -85,8 +84,7 @@ add_executable(SoldatClient main.cpp)
 target_link_libraries(SoldatClient
     CommonLib
     SoldatClientLib
-    SDL2::SDL2main
-    SDL2::SDL2-static
+    SDL3::SDL3
     Freetype::Freetype
     ${PHYSFS_LIB}
     GameNetworkingSockets::GameNetworkingSockets_s

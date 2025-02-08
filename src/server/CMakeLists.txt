@@ -50,8 +50,7 @@ target_include_directories(SoldatServerLib SYSTEM PRIVATE
     ${DOCTEST_INCLUDE_DIR}
 )
 target_link_libraries(SoldatServerLib
-    SDL2::SDL2main
-    SDL2::SDL2-static
+    SDL3::SDL3
     spdlog::spdlog
     Freetype::Freetype
     GameNetworkingSockets::GameNetworkingSockets_s
@@ -68,8 +67,7 @@ target_compile_definitions(SoldatServer PRIVATE SERVER=1)
 target_link_libraries(SoldatServer
     CommonLib
     SoldatServerLib
-    SDL2::SDL2main
-    SDL2::SDL2-static
+    SDL3::SDL3
     spdlog::spdlog
     Freetype::Freetype
     ${PHYSFS_LIB}

@@ -13,8 +13,7 @@ target_link_libraries(SoldatGame
     SoldatServerLib
     CommonLib
     PlatformLib
-    SDL2::SDL2main
-    SDL2::SDL2-static
+    SDL3::SDL3
     spdlog::spdlog
     Freetype::Freetype
     ${PHYSFS_LIB}

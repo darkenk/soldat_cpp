@@ -17,7 +17,7 @@
 #include "shared/network/NetworkClientGame.hpp"
 #include "shared/network/NetworkClientMessages.hpp"
 #include "shared/network/NetworkClientSprite.hpp"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 using string = std::string;
 
@@ -293,7 +293,7 @@ auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
       case 0: {
         clientdisconnect(*GetNetwork());
         SDL_Event evt;
-        evt.type = SDL_QUIT;
+        evt.type = SDL_EVENT_QUIT;
         SDL_PushEvent(&evt);
       }
       break;
@@ -387,7 +387,7 @@ auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
             chattext = ' ';
             chatchanged = true;
             votekickreasontype = true;
-            SDL_StartTextInput();
+            SDL_StartTextInput(gamewindow);
           }
         }
         break;

@@ -217,10 +217,10 @@ void redirectdialog()
 
   rendergameinfo("Server Redirect");
   buttons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
-  buttons[0].buttonid = 0;
+  buttons[0].buttonID = 0;
   buttons[0].text = "Yes";
   buttons[1].flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
-  buttons[1].buttonid = 1;
+  buttons[1].buttonID = 1;
   buttons[1].text = "No";
 
   data.flags = 0;
@@ -491,13 +491,13 @@ void startgame(int argc, const char *argv[])
   renderwidth = CVar::r_renderwidth;
 
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-  SDL_DisplayMode currentdisplay;
-  SDL_GetCurrentDisplayMode(0, &currentdisplay);
+  SDL_DisplayID display = SDL_GetPrimaryDisplay();
+  const SDL_DisplayMode* currentdisplay = SDL_GetCurrentDisplayMode(display);
 
   if ((screenwidth == 0) || (screenheight == 0))
   {
-    screenwidth = currentdisplay.w;
-    screenheight = currentdisplay.h;
+    screenwidth = currentdisplay->w;
+    screenheight = currentdisplay->h;
   }
 
   if ((renderwidth == 0) || (renderheight == 0))

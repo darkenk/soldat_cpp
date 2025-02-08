@@ -1,11 +1,11 @@
 #pragma once
 
-#include <SDL_events.h>
+#include <SDL3/SDL_events.h>
 #include <functional>
 #include <map>
 
 typedef struct SDL_Window SDL_Window;
-typedef void *SDL_GLContext;
+typedef struct SDL_GLContextState *SDL_GLContext;
 
 class SdlApp
 {
