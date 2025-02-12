@@ -80,7 +80,7 @@ void unbindall()
 
 void startinput()
 {
-  //SDL_SetRelativeMouseMode(SDL_TRUE);
+  SDL_SetWindowRelativeMouseMode(gamewindow, true);
   SDL_StopTextInput(gamewindow);
 }
 

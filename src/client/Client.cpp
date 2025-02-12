@@ -142,15 +142,16 @@ std::int32_t shotdistanceshow;
 float shotdistance;
 float shotlife;
 std::int32_t shotricochet;
+enum class GameState
+{
+  Loading,
+  Game,
+  ConnectionTimedOut
+};
+
+static GameState gGameState{GameState::Loading};
 
 // End Client.cpp variables
-
-/*#include "IniFiles.h"*/
-/*#include "TraceLog.h"*/
-/*#include "ClientGame.h"*/
-/*#include "ControlGame.h"*/
-/*#include "InterfaceGraphics.h"*/
-/*#include "Input.h"*/
 
 void restartgraph()
 {
@@ -679,7 +680,20 @@ void startgame(int argc, const char *argv[])
   }
 
   GS::GetConsoleLogFile().WriteToFile();
+
+
+  resetframetiming();
+  initgamegraphics();
+  dotextureloading(true);
+
+  InitClientNetwork();
+  GetNetwork()->SetDisconnectionCallback([](const char* msg){rendergameinfo(std::string("Network  error ") + msg);});
+  GetNetwork()->SetConnectionCallback([](NetworkClientImpl& nc) { clientrequestgame(nc, joinpassword);} );
+
+  gamelooprun = true;
   rundeferredcommands();
+  void startgameloop();
+  startgameloop();
 }
 
 void shutdown()
@@ -736,7 +750,21 @@ static void loop()
   {
     return;
   }
-  gameloop();
+  switch (gGameState)
+  {
+    case GameState::Loading:
+      rendergameinfo(("Loading"));
+      break;
+    case GameState::Game:
+      if (progready)
+      {
+        gameloop();
+      }
+      break;
+    case GameState::ConnectionTimedOut:
+      rendergameinfo(("Connection timed out."));
+      break;
+  }
   auto end = std::chrono::system_clock::now();
   constexpr auto frameTime = std::chrono::seconds(1) / 60.f;
   {
@@ -774,12 +802,6 @@ void joinserver()
         return;
 #endif
 
-  initgamegraphics();
-  dotextureloading(true);
-
-  InitClientNetwork();
-  GetNetwork()->SetDisconnectionCallback([](const char* msg){rendergameinfo(std::string("Network  error ") + msg);});
-  GetNetwork()->SetConnectionCallback([](NetworkClientImpl& nc) { clientrequestgame(nc, joinpassword);} );
   // DEMO
   if (joinport == "0")
   {
@@ -792,7 +814,6 @@ void joinserver()
   }
   else
   {
-
     rendergameinfo(("Connecting to " + gClientServerIP + ":" + std::to_string(gClientServerPort)));
 
     if (GetNetwork()->Connect(gClientServerIP, gClientServerPort))
@@ -801,14 +822,13 @@ void joinserver()
       gamelooprun = true;
       rendergameinfo(("Loading"));
       clientrequestgame(*GetNetwork(), joinpassword);
-      startgameloop();
+      gGameState = GameState::Game;
     }
     else
     {
       GS::GetMainConsole().console("[NET] Failed to connect to  server" +
                                      GetNetwork()->GetStringAddress(true),
                                    warning_message_color);
-      rendergameinfo(("Connection timed out."));
       return;
     }
   }
