@@ -2,4 +2,5 @@
 
 extern bool votekickreasontype;
 
-void gameinput();
+union SDL_Event;
+void gameinput(SDL_Event &event);

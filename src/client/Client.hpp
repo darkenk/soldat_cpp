@@ -8,11 +8,12 @@
 #include "common/Weapons.hpp"
 
 void joinserver();
-void startgame(int argc, const char *argv[]);
+void startgame(int argc, char *argv[]);
 void shutdown();
 void exittomenu();
 void restartgraph();
 void showmessage(const std::string &messagetext);
+bool mainloop();
 
 class Console;
 class FileUtility;

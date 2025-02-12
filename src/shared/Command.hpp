@@ -45,7 +45,7 @@ template <Config::Module M = Config::GetModule()>
 pcommand commandadd(const std::string &commandnamevar, tcommandfunction commandptr,
                     const std::string &description, tcommandflags flags);
 template <Config::Module M = Config::GetModule()>
-void parsecommandline(int argc, const char *argv[]);
+void parsecommandline(int argc, char *argv[]);
 template <Config::Module M = Config::GetModule()>
 void rundeferredcommands();
 template <Config::Module M = Config::GetModule()>

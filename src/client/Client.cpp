@@ -424,7 +424,7 @@ static void InitConsoles(bool test = false)
 
 }
 
-void startgame(int argc, const char *argv[])
+void startgame(int argc, char *argv[])
 {
   initclientcommands();
   commandinit();
@@ -692,8 +692,8 @@ void startgame(int argc, const char *argv[])
 
   gamelooprun = true;
   rundeferredcommands();
-  void startgameloop();
-  startgameloop();
+  // void startgameloop();
+  // startgameloop();
 }
 
 void shutdown()
@@ -741,14 +741,14 @@ void shutdown()
   gamelooprun = false;
 }
 
-static void loop()
+bool mainloop()
 {
   auto begin = std::chrono::system_clock::now();
   GetNetwork()->ProcessLoop();
-  gameinput();
+  //gameinput();
   if (!gamelooprun)
   {
-    return;
+    return gamelooprun;
   }
   switch (gGameState)
   {
@@ -772,6 +772,7 @@ static void loop()
     std::this_thread::sleep_for(frameTime - (end - begin));
   }
   FrameMarkNamed("ClientFrame");
+  return gamelooprun;
 }
 
 #if __EMSCRIPTEN__
@@ -785,7 +786,7 @@ void startgameloop()
 #else
   while (gamelooprun)
   {
-    loop();
+    mainloop();
   }
 #endif
 }

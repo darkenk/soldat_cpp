@@ -47,8 +47,8 @@ bool preparemapchange(std::string Name);
 std::int8_t addbotplayer(const std::string& name, std::int32_t team);
 void loadweapons(const std::string &Filename);
 void startserver();
-void ActivateServer(int argc, const char *argv[]);
-void RunServer(int argc, const char *argv[]);
+void ActivateServer(int argc, char *argv[]);
+void RunServer(int argc, char *argv[]);
 void ShutdownServer();
 
 class FileUtility;

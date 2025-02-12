@@ -149,7 +149,7 @@ static void CreateDirectoryStructure(FileUtility &fs)
   SoldatEnsure(fs.MkDir("/user/mods"));
 }
 
-void ActivateServer(int argc, const char *argv[])
+void ActivateServer(int argc, char *argv[])
 {
   std::int32_t i;
   NotImplemented("network", "Rewrite message");
@@ -1200,7 +1200,7 @@ initialization
 // exPrecision]);
 #endif
 
-void RunServer(int argc, const char *argv[])
+void RunServer(int argc, char *argv[])
 {
   ActivateServer(argc, argv);
   writepid();

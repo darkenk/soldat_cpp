@@ -761,15 +761,13 @@ auto keyup(SDL_KeyboardEvent &keyevent) -> bool
   return result;
 }
 
-void gameinput()
+void gameinput(SDL_Event& event)
 {
-  SDL_Event event;
   std::string str1;
   bool chatenabled;
 
   chatenabled = length(chattext) > 0;
 
-  while (SDL_PollEvent(&event) == 1)
   {
     switch (event.type)
     {

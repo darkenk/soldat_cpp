@@ -560,7 +560,7 @@ auto loadconfig(const std::string &configname, FileUtility &fs) -> bool
 }
 
 template <Config::Module M>
-void parsecommandline(int argc, const char *argv[])
+void parsecommandline(int argc, char *argv[])
 {
   std::vector<std::string> args;
   std::int32_t i;
@@ -773,6 +773,6 @@ template bool loadconfig(const std::string &configname, FileUtility& fu);
 
 template pcommand commandadd(const std::string &commandnamevar, tcommandfunction commandptr,
                              const std::string &description, tcommandflags flags);
-template void parsecommandline(int argc, const char *argv[]);
+template void parsecommandline(int argc, char *argv[]);
 template void rundeferredcommands();
 template tcommandtargets commandtarget(const std::string& target, std::uint8_t sender);
