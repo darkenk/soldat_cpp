@@ -538,7 +538,6 @@ auto initgamegraphics() -> bool
   {
     windowflags = windowflags | SDL_WINDOW_FULLSCREEN;
   }
-
   gamewindow = SDL_CreateWindow("Soldat", windowwidth, windowheight, windowflags);
 
   auto& fs = GS::GetFileSystem();

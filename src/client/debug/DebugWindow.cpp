@@ -4,43 +4,64 @@
 // clang-format on
 #include "client/SdlApp.hpp"
 
-#include <backends/imgui_impl_opengl3.h>
-#include <backends/imgui_impl_sdl.h>
+#include <backends/imgui_impl_sdlgpu3.h>
+#include <backends/imgui_impl_sdl3.h>
 #include <imgui.h>
 
-DebugWindow::DebugWindow(SdlApp &app)
+DebugWindow::DebugWindow(SdlApp &app): mApp{app}
 {
   ImGui::CreateContext();
-  NotImplemented("sdl3");
-  //ImGui_ImplSDL2_InitForOpenGL(app.GetWindow(), app.GetContext());
-  ImGui_ImplOpenGL3_Init("#version 100");
   ImGui::StyleColorsLight();
-  NotImplemented("sdl3");
-  //app.RegisterEventInterception([](SDL_Event &evt) { ImGui_ImplSDL2_ProcessEvent(&evt); });
+
+  ImGui_ImplSDL3_InitForSDLGPU(app.GetWindow());
+  ImGui_ImplSDLGPU3_InitInfo init_info = {};
+  init_info.Device = app.GetDevice();
+  init_info.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(app.GetDevice(), app.GetWindow());
+  init_info.MSAASamples = SDL_GPU_SAMPLECOUNT_1;
+  ImGui_ImplSDLGPU3_Init(&init_info);
+  app.RegisterEventInterception([](SDL_Event &evt) { ImGui_ImplSDL3_ProcessEvent(&evt); });
 }
 
 DebugWindow::~DebugWindow()
 {
-  ImGui_ImplOpenGL3_Shutdown();
-  NotImplemented("sdl3");
-  //ImGui_ImplSDL2_Shutdown();
+  SDL_WaitForGPUIdle(mApp.GetDevice());
+  ImGui_ImplSDL3_Shutdown();
+  ImGui_ImplSDLGPU3_Shutdown();
   ImGui::DestroyContext();
 }
 
 void DebugWindow::Draw(ImGuiDrawFunction func) { PendingDrawCalls.push_back(func); }
 
-void DebugWindow::DrawEverything()
+void DebugWindow::DrawEverything(SDL_GPUCommandBuffer* _command_buffer,  SDL_GPUTexture* _texture)
 {
-  ImGui_ImplOpenGL3_NewFrame();
-  //ImGui_ImplSDL2_NewFrame();
-  NotImplemented("sdl3");
+  ImGui_ImplSDLGPU3_NewFrame();
+  ImGui_ImplSDL3_NewFrame();
   ImGui::NewFrame();
   for (auto &drawImGui : PendingDrawCalls)
   {
     drawImGui();
   }
   ImGui::Render();
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  ImDrawData* draw_data = ImGui::GetDrawData();
+  // This is mandatory: call Imgui_ImplSDLGPU3_PrepareDrawData() to upload the vertex/index buffer!
+  Imgui_ImplSDLGPU3_PrepareDrawData(draw_data, _command_buffer);
+  
+  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+  // Setup and start a render pass
+  SDL_GPUColorTargetInfo target_info = {};
+  target_info.texture = _texture;
+  target_info.clear_color = SDL_FColor { clear_color.x, clear_color.y, clear_color.z, clear_color.w };
+  target_info.load_op = SDL_GPU_LOADOP_CLEAR;
+  target_info.store_op = SDL_GPU_STOREOP_STORE;
+  target_info.mip_level = 0;
+  target_info.layer_or_depth_plane = 0;
+  target_info.cycle = false;
+  SDL_GPURenderPass* render_pass = SDL_BeginGPURenderPass(_command_buffer, &target_info, 1, nullptr);
+
+  // Render ImGui
+  ImGui_ImplSDLGPU3_RenderDrawData(draw_data, _command_buffer, render_pass);
+
+  SDL_EndGPURenderPass(render_pass);
   PendingDrawCalls.clear();
 }
 
@@ -59,22 +80,25 @@ public:
   DebugWindowFixture(const DebugWindowFixture &) = delete;
 };
 
-TEST_CASE_FIXTURE(DebugWindowFixture, "Check whether debug window is displayed" * doctest::skip(true))
+TEST_CASE_FIXTURE(DebugWindowFixture, "Check whether debug window is displayed")
 {
   SdlApp app("Test Window");
   DebugWindow dw(app);
   auto i = 1;
   while ((i--) != 0)
   {
-    glClear(GL_COLOR_BUFFER_BIT);
+    SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(app.GetDevice()); // Acquire a GPU command buffer
+
+    SDL_GPUTexture* swapchain_texture;
+    SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, app.GetWindow(), &swapchain_texture, nullptr, nullptr); // Acquire a swapchain texture
     app.ProcessEvents();
     dw.Draw([]() {
       ImGui::Begin("Hello, world!");
       ImGui::Text("This is some useful text.");
       ImGui::End();
     });
-    dw.DrawEverything();
-    app.Present();
+    dw.DrawEverything(command_buffer, swapchain_texture);
+    SDL_SubmitGPUCommandBuffer(command_buffer);
   }
 }
 

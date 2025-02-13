@@ -61,42 +61,41 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
 {
   AbortIf(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)== false,
           "Cannot init SDL. Error {}", SDL_GetError());
+
+
+  mDevice = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, false, nullptr);
+  AbortIf(mDevice == nullptr, "Failed to create gpu device");
+
   const auto window_flags =
-    (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
-  Window = SDL_CreateWindow(appTitle.data(), width, height, window_flags);
-  AbortIf(Window == nullptr, "Failed to create sdl window");
+    (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+  mWindow = SDL_CreateWindow(appTitle.data(), width, height, window_flags);
+  AbortIf(mWindow == nullptr, "Failed to create sdl window");
 
-  Context = CreateOpenGLContext(Window);
-  AbortIf(Context == nullptr, "Failed to create gl context");
-
-  glad_set_post_callback(OpenGLGladDebug);
-  AbortIf(gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress) == 0, "Failed to initialize GLAD");
-
-  SDL_GL_MakeCurrent(Window, Context);
-  SDL_GL_SetSwapInterval(1);
+	AbortIf(!SDL_ClaimWindowForGPUDevice(mDevice, mWindow), "Failed to claim window for gpu device. Error {}", SDL_GetError());
 }
 
 SdlApp::~SdlApp()
 {
-  SDL_GL_DestroyContext(Context);
-  SDL_DestroyWindow(Window);
+	SDL_ReleaseWindowFromGPUDevice(mDevice, mWindow);
+  SDL_DestroyWindow(mWindow);
+  SDL_DestroyGPUDevice(mDevice);
   SDL_Quit();
 }
 
 auto SdlApp::RegisterEventHandler(SDL_EventType evt, HandlerType handler) -> bool
 {
-  if (EventHandlers.contains(evt))
+  if (mEventHandlers.contains(evt))
   {
     LogWarnG("Cannot register another handler for event 0x{0:x}", evt);
     return false;
   }
-  EventHandlers[evt] = handler;
+  mEventHandlers[evt] = handler;
   return true;
 }
 
 void SdlApp::RegisterEventInterception(HandlerType handler)
 {
-  EventInterceptors.emplace_back(handler);
+  mEventInterceptors.emplace_back(handler);
 }
 
 void SdlApp::ProcessEvents()
@@ -104,26 +103,26 @@ void SdlApp::ProcessEvents()
   SDL_Event event;
   while (SDL_PollEvent(&event) != 0)
   {
-    for (auto &intercept : EventInterceptors)
+    for (auto &intercept : mEventInterceptors)
     {
       intercept(event);
     }
-    auto handler = EventHandlers.find(static_cast<SDL_EventType>(event.type));
-    if (handler != EventHandlers.end())
+    auto handler = mEventHandlers.find(static_cast<SDL_EventType>(event.type));
+    if (handler != mEventHandlers.end())
     {
       handler->second(event);
     }
   }
 }
 
-void SdlApp::Present() { SDL_GL_SwapWindow(Window); }
+void SdlApp::Present() { NotImplemented("Present"); }
 
 #include <doctest.h>
 
-TEST_CASE("Create opengl window with sdl")
+TEST_CASE("Create SDL window")
 {
   SdlApp app("Test app");
-  CHECK(app.GetContext() != nullptr);
+  CHECK(app.GetWindow() != nullptr);
 }
 
 TEST_CASE("Window has desired sie")

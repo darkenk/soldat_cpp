@@ -22,12 +22,12 @@ public:
   void ProcessEvents();
   void Present();
 
-  SDL_Window *GetWindow() { return Window; }
-  SDL_GLContext GetContext() { return Context; }
+  SDL_Window *GetWindow() { return mWindow; }
+  SDL_GPUDevice *GetDevice() { return mDevice; }
 
 private:
-  SDL_Window *Window;
-  SDL_GLContext Context;
-  std::map<SDL_EventType, HandlerType> EventHandlers;
-  std::vector<HandlerType> EventInterceptors;
+  SDL_Window *mWindow;
+  SDL_GPUDevice *mDevice;
+  std::map<SDL_EventType, HandlerType> mEventHandlers;
+  std::vector<HandlerType> mEventInterceptors;
 };
