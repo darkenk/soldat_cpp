@@ -13,3 +13,6 @@
 [submodule "third_party/src/nuklear"]
 	path = third_party/src/nuklear
 	url = git@github.com:darkenk/nuklear.git
+[submodule "third_party/src/SDL_shadercross"]
+	path = third_party/src/SDL_shadercross
+	url = git@github.com:libsdl-org/SDL_shadercross.git
