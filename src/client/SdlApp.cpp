@@ -63,7 +63,7 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
           "Cannot init SDL. Error {}", SDL_GetError());
 
 
-  mDevice = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, false, nullptr);
+  mDevice = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
   AbortIf(mDevice == nullptr, "Failed to create gpu device");
 
   const auto window_flags =

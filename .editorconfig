@@ -5,3 +5,7 @@ indent_style = space
 indent_size = 2
 end_of_line = lf
 trim_trailing_whitespace = true
+
+[*.cpp]
+indent_style = space
+indent_size = 2

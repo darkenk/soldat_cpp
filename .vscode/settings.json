@@ -24,5 +24,9 @@
         "test": false,
     },
     "C_Cpp.autoAddFileAssociations": false,
-    "testMate.cpp.test.executables": "build/out/**/game/SoldatGame"
+    "testMate.cpp.test.executables": "build/out/**/game/SoldatGame",
+    "files.associations": {
+      "*.vert": "glsl",
+      "*.frag": "glsl"
+    }
 }

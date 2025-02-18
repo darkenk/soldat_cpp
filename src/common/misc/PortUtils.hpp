@@ -14,6 +14,7 @@ public:
                            const source_location &_location = source_location::current())
     : msg(_msg), location(_location)
   {
+    
   }
   const char *msg;
   const source_location &location;

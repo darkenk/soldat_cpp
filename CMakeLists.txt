@@ -65,6 +65,10 @@ FetchContent_MakeAvailable(SDL3)
 # FetchContent_MakeAvailable(soloud)
 
 add_subdirectory(third_party/src/soloud)
+set(HLSL_COPY_GENERATED_SOURCES ON CACHE BOOL "Fix DXC compilation on linux" FORCE)
+set(SDLSHADERCROSS_DXC ON CACHE BOOL "Disable DXC for shader cross-compilation cause it does not compile on linux" FORCE)
+set(SDLSHADERCROSS_VENDORED ON CACHE BOOL "Use vendored dependencies for SDL_Shadercross" FORCE)
+add_subdirectory(third_party/src/SDL_shadercross)
 
 ### Third party end
 
@@ -117,7 +121,7 @@ set(TRACY_SRC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8/TracyClien
 set(TRACY_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8)
 
 set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/imgui)
-
+set(NUKLEAR_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/nuklear)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace")

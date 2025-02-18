@@ -18,6 +18,9 @@ set(SRC
     CVarClient.cpp
     debug/DebugWindow.cpp
     debug/ImguiSrc.cpp
+    ui/LoadingScreen.cpp
+    ui/NuklearImpl.cpp
+    ui/nuklear_sdl3_gpu.cpp
     SdlApp.cpp
 )
 
@@ -66,6 +69,7 @@ target_include_directories(SoldatClientLib SYSTEM PRIVATE
     ${TRACY_INCLUDE_DIR}
     ${DOCTEST_INCLUDE_DIR}
     ${IMGUI_INCLUDE_DIR}
+    ${NUKLEAR_INCLUDE_DIR}
 )
 target_link_libraries(SoldatClientLib
     SDL3::SDL3
@@ -101,3 +105,10 @@ target_include_directories(SoldatClient PRIVATE
     ${SOLOUD_INCLUDE_DIR}
     ${TRACY_INCLUDE_DIR}
 )
+
+# add_custom_command(TARGET SoldatClientLib POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:SoldatClientLib>/shaders/"
+#     COMMAND ${CMAKE_COMMAND} -E copy_directory
+#         "${PROJECT_BINARY_DIR}/shaders"
+#         "$<TARGET_FILE_DIR:SoldatClientLib>/shaders"
+# )
