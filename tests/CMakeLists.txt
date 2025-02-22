@@ -12,7 +12,7 @@ include_directories(../src/shared)
 include_directories(../src/)
 include_directories(config)
 include_directories(${TRACY_INCLUDE_DIR})
-include_directories(${PHYSFS_INC})
+include_directories(${PHYSFS_INCLUDE_DIR})
 remove_definitions(-DTRACY_ENABLE=1)
 
 
@@ -20,7 +20,7 @@ link_libraries(GTest::gmock_main
     GTest::gtest
     ${CMAKE_THREAD_LIBS_INIT}
     spdlog::spdlog
-    ${PHYSFS_LIB}
+    ${PHYSFS_LIBRARY}
     SDL2::SDL2main
     SDL2::SDL2-static
     GameNetworkingSockets::GameNetworkingSockets_s

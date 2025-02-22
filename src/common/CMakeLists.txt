@@ -40,7 +40,7 @@ target_link_libraries(CommonLib
 
 target_include_directories(CommonLib SYSTEM PRIVATE
     ${TRACY_INCLUDE_DIR}
-    ${PHYSFS_INC}
+    ${PHYSFS_INCLUDE_DIR}
     ${DOCTEST_INCLUDE_DIR}
 )
 

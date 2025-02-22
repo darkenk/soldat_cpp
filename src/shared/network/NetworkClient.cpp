@@ -11,6 +11,7 @@
 #include "common/Logging.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include <steam/isteamnetworkingsockets.h>
+#include <steam/isteamnetworkingutils.h>
 
 static std::string_view NETMSG = "net_msg";
 auto constexpr LOG_NET = "network";

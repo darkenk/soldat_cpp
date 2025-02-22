@@ -101,7 +101,8 @@
       "configuration": "Release",
       "targets": [
         "SoldatGame",
-        "SoldatGame_full"
+        "SoldatGame_full",
+        "third_party_dependencies"
       ]
     },
     {

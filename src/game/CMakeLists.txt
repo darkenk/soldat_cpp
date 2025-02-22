@@ -16,7 +16,7 @@ target_link_libraries(SoldatGame
     SDL3::SDL3
     spdlog::spdlog
     Freetype::Freetype
-    ${PHYSFS_LIB}
+    ${PHYSFS_LIBRARY}
     GameNetworkingSockets::GameNetworkingSockets_s
     ${SOLOUD_LIBRARY}
 )
@@ -29,6 +29,12 @@ set(Shader_SRC
     ../shaders/nuklear_ui.vert
 )
 
+
+set(shadercross ${SDL3_shadercross_DIR}/../../../bin/shadercross)
+get_filename_component(shadercross ${shadercross} ABSOLUTE)
+set(shadercross_libs ${SDL3_shadercross_DIR}/../../;${SDL3_DIR}/../../)
+
+
 foreach(Shader ${Shader_SRC})
   get_filename_component(Shader_PATH "${Shader}" ABSOLUTE)
   get_filename_component(FILE_NAME ${Shader} NAME)
@@ -37,8 +43,12 @@ foreach(Shader ${Shader_SRC})
   add_custom_command(
     OUTPUT ${SPIRV}
     COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/game/shaders/"
-    COMMAND shadercross ${Shader_PATH} -s HLSL -d SPIRV -o ${SPIRV}
-    COMMAND shadercross ${Shader_PATH} -s HLSL -d SPIRV -o ${SPIRV_DEBUG} --debug
+    COMMAND
+        ${CMAKE_COMMAND} -E env "\"LD_LIBRARY_PATH=${shadercross_libs}:$ENV{LD_LIBRARY_PATH}\""
+        ${shadercross} ${Shader_PATH} -s HLSL -d SPIRV -o ${SPIRV}
+    COMMAND
+        ${CMAKE_COMMAND} -E env "\"LD_LIBRARY_PATH=${shadercross_libs}:$ENV{LD_LIBRARY_PATH}\""
+        ${shadercross} ${Shader_PATH} -s HLSL -d SPIRV -o ${SPIRV_DEBUG} --debug
     DEPENDS ${Shader})
   list(APPEND SPIRV_BINARY_FILES ${SPIRV})
 endforeach(Shader)

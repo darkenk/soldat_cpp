@@ -8,7 +8,7 @@ set(INC_DIRS
     ${ROOT_DIR}/src/
     config
     ${TRACY_INCLUDE_DIR}
-    ${PHYSFS_INC}
+    ${PHYSFS_INCLUDE_DIR}
     ${DOCTEST_INCLUDE_DIR}
 )
 
@@ -17,7 +17,7 @@ set(LIB_DIRS
     GTest::gtest
     ${CMAKE_THREAD_LIBS_INIT}
     spdlog::spdlog
-    ${PHYSFS_LIB}
+    ${PHYSFS_LIBRARY}
     SDL2::SDL2main
     SDL2::SDL2-static
     GameNetworkingSockets::GameNetworkingSockets_s

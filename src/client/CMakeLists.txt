@@ -61,7 +61,7 @@ target_include_directories(SoldatClientLib PRIVATE
 )
 
 target_include_directories(SoldatClientLib SYSTEM PRIVATE
-    ${PHYSFS_INC}
+    ${PHYSFS_INCLUDE_DIR}
     ${GLAD_INC}
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
@@ -71,6 +71,7 @@ target_include_directories(SoldatClientLib SYSTEM PRIVATE
     ${IMGUI_INCLUDE_DIR}
     ${NUKLEAR_INCLUDE_DIR}
 )
+
 target_link_libraries(SoldatClientLib
     SDL3::SDL3
     Freetype::Freetype
@@ -90,7 +91,7 @@ target_link_libraries(SoldatClient
     SoldatClientLib
     SDL3::SDL3
     Freetype::Freetype
-    ${PHYSFS_LIB}
+    ${PHYSFS_LIBRARY}
     GameNetworkingSockets::GameNetworkingSockets_s
     spdlog::spdlog
     ${SOLOUD_LIBRARY}
@@ -98,7 +99,7 @@ target_link_libraries(SoldatClient
 target_include_directories(SoldatClient PRIVATE
     ./config
     ../
-    ${PHYSFS_INC}
+    ${PHYSFS_INCLUDE_DIR}
     ${GLAD_INC}
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}

@@ -11,6 +11,7 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include <steam/isteamnetworkingsockets.h>
+#include <steam/isteamnetworkingutils.h>
 
 std::int32_t servertickcounter;
 PascalArray<std::int32_t, 1, max_players> noclientupdatetime;

@@ -42,7 +42,7 @@ target_include_directories(SoldatServerLib PRIVATE
     ../
 )
 target_include_directories(SoldatServerLib SYSTEM PRIVATE
-    ${PHYSFS_INC}
+    ${PHYSFS_INCLUDE_DIR}
     ${GLAD_INC}
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
@@ -70,13 +70,13 @@ target_link_libraries(SoldatServer
     SDL3::SDL3
     spdlog::spdlog
     Freetype::Freetype
-    ${PHYSFS_LIB}
+    ${PHYSFS_LIBRARY}
     GameNetworkingSockets::GameNetworkingSockets_s
 )
 target_include_directories(SoldatServer PRIVATE
     ./config
     ../
-    ${PHYSFS_INC}
+    ${PHYSFS_INCLUDE_DIR}
     ${GLAD_INC}
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}

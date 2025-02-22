@@ -2,7 +2,7 @@ add_executable(PolyMapSample PolyMapSample.cpp)
 target_include_directories(PolyMapSample PRIVATE
     ${ROOT_DIR}/src
     ${TRACY_INCLUDE_DIR}
-    ${PHYSFS_INC}
+    ${PHYSFS_INCLUDE_DIR}
 )
 target_link_libraries(PolyMapSample
     SoldatClientLib
@@ -13,7 +13,7 @@ target_link_libraries(PolyMapSample
     SDL2::SDL2-static
     spdlog::spdlog
     Freetype::Freetype
-    ${PHYSFS_LIB}
+    ${PHYSFS_LIBRARY}
     GameNetworkingSockets::GameNetworkingSockets_s
     ${SOLOUD_LIBRARY}
 )

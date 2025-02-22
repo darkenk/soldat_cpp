@@ -1,0 +1,35 @@
+{
+  "version": 7,
+  "configurePresets": [
+    {
+      "name": "default",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/../build/out/${presetName}",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "Linux_x86_64_release",
+      "inherits": "default"
+
+    },
+    {
+      "name": "Linux_x86_64_debug",
+      "inherits": "default"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "Linux_x86_64_release",
+      "configurePreset": "Linux_x86_64_release",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "Linux_x86_64_debug",
+      "configurePreset": "Linux_x86_64_debug",
+      "configuration": "Debug"
+    }
+  ]
+}

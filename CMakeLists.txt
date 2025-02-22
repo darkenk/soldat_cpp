@@ -2,6 +2,35 @@ cmake_minimum_required(VERSION 3.20)
 project(SoldatCPP)
 set(CMAKE_CXX_STANDARD 20)
 
+set(third_party_dependencies_config "${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}_release")
+set(third_party_dependencies_path "${CMAKE_BINARY_DIR}/../${third_party_dependencies_config}")
+get_filename_component(third_party_dependencies_path ${third_party_dependencies_path} ABSOLUTE)
+message(STATUS "Using third party: ${third_party_dependencies_path}")
+if (NOT EXISTS ${third_party_dependencies_path}/install/third_party.cmake)
+  message(STATUS "Building third party dependencies")
+  
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} --preset ${third_party_dependencies_config}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+    RESULT_VARIABLE BUILD_THIRD_PARTY_RESULT
+    COMMAND_ECHO STDOUT
+  )
+  if (NOT BUILD_THIRD_PARTY_RESULT EQUAL 0)
+    message(FATAL_ERROR "Failed to build third party dependencies")
+  endif()
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} --build --preset ${third_party_dependencies_config}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+    RESULT_VARIABLE BUILD_THIRD_PARTY_RESULT
+    COMMAND_ECHO STDOUT
+  )
+  if (NOT BUILD_THIRD_PARTY_RESULT EQUAL 0)
+    message(FATAL_ERROR "Failed to build third party dependencies")
+  endif()
+endif()
+
+include(${third_party_dependencies_path}/install/third_party.cmake)
+
 if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   set(SOLDAT_PLATFORM webassembly)
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
@@ -14,10 +43,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       -s TOTAL_MEMORY=128MB \
       -lopenal \
       ")
-  set(THIRD_PARTY_OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party)
-else()
-  set(SOLDAT_PLATFORM linux_x64)
-  set(THIRD_PARTY_OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/release/third_party)
 endif()
 
 
@@ -29,7 +54,6 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "^aarch64")
 endif() 
 #set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
 set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-message(STATUS "Using third party: ${THIRD_PARTY_OUT_DIR}")
 
 include(CMakePrintHelpers)
 include(ExternalProject)
@@ -45,70 +69,24 @@ ExternalProject_Get_Property(doctest source_dir)
 set(DOCTEST_INCLUDE_DIR ${source_dir}/doctest CACHE INTERNAL "Path to include folder for doctest")
 include(${source_dir}/scripts/cmake/doctest.cmake)
 
-
-### Third party
-
-FetchContent_Declare(
-  SDL3
-  GIT_REPOSITORY https://github.com/darkenk/SDL.git
-  GIT_TAG        main
-  FIND_PACKAGE_ARGS NAMES SDL3
-)
-FetchContent_MakeAvailable(SDL3)
-
-
-# FetchContent_Declare(
-#   soloud
-#   GIT_REPOSITORY https://github.com/darkenk/soloud.git
-#   GIT_TAG        master
-# )
-# FetchContent_MakeAvailable(soloud)
-
 add_subdirectory(third_party/src/soloud)
-set(HLSL_COPY_GENERATED_SOURCES ON CACHE BOOL "Fix DXC compilation on linux" FORCE)
-set(SDLSHADERCROSS_DXC ON CACHE BOOL "Disable DXC for shader cross-compilation cause it does not compile on linux" FORCE)
-set(SDLSHADERCROSS_VENDORED ON CACHE BOOL "Use vendored dependencies for SDL_Shadercross" FORCE)
-add_subdirectory(third_party/src/SDL_shadercross)
 
-### Third party end
-
+find_package(SDL3 REQUIRED)
+find_package(SDL3_shadercross REQUIRED)
 
 set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/libsodium-1.0.18/contrib
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/GameNetworkingSockets-1.3.0/cmake
     ${CMAKE_MODULE_PATH}
 )
-#     ${THIRD_PARTY_OUT_DIR}/gamenetworkingsockets/out/
-set(CMAKE_PREFIX_PATH
-    ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party/gamenetworkingsockets/out/
-    ${THIRD_PARTY_OUT_DIR}/libsodium/out/
-    ${THIRD_PARTY_OUT_DIR}/freetype/out/
-    ${THIRD_PARTY_OUT_DIR}/openal/out/
-    ${THIRD_PARTY_OUT_DIR}/spdlog/out/
-    ${THIRD_PARTY_OUT_DIR}/gtest/out/
-    ${THIRD_PARTY_OUT_DIR}/libressl/out/
-    ${CMAKE_PREFIX_PATH}
-)
-
-set(CMAKE_FIND_ROOT_PATH
-  ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party/gamenetworkingsockets/out/
-  ${THIRD_PARTY_OUT_DIR}/libsodium/out/
-  ${THIRD_PARTY_OUT_DIR}/freetype/out/
-  ${THIRD_PARTY_OUT_DIR}/openal/out/
-  ${THIRD_PARTY_OUT_DIR}/spdlog/out/
-  ${THIRD_PARTY_OUT_DIR}/gtest/out/
-  ${THIRD_PARTY_OUT_DIR}/libressl/out/
-  ${CMAKE_FIND_ROOT_PATH}
-)
 
 cmake_print_variables(CMAKE_FIND_ROOT_PATH)
 
-set(LIBRESSL_ROOT_DIR ${THIRD_PARTY_OUT_DIR}/libressl/out/)
+set(LIBRESSL_ROOT_DIR ${third_party_dependencies_path}/install/libressl/)
 
 
+find_package(PhysFS REQUIRED)
 
-set(PHYSFS_LIB ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party/physfs/out/lib/libphysfs.a)
-set(PHYSFS_INC ${CMAKE_CURRENT_SOURCE_DIR}/build/out/${SOLDAT_PLATFORM}/debug/third_party/physfs/out/include)
 set(GLAD_INC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/glad/debug/include)
 # @todo make glad as static lib
 set(GLAD_SRC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/glad/debug/src/glad.c)
@@ -134,14 +112,13 @@ add_library(LibreSSL::Crypto UNKNOWN IMPORTED)
 set_target_properties(
         LibreSSL::Crypto
         PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${THIRD_PARTY_OUT_DIR}/libressl/out/include"
+        INTERFACE_INCLUDE_DIRECTORIES "${third_party_dependencies_path}/install/libressl/include"
         IMPORTED_LINK_INTERFACE_LANGUAGES "C"
-        IMPORTED_LOCATION "${THIRD_PARTY_OUT_DIR}/libressl/out/lib/libcrypto.a"
+        IMPORTED_LOCATION "${third_party_dependencies_path}/install/libressl/lib/libcrypto.a"
         INTERFACE_LINK_LIBRARIES LibreSSL::Crypto
 )
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON")
-#set(LibreSSL_DIR ${THIRD_PARTY_OUT_DIR}/libressl/out)
 #find_package(LibreSSL 3.4.3 REQUIRED EXACT)
 find_package(Freetype REQUIRED)
 find_package(GameNetworkingSockets REQUIRED)
@@ -235,6 +212,15 @@ add_subdirectory(src/server)
 add_subdirectory(src/game)
 #add_subdirectory(src/samples)
 add_subdirectory(assets)
+
+
+add_custom_target(third_party_dependencies
+  COMMAND ${CMAKE_COMMAND} --preset ${third_party_dependencies_config}
+  COMMAND ${CMAKE_COMMAND} --build --preset ${third_party_dependencies_config}
+  COMMENT "Building external dependencies"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+  USES_TERMINAL
+)
 
 
 #find_package(GTest REQUIRED)
