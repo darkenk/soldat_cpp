@@ -715,8 +715,6 @@ void shutdown()
     s.player = nullptr;
   }
 
-  SDL_Quit();
-
   deinittranslation();
 
   GS::GetConsoleLogFile().Log("UDP closing.");
@@ -729,6 +727,7 @@ void shutdown()
   GS::GetConsoleLogFile().Log("Sound closing.");
 
   closesound();
+  SDL_Quit();
 
   GS::GetConsoleLogFile().Log("FS closing.");
 
