@@ -6,6 +6,10 @@
 #include <doctest.h>
 #include "../SdlApp.hpp"
 
+
+extern unsigned char sDefaultFont[];
+extern unsigned int sDefaultFont_len;
+
 namespace
 {
 
@@ -104,7 +108,9 @@ TEST_CASE_FIXTURE(LoadingScreenFixture, "Loading screen")
   nk_context* ctx = nk_sdl_init(app.GetWindow(), app.GetDevice());
   struct nk_font_atlas *atlas;
   nk_sdl_font_stash_begin(&atlas);
+  nk_font* default_font = nk_font_atlas_add_from_memory(atlas, sDefaultFont, sDefaultFont_len, 28, 0);
   nk_sdl_font_stash_end();
+  nk_style_set_font(ctx, &default_font->handle);
 
   auto i = 1;
   while (i--)
