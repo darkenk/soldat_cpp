@@ -46,15 +46,20 @@
 #include <memory_resource>
 #include <sstream>
 #include <vector>
+#include "generated/generic.vert.hlsl.hpp"
+#include "generated/generic.frag.hlsl.hpp"
+#include "generated/generic.vert.hlsl.debug.hpp"
+#include "generated/generic.frag.hlsl.debug.hpp"
 
 using string = std::string;
 
-GLint OPENGL_MAX_LABEL_LENGTH;
-constexpr std::array<std::int32_t, 4> OPENGL_TEXTURE_FORMAT = {{GL_ALPHA, GL_RG, GL_RGB, GL_RGBA}};
-
-static bool gOpenGLES = false;
-static auto IsOpenGLES() -> bool { return gOpenGLES; }
-
+constexpr std::array<SDL_GPUTextureFormat, 4> SDL_GPU_TEXTURE_FORMAT = {{
+  SDL_GPU_TEXTUREFORMAT_A8_UNORM, 
+  SDL_GPU_TEXTUREFORMAT_R8G8_UNORM,
+  SDL_GPU_TEXTUREFORMAT_INVALID,
+  SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM
+}
+};
 
 /******************************************************************************/
 /*                              Helper functions                              */
@@ -171,8 +176,6 @@ public:
   void execute();
 };
 
-static SDL_GLContext gameglcontext;
-
 struct
 {
   std::int32_t majorversion;
@@ -186,8 +189,8 @@ struct
   GLint maxtexturesize;
   GLint msaasamples;
   FT_Library ftlibrary;
-  pfont font;
-  pglyphtable glyphtable;
+  pfont font = nullptr;
+  pglyphtable glyphtable = nullptr;
   tvector2 textpixelratio;
   float textscale;
   tgfxcolor textcolor;
@@ -195,11 +198,26 @@ struct
   tgfxcolor textshadowcolor;
   tgfxverticalalign textverticalalign;
   std::int32_t *textindexstr;
-  ppglyph textglyphstr;
-  pcomputedglyph textcomputedstr;
+  ppglyph textglyphstr = nullptr;
+  pcomputedglyph textcomputedstr = nullptr;
   std::int32_t textstrsize;
   std::int32_t textcomputedcount;
   GLuint testVao = 0;
+  SDL_GPUShader * mVertexShader = nullptr;
+  SDL_GPUShader * mFragmentShader = nullptr;
+  SDL_GPUDevice * mGpuDevice = nullptr;
+  SDL_GPUCommandBuffer * mCommandBuffer = nullptr;
+  SDL_Window * mWindow = nullptr;
+  SDL_GPURenderPass * mRenderPass = nullptr;
+  SDL_GPUTexture * mSwapchainTexture = nullptr;
+  SDL_GPUTexture * mRenderTexture = nullptr;
+  SDL_GPUGraphicsPipeline * mPipeline = nullptr;
+  SDL_GPUSampler * mSampler = nullptr;
+  SDL_GPUTextureSamplerBinding mTextureSamplerBinding = {};
+  std::array<float, 12> mTransform = {};
+  bool mTransformDirty = false;
+  SDL_FColor mClearColor = {};
+  bool mClearColorDirty = false;
 } gfxcontext;
 
 static auto createshader(GLenum shadertype, const std::string shadersource) -> GLuint
@@ -236,400 +254,233 @@ static auto createshader(GLenum shadertype, const std::string shadersource) -> G
 
 static void setupvertexattributes(tgfxvertexbuffer *buffer)
 {
-  if (gfxcontext.boundbuffer != buffer)
-  {
-    glBindBuffer(GL_ARRAY_BUFFER, buffer->handle());
+  SDL_GPUBufferBinding vertex_buffer_binding = {};
+  vertex_buffer_binding.buffer = buffer->getBuffer();
+  vertex_buffer_binding.offset = 0;
+  SDL_BindGPUVertexBuffers(gfxcontext.mRenderPass, 0, &vertex_buffer_binding, 1);
 
-    glBindVertexArray(gfxcontext.testVao);
-
-    static_assert(sizeof(tgfxvertex) == 20);
-    if (gfxcontext.shaderprogram != 0)
-    {
-      glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(tgfxvertex), (void *)nullptr);
-      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(tgfxvertex), (void *)(8));
-      // Workaround for MESA 20.1+ breakage: Pass ByteBool(1) instead of True
-      glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(tgfxvertex), (void *)(16));
-    }
-    else
-    {
-      glVertexPointer(2, GL_FLOAT, sizeof(tgfxvertex), (void *)nullptr);
-      glTexCoordPointer(2, GL_FLOAT, sizeof(tgfxvertex), (void *)(8));
-      glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(tgfxvertex), (void *)(16));
-    }
-
-    gfxcontext.boundbuffer = buffer;
-  }
+  gfxcontext.boundbuffer = buffer;
 }
 
 auto gfxframebuffersupported() -> bool
 {
-  return glGenFramebuffers != nullptr && glBlitFramebuffer != nullptr;
+  return true;
+  //return glGenFramebuffers != nullptr && glBlitFramebuffer != nullptr;
 }
 
-static auto GetVertexShaderSource() -> std::string_view
+void gfxSetGpuDevice(SDL_GPUDevice* device)
 {
-  if (IsOpenGLES())
-  {
-    return R"(
-#version 100
-uniform mat3 mvp;
-attribute lowp vec4 in_position;
-attribute lowp vec2 in_texcoords;
-attribute lowp vec4 in_color;
-varying lowp vec2 texcoords;
-varying lowp vec4 color;
-void main()
+  gfxcontext.mGpuDevice = device;
+}
+
+static SDL_GPUSampler* gfxCreateSampler()
 {
-    color = vec4(in_color.rgb * in_color.a, in_color.a);
-    texcoords = in_texcoords;
-    gl_Position.xyw = mvp * in_position.xyw;
-    gl_Position.z = 0.00;
-}
-        )";
-  }
+  SDL_GPUSamplerCreateInfo sampler_info = {};
+  sampler_info.min_filter = SDL_GPU_FILTER_LINEAR;
+  sampler_info.mag_filter = SDL_GPU_FILTER_LINEAR;
+  sampler_info.mipmap_mode = SDL_GPU_SAMPLERMIPMAPMODE_LINEAR;
+  sampler_info.address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
+  sampler_info.address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
+  sampler_info.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
+  sampler_info.mip_lod_bias = 0.0f;
+  sampler_info.min_lod = -1000.0f;
+  sampler_info.max_lod = 1000.0f;
+  sampler_info.enable_anisotropy = false;
+  sampler_info.max_anisotropy = 1.0f;
+  sampler_info.enable_compare = false;
+  sampler_info.props = SDL_CreateProperties();
+  SDL_SetStringProperty(sampler_info.props, SDL_PROP_GPU_SAMPLER_CREATE_NAME_STRING,
+                        "soldat_sampler");
 
-  return R"(
-#version 120
-uniform mat3 mvp;
-attribute vec4 in_position;
-attribute vec2 in_texcoords;
-attribute vec4 in_color;
-varying vec2 texcoords;
-varying vec4 color;
-void main()
+  auto sampler = SDL_CreateGPUSampler(gfxcontext.mGpuDevice, &sampler_info);
+  AbortIf(sampler == nullptr, "Failed to create font sampler. Error: {}", SDL_GetError());
+  SDL_DestroyProperties(sampler_info.props);
+  return sampler;
+}
+
+static SDL_GPUGraphicsPipeline * gfxCreateGraphicsPipeline()
 {
-    color = vec4(in_color.rgb * in_color.a, in_color.a);
-    texcoords = in_texcoords;
-    gl_Position.xyw = mvp * in_position.xyw;
-    gl_Position.z = 0.00;
-}
-    )";
-}
+  SDL_GPUVertexBufferDescription vertex_buffer_desc[1];
+  vertex_buffer_desc[0].slot = 0;
+  vertex_buffer_desc[0].input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
+  vertex_buffer_desc[0].instance_step_rate = 0;
+  vertex_buffer_desc[0].pitch = sizeof(tgfxvertex);
 
-static auto GetFragmentShaderSource() -> std::string_view
-{
-  if (IsOpenGLES())
-  {
-    return R"(
-#version 100
-#define DITHERING 0
-varying lowp vec2 texcoords;
-varying lowp vec4 color;
-uniform sampler2D sampler;
-uniform sampler2D dither;
+  SDL_GPUVertexAttribute vertex_attributes[3];
+  vertex_attributes[0].buffer_slot = 0;
+  vertex_attributes[0].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
+  vertex_attributes[0].location = 0;
+  vertex_attributes[0].offset = offsetof(tgfxvertex, x);
 
-void main()
-{
-    gl_FragColor = texture2D(sampler, texcoords) * color;
-    #if DITHERING
-    gl_FragColor.rgb += vec3(
-        texture2D(dither, gl_FragCoord.xy / 8.0).a / 32.0 - 1.0/128.0);
-    #endif
-}
-        )";
-  }
+  vertex_attributes[1].buffer_slot = 0;
+  vertex_attributes[1].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
+  vertex_attributes[1].location = 1;
+  vertex_attributes[1].offset = offsetof(tgfxvertex, u);
 
-  return R"(
-#version 120
-#define DITHERING 0
-varying vec2 texcoords;
-varying vec4 color;
-uniform sampler2D sampler;
-uniform sampler2D dither;
+  vertex_attributes[2].buffer_slot = 0;
+  vertex_attributes[2].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM;
+  vertex_attributes[2].location = 2;
+  vertex_attributes[2].offset = offsetof(tgfxvertex, color);
 
-void main()
-{
-    gl_FragColor = texture2D(sampler, texcoords) * color;
-    #if DITHERING
-    gl_FragColor.rgb += vec3(
-        texture2D(dither, gl_FragCoord.xy / 8.0).a / 32.0 - 1.0/128.0);
-    #endif
-}
-        )";
-}
+  SDL_GPUVertexInputState vertex_input_state = {};
+  vertex_input_state.num_vertex_attributes = 3;
+  vertex_input_state.vertex_attributes = vertex_attributes;
+  vertex_input_state.num_vertex_buffers = 1;
+  vertex_input_state.vertex_buffer_descriptions = vertex_buffer_desc;
 
-static auto initshaderprogram(bool dithering) -> bool
-{
-  const std::string_view vert_source = GetVertexShaderSource();
-  const std::string_view frag_source = GetFragmentShaderSource();
+  SDL_GPURasterizerState rasterizer_state = {};
+  rasterizer_state.fill_mode = SDL_GPU_FILLMODE_FILL;
+  rasterizer_state.cull_mode = SDL_GPU_CULLMODE_NONE;
+  rasterizer_state.front_face = SDL_GPU_FRONTFACE_COUNTER_CLOCKWISE;
+  rasterizer_state.enable_depth_bias = false;
+  rasterizer_state.enable_depth_clip = false;
 
-  const std::array<std::uint8_t, static_cast<std::size_t>(8 * 8)> dither = {
-    {0,  32, 8,  40, 2,  34, 10, 42, 48, 16, 56, 24, 50, 18, 58, 26, 12, 44, 4,  36, 14, 46,
-     6,  38, 60, 28, 52, 20, 62, 30, 54, 22, 3,  35, 11, 43, 1,  33, 9,  41, 51, 19, 59, 27,
-     49, 17, 57, 25, 15, 47, 7,  39, 13, 45, 5,  37, 63, 31, 55, 23, 61, 29, 53, 21}};
-  GLuint fragshader;
-  GLuint vertshader;
-  std::string fragsrc;
-  std::string vertsrc;
-  GLint status;
-  GLchar *info;
-  GLsizei len;
-  GLsizei *dummy;
-  bool requiredfunctions;
+  SDL_GPUMultisampleState multisample_state = {};
+  multisample_state.sample_count = SDL_GPU_SAMPLECOUNT_1;
+  multisample_state.enable_mask = false;
 
-  bool initshaderprogram_result = false;
+  SDL_GPUDepthStencilState depth_stencil_state = {};
+  depth_stencil_state.enable_depth_test = false;
+  depth_stencil_state.enable_depth_write = false;
+  depth_stencil_state.enable_stencil_test = false;
 
-  requiredfunctions =
-    assigned(glCreateShader) && assigned(glShaderSource) && assigned(glCompileShader) &&
-    assigned(glGetShaderiv) && assigned(glGetShaderInfoLog) && assigned(glDeleteShader) &&
-    assigned(glAttachShader) && assigned(glDetachShader) && assigned(glLinkProgram) &&
-    assigned(glGetProgramiv) && assigned(glGetProgramInfoLog) && assigned(glUseProgram) &&
-    assigned(glGetUniformLocation) && assigned(glUniform1i) && assigned(glUniformMatrix3fv) &&
-    assigned(glEnableVertexAttribArray) && assigned(glVertexAttribPointer) &&
-    assigned(glBindAttribLocation) && assigned(glActiveTexture);
+  SDL_GPUColorTargetBlendState blend_state = {};
+  blend_state.enable_blend = true;
+  blend_state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA;
+  blend_state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+  blend_state.color_blend_op = SDL_GPU_BLENDOP_ADD;
+  blend_state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
+  blend_state.dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+  blend_state.alpha_blend_op = SDL_GPU_BLENDOP_ADD;
+  blend_state.color_write_mask = SDL_GPU_COLORCOMPONENT_R | SDL_GPU_COLORCOMPONENT_G |
+                                 SDL_GPU_COLORCOMPONENT_B | SDL_GPU_COLORCOMPONENT_A;
 
-  if (!requiredfunctions)
-  {
-    return initshaderprogram_result;
-  }
+  SDL_GPUColorTargetDescription color_target_desc[1];
+  color_target_desc[0].format = SDL_GetGPUSwapchainTextureFormat(gfxcontext.mGpuDevice, gfxcontext.mWindow); // TODO: This is a hack, we should have a way to get the swapchain format
+  color_target_desc[0].blend_state = blend_state;
 
-  NotImplemented("rendering", "Missing stringreplace");
-#if 0
-    if (!dithering)
-        fragsrc = stringreplace(fragsrc, "#define DITHERING 1", "#define DITHERING 0");
-#endif
+  SDL_GPUGraphicsPipelineTargetInfo target_info = {};
+  target_info.num_color_targets = 1;
+  target_info.color_target_descriptions = color_target_desc;
+  target_info.has_depth_stencil_target = false;
 
-  vertshader = createshader(GL_VERTEX_SHADER, vert_source.data());
-  if (vertshader == 0u)
-  {
-    LogWarnG("Vertex shader compilation failed");
-    Abort();
-    return false;
-  }
-  fragshader = createshader(GL_FRAGMENT_SHADER, frag_source.data());
-  if (fragshader == 0u)
-  {
-    LogWarnG("Fragment shader compilation failed");
-    Abort();
-    return false;
-  }
+  SDL_GPUGraphicsPipelineCreateInfo pipeline_info = {};
+  pipeline_info.vertex_shader = gfxcontext.mVertexShader;
+  pipeline_info.fragment_shader = gfxcontext.mFragmentShader;
+  pipeline_info.vertex_input_state = vertex_input_state;
+  pipeline_info.primitive_type = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST;
+  pipeline_info.rasterizer_state = rasterizer_state;
+  pipeline_info.multisample_state = multisample_state;
+  pipeline_info.depth_stencil_state = depth_stencil_state;
+  pipeline_info.target_info = target_info;
+  pipeline_info.props = SDL_CreateProperties();
+  SDL_SetStringProperty(pipeline_info.props, SDL_PROP_GPU_GRAPHICSPIPELINE_CREATE_NAME_STRING,
+                        "soldat_graphics_pipeline");
 
-  gfxcontext.shaderprogram = glCreateProgram();
-
-  glBindAttribLocation(gfxcontext.shaderprogram, 0, "in_position");
-  glBindAttribLocation(gfxcontext.shaderprogram, 1, "in_texcoords");
-  glBindAttribLocation(gfxcontext.shaderprogram, 2, "in_color");
-
-  glAttachShader(gfxcontext.shaderprogram, vertshader);
-  glAttachShader(gfxcontext.shaderprogram, fragshader);
-
-  glLinkProgram(gfxcontext.shaderprogram);
-  glGetProgramiv(gfxcontext.shaderprogram, GL_LINK_STATUS, &status);
-
-  if (status == GLint(GL_FALSE))
-  {
-    dummy = nullptr;
-    glGetProgramiv(gfxcontext.shaderprogram, GL_INFO_LOG_LENGTH, &len);
-    getmem(info, len + 1);
-    glGetProgramInfoLog(gfxcontext.shaderprogram, len, dummy, info);
-#ifdef DEVELOPMENT
-    output << string("-- Program linking failure --") + '\12' + string(info) + '\12' << NL;
-#endif
-    freemem(info);
-  }
-
-  glDetachShader(gfxcontext.shaderprogram, vertshader);
-  glDetachShader(gfxcontext.shaderprogram, fragshader);
-  glDeleteShader(vertshader);
-  glDeleteShader(fragshader);
-
-  if (status == GLint(GL_FALSE))
-  {
-    glDeleteProgram(gfxcontext.shaderprogram);
-    gfxcontext.shaderprogram = 0;
-    return initshaderprogram_result;
-  }
-
-  initshaderprogram_result = true;
-
-  glUseProgram(gfxcontext.shaderprogram);
-  glGenVertexArrays(1, &gfxcontext.testVao);
-  glBindVertexArray(gfxcontext.testVao);
-  glUniform1i(glGetUniformLocation(gfxcontext.shaderprogram, ("dither")), 1);
-  gfxcontext.matrixloc = glGetUniformLocation(gfxcontext.shaderprogram, ("mvp"));
-
-  glEnableVertexAttribArray(0);
-  glEnableVertexAttribArray(1);
-  glEnableVertexAttribArray(2);
-
-  glDisable(GL_DEPTH_TEST);
-
-  // dithering texture
-
-  if (dithering)
-  {
-    glActiveTexture(GL_TEXTURE1);
-    glGenTextures(1, &gfxcontext.ditheringtexture);
-    glBindTexture(GL_TEXTURE_2D, gfxcontext.ditheringtexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, 8, 8, 0, GL_ALPHA, GL_UNSIGNED_BYTE, &dither[1]);
-    glActiveTexture(GL_TEXTURE0);
-  }
-  return initshaderprogram_result;
+  auto pipeline = SDL_CreateGPUGraphicsPipeline(gfxcontext.mGpuDevice, &pipeline_info);
+  AbortIf(pipeline == nullptr, "Failed to create graphics pipeline. Error: {}", SDL_GetError());
+  SDL_DestroyProperties(pipeline_info.props);
+  return pipeline;
 }
 
-static void OpenGLDebug(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-                 const GLchar *message, const void *userParam)
-{
-  LogDebugG("[GL] {}", message);
-}
-
-static void OpenGLGladDebug(const char *name, void * /*funcptr*/, int /*len_args*/, ...)
-{
-  auto TranslateError = [](std::uint32_t errorCode) {
-    static const std::map<std::uint32_t, std::string_view> translate{
-      {0x0500, "GL_INVALID_ENUM"},
-      {0x0501, "GL_INVALID_VALUE"},
-      {0x0502, "GL_INVALID_OPERATION"},
-      {0x0505, "GL_OUT_OF_MEMORY"}};
-    return translate.at(errorCode);
-  };
-
-  auto error_code = glad_glGetError();
-
-  if (error_code != GL_NO_ERROR)
-  {
-    LogErrorG("[GL] ERROR {} in {}", TranslateError(error_code), name);
-  }
-  SoldatAssert(error_code == GL_NO_ERROR);
-}
 
 auto gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline) -> bool
 {
+#pragma region sdl3
+
+gfxcontext.mGpuDevice = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
+AbortIf(gfxcontext.mGpuDevice == nullptr, "Failed to create gpu device");
+
+// int num_displays;
+// SDL_DisplayID* displays = SDL_GetDisplays(&num_displays);
+// AbortIf(num_displays == 0, "Failed to get displays");
+// for (int i = 0; i < num_displays; i++)
+// {
+//   SDL_Rect display_bounds;
+//   SDL_GetDisplayBounds(displays[i], &display_bounds);
+//   LogInfoG("Display {} bounds: {}x{}, pos: {}:{}", i, display_bounds.w, display_bounds.h, display_bounds.x, display_bounds.y);
+// }
+// SDL_free(displays);
+
+// SDL_PropertiesID props = SDL_CreateProperties();
+// SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, appTitle.data());
+// //SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN, true);
+// SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, width);
+// SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, height);
+// SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_HIGH_PIXEL_DENSITY_BOOLEAN, true);
+// SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, 10);
+// SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, 10);
+// SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_ALWAYS_ON_TOP_BOOLEAN, true);
+// SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_VULKAN_BOOLEAN, true);
+
+// // const auto window_flags =
+// //   (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+// // mWindow = SDL_CreateWindow(appTitle.data(), width, height, window_flags);
+// mWindow = SDL_CreateWindowWithProperties(props);
+// AbortIf(mWindow == nullptr, "Failed to create sdl window");
+// SDL_DestroyProperties(props);
+
+SDL_SetLogPriority(SDL_LOG_CATEGORY_GPU, SDL_LOG_PRIORITY_TRACE);
+SDL_SetLogPriority(SDL_LOG_CATEGORY_RENDER, SDL_LOG_PRIORITY_TRACE);
+
+AbortIf(!SDL_ClaimWindowForGPUDevice(gfxcontext.mGpuDevice, wnd), "Failed to claim window for gpu device. Error {}", SDL_GetError());
+
+
+#pragma endregion sdl3
+
+
+
+
   tgfxcolor color;
   std::string version;
-  bool requiredfunctions;
+  const char *driver = SDL_GetGPUDeviceDriver(gfxcontext.mGpuDevice);
+  gfxcontext.mWindow = wnd;
 
-  bool gfxinitcontext_result = true;
+  SDL_GPUShaderCreateInfo vertex_shader_info = {};
+  vertex_shader_info.entrypoint = "main";
+  vertex_shader_info.stage = SDL_GPU_SHADERSTAGE_VERTEX;
+  vertex_shader_info.num_uniform_buffers = 1;
+  vertex_shader_info.num_storage_buffers = 0;
+  vertex_shader_info.num_storage_textures = 0;
+  vertex_shader_info.num_samplers = 0;
+  vertex_shader_info.props = SDL_CreateProperties();
+  SDL_SetStringProperty(vertex_shader_info.props, SDL_PROP_GPU_SHADER_CREATE_NAME_STRING,
+                        "soldat_vertex_shader");
 
-  struct OpenGLVersion
+  SDL_GPUShaderCreateInfo fragment_shader_info = {};
+  fragment_shader_info.entrypoint = "main";
+  fragment_shader_info.stage = SDL_GPU_SHADERSTAGE_FRAGMENT;
+  fragment_shader_info.num_samplers = 1;
+  fragment_shader_info.num_storage_buffers = 0;
+  fragment_shader_info.num_storage_textures = 0;
+  fragment_shader_info.num_uniform_buffers = 0;
+  fragment_shader_info.props = SDL_CreateProperties();
+  SDL_SetStringProperty(fragment_shader_info.props, SDL_PROP_GPU_SHADER_CREATE_NAME_STRING,
+                        "soldat_fragment_shader");
+
+  if (strcmp(driver, "vulkan") == 0)
   {
-    SDL_GLProfile profile;
-    std::uint32_t major;
-    std::uint32_t minor;
-  };
-  constexpr std::array versions{OpenGLVersion{SDL_GL_CONTEXT_PROFILE_CORE, 4, 3},
-                                OpenGLVersion{SDL_GL_CONTEXT_PROFILE_ES, 3, 0}};
-
-  for (const auto &v : versions)
-  {
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, v.profile);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, v.major);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, v.minor);
-
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
-
-    if (CVar::r_msaa > 0)
-    {
-      SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-      SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, CVar::r_msaa);
-    }
-
-    gameglcontext = SDL_GL_CreateContext(wnd);
-    if (gameglcontext != nullptr)
-    {
-      gOpenGLES = v.profile == SDL_GL_CONTEXT_PROFILE_ES;
-      break;
-    }
+    vertex_shader_info.format = SDL_GPU_SHADERFORMAT_SPIRV;
+    vertex_shader_info.code = generic_vert_hlsl_debug.data();
+    vertex_shader_info.code_size = generic_vert_hlsl_debug.size();
+    fragment_shader_info.format = SDL_GPU_SHADERFORMAT_SPIRV;
+    fragment_shader_info.code = generic_frag_hlsl_debug.data();
+    fragment_shader_info.code_size = generic_frag_hlsl_debug.size();
   }
-  if (gameglcontext == nullptr)
+  else
   {
-    LogCriticalG("Failed to create gl context");
-    Abort();
-    return false;
+    AbortIf(true, "Unsupported GPU driver: {}", driver);
   }
-  glad_set_post_callback(OpenGLGladDebug);
-  if (gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress) == 0)
-  {
-    LogCriticalG("Failed to initialize GLAD");
-    Abort();
-    return false;
-  }
-#if 0
-    initopengl();
-    readimplementationproperties();
-    readextensions();
-#endif
-  SDL_GL_MakeCurrent(gamewindow, gameglcontext);
+  gfxcontext.mVertexShader = SDL_CreateGPUShader(gfxcontext.mGpuDevice, &vertex_shader_info);
+  gfxcontext.mFragmentShader = SDL_CreateGPUShader(gfxcontext.mGpuDevice, &fragment_shader_info);
+  AbortIf(gfxcontext.mVertexShader == nullptr,  "Failed to create vertex shader. Error: {}", SDL_GetError());
+  AbortIf(gfxcontext.mFragmentShader == nullptr,  "Failed to create fragment shader. Error: {}", SDL_GetError());
+  SDL_DestroyProperties(vertex_shader_info.props);
+  SDL_DestroyProperties(fragment_shader_info.props);
 
-  if (not IsOpenGLES())
-  {
-    glDebugMessageCallback(OpenGLDebug, nullptr);
-  }
-  version = std::string(reinterpret_cast<const char *>(glGetString(GL_VERSION)));
-  glGetIntegerv(GL_MAX_LABEL_LENGTH, &OPENGL_MAX_LABEL_LENGTH);
-  gfxlog(string("OpenGL version: ") + version);
-
-  NotImplemented("rendering", "EXTs missing in glad");
-#if 0
-    if (!assigned(glGenFramebuffers))
-    {
-        if (assigned(glGenFramebuffersExt))
-        {
-            &glGenFramebuffers = &glGenFramebuffersExt;
-            &glDeleteFramebuffers = &glDeleteFramebuffersExt;
-            &glBindFramebuffer = &glBindFramebufferxt;
-            &glFramebufferTexture2D = &glFramebufferTexture2Dext;
-            &glgeneratemipmap = &glgeneratemipmapext;
-        }
-    }
-#endif
-
-  requiredfunctions =
-    assigned(glBindBuffer) && // vertex/index buffers
-    assigned(glGenBuffers) && assigned(glBufferData) && assigned(glDeleteBuffers) &&
-    assigned(glBufferSubData) && assigned(glGenTextures) && // textures
-    assigned(glBindTexture) && assigned(glDeleteTextures) && assigned(glTexParameteri) &&
-    assigned(glTexImage2D) && assigned(glTexSubImage2D) && assigned(glEnable) && // general
-    assigned(glDisable) && assigned(glBlendFunc) && assigned(glPixelStorei) &&
-    assigned(glViewport) && assigned(glClearColor) && assigned(glClear) && assigned(glDrawArrays) &&
-    assigned(glDrawElements) && assigned(glReadPixels) && assigned(glTexEnvf) &&
-    assigned(glGetIntegerv);
-
-  if (!requiredfunctions)
-  {
-    gfxdestroycontext();
-    return false;
-  }
-
-  if (!fixedpipeline)
-  {
-    if (!initshaderprogram(dithering))
-    {
-      gfxlog("Falling back to OpenGL fixed pipeline.");
-      fixedpipeline = true;
-    }
-  }
-
-  if (fixedpipeline)
-  {
-    requiredfunctions = assigned(glEnableClientState) && assigned(glVertexPointer) &&
-                        assigned(glTexCoordPointer) && assigned(glColorPointer) &&
-                        assigned(glLoadMatrixf);
-
-    if (!requiredfunctions)
-    {
-      gfxdestroycontext();
-      return false;
-    }
-
-    glEnable(GL_TEXTURE_2D);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-
-    if (dithering)
-    {
-      glEnable(GL_DITHER);
-    }
-    else
-    {
-      glDisable(GL_DITHER);
-    }
-  }
+  gfxcontext.mPipeline = gfxCreateGraphicsPipeline();
+  gfxcontext.mSampler = gfxCreateSampler();
+  
 
   // create a default white texture
 
@@ -637,7 +488,7 @@ auto gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline) -> bool
   gfxcontext.whitetexture = gfxcreatetexture(1, 1, 4, (std::uint8_t *)&color, "white texture");
 
   // setup some state
-
+#if 0
   glEnable(GL_BLEND);
   if (not IsOpenGLES())
   {
@@ -649,6 +500,10 @@ auto gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline) -> bool
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
   glGetIntegerv(GL_MAX_TEXTURE_SIZE, &gfxcontext.maxtexturesize);
   glGetIntegerv(GL_SAMPLES, &gfxcontext.msaasamples);
+#endif
+
+  NotImplemented("rendering", "Get texture size directly from GPU");
+  gfxcontext.maxtexturesize = 16384;
 
   // text rendering
 
@@ -659,7 +514,7 @@ auto gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline) -> bool
   gfxcontext.textcolor = rgba(0);
   gfxcontext.textshadowcolor = rgba(0);
   gfxcontext.textverticalalign = gfx_top;
-  return gfxinitcontext_result;
+  return true;
 }
 
 void gfxdestroycontext()
@@ -710,16 +565,24 @@ void gfxdestroycontext()
 
 void gfxtarget(tgfxtexture *rendertarget)
 {
-  if (assigned(glBindFramebuffer))
+  if (gfxcontext.mCommandBuffer == nullptr)
   {
-    if ((rendertarget != nullptr) && (rendertarget->ffbohandle != 0))
+    gfxcontext.mCommandBuffer = SDL_AcquireGPUCommandBuffer(gfxcontext.mGpuDevice); // Acquire a GPU command buffer
+  }
+
+  if (rendertarget == nullptr)
+  {
+    if (!gfxcontext.mSwapchainTexture)
     {
-      glBindFramebuffer(GL_FRAMEBUFFER, rendertarget->ffbohandle);
+      Uint32 swapchain_texture_width;
+      Uint32 swapchain_texture_height;
+      SDL_WaitAndAcquireGPUSwapchainTexture(gfxcontext.mCommandBuffer, gfxcontext.mWindow, &gfxcontext.mSwapchainTexture, &swapchain_texture_width, &swapchain_texture_height); // Acquire a swapchain texture 
     }
-    else
-    {
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
+    gfxcontext.mRenderTexture = gfxcontext.mSwapchainTexture;
+  }
+  else
+  {
+    gfxcontext.mRenderTexture = rendertarget->getTexture();
   }
 }
 
@@ -752,46 +615,32 @@ void gfxblit(tgfxtexture *src, tgfxtexture *dst, trect srcrect, trect dstrect,
 
 void gfxviewport(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h)
 {
-  glViewport(x, y, w, h);
+  SDL_GPUViewport viewport = {
+    .x = static_cast<float>(x),
+    .y = static_cast<float>(y),
+    .w = static_cast<float>(w),
+    .h = static_cast<float>(h),
+    .min_depth = 0.0f,
+    .max_depth = 1.0f,
+  };
+  SDL_SetGPUViewport(gfxcontext.mRenderPass, &viewport);
 }
 
 void gfxtransform(const tgfxmat3 t)
-// m: array[0..15] of Single = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 {
-  std::array<float, 16> m;
-  if (gfxcontext.shaderprogram != 0)
-  {
-    glUniformMatrix3fv(gfxcontext.matrixloc, 1, 0u, t.data());
-  }
-  else
-  {
-    std::memset(m.data(), 0, sizeof(m));
-
-    m[0] = t[0];
-    m[4] = t[3];
-    m[8] = 0;
-    m[12] = t[6];
-    m[1] = t[1];
-    m[5] = t[4];
-    m[9] = 0;
-    m[13] = t[7];
-    m[2] = t[2];
-    m[6] = t[5];
-    m[10] = 1;
-    m[14] = 0;
-    m[3] = 0;
-    m[7] = 0;
-    m[11] = 0;
-    m[15] = 1;
-
-    glLoadMatrixf(m.data());
-  }
+  AbortIf(sizeof(t) != 9 * sizeof(float), "Invalid matrix size");
+  AbortIf(gfxcontext.mTransformDirty, "Transform is already dirty");
+  std::copy(std::begin(t), std::begin(t) + 3, std::begin(gfxcontext.mTransform));
+  std::copy(std::begin(t) + 3, std::begin(t) + 6, std::begin(gfxcontext.mTransform) + 4);
+  std::copy(std::begin(t) + 6, std::begin(t) + 9, std::begin(gfxcontext.mTransform) + 8);
+  gfxcontext.mTransformDirty = true;
 }
 
 void gfxclear(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a)
 {
-  glClearColor((float)(r) / 255, (float)(g) / 255, (float)(b) / 255, (float)(a) / 255);
-  glClear(GL_COLOR_BUFFER_BIT);
+  AbortIf(gfxcontext.mClearColorDirty, "Clear color is already dirty");
+  gfxcontext.mClearColor = {(float)(r) / 255.0f, (float)(g) / 255.0f, (float)(b) / 255.0f, (float)(a) / 255.0f};
+  gfxcontext.mClearColorDirty = true;
 }
 
 void gfxclear(tgfxcolor c)
@@ -801,8 +650,35 @@ void gfxclear(tgfxcolor c)
 
 void gfxdraw(tgfxvertexbuffer *buffer, std::int32_t offset, std::int32_t count)
 {
-  setupvertexattributes(buffer);
-  glDrawArrays(GL_TRIANGLES, offset, count);
+  SDL_PushGPUDebugGroup(gfxcontext.mCommandBuffer, "SingleVertexBuffer");
+  // Setup and start a render pass
+  SDL_GPUColorTargetInfo target_info = {};
+  target_info.texture = gfxcontext.mRenderTexture;
+  target_info.clear_color = gfxcontext.mClearColor;
+  target_info.load_op = gfxcontext.mClearColorDirty ? SDL_GPU_LOADOP_CLEAR : SDL_GPU_LOADOP_LOAD;
+  target_info.store_op = SDL_GPU_STOREOP_STORE;
+  target_info.mip_level = 0;
+  target_info.layer_or_depth_plane = 0;
+  target_info.cycle = false;
+  gfxcontext.mRenderPass = SDL_BeginGPURenderPass(gfxcontext.mCommandBuffer, &target_info, 1, nullptr);
+  SDL_BindGPUGraphicsPipeline(gfxcontext.mRenderPass, gfxcontext.mPipeline);
+  if (gfxcontext.mTransformDirty)
+  {
+    SDL_PushGPUVertexUniformData(gfxcontext.mCommandBuffer, 0, gfxcontext.mTransform.data(), sizeof(gfxcontext.mTransform));
+    gfxcontext.mTransformDirty = false;
+  }
+  gfxcontext.mClearColorDirty = false;
+
+  {
+    setupvertexattributes(buffer);
+    SDL_BindGPUFragmentSamplers(gfxcontext.mRenderPass, 0, &gfxcontext.mTextureSamplerBinding, 1);
+    SDL_DrawGPUPrimitives(gfxcontext.mRenderPass, count, 1, offset, 0);
+  }
+
+  SDL_EndGPURenderPass(gfxcontext.mRenderPass);
+  gfxcontext.mRenderPass = nullptr;
+  SDL_PopGPUDebugGroup(gfxcontext.mCommandBuffer);
+  //glDrawArrays(GL_TRIANGLES, offset, count);
 }
 /*$push*/
 /*$warn 4055 off*/
@@ -810,23 +686,72 @@ void gfxdraw(tgfxvertexbuffer *buffer, std::int32_t offset, std::int32_t count)
 void gfxdraw(tgfxvertexbuffer *buffer, tgfxindexbuffer *indexbuffer, std::int32_t offset,
              std::int32_t count)
 {
-  setupvertexattributes(buffer);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer->handle());
-  glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void *)(sizeof(std::uint16_t) * offset));
+  SDL_PushGPUDebugGroup(gfxcontext.mCommandBuffer, "Single Draw index buffer");
+  // Setup and start a render pass
+  SDL_GPUColorTargetInfo target_info = {};
+  target_info.texture = gfxcontext.mRenderTexture;
+  target_info.clear_color = gfxcontext.mClearColor;
+  target_info.load_op = gfxcontext.mClearColorDirty ? SDL_GPU_LOADOP_CLEAR : SDL_GPU_LOADOP_LOAD;
+  target_info.store_op = SDL_GPU_STOREOP_STORE;
+  target_info.mip_level = 0;
+  target_info.layer_or_depth_plane = 0;
+  target_info.cycle = false;
+  gfxcontext.mRenderPass = SDL_BeginGPURenderPass(gfxcontext.mCommandBuffer, &target_info, 1, nullptr);
+  SDL_BindGPUGraphicsPipeline(gfxcontext.mRenderPass, gfxcontext.mPipeline);
+  if (gfxcontext.mTransformDirty)
+  {
+    SDL_PushGPUVertexUniformData(gfxcontext.mCommandBuffer, 0, gfxcontext.mTransform.data(), sizeof(gfxcontext.mTransform));
+    gfxcontext.mTransformDirty = false;
+  }
+  gfxcontext.mClearColorDirty = false;
+  { 
+    SDL_BindGPUFragmentSamplers(gfxcontext.mRenderPass, 0, &gfxcontext.mTextureSamplerBinding, 1);
+    setupvertexattributes(buffer);
+    SDL_GPUBufferBinding buffer_binding = {.buffer = indexbuffer->getBuffer(), .offset = 0};
+    SDL_BindGPUIndexBuffer(gfxcontext.mRenderPass, &buffer_binding, SDL_GPUIndexElementSize::SDL_GPU_INDEXELEMENTSIZE_16BIT);
+    SDL_DrawGPUIndexedPrimitives(gfxcontext.mRenderPass, count, 1, offset, 0, 0);
+  }
+  SDL_EndGPURenderPass(gfxcontext.mRenderPass);
+  gfxcontext.mRenderPass = nullptr;
+  SDL_PopGPUDebugGroup(gfxcontext.mCommandBuffer);
+  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer->handle());
+  // glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, (void *)(sizeof(std::uint16_t) * offset));
 }
 
 void gfxdraw(tgfxvertexbuffer *buffer, pgfxdrawcommand cmds, std::int32_t cmdcount)
 {
-  std::int32_t i;
-
-  setupvertexattributes(buffer);
-
-  for (i = 1; i <= cmdcount; i++)
+  // Setup and start a render pass
+  SDL_GPUColorTargetInfo target_info = {};
+  target_info.texture = gfxcontext.mRenderTexture;
+  target_info.clear_color = gfxcontext.mClearColor;
+  target_info.load_op = gfxcontext.mClearColorDirty ? SDL_GPU_LOADOP_CLEAR : SDL_GPU_LOADOP_LOAD;
+  target_info.store_op = SDL_GPU_STOREOP_STORE;
+  target_info.mip_level = 0;
+  target_info.layer_or_depth_plane = 0;
+  target_info.cycle = false;
+  gfxcontext.mRenderPass = SDL_BeginGPURenderPass(gfxcontext.mCommandBuffer, &target_info, 1, nullptr);
+  SDL_BindGPUGraphicsPipeline(gfxcontext.mRenderPass, gfxcontext.mPipeline);
+  if (gfxcontext.mTransformDirty)
   {
-    gfxbindtexture(cmds->texture);
-    glDrawArrays(GL_TRIANGLES, cmds->offset, cmds->count);
-    cmds += 1;
+    SDL_PushGPUVertexUniformData(gfxcontext.mCommandBuffer, 0, gfxcontext.mTransform.data(), sizeof(gfxcontext.mTransform));
+    gfxcontext.mTransformDirty = false;
   }
+  gfxcontext.mClearColorDirty = false;
+  {
+    std::int32_t i;
+    setupvertexattributes(buffer);
+
+    for (i = 1; i <= cmdcount; i++)
+    {
+      gfxbindtexture(cmds->texture);
+      SDL_BindGPUFragmentSamplers(gfxcontext.mRenderPass, 0, &gfxcontext.mTextureSamplerBinding, 1);
+      SDL_DrawGPUPrimitives(gfxcontext.mRenderPass, cmds->count, 1, cmds->offset, 0);
+      cmds += 1;
+    }
+  }
+
+  SDL_EndGPURenderPass(gfxcontext.mRenderPass);
+  gfxcontext.mRenderPass = nullptr;
 }
 
 void gfxdraw(tgfxvertexbuffer *buffer, tgfxindexbuffer *indexbuffer, pgfxdrawcommand cmds,
@@ -851,13 +776,15 @@ void gfxdraw(tgfxvertexbuffer *buffer, tgfxindexbuffer *indexbuffer, pgfxdrawcom
 void gfxpresent(bool finish)
 {
   ZoneScopedN("GfxPresent");
+  SDL_SubmitGPUCommandBuffer(gfxcontext.mCommandBuffer);
   if (finish)
   {
-    glFinish();
+    SDL_WaitForGPUIdle(gfxcontext.mGpuDevice);
   }
-
-  SDL_GL_SwapWindow(gamewindow);
+  gfxcontext.mCommandBuffer = nullptr;
+  gfxcontext.mSwapchainTexture = nullptr;
 }
+
 void gfxsetmipmapbias(float bias)
 {
   NotImplemented("rendering", "This is probably some garbage after fixed pipeline");
@@ -1012,13 +939,14 @@ auto gfxvertex(float x, float y, float u, float v, const tgfxcolor &c) -> tgfxve
 
 void gfxbindtexture(tgfxtexture *texture)
 {
+  gfxcontext.mTextureSamplerBinding.sampler = gfxcontext.mSampler;
   if (texture != nullptr)
   {
-    glBindTexture(GL_TEXTURE_2D, texture->handle());
+    gfxcontext.mTextureSamplerBinding.texture = texture->getTexture();
   }
   else
   {
-    glBindTexture(GL_TEXTURE_2D, gfxcontext.whitetexture->handle());
+    gfxcontext.mTextureSamplerBinding.texture = gfxcontext.whitetexture->getTexture();
   }
 }
 
@@ -1058,6 +986,7 @@ void gfxtexturefilter(tgfxtexture *texture, tgfxtexturefilter min, tgfxtexturefi
 
 void gfxgeneratemipmap(tgfxtexture *texture)
 {
+#if 0
   if (texture->handle() == 0)
   {
     return;
@@ -1084,6 +1013,7 @@ void gfxgeneratemipmap(tgfxtexture *texture)
                     &texture->fpixel.color);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GLint(GL_FALSE));
   }
+  #endif // 0
 }
 
 void gfxdeletetexture(tgfxtexture *&texture)
@@ -1108,21 +1038,11 @@ static void premultiplycolor(pgfxvertex v, std::int32_t n)
 
 auto gfxcreatebuffer(std::int32_t capacity, bool _static, pgfxvertex data) -> tgfxvertexbuffer *
 {
-  if ((data != nullptr) && (gfxcontext.shaderprogram == 0))
-  {
-    premultiplycolor(data, capacity);
-  }
-
   return new tgfxvertexbuffer(capacity, _static, data);
 }
 
 void gfxupdatebuffer(tgfxvertexbuffer *b, std::int32_t i, std::int32_t n, pgfxvertex data)
 {
-  if (gfxcontext.shaderprogram == 0)
-  {
-    premultiplycolor(data, n);
-  }
-
   b->update(i, n, data);
 }
 
@@ -2542,96 +2462,118 @@ tgfxtexture::tgfxtexture(std::int32_t width, std::int32_t height, std::int32_t c
   fpixel.x = 0;
   fpixel.y = 0;
   fpixel.color.rgba = 0;
+  fhandle = 1;
 
-  glGenTextures(1, &fhandle);
-  if (msaa && (gfxcontext.msaasamples > 0))
-  {
-    fsamples = gfxcontext.msaasamples;
-
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, fhandle);
-    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, gfxcontext.msaasamples,
-                            OPENGL_TEXTURE_FORMAT[comp], width, height, 1u);
-
-    glGenFramebuffers(1, &ffbohandle);
-    glBindFramebuffer(GL_FRAMEBUFFER, ffbohandle);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, fhandle,
-                           0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  }
-  else
-  {
-    glBindTexture(GL_TEXTURE_2D, fhandle);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, OPENGL_TEXTURE_FORMAT[comp - 1], width, height, 0,
-                 OPENGL_TEXTURE_FORMAT[comp - 1], GL_UNSIGNED_BYTE, data);
-
-    if (rt)
-    {
-      glGenFramebuffers(1, &ffbohandle);
-      glBindFramebuffer(GL_FRAMEBUFFER, ffbohandle);
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fhandle, 0);
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
-  }
-  auto debugNameSize = debug_name.size();
-  if (debugNameSize > OPENGL_MAX_LABEL_LENGTH)
-  {
-    debugNameSize = OPENGL_MAX_LABEL_LENGTH;
-    LogInfoG("debug name {} is too long. Max length is {}", debug_name, OPENGL_MAX_LABEL_LENGTH);
-  }
-  if (not IsOpenGLES())
-  {
-    glObjectLabel(GL_TEXTURE, fhandle, debugNameSize, debug_name.data());
-  }
   if (data != nullptr)
   {
     std::memcpy(&fpixel.color, data, comp);
   }
+ 
+  // Create the Image:
+  {
+    SDL_GPUTextureCreateInfo texture_info = {};
+    texture_info.type = SDL_GPU_TEXTURETYPE_2D;
+    texture_info.format = SDL_GPU_TEXTURE_FORMAT[comp - 1];
+    texture_info.usage = rt ? SDL_GPU_TEXTUREUSAGE_COLOR_TARGET : SDL_GPU_TEXTUREUSAGE_SAMPLER;
+    texture_info.width = width;
+    texture_info.height = height;
+    texture_info.layer_count_or_depth = 1;
+    texture_info.num_levels = 1;
+    texture_info.sample_count = SDL_GPU_SAMPLECOUNT_1;
+    texture_info.props = SDL_CreateProperties();
+    SDL_SetStringProperty(texture_info.props, SDL_PROP_GPU_TEXTURE_CREATE_NAME_STRING,
+                          debug_name.data());
+
+    mTexture = SDL_CreateGPUTexture(gfxcontext.mGpuDevice, &texture_info);
+    AbortIf(!mTexture, "Failed to create texture {}. Error {}", debug_name, SDL_GetError());
+    SDL_DestroyProperties(texture_info.props);
+  }
+
+  // Create all the upload structures and upload:
+  if (data)
+  {
+    SDL_GPUTransferBufferCreateInfo transferbuffer_info = {};
+    transferbuffer_info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+    transferbuffer_info.size = width * height * comp;
+
+    SDL_GPUTransferBuffer *transferbuffer =
+      SDL_CreateGPUTransferBuffer(gfxcontext.mGpuDevice, &transferbuffer_info);
+    AbortIf(transferbuffer == nullptr, "Failed to create transfer buffer to upload {}. Error {}", debug_name, SDL_GetError());
+
+    void *texture_ptr = SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, transferbuffer, false);
+    memcpy(texture_ptr, data, transferbuffer_info.size);
+    SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, transferbuffer);
+
+    SDL_GPUTextureTransferInfo transfer_info = {};
+    transfer_info.offset = 0;
+    transfer_info.transfer_buffer = transferbuffer;
+
+    SDL_GPUTextureRegion texture_region = {};
+    texture_region.texture = mTexture;
+    texture_region.w = width;
+    texture_region.h = height;
+    texture_region.d = 1;
+
+    SDL_GPUCommandBuffer *cmd = SDL_AcquireGPUCommandBuffer(gfxcontext.mGpuDevice);
+    SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(cmd);
+    SDL_UploadToGPUTexture(copy_pass, &transfer_info, &texture_region, false);
+    SDL_EndGPUCopyPass(copy_pass);
+    SDL_SubmitGPUCommandBuffer(cmd);
+    SDL_ReleaseGPUTransferBuffer(gfxcontext.mGpuDevice, transferbuffer);
+  }
+  AbortIf(msaa, "MSAA not supported in SDL3");
 }
 
 tgfxtexture::~tgfxtexture()
 {
-  if (ffbohandle != 0)
+  if (mTexture != nullptr)
   {
-    glDeleteFramebuffers(1, &ffbohandle);
-  }
-
-  if (fhandle != 0)
-  {
-    glDeleteTextures(1, &fhandle);
+    SDL_ReleaseGPUTexture(gfxcontext.mGpuDevice, mTexture);
   }
 }
 
 void tgfxtexture::update(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h,
                          std::uint8_t *data)
 {
-  if (fhandle == 0)
-  {
-    return;
-  }
+  SDL_GPUTransferBufferCreateInfo transferbuffer_info = {};
+  transferbuffer_info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+  transferbuffer_info.size = w * h * fcomponents;
 
-  glBindTexture(GL_TEXTURE_2D, fhandle);
-  glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, w, h, OPENGL_TEXTURE_FORMAT[fcomponents - 1],
-                  GL_UNSIGNED_BYTE, data);
-  auto glError = glGetError();
-  SoldatAssert(glError == 0);
-  glFinish();
+  SDL_GPUTransferBuffer *transferbuffer =
+    SDL_CreateGPUTransferBuffer(gfxcontext.mGpuDevice, &transferbuffer_info);
+  AbortIf(transferbuffer == nullptr, "Failed to create transfer buffer to upload. Error {}", SDL_GetError());
+
+  void *texture_ptr = SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, transferbuffer, false);
+  memcpy(texture_ptr, data, transferbuffer_info.size);
+  SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, transferbuffer);
+
+  SDL_GPUTextureTransferInfo transfer_info = {};
+  transfer_info.offset = 0;
+  transfer_info.transfer_buffer = transferbuffer;
+
+  SDL_GPUTextureRegion texture_region = {};
+  texture_region.texture = mTexture;
+  texture_region.x = x;
+  texture_region.y = y;
+  texture_region.w = w;
+  texture_region.h = h;
+  texture_region.d = 1;
+
+  SDL_GPUCommandBuffer *cmd = SDL_AcquireGPUCommandBuffer(gfxcontext.mGpuDevice);
+  SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(cmd);
+  SDL_UploadToGPUTexture(copy_pass, &transfer_info, &texture_region, false);
+  SDL_EndGPUCopyPass(copy_pass);
+  SDL_SubmitGPUCommandBuffer(cmd);
+  SDL_ReleaseGPUTransferBuffer(gfxcontext.mGpuDevice, transferbuffer);
 
   fpixel.x = x;
   fpixel.y = y;
   std::memcpy(&fpixel.color, data, fcomponents);
 }
 
-void gfxSetGpuDevice(SDL_GPUDevice*)
-{
-  
-}
-
 void tgfxtexture::setwrap(tgfxtexturewrap s, tgfxtexturewrap t)
 {
+#if 0
   if (fhandle == 0)
   {
     return;
@@ -2662,30 +2604,20 @@ void tgfxtexture::setwrap(tgfxtexturewrap s, tgfxtexturewrap t)
   default:
     SoldatAssert(false);
   }
+#endif
 }
 
 void tgfxtexture::setfilter(tgfxtexturefilter min, tgfxtexturefilter mag)
 {
-  if (fhandle == 0)
-  {
-    return;
-  }
-
-  glBindTexture(GL_TEXTURE_2D, fhandle);
-
   switch (min)
   {
-  case gfx_linear:
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    break;
-  case gfx_nearest:
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    break;
   case gfx_mipmap_linear:
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  case gfx_linear:
+    mMinFilter = SDL_GPU_FILTER_LINEAR;
     break;
   case gfx_mipmap_nearest:
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+  case gfx_nearest:
+    mMinFilter = SDL_GPU_FILTER_NEAREST;
     break;
   default:
     SoldatAssert(false);
@@ -2695,11 +2627,11 @@ void tgfxtexture::setfilter(tgfxtexturefilter min, tgfxtexturefilter mag)
   {
   case gfx_linear:
   case gfx_mipmap_linear:
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    mMagFilter = SDL_GPU_FILTER_LINEAR;
     break;
   case gfx_nearest:
   case gfx_mipmap_nearest:
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    mMagFilter = SDL_GPU_FILTER_NEAREST;
     break;
   default:
     SoldatAssert(false);
@@ -2712,39 +2644,93 @@ void tgfxtexture::setfilter(tgfxtexturefilter min, tgfxtexturefilter mag)
 
 tgfxvertexbuffer::tgfxvertexbuffer(std::int32_t cap, bool _static, pgfxvertex data)
 {
-  GLenum hint;
+  SDL_GPUBufferCreateInfo buffer_info = {};
+  buffer_info.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
+  buffer_info.size = cap * sizeof(tgfxvertex);
+  buffer_info.props = 0;
+  mBuffer = SDL_CreateGPUBuffer(gfxcontext.mGpuDevice, &buffer_info);
+  AbortIf(mBuffer == nullptr, "Failed to create GPU Buffer. Error {}", SDL_GetError());
 
   fcapacity = cap;
-
-  if (_static)
+  if (data == nullptr)
   {
-    hint = GL_STATIC_DRAW;
-  }
-  else
-  {
-    hint = GL_STREAM_DRAW;
+    return;
   }
 
-  glGenBuffers(1, &fhandle);
-  glBindBuffer(GL_ARRAY_BUFFER, fhandle);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(tgfxvertex) * cap, data, hint);
+  SDL_GPUTransferBufferCreateInfo vertex_transferbuffer_info = {};
+  vertex_transferbuffer_info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+  vertex_transferbuffer_info.size = buffer_info.size;
+
+  SDL_GPUTransferBuffer *vertex_transferbuffer = SDL_CreateGPUTransferBuffer(gfxcontext.mGpuDevice, &vertex_transferbuffer_info);
+  AbortIf(vertex_transferbuffer == nullptr, "Failed to create transfer buffer to upload. Error {}", SDL_GetError());
+  AbortIf(data->u < 0.0f, "Something wrong with texture");
+
+  pgfxvertex vtx_dst = (pgfxvertex)SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true);
+  memcpy(vtx_dst, data, buffer_info.size);
+  SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer);
+
+  SDL_GPUTransferBufferLocation vertex_buffer_location = {};
+  vertex_buffer_location.offset = 0;
+  vertex_buffer_location.transfer_buffer = vertex_transferbuffer;
+
+  SDL_GPUBufferRegion vertex_buffer_region = {};
+  vertex_buffer_region.buffer = mBuffer;
+  vertex_buffer_region.offset = 0;
+  vertex_buffer_region.size = buffer_info.size;
+
+  if (gfxcontext.mCommandBuffer == nullptr)
+  {
+    gfxcontext.mCommandBuffer = SDL_AcquireGPUCommandBuffer(gfxcontext.mGpuDevice); // Acquire a GPU command buffer
+  }
+  SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(gfxcontext.mCommandBuffer);
+  AbortIf(copy_pass == nullptr, "Copy pass is empty. Error: {}", SDL_GetError());
+  SDL_UploadToGPUBuffer(copy_pass, &vertex_buffer_location, &vertex_buffer_region, true);
+  SDL_EndGPUCopyPass(copy_pass);
+  SDL_ReleaseGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer);
 }
 
 tgfxvertexbuffer::~tgfxvertexbuffer()
 {
-  if (fhandle != 0)
+  if (mBuffer != nullptr)
   {
-    glDeleteBuffers(1, &fhandle);
+    SDL_ReleaseGPUBuffer(gfxcontext.mGpuDevice, mBuffer);
   }
 }
 
 void tgfxvertexbuffer::update(std::int32_t offset, std::int32_t count, pgfxvertex data) const
 {
-  const std::int32_t size = sizeof(tgfxvertex);
+  constexpr std::int32_t kVertexSize = sizeof(decltype(*data));
+  SDL_GPUTransferBufferCreateInfo vertex_transferbuffer_info = {};
+  vertex_transferbuffer_info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+  vertex_transferbuffer_info.size = kVertexSize * count;
 
-  glBindBuffer(GL_ARRAY_BUFFER, fhandle);
-  glBufferSubData(GL_ARRAY_BUFFER, static_cast<GLintptr>(size * offset),
-                  static_cast<GLsizeiptr>(size * count), data);
+  SDL_GPUTransferBuffer *vertex_transferbuffer = SDL_CreateGPUTransferBuffer(gfxcontext.mGpuDevice, &vertex_transferbuffer_info);
+  AbortIf(vertex_transferbuffer == nullptr, "Failed to create transfer buffer to upload. Error {}", SDL_GetError());
+  AbortIf(data->u < 0.0f, "Something wrong with texture");
+
+  pgfxvertex vtx_dst = (pgfxvertex)SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true);
+  memcpy(vtx_dst, data, vertex_transferbuffer_info.size);
+  SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer);
+
+  SDL_GPUTransferBufferLocation vertex_buffer_location = {};
+  vertex_buffer_location.offset = 0;
+  vertex_buffer_location.transfer_buffer = vertex_transferbuffer;
+
+  SDL_GPUBufferRegion vertex_buffer_region = {};
+  vertex_buffer_region.buffer = mBuffer;
+  vertex_buffer_region.offset = offset * kVertexSize;
+  vertex_buffer_region.size = vertex_transferbuffer_info.size;
+
+  if (gfxcontext.mCommandBuffer == nullptr)
+  {
+    gfxcontext.mCommandBuffer = SDL_AcquireGPUCommandBuffer(gfxcontext.mGpuDevice); // Acquire a GPU command buffer
+  }
+  SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(gfxcontext.mCommandBuffer);
+  AbortIf(copy_pass == nullptr, "Copy pass is empty. Error: {}", SDL_GetError());
+  SDL_UploadToGPUBuffer(copy_pass, &vertex_buffer_location, &vertex_buffer_region, true);
+  SDL_EndGPUCopyPass(copy_pass);
+  SDL_ReleaseGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer);
+
 }
 
 /******************************************************************************/
@@ -2753,39 +2739,86 @@ void tgfxvertexbuffer::update(std::int32_t offset, std::int32_t count, pgfxverte
 
 tgfxindexbuffer::tgfxindexbuffer(std::int32_t cap, bool _static, uint16_t *data)
 {
-  GLenum hint;
+  SDL_GPUBufferCreateInfo buffer_info = {};
+  buffer_info.usage = SDL_GPU_BUFFERUSAGE_INDEX;
+  buffer_info.size = cap * sizeof(uint16_t);
+  buffer_info.props = 0;
+  mBuffer = SDL_CreateGPUBuffer(gfxcontext.mGpuDevice, &buffer_info);
+  AbortIf(mBuffer == nullptr, "Failed to create GPU Buffer. Error {}", SDL_GetError());
 
   fcapacity = cap;
-
-  if (_static)
+  if (data == nullptr)
   {
-    hint = GL_STATIC_DRAW;
-  }
-  else
-  {
-    hint = GL_STREAM_DRAW;
+    return;
   }
 
-  glGenBuffers(1, &fhandle);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fhandle);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(std::uint16_t) * cap, data, hint);
+  SDL_GPUTransferBufferCreateInfo transferbuffer_info = {};
+  transferbuffer_info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+  transferbuffer_info.size = buffer_info.size;
+
+  SDL_GPUTransferBuffer *vertex_transferbuffer = SDL_CreateGPUTransferBuffer(gfxcontext.mGpuDevice, &transferbuffer_info);
+  AbortIf(vertex_transferbuffer == nullptr, "Failed to create transfer buffer to upload. Error {}", SDL_GetError());
+
+  uint16_t* vtx_dst = (uint16_t*)SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true);
+  memcpy(vtx_dst, data, buffer_info.size);
+  SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer);
+
+  SDL_GPUTransferBufferLocation vertex_buffer_location = {};
+  vertex_buffer_location.offset = 0;
+  vertex_buffer_location.transfer_buffer = vertex_transferbuffer;
+
+  SDL_GPUBufferRegion vertex_buffer_region = {};
+  vertex_buffer_region.buffer = mBuffer;
+  vertex_buffer_region.offset = 0;
+  vertex_buffer_region.size = buffer_info.size;
+
+  if (gfxcontext.mCommandBuffer == nullptr)
+  {
+    gfxcontext.mCommandBuffer = SDL_AcquireGPUCommandBuffer(gfxcontext.mGpuDevice); // Acquire a GPU command buffer
+  }
+  SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(gfxcontext.mCommandBuffer);
+  AbortIf(copy_pass == nullptr, "Copy pass is empty. Error: {}", SDL_GetError());
+  SDL_UploadToGPUBuffer(copy_pass, &vertex_buffer_location, &vertex_buffer_region, true);
+  SDL_EndGPUCopyPass(copy_pass);
+  SDL_ReleaseGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer);
 }
 
 tgfxindexbuffer::~tgfxindexbuffer()
 {
-  if (fhandle != 0)
+  if (mBuffer != nullptr)
   {
-    glDeleteBuffers(1, &fhandle);
+    SDL_ReleaseGPUBuffer(gfxcontext.mGpuDevice, mBuffer);
   }
 }
 
 void tgfxindexbuffer::update(std::int32_t offset, std::int32_t count, uint16_t *data) const
 {
-  const std::int32_t size = sizeof(std::uint16_t);
+  constexpr std::int32_t kIndexSize = sizeof(decltype(*data));
+  SDL_GPUTransferBufferCreateInfo transferbuffer_info = {};
+  transferbuffer_info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+  transferbuffer_info.size = kIndexSize * count;
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fhandle);
-  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLintptr>(size * offset),
-                  static_cast<GLsizeiptr>(size * count), data);
+  SDL_GPUTransferBuffer *transferbuffer = SDL_CreateGPUTransferBuffer(gfxcontext.mGpuDevice, &transferbuffer_info);
+  AbortIf(transferbuffer == nullptr, "Failed to create transfer buffer to upload. Error {}", SDL_GetError());
+
+  uint16_t* vtx_dst = (uint16_t*)SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, transferbuffer, true);
+  memcpy(vtx_dst, data, transferbuffer_info.size);
+  SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, transferbuffer);
+
+  SDL_GPUTransferBufferLocation buffer_location = {};
+  buffer_location.offset = 0;
+  buffer_location.transfer_buffer = transferbuffer;
+
+  SDL_GPUBufferRegion buffer_region = {};
+  buffer_region.buffer = mBuffer;
+  buffer_region.offset = offset * kIndexSize;
+  buffer_region.size = transferbuffer_info.size;
+
+  SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(gfxcontext.mCommandBuffer);
+  AbortIf(copy_pass == nullptr, "Copy pass is empty. Error: {}", SDL_GetError());
+  SDL_UploadToGPUBuffer(copy_pass, &buffer_location, &buffer_region, true);
+  SDL_EndGPUCopyPass(copy_pass);
+  SDL_ReleaseGPUTransferBuffer(gfxcontext.mGpuDevice, transferbuffer);
 }
 
 /******************************************************************************/

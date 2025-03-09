@@ -12,7 +12,7 @@
 std::array<bool, 512> keystatus;
 std::vector<tbind> binds;
 SDL_Window *gamewindow;
-SDL_GLContext gameglcontext;
+
 
 auto constexpr LOG = "input";
 

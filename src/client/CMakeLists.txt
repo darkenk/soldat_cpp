@@ -3,7 +3,8 @@ set(SRC
     InterfaceGraphics.cpp
     ClientGame.cpp
     GameRendering.cpp
-    Gfx.cpp
+    #Gfx.cpp
+    GfxSDLGpu.cpp
     ${GLAD_SRC}
     GameMenus.cpp
     Input.cpp
@@ -55,9 +56,11 @@ set(SHARED_SRC
 )
 
 add_library(SoldatClientLib OBJECT ${SRC} ${SHARED_SRC})
-target_include_directories(SoldatClientLib PRIVATE
-    ./config
-    ../
+target_include_directories(SoldatClientLib
+    PRIVATE
+        ./config
+        ../
+        ${PROJECT_BINARY_DIR}
 )
 
 target_include_directories(SoldatClientLib SYSTEM PRIVATE

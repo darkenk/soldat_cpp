@@ -77,4 +77,3 @@ void unbindall();
 extern std::array<bool, 512> keystatus;
 extern std::vector<tbind> binds;
 extern SDL_Window *gamewindow;
-extern SDL_GLContext gameglcontext;

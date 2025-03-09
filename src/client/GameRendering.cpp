@@ -528,6 +528,7 @@ auto initgamegraphics() -> bool
   }
 
   std::uint32_t windowflags = SDL_WINDOW_OPENGL;
+  //std::uint32_t windowflags = SDL_WINDOW_VULKAN;
 
   if (CVar::r_fullscreen == 2)
   {
@@ -907,6 +908,10 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
   {
     gfxtarget(rendertarget);
     gfxviewport(0, 0, renderwidth, renderheight);
+  }
+  else
+  {
+    gfxtarget(nullptr);
   }
 
   if (!screenshotpath.empty())
@@ -1377,3 +1382,43 @@ void gfxlogcallback(const std::string &s)
 
 // initialization
 //  GfxLog := @GfxLogCallback;
+
+#pragma region tests
+#include <doctest.h>
+#include "SdlApp.hpp"
+extern void gfxSetGpuDevice(SDL_GPUDevice* device);
+namespace
+{
+
+class GameRenderingFixture
+{
+public:
+  GameRenderingFixture() = default;
+  ~GameRenderingFixture() = default;
+  GameRenderingFixture(const GameRenderingFixture&) = delete;
+protected:
+};
+
+TEST_SUITE("GameRenderingSuite")
+{
+
+TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(true))
+{
+  SdlApp app("GameRenderingTest");
+  SDL_GetWindowSize(app.GetWindow(), &windowwidth, &windowheight);
+  renderwidth = screenwidth = windowwidth;
+  renderheight = screenheight = windowheight;
+  gfxSetGpuDevice(app.GetDevice());
+  gfxinitcontext(app.GetWindow(), false, false);
+  loadfonts();
+  for (auto i = 0; i < 500; i++)
+  {
+    rendergameinfo("Test");
+  }
+  gfxdestroycontext();
+  CHECK(true);
+}
+
+} // end of GameRenderingSuite
+} // end of unnamed namespace
+#pragma endregion tests

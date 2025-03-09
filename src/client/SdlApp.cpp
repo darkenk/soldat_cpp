@@ -62,14 +62,37 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
   AbortIf(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)== false,
           "Cannot init SDL. Error {}", SDL_GetError());
 
-
   mDevice = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
   AbortIf(mDevice == nullptr, "Failed to create gpu device");
+  
+  int num_displays;
+  SDL_DisplayID* displays = SDL_GetDisplays(&num_displays);
+  AbortIf(num_displays == 0, "Failed to get displays");
+  for (int i = 0; i < num_displays; i++)
+  {
+    SDL_Rect display_bounds;
+    SDL_GetDisplayBounds(displays[i], &display_bounds);
+    LogInfoG("Display {} bounds: {}x{}, pos: {}:{}", i, display_bounds.w, display_bounds.h, display_bounds.x, display_bounds.y);
+  }
+  SDL_free(displays);
 
-  const auto window_flags =
-    (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
-  mWindow = SDL_CreateWindow(appTitle.data(), width, height, window_flags);
+  SDL_PropertiesID props = SDL_CreateProperties();
+  SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, appTitle.data());
+  //SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN, true);
+  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, width);
+  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, height);
+  SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_HIGH_PIXEL_DENSITY_BOOLEAN, true);
+  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, 10);
+  SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, 10);
+  SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_ALWAYS_ON_TOP_BOOLEAN, true);
+  SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_VULKAN_BOOLEAN, true);
+
+  // const auto window_flags =
+  //   (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+  // mWindow = SDL_CreateWindow(appTitle.data(), width, height, window_flags);
+  mWindow = SDL_CreateWindowWithProperties(props);
   AbortIf(mWindow == nullptr, "Failed to create sdl window");
+  SDL_DestroyProperties(props);
 
 	AbortIf(!SDL_ClaimWindowForGPUDevice(mDevice, mWindow), "Failed to claim window for gpu device. Error {}", SDL_GetError());
 }
