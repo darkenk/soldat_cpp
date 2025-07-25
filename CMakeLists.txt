@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(SoldatCPP)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 set(third_party_dependencies_config "${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}_release")
 set(third_party_dependencies_path "${CMAKE_BINARY_DIR}/../${third_party_dependencies_config}")

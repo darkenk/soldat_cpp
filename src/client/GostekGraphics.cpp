@@ -875,7 +875,7 @@ void rendergostek(tsprite &soldier)
     m = gfxmat3rot(r);
   }
 
-  for (i = GOSTEK_FIRST; i <= GOSTEK_LAST; i++)
+  for (i = GOSTEK_FIRST; i < GOSTEK_LAST; i++)
   {
 
     if (const auto &gs = gosteksprites[i]; (visible.contains(i)) && (gs.image != 0))

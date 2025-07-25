@@ -265,7 +265,6 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_spritedeath spritedeathmsg;
-  std::int32_t j;
 
   spritedeathmsg.header.id = msgid_spritedeath;
   // assign sprite values to SpriteDeathMsg
@@ -336,12 +335,13 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
     }
   }
 
-  for (j = 1; j <= 16; j++)
+  for (auto j = 1; j <= 16; j++)
   {
-    spritedeathmsg.pos[j].x = sprite_system.GetSprite(who).skeleton.pos[j].x;
-    spritedeathmsg.pos[j].y = sprite_system.GetSprite(who).skeleton.pos[j].y;
-    spritedeathmsg.oldpos[j].x = sprite_system.GetSprite(who).skeleton.oldpos[j].x;
-    spritedeathmsg.oldpos[j].y = sprite_system.GetSprite(who).skeleton.oldpos[j].y;
+    [[deprecated]] auto jminus1 = j - 1;
+    spritedeathmsg.pos[jminus1].x = sprite_system.GetSprite(who).skeleton.pos[j].x;
+    spritedeathmsg.pos[jminus1].y = sprite_system.GetSprite(who).skeleton.pos[j].y;
+    spritedeathmsg.oldpos[jminus1].x = sprite_system.GetSprite(who).skeleton.oldpos[j].x;
+    spritedeathmsg.oldpos[jminus1].y = sprite_system.GetSprite(who).skeleton.oldpos[j].y;
   }
 
   spritedeathmsg.constraints = 0;
