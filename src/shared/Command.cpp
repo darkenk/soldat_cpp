@@ -763,6 +763,7 @@ void commanddeinit()
     delete c.second;
   }
   commands.clear();
+  deferredinitialized = false;
 }
 
 template void commandinit();

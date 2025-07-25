@@ -719,10 +719,7 @@ void shutdown()
 
   GS::GetConsoleLogFile().Log("UDP closing.");
 
-  NotImplemented("network");
-#if 0
-    freeandnullptr(udp);
-#endif
+  DeinitClientNetwork();
 
   GS::GetConsoleLogFile().Log("Sound closing.");
 
@@ -975,6 +972,16 @@ TEST_SUITE("Client")
     //CHECK_EQ(240, kill.scrolltickmax);
     CHECK_EQ(70, kill.GetNewMessageWait());
     GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+  }
+
+  TEST_CASE_FIXTURE(ClientFixture, "Start and shutdown" * doctest::skip(false))
+  {
+      GlobalSystems<Config::CLIENT_MODULE>::Init();
+      std::string game = {"SoldatGame"};
+      std::array<char*, 1> argv = { game.data() };
+      startgame(argv.size(), argv.data());
+      shutdown();
+      GlobalSystems<Config::CLIENT_MODULE>::Deinit();
   }
 
 } // TEST_SUITE("Client")
