@@ -37,7 +37,7 @@
 			"TEST_SUITE(\"${TM_FILENAME_BASE}Suite\")",
 			"{",
 			"",
-			"TEST_CASE_FIXTURE(${TM_FILENAME_BASE}Fixture, \"Sample test\")",
+			"TEST_CASE_FIXTURE(${TM_FILENAME_BASE}Fixture, \"Sample test\" * doctest::skip(false))",
 			"{",
 			"  CHECK(false);",
 			"}",
