@@ -3,8 +3,8 @@ set(SRC
     InterfaceGraphics.cpp
     ClientGame.cpp
     GameRendering.cpp
-    #Gfx.cpp
-    GfxSDLGpu.cpp
+    Gfx.cpp
+    #GfxSDLGpu.cpp
     ${GLAD_SRC}
     GameMenus.cpp
     Input.cpp
