@@ -169,6 +169,10 @@ private:
 public:
   tscreenshotthread(string filename, std::int32_t w, std::int32_t h, std::uint8_t *data);
   void execute();
+
+  bool freeonterminate = false;
+  void start();
+  void waitfor();
 };
 
 static SDL_GLContext gameglcontext;
@@ -529,11 +533,13 @@ auto gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline) -> bool
     }
 
     gameglcontext = SDL_GL_CreateContext(wnd);
-    if (gameglcontext != nullptr)
+    if (gameglcontext == nullptr)
     {
-      gOpenGLES = v.profile == SDL_GL_CONTEXT_PROFILE_ES;
-      break;
+      LogInfoG("Cannot create opengl context: {}", SDL_GetError());
+      continue;
     }
+    gOpenGLES = v.profile == SDL_GL_CONTEXT_PROFILE_ES;
+    break;
   }
   if (gameglcontext == nullptr)
   {
@@ -913,16 +919,21 @@ void gfxsavescreen(const std::string &filename, std::int32_t x, std::int32_t y, 
   src += static_cast<ptrdiff_t>(w * h * 4);
   glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, src);
 
-  NotImplemented("rendering", "Lack of screenshot");
+  tscreenshotthread *screenthread = new tscreenshotthread(filename, w, h, data);
+  if (!async)
+  {
+    screenthread->execute();
+    return; 
+  }
+  SoldatAssert(async == false);
 #if 0
-    tscreenshotthread *screenthread;
-    screenthread = tscreenshotthread.create(filename, w, h, data);
-    screenthread.freeonterminate = true;
-    screenthread.start;
-
-    if (!async)
-        screenthread.waitfor;
-#endif
+  screenthread->freeonterminate = true;
+  screenthread->start();
+  if (!async)
+  {
+    screenthread->waitfor();
+  }
+#endif // 0
 }
 
 auto argb(std::uint32_t argb) -> tgfxcolor { return rgba(argb, (std::uint32_t)argb >> 24); }

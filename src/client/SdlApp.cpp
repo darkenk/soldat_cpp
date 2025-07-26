@@ -57,13 +57,16 @@ static auto CreateOpenGLContext(SDL_Window *window) -> SDL_GLContext
   return context;
 }
 
-SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32_t height)
+SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32_t height, bool opengl)
 {
   AbortIf(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)== false,
           "Cannot init SDL. Error {}", SDL_GetError());
 
-  mDevice = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
-  AbortIf(mDevice == nullptr, "Failed to create gpu device");
+  if (!opengl)
+  {
+    mDevice = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
+    AbortIf(mDevice == nullptr, "Failed to create gpu device");
+  }
   
   int num_displays;
   SDL_DisplayID* displays = SDL_GetDisplays(&num_displays);
@@ -85,7 +88,14 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
   SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, 10);
   SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, 10);
   SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_ALWAYS_ON_TOP_BOOLEAN, true);
-  SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_VULKAN_BOOLEAN, true);
+  if (opengl)
+  {
+    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, true);
+  }
+  else
+  {
+    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_VULKAN_BOOLEAN, true);
+  }
 
   // const auto window_flags =
   //   (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
@@ -94,14 +104,23 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
   AbortIf(mWindow == nullptr, "Failed to create sdl window");
   SDL_DestroyProperties(props);
 
-	AbortIf(!SDL_ClaimWindowForGPUDevice(mDevice, mWindow), "Failed to claim window for gpu device. Error {}", SDL_GetError());
+  if (!opengl)
+  {
+	  AbortIf(!SDL_ClaimWindowForGPUDevice(mDevice, mWindow), "Failed to claim window for gpu device. Error {}", SDL_GetError());
+  }
 }
 
 SdlApp::~SdlApp()
 {
-	SDL_ReleaseWindowFromGPUDevice(mDevice, mWindow);
+  if (mDevice)
+  {
+	  SDL_ReleaseWindowFromGPUDevice(mDevice, mWindow);
+  }
   SDL_DestroyWindow(mWindow);
-  SDL_DestroyGPUDevice(mDevice);
+  if (mDevice)
+  {
+    SDL_DestroyGPUDevice(mDevice);
+  }
   SDL_Quit();
 }
 

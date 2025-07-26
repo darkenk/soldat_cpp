@@ -1402,19 +1402,18 @@ protected:
 TEST_SUITE("GameRenderingSuite")
 {
 
-TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(true))
+TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
 {
-  SdlApp app("GameRenderingTest");
+  constexpr bool opengl = true;
+  SdlApp app("GameRenderingTest", 1280, 720, opengl);
   SDL_GetWindowSize(app.GetWindow(), &windowwidth, &windowheight);
   renderwidth = screenwidth = windowwidth;
   renderheight = screenheight = windowheight;
   gfxSetGpuDevice(app.GetDevice());
   gfxinitcontext(app.GetWindow(), false, false);
   loadfonts();
-  for (auto i = 0; i < 500; i++)
-  {
-    rendergameinfo("Test");
-  }
+  rendergameinfo("Test");
+  gfxsavescreen("render_text.png", 0, 0, renderwidth, renderheight, false);
   gfxdestroycontext();
   CHECK(true);
 }

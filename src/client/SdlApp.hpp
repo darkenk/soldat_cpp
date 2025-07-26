@@ -13,7 +13,7 @@ public:
   using HandlerType = std::function<void(SDL_Event &)>;
 
   SdlApp(const std::string_view appTitle, const std::int32_t width = 1280,
-         const std::int32_t height = 720);
+         const std::int32_t height = 720, bool opengl = false);
   ~SdlApp();
 
   bool RegisterEventHandler(SDL_EventType evt, HandlerType handler);
