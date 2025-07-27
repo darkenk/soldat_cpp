@@ -16,3 +16,6 @@
 [submodule "third_party/src/SDL_shadercross"]
 	path = third_party/src/SDL_shadercross
 	url = git@github.com:libsdl-org/SDL_shadercross.git
+[submodule "third_party/src/ApprovalTests.cpp"]
+	path = third_party/src/ApprovalTests.cpp
+	url = https://github.com/approvals/ApprovalTests.cpp.git
