@@ -5,6 +5,8 @@
 #include "server/Server.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include <thread>
+#include <stb_image_write.h>
+#include <filesystem>
 
 // clang-format off
 #define SDL_MAIN_USE_CALLBACKS
@@ -14,10 +16,32 @@
 // clang-format off
 #define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest.h>
+#define APPROVALS_DOCTEST_EXISTING_MAIN
+#include "ApprovalTests.hpp"
 // clang-format on
 
 void RunTests(int argc, char **argv)
 {
+  auto directoryDisposer = ApprovalTests::Approvals::useApprovalsSubdirectory("approval_tests");
+  auto defaultReporterDisposer = ApprovalTests::Approvals::useAsDefaultReporter(std::make_shared<ApprovalTests::CrossPlatform::VisualStudioCodeReporter>());
+  const auto root_path = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
+  ApprovalTests::TestName::registerRootDirectoryFromMainFile(root_path / "CMakeLists.txt");
+
+  auto default_namer_disposer = ApprovalTests::Approvals::useAsDefaultNamer(
+    [&root_path]() { return ApprovalTests::TemplatedCustomNamer::create(
+    root_path / "{ApprovalsSubdirectory}/{RelativeTestSourceDirectory}/{TestFileName}.{TestCaseName}.{ApprovedOrReceived}.{FileExtension}");
+  });
+
+  ApprovalTests::EmptyFileCreatorByType::registerCreator(".png",  [](std::string path) {
+    constexpr auto kWidth = 1;
+    constexpr auto kHeight = 1;
+    constexpr auto kChannels = 4;
+    std::array<std::uint8_t, kWidth * kHeight * kChannels> data;
+    std::fill(std::begin(data), std::end(data), 0x0);
+
+    stbi_write_png(path.c_str(), kWidth, kHeight, kChannels, data.data(), kWidth * kChannels);
+  });
+
   doctest::Context ctx;
   ctx.applyCommandLine(argc, argv);
 

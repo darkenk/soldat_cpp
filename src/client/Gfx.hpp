@@ -326,6 +326,8 @@ void gfxviewport(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h)
 void gfxtransform(const tgfxmat3 t);
 void gfxspritevertices(pgfxsprite s, float x, float y, float w, float h, float sx, float sy,
                        float cx, float cy, float r, tgfxcolor color, pgfxvertex v);
+
+std::unique_ptr<std::uint8_t[]> gfxsavescreen(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h);
 void gfxsavescreen(const std::string &filename, std::int32_t x, std::int32_t y, std::int32_t w,
                    std::int32_t h, bool async = true);
 void gfxsetmipmapbias(float bias);

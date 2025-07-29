@@ -54,6 +54,7 @@ target_link_libraries(SoldatServerLib
     spdlog::spdlog
     Freetype::Freetype
     GameNetworkingSockets::GameNetworkingSockets_s
+    ApprovalTests::ApprovalTests
 )
 
 target_precompile_headers(SoldatServerLib PRIVATE

@@ -70,6 +70,7 @@ set(DOCTEST_INCLUDE_DIR ${source_dir}/doctest CACHE INTERNAL "Path to include fo
 include(${source_dir}/scripts/cmake/doctest.cmake)
 
 add_subdirectory(third_party/src/soloud)
+add_subdirectory(third_party/src/ApprovalTests.cpp)
 
 find_package(SDL3 REQUIRED)
 find_package(SDL3_shadercross REQUIRED)

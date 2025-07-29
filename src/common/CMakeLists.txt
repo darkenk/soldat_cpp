@@ -36,6 +36,7 @@ add_library(CommonLib ${SRC} ${TRACY_SRC})
 target_link_libraries(CommonLib
     spdlog::spdlog
     GameNetworkingSockets::GameNetworkingSockets_s
+    ApprovalTests::ApprovalTests
 )
 
 target_include_directories(CommonLib SYSTEM PRIVATE

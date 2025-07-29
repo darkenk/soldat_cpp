@@ -7,6 +7,7 @@ target_include_directories(SoldatGame
 target_include_directories(SoldatGame SYSTEM PRIVATE
     ${TRACY_INCLUDE_DIR}
     ${DOCTEST_INCLUDE_DIR}
+    ${STB_INCLUDE_DIR}
 )
 
 target_link_libraries(SoldatGame
@@ -20,6 +21,7 @@ target_link_libraries(SoldatGame
     ${PHYSFS_LIBRARY}
     GameNetworkingSockets::GameNetworkingSockets_s
     ${SOLOUD_LIBRARY}
+    ApprovalTests::ApprovalTests
 )
 
 set_target_properties(SoldatGame PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/game)

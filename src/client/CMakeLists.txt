@@ -80,6 +80,7 @@ target_link_libraries(SoldatClientLib
     Freetype::Freetype
     GameNetworkingSockets::GameNetworkingSockets_s
     spdlog::spdlog
+    ApprovalTests::ApprovalTests
 )
 
 target_precompile_headers(SoldatClientLib PRIVATE

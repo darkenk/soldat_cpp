@@ -907,6 +907,18 @@ void tscreenshotthread::execute()
   freemem(fdata);
 }
 
+std::unique_ptr<std::uint8_t[]> gfxsavescreen(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h)
+{
+  auto data = std::make_unique<uint8_t[]>(w * h * 4);
+  glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, data.get());
+  for(int line = 0; line != h/2; ++line) {
+    std::swap_ranges(data.get() + 4 * w * line,
+                     data.get() + 4 * w * (line+1),
+                     data.get() + 4 * w * (h-line-1));
+}
+  return data;
+}
+
 void gfxsavescreen(const std::string &filename, std::int32_t x, std::int32_t y, std::int32_t w,
                    std::int32_t h, bool async)
 {

@@ -1385,8 +1385,46 @@ void gfxlogcallback(const std::string &s)
 
 #pragma region tests
 #include <doctest.h>
+#include <ApprovalTests.hpp>
+#include <stb_image.h>
+#include <stb_image_resize.h>
+#include <stb_image_write.h>
+
 #include "SdlApp.hpp"
 extern void gfxSetGpuDevice(SDL_GPUDevice* device);
+
+
+class PngWriter : public ApprovalTests::ApprovalWriter
+{
+
+public:
+  PngWriter(std::int32_t w, std::int32_t h, std::unique_ptr<std::uint8_t[]> data)
+  : m_width{w}, m_height{h}, m_data{std::move(data)}
+  {
+
+  }
+  std::string getFileExtensionWithDot() const override
+  {
+      return ".png";
+  }
+
+  void write(std::string path) const override
+  {
+    stbi_write_png(path.c_str(), m_width, m_height, 4, m_data.get(), m_width * 4);
+  }
+
+  void cleanUpReceived(std::string receivedPath) const override
+  {
+    remove(receivedPath.c_str());
+  };
+
+private:
+  std::int32_t m_width;
+  std::int32_t m_height;
+  std::unique_ptr<std::uint8_t[]> m_data;
+};
+
+
 namespace
 {
 
@@ -1413,9 +1451,10 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
   gfxinitcontext(app.GetWindow(), false, false);
   loadfonts();
   rendergameinfo("Test");
-  gfxsavescreen("render_text.png", 0, 0, renderwidth, renderheight, false);
+  auto data = gfxsavescreen(0, 0, renderwidth, renderheight);
+  PngWriter writer(renderwidth, renderheight, std::move(data));
+  ApprovalTests::Approvals::verify(writer);
   gfxdestroycontext();
-  CHECK(true);
 }
 
 } // end of GameRenderingSuite
