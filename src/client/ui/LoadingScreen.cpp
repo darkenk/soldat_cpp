@@ -3,7 +3,7 @@
 
 
 #pragma region tests
-#include <doctest.h>
+#include <doctest/doctest.h>
 #include "../SdlApp.hpp"
 
 

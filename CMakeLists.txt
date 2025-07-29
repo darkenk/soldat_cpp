@@ -66,7 +66,7 @@ ExternalProject_Add(doctest
 include_directories(SYSTEM ${DOCTEST_INCLUDE_DIR})
 
 ExternalProject_Get_Property(doctest source_dir)
-set(DOCTEST_INCLUDE_DIR ${source_dir}/doctest CACHE INTERNAL "Path to include folder for doctest")
+set(DOCTEST_INCLUDE_DIR ${source_dir} CACHE INTERNAL "Path to include folder for doctest")
 include(${source_dir}/scripts/cmake/doctest.cmake)
 
 add_subdirectory(third_party/src/soloud)

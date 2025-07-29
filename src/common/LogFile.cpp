@@ -143,7 +143,7 @@ void LogFile::CreateNewLogIfCurrentLogIsTooBig()
 }
 
 // TEST
-#include <doctest.h>
+#include <doctest/doctest.h>
 
 class LogFileFixture
 {

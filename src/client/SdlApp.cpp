@@ -159,7 +159,7 @@ void SdlApp::ProcessEvents()
 
 void SdlApp::Present() { NotImplemented("Present"); }
 
-#include <doctest.h>
+#include <doctest/doctest.h>
 
 TEST_CASE("Create SDL window")
 {

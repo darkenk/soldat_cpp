@@ -5660,7 +5660,7 @@ template class Sprite<Config::GetModule()>;
 template bool teamcollides(PolygonType polytype, std::int32_t team, const bool bullet);
 template class BackgroundState<>;
 
-#include <doctest.h>
+#include <doctest/doctest.h>
 
 class SpritesFixture
 {

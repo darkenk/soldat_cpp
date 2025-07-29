@@ -54,7 +54,7 @@ auto ReadAsFileStream(FileUtility &fs, const std::string_view &file) -> std::uni
 }
 
 // tests
-#include <doctest.h>
+#include <doctest/doctest.h>
 
 namespace
 {

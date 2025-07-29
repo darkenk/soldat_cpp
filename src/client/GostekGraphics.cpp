@@ -934,7 +934,7 @@ void rendergostek(tsprite &soldier)
 }
 
 // TESTS
-#include <doctest.h>
+#include <doctest/doctest.h>
 
 struct GostekGraphicsFixture
 {

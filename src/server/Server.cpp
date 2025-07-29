@@ -1236,7 +1236,7 @@ void ConsoleServer::console(const std::string_view what, std::int32_t col, std::
 }
 
 // tests
-#include <doctest.h>
+#include <doctest/doctest.h>
 
 namespace
 {

@@ -364,7 +364,7 @@ CVarBool sv_pure{"sv_pure","Requires clients to use the same game files (.smod) 
 // clang-format-on
 };
 
-#include <doctest.h>
+#include <doctest/doctest.h>
 
 namespace
 {

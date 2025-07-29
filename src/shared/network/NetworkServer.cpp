@@ -385,7 +385,7 @@ auto DeinitServerNetwork() -> bool
 }
 
 // tests
-#include <doctest.h>
+#include <doctest/doctest.h>
 #include "NetworkClient.hpp"
 
 namespace

@@ -20,7 +20,7 @@
 		"prefix": "test_fixture",
 		"body": [
 			"#pragma region tests",
-			"#include <doctest.h>",
+			"#include <doctest/doctest.h>",
 			"",
 			"namespace",
 			"{",

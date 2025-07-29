@@ -74,7 +74,7 @@ void TSpriteSystem<TSprite>::UpdateSpriteParts()
 
 template class TSpriteSystem<>;
 
-#include <doctest.h>
+#include <doctest/doctest.h>
 
 class SpriteSystemFixture
 {

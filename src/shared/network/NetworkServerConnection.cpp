@@ -1036,7 +1036,7 @@ void serverhandlepong(tmsgheader* netmessage, std::int32_t size, NetworkServer& 
 #endif
 
 // tests
-#include <doctest.h>
+#include <doctest/doctest.h>
 #include "NetworkClient.hpp"
 #include "NetworkClientConnection.hpp"
 

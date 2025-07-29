@@ -837,7 +837,7 @@ void showmessage(const std::string &message)
 };
 
 // tests
-#include <doctest.h>
+#include <doctest/doctest.h>
 #include <fstream>
 #include <filesystem>
 

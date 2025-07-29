@@ -67,7 +67,7 @@ void DebugWindow::DrawEverything(SDL_GPUCommandBuffer* _command_buffer,  SDL_GPU
 
 
 // tests
-#include <doctest.h>
+#include <doctest/doctest.h>
 
 namespace
 {
