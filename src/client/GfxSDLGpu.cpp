@@ -841,6 +841,58 @@ void tscreenshotthread::execute()
   freemem(fdata);
 }
 
+std::unique_ptr<std::uint8_t[]> gfxsavescreen(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h)
+{
+  auto data = std::make_unique<uint8_t[]>(w * h * 4);
+
+  SDL_GPUCommandBuffer *cmd = SDL_AcquireGPUCommandBuffer(gfxcontext.mGpuDevice);
+
+  SDL_GPUTransferBufferCreateInfo tbufInfo {};
+  tbufInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
+  tbufInfo.size = w  * h * 4;
+  
+
+  SDL_GPUTransferBuffer* transferBuffor = SDL_CreateGPUTransferBuffer(gfxcontext.mGpuDevice, &tbufInfo);
+
+  SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(cmd);
+  SDL_GPUTextureRegion region{};
+  region.texture = gfxcontext.mRenderTexture;
+  region.mip_level = 0;
+  region.layer = 0;
+  region.x = x;
+  region.y = y;
+  region.z = 0;
+  region.w = w;
+  region.h = h;
+  region.d = 1;
+  
+  SDL_GPUTextureTransferInfo xferInfo{};
+  xferInfo.transfer_buffer = transferBuffor;
+  xferInfo.offset = 0;
+  xferInfo.pixels_per_row = (Uint32)(w);
+  xferInfo.rows_per_layer = (Uint32)(h);        
+
+  SDL_DownloadFromGPUTexture(copyPass, &region, &xferInfo);
+  SDL_EndGPUCopyPass(copyPass);
+
+  SDL_GPUFence* const fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
+  SDL_WaitForGPUFences(gfxcontext.mGpuDevice, true, &fence, 1);
+  SDL_ReleaseGPUFence(gfxcontext.mGpuDevice, fence);
+
+  void* pixels = SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, transferBuffor, false);
+  AbortIf(pixels == nullptr, "Failed to map transfer buffer: {}", SDL_GetError());
+  std::memcpy(data.get(), pixels, w * h * 4);
+  SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, transferBuffor);
+  SDL_ReleaseGPUTransferBuffer(gfxcontext.mGpuDevice, transferBuffor);
+  for(int line = 0; line < h; ++line) {
+    for (int linex = 0; linex < w; ++linex) {
+      std::swap(data.get()[4 * (line * w + linex) + 0],
+                data.get()[4 * (line * w + linex) + 2]);
+    }
+  }
+  return data;
+}
+
 void gfxsavescreen(const std::string &filename, std::int32_t x, std::int32_t y, std::int32_t w,
                    std::int32_t h, bool async)
 {

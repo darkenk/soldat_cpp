@@ -47,11 +47,11 @@ void RunTests(int argc, char **argv)
 
   int res = ctx.run();
 
-  SoldatAssert(res == 0);
   if (ctx.shouldExit())
   {
     std::exit(res);
   }
+  SoldatAssert(res == 0);
 }
 
 struct AppState
