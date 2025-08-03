@@ -88,18 +88,9 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
   SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, 10);
   SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, 10);
   SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_ALWAYS_ON_TOP_BOOLEAN, true);
-  if (opengl)
-  {
-    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, true);
-  }
-  else
-  {
-    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_VULKAN_BOOLEAN, true);
-  }
+  SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_VULKAN_BOOLEAN, !opengl);
+  SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, opengl);
 
-  // const auto window_flags =
-  //   (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
-  // mWindow = SDL_CreateWindow(appTitle.data(), width, height, window_flags);
   mWindow = SDL_CreateWindowWithProperties(props);
   AbortIf(mWindow == nullptr, "Failed to create sdl window");
   SDL_DestroyProperties(props);

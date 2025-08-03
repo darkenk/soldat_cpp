@@ -1393,7 +1393,6 @@ void gfxlogcallback(const std::string &s)
 #include "SdlApp.hpp"
 extern void gfxSetGpuDevice(SDL_GPUDevice* device);
 
-
 class PngWriter : public ApprovalTests::ApprovalWriter
 {
 
@@ -1425,6 +1424,7 @@ private:
 };
 
 
+extern void initgamemenus();
 namespace
 {
 
@@ -1435,6 +1435,7 @@ public:
   ~GameRenderingFixture() = default;
   GameRenderingFixture(const GameRenderingFixture&) = delete;
 protected:
+  static constexpr bool opengl = true;
 };
 
 TEST_SUITE("GameRenderingSuite")
@@ -1442,7 +1443,6 @@ TEST_SUITE("GameRenderingSuite")
 
 TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
 {
-  constexpr bool opengl = true;
   SdlApp app("GameRenderingTest", 1280, 720, opengl);
   SDL_GetWindowSize(app.GetWindow(), &windowwidth, &windowheight);
   renderwidth = screenwidth = windowwidth;
@@ -1455,6 +1455,41 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
   PngWriter writer(renderwidth, renderheight, std::move(data));
   ApprovalTests::Approvals::verify(writer);
   gfxdestroycontext();
+}
+
+TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(false))
+{
+  SdlApp app("GameRenderingTest", 1280, 720, opengl);
+  SDL_GetWindowSize(app.GetWindow(), &windowwidth, &windowheight);
+  renderwidth = screenwidth = windowwidth;
+  renderheight = screenheight = windowheight;
+  gamewindow = app.GetWindow();
+  gfxSetGpuDevice(app.GetDevice());
+  gfxinitcontext(app.GetWindow(), false, false);
+  GlobalSystems<Config::CLIENT_MODULE>::Init();
+  auto &fs = GS::GetFileSystem();
+  const auto userDirectory = FileUtility::GetPrefPath("client");
+  const auto baseDirectory = FileUtility::GetBasePath();
+
+  fs.Mount(userDirectory, "/user");
+  fs.Mount(baseDirectory + "/soldat.smod", "/");
+  textures = new pgfxsprite[GFX::END + 1];
+  auto ret = getmapinfo(fs, "ctf_Ash", userDirectory, mapgfx.mapinfo);
+  CHECK(ret);
+  reloadgraphics();
+  loadweaponnames(fs);
+  createweaponsbase(GS::GetWeaponSystem().GetGuns());
+  initgamemenus();
+  loadfonts();
+  renderframe(1.0f, 1.0f, true);
+  auto data = gfxsavescreen(0, 0, renderwidth, renderheight);
+  PngWriter writer(renderwidth, renderheight, std::move(data));
+  destroymapgraphics();
+  gfxdestroycontext();
+  delete[] textures;
+  GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+  gamewindow = nullptr;
+  CHECK(true);
 }
 
 } // end of GameRenderingSuite

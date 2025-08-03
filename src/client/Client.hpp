@@ -102,3 +102,5 @@ extern std::int32_t shotdistanceshow;
 extern float shotdistance;
 extern float shotlife;
 extern std::int32_t shotricochet;
+
+void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName = gundisplayname, const std::string& modDir = moddir);

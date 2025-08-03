@@ -115,8 +115,8 @@ void initgamemenus()
   {
     if (i < primary_weapons)
     {
-      s = (inttostr((i + 1) % 10)) + ' ' +
-          (gundisplayname[GS::GetWeaponSystem().GetGuns()[i + 1].num]);
+      const auto& gun = GS::GetWeaponSystem().GetGuns()[i + 1];
+      s = (inttostr((i + 1) % 10)) + ' ' + (gundisplayname[gun.num]);
     }
     else
     {

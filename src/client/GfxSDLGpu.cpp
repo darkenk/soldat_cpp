@@ -388,8 +388,10 @@ auto gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline) -> bool
 {
 #pragma region sdl3
 
-gfxcontext.mGpuDevice = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
-AbortIf(gfxcontext.mGpuDevice == nullptr, "Failed to create gpu device");
+if (gfxcontext.mGpuDevice == nullptr)
+{
+  gfxcontext.mGpuDevice = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
+  AbortIf(gfxcontext.mGpuDevice == nullptr, "Failed to create gpu device");
 
 // int num_displays;
 // SDL_DisplayID* displays = SDL_GetDisplays(&num_displays);
@@ -420,10 +422,11 @@ AbortIf(gfxcontext.mGpuDevice == nullptr, "Failed to create gpu device");
 // AbortIf(mWindow == nullptr, "Failed to create sdl window");
 // SDL_DestroyProperties(props);
 
+    AbortIf(!SDL_ClaimWindowForGPUDevice(gfxcontext.mGpuDevice, wnd), "Failed to claim window for gpu device. Error {}", SDL_GetError());
+  }
+
 SDL_SetLogPriority(SDL_LOG_CATEGORY_GPU, SDL_LOG_PRIORITY_TRACE);
 SDL_SetLogPriority(SDL_LOG_CATEGORY_RENDER, SDL_LOG_PRIORITY_TRACE);
-
-AbortIf(!SDL_ClaimWindowForGPUDevice(gfxcontext.mGpuDevice, wnd), "Failed to claim window for gpu device. Error {}", SDL_GetError());
 
 
 #pragma endregion sdl3
@@ -561,6 +564,16 @@ void gfxdestroycontext()
   }
 
   fillchar(&gfxcontext, sizeof(gfxcontext), 0);
+  if (gfxcontext.mGpuDevice)
+  {
+    SDL_WaitForGPUIdle(gfxcontext.mGpuDevice);
+    if (gfxcontext.mWindow)
+    {
+      SDL_ReleaseWindowFromGPUDevice(gfxcontext.mGpuDevice, gfxcontext.mWindow);
+    }
+    SDL_DestroyGPUDevice(gfxcontext.mGpuDevice);
+    gfxcontext.mGpuDevice = nullptr;
+  }
 }
 
 void gfxtarget(tgfxtexture *rendertarget)

@@ -175,7 +175,7 @@ void restartgraph()
   GS::GetMainConsole().console(("Graphics restart"), debug_message_color);
 }
 
-static void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName = gundisplayname, const std::string& modDir = moddir)
+void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
 {
   SoldatAssert(gunDisplayName.size() == double_weapons);
   std::int32_t i;
