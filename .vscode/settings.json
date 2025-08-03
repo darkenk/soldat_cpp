@@ -4,7 +4,7 @@
       "type": "cppdbg",
       "console": "internalConsole",
       "stopAtEntry": false,
-      "MIMode": "gdb",
+      "MIMode": "lldb",
       "setupCommands": [
             {
                 "description": "Enable pretty-printing for gdb",
@@ -25,6 +25,19 @@
     },
     "C_Cpp.autoAddFileAssociations": false,
     "testMate.cpp.test.executables": "build/out/**/game/SoldatGame",
+    "testMate.cpp.debug.breakOnFailure": true,
+    "testMate.cpp.debug.configTemplate": {
+      "type": "cppvsdbg",
+      "linux": { "type": "cppdbg", "MIMode": "gdb" },
+      "darwin": { "type": "cppdbg", "MIMode": "lldb" },
+      "win32": { "type": "cppvsdbg" },
+      "program": "${exec}",
+      "args": ["--exit", "true", "${argsArrayFlat}"],
+      "cwd": "${cwd}",
+      "env": "${envObj}",
+      "environment": "${envObjArray}",
+      "sourceFileMap": "${sourceFileMapObj}",
+    },
     "files.associations": {
       "*.vert": "glsl",
       "*.frag": "glsl"

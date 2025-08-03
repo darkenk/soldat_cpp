@@ -75,7 +75,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-  auto continue_run = mainloop();
+   auto continue_run = mainloop();
   return continue_run ? SDL_APP_CONTINUE : SDL_APP_SUCCESS;
 }
 
