@@ -1389,6 +1389,7 @@ void gfxlogcallback(const std::string &s)
 #include <stb_image.h>
 #include <stb_image_resize.h>
 #include <stb_image_write.h>
+#include <thread>
 
 #include "SdlApp.hpp"
 extern void gfxSetGpuDevice(SDL_GPUDevice* device);
@@ -1438,6 +1439,8 @@ protected:
   static constexpr bool opengl = true;
 };
 
+using namespace std::chrono_literals;
+
 TEST_SUITE("GameRenderingSuite")
 {
 
@@ -1482,8 +1485,10 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(false))
   initgamemenus();
   loadfonts();
   renderframe(1.0f, 1.0f, true);
+  std::this_thread::sleep_for(16ms);
   auto data = gfxsavescreen(0, 0, renderwidth, renderheight);
   PngWriter writer(renderwidth, renderheight, std::move(data));
+  ApprovalTests::Approvals::verify(writer);
   destroymapgraphics();
   gfxdestroycontext();
   delete[] textures;

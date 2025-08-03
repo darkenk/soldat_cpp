@@ -915,7 +915,7 @@ std::unique_ptr<std::uint8_t[]> gfxsavescreen(std::int32_t x, std::int32_t y, st
     std::swap_ranges(data.get() + 4 * w * line,
                      data.get() + 4 * w * (line+1),
                      data.get() + 4 * w * (h-line-1));
-}
+  }
   return data;
 }
 
