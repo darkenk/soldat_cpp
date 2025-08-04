@@ -212,7 +212,7 @@ struct
   SDL_GPUTexture * mSwapchainTexture = nullptr;
   SDL_GPUTexture * mRenderTexture = nullptr;
   SDL_GPUGraphicsPipeline * mPipeline = nullptr;
-  SDL_GPUSampler * mSampler = nullptr;
+  std::array<SDL_GPUSampler*, 4> mSamplers = {};
   SDL_GPUTextureSamplerBinding mTextureSamplerBinding = {};
   std::array<float, 12> mTransform = {};
   bool mTransformDirty = false;
@@ -273,11 +273,16 @@ void gfxSetGpuDevice(SDL_GPUDevice* device)
   gfxcontext.mGpuDevice = device;
 }
 
-static SDL_GPUSampler* gfxCreateSampler()
+constexpr inline std::uint32_t gfxCalculateSamplerIndex(const SDL_GPUFilter min_filter, const SDL_GPUFilter mag_filter)
+{
+  return min_filter | (mag_filter << 1);
+}
+
+static SDL_GPUSampler* gfxCreateSampler(const SDL_GPUFilter min_filter, const SDL_GPUFilter mag_filter)
 {
   SDL_GPUSamplerCreateInfo sampler_info = {};
-  sampler_info.min_filter = SDL_GPU_FILTER_LINEAR;
-  sampler_info.mag_filter = SDL_GPU_FILTER_LINEAR;
+  sampler_info.min_filter = min_filter;
+  sampler_info.mag_filter = mag_filter;
   sampler_info.mipmap_mode = SDL_GPU_SAMPLERMIPMAPMODE_LINEAR;
   sampler_info.address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
   sampler_info.address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
@@ -289,8 +294,9 @@ static SDL_GPUSampler* gfxCreateSampler()
   sampler_info.max_anisotropy = 1.0f;
   sampler_info.enable_compare = false;
   sampler_info.props = SDL_CreateProperties();
+  auto sampler_name = std::format("soldat_sampler_{}", gfxCalculateSamplerIndex(min_filter, mag_filter));
   SDL_SetStringProperty(sampler_info.props, SDL_PROP_GPU_SAMPLER_CREATE_NAME_STRING,
-                        "soldat_sampler");
+                        sampler_name.c_str());
 
   auto sampler = SDL_CreateGPUSampler(gfxcontext.mGpuDevice, &sampler_info);
   AbortIf(sampler == nullptr, "Failed to create font sampler. Error: {}", SDL_GetError());
@@ -346,7 +352,7 @@ static SDL_GPUGraphicsPipeline * gfxCreateGraphicsPipeline()
 
   SDL_GPUColorTargetBlendState blend_state = {};
   blend_state.enable_blend = true;
-  blend_state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA;
+  blend_state.src_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
   blend_state.dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
   blend_state.color_blend_op = SDL_GPU_BLENDOP_ADD;
   blend_state.src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE;
@@ -482,7 +488,10 @@ SDL_SetLogPriority(SDL_LOG_CATEGORY_RENDER, SDL_LOG_PRIORITY_TRACE);
   SDL_DestroyProperties(fragment_shader_info.props);
 
   gfxcontext.mPipeline = gfxCreateGraphicsPipeline();
-  gfxcontext.mSampler = gfxCreateSampler();
+  gfxcontext.mSamplers[gfxCalculateSamplerIndex(SDL_GPU_FILTER_NEAREST, SDL_GPU_FILTER_NEAREST)] = gfxCreateSampler(SDL_GPU_FILTER_NEAREST, SDL_GPU_FILTER_NEAREST);
+  gfxcontext.mSamplers[gfxCalculateSamplerIndex(SDL_GPU_FILTER_NEAREST, SDL_GPU_FILTER_LINEAR)] = gfxCreateSampler(SDL_GPU_FILTER_NEAREST, SDL_GPU_FILTER_LINEAR);
+  gfxcontext.mSamplers[gfxCalculateSamplerIndex(SDL_GPU_FILTER_LINEAR, SDL_GPU_FILTER_NEAREST)] = gfxCreateSampler(SDL_GPU_FILTER_LINEAR, SDL_GPU_FILTER_NEAREST);
+  gfxcontext.mSamplers[gfxCalculateSamplerIndex(SDL_GPU_FILTER_LINEAR, SDL_GPU_FILTER_LINEAR)] = gfxCreateSampler(SDL_GPU_FILTER_LINEAR, SDL_GPU_FILTER_LINEAR);
   
 
   // create a default white texture
@@ -674,6 +683,7 @@ void gfxdraw(tgfxvertexbuffer *buffer, std::int32_t offset, std::int32_t count)
   target_info.layer_or_depth_plane = 0;
   target_info.cycle = false;
   gfxcontext.mRenderPass = SDL_BeginGPURenderPass(gfxcontext.mCommandBuffer, &target_info, 1, nullptr);
+  SDL_SetGPUBlendConstants(gfxcontext.mRenderPass, SDL_FColor(0.f, 0.f, 0.f, 0.f));
   SDL_BindGPUGraphicsPipeline(gfxcontext.mRenderPass, gfxcontext.mPipeline);
   if (gfxcontext.mTransformDirty)
   {
@@ -710,6 +720,7 @@ void gfxdraw(tgfxvertexbuffer *buffer, tgfxindexbuffer *indexbuffer, std::int32_
   target_info.layer_or_depth_plane = 0;
   target_info.cycle = false;
   gfxcontext.mRenderPass = SDL_BeginGPURenderPass(gfxcontext.mCommandBuffer, &target_info, 1, nullptr);
+  SDL_SetGPUBlendConstants(gfxcontext.mRenderPass, SDL_FColor(0.f, 0.f, 0.f, 0.f));
   SDL_BindGPUGraphicsPipeline(gfxcontext.mRenderPass, gfxcontext.mPipeline);
   if (gfxcontext.mTransformDirty)
   {
@@ -733,6 +744,7 @@ void gfxdraw(tgfxvertexbuffer *buffer, tgfxindexbuffer *indexbuffer, std::int32_
 
 void gfxdraw(tgfxvertexbuffer *buffer, pgfxdrawcommand cmds, std::int32_t cmdcount)
 {
+  SDL_PushGPUDebugGroup(gfxcontext.mCommandBuffer, "gfxdraw");
   // Setup and start a render pass
   SDL_GPUColorTargetInfo target_info = {};
   target_info.texture = gfxcontext.mRenderTexture;
@@ -743,6 +755,7 @@ void gfxdraw(tgfxvertexbuffer *buffer, pgfxdrawcommand cmds, std::int32_t cmdcou
   target_info.layer_or_depth_plane = 0;
   target_info.cycle = false;
   gfxcontext.mRenderPass = SDL_BeginGPURenderPass(gfxcontext.mCommandBuffer, &target_info, 1, nullptr);
+  SDL_SetGPUBlendConstants(gfxcontext.mRenderPass, SDL_FColor(0.f, 0.f, 0.f, 0.f));
   SDL_BindGPUGraphicsPipeline(gfxcontext.mRenderPass, gfxcontext.mPipeline);
   if (gfxcontext.mTransformDirty)
   {
@@ -765,6 +778,7 @@ void gfxdraw(tgfxvertexbuffer *buffer, pgfxdrawcommand cmds, std::int32_t cmdcou
 
   SDL_EndGPURenderPass(gfxcontext.mRenderPass);
   gfxcontext.mRenderPass = nullptr;
+  SDL_PopGPUDebugGroup(gfxcontext.mCommandBuffer);
 }
 
 void gfxdraw(tgfxvertexbuffer *buffer, tgfxindexbuffer *indexbuffer, pgfxdrawcommand cmds,
@@ -1004,15 +1018,9 @@ auto gfxvertex(float x, float y, float u, float v, const tgfxcolor &c) -> tgfxve
 
 void gfxbindtexture(tgfxtexture *texture)
 {
-  gfxcontext.mTextureSamplerBinding.sampler = gfxcontext.mSampler;
-  if (texture != nullptr)
-  {
-    gfxcontext.mTextureSamplerBinding.texture = texture->getTexture();
-  }
-  else
-  {
-    gfxcontext.mTextureSamplerBinding.texture = gfxcontext.whitetexture->getTexture();
-  }
+  auto tex = texture ? texture : gfxcontext.whitetexture;
+  gfxcontext.mTextureSamplerBinding.sampler = gfxcontext.mSamplers[gfxCalculateSamplerIndex(tex->mMinFilter, tex->mMagFilter)];
+  gfxcontext.mTextureSamplerBinding.texture = tex->getTexture();
 }
 
 auto gfxcreatetexture(std::int32_t w, std::int32_t h, std::int32_t c, std::uint8_t *data,

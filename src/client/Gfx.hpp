@@ -141,8 +141,8 @@ public:
   std::int32_t fcomponents;
   std::int32_t fsamples;
   SDL_GPUTexture* mTexture;
-  SDL_GPUFilter mMinFilter;
-  SDL_GPUFilter mMagFilter;
+  SDL_GPUFilter mMinFilter = SDL_GPU_FILTER_LINEAR;
+  SDL_GPUFilter mMagFilter = SDL_GPU_FILTER_LINEAR;
   struct
   {
     std::int32_t x, y;
