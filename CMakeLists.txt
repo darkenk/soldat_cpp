@@ -16,6 +16,7 @@ if (NOT EXISTS ${third_party_dependencies_path}/install/third_party.cmake)
     COMMAND_ECHO STDOUT
   )
   if (NOT BUILD_THIRD_PARTY_RESULT EQUAL 0)
+    file(REMOVE ${third_party_dependencies_path}/install/third_party.cmake)
     message(FATAL_ERROR "Failed to build third party dependencies")
   endif()
   execute_process(
@@ -25,6 +26,7 @@ if (NOT EXISTS ${third_party_dependencies_path}/install/third_party.cmake)
     COMMAND_ECHO STDOUT
   )
   if (NOT BUILD_THIRD_PARTY_RESULT EQUAL 0)
+    file(REMOVE ${third_party_dependencies_path}/install/third_party.cmake)
     message(FATAL_ERROR "Failed to build third party dependencies")
   endif()
 endif()

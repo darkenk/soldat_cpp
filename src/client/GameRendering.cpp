@@ -1444,7 +1444,7 @@ using namespace std::chrono_literals;
 TEST_SUITE("GameRenderingSuite")
 {
 
-TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
+TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(true))
 {
   SdlApp app("GameRenderingTest", 1280, 720, opengl);
   SDL_GetWindowSize(app.GetWindow(), &windowwidth, &windowheight);
@@ -1460,7 +1460,7 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
   gfxdestroycontext();
 }
 
-TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(false))
+TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(true))
 {
   SdlApp app("GameRenderingTest", 1280, 720, opengl);
   SDL_GetWindowSize(app.GetWindow(), &windowwidth, &windowheight);

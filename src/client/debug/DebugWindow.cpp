@@ -44,7 +44,7 @@ void DebugWindow::DrawEverything(SDL_GPUCommandBuffer* _command_buffer,  SDL_GPU
   ImGui::Render();
   ImDrawData* draw_data = ImGui::GetDrawData();
   // This is mandatory: call Imgui_ImplSDLGPU3_PrepareDrawData() to upload the vertex/index buffer!
-  Imgui_ImplSDLGPU3_PrepareDrawData(draw_data, _command_buffer);
+  ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, _command_buffer);
   
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
   // Setup and start a render pass
