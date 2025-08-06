@@ -444,7 +444,7 @@ private:
   std::int32_t timeleftmin;
 
   std::int32_t maintickcounter;
-  std::int32_t playersnum;
+  std::int32_t playersnum = 0;
   std::int32_t botsnum;
   std::int32_t spectatorsnum;
   PascalArray<std::int32_t, 1, 4> playersteamnum;

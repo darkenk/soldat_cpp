@@ -20,8 +20,11 @@
         }
     ],
     "github.copilot.enable":{
-        "*": true,
-        "test": false,
+        "*": false,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": false,
+        "test": false
     },
     "C_Cpp.autoAddFileAssociations": false,
     "testMate.cpp.test.executables": "build/out/**/game/SoldatGame",

@@ -527,8 +527,8 @@ auto initgamegraphics() -> bool
     return result;
   }
 
-  std::uint32_t windowflags = SDL_WINDOW_OPENGL;
-  //std::uint32_t windowflags = SDL_WINDOW_VULKAN;
+  //std::uint32_t windowflags = SDL_WINDOW_OPENGL;
+  std::uint32_t windowflags = SDL_WINDOW_VULKAN;
 
   if (CVar::r_fullscreen == 2)
   {
@@ -1436,7 +1436,7 @@ public:
   ~GameRenderingFixture() = default;
   GameRenderingFixture(const GameRenderingFixture&) = delete;
 protected:
-  static constexpr bool opengl = true;
+  static constexpr bool opengl = false;
 };
 
 using namespace std::chrono_literals;
