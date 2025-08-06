@@ -337,9 +337,8 @@ auto FileUtility::Size(File *file) -> std::size_t
 
 auto FileUtility::Size(const std::string_view path) -> std::size_t
 {
-  auto p = ApplyRootPrefix(path);
-  SoldatAssert(Exists(p));
-  auto *f = Open(p, FileMode::Read);
+  SoldatAssert(Exists(path));
+  auto *f = Open(path, FileMode::Read);
   auto size = Size(f);
   Close(f);
   return size;
@@ -428,6 +427,9 @@ public:
   ~FileUtilityFixture() = default;
   FileUtilityFixture(const FileUtilityFixture &) = delete;
 };
+
+TEST_SUITE("FileUtility")
+{
 
 TEST_CASE_FIXTURE(FileUtilityFixture, "Mount memory and write file and later read it")
 {
@@ -685,5 +687,20 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Filesystem does not leak between two diff
   CHECK_EQ(testData[2], data[2]);
   CHECK_EQ(testData[3], data[3]);
 }
+
+TEST_CASE_FIXTURE(FileUtilityFixture, "Test size method" * doctest::skip(false))
+{
+  FileUtility fu("/test1");
+  fu.Mount("tmpfs.memory", "/fs_mem");
+  auto testData = std::to_array<std::uint8_t>({42, 42, 42, 40}); // NOLINT
+  auto *f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
+  auto r = FileUtility::Write(f, reinterpret_cast<std::byte *>(testData.data()), testData.size());
+  CHECK(r);
+  FileUtility::Close(f);
+  auto size = fu.Size("/fs_mem/valid");
+  CHECK_EQ(4, size);
+}
+
+} // TEST_SUITE(FileUtility)
 
 } // namespace

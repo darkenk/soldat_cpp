@@ -25,7 +25,7 @@ void AssertImpl(const bool condition, const MsgLineWrapper &msg)
   }
   logger->error("{}:{}: {}: {}", msg.location.file_name(), msg.location.line(),
                 msg.location.function_name(), msg.msg);
-  __asm__("int $3\n" : :);
+  __asm__ volatile("int $0x03");
 }
 
 } // namespace PortUtils

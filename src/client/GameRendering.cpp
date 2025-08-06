@@ -1403,7 +1403,7 @@ public:
   {
 
   }
-  std::string getFileExtensionWithDot() const override
+  [[nodiscard]] std::string getFileExtensionWithDot() const override
   {
       return ".png";
   }
