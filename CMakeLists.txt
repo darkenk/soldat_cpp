@@ -72,10 +72,9 @@ ExternalProject_Get_Property(doctest source_dir)
 set(DOCTEST_INCLUDE_DIR ${source_dir} CACHE INTERNAL "Path to include folder for doctest")
 include(${source_dir}/scripts/cmake/doctest.cmake)
 
-add_subdirectory(third_party/src/soloud)
-
 find_package(SDL3 REQUIRED)
 find_package(SDL3_shadercross REQUIRED)
+find_package(SoLoud REQUIRED)
 
 set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/libsodium-1.0.18/contrib
@@ -94,9 +93,6 @@ set(GLAD_INC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/glad/debug/include)
 # @todo make glad as static lib
 set(GLAD_SRC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/glad/debug/src/glad.c)
 set(STB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/stb)
-# soloud
-set(SOLOUD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/soloud/include)
-set(SOLOUD_LIBRARY soloud)
 #tracy
 set(TRACY_SRC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8/TracyClient.cpp)
 set(TRACY_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8)

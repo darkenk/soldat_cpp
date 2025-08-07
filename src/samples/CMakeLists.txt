@@ -15,5 +15,5 @@ target_link_libraries(PolyMapSample
     Freetype::Freetype
     ${PHYSFS_LIBRARY}
     GameNetworkingSockets::GameNetworkingSockets_s
-    ${SOLOUD_LIBRARY}
+    SoLoud::soloud
 )

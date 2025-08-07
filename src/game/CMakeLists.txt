@@ -20,7 +20,6 @@ target_link_libraries(SoldatGame
     Freetype::Freetype
     ${PHYSFS_LIBRARY}
     GameNetworkingSockets::GameNetworkingSockets_s
-    ${SOLOUD_LIBRARY}
     ApprovalTests::ApprovalTests
 )
 

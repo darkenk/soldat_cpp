@@ -68,7 +68,6 @@ target_include_directories(SoldatClientLib SYSTEM PRIVATE
     ${GLAD_INC}
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
-    ${SOLOUD_INCLUDE_DIR}
     ${TRACY_INCLUDE_DIR}
     ${DOCTEST_INCLUDE_DIR}
     ${IMGUI_INCLUDE_DIR}
@@ -81,6 +80,7 @@ target_link_libraries(SoldatClientLib
     GameNetworkingSockets::GameNetworkingSockets_s
     spdlog::spdlog
     ApprovalTests::ApprovalTests
+    SoLoud::soloud
 )
 
 target_precompile_headers(SoldatClientLib PRIVATE
@@ -98,7 +98,6 @@ target_link_libraries(SoldatClient
     ${PHYSFS_LIBRARY}
     GameNetworkingSockets::GameNetworkingSockets_s
     spdlog::spdlog
-    ${SOLOUD_LIBRARY}
 )
 target_include_directories(SoldatClient PRIVATE
     ./config
@@ -107,7 +106,6 @@ target_include_directories(SoldatClient PRIVATE
     ${GLAD_INC}
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
-    ${SOLOUD_INCLUDE_DIR}
     ${TRACY_INCLUDE_DIR}
 )
 

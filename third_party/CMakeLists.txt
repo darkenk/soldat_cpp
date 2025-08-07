@@ -213,20 +213,20 @@ ExternalProject_Add(
     USES_TERMINAL_INSTALL ON
 )
 
-# need to create install step first
-# ExternalProject_Add(
-#     soloud
-#     PREFIX "${CMAKE_BINARY_DIR}/third_party/soloud"
-#     INSTALL_DIR "${CMAKE_BINARY_DIR}/install/soloud"
-#     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/soloud"
-#     CMAKE_ARGS
-#         -DCMAKE_PREFIX_PATH=${sdl3_install_dir}
-#         -DSDL3_ROOT=${sdl3_install_dir}
-#         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-#     USES_TERMINAL_CONFIGURE ON
-#     USES_TERMINAL_BUILD ON
-#     USES_TERMINAL_INSTALL ON
-# )
+
+ExternalProject_Add(
+    soloud
+    PREFIX "${CMAKE_BINARY_DIR}/third_party/soloud"
+    INSTALL_DIR "${CMAKE_BINARY_DIR}/install/soloud"
+    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/soloud"
+    CMAKE_ARGS
+        -DCMAKE_PREFIX_PATH=${sdl3_install_dir}
+        -DSDL3_ROOT=${sdl3_install_dir}
+        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+    USES_TERMINAL_CONFIGURE ON
+    USES_TERMINAL_BUILD ON
+    USES_TERMINAL_INSTALL ON
+)
 
 create_import_cmake_file(PROJECTS
     SDL3
@@ -238,5 +238,5 @@ create_import_cmake_file(PROJECTS
     physfs
     freetype
     dbg_macro
-    # soloud
+    soloud
 )
