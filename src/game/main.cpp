@@ -6,6 +6,7 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include <thread>
 #include <stb_image_write.h>
+#include <stb_image.h>
 #include <filesystem>
 
 // clang-format off
@@ -19,6 +20,42 @@
 #define APPROVALS_DOCTEST_EXISTING_MAIN
 #include "ApprovalTests.hpp"
 // clang-format on
+
+template<int DesiredPrecision>
+class PngFuzzyComparator : public ApprovalTests::ApprovalComparator
+{
+public:
+  bool contentsAreEquivalent(std::string receivedPath, std::string approvedPath) const override
+  {
+    constexpr auto kDesiredChannels = 4;
+    int rw, rh, rchannels;
+    auto received = stbi_load(receivedPath.c_str(), &rw, &rh, &rchannels, kDesiredChannels);
+    int aw, ah, achannels;
+    auto approved = stbi_load(approvedPath.c_str(), &aw, &ah, &achannels, kDesiredChannels);
+    auto test_function = [&]() {
+      if (!received || !approved)
+      {
+        return false;
+      }
+      if (rw != aw || rh != ah || rchannels != achannels)
+      {
+        return false;
+      }
+      for (std::size_t i = 0; i < aw * ah * achannels; i++)
+      {
+        if (((int)approved[i] - (int)received[i]) > DesiredPrecision)
+        {
+          return false;
+        }
+      }
+      return true;
+    };
+    auto ret = test_function();
+    stbi_image_free(received);
+    stbi_image_free(approved);
+    return ret;
+  }
+};
 
 void RunTests(int argc, char **argv)
 {
@@ -41,6 +78,8 @@ void RunTests(int argc, char **argv)
 
     stbi_write_png(path.c_str(), kWidth, kHeight, kChannels, data.data(), kWidth * kChannels);
   });
+
+  auto disposer = ApprovalTests::FileApprover::registerComparatorForExtension(".png", std::make_shared<PngFuzzyComparator<2>>());
 
   doctest::Context ctx;
   ctx.applyCommandLine(argc, argv);
@@ -75,7 +114,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-   auto continue_run = mainloop();
+  auto continue_run = mainloop();
   return continue_run ? SDL_APP_CONTINUE : SDL_APP_SUCCESS;
 }
 

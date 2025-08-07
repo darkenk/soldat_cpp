@@ -1444,7 +1444,7 @@ using namespace std::chrono_literals;
 TEST_SUITE("GameRenderingSuite")
 {
 
-TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(true))
+TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
 {
   SdlApp app("GameRenderingTest", 1280, 720, opengl);
   SDL_GetWindowSize(app.GetWindow(), &windowwidth, &windowheight);
