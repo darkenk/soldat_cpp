@@ -1385,7 +1385,7 @@ void gfxlogcallback(const std::string &s)
 
 #pragma region tests
 #include <doctest/doctest.h>
-#include <ApprovalTests.hpp>
+#include <ApprovalTests/ApprovalTests.hpp>
 #include <stb_image.h>
 #include <stb_image_resize.h>
 #include <stb_image_write.h>

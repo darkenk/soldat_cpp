@@ -18,7 +18,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest/doctest.h>
 #define APPROVALS_DOCTEST_EXISTING_MAIN
-#include "ApprovalTests.hpp"
+#include <ApprovalTests/ApprovalTests.hpp>
 // clang-format on
 
 template<int DesiredPrecision>

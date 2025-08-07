@@ -73,7 +73,6 @@ set(DOCTEST_INCLUDE_DIR ${source_dir} CACHE INTERNAL "Path to include folder for
 include(${source_dir}/scripts/cmake/doctest.cmake)
 
 add_subdirectory(third_party/src/soloud)
-add_subdirectory(third_party/src/ApprovalTests.cpp)
 
 find_package(SDL3 REQUIRED)
 find_package(SDL3_shadercross REQUIRED)
@@ -120,6 +119,16 @@ set_target_properties(
         IMPORTED_LINK_INTERFACE_LANGUAGES "C"
         IMPORTED_LOCATION "${third_party_dependencies_path}/install/libressl/lib/libcrypto.a"
         INTERFACE_LINK_LIBRARIES LibreSSL::Crypto
+)
+
+add_library(ApprovalTests::ApprovalTests UNKNOWN IMPORTED)
+set_target_properties(
+        ApprovalTests::ApprovalTests
+        PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${third_party_dependencies_path}/install/ApprovalTests/include"
+        IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
+        IMPORTED_LOCATION "${third_party_dependencies_path}/install/ApprovalTests/lib/libApprovalTests.a"
+        INTERFACE_LINK_LIBRARIES ApprovalTests::ApprovalTests
 )
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON")
