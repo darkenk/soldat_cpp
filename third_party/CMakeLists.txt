@@ -175,6 +175,20 @@ ExternalProject_Add(
     USES_TERMINAL_INSTALL ON
 )
 
+ExternalProject_Add(
+    dbg_macro
+    PREFIX "${CMAKE_BINARY_DIR}/third_party/dbg-macro"
+    INSTALL_DIR "${CMAKE_BINARY_DIR}/install/dbg-macro"
+    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/dbg-macro"
+    CMAKE_ARGS
+        -DCMAKE_CXX_STANDARD=20
+        -DDBG_MACRO_ENABLE_TESTS=OFF
+        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+    USES_TERMINAL_CONFIGURE ON
+    USES_TERMINAL_BUILD ON
+    USES_TERMINAL_INSTALL ON
+)
+
 # need to create install step first
 # ExternalProject_Add(
 #     soloud
@@ -199,5 +213,6 @@ create_import_cmake_file(PROJECTS
     spdlog
     physfs
     freetype
+    dbg_macro
     # soloud
 )

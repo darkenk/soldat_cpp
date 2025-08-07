@@ -66,6 +66,7 @@ ExternalProject_Add(doctest
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/doctest
 )
 include_directories(SYSTEM ${DOCTEST_INCLUDE_DIR})
+include_directories(SYSTEM ${third_party_dependencies_path}/install/dbg-macro/include)
 
 ExternalProject_Get_Property(doctest source_dir)
 set(DOCTEST_INCLUDE_DIR ${source_dir} CACHE INTERNAL "Path to include folder for doctest")
