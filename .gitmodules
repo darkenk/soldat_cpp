@@ -22,3 +22,6 @@
 [submodule "third_party/src/dbg-macro"]
 	path = third_party/src/dbg-macro
 	url = git@github.com:darkenk/dbg-macro.git
+[submodule "third_party/src/SDL"]
+	path = third_party/src/SDL
+	url = git@github.com:darkenk/SDL.git
