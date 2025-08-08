@@ -31,10 +31,11 @@ ExternalProject_Add(
   SDL3
   PREFIX "${CMAKE_BINARY_DIR}/third_party/SDL3"
   INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/install/SDL3"
-  GIT_REPOSITORY "https://github.com/darkenk/SDL.git"
-  GIT_TAG main
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/SDL"
   CMAKE_ARGS
     -DSDL_LIBURING=OFF
+    -DSDL_INSTALL=ON
+    -DSDL_UNINSTALL=OFF
     -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
   UPDATE_COMMAND ""   # Not doing updates
   PATCH_COMMAND ""    # No patches
@@ -215,13 +216,15 @@ ExternalProject_Add(
 
 
 ExternalProject_Add(
-    soloud
+    soloud DEPENDS SDL3
     PREFIX "${CMAKE_BINARY_DIR}/third_party/soloud"
     INSTALL_DIR "${CMAKE_BINARY_DIR}/install/soloud"
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/soloud"
     CMAKE_ARGS
         -DCMAKE_PREFIX_PATH=${sdl3_install_dir}
         -DSDL3_ROOT=${sdl3_install_dir}
+        -DSOLOUD_AUTO_DETECT_BACKENDS=OFF
+        -DSOLOUD_ENABLE_BACKEND_SDL3=ON
         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
     USES_TERMINAL_CONFIGURE ON
     USES_TERMINAL_BUILD ON
