@@ -2,6 +2,7 @@
 
 #include "common/misc/TIniFile.hpp"
 #include "common/misc/SoldatConfig.hpp"
+#include "common/Weapons.hpp"
 
 template <Config::Module M>
 class Sprite;

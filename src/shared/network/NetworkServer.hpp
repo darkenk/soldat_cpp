@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Net.hpp"
+#include <functional>
+#include <map>
 
 // We're assigning a dummy player class to all sprites that are currently not being controlled
 // by a player. This avoids nasty surprises with older code that reads .Player despite .Active

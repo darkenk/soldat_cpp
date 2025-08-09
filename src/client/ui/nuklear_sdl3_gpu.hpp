@@ -9,7 +9,7 @@
  * ===============================================================
  */
 //#include "Nuklear.hpp"
-//#include <SDL3/SDL.h>
+#include <SDL3/SDL.h>
 //#define NK_SDL_GPU_IMPLEMENTATION
 
 #ifndef NK_SDL_GPU_H_

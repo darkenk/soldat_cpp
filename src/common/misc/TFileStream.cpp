@@ -3,6 +3,7 @@
 #include "../FileUtility.hpp"
 #include <sstream>
 #include <memory>
+#include <cstring>
 
 class TFileStream : public TStream
 {

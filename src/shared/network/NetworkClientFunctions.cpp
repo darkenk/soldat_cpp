@@ -4,6 +4,7 @@
 #include "../../client/GameMenus.hpp"
 #include "../../client/InterfaceGraphics.hpp"
 #include "../../client/Sound.hpp"
+#include "../../client/Client.hpp"
 #include "../Game.hpp"
 #include "NetworkClient.hpp"
 #include "NetworkClientConnection.hpp"

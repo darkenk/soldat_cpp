@@ -3,6 +3,7 @@
 #include <cstdint>
 class NetworkServer;
 class TServerPlayer;
+struct tmsgheader;
 
 #ifdef SERVER
 void serverthingsnapshot(std::uint8_t tonum);

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common/misc/SoldatConfig.hpp"
+
 class NetworkServer;
 template <class TSprite> class TSpriteSystem;
 template <Config::Module M> class Game;

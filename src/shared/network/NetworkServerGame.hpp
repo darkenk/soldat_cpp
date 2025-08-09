@@ -1,9 +1,11 @@
 #pragma once
 
 #include <string>
+#include <cinttypes>
 
 class NetworkServer;
 class TServerPlayer;
+struct tmsgheader;
 
 void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player);
 void servermapchange(std::uint8_t id);

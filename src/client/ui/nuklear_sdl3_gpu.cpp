@@ -1,5 +1,7 @@
-#include "Nuklear.hpp"
 #include <SDL3/SDL.h>
+#include <cassert>
+#include <cstdlib>
+#include "Nuklear.hpp"
 #define NK_SDL_GPU_IMPLEMENTATION
 /*
  * ==============================================================

@@ -7,9 +7,11 @@
 #include "../network/NetworkServerGame.hpp"
 #include "../network/NetworkServerSprite.hpp"
 #else
+#include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
 #include "../../client/GameMenus.hpp"
 #include "../../client/Sound.hpp"
+#include "../../client/Input.hpp"
 #include "../network/NetworkClientGame.hpp"
 #include "../network/NetworkClientMessages.hpp"
 #include "../network/NetworkClientSprite.hpp"

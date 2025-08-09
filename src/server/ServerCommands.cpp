@@ -5,6 +5,7 @@
 #include "Server.hpp"
 #include "ServerHelper.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "common/Logging.hpp"
 #include "shared/Command.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"

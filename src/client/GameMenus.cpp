@@ -5,6 +5,7 @@
 #include "ClientGame.hpp"
 #include "ControlGame.hpp"
 #include "InterfaceGraphics.hpp"
+#include "Input.hpp"
 #include "Sound.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"

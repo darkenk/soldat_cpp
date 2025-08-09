@@ -7,6 +7,7 @@
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "../../server/Server.hpp"
 
 namespace
 {

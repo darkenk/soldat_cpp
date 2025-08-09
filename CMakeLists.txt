@@ -138,6 +138,7 @@ option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 option(ENABLE_MOLD "Enable MOLD Linker" OFF)
 option(ENABLE_COVERAGE "Enable Code Coverage" OFF)
 option(ENABLE_CLANG_TIDY "Enable Clang Tidy" OFF)
+option(ENABLE_PCH "Enable PCH" OFF)
 
 if (ENABLE_ASAN)
   # Add compile options for AddressSanitizer (ASan)

@@ -45,6 +45,8 @@ target_include_directories(CommonLib SYSTEM PRIVATE
     ${DOCTEST_INCLUDE_DIR}
 )
 
-target_precompile_headers(CommonLib PRIVATE
-    ${CommonPCH}
-)
+if (ENABLE_PCH)
+    target_precompile_headers(CommonLib PRIVATE
+        ${CommonPCH}
+    )
+endif()

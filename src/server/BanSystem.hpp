@@ -7,14 +7,14 @@
 
 /*#include "Constants.h"*/
 
-void addbannedip(const std::string &ip, std::string reason, std::int32_t duration = permanent);
+void addbannedip(const std::string &ip, std::string reason, std::int32_t duration = Constants::PERMAMENT);
 bool delbannedip(const std::string &ip);
 bool checkbannedip(const std::string &ip);
 std::int32_t findban(const std::string &ip);
 void loadbannedlist(const std::string &filename);
 void savebannedlist(const std::string &filename);
 // bans hardwareids
-void addbannedhw(const std::string &hw, std::string reason, std::int32_t duration = permanent);
+void addbannedhw(const std::string &hw, std::string reason, std::int32_t duration = Constants::PERMAMENT);
 bool delbannedhw(const std::string &hw);
 bool checkbannedhw(const std::string &hw);
 std::int32_t findbanhw(const std::string &hw);

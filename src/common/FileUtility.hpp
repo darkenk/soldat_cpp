@@ -5,6 +5,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "misc/Config.hpp"
+
 class FileUtility
 {
 public:

@@ -1,9 +1,11 @@
 #pragma once
 
 #include <string>
+#include <cinttypes>
 
 class NetworkServer;
 class TServerPlayer;
+struct tmsgheader;
 
 void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
                              std::uint8_t msgtype);

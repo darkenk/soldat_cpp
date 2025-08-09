@@ -57,10 +57,12 @@ target_link_libraries(SoldatServerLib
     ApprovalTests::ApprovalTests
 )
 
-target_precompile_headers(SoldatServerLib PRIVATE
-    ${CommonPCH}
-    "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/Server.hpp>"
-)
+if (ENABLE_PCH)
+    target_precompile_headers(SoldatServerLib PRIVATE
+        ${CommonPCH}
+        "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/Server.hpp>"
+    )
+endif()
 
 
 add_executable(SoldatServer main.cpp)

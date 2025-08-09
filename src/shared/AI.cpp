@@ -12,6 +12,7 @@
 #include "network/NetworkServerMessages.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "shared/Cvar.hpp"
 #include <Tracy.hpp>
 
 constexpr auto sround(float v) -> std::int16_t { return static_cast<std::int16_t>(std::roundf(v)); }

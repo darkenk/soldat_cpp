@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <cinttypes>
 
 std::string checknextmap();
 #if 0

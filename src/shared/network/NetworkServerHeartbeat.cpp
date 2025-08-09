@@ -5,6 +5,7 @@
 #include "../Demo.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "shared/Cvar.hpp"
 
 template<class TSprite, Config::Module M>
 void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSystem, Game<M>& game)
@@ -77,6 +78,7 @@ void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSys
 // tests
 #include <doctest/doctest.h>
 #include "NetworkClient.hpp"
+#include <spdlog/spdlog.h>
 
 namespace
 {

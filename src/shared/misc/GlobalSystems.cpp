@@ -6,6 +6,9 @@
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include <memory>
+#ifdef SERVER
+#include "server/Server.hpp"
+#endif // SERVER
 
 template <Config::Module M>
 GlobalSystems<M>::GlobalSystems()

@@ -83,11 +83,13 @@ target_link_libraries(SoldatClientLib
     SoLoud::soloud
 )
 
-target_precompile_headers(SoldatClientLib PRIVATE
-    ${CommonPCH}
-    "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/Client.hpp>"
-    "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/Input.hpp>"
-)
+if (ENABLE_PCH)
+    target_precompile_headers(SoldatClientLib PRIVATE
+        ${CommonPCH}
+        "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/Client.hpp>"
+        "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/Input.hpp>"
+    )
+endif()
 
 add_executable(SoldatClient main.cpp)
 target_link_libraries(SoldatClient

@@ -1,11 +1,12 @@
 #pragma once
 
 #include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
 #include <cstdint>
 #include <string>
 
 class NetworkServer;
-struct tmsg_header;
+struct tmsgheader;
 class TServerPlayer;
 
 #ifdef SERVER

@@ -5,6 +5,7 @@
 
 class TServerPlayer;
 class NetworkServer;
+struct tmsgheader;
 
 void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state);
 void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, std::uint8_t ammo,

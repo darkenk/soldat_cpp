@@ -1,6 +1,7 @@
 // automatically converted
 #include "NetworkClientThing.hpp"
 
+#include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
 #include "../../client/Sound.hpp"
 #include "../Cvar.hpp"

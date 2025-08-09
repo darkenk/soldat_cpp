@@ -1,6 +1,8 @@
 #include "SdlApp.hpp"
 #include "shared/misc/SignalUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include <glad/glad.h>
+#include <SDL3/SDL.h>
 
 static void OpenGLGladDebug(const char *name, void * /*funcptr*/, int /*len_args*/, ...)
 {

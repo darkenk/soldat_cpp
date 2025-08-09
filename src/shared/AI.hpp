@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "common/misc/SoldatConfig.hpp"
 template <Config::Module M>
 class Sprite;
 
