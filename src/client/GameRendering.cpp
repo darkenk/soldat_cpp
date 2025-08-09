@@ -448,7 +448,7 @@ void loadfonts()
   if ((fontpath[0].empty()) || (fontpath[1].empty()))
   {
     showmessage(("One of the fonts cannot be found. Please check your installation directory."));
-    shutdown();
+    gClient.shutdown();
   }
 
   const std::int32_t w = renderwidth;
@@ -1476,7 +1476,7 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(true))
   auto ret = getmapinfo(fs, "ctf_Ash", userDirectory, mapgfx.mapinfo);
   CHECK(ret);
   reloadgraphics();
-  loadweaponnames(fs);
+  gClient.loadweaponnames(fs);
   createweaponsbase(GS::GetWeaponSystem().GetGuns());
   initgamemenus();
   loadfonts();

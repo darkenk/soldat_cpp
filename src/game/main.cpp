@@ -107,14 +107,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
   auto *state = new AppState{ .serverThread = std::thread([=]() { RunServer(argc, argv); }) }; 
   SetThreadName(state->serverThread, "Server");
   SetCurrentThreadName("Client");
-  startgame(argc, argv);
+  gClient.startgame(argc, argv);
   *appstate = state;
   return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-  auto continue_run = mainloop();
+  auto continue_run = gClient.mainloop();
   return continue_run ? SDL_APP_CONTINUE : SDL_APP_SUCCESS;
 }
 

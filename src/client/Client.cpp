@@ -38,6 +38,8 @@
 #include <thread>
 #include <sstream>
 
+Client gClient;
+
 
 namespace
 {
@@ -175,7 +177,7 @@ void restartgraph()
   GS::GetMainConsole().console(("Graphics restart"), debug_message_color);
 }
 
-void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
+void Client::loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
 {
   SoldatAssert(gunDisplayName.size() == double_weapons);
   std::int32_t i;
@@ -245,18 +247,18 @@ void redirectdialog()
   {
     joinip = redirectip;
     joinport = inttostr(redirectport);
-    joinserver();
+    gClient.joinserver();
   }
   else
   {
     redirectip = "";
     redirectport = 0;
     redirectmsg = "";
-    exittomenu();
+    gClient.exittomenu();
   }
 }
 
-void exittomenu()
+void Client::exittomenu()
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
@@ -424,7 +426,7 @@ static void InitConsoles(bool test = false)
 
 }
 
-void startgame(int argc, char *argv[])
+void Client::startgame(int argc, char *argv[])
 {
   initclientcommands();
   commandinit();
@@ -696,7 +698,7 @@ void startgame(int argc, char *argv[])
   // startgameloop();
 }
 
-void shutdown()
+void Client::shutdown()
 {
   exittomenu();
 
@@ -737,7 +739,7 @@ void shutdown()
   gamelooprun = false;
 }
 
-bool mainloop()
+bool Client::mainloop()
 {
   if (!gamelooprun)
   {
@@ -782,12 +784,12 @@ void startgameloop()
 #else
   while (gamelooprun)
   {
-    mainloop();
+    gClient.mainloop();
   }
 #endif
 }
 
-void joinserver()
+void Client::joinserver()
 {
   resetframetiming();
 
@@ -928,7 +930,7 @@ TEST_SUITE("Client")
     tsha1digest checksum2;
     auto ret = MountAssets(fs, userDirectory, baseDirectory, checksum1, checksum2);
     CHECK_EQ(true, ret);
-    loadweaponnames(fs, ga);
+    gClient.loadweaponnames(fs, ga);
     CHECK_EQ("USSOCOM", ga[0]);
     CHECK_EQ("Desert Eagles", ga[1]);
     CHECK_EQ("HK MP5", ga[2]);
@@ -979,8 +981,8 @@ TEST_SUITE("Client")
       GlobalSystems<Config::CLIENT_MODULE>::Init();
       std::string game = {"SoldatGame"};
       std::array<char*, 1> argv = { game.data() };
-      startgame(argv.size(), argv.data());
-      shutdown();
+      gClient.startgame(argv.size(), argv.data());
+      gClient.shutdown();
       GlobalSystems<Config::CLIENT_MODULE>::Deinit();
   }
 

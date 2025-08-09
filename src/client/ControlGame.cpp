@@ -436,7 +436,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
     {
     case SDL_SCANCODE_F4:
     case SDL_SCANCODE_F9:
-      exittomenu();
+      gClient.exittomenu();
       break;
     default:
       result = false;
@@ -773,7 +773,7 @@ void gameinput(SDL_Event& event)
     {
     case SDL_EVENT_QUIT: {
       clientdisconnect(*GetNetwork());
-      shutdown();
+      gClient.shutdown();
     }
     break;
 

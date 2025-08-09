@@ -77,7 +77,7 @@ void commandconnect(std::vector<std::string> &args, std::uint8_t sender)
     GS::GetMainConsole().console("Usage: connect ip port password", game_message_color);
     return;
   }
-  exittomenu();
+  gClient.exittomenu();
   if (args[0] == "joinurl")
   {
     s = args[1];
@@ -109,18 +109,18 @@ void commandconnect(std::vector<std::string> &args, std::uint8_t sender)
       joinpassword = args[3];
     }
   }
-  joinserver();
+  gClient.joinserver();
 }
 
 void commandretry(std::vector<std::string> &args, std::uint8_t sender)
 {
-  exittomenu();
-  joinserver();
+  gClient.exittomenu();
+  gClient.joinserver();
 }
 
 void commanddisconnect(std::vector<std::string> &args, std::uint8_t sender)
 {
-  exittomenu();
+  gClient.exittomenu();
 }
 
 void commandsay(std::vector<std::string> &args, std::uint8_t sender)
@@ -234,7 +234,7 @@ void commandstop(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandshutdown(std::vector<std::string> &args, std::uint8_t sender)
 {
-  exittomenu();
+  gClient.exittomenu();
 }
 
 void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)

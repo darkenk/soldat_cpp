@@ -213,7 +213,7 @@ void clienthandlejoinserver(NetworkContext *netmessage)
   redirectport = joinservermsg->port;
   redirectmsg = trim((pmsg_joinserver(netmessage->packet)->showmsg.data()));
 
-  exittomenu();
+  gClient.exittomenu();
 }
 
 void clienthandleplaysound(NetworkContext *netmessage)

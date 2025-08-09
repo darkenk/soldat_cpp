@@ -458,7 +458,7 @@ void gameloop()
   {
     if (game.GetMapchangename() == "EXIT*!*")
     {
-      exittomenu();
+      gClient.exittomenu();
     }
   }
 

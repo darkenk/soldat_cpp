@@ -7,14 +7,6 @@
 #include "common/Vector.hpp"
 #include "common/Weapons.hpp"
 
-void joinserver();
-void startgame(int argc, char *argv[]);
-void shutdown();
-void exittomenu();
-void restartgraph();
-void showmessage(const std::string &messagetext);
-bool mainloop();
-
 class Console;
 class FileUtility;
 class ConsoleMain;
@@ -103,4 +95,18 @@ extern float shotdistance;
 extern float shotlife;
 extern std::int32_t shotricochet;
 
-void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName = gundisplayname, const std::string& modDir = moddir);
+class Client
+{
+public:
+  void joinserver();
+  void startgame(int argc, char *argv[]);
+  void shutdown();
+  void exittomenu();
+  void restartgraph();
+  bool mainloop();
+  void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName = gundisplayname, const std::string& modDir = moddir);
+};
+
+void showmessage(const std::string &messagetext);
+
+extern Client gClient;

@@ -297,7 +297,7 @@ void update_frame()
           if (idlecounter > Constants::IDLE_KICK)
           {
             clientdisconnect(*GetNetwork());
-            exittomenu();
+            gClient.exittomenu();
           }
 
           oldmousex = round(mx);

@@ -503,15 +503,15 @@ void Game<M>::changemap()
                      CVar::r_forcebg_color2))
     {
       rendergameinfo(("Could not load map: ") + (mapchangename));
-      exittomenu();
+      gClient.exittomenu();
       return;
     }
     // Map.Name := MapChangeName;
   }
   else
   {
-    exittomenu();
-    joinserver();
+    gClient.exittomenu();
+    gClient.joinserver();
     return;
   }
 #endif

@@ -259,7 +259,7 @@ void clientdisconnect(NetworkBase<T> &client)
   else
   {
     client.Disconnect(true);
-    exittomenu();
+    gClient.exittomenu();
   }
 }
 
@@ -377,7 +377,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
                      CVar::r_forcebg_color2))
     {
       rendergameinfo(_("Could not load map: ") + (mapname));
-      exittomenu();
+      gClient.exittomenu();
       return;
     }
   }
@@ -624,7 +624,7 @@ void clienthandleunaccepted(NetworkContext *netmessage)
   }
 
   clientdisconnect(*GetNetwork());
-  exittomenu();
+  gClient.exittomenu();
 }
 
 void clienthandleserverdisconnect(NetworkContext *netmessage)
