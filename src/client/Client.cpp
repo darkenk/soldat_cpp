@@ -739,13 +739,13 @@ void shutdown()
 
 bool mainloop()
 {
-  auto begin = std::chrono::system_clock::now();
-  GetNetwork()->ProcessLoop();
-  //gameinput();
   if (!gamelooprun)
   {
     return gamelooprun;
   }
+  auto begin = std::chrono::system_clock::now();
+  GetNetwork()->ProcessLoop();
+  //gameinput();
   switch (gGameState)
   {
     case GameState::Loading:
