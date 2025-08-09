@@ -61,7 +61,7 @@ static auto CreateOpenGLContext(SDL_Window *window) -> SDL_GLContext
 
 SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32_t height, bool opengl)
 {
-  AbortIf(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)== false,
+  AbortIf(SDL_Init(SDL_INIT_VIDEO /*| SDL_INIT_GAMEPAD*/) == false,
           "Cannot init SDL. Error {}", SDL_GetError());
 
   if (!opengl)

@@ -108,8 +108,6 @@ static struct
   TIniFile::Entries custominterface;
 } scaledata;
 
-static SDL_Surface *IconSurface = nullptr;
-
 void loadmodinfo()
 {
   std::unique_ptr<TIniFile> rootini;
@@ -511,8 +509,6 @@ void loadfonts()
 
 auto initgamegraphics() -> bool
 {
-  std::vector<std::uint8_t> filebuffer;
-
   bool result = true;
 
   if (initialized)
@@ -527,7 +523,6 @@ auto initgamegraphics() -> bool
     return result;
   }
 
-  //std::uint32_t windowflags = SDL_WINDOW_OPENGL;
   std::uint32_t windowflags = SDL_WINDOW_VULKAN;
 
   if (CVar::r_fullscreen == 2)
@@ -542,13 +537,16 @@ auto initgamegraphics() -> bool
   gamewindow = SDL_CreateWindow("Soldat", windowwidth, windowheight, windowflags);
 
   auto& fs = GS::GetFileSystem();
-  filebuffer = fs.ReadFile("/icon.bmp");
+  {
+    std::vector<std::uint8_t> filebuffer;
+    filebuffer = fs.ReadFile("/icon.bmp");
 
-  SDL_IOStream *iconfile = SDL_IOFromMem(filebuffer.data(), length(filebuffer));
+    SDL_IOStream *iconfile = SDL_IOFromMem(filebuffer.data(), length(filebuffer));
 
-  IconSurface = SDL_LoadBMP_IO(iconfile, 1);
-
-  SDL_SetWindowIcon(gamewindow, IconSurface);
+    auto icon_surface = SDL_LoadBMP_IO(iconfile, 1);
+    SDL_SetWindowIcon(gamewindow, icon_surface);
+    SDL_DestroySurface(icon_surface);
+  }
 
   if (gamewindow == nullptr)
   {
@@ -670,8 +668,6 @@ void destroygamegraphics()
   }
 
   SDL_SetWindowIcon(gamewindow, nullptr);
-  SDL_DestroySurface(IconSurface);
-  IconSurface = nullptr;
 
   freeandnullptr(mainspritesheet);
   freeandnullptr(interfacespritesheet);

@@ -394,45 +394,18 @@ auto gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline) -> bool
 {
 #pragma region sdl3
 
-if (gfxcontext.mGpuDevice == nullptr)
-{
-  gfxcontext.mGpuDevice = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
-  AbortIf(gfxcontext.mGpuDevice == nullptr, "Failed to create gpu device");
-
-// int num_displays;
-// SDL_DisplayID* displays = SDL_GetDisplays(&num_displays);
-// AbortIf(num_displays == 0, "Failed to get displays");
-// for (int i = 0; i < num_displays; i++)
-// {
-//   SDL_Rect display_bounds;
-//   SDL_GetDisplayBounds(displays[i], &display_bounds);
-//   LogInfoG("Display {} bounds: {}x{}, pos: {}:{}", i, display_bounds.w, display_bounds.h, display_bounds.x, display_bounds.y);
-// }
-// SDL_free(displays);
-
-// SDL_PropertiesID props = SDL_CreateProperties();
-// SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, appTitle.data());
-// //SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN, true);
-// SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, width);
-// SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, height);
-// SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_HIGH_PIXEL_DENSITY_BOOLEAN, true);
-// SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, 10);
-// SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, 10);
-// SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_ALWAYS_ON_TOP_BOOLEAN, true);
-// SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_VULKAN_BOOLEAN, true);
-
-// // const auto window_flags =
-// //   (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
-// // mWindow = SDL_CreateWindow(appTitle.data(), width, height, window_flags);
-// mWindow = SDL_CreateWindowWithProperties(props);
-// AbortIf(mWindow == nullptr, "Failed to create sdl window");
-// SDL_DestroyProperties(props);
-
-    AbortIf(!SDL_ClaimWindowForGPUDevice(gfxcontext.mGpuDevice, wnd), "Failed to claim window for gpu device. Error {}", SDL_GetError());
+  if (gfxcontext.mGpuDevice == nullptr)
+  {
+    gfxcontext.mGpuDevice = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
+    AbortIf(gfxcontext.mGpuDevice == nullptr, "Failed to create gpu device");
+    if (wnd != nullptr)
+    {
+      AbortIf(!SDL_ClaimWindowForGPUDevice(gfxcontext.mGpuDevice, wnd), "Failed to claim window for gpu device. Error {}", SDL_GetError());
+    }
   }
 
-SDL_SetLogPriority(SDL_LOG_CATEGORY_GPU, SDL_LOG_PRIORITY_TRACE);
-SDL_SetLogPriority(SDL_LOG_CATEGORY_RENDER, SDL_LOG_PRIORITY_TRACE);
+  SDL_SetLogPriority(SDL_LOG_CATEGORY_GPU, SDL_LOG_PRIORITY_TRACE);
+  SDL_SetLogPriority(SDL_LOG_CATEGORY_RENDER, SDL_LOG_PRIORITY_TRACE);
 
 
 #pragma endregion sdl3

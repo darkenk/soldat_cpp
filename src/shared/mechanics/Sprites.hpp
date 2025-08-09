@@ -167,9 +167,9 @@ public:
   bool dontdrop;
   PascalArray<tvector2, 0, max_pushtick> nextpush;
   std::uint16_t bulletcount;
-  [[no_unique_address]] std::conditional_t<Config::IsServer(M), std::array<std::uint64_t, bulletcheckarraysize>, EmptyClass> bulletcheck;
-  [[no_unique_address]] std::conditional_t<Config::IsServer(M), std::int32_t, EmptyClass> bulletcheckindex;
-  [[no_unique_address]] std::conditional_t<Config::IsServer(M), std::int32_t, EmptyClass> bulletcheckamount;
+  [[no_unique_address]] std::conditional_t<Config::IsServer(M), std::array<std::uint64_t, bulletcheckarraysize>, EmptyClass> bulletcheck = {};
+  [[no_unique_address]] std::conditional_t<Config::IsServer(M), std::int32_t, EmptyClass> bulletcheckindex = {};
+  [[no_unique_address]] std::conditional_t<Config::IsServer(M), std::int32_t, EmptyClass> bulletcheckamount = {};
   //  public
   void update();
   void kill();

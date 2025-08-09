@@ -4298,7 +4298,7 @@ void Sprite<M>::changeteam_ServerVariant(std::int32_t team, bool adminchange, st
   std::int32_t i;
   tvector2 a;
 #ifdef SERVER
-  std::vector<std::int32_t> teamscount{6};
+  std::vector<std::int32_t> teamscount(6);
 #endif
 #ifdef SCRIPT
   std::uint8_t spriteoldteam;
