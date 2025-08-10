@@ -22,6 +22,20 @@ struct tweaponstat
   std::uint8_t accuracy;
 };
 
+using GunArray = std::array<std::string, 17>;
+
+class Client
+{
+public:
+  void joinserver();
+  void startgame(int argc, char *argv[]);
+  void shutdown();
+  void exittomenu();
+  void restartgraph();
+  bool mainloop();
+  void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir);
+};
+
 extern std::string joinpassword; // server passsword
 extern std::string joinport;     // join port to server
 extern std::string joinip;       // join ip to server
@@ -53,7 +67,6 @@ extern PascalArray<tweaponstat, 1, 20> wepstats;
 extern std::uint8_t wepstatsnum;
 
 // FIXME skipped item at index 0
-using GunArray = std::array<std::string, 17>;
 extern GunArray gundisplayname;
 
 extern std::uint8_t gamethingtarget;
@@ -86,7 +99,8 @@ extern std::uint8_t radiocooldown;
 
 // screen
 extern tvector2 cameraprev;
-extern float camerax, cameray;          // camera x and y within world
+extern float camerax;
+extern float cameray;          // camera x and y within world
 extern std::uint8_t camerafollowsprite; // Tag number of object to follow
 extern std::uint8_t notexts;
 extern std::uint8_t freecam;
@@ -95,17 +109,6 @@ extern float shotdistance;
 extern float shotlife;
 extern std::int32_t shotricochet;
 
-class Client
-{
-public:
-  void joinserver();
-  void startgame(int argc, char *argv[]);
-  void shutdown();
-  void exittomenu();
-  void restartgraph();
-  bool mainloop();
-  void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName = gundisplayname, const std::string& modDir = moddir);
-};
 
 void showmessage(const std::string &messagetext);
 

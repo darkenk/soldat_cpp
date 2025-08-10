@@ -19,7 +19,8 @@ void getmicdata();
 #endif
 
 extern tvector2 mouseprev;
-extern float mx, my;
+extern float mx;
+extern float my;
 extern bool mapchanged;
 extern bool chatchanged;        // used for blinking chat input
 extern bool shouldrenderframes; // false during game request phase
@@ -41,7 +42,9 @@ extern std::int32_t windowwidth;
 extern std::int32_t windowheight;
 
 // cha std::uint8_t f
-extern std::string chattext, lastchattext, firechattext;
+extern std::string chattext;
+extern std::string lastchattext;
+extern std::string firechattext;
 extern std::uint8_t chattype;
 extern std::string completionbase;
 extern std::int32_t completionbaseseparator;

@@ -38,9 +38,9 @@
 bool progready = false;
 
 // config stuff
+std::int32_t bonusfreq = 3600;
 std::string serverip = "127.0.0.1";
 std::int32_t serverport = 23073;
-std::int32_t bonusfreq = 3600;
 
 tstringlist mapslist;
 
@@ -54,7 +54,8 @@ PascalArray<std::string, 1, max_players> mutename;
 PascalArray<std::string, 1, max_players> tklist;      // IP
 PascalArray<std::int8_t, 1, max_players> tklistkills; // TK Warnings
 
-tstringlist remoteips, adminips;
+tstringlist remoteips;
+tstringlist adminips;
 
 std::array<std::string, 1000> floodip;
 std::array<std::int32_t, 1000> floodnum;
@@ -68,7 +69,8 @@ std::int32_t mapindex;
 
 std::int32_t AdminIPCounter = 0;
 
-std::int32_t waverespawntime, waverespawncounter;
+std::int32_t waverespawntime;
+std::int32_t waverespawncounter;
 
 std::array<std::int8_t, max_sprites> bulletwarningcount;
 std::array<std::int8_t, max_sprites> cheattag;
@@ -81,7 +83,8 @@ std::int32_t htftime = Constants::HTF_SEC_POINT;
 
 std::string currentconf = "soldat.ini";
 
-std::string wmname, wmversion;
+std::string wmname;
+std::string wmversion;
 
 std::string ModDir;
 

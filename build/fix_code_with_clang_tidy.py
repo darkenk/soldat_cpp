@@ -24,13 +24,15 @@ def main(argv: list[str]) -> int:
         print(f'Missing {COMPILE_JSON_DIR}/compile_commands.json file')
         sys.exit(-1)
 
-    clang_tidy_args = ['run-clang-tidy', '-p', COMPILE_JSON_DIR, '-format', '-style', 'file', '-fix']
+    clang_tidy_args = ['run-clang-tidy', '-p', COMPILE_JSON_DIR, '-header-filter=.*', '-format', '-style', 'file']
     if args.export_fixes:
         if os.path.exists(EXPORT_FIXES_DIR):
             shutil.rmtree(EXPORT_FIXES_DIR)
         os.makedirs(EXPORT_FIXES_DIR)
         clang_tidy_args.append('-export-fixes')
         clang_tidy_args.append(EXPORT_FIXES_DIR)
+    else:
+        clang_tidy_args.append('-fix')
 
     if args.only_src:
         list_of_files = []
@@ -52,6 +54,9 @@ def main(argv: list[str]) -> int:
     print(clang_tidy_args)
     #clang
     subprocess.call(clang_tidy_args, cwd=BASE_DIR)
+    if args.export_fixes:
+        print("clang-apply-replacements")
+        subprocess.call(['clang-apply-replacements', EXPORT_FIXES_DIR])
     return 0
 
 if __name__ == '__main__':

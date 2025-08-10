@@ -273,6 +273,5 @@ template <Config::Module M = Config::GetModule()>
 bool teamcollides(const PolygonType poly, const std::int32_t team, const bool bullet);
 
 #ifndef SERVER
-extern bool wasreloading;
 void selectdefaultweapons(std::uint8_t sprite_id);
 #endif

@@ -3,9 +3,11 @@
 #include "Net.hpp"
 #include <functional>
 
-extern std::int32_t clienttickcount, lastheartbeatcounter;
+extern std::int32_t clienttickcount;
+extern std::int32_t lastheartbeatcounter;
 extern std::int32_t clientplayerreceivedcounter;
-extern bool clientplayerreceived, clientplayersent;
+extern bool clientplayerreceived;
+extern bool clientplayersent;
 extern bool clientvarsrecieved;
 extern bool requestinggame;
 extern std::int32_t noheartbeattime;

@@ -133,7 +133,8 @@ std::uint8_t radiocooldown = 3;
 
 // screen
 tvector2 cameraprev;
-float camerax, cameray;          // camera x and y within world
+float camerax;
+float cameray;          // camera x and y within world
 std::uint8_t camerafollowsprite; // Tag number of object to follow
 
 std::uint8_t notexts = 0;
@@ -655,7 +656,7 @@ void Client::startgame(int argc, char *argv[])
   GS::GetMainConsole().console(("Welcome to Soldat "), default_message_color);
 
   // Load weapon display names
-  loadweaponnames(fs);
+  loadweaponnames(fs, gundisplayname, moddir);
   createweaponsbase(GS::GetWeaponSystem().GetGuns());
 
   GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
@@ -930,7 +931,7 @@ TEST_SUITE("Client")
     tsha1digest checksum2;
     auto ret = MountAssets(fs, userDirectory, baseDirectory, checksum1, checksum2);
     CHECK_EQ(true, ret);
-    gClient.loadweaponnames(fs, ga);
+    gClient.loadweaponnames(fs, ga, moddir);
     CHECK_EQ("USSOCOM", ga[0]);
     CHECK_EQ("Desert Eagles", ga[1]);
     CHECK_EQ("HK MP5", ga[2]);

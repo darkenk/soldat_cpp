@@ -16,9 +16,11 @@
 static std::string_view NETMSG = "net_msg";
 auto constexpr LOG_NET = "network";
 
-std::int32_t clienttickcount, lastheartbeatcounter;
+std::int32_t clienttickcount;
+std::int32_t lastheartbeatcounter;
 std::int32_t clientplayerreceivedcounter;
-bool clientplayerreceived, clientplayersent;
+bool clientplayerreceived;
+bool clientplayersent;
 bool clientvarsrecieved;
 bool requestinggame;
 std::int32_t noheartbeattime = 0;

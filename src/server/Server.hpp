@@ -11,14 +11,17 @@ extern std::int32_t bonusfreq;
 
 extern std::string serverip;
 extern std::int32_t serverport;
-extern std::string wmname, wmversion;
+extern std::string wmname;
+extern std::string wmversion;
 
 extern tstringlist mapslist;
 extern std::int8_t lastplayer;
 extern std::array<std::int8_t, max_players> cheattag;
 extern std::array<std::int8_t, max_players> bulletwarningcount;
-extern std::int32_t waverespawntime, waverespawncounter;
-extern tstringlist remoteips, adminips;
+extern std::int32_t waverespawntime;
+extern std::int32_t waverespawncounter;
+extern tstringlist remoteips;
+extern tstringlist adminips;
 extern std::array<std::string, 1000> floodip;
 extern std::array<std::int32_t, 1000> floodnum;
 extern std::array<std::string, 4> lastreqip; // last 4 IP"s to request game

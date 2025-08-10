@@ -1476,7 +1476,7 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(true))
   auto ret = getmapinfo(fs, "ctf_Ash", userDirectory, mapgfx.mapinfo);
   CHECK(ret);
   reloadgraphics();
-  gClient.loadweaponnames(fs);
+  gClient.loadweaponnames(fs, gundisplayname, moddir);
   createweaponsbase(GS::GetWeaponSystem().GetGuns());
   initgamemenus();
   loadfonts();

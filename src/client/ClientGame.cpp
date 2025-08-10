@@ -24,7 +24,8 @@
 using string = std::string;
 
 tvector2 mouseprev;
-float mx, my;
+float mx;
+float my;
 bool mapchanged = false;
 bool chatchanged = true; // used for blinking chat input
 // DK_FIXME set it to true for now. I want to see something on screen
@@ -47,7 +48,9 @@ std::int32_t windowwidth = 0;
 std::int32_t windowheight = 0;
 
 // cha std::uint8_t f
-std::string chattext, lastchattext, firechattext;
+std::string chattext;
+std::string lastchattext;
+std::string firechattext;
 std::uint8_t chattype;
 std::string completionbase;
 std::int32_t completionbaseseparator;

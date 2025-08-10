@@ -37,7 +37,8 @@ float gameheighthalf = default_width; // / 2;
 #ifndef SERVER
 PascalArray<tkillsort, 1, max_sprites> sortedteamscore;
 
-std::int32_t heartbeattime, heartbeattimewarnings;
+std::int32_t heartbeattime;
+std::int32_t heartbeattimewarnings;
 #endif
 
 #ifndef SERVER

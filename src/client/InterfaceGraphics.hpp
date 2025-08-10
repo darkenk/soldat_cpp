@@ -21,7 +21,8 @@ extern std::array<std::int32_t, max_big_messages> bigdelay;
 extern std::array<std::int32_t, max_big_messages> bigx;
 extern std::array<float, max_big_messages> bigscale;
 extern std::array<std::uint32_t, max_big_messages> bigcolor;
-extern std::array<float, max_big_messages> bigposx, bigposy;
+extern std::array<float, max_big_messages> bigposx;
+extern std::array<float, max_big_messages> bigposy;
 
 // World Text
 extern std::array<std::string, max_big_messages> worldtext;
@@ -29,19 +30,26 @@ extern std::array<std::int32_t, max_big_messages> worlddelay;
 extern std::array<std::int32_t, max_big_messages> worldx;
 extern std::array<float, max_big_messages> worldscale;
 extern std::array<std::uint32_t, max_big_messages> worldcolor;
-extern std::array<float, max_big_messages> worldposx, worldposy;
+extern std::array<float, max_big_messages> worldposx;
+extern std::array<float, max_big_messages> worldposy;
 
 extern std::string cursortext;
 extern std::int32_t cursortextlength;
 extern bool cursorfriendly;
 
-extern bool fragsmenushow, statsmenushow, coninfoshow, playernamesshow, minimapshow, noobshow;
+extern bool fragsmenushow;
+extern bool statsmenushow;
+extern bool coninfoshow;
+extern bool playernamesshow;
+extern bool minimapshow;
+extern bool noobshow;
 
 extern std::uint8_t fragsscrollmax;
 extern std::uint8_t fragsscrolllev;
 extern tvector2 _rscala;
 extern tvector2 _iscala;
-extern std::int32_t fragx, fragy;
+extern std::int32_t fragx;
+extern std::int32_t fragy;
 
 void loadinterfacearchives(const std::string &path, bool firstonly = false);
 bool loadinterfacedata(const std::string &interfacename);

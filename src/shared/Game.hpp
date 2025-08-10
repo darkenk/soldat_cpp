@@ -29,7 +29,8 @@ extern float gameheighthalf; // / 2;
 #ifndef SERVER
 extern PascalArray<tkillsort, 1, Constants::MAX_PLAYERS> sortedteamscore;
 
-extern std::int32_t heartbeattime, heartbeattimewarnings;
+extern std::int32_t heartbeattime;
+extern std::int32_t heartbeattimewarnings;
 #endif
 
 #ifndef SERVER

@@ -41,7 +41,8 @@ std::array<std::int32_t, max_big_messages> bigdelay;
 std::array<std::int32_t, max_big_messages> bigx;
 std::array<float, max_big_messages> bigscale;
 std::array<std::uint32_t, max_big_messages> bigcolor;
-std::array<float, max_big_messages> bigposx, bigposy;
+std::array<float, max_big_messages> bigposx;
+std::array<float, max_big_messages> bigposy;
 
 // World Text
 std::array<std::string, max_big_messages> worldtext;
@@ -49,19 +50,26 @@ std::array<std::int32_t, max_big_messages> worlddelay;
 std::array<std::int32_t, max_big_messages> worldx;
 std::array<float, max_big_messages> worldscale;
 std::array<std::uint32_t, max_big_messages> worldcolor;
-std::array<float, max_big_messages> worldposx, worldposy;
+std::array<float, max_big_messages> worldposx;
+ std::array<float, max_big_messages> worldposy;
 
 std::string cursortext;
 std::int32_t cursortextlength;
 bool cursorfriendly;
 
-bool fragsmenushow, statsmenushow, coninfoshow, playernamesshow, minimapshow, noobshow;
+bool fragsmenushow;
+bool statsmenushow;
+bool coninfoshow;
+bool playernamesshow;
+bool minimapshow;
+bool noobshow;
 
 std::uint8_t fragsscrollmax = 0;
 std::uint8_t fragsscrolllev = 0;
 tvector2 _rscala;
 tvector2 _iscala;
-std::int32_t fragx, fragy;
+std::int32_t fragx;
+std::int32_t fragy;
 
 struct tinterfacerelinfo
 {
