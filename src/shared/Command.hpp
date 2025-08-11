@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common/FileUtility.hpp"
-#include "common/misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 #include <string>
 #include <vector>
 #include <cstdint>

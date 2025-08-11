@@ -1,5 +1,5 @@
 #pragma once
-#include "common/misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 #include "common/FileUtility.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/misc/GlobalSubsystem.hpp"

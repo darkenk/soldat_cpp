@@ -1,3 +1,5 @@
+// IWYU pragma: private
+// IWYU pragma: friend "SoldatConfig.hpp"
 #pragma once
 
 namespace Config

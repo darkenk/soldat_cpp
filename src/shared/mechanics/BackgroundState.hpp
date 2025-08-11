@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common/PolyMap.hpp"
-#include "common/misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 
 template <Config::Module M = Config::GetModule()>
 class BackgroundState

@@ -27,7 +27,7 @@ using namespace defaults;
 } // namespace Config
 
 #if __has_include(<ConfigModule.tweaks.hpp>)
-#include <ConfigModule.tweaks.hpp>
+#include <ConfigModule.tweaks.hpp> // IWYU pragma: keep
 #endif
 
 namespace Config

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 
 class NetworkServer;
 template <class TSprite> class TSpriteSystem;

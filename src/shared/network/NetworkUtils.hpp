@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common/misc/PortUtils.hpp"
-#include "common/misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 #include <string>
 
 template <Config::Module M>

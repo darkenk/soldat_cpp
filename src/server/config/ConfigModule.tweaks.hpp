@@ -1,3 +1,4 @@
+// IWYU pragma: private, include "common/misc/SoldatConfig.hpp"
 #pragma once
 #include <type_traits>
 

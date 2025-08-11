@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 template <Config::Module M>
 class Sprite;
 

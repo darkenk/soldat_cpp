@@ -1,6 +1,6 @@
 #pragma once
 #include "common/Vector.hpp"
-#include "common/misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 #include <cstdint>
 
 class Polymap;

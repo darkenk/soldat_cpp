@@ -2,7 +2,7 @@
 
 #include "common/Anims.hpp"
 #include "common/misc/GlobalSubsystem.hpp"
-#include "common/misc/SoldatConfig.hpp"
+#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 #include <string>
 
 class particlesystem;
