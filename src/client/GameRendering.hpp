@@ -19,8 +19,13 @@ constexpr std::int32_t font_weapons_menu = 5;
 constexpr std::int32_t font_world = 6;
 constexpr std::int32_t font_last = font_world;
 
-extern tgamerenderingparams gamerenderingparams;
-extern tgfxspritearray textures;
+struct GlobalStateGameRendering
+{
+  tgamerenderingparams gamerenderingparams;
+  tgfxspritearray textures;
+};
+
+extern GlobalStateGameRendering gGlobalStateGameRendering;
 
 bool initgamegraphics();
 void reloadgraphics();

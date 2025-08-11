@@ -910,8 +910,10 @@ void rendergostek(tsprite &soldier)
         }
       }
 
-      cx = cx * textures[tex]->width * textures[tex]->scale;
-      cy = cy * textures[tex]->height * textures[tex]->scale;
+      cx = cx * gGlobalStateGameRendering.textures[tex]->width *
+           gGlobalStateGameRendering.textures[tex]->scale;
+      cy = cy * gGlobalStateGameRendering.textures[tex]->height *
+           gGlobalStateGameRendering.textures[tex]->scale;
       color[gs.color].color.a = alpha[gs.alpha];
 
       if ((i >= GOSTEK_HAIR_DREADLOCK1) && (i <= GOSTEK_HAIR_DREADLOCK5))
@@ -920,7 +922,8 @@ void rendergostek(tsprite &soldier)
         x1 = x1 + v.x;
         y1 = y1 + v.y;
         cx = 0;
-        cy = 0.5 * textures[tex]->height * textures[tex]->scale;
+        cy = 0.5 * gGlobalStateGameRendering.textures[tex]->height *
+             gGlobalStateGameRendering.textures[tex]->scale;
         sx = 0.75 + (1 - 0.75) / 5 * (i - GOSTEK_HAIR_DREADLOCK1);
       }
       else if (gs.flex > 0)
@@ -928,7 +931,8 @@ void rendergostek(tsprite &soldier)
         sx = min(1.5, sqrt(sqr(x2 - x1) + sqr(y2 - y1)) / gs.flex);
       }
 
-      drawgosteksprite(textures[tex], x1, y1 + 1, sx, sy, cx, cy, r, color[gs.color]);
+      drawgosteksprite(gGlobalStateGameRendering.textures[tex], x1, y1 + 1, sx, sy, cx, cy, r,
+                       color[gs.color]);
     }
   }
 }

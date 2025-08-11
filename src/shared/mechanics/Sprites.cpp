@@ -283,9 +283,10 @@ void Sprite<M>::update()
   }
 
 #ifndef SERVER
-  if (clientstopmovingcounter > 0)
+  if (gGlobalStateClientGame.clientstopmovingcounter > 0)
 #else
-  if (((player->controlmethod == human) && (noclientupdatetime[num] < clientstopmove_retrys)) ||
+  if (((player->controlmethod == human) &&
+       (gGlobalStateNetworkServer.noclientupdatetime[num] < clientstopmove_retrys)) ||
       (player->controlmethod == bot))
 #endif
   {
@@ -300,7 +301,7 @@ void Sprite<M>::update()
     if (sprite_system.IsPlayerSprite(num))
     {
       respawncounter = 19999;
-      gamemenushow(limbomenu, false);
+      gamemenushow(gGlobalStateGameMenus.limbomenu, false);
     }
 #endif
   }
@@ -557,11 +558,11 @@ void Sprite<M>::update()
             m3 = vec2subtract(skeleton.pos[i], skeleton.oldpos[i]);
             vec2scale(m3, m3, 0.35);
 
-            if (sparkscount > 300)
+            if (gGlobalStateSparks.sparkscount > 300)
             {
               rnd = blood_random_low;
             }
-            else if (sparkscount > 50)
+            else if (gGlobalStateSparks.sparkscount > 50)
             {
               rnd = blood_random_normal;
             }
@@ -611,11 +612,11 @@ void Sprite<M>::update()
               vec2scale(m3, m3, 0.3);
 
               rnd = fire_random_normal;
-              if (sparkscount > 170)
+              if (gGlobalStateSparks.sparkscount > 170)
               {
                 rnd = fire_random_low;
               }
-              if (sparkscount < 17)
+              if (gGlobalStateSparks.sparkscount < 17)
               {
                 rnd = fire_random_high;
               }
@@ -755,7 +756,8 @@ void Sprite<M>::update()
       // WEAPON HANDLING
 #ifndef SERVER
       if ((sprite_system.IsPlayerSprite(num)) || (weapon.fireinterval <= fireinterval_net) or
-          !GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y, camerafollowsprite))
+          !GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y,
+                                      gGlobalStateClient.camerafollowsprite))
 #endif
       {
         if ((weapon.fireintervalcount > 0) &&
@@ -1025,7 +1027,7 @@ void Sprite<M>::update()
             }
             else
             {
-              playsound(SfxEffect::chainsaw_m, spritePartsPos, defaultchannel);
+              playsound(SfxEffect::chainsaw_m, spritePartsPos, gGlobalStateSound.defaultchannel);
             }
           }
         }
@@ -1074,9 +1076,10 @@ void Sprite<M>::update()
       // JETS
       if
 #ifndef SERVER
-        ((clientstopmovingcounter > 0))
+        ((gGlobalStateClientGame.clientstopmovingcounter > 0))
 #else
-        (((player->controlmethod == human) && (noclientupdatetime[num] < clientstopmove_retrys)) ||
+        (((player->controlmethod == human) &&
+          (gGlobalStateNetworkServer.noclientupdatetime[num] < clientstopmove_retrys)) ||
          (player->controlmethod == bot))
 #endif
       {
@@ -1504,10 +1507,10 @@ void Sprite<M>::kill()
 #ifdef SERVER
   if (num > 0)
   {
-    noclientupdatetime[num] = 0;
-    messagesasecnum[num] = 0;
-    floodwarnings[num] = 0;
-    pingwarnings[num] = 0;
+    gGlobalStateNetworkServer.noclientupdatetime[num] = 0;
+    gGlobalStateNetworkServer.messagesasecnum[num] = 0;
+    gGlobalStateNetworkServer.floodwarnings[num] = 0;
+    gGlobalStateNetworkServer.pingwarnings[num] = 0;
   }
 #endif
 
@@ -1538,10 +1541,10 @@ void selectdefaultweapons(std::uint8_t sprite_id)
       if (weaponSystem.IsEnabled(j))
       {
         weaponsel[sprite_id][j] = 1;
-        limbomenu->button[j - 1].active = true;
+        gGlobalStateGameMenus.limbomenu->button[j - 1].active = true;
         sprite_system.GetSprite(sprite_id).selweapon = j;
 
-        if (limbomenu->active && !sprite_system.GetSprite(sprite_id).deadmeat)
+        if (gGlobalStateGameMenus.limbomenu->active && !sprite_system.GetSprite(sprite_id).deadmeat)
         {
           sprite_system.GetSprite(sprite_id).applyweaponbynum(
             sprite_system.GetSprite(sprite_id).selweapon, 1);
@@ -1561,12 +1564,12 @@ void selectdefaultweapons(std::uint8_t sprite_id)
       if (weaponSystem.IsEnabled(j))
       {
         weaponsel[sprite_id][j] = 1;
-        limbomenu->button[j - 1].active = true;
+        gGlobalStateGameMenus.limbomenu->button[j - 1].active = true;
         sprite_system.GetSprite(sprite_id).player->secwep = j - primary_weapons - 1;
 
         CVar::cl_player_secwep = (sprite_system.GetSprite(sprite_id).player->secwep);
 
-        if (limbomenu->active && !sprite_system.GetSprite(sprite_id).deadmeat)
+        if (gGlobalStateGameMenus.limbomenu->active && !sprite_system.GetSprite(sprite_id).deadmeat)
         {
           sprite_system.GetSprite(sprite_id).applyweaponbynum(
             GS::GetWeaponSystem().GetGuns()[j].num, 2);
@@ -1650,7 +1653,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     if ((CVar::sv_gamemode == gamestyle_inf) || (CVar::sv_gamemode == gamestyle_teammatch) ||
         (CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_htf))
     {
-      respawncounter = waverespawncounter + CVar::sv_respawntime_minwave;
+      respawncounter = gGlobalStateServer.waverespawncounter + CVar::sv_respawntime_minwave;
     }
     else
     {
@@ -1957,7 +1960,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifndef SERVER
     if ((who != num) && (sprite_system.IsPlayerSprite(who)))
     {
-      for (auto &w : wepstats)
+      for (auto &w : gGlobalStateClient.wepstats)
       {
         if (w.name == s)
         {
@@ -2055,8 +2058,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
       }
       else
       {
-        screencounter = 5;
-        capscreen = 4;
+        gGlobalStateClientGame.screencounter = 5;
+        gGlobalStateClientGame.capscreen = 4;
       }
     }
 #endif
@@ -2498,7 +2501,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         {
           if (weaponSystem.IsEnabled(i))
           {
-            limbomenu->button[i - 1].active = (bool)(weaponsel[mysprite][i]);
+            gGlobalStateGameMenus.limbomenu->button[i - 1].active =
+              (bool)(weaponsel[gGlobalStateClient.mysprite][i]);
           }
         }
       }
@@ -3581,7 +3585,7 @@ void Sprite<M>::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32
 #ifdef SERVER
   if (weapon.num == knife_num)
   {
-    knifecan[num] = true;
+    gGlobalStateNetworkServer.knifecan[num] = true;
   }
 #endif
 
@@ -3681,7 +3685,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
 #ifndef SERVER
   auto &guns = GS::GetWeaponSystem().GetGuns();
   auto &bullet = GS::GetBulletSystem().GetBullets();
-  if ((what > 0) && (this->num != mysprite))
+  if ((what > 0) && (this->num != gGlobalStateClient.mysprite))
   {
     switch (bullet[what].style)
     {
@@ -3710,9 +3714,9 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
     {
       for (j = 1; j <= 20; j++)
       {
-        if (wepstats[j].name == s)
+        if (gGlobalStateClient.wepstats[j].name == s)
         {
-          wepstats[j].hits = wepstats[j].hits + 1;
+          gGlobalStateClient.wepstats[j].hits = gGlobalStateClient.wepstats[j].hits + 1;
           bullet[what].hashit = true;
         }
       }
@@ -3966,9 +3970,9 @@ void Sprite<M>::respawn()
 #ifndef SERVER
   if (sprite_system.IsPlayerSprite(num))
   {
-    camerafollowsprite = mysprite;
-    grenadeeffecttimer = 0;
-    hitspraycounter = 0;
+    gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
+    gGlobalStateClient.grenadeeffecttimer = 0;
+    gGlobalStateClient.hitspraycounter = 0;
   }
 #endif
 
@@ -3988,9 +3992,9 @@ void Sprite<M>::respawn()
   bgstate.backgroundpoly = background_poly_unknown;
 
 #ifdef SERVER
-  bullettime[num] = GS::GetGame().GetMainTickCounter() - 10;
-  grenadetime[num] = GS::GetGame().GetMainTickCounter() - 10;
-  knifecan[num] = true;
+  gGlobalStateNetworkServer.bullettime[num] = GS::GetGame().GetMainTickCounter() - 10;
+  gGlobalStateNetworkServer.grenadetime[num] = GS::GetGame().GetMainTickCounter() - 10;
+  gGlobalStateNetworkServer.knifecan[num] = true;
 #endif
 
   if ((holdedthing > 0) && (holdedthing < max_things + 1))
@@ -4390,9 +4394,9 @@ void Sprite<M>::changeteam_ServerVariant(std::int32_t team, bool adminchange, st
     respawn();
 
 #ifdef SERVER
-    bullettime[num] = GS::GetGame().GetMainTickCounter() - 10;
-    grenadetime[num] = GS::GetGame().GetMainTickCounter() - 10;
-    knifecan[num] = true;
+    gGlobalStateNetworkServer.bullettime[num] = GS::GetGame().GetMainTickCounter() - 10;
+    gGlobalStateNetworkServer.grenadetime[num] = GS::GetGame().GetMainTickCounter() - 10;
+    gGlobalStateNetworkServer.knifecan[num] = true;
 
     if (!player->demoplayer)
     {
@@ -4459,13 +4463,13 @@ void Sprite<M>::changeteam_ServerVariant(std::int32_t team, bool adminchange, st
     {
       if (player->team == team_spectator)
       {
-        camerafollowsprite = 0;
-        camerafollowsprite = getcameratarget();
-        gamemenushow(limbomenu, false);
+        gGlobalStateClient.camerafollowsprite = 0;
+        gGlobalStateClient.camerafollowsprite = getcameratarget();
+        gamemenushow(gGlobalStateGameMenus.limbomenu, false);
       }
       else
       {
-        camerafollowsprite = mysprite;
+        gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
       }
     }
 #endif
@@ -4536,9 +4540,9 @@ void Sprite<M>::fire()
   if (sprite_system.IsPlayerSprite(num))
   {
     // Bink && self-bink
-    if (hitspraycounter > 0)
+    if (gGlobalStateClient.hitspraycounter > 0)
     {
-      inaccuracy = inaccuracy + hitspraycounter * 0.01;
+      inaccuracy = inaccuracy + gGlobalStateClient.hitspraycounter * 0.01;
     }
   }
 #endif
@@ -5154,33 +5158,36 @@ void Sprite<M>::fire()
           (legsanimation.id == AnimationType::Prone) ||
           (legsanimation.id == AnimationType::ProneMove))
       {
-        hitspraycounter = calculatebink(hitspraycounter, round((float)(-weapon.bink) / 2));
+        gGlobalStateClient.hitspraycounter =
+          calculatebink(gGlobalStateClient.hitspraycounter, round((float)(-weapon.bink) / 2));
       }
       else
       {
-        hitspraycounter = calculatebink(hitspraycounter, -weapon.bink);
+        gGlobalStateClient.hitspraycounter =
+          calculatebink(gGlobalStateClient.hitspraycounter, -weapon.bink);
       }
     }
   }
 
   // Screen shake
-  if (((sprite_system.IsPlayerSpriteValid()) && (camerafollowsprite != 0)) and
+  if (((sprite_system.IsPlayerSpriteValid()) && (gGlobalStateClient.camerafollowsprite != 0)) and
       ((sprite_system.IsPlayerSprite(num)) || CVar::cl_screenshake))
   {
     if (weapon.num != chainsaw_num)
     {
-      if (GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y, camerafollowsprite))
+      if (GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y,
+                                     gGlobalStateClient.camerafollowsprite))
       {
         if ((weapon.num == m249_num) || (weapon.num == spas12_num) || (weapon.num == barrett_num) ||
             (weapon.num == minigun_num))
         {
-          camerax = camerax - 3 + Random(7);
-          cameray = cameray - 3 + Random(7);
+          gGlobalStateClient.camerax = gGlobalStateClient.camerax - 3 + Random(7);
+          gGlobalStateClient.cameray = gGlobalStateClient.cameray - 3 + Random(7);
         }
         else
         {
-          camerax = camerax - 1 + Random(3);
-          cameray = cameray - 1 + Random(3);
+          gGlobalStateClient.camerax = gGlobalStateClient.camerax - 1 + Random(3);
+          gGlobalStateClient.cameray = gGlobalStateClient.cameray - 1 + Random(3);
         }
       }
     }
@@ -5210,8 +5217,10 @@ void Sprite<M>::fire()
     {
       rc = sin(degtorad(((float)(weapon.speed * weapon.fireinterval) / 364) * rc));
 
-      calculaterecoil(gamewidthhalf - camerax + spritePartsPos.x,
-                      gameheighthalf - cameray + spritePartsPos.y, mx, my, -(pi / 1) * rc);
+      calculaterecoil(
+        gGlobalStateGame.gamewidthhalf - gGlobalStateClient.camerax + spritePartsPos.x,
+        gGlobalStateGame.gameheighthalf - gGlobalStateClient.cameray + spritePartsPos.y,
+        gGlobalStateClientGame.mx, gGlobalStateClientGame.my, -(pi / 1) * rc);
     }
   }
 #endif
@@ -5437,7 +5446,8 @@ void Sprite<M>::throwgrenade()
 #ifndef SERVER
         if ((sprite_system.IsPlayerSprite(num)) && (guns[fraggrenade].bink < 0))
         {
-          hitspraycounter = calculatebink(hitspraycounter, -guns[fraggrenade].bink);
+          gGlobalStateClient.hitspraycounter =
+            calculatebink(gGlobalStateClient.hitspraycounter, -guns[fraggrenade].bink);
       }
 
         playsound(SfxEffect::grenade_throw, a);

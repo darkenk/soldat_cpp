@@ -19,22 +19,30 @@ struct tkillsort
 };
 
 #ifndef SERVER
-extern std::int32_t gamewidth;
-extern std::int32_t gameheight;
+struct GlobalStateGame
+{
+  std::int32_t gamewidth;
+  std::int32_t gameheight;
+  float gamewidthhalf;
+  float gameheighthalf;
+  PascalArray<tkillsort, 1, Constants::MAX_PLAYERS> sortedteamscore;
+  std::int32_t heartbeattime;
+  std::int32_t heartbeattimewarnings;
+  PascalArray<tspark, 1, Constants::MAX_SPARKS> spark;
+};
 
-extern float gamewidthhalf;  // / 2;
-extern float gameheighthalf; // / 2;
+extern GlobalStateGame gGlobalStateGame;
+
+// / 2;
+// / 2;
 #endif
 
 #ifndef SERVER
-extern PascalArray<tkillsort, 1, Constants::MAX_PLAYERS> sortedteamscore;
 
-extern std::int32_t heartbeattime;
-extern std::int32_t heartbeattimewarnings;
 #endif
 
 #ifndef SERVER
-extern PascalArray<tspark, 1, Constants::MAX_SPARKS> spark; // spark game handling sprite
+// spark game handling sprite
 #endif
 
 template <Config::Module M = Config::GetModule()>

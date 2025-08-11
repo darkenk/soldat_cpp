@@ -27,22 +27,26 @@
 #include <chrono>
 
 #ifndef SERVER
-std::int32_t gamewidth = default_width;
-std::int32_t gameheight = default_height;
-
-float gamewidthhalf = default_width;  // / 2;
-float gameheighthalf = default_width; // / 2;
+GlobalStateGame gGlobalStateGame {
+  .gamewidth = default_width,
+  .gameheight = default_height,
+  .gamewidthhalf = default_width,
+  .gameheighthalf = default_height,
+  .sortedteamscore = {},
+  .heartbeattime = {},
+  .heartbeattimewarnings = {},
+  .spark = {},
+};
+// / 2;
+// / 2;
 #endif
 
 #ifndef SERVER
-PascalArray<tkillsort, 1, max_sprites> sortedteamscore;
 
-std::int32_t heartbeattime;
-std::int32_t heartbeattimewarnings;
 #endif
 
 #ifndef SERVER
-PascalArray<tspark, 1, max_sparks> spark; // spark game handling sprite
+// spark game handling sprite
 #endif
 
 namespace
@@ -142,7 +146,7 @@ void Game<M>::updategamestats()
 #ifndef SERVER
     s.add("");
     s.add("Server:");
-    s.add(joinip + ':' + joinport);
+    s.add(gGlobalStateClient.joinip + ':' + gGlobalStateClient.joinport);
 #endif
 
     s.savetofile(UserDirectory + "logs/gamestat.txt");
@@ -190,8 +194,8 @@ auto Game<M>::pointvisible(float x, float y, const std::int32_t i) -> bool
   LogTraceG("PointVisible");
 #else
   // workaround because of variables instead of constants
-  game_width = gamewidth;
-  game_height = gameheight;
+  game_width = gGlobalStateGame.gamewidth;
+  game_height = gGlobalStateGame.gameheight;
 #endif
 
   bool result = false;
@@ -258,13 +262,13 @@ auto Game<M>::ispointonscreen(const tvector2 &point) -> bool
 
   bool result;
   result = true;
-  p1 = gamewidthhalf - (camerax - point.x);
-  p2 = gameheighthalf - (cameray - point.y);
-  if ((p1 < 0) || (p1 > gamewidth))
+  p1 = gGlobalStateGame.gamewidthhalf - (gGlobalStateClient.camerax - point.x);
+  p2 = gGlobalStateGame.gameheighthalf - (gGlobalStateClient.cameray - point.y);
+  if ((p1 < 0) || (p1 > gGlobalStateGame.gamewidth))
   {
     result = false;
   }
-  if ((p2 < 0) || (p2 > gameheight))
+  if ((p2 < 0) || (p2 > gGlobalStateGame.gameheight))
   {
     result = false;
   }
@@ -291,10 +295,11 @@ void Game<M>::startvote(std::uint8_t startervote, std::uint8_t typevote, std::st
     {
       if (VoteType == vote_kick)
       {
-        GS::GetMainConsole().console(("You have voted to kick ") +
-                                       (sprite_system.GetSprite(kickmenuindex).player->name) +
-                                       (" from the game"),
-                                     vote_message_color);
+        GS::GetMainConsole().console(
+          ("You have voted to kick ") +
+            (sprite_system.GetSprite(gGlobalStateGameMenus.kickmenuindex).player->name) +
+            (" from the game"),
+          vote_message_color);
         VoteActive = false;
         NotImplemented("network", "No clientvotekick");
 #if 0
@@ -384,7 +389,7 @@ void Game<M>::countvote(std::uint8_t voter)
       {
         i = strtoint(VoteTarget);
         // There should be no permanent bans by votes. Reduced to 1 day.
-        if (cheattag[i] == 0)
+        if (gGlobalStateServer.cheattag[i] == 0)
         {
           kickplayer(i, true, kick_voted, hour, "Vote Kicked");
         }
@@ -422,9 +427,9 @@ void Game<M>::showmapchangescoreboard(const std::string nextmap)
   mapchangename = nextmap;
   mapchangecounter = mapchangetime;
 #ifndef SERVER
-  gamemenushow(limbomenu, false);
-  fragsmenushow = true;
-  statsmenushow = false;
+  gamemenushow(gGlobalStateGameMenus.limbomenu, false);
+  gGlobalStateInterfaceGraphics.fragsmenushow = true;
+  gGlobalStateInterfaceGraphics.statsmenushow = false;
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
     stopsound(sprite.reloadsoundchannel);
@@ -468,13 +473,14 @@ void Game<M>::changemap()
 #ifdef SERVER
   //  try
   LogDebugG("ChangeMap");
-  mapslist.clear();
+  gGlobalStateServer.mapslist.clear();
 
   if (fileexists(UserDirectory + std::string(CVar::sv_maplist)))
   {
-    mapslist.loadfromfile(UserDirectory + std::string(CVar::sv_maplist));
-    auto it = std::remove(mapslist.begin(), mapslist.end(), "");
-    mapslist.erase(it, mapslist.end());
+    gGlobalStateServer.mapslist.loadfromfile(UserDirectory + std::string(CVar::sv_maplist));
+    auto it =
+      std::remove(gGlobalStateServer.mapslist.begin(), gGlobalStateServer.mapslist.end(), "");
+    gGlobalStateServer.mapslist.erase(it, gGlobalStateServer.mapslist.end());
   }
 
   for (auto &w : botpath.waypoint)
@@ -493,7 +499,7 @@ void Game<M>::changemap()
   }
 #endif
 #ifndef SERVER
-  mapchanged = true;
+  gGlobalStateClientGame.mapchanged = true;
   GS::GetDemoRecorder().stoprecord();
   auto& fs = GS::GetFileSystem();
 
@@ -504,15 +510,15 @@ void Game<M>::changemap()
                      CVar::r_forcebg_color2))
     {
       rendergameinfo(("Could not load map: ") + (mapchangename));
-      gClient.exittomenu();
+      gGlobalStateClient.gClient.exittomenu();
       return;
     }
     // Map.Name := MapChangeName;
   }
   else
   {
-    gClient.exittomenu();
-    gClient.joinserver();
+    gGlobalStateClient.gClient.exittomenu();
+    gGlobalStateClient.gClient.joinserver();
     return;
   }
 #endif
@@ -520,7 +526,7 @@ void Game<M>::changemap()
   GS::GetBulletSystem().KillAll();
   GS::GetThingSystem().KillAll();
 #ifndef SERVER
-  for (auto &s : spark)
+  for (auto &s : gGlobalStateGame.spark)
   {
     s.kill();
   }
@@ -588,7 +594,8 @@ void Game<M>::changemap()
     {
       for (auto i = 1; i <= main_weapons; i++)
       {
-        limbomenu->button[i - 1].active = (bool)(weaponsel[mysprite][i]);
+        gGlobalStateGameMenus.limbomenu->button[i - 1].active =
+          (bool)(weaponsel[gGlobalStateClient.mysprite][i]);
       }
     }
 #endif
@@ -605,12 +612,12 @@ void Game<M>::changemap()
   }
 
 #ifndef SERVER
-  fragsmenushow = false;
-  statsmenushow = false;
+  gGlobalStateInterfaceGraphics.fragsmenushow = false;
+  gGlobalStateInterfaceGraphics.statsmenushow = false;
 
   if (sprite_system.IsPlayerSpriteValid())
   {
-    gamemenushow(limbomenu);
+    gamemenushow(gGlobalStateGameMenus.limbomenu);
   }
 #endif
 
@@ -675,40 +682,41 @@ void Game<M>::changemap()
   }
 #endif
 #ifndef SERVER
-  heartbeattime = maintickcounter;
-  heartbeattimewarnings = 0;
+  gGlobalStateGame.heartbeattime = maintickcounter;
+  gGlobalStateGame.heartbeattimewarnings = 0;
 
   if ((sprite_system.IsPlayerSpriteValid()) && sprite_system.GetPlayerSprite().isnotspectator())
   {
-    camerafollowsprite = mysprite;
+    gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
   }
   else
   {
     // If in freecam or the previous followee is gone, then find a new followee
-    if ((camerafollowsprite == 0) or !sprite_system.GetSprite(camerafollowsprite).IsActive())
+    if ((gGlobalStateClient.camerafollowsprite == 0) or
+        !sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).IsActive())
     {
-      camerafollowsprite = getcameratarget(0);
+      gGlobalStateClient.camerafollowsprite = getcameratarget(0);
       // If no appropriate player found, then just center the camera
-      if (camerafollowsprite == 0)
+      if (gGlobalStateClient.camerafollowsprite == 0)
       {
-        camerax = 0;
-        cameray = 0;
+        gGlobalStateClient.camerax = 0;
+        gGlobalStateClient.cameray = 0;
       }
     }
   }
 
-  if (!escmenu->active)
+  if (!gGlobalStateGameMenus.escmenu->active)
   {
-    mx = gamewidthhalf;
-    my = gameheighthalf;
-    mouseprev.x = mx;
-    mouseprev.y = my;
+    gGlobalStateClientGame.mx = gGlobalStateGame.gamewidthhalf;
+    gGlobalStateClientGame.my = gGlobalStateGame.gameheighthalf;
+    gGlobalStateClientGame.mouseprev.x = gGlobalStateClientGame.mx;
+    gGlobalStateClientGame.mouseprev.y = gGlobalStateClientGame.my;
   }
 
   // Spawn sound
   if (sprite_system.IsPlayerSpriteValid())
   {
-    auto &spritePartsPos = sprite_system.GetSpritePartsPos(mysprite);
+    auto &spritePartsPos = sprite_system.GetSpritePartsPos(gGlobalStateClient.mysprite);
     playsound(SfxEffect::spawn, spritePartsPos);
   }
 
@@ -809,13 +817,13 @@ void Game<M>::sortplayers()
             if (sprite.player->kills >= CVar::sv_killlimit)
             {
 #ifndef SERVER
-              camerafollowsprite = sprite.num;
-              if (escmenu->active)
+              gGlobalStateClient.camerafollowsprite = sprite.num;
+              if (gGlobalStateGameMenus.escmenu->active)
               {
-                mx = gamewidthhalf;
-                my = gameheighthalf;
-                mouseprev.x = mx;
-                mouseprev.y = my;
+                gGlobalStateClientGame.mx = gGlobalStateGame.gamewidthhalf;
+                gGlobalStateClientGame.my = gGlobalStateGame.gameheighthalf;
+                gGlobalStateClientGame.mouseprev.x = gGlobalStateClientGame.mx;
+                gGlobalStateClientGame.mouseprev.y = gGlobalStateClientGame.my;
               }
 #else
               nextmap();
@@ -891,24 +899,28 @@ void Game<M>::sortplayers()
   // Sort Team Score
   for (auto i = 1; i <= 4; i++)
   {
-    sortedteamscore[i].kills = teamscore[i];
-    sortedteamscore[i].playernum = i;
+    gGlobalStateGame.sortedteamscore[i].kills = teamscore[i];
+    gGlobalStateGame.sortedteamscore[i].playernum = i;
   }
 
-  sortedteamscore[1].color = (std::uint32_t(CVar::ui_status_transparency) << 24) | 0xd20f05; // ARGB
-  sortedteamscore[2].color = (std::uint32_t(CVar::ui_status_transparency) << 24) | 0x50fd2;
-  sortedteamscore[3].color = (std::uint32_t(CVar::ui_status_transparency) << 24) | 0xd2d205;
-  sortedteamscore[4].color = (std::uint32_t(CVar::ui_status_transparency) << 24) | 0x5d205;
+  gGlobalStateGame.sortedteamscore[1].color =
+    (std::uint32_t(CVar::ui_status_transparency) << 24) | 0xd20f05; // ARGB
+  gGlobalStateGame.sortedteamscore[2].color =
+    (std::uint32_t(CVar::ui_status_transparency) << 24) | 0x50fd2;
+  gGlobalStateGame.sortedteamscore[3].color =
+    (std::uint32_t(CVar::ui_status_transparency) << 24) | 0xd2d205;
+  gGlobalStateGame.sortedteamscore[4].color =
+    (std::uint32_t(CVar::ui_status_transparency) << 24) | 0x5d205;
 
   for (auto i = 1; i <= 4; i++)
   {
     for (j = i + 1; j <= 4; j++)
     {
-      if (sortedteamscore[j].kills > sortedteamscore[i].kills)
+      if (gGlobalStateGame.sortedteamscore[j].kills > gGlobalStateGame.sortedteamscore[i].kills)
       {
-        temp = sortedteamscore[i];
-        sortedteamscore[i] = sortedteamscore[j];
-        sortedteamscore[j] = temp;
+        temp = gGlobalStateGame.sortedteamscore[i];
+        gGlobalStateGame.sortedteamscore[i] = gGlobalStateGame.sortedteamscore[j];
+        gGlobalStateGame.sortedteamscore[j] = temp;
       }
     }
   }

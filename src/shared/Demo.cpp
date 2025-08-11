@@ -25,7 +25,10 @@
 using string = std::string;
 
 #ifndef SERVER
-tdemoplayer demoplayer;
+GlobalStateDemo gGlobalStateDemo{
+  .demoplayer{},
+};
+
 #endif
 
 namespace
@@ -57,7 +60,7 @@ auto tdemorecorder<M>::startrecord(const string &filename) -> bool
   bool result;
   result = false;
 #ifndef SERVER
-  if (demoplayer.active())
+  if (gGlobalStateDemo.demoplayer.active())
   {
     return result;
   }
@@ -268,10 +271,10 @@ void tdemorecorder<M>::savenextframe()
 
   // save camera change
 #ifndef SERVER
-  if (foldcam != camerafollowsprite)
+  if (foldcam != gGlobalStateClient.camerafollowsprite)
   {
     savecamera();
-    foldcam = camerafollowsprite;
+    foldcam = gGlobalStateClient.camerafollowsprite;
   }
 #endif
 
@@ -311,7 +314,7 @@ auto tdemoplayer::opendemo(const string &filename) -> bool
   {
     fname = extractfilename(filename);
     GS::GetMainConsole().console(_("Playing demo") + ' ' + (fname), info_message_color);
-    spectator = 1;
+    gGlobalStateClient.spectator = 1;
     factive = true;
     opendemo_result = true;
   }
@@ -395,7 +398,7 @@ void tdemoplayer::position(std::int32_t ticks)
   std::int32_t i;
 
   fskipto = ticks;
-  shouldrenderframes = false;
+  gGlobalStateClientGame.shouldrenderframes = false;
 
   if (fskipto < GS::GetGame().GetMainTickCounter())
   {
@@ -410,7 +413,7 @@ void tdemoplayer::position(std::int32_t ticks)
     GS::GetBulletSystem().KillAll();
     for (i = 1; i <= max_sparks; i++)
     {
-      spark[i].kill();
+      gGlobalStateGame.spark[i].kill();
     }
     GS::GetThingSystem().KillAll();
 
@@ -418,29 +421,29 @@ void tdemoplayer::position(std::int32_t ticks)
     for (i = 0; i < max_big_messages; i++)
     {
       // Big Text
-      bigtext[i] = "";
-      bigdelay[i] = 0;
-      bigscale[i] = 0;
-      bigcolor[i] = 0;
-      bigposx[i] = 0;
-      bigposy[i] = 0;
-      bigx[i] = 0;
+      gGlobalStateInterfaceGraphics.bigtext[i] = "";
+      gGlobalStateInterfaceGraphics.bigdelay[i] = 0;
+      gGlobalStateInterfaceGraphics.bigscale[i] = 0;
+      gGlobalStateInterfaceGraphics.bigcolor[i] = 0;
+      gGlobalStateInterfaceGraphics.bigposx[i] = 0;
+      gGlobalStateInterfaceGraphics.bigposy[i] = 0;
+      gGlobalStateInterfaceGraphics.bigx[i] = 0;
       // World Text
-      worldtext[i] = "";
-      worlddelay[i] = 0;
-      worldscale[i] = 0;
-      worldcolor[i] = 0;
-      worldposx[i] = 0;
-      worldposy[i] = 0;
-      worldx[i] = 0;
+      gGlobalStateInterfaceGraphics.worldtext[i] = "";
+      gGlobalStateInterfaceGraphics.worlddelay[i] = 0;
+      gGlobalStateInterfaceGraphics.worldscale[i] = 0;
+      gGlobalStateInterfaceGraphics.worldcolor[i] = 0;
+      gGlobalStateInterfaceGraphics.worldposx[i] = 0;
+      gGlobalStateInterfaceGraphics.worldposy[i] = 0;
+      gGlobalStateInterfaceGraphics.worldx[i] = 0;
     }
 
     // Reset ABOVE CHAT MESSAGE
     for (i = 1; i <= max_sprites; i++)
     {
-      chatdelay[i] = 0;
-      chatmessage[i] = "";
-      chatteam[i] = false;
+      gGlobalStateInterfaceGraphics.chatdelay[i] = 0;
+      gGlobalStateInterfaceGraphics.chatmessage[i] = "";
+      gGlobalStateInterfaceGraphics.chatteam[i] = false;
     }
 
     GS::GetMainConsole().ResetCount();

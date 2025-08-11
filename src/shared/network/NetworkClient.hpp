@@ -3,16 +3,21 @@
 #include "Net.hpp"
 #include <functional>
 
-extern std::int32_t clienttickcount;
-extern std::int32_t lastheartbeatcounter;
-extern std::int32_t clientplayerreceivedcounter;
-extern bool clientplayerreceived;
-extern bool clientplayersent;
-extern bool clientvarsrecieved;
-extern bool requestinggame;
-extern std::int32_t noheartbeattime;
-extern std::string votemapname;
-extern std::uint32_t votemapcount;
+struct GlobalStateNetworkClient
+{
+  std::int32_t clienttickcount;
+  std::int32_t lastheartbeatcounter;
+  std::int32_t clientplayerreceivedcounter;
+  bool clientplayerreceived;
+  bool clientplayersent;
+  bool clientvarsrecieved;
+  bool requestinggame;
+  std::int32_t noheartbeattime;
+  std::string votemapname;
+  std::uint32_t votemapcount;
+};
+
+extern GlobalStateNetworkClient gGlobalStateNetworkClient;
 
 class NetworkClientImpl;
 

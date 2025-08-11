@@ -4,6 +4,10 @@
 #include <algorithm>
 #include <array>
 
+#ifndef SERVER
+#include "../../client/Client.hpp"
+#endif // SERVER
+
 template <class TSprite>
 class TSpriteSystem : public GlobalSubsystem<TSpriteSystem<TSprite>>
 {
@@ -121,24 +125,24 @@ public:
 
   void UpdateSpriteParts();
 
+
   // NOLINTBEGIN(soldat-*)
+  #ifndef SERVER
   TSprite& GetPlayerSprite() requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
   {
-    extern std::uint8_t mysprite;
-    return GetSprite(mysprite);
+    return GetSprite(gGlobalStateClient.mysprite);
   }
 
   bool IsPlayerSpriteValid() requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
   {
-    extern std::uint8_t mysprite;
-    return mysprite > 0;
+    return gGlobalStateClient.mysprite > 0;
   }
 
   bool IsPlayerSprite(std::uint8_t spriteId) requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
   {
-    extern std::uint8_t mysprite;
-    return spriteId == mysprite;
+    return spriteId == gGlobalStateClient.mysprite;
   }
+  #endif // SERVER
   // NOLINTEND(soldat-*)
 
 protected:
@@ -148,6 +152,7 @@ private:
   std::vector<TSprite> Sprites;
   TActiveSprites ActiveSprites;
   particlesystem spriteparts;
+  std::uint8_t mysprite;
 
   friend GlobalSubsystem<TSpriteSystem>;
 };

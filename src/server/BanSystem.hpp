@@ -37,7 +37,12 @@ struct tbanhw
   std::string reason;
 };
 
-extern std::vector<tbanip> bannediplist;
-extern std::vector<tbanhw> bannedhwlist;
-extern std::string lastban;
-extern std::string lastbanhw;
+struct GlobalStateBanSystem
+{
+  std::vector<tbanip> bannediplist;
+  std::vector<tbanhw> bannedhwlist;
+  std::string lastban;
+  std::string lastbanhw;
+};
+
+extern GlobalStateBanSystem gGlobalStateBanSystem;

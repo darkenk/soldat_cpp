@@ -7,40 +7,45 @@
 #include <common/network/Net.hpp>
 // #include "shared/network/NetworkServer.hpp"
 
-extern std::int32_t bonusfreq;
+struct GlobalStateServer
+{
+  std::int32_t bonusfreq;
+  std::string serverip;
+  std::int32_t serverport;
+  std::string wmname;
+  std::string wmversion;
+  tstringlist mapslist;
+  std::int8_t lastplayer;
+  std::array<std::int8_t, max_players> cheattag;
+  std::array<std::int8_t, max_players> bulletwarningcount;
+  std::int32_t waverespawntime;
+  std::int32_t waverespawncounter;
+  tstringlist remoteips;
+  tstringlist adminips;
+  std::array<std::string, 1000> floodip;
+  std::array<std::int32_t, 1000> floodnum;
+  std::array<std::string, 4> lastreqip;
+  std::int8_t lastreqid;
+  std::string dropip;
+  std::string currentconf;
+  std::int32_t htftime;
+  PascalArray<std::string, 1, max_players> mutelist;
+  PascalArray<std::string, 1, max_players> mutename;
+  PascalArray<std::string, 1, max_players> tklist;
+  PascalArray<std::int8_t, 1, max_players> tklistkills;
+  std::array<std::string, Constants::MAX_LAST_ADMIN_IPS> lastadminips;
+  std::int32_t mapindex;
+};
 
-extern std::string serverip;
-extern std::int32_t serverport;
-extern std::string wmname;
-extern std::string wmversion;
+extern GlobalStateServer gGlobalStateServer;
 
-extern tstringlist mapslist;
-extern std::int8_t lastplayer;
-extern std::array<std::int8_t, max_players> cheattag;
-extern std::array<std::int8_t, max_players> bulletwarningcount;
-extern std::int32_t waverespawntime;
-extern std::int32_t waverespawncounter;
-extern tstringlist remoteips;
-extern tstringlist adminips;
-extern std::array<std::string, 1000> floodip;
-extern std::array<std::int32_t, 1000> floodnum;
-extern std::array<std::string, 4> lastreqip; // last 4 IP"s to request game
-extern std::int8_t lastreqid;
-extern std::string dropip;
-extern std::string currentconf;
-
-extern std::int32_t htftime;
+// last 4 IP"s to request game
 
 // Mute array
-extern PascalArray<std::string, 1, max_players> mutelist;
-extern PascalArray<std::string, 1, max_players> mutename;
 
 // TK array
-extern PascalArray<std::string, 1, max_players> tklist;      // IP
-extern PascalArray<std::int8_t, 1, max_players> tklistkills; // TK Warnings
-
-extern std::array<std::string, Constants::MAX_LAST_ADMIN_IPS> lastadminips;
-extern std::int32_t mapindex;
+// IP
+// TK Warnings
 
 void spawnthings(std::int8_t Style, std::int8_t Amount);
 void nextmap();

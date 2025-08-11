@@ -28,7 +28,7 @@ void makerain()
 
   if (GS::GetGame().GetMainTickCounter() % modder == 0)
   {
-    a.x = camerax - gamewidthhalf - 128;
+    a.x = gGlobalStateClient.camerax - gGlobalStateGame.gamewidthhalf - 128;
 
     b.x = 0;
     b.y = 12;
@@ -36,7 +36,7 @@ void makerain()
     for (i = 1; i <= 8; i++)
     {
       a.x = a.x + 128 - 50 + Random(90);
-      a.y = cameray - gameheighthalf - 128 - 60 + Random(150);
+      a.y = gGlobalStateClient.cameray - gGlobalStateGame.gameheighthalf - 128 - 60 + Random(150);
 
       createspark(a, b, 38, 255, 60);
     }
@@ -64,7 +64,7 @@ void makesandstorm()
 
   if (GS::GetGame().GetMainTickCounter() % modder == 0)
   {
-    a.x = camerax - gamewidthhalf - 1.5 * 512;
+    a.x = gGlobalStateClient.camerax - gGlobalStateGame.gamewidthhalf - 1.5 * 512;
 
     b.x = 10;
     b.y = 7;
@@ -72,7 +72,7 @@ void makesandstorm()
     for (i = 1; i <= 8; i++)
     {
       a.x = a.x + 128 - 50 + Random(90);
-      a.y = cameray - gameheighthalf - 256 - 60 + Random(150);
+      a.y = gGlobalStateClient.cameray - gGlobalStateGame.gameheighthalf - 256 - 60 + Random(150);
 
       createspark(a, b, 39, 255, 80);
     }
@@ -100,7 +100,7 @@ void makesnow()
 
   if (GS::GetGame().GetMainTickCounter() % modder == 0)
   {
-    a.x = camerax - gamewidthhalf - 256;
+    a.x = gGlobalStateClient.camerax - gGlobalStateGame.gamewidthhalf - 256;
 
     b.x = 1;
     b.y = 2;
@@ -108,7 +108,7 @@ void makesnow()
     for (i = 1; i <= 8; i++)
     {
       a.x = a.x + 128 - 50 + Random(90);
-      a.y = cameray - gameheighthalf - 60 + Random(150);
+      a.y = gGlobalStateClient.cameray - gGlobalStateGame.gameheighthalf - 60 + Random(150);
 
       createspark(a, b, 53, 255, 80);
     }

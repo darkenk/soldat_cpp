@@ -32,7 +32,7 @@ auto ArrayToString(const char *c) -> std::string;
 void playradiosound(std::uint8_t RadioID)
 {
   auto &sprite_system = SpriteSystem::Get();
-  if ((radiocooldown > 0) or (CVar::sv_radio))
+  if ((gGlobalStateClient.radiocooldown > 0) or (CVar::sv_radio))
   {
     return;
   }
@@ -43,8 +43,8 @@ void playradiosound(std::uint8_t RadioID)
     return;
   }
 
-  radiocooldown = 3;
-  const auto &spritePartsPos = sprite_system.GetSpritePartsPos(mysprite);
+  gGlobalStateClient.radiocooldown = 3;
+  const auto &spritePartsPos = sprite_system.GetSpritePartsPos(gGlobalStateClient.mysprite);
   switch (RadioID)
   {
   case 11:
@@ -218,13 +218,15 @@ auto verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
 // Checks if the IP std::string is inside the remote IPs list
 auto isremoteadminip(const std::string &ip) -> bool
 {
-  return std::find(remoteips.begin(), remoteips.end(), ip) != remoteips.end();
+  return std::find(gGlobalStateServer.remoteips.begin(), gGlobalStateServer.remoteips.end(), ip) !=
+         gGlobalStateServer.remoteips.end();
 }
 
 // Checks if the IP std::string is inside the admin IPs list
 auto isadminip(const std::string &ip) -> bool
 {
-  return std::find(adminips.begin(), adminips.end(), ip) != adminips.end();
+  return std::find(gGlobalStateServer.adminips.begin(), gGlobalStateServer.adminips.end(), ip) !=
+         gGlobalStateServer.adminips.end();
 }
 
 // Retruns true if the password is not empty and equal to the Admin password
@@ -296,10 +298,10 @@ void newplayerweapon()
   std::int32_t SecWep;
   if (sprite_system.GetPlayerSprite().weapon.num == noweapon_num)
   {
-    gamemenushow(limbomenu);
+    gamemenushow(gGlobalStateGameMenus.limbomenu);
   }
 
-  i = mysprite;
+  i = gGlobalStateClient.mysprite;
 
   sprite_system.GetSprite(i).player->secwep = CVar::cl_player_secwep;
   auto &weaponsel = GS::GetGame().GetWeaponsel();
@@ -322,7 +324,7 @@ void newplayerweapon()
   {
     if (weaponSystem.IsEnabled(j))
     {
-      limbomenu->button[j - 1].active = bool(weaponsel[i][j]);
+      gGlobalStateGameMenus.limbomenu->button[j - 1].active = bool(weaponsel[i][j]);
     }
   }
 
@@ -379,7 +381,7 @@ auto findfloodid(std::string SrcIP) -> std::int32_t
   auto Result = 0;
   for (i = 1; i < max_floodips; i++)
   {
-    if (floodip[i] == SrcIP)
+    if (gGlobalStateServer.floodip[i] == SrcIP)
     {
       Result = i;
       break;
@@ -398,9 +400,9 @@ auto addfloodip(std::string SrcIP) -> std::int32_t
 
   for (i = 1; i < max_floodips; i++)
   {
-    if (floodip[i] == " ")
+    if (gGlobalStateServer.floodip[i] == " ")
     {
-      floodip[i] = SrcIP;
+      gGlobalStateServer.floodip[i] = SrcIP;
       Result = i;
       break;
     }
@@ -413,8 +415,8 @@ auto updateantiflood(std::string SrcIP) -> std::int32_t
   std::int32_t FloodID;
   constexpr auto FLOOD_ID_NOT_FOUND = 0;
 
-  lastreqip[lastreqid] = SrcIP;
-  lastreqid = (lastreqid + 1) % 4;
+  gGlobalStateServer.lastreqip[gGlobalStateServer.lastreqid] = SrcIP;
+  gGlobalStateServer.lastreqid = (gGlobalStateServer.lastreqid + 1) % 4;
 
   FloodID = findfloodid(SrcIP);
 
@@ -424,9 +426,9 @@ auto updateantiflood(std::string SrcIP) -> std::int32_t
   }
   else
   {
-    floodnum[FloodID]++;
+    gGlobalStateServer.floodnum[FloodID]++;
 
-    if (floodnum[FloodID] > floodip_max)
+    if (gGlobalStateServer.floodnum[FloodID] > floodip_max)
     {
       addbannedip(SrcIP, "Flooding", Constants::TWENTY_MINUTES);
       GS::GetMainConsole().console("IP number " + SrcIP + " banned for flooding", client_message_color);
@@ -438,7 +440,7 @@ auto updateantiflood(std::string SrcIP) -> std::int32_t
 auto isfloodid(std::int32_t ID) -> bool
 {
   constexpr auto FLOOD_ID_NOT_FOUND = 0;
-  return (ID != FLOOD_ID_NOT_FOUND) and (floodnum[ID] > floodip_max);
+  return (ID != FLOOD_ID_NOT_FOUND) and (gGlobalStateServer.floodnum[ID] > floodip_max);
 }
 
 auto addiptoremoteadmins(std::string SrcIP) -> bool
@@ -451,7 +453,7 @@ auto addiptoremoteadmins(std::string SrcIP) -> bool
 
   if (not isadminip(SrcIP))
   {
-    adminips.push_back(SrcIP);
+    gGlobalStateServer.adminips.push_back(SrcIP);
     Result = true;
   }
   return Result;

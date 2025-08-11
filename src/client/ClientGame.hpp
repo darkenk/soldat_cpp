@@ -18,42 +18,49 @@ std::uint8_t getcameratarget(bool backwards = false);
 void getmicdata();
 #endif
 
-extern tvector2 mouseprev;
-extern float mx;
-extern float my;
-extern bool mapchanged;
-extern bool chatchanged;        // used for blinking chat input
-extern bool shouldrenderframes; // false during game request phase
+struct GlobalStateClientGame
+{
+  tvector2 mouseprev;
+  float mx;
+  float my;
+  bool mapchanged;
+  bool chatchanged;
+  bool shouldrenderframes;
+  std::uint8_t actionsnap;
+  bool actionsnaptaken;
+  std::int32_t capscreen;
+  std::uint8_t showscreen;
+  std::uint8_t screencounter;
+  bool isfullscreen;
+  std::int32_t screenwidth;
+  std::int32_t screenheight;
+  std::int32_t renderwidth;
+  std::int32_t renderheight;
+  std::int32_t windowwidth;
+  std::int32_t windowheight;
+  std::string chattext;
+  std::string lastchattext;
+  std::string firechattext;
+  std::uint8_t chattype;
+  std::string completionbase;
+  std::int32_t completionbaseseparator;
+  std::uint8_t currenttabcompleteplayer;
+  std::uint8_t cursorposition;
+  bool tabcompletepressed;
+  std::int32_t chattimecounter;
+  std::int32_t clientstopmovingcounter;
+  bool forceclientspritesnapshotmov;
+  std::uint32_t lastforceclientspritesnapshotmovtick;
+  std::int32_t menutimer;
+};
+
+extern GlobalStateClientGame gGlobalStateClientGame;
+
+// used for blinking chat input
+// false during game request phase
 
 // us std::uint8_t  action snap
-extern std::uint8_t actionsnap;
-extern bool actionsnaptaken;
-extern std::int32_t capscreen;
-extern std::uint8_t showscreen;
-extern std::uint8_t screencounter;
 
 // resolution
-extern bool isfullscreen;
-extern std::int32_t screenwidth;
-extern std::int32_t screenheight;
-extern std::int32_t renderwidth;
-extern std::int32_t renderheight;
-extern std::int32_t windowwidth;
-extern std::int32_t windowheight;
 
 // cha std::uint8_t f
-extern std::string chattext;
-extern std::string lastchattext;
-extern std::string firechattext;
-extern std::uint8_t chattype;
-extern std::string completionbase;
-extern std::int32_t completionbaseseparator;
-extern std::uint8_t currenttabcompleteplayer;
-extern std::uint8_t cursorposition;
-extern bool tabcompletepressed;
-extern std::int32_t chattimecounter;
-
-extern std::int32_t clientstopmovingcounter;
-extern bool forceclientspritesnapshotmov;
-extern std::uint32_t lastforceclientspritesnapshotmovtick;
-extern std::int32_t menutimer;

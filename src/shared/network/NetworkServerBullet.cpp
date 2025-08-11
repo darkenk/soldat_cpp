@@ -94,11 +94,11 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
-  messagesasecnum[p] += 1;
+  gGlobalStateNetworkServer.messagesasecnum[p] += 1;
 
   auto& sprite = sprite_system.GetSprite(p);
 
-  sprite.player->pingticksb = servertickcounter - bulletsnap->clientticks;
+  sprite.player->pingticksb = gGlobalStateNetworkServer.servertickcounter - bulletsnap->clientticks;
   if (sprite.player->pingticksb < 0)
   {
     sprite.player->pingticksb = 0;
@@ -250,9 +250,9 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
     return;
   }
 
-  if (bullettime[p] > GS::GetGame().GetMainTickCounter())
+  if (gGlobalStateNetworkServer.bullettime[p] > GS::GetGame().GetMainTickCounter())
   {
-    bullettime[p] = 0;
+    gGlobalStateNetworkServer.bullettime[p] = 0;
   }
 
   if ((style != bullet_style_fragnade) && (style != bullet_style_punch) &&
@@ -261,58 +261,58 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
   {
     if (sprite.weapon.ammo > 1)
     {
-      if ((GS::GetGame().GetMainTickCounter() - bullettime[p]) <
+      if ((GS::GetGame().GetMainTickCounter() - gGlobalStateNetworkServer.bullettime[p]) <
           ((sprite.lastweaponfire) * 0.85))
       {
-        bulletwarningcount[p] += 1;
+        gGlobalStateServer.bulletwarningcount[p] += 1;
       }
       else
       {
-        bulletwarningcount[p] = 0;
+        gGlobalStateServer.bulletwarningcount[p] = 0;
       }
     }
 
     if (sprite.weapon.ammo == 1)
     {
-      if ((GS::GetGame().GetMainTickCounter() - bullettime[p]) <
+      if ((GS::GetGame().GetMainTickCounter() - gGlobalStateNetworkServer.bullettime[p]) <
           ((sprite.lastweaponreload) * 0.9))
       {
-        bulletwarningcount[p] += 1;
+        gGlobalStateServer.bulletwarningcount[p] += 1;
       }
       else
       {
-        bulletwarningcount[p] = 0;
+        gGlobalStateServer.bulletwarningcount[p] = 0;
       }
     }
 
-    if (bulletwarningcount[p] > 2)
+    if (gGlobalStateServer.bulletwarningcount[p] > 2)
     {
       return;
     }
 
-    bullettime[p] = GS::GetGame().GetMainTickCounter();
+    gGlobalStateNetworkServer.bullettime[p] = GS::GetGame().GetMainTickCounter();
   }
 
-  if (grenadetime[p] > GS::GetGame().GetMainTickCounter())
+  if (gGlobalStateNetworkServer.grenadetime[p] > GS::GetGame().GetMainTickCounter())
   {
-    grenadetime[p] = 0;
+    gGlobalStateNetworkServer.grenadetime[p] = 0;
   }
 
   if ((style == bullet_style_fragnade) || (style == bullet_style_clusternade))
   {
-    if (GS::GetGame().GetMainTickCounter() - grenadetime[p] < 6)
+    if (GS::GetGame().GetMainTickCounter() - gGlobalStateNetworkServer.grenadetime[p] < 6)
     {
       return;
     }
 
-    grenadetime[p] = GS::GetGame().GetMainTickCounter();
+    gGlobalStateNetworkServer.grenadetime[p] = GS::GetGame().GetMainTickCounter();
   }
 
   if (style == bullet_style_thrownknife)
   {
     if (CVar::sv_warnings_knifecheat == 69)
     {
-      if ((!knifecan[p]) or
+      if ((!gGlobalStateNetworkServer.knifecan[p]) or
           (sprite.weapon.bulletstyle != bullet_style_thrownknife) or
           (sprite.weapon.bulletstyle != bullet_style_punch))
       {
@@ -326,7 +326,7 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
         }
       }
     }
-    knifecan[p] = false;
+    gGlobalStateNetworkServer.knifecan[p] = false;
   }
 
   a = bulletsnap->pos;

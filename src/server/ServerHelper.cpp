@@ -202,20 +202,20 @@ auto checknextmap() -> std::string
   std::string result;
   LogTraceG("CheckNextMap");
   result = "NOMAP";
-  if (mapslist.empty())
+  if (gGlobalStateServer.mapslist.empty())
   {
     result = "NOMAP";
   }
   else
   {
-    m = mapindex + 1;
+    m = gGlobalStateServer.mapindex + 1;
 
-    if (m >= mapslist.size())
+    if (m >= gGlobalStateServer.mapslist.size())
     {
       m = 0;
     }
 
-    result = mapslist[m];
+    result = gGlobalStateServer.mapslist[m];
   }
   return result;
 }
@@ -228,13 +228,13 @@ void savetxtlists()
   savebannedlist(GS::GetGame().GetUserDirectory() + "configs/banned.txt");
   savebannedlisthw(GS::GetGame().GetUserDirectory() + "configs/bannedhw.txt");
 
-  remoteips.savetofile(GS::GetGame().GetUserDirectory() + "configs/remote.txt");
+  gGlobalStateServer.remoteips.savetofile(GS::GetGame().GetUserDirectory() + "configs/remote.txt");
 }
 
 void savemaplist()
 {
-  mapslist.savetofile(GS::GetGame().GetUserDirectory() + "configs/" +
-                      std::string(CVar::sv_maplist));
+  gGlobalStateServer.mapslist.savetofile(GS::GetGame().GetUserDirectory() + "configs/" +
+                                         std::string(CVar::sv_maplist));
 }
 
 void writepid()
@@ -277,15 +277,17 @@ void writeconsole(std::uint8_t id, std::string text, std::uint32_t colour)
 
 void updatewaverespawntime()
 {
-  waverespawntime = round(GS::GetGame().GetPlayersNum() * waverespawn_time_mulitplier) * 60;
-  if (waverespawntime > CVar::sv_respawntime_minwave)
+  gGlobalStateServer.waverespawntime =
+    round(GS::GetGame().GetPlayersNum() * waverespawn_time_mulitplier) * 60;
+  if (gGlobalStateServer.waverespawntime > CVar::sv_respawntime_minwave)
   {
-    waverespawntime = CVar::sv_respawntime_maxwave;
+    gGlobalStateServer.waverespawntime = CVar::sv_respawntime_maxwave;
   }
-  waverespawntime = waverespawntime - CVar::sv_respawntime_minwave;
-  if (waverespawntime < 1)
+  gGlobalStateServer.waverespawntime =
+    gGlobalStateServer.waverespawntime - CVar::sv_respawntime_minwave;
+  if (gGlobalStateServer.waverespawntime < 1)
   {
-    waverespawntime = 1;
+    gGlobalStateServer.waverespawntime = 1;
   }
 }
 

@@ -16,16 +16,18 @@
 static std::string_view NETMSG = "net_msg";
 auto constexpr LOG_NET = "network";
 
-std::int32_t clienttickcount;
-std::int32_t lastheartbeatcounter;
-std::int32_t clientplayerreceivedcounter;
-bool clientplayerreceived;
-bool clientplayersent;
-bool clientvarsrecieved;
-bool requestinggame;
-std::int32_t noheartbeattime = 0;
-std::string votemapname;
-std::uint32_t votemapcount;
+GlobalStateNetworkClient gGlobalStateNetworkClient{
+  .clienttickcount{},
+  .lastheartbeatcounter{},
+  .clientplayerreceivedcounter{},
+  .clientplayerreceived{},
+  .clientplayersent{},
+  .clientvarsrecieved{},
+  .requestinggame{},
+  .noheartbeattime = 0,
+  .votemapname{},
+  .votemapcount{},
+};
 
 void NetworkClientImpl::ProcessLoopImpl()
 {

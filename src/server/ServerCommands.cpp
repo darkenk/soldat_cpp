@@ -176,11 +176,11 @@ void commandkick(std::vector<std::string> &args, std::uint8_t sender)
 void commandkicklast(std::vector<std::string> &args, std::uint8_t sender)
 {
   auto &sprite_system = SpriteSystem::Get();
-  if ((lastplayer > 0) && (lastplayer < max_sprites + 1))
+  if ((gGlobalStateServer.lastplayer > 0) && (gGlobalStateServer.lastplayer < max_sprites + 1))
   {
-    if (sprite_system.GetSprite(lastplayer).IsActive())
+    if (sprite_system.GetSprite(gGlobalStateServer.lastplayer).IsActive())
     {
-      kickplayer(lastplayer, false, kick_console, 0);
+      kickplayer(gGlobalStateServer.lastplayer, false, kick_console, 0);
     }
   }
 }
@@ -297,16 +297,16 @@ void commandunban(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandunbanlast(std::vector<std::string> &args, std::uint8_t sender)
 {
-  if (delbannedip(lastban))
+  if (delbannedip(gGlobalStateBanSystem.lastban))
   {
-    GS::GetMainConsole().console(string("IP number ") + lastban + " unbanned", client_message_color,
-                                 sender);
+    GS::GetMainConsole().console(string("IP number ") + gGlobalStateBanSystem.lastban + " unbanned",
+                                 client_message_color, sender);
   }
 
-  if (delbannedhw(lastbanhw))
+  if (delbannedhw(gGlobalStateBanSystem.lastbanhw))
   {
-    GS::GetMainConsole().console(string("HWID ") + lastbanhw + " unbanned", client_message_color,
-                                 sender);
+    GS::GetMainConsole().console(string("HWID ") + gGlobalStateBanSystem.lastbanhw + " unbanned",
+                                 client_message_color, sender);
   }
 
   savetxtlists();
@@ -336,7 +336,7 @@ void commandadm(std::vector<std::string> &args, std::uint8_t sender)
   {
     if (isremoteadminip(sprite_system.GetSprite(targets[i]).player->ip))
     {
-      remoteips.add(sprite_system.GetSprite(targets[i]).player->ip);
+      gGlobalStateServer.remoteips.add(sprite_system.GetSprite(targets[i]).player->ip);
       GS::GetMainConsole().console(string("IP number ") +
                                      sprite_system.GetSprite(targets[i]).player->ip +
                                      " added to Remote Admins",
@@ -364,7 +364,7 @@ void commandadmip(std::vector<std::string> &args, std::uint8_t sender)
 
   if (!isremoteadminip(name))
   {
-    remoteips.add(name);
+    gGlobalStateServer.remoteips.add(name);
     GS::GetMainConsole().console(string("IP number ") + name + " added to Remote Admins",
                                    client_message_color, sender);
     savetxtlists();
@@ -551,8 +551,8 @@ void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
   }
 
   loadconfig(name, GS::GetFileSystem());
-  GS::GetMainConsole().console(string("Config reloaded ") + currentconf, client_message_color,
-                                 sender);
+  GS::GetMainConsole().console(string("Config reloaded ") + gGlobalStateServer.currentconf,
+                               client_message_color, sender);
   startserver();
 }
 
@@ -574,8 +574,10 @@ void commandloadlist(std::vector<std::string> &args, std::uint8_t sender)
 
   if (fileexists(GS::GetGame().GetUserDirectory() + name + ".txt"))
   {
-    mapslist.loadfromfile(GS::GetGame().GetUserDirectory() + name + ".txt");
-    mapslist.erase(std::remove(mapslist.begin(), mapslist.end(), ""), mapslist.end());
+    gGlobalStateServer.mapslist.loadfromfile(GS::GetGame().GetUserDirectory() + name + ".txt");
+    gGlobalStateServer.mapslist.erase(
+      std::remove(gGlobalStateServer.mapslist.begin(), gGlobalStateServer.mapslist.end(), ""),
+      gGlobalStateServer.mapslist.end());
     CVar::sv_maplist = name + ".txt";
     GS::GetMainConsole().console(string("Mapslist loaded ") + name, client_message_color, sender);
   }
@@ -634,10 +636,10 @@ void commandgmute(std::vector<std::string> &args, std::uint8_t sender)
     sprite_system.GetSprite(targets[i]).player->muted = 1;
     for (j = 1; j <= max_players; j++)
     {
-      if (trim(mutelist[j]).empty())
+      if (trim(gGlobalStateServer.mutelist[j]).empty())
       {
-        mutelist[j] = sprite_system.GetSprite(targets[i]).player->ip;
-        mutename[j] = sprite_system.GetSprite(targets[i]).player->name;
+        gGlobalStateServer.mutelist[j] = sprite_system.GetSprite(targets[i]).player->ip;
+        gGlobalStateServer.mutename[j] = sprite_system.GetSprite(targets[i]).player->name;
         break;
       }
     }
@@ -673,9 +675,9 @@ void commandungmute(std::vector<std::string> &args, std::uint8_t sender)
     sprite_system.GetSprite(targets[i]).player->muted = 0;
     for (j = 1; j <= max_players; j++)
     {
-      if (trim(mutelist[j]) == sprite_system.GetSprite(targets[i]).player->ip)
+      if (trim(gGlobalStateServer.mutelist[j]) == sprite_system.GetSprite(targets[i]).player->ip)
       {
-        mutelist[j] = "";
+        gGlobalStateServer.mutelist[j] = "";
         break;
       }
     }
@@ -708,7 +710,7 @@ void commandaddmap(std::vector<std::string> &args, std::uint8_t sender)
   //  Exit;
   // end;
 
-  mapslist.add(name);
+  gGlobalStateServer.mapslist.add(name);
   GS::GetMainConsole().console(name + " has been added to the map list.", server_message_color,
                                  sender);
   savemaplist();
@@ -731,7 +733,7 @@ void commanddelmap(std::vector<std::string> &args, std::uint8_t sender)
     return;
   }
 
-  for (tempint = 0; tempint <= (mapslist.size() - 1); tempint++)
+  for (tempint = 0; tempint <= (gGlobalStateServer.mapslist.size() - 1); tempint++)
   {
     NotImplemented();
 #if 0
@@ -985,8 +987,9 @@ void commandinfo(std::vector<std::string> &args, std::uint8_t sender)
   }
 
   serversendstringmessage(string("Server: ") + string(CVar::sv_hostname), sender, 255, msgtype_pub);
-  serversendstringmessage(string("Address: ") + (serverip) + ':' + (inttostr(serverport)), sender,
-                          255, msgtype_pub);
+  serversendstringmessage(string("Address: ") + (gGlobalStateServer.serverip) + ':' +
+                            (inttostr(gGlobalStateServer.serverport)),
+                          sender, 255, msgtype_pub);
   serversendstringmessage(string("Version: ") + dedversion, sender, 255, msgtype_pub);
 
   switch (CVar::sv_gamemode)
@@ -1035,8 +1038,8 @@ void commandinfo(std::vector<std::string> &args, std::uint8_t sender)
 
   if (GS::GetWeaponSystem().GetLoadedWMChecksum() != GS::GetWeaponSystem().GetDefaultWMChecksum())
   {
-    serversendstringmessage(string("Server uses weapon mod \"") + (wmname) + " v" + (wmversion) +
-                              "\" (checksum " +
+    serversendstringmessage(string("Server uses weapon mod \"") + (gGlobalStateServer.wmname) +
+                              " v" + (gGlobalStateServer.wmversion) + "\" (checksum " +
                               (inttostr(GS::GetWeaponSystem().GetLoadedWMChecksum())) + ')',
                             sender, 255, msgtype_pub);
   }
@@ -1059,7 +1062,7 @@ void commandadminlog(std::vector<std::string> &args, std::uint8_t sender)
     {
       if (!isadminip(sprite_system.GetSprite(sender).player->ip))
       {
-        adminips.add(sprite_system.GetSprite(sender).player->ip);
+        gGlobalStateServer.adminips.add(sprite_system.GetSprite(sender).player->ip);
       }
       GS::GetMainConsole().console(sprite_system.GetSprite(sender).player->name +
                                      " added to Game Admins",
@@ -1106,8 +1109,9 @@ void commandvotemap(std::vector<std::string> &args, std::uint8_t sender)
   }
   else
   {
-    if (std::find(mapslist.begin(), mapslist.end(), mapname) !=
-        mapslist.end()) /*and (MapExists(MapName, userdirectory))*/
+    if (std::find(gGlobalStateServer.mapslist.begin(), gGlobalStateServer.mapslist.end(),
+                  mapname) !=
+        gGlobalStateServer.mapslist.end()) /*and (MapExists(MapName, userdirectory))*/
     {
       if (GS::GetGame().CanVote(sender))
       {

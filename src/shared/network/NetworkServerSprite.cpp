@@ -8,13 +8,15 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-std::array<std::array<tmsg_serverspritedelta_movement, max_sprites>, max_sprites> oldmovementmsg;
-std::array<std::array<tmsg_serverspritedelta_mouseaim, max_sprites>, max_sprites> oldmouseaimmsg;
-std::array<std::array<tmsg_serverspritedelta_weapons, max_sprites>, max_sprites> oldweaponsmsg;
-std::array<std::array<tmsg_serverspritedelta_helmet, max_sprites>, max_sprites> oldhelmetmsg;
-std::array<tmsg_serverspritesnapshot, max_sprites> oldspritesnapshotmsg;
-std::array<std::int32_t, max_sprites> time_spritesnapshot;
-std::array<std::int32_t, max_sprites> time_spritesnapshot_mov;
+GlobalStateNetworkServerSprite gGlobalStateNetworkServerSprite{
+  .oldmovementmsg{},
+  .oldmouseaimmsg{},
+  .oldweaponsmsg{},
+  .oldhelmetmsg{},
+  .oldspritesnapshotmsg{},
+  .time_spritesnapshot{},
+  .time_spritesnapshot_mov{},
+};
 
 float shotdistanceServer;
 float shotlifeServer;
@@ -42,7 +44,7 @@ void serverspritesnapshot(std::uint8_t r)
       servermsg.num = sprite.num;
       servermsg.health = sprite.GetHealth();
       servermsg.position = sprite.position;
-      servermsg.serverticks = servertickcounter;
+      servermsg.serverticks = gGlobalStateNetworkServer.servertickcounter;
 
       encodekeys(sprite, servermsg.keys16);
 
@@ -81,19 +83,29 @@ void serverspritesnapshot(std::uint8_t r)
       }
       servermsg.vest = sprite.vest;
 
-      b = vec2subtract(servermsg.velocity, oldspritesnapshotmsg[i].velocity);
+      b = vec2subtract(servermsg.velocity,
+                       gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].velocity);
 
       if (((vec2length(b) > veldelta)) ||
-          (GS::GetGame().GetMainTickCounter() - time_spritesnapshot_mov[i] > 30) ||
-          (GS::GetGame().GetMainTickCounter() - time_spritesnapshot[i] > 30) ||
-          (servermsg.health != oldspritesnapshotmsg[i].health) ||
-          (servermsg.position != oldspritesnapshotmsg[i].position) ||
-          (servermsg.keys16 != oldspritesnapshotmsg[i].keys16) ||
-          (servermsg.weaponnum != oldspritesnapshotmsg[i].weaponnum) ||
-          (servermsg.secondaryweaponnum != oldspritesnapshotmsg[i].secondaryweaponnum) ||
-          (servermsg.ammocount != oldspritesnapshotmsg[i].ammocount) ||
-          (servermsg.grenadecount != oldspritesnapshotmsg[i].grenadecount) ||
-          (servermsg.vest != oldspritesnapshotmsg[i].vest))
+          (GS::GetGame().GetMainTickCounter() -
+             gGlobalStateNetworkServerSprite.time_spritesnapshot_mov[i] >
+           30) ||
+          (GS::GetGame().GetMainTickCounter() -
+             gGlobalStateNetworkServerSprite.time_spritesnapshot[i] >
+           30) ||
+          (servermsg.health != gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].health) ||
+          (servermsg.position !=
+           gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].position) ||
+          (servermsg.keys16 != gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].keys16) ||
+          (servermsg.weaponnum !=
+           gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].weaponnum) ||
+          (servermsg.secondaryweaponnum !=
+           gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].secondaryweaponnum) ||
+          (servermsg.ammocount !=
+           gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].ammocount) ||
+          (servermsg.grenadecount !=
+           gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].grenadecount) ||
+          (servermsg.vest != gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].vest))
       {
         // send to all
         if (r == netw)
@@ -110,7 +122,7 @@ void serverspritesnapshot(std::uint8_t r)
       }
       if (r == netw)
       {
-        oldspritesnapshotmsg[i] = servermsg;
+        gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i] = servermsg;
       }
     }
   }
@@ -138,20 +150,23 @@ void serverspritesnapshotmajor(std::uint8_t r)
       servermsg.num = sprite.num;
       servermsg.health = sprite.GetHealth();
       servermsg.position = sprite.position;
-      servermsg.serverticks = servertickcounter;
+      servermsg.serverticks = gGlobalStateNetworkServer.servertickcounter;
 
       encodekeys(sprite, servermsg.keys16);
 
       servermsg.mouseaimy = sprite.control.mouseaimy;
       servermsg.mouseaimx = sprite.control.mouseaimx;
 
-      b = vec2subtract(servermsg.velocity, oldspritesnapshotmsg[i].velocity);
+      b = vec2subtract(servermsg.velocity,
+                       gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].velocity);
 
       if (((vec2length(b) > veldelta)) ||
-          ((GS::GetGame().GetMainTickCounter() - time_spritesnapshot_mov[i]) > 30) ||
-          (servermsg.position != oldspritesnapshotmsg[i].position) ||
-          (servermsg.health != oldspritesnapshotmsg[i].health) ||
-          (servermsg.keys16 != oldspritesnapshotmsg[i].keys16))
+          ((GS::GetGame().GetMainTickCounter() -
+            gGlobalStateNetworkServerSprite.time_spritesnapshot_mov[i]) > 30) ||
+          (servermsg.position !=
+           gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].position) ||
+          (servermsg.health != gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].health) ||
+          (servermsg.keys16 != gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].keys16))
       {
         // send to all
         if (r == netw)
@@ -169,10 +184,10 @@ void serverspritesnapshotmajor(std::uint8_t r)
 
       if (r == netw)
       {
-        oldspritesnapshotmsg[i].keys16 = servermsg.keys16;
-        oldspritesnapshotmsg[i].position = servermsg.position;
-        oldspritesnapshotmsg[i].pos = servermsg.pos;
-        oldspritesnapshotmsg[i].velocity = servermsg.velocity;
+        gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].keys16 = servermsg.keys16;
+        gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].position = servermsg.position;
+        gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].pos = servermsg.pos;
+        gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[i].velocity = servermsg.velocity;
       }
     }
   }
@@ -194,7 +209,7 @@ void serverspritesnapshotmajorfloat(const std::uint8_t who, std::uint8_t r)
   servermsg.num = sprite_system.GetSprite(who).num;
   servermsg.health = sprite_system.GetSprite(who).GetHealth();
   servermsg.position = sprite_system.GetSprite(who).position;
-  servermsg.serverticks = servertickcounter;
+  servermsg.serverticks = gGlobalStateNetworkServer.servertickcounter;
 
   encodekeys(sprite_system.GetSprite(who), servermsg.keys16);
 
@@ -216,10 +231,10 @@ void serverspritesnapshotmajorfloat(const std::uint8_t who, std::uint8_t r)
 
   if (r == netw)
   {
-    oldspritesnapshotmsg[who].keys16 = servermsg.keys16;
-    oldspritesnapshotmsg[who].position = servermsg.position;
-    oldspritesnapshotmsg[who].pos = servermsg.pos;
-    oldspritesnapshotmsg[who].velocity = servermsg.velocity;
+    gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[who].keys16 = servermsg.keys16;
+    gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[who].position = servermsg.position;
+    gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[who].pos = servermsg.pos;
+    gGlobalStateNetworkServerSprite.oldspritesnapshotmsg[who].velocity = servermsg.velocity;
   }
 }
 
@@ -399,7 +414,7 @@ void serverspritedeltas(const std::uint8_t i)
 
   movementmsg.velocity = spriteVelocity;
   movementmsg.pos = spritePartsPos;
-  movementmsg.servertick = servertickcounter;
+  movementmsg.servertick = gGlobalStateNetworkServer.servertickcounter;
 
   encodekeys(sprite_system.GetSprite(i), movementmsg.keys16);
 
@@ -422,15 +437,16 @@ void serverspritedeltas(const std::uint8_t i)
           (sprite_system.GetSprite(j).isspectator() &&
            (sprite_system.GetSprite(j).player->port == 0))) // visible to sprite
       {
-        a = vec2subtract(movementmsg.pos, oldmovementmsg[j][i].pos);
-        b = vec2subtract(movementmsg.velocity, oldmovementmsg[j][i].velocity);
+        a = vec2subtract(movementmsg.pos, gGlobalStateNetworkServerSprite.oldmovementmsg[j][i].pos);
+        b = vec2subtract(movementmsg.velocity,
+                         gGlobalStateNetworkServerSprite.oldmovementmsg[j][i].velocity);
         if ((sprite_system.GetSprite(i).player->controlmethod == human) ||
             (((vec2length(a) > posdelta) || (vec2length(b) > veldelta)) &&
-             (movementmsg.keys16 != oldmovementmsg[j][i].keys16)))
+             (movementmsg.keys16 != gGlobalStateNetworkServerSprite.oldmovementmsg[j][i].keys16)))
         {
           GetServerNetwork()->SendData(&movementmsg, sizeof(movementmsg),
                                        sprite_system.GetSprite(j).player->peer, false);
-          oldmovementmsg[j][i] = movementmsg;
+          gGlobalStateNetworkServerSprite.oldmovementmsg[j][i] = movementmsg;
         }
       }
     }
@@ -441,8 +457,9 @@ void serverspritedeltas(const std::uint8_t i)
     const auto j = sprite.num;
     if ((sprite.player->controlmethod == human) && (j != i))
     {
-      if ((weaponsmsg.weaponnum != oldweaponsmsg[j][i].weaponnum) ||
-          (weaponsmsg.secondaryweaponnum != oldweaponsmsg[j][i].secondaryweaponnum))
+      if ((weaponsmsg.weaponnum != gGlobalStateNetworkServerSprite.oldweaponsmsg[j][i].weaponnum) ||
+          (weaponsmsg.secondaryweaponnum !=
+           gGlobalStateNetworkServerSprite.oldweaponsmsg[j][i].secondaryweaponnum))
       {
         if (GS::GetGame().pointvisible(spritePartsPos.x, spritePartsPos.y,
                                        sprite.player->camera) or
@@ -450,7 +467,7 @@ void serverspritedeltas(const std::uint8_t i)
         {
           GetServerNetwork()->SendData(&weaponsmsg, sizeof(weaponsmsg), sprite.player->peer,
                                        false);
-          oldweaponsmsg[j][i] = weaponsmsg;
+          gGlobalStateNetworkServerSprite.oldweaponsmsg[j][i] = weaponsmsg;
         }
       }
     }
@@ -461,11 +478,11 @@ void serverspritedeltas(const std::uint8_t i)
     const auto j = sprite.num;
     if ((sprite.player->controlmethod == human) && (j != i))
     {
-      if (helmetmsg.wearhelmet != oldhelmetmsg[j][i].wearhelmet)
+      if (helmetmsg.wearhelmet != gGlobalStateNetworkServerSprite.oldhelmetmsg[j][i].wearhelmet)
       {
         GetServerNetwork()->SendData(&helmetmsg, sizeof(helmetmsg), sprite.player->peer,
                                      false);
-        oldhelmetmsg[j][i] = helmetmsg;
+        gGlobalStateNetworkServerSprite.oldhelmetmsg[j][i] = helmetmsg;
       }
     }
   }
@@ -488,7 +505,7 @@ void serverspritedeltasmouse(std::uint8_t i)
     {
       GetServerNetwork()->SendData(&mouseaimmsg, sizeof(mouseaimmsg), sprite.player->peer,
                                    false);
-      oldmouseaimmsg[j][i] = mouseaimmsg;
+      gGlobalStateNetworkServerSprite.oldmouseaimmsg[j][i] = mouseaimmsg;
     }
   }
 }
@@ -508,7 +525,7 @@ void serverhandleclientspritesnapshot(tmsgheader* netmessage, std::int32_t size,
 
   auto &sprite = sprite_system.GetSprite(i);
 
-  messagesasecnum[i] += 1;
+  gGlobalStateNetworkServer.messagesasecnum[i] += 1;
 
   if (sprite.deadmeat)
   {
@@ -575,7 +592,7 @@ void serverhandleclientspritesnapshot(tmsgheader* netmessage, std::int32_t size,
 
   serverspritedeltas(i);
 
-  time_spritesnapshot[i] = GS::GetGame().GetMainTickCounter();
+  gGlobalStateNetworkServerSprite.time_spritesnapshot[i] = GS::GetGame().GetMainTickCounter();
 }
 void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {
@@ -590,7 +607,7 @@ void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t s
   tmsg_clientspritesnapshot_mov &clientmovmsg = *pmsg_clientspritesnapshot_mov(netmessage);
   i = player->spritenum;
 
-  messagesasecnum[i] += 1;
+  gGlobalStateNetworkServer.messagesasecnum[i] += 1;
 
   auto &sprite = sprite_system.GetSprite(i);
 
@@ -625,7 +642,7 @@ void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t s
 
   serverspritedeltas(i);
 
-  time_spritesnapshot_mov[i] = GS::GetGame().GetMainTickCounter();
+  gGlobalStateNetworkServerSprite.time_spritesnapshot_mov[i] = GS::GetGame().GetMainTickCounter();
 }
 
 void serverhandleclientspritesnapshot_dead(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
@@ -641,7 +658,7 @@ void serverhandleclientspritesnapshot_dead(tmsgheader* netmessage, std::int32_t 
   clientdeadmsg = pmsg_clientspritesnapshot_dead(netmessage);
   i = player->spritenum;
 
-  messagesasecnum[i] += 1;
+  gGlobalStateNetworkServer.messagesasecnum[i] += 1;
 
   auto &sprite = sprite_system.GetSprite(i);
 

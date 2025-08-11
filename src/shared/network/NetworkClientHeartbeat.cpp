@@ -84,16 +84,16 @@ void clienthandleheartbeat(NetworkContext *netmessage)
 
   // MapID differs, map not changed
   if ((GS::GetGame().GetMapchangecounter() < 0) && (heartbeat->mapid != 0) &&
-      (heartbeat->mapid != map.mapid) && (!demoplayer.active()))
+      (heartbeat->mapid != map.mapid) && (!gGlobalStateDemo.demoplayer.active()))
   {
-    badmapidcount -= 1;
+    gGlobalStateClient.badmapidcount -= 1;
   }
   else
   {
-    badmapidcount = 2;
+    gGlobalStateClient.badmapidcount = 2;
   }
 
-  if (badmapidcount < 1)
+  if (gGlobalStateClient.badmapidcount < 1)
   {
     GS::GetMainConsole().console(_("Wrong map version detected"), server_message_color);
     clientdisconnect(*GetNetwork());
@@ -101,19 +101,19 @@ void clienthandleheartbeat(NetworkContext *netmessage)
     return;
   }
 
-  if (connection == INTERNET)
+  if (gGlobalStateClient.connection == INTERNET)
   {
-    if ((GS::GetGame().GetMainTickCounter() - heartbeattime) > 350)
+    if ((GS::GetGame().GetMainTickCounter() - gGlobalStateGame.heartbeattime) > 350)
     {
-      heartbeattimewarnings += 1;
+      gGlobalStateGame.heartbeattimewarnings += 1;
     }
-    else if (heartbeattimewarnings > 0)
+    else if (gGlobalStateGame.heartbeattimewarnings > 0)
     {
-      heartbeattimewarnings -= 1;
+      gGlobalStateGame.heartbeattimewarnings -= 1;
     }
   }
 
-  heartbeattime = GS::GetGame().GetMainTickCounter();
+  gGlobalStateGame.heartbeattime = GS::GetGame().GetMainTickCounter();
 
   GS::GetGame().sortplayers();
 }

@@ -275,7 +275,7 @@ struct tmsg_serverspritesnapshot
 {
   tmsgheader header;
   std::uint8_t num;
-  tvector2 pos, velocity;
+  tvector2 pos{}, velocity{};
   std::int16_t mouseaimx, mouseaimy;
   std::uint8_t position;
   std::uint16_t keys16;
@@ -598,7 +598,7 @@ struct tmsg_serverspritedelta_movement
 {
   tmsgheader header;
   std::uint8_t num;
-  tvector2 pos, velocity;
+  tvector2 pos{}, velocity{};
   std::uint16_t keys16;
   std::int16_t mouseaimx, mouseaimy;
   std::int32_t servertick;

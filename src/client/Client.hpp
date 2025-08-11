@@ -36,80 +36,75 @@ public:
   void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir);
 };
 
-extern std::string joinpassword; // server passsword
-extern std::string joinport;     // join port to server
-extern std::string joinip;       // join ip to server
+struct GlobalStateClient
+{
+  std::string joinpassword;
+  std::string joinport;
+  std::string joinip;
+  std::string basedirectory;
+  std::string moddir;
+  bool usesservermod;
+  std::string gClientServerIP;
+  std::int32_t gClientServerPort;
+  std::uint8_t connection;
+  std::uint8_t sniperline_client_hpp;
+  std::uint8_t trails;
+  std::uint8_t spectator;
+  std::uint8_t packetadjusting;
+  bool limbolock;
+  std::uint8_t selteam;
+  std::uint8_t mysprite;
+  PascalArray<tweaponstat, 1, 20> wepstats;
+  std::uint8_t wepstatsnum;
+  GunArray gundisplayname;
+  std::uint8_t gamethingtarget;
+  std::int32_t grenadeeffecttimer;
+  std::uint8_t badmapidcount;
+  bool abnormalterminate;
+  std::string hwid;
+  std::uint16_t hitspraycounter;
+  bool screentaken;
+  bool targetmode;
+  bool muteall;
+  bool redirecttoserver;
+  std::string redirectip;
+  std::int32_t redirectport;
+  std::string redirectmsg;
+  std::map<std::string, std::string> radiomenu;
+  std::array<char, 2> rmenustate;
+  bool showradiomenu;
+  std::uint8_t radiocooldown;
+  tvector2 cameraprev;
+  float camerax;
+  float cameray;
+  std::uint8_t camerafollowsprite;
+  std::uint8_t notexts;
+  std::uint8_t freecam;
+  std::int32_t shotdistanceshow;
+  float shotdistance;
+  float shotlife;
+  std::int32_t shotricochet;
+  Client gClient;
+};
 
-extern std::string basedirectory;
+extern GlobalStateClient gGlobalStateClient;
+// server passsword
+// join port to server
+// join ip to server
 
-extern std::string moddir;
-extern bool usesservermod;
-
-extern std::string gClientServerIP;
-extern std::int32_t gClientServerPort;
-
-extern std::uint8_t connection;
-
-extern std::uint8_t sniperline_client_hpp;
-
-extern std::uint8_t trails;
-extern std::uint8_t spectator; // TODO: Remove
-
-extern std::uint8_t packetadjusting;
-
-extern bool limbolock;
-extern std::uint8_t selteam;
-
-extern std::uint8_t mysprite;
+// TODO: Remove
 
 // Weapon Stats
-extern PascalArray<tweaponstat, 1, 20> wepstats;
-extern std::uint8_t wepstatsnum;
 
 // FIXME skipped item at index 0
-extern GunArray gundisplayname;
-
-extern std::uint8_t gamethingtarget;
-extern std::int32_t grenadeeffecttimer;
-
-extern std::uint8_t badmapidcount;
-
-extern bool abnormalterminate;
-
-extern std::string hwid;
-
-extern std::uint16_t hitspraycounter;
-extern bool screentaken;
-
-extern bool targetmode;
-
-extern bool muteall;
-
-extern bool redirecttoserver;
-extern std::string redirectip;
-extern std::int32_t redirectport;
-extern std::string redirectmsg;
 
 // Radio Menu
-extern std::map<std::string, std::string> radiomenu;
-extern std::array<char, 2> rmenustate;
+
 //  RMenuState: array[0..1] of Char = ' ';
-extern bool showradiomenu;
-extern std::uint8_t radiocooldown;
 
 // screen
-extern tvector2 cameraprev;
-extern float camerax;
-extern float cameray;          // camera x and y within world
-extern std::uint8_t camerafollowsprite; // Tag number of object to follow
-extern std::uint8_t notexts;
-extern std::uint8_t freecam;
-extern std::int32_t shotdistanceshow;
-extern float shotdistance;
-extern float shotlife;
-extern std::int32_t shotricochet;
 
+// camera x and y within world
+// Tag number of object to follow
 
 void showmessage(const std::string &messagetext);
-
-extern Client gClient;

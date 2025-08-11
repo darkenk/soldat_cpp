@@ -74,6 +74,11 @@ pbind findkeybind(std::uint32_t keymods, SDL_Scancode keycode);
 void startinput();
 void unbindall();
 
-extern std::array<bool, 512> keystatus;
-extern std::vector<tbind> binds;
-extern SDL_Window *gamewindow;
+struct GlobalStateInput
+{
+  std::array<bool, 512> keystatus;
+  std::vector<tbind> binds;
+  SDL_Window *gamewindow;
+};
+
+extern GlobalStateInput gGlobalStateInput;

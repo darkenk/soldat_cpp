@@ -20,9 +20,12 @@
 using string = std::string;
 
 std::array<tsoundsample, ToUint32(SfxEffect::COUNT)> samp;
-std::vector<tscriptsound> scriptsamp;
-float volumeinternal = 0.5f;
-std::int32_t defaultchannel = -1;
+
+GlobalStateSound gGlobalStateSound{
+  .scriptsamp{},
+  .volumeinternal = 0.5f,
+  .defaultchannel = -1,
+};
 
 static std::string_view AUDIO = "audio";
 
@@ -223,7 +226,7 @@ public:
       samp[i].buffer = i;
       Waves[i] = nullptr;
     }
-    Engine.setGlobalVolume(volumeinternal);
+    Engine.setGlobalVolume(gGlobalStateSound.volumeinternal);
     return true;
   }
 
@@ -286,9 +289,10 @@ public:
       return;
     }
 
-    if (camerafollowsprite > 0)
+    if (gGlobalStateClient.camerafollowsprite > 0)
     {
-      const auto &spritePartsPos = sprite_system.GetSpritePartsPos(camerafollowsprite);
+      const auto &spritePartsPos =
+        sprite_system.GetSpritePartsPos(gGlobalStateClient.camerafollowsprite);
       listenerx = spritePartsPos.x;
       listenery = spritePartsPos.y;
     }
@@ -355,9 +359,9 @@ public:
     }
 
     // decrease volume if grenade effect
-    if ((grenadeeffecttimer > 0) && (samplenum != SfxEffect::hum))
+    if ((gGlobalStateClient.grenadeeffecttimer > 0) && (samplenum != SfxEffect::hum))
     {
-      dist = (dist + 10) * (grenadeeffecttimer / 7);
+      dist = (dist + 10) * (gGlobalStateClient.grenadeeffecttimer / 7);
     }
 
     if (dist > 1)
@@ -411,7 +415,7 @@ public:
       sources[chan] = Engine.play3d(
         *Waves[ToUint32(samplenum)], (emitterx - listenerx) / sound_meterlength,
         (emittery - listenery) / sound_meterlength, (float)(-sound_panwidth) / sound_meterlength);
-      auto volume = volumeinternal * (1.0f - dist);
+      auto volume = gGlobalStateSound.volumeinternal * (1.0f - dist);
       Engine.setVolume(sources[chan], volume);
       Engine.setLooping(sources[chan], looping != 0);
 
@@ -478,13 +482,13 @@ auto soundnametoid(const std::string &name) -> std::int8_t
 
   std::int8_t result;
   result = -1;
-  if (high(scriptsamp) < 0)
+  if (high(gGlobalStateSound.scriptsamp) < 0)
   {
     return result;
   }
-  for (i = 0; i < scriptsamp.size(); i++)
+  for (i = 0; i < gGlobalStateSound.scriptsamp.size(); i++)
   {
-    if (uppercase(scriptsamp[i].name) == uppercase(name))
+    if (uppercase(gGlobalStateSound.scriptsamp[i].name) == uppercase(name))
     {
       result = i;
       break;
@@ -543,22 +547,27 @@ void fplaysound(SfxEffect samplenum, float listenerx, float listenery, float emi
 
 void playsound(SfxEffect sample)
 {
-  fplaysound(sample, camerax, cameray, camerax, cameray, defaultchannel);
+  fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
+             gGlobalStateClient.camerax, gGlobalStateClient.cameray,
+             gGlobalStateSound.defaultchannel);
 }
 
 void playsound(SfxEffect sample, std::int32_t channel)
 {
-  fplaysound(sample, camerax, cameray, camerax, cameray, channel);
+  fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
+             gGlobalStateClient.camerax, gGlobalStateClient.cameray, channel);
 }
 
 void playsound(SfxEffect sample, const tvector2 &emitter)
 {
-  fplaysound(sample, camerax, cameray, emitter.x, emitter.y, defaultchannel);
+  fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray, emitter.x, emitter.y,
+             gGlobalStateSound.defaultchannel);
 }
 
 void playsound(SfxEffect sample, const tvector2 &emitter, int32_t channel)
 {
-  fplaysound(sample, camerax, cameray, emitter.x, emitter.y, channel);
+  fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray, emitter.x, emitter.y,
+             channel);
 }
 
 auto stopsound(std::int32_t channel) -> bool { return Engine.stopsound(channel); }

@@ -21,17 +21,22 @@ struct tgamemenu
   std::vector<tgamebutton> button;
 };
 
-extern std::vector<tgamemenu> gamemenu;
-extern pgamemenu hoveredmenu;
-extern pgamebutton hoveredbutton;
-extern std::int32_t hoveredbuttonindex;
-extern pgamemenu escmenu;
-extern pgamemenu teammenu;
-extern pgamemenu limbomenu;
-extern pgamemenu kickmenu;
-extern pgamemenu mapmenu;
-extern std::int32_t kickmenuindex;
-extern std::int32_t mapmenuindex;
+struct GlobalStateGameMenus
+{
+  std::vector<tgamemenu> gamemenu;
+  pgamemenu hoveredmenu;
+  pgamebutton hoveredbutton;
+  std::int32_t hoveredbuttonindex;
+  pgamemenu escmenu;
+  pgamemenu teammenu;
+  pgamemenu limbomenu;
+  pgamemenu kickmenu;
+  pgamemenu mapmenu;
+  std::int32_t kickmenuindex;
+  std::int32_t mapmenuindex;
+};
+
+extern GlobalStateGameMenus gGlobalStateGameMenus;
 
 void initgamemenus();
 void gamemenushow(pgamemenu menu, bool show = true);

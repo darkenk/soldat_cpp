@@ -91,7 +91,7 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
     if (banindex > 0)
     {
       state = banned_ip;
-      banreason = std::string(" (") + bannediplist[banindex].reason + ')';
+      banreason = std::string(" (") + gGlobalStateBanSystem.bannediplist[banindex].reason + ')';
     }
     else
     {
@@ -100,7 +100,7 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
       {
         state = banned_ip;
         banhw = true;
-        banreason = std::string(" (") + bannedhwlist[banindex].reason + ')';
+        banreason = std::string(" (") + gGlobalStateBanSystem.bannedhwlist[banindex].reason + ')';
       }
       else if (iswronggamepassword(requestmsg->password.data()))
       {
@@ -317,19 +317,19 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   // restore warnings across sessions
   for (j = 1; j <= max_players; j++)
   {
-    if (trim(mutelist[j]) == player->ip)
+    if (trim(gGlobalStateServer.mutelist[j]) == player->ip)
     {
       player->muted = 1;
-      player->name = mutename[j];
+      player->name = gGlobalStateServer.mutename[j];
       break;
     }
   }
   player->tkwarnings = 0;
   for (j = 1; j <= max_players; j++)
   {
-    if (trim(tklist[j]) == player->ip)
+    if (trim(gGlobalStateServer.tklist[j]) == player->ip)
     {
-      player->tkwarnings = tklistkills[j];
+      player->tkwarnings = gGlobalStateServer.tklistkills[j];
       break;
     }
   }
@@ -429,17 +429,17 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
 
   // reset legacy-ish counters that are stored under the sprite ID
   // TODO: most of this can be moved to TPlayer
-  noclientupdatetime[player->spritenum] = 0;
-  messagesasecnum[player->spritenum] = 0;
-  floodwarnings[player->spritenum] = 0;
-  pingwarnings[player->spritenum] = 0;
-  bullettime[player->spritenum] = -1000;
-  grenadetime[player->spritenum] = -1000;
-  knifecan[player->spritenum] = true;
-  bulletwarningcount[player->spritenum] = 0;
-  cheattag[player->spritenum] = 0;
+  gGlobalStateNetworkServer.noclientupdatetime[player->spritenum] = 0;
+  gGlobalStateNetworkServer.messagesasecnum[player->spritenum] = 0;
+  gGlobalStateNetworkServer.floodwarnings[player->spritenum] = 0;
+  gGlobalStateNetworkServer.pingwarnings[player->spritenum] = 0;
+  gGlobalStateNetworkServer.bullettime[player->spritenum] = -1000;
+  gGlobalStateNetworkServer.grenadetime[player->spritenum] = -1000;
+  gGlobalStateNetworkServer.knifecan[player->spritenum] = true;
+  gGlobalStateServer.bulletwarningcount[player->spritenum] = 0;
+  gGlobalStateServer.cheattag[player->spritenum] = 0;
   GS::GetGame().ResetVoteCooldown(player->spritenum);
-  lastplayer = player->spritenum; // for /kicklast command
+  gGlobalStateServer.lastplayer = player->spritenum; // for /kicklast command
 
   serversendnewplayerinfo(player->spritenum, join_normal);
   serverthingmustsnapshotonconnect(player->spritenum);
@@ -511,7 +511,7 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   j = 0;
   for (i = 1; i <= max_floodips; i++)
   {
-    if (floodip[i] == player->ip)
+    if (gGlobalStateServer.floodip[i] == player->ip)
     {
       j = i;
       break;
@@ -519,8 +519,8 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   }
   if (j > 0)
   {
-    floodnum[j] += 1;
-    if (floodnum[j] > floodip_max)
+    gGlobalStateServer.floodnum[j] += 1;
+    if (gGlobalStateServer.floodnum[j] > floodip_max)
     {
       kickplayer(player->spritenum, true, kick_flooding, twenty_minutes, "Join game flood");
     }
@@ -529,9 +529,9 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   {
     for (i = 1; i <= max_floodips; i++)
     {
-      if (floodip[i] == " ")
+      if (gGlobalStateServer.floodip[i] == " ")
       {
-        floodip[i] = player->ip;
+        gGlobalStateServer.floodip[i] = player->ip;
         break;
       }
     }
@@ -557,7 +557,7 @@ void serversendplaylist(HSoldatNetConnection peer)
   playerslist.currenttime = GS::GetGame().GetTimelimitcounter();
 
 #ifdef SERVER
-  playerslist.serverticks = servertickcounter;
+  playerslist.serverticks = gGlobalStateNetworkServer.servertickcounter;
 #else
   playerslist.serverticks = GS::GetGame().GetMainTickCounter();
 #endif
@@ -664,44 +664,50 @@ auto getbanstrforindex(std::int32_t banindex, bool banhw) -> std::string
     if (banhw)
     {
       // get ban time
-      if ((bannedhwlist[banindex].time + 1) / 3600 >= minsperday)
+      if ((gGlobalStateBanSystem.bannedhwlist[banindex].time + 1) / 3600 >= minsperday)
       {
         bantimestr = "24+ Hrs";
       }
       else
       {
-        if ((bannedhwlist[banindex].time / 3600) >= minsperhour)
+        if ((gGlobalStateBanSystem.bannedhwlist[banindex].time / 3600) >= minsperhour)
         {
-          bantimestr = inttostr((bannedhwlist[banindex].time + 1) / 3600 / minsperhour) + 'h';
+          bantimestr =
+            inttostr((gGlobalStateBanSystem.bannedhwlist[banindex].time + 1) / 3600 / minsperhour) +
+            'h';
         }
         else
         {
-          bantimestr = inttostr((bannedhwlist[banindex].time + 1) / 3600) + 'm';
+          bantimestr =
+            inttostr((gGlobalStateBanSystem.bannedhwlist[banindex].time + 1) / 3600) + 'm';
         }
       }
       // add ban reason
-      bantimestr = bannedhwlist[banindex].reason + " (" + bantimestr + ')';
+      bantimestr = gGlobalStateBanSystem.bannedhwlist[banindex].reason + " (" + bantimestr + ')';
     }
     else
     {
       // get ban time
-      if ((bannediplist[banindex].time + 1) / 3600 >= minsperday)
+      if ((gGlobalStateBanSystem.bannediplist[banindex].time + 1) / 3600 >= minsperday)
       {
         bantimestr = "24+ Hrs";
       }
       else
       {
-        if ((bannediplist[banindex].time / 3600) >= minsperhour)
+        if ((gGlobalStateBanSystem.bannediplist[banindex].time / 3600) >= minsperhour)
         {
-          bantimestr = inttostr((bannediplist[banindex].time + 1) / 3600 / minsperhour) + 'h';
+          bantimestr =
+            inttostr((gGlobalStateBanSystem.bannediplist[banindex].time + 1) / 3600 / minsperhour) +
+            'h';
         }
         else
         {
-          bantimestr = inttostr((bannediplist[banindex].time + 1) / 3600) + 'm';
+          bantimestr =
+            inttostr((gGlobalStateBanSystem.bannediplist[banindex].time + 1) / 3600) + 'm';
         }
       }
       // add ban reason
-      bantimestr = bannediplist[banindex].reason + " (" + bantimestr + ')';
+      bantimestr = gGlobalStateBanSystem.bannediplist[banindex].reason + " (" + bantimestr + ')';
     }
   }
   result = bantimestr;
@@ -1021,7 +1027,7 @@ void serverhandlepong(tmsgheader* netmessage, std::int32_t size, NetworkServer& 
   auto *const pongmsg = reinterpret_cast<pmsg_pong>(netmessage);
   const std::int32_t i = player->spritenum;
 
-  messagesasecnum[i] += 1;
+  gGlobalStateNetworkServer.messagesasecnum[i] += 1;
 
   if ((pongmsg->pingnum < 1) || (pongmsg->pingnum > 8))
   {
@@ -1031,7 +1037,7 @@ void serverhandlepong(tmsgheader* netmessage, std::int32_t size, NetworkServer& 
   player->pingticks = GS::GetGame().GetMainTickCounter() - pingtime[i][pongmsg->pingnum];
   player->pingtime = player->pingticks * 1000 / 60;
 
-  noclientupdatetime[i] = 0;
+  gGlobalStateNetworkServer.noclientupdatetime[i] = 0;
 }
 #endif
 

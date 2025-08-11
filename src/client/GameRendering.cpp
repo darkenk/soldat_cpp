@@ -35,8 +35,10 @@
 
 #include "common/gfx.hpp"
 
-tgamerenderingparams gamerenderingparams;
-tgfxspritearray textures;
+GlobalStateGameRendering gGlobalStateGameRendering{
+  .gamerenderingparams{},
+  .textures{},
+};
 
 using string = std::string;
 
@@ -125,15 +127,16 @@ void loadmodinfo()
     rootini = std::make_unique<TIniFile>(std::move(rootinistream));
   }
 
-  auto modinistream = ReadAsFileStream(fs, moddir + "mod.ini");
+  auto modinistream = ReadAsFileStream(fs, gGlobalStateClient.moddir + "mod.ini");
 
   if (gostekdata.empty() or scaledata.currentmod.empty())
   {
     modini = std::make_unique<TIniFile>(std::move(modinistream));
   }
 
-  auto interfaceinistream = ReadAsFileStream(fs,
-    (string("custom-interfaces/") + gamerenderingparams.interfacename + "/mod.ini"));
+  auto interfaceinistream = ReadAsFileStream(
+    fs, (string("custom-interfaces/") +
+         gGlobalStateGameRendering.gamerenderingparams.interfacename + "/mod.ini"));
 
   if (interfaceinistream)
   {
@@ -184,8 +187,8 @@ auto getimagescale(const std::string &imagepath) -> float
   std::string scale;
   std::string key;
 
-  std::string intdir =
-    string("/custom-interfaces/") + lowercase(gamerenderingparams.interfacename) + '/';
+  std::string intdir = string("/custom-interfaces/") +
+                       lowercase(gGlobalStateGameRendering.gamerenderingparams.interfacename) + '/';
 
   TIniFile::Entries *data = &scaledata.root;
   std::string path = lowercase(imagepath);
@@ -256,7 +259,7 @@ void loadmaintextures()
                         [](const auto &d) { return d.Group != GFXG::INTERFACE; });
 
   mainspritesheet = new tgfxspritesheet(count);
-  float scale = 1.5 * renderheight / gameheight;
+  float scale = 1.5 * gGlobalStateClientGame.renderheight / gGlobalStateGame.gameheight;
 
   for (const auto &i : GFXData)
   {
@@ -269,7 +272,7 @@ void loadmaintextures()
       color.color.b = (i.ColorKey & 0xff0000) >> 16;
       color.color.a = (i.ColorKey & 0xff000000) >> 24;
 
-      auto path = pngoverride(moddir + std::string(i.Path));
+      auto path = pngoverride(gGlobalStateClient.moddir + std::string(i.Path));
 
       if (!fs.Exists(path))
       {
@@ -310,7 +313,7 @@ void loadinterfacetextures(const std::string interfacename)
   if (iscustom)
   {
     cutlength = length(std::string("interface-gfx/"));
-    prefix = moddir + "custom-interfaces/" + interfacename + '/';
+    prefix = gGlobalStateClient.moddir + "custom-interfaces/" + interfacename + '/';
   }
 
   for (i = low(GFXData); i <= high(GFXData); i++)
@@ -330,7 +333,7 @@ void loadinterfacetextures(const std::string interfacename)
 
   if (CVar::r_scaleinterface)
   {
-    scale = (float)(renderheight) / gameheight;
+    scale = (float)(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight;
   }
   else
   {
@@ -359,7 +362,7 @@ void loadinterfacetextures(const std::string interfacename)
       }
       else
       {
-        path = pngoverride(moddir + std::string(GFXData[i].Path));
+        path = pngoverride(gGlobalStateClient.moddir + std::string(GFXData[i].Path));
 
         if (!fs.Exists(path))
         {
@@ -385,25 +388,25 @@ void loadinterfacetextures(const std::string interfacename)
 
 void loadinterface()
 {
-  if (loadinterfacedata(gamerenderingparams.interfacename))
+  if (loadinterfacedata(gGlobalStateGameRendering.gamerenderingparams.interfacename))
   {
-    loadinterfacetextures(gamerenderingparams.interfacename);
+    loadinterfacetextures(gGlobalStateGameRendering.gamerenderingparams.interfacename);
   }
   else
   {
     loadinterfacetextures("");
   }
 
-  loadedinterfacename = gamerenderingparams.interfacename;
+  loadedinterfacename = gGlobalStateGameRendering.gamerenderingparams.interfacename;
 }
 
 auto getfontpath(string fontfile) -> string
 {
   std::string result;
-  auto p = std::filesystem::path(basedirectory + fontfile);
+  auto p = std::filesystem::path(gGlobalStateClient.basedirectory + fontfile);
   if (std::filesystem::exists(p) && !std::filesystem::is_directory(p))
   {
-    result = basedirectory + fontfile;
+    result = gGlobalStateClient.basedirectory + fontfile;
   }
   return result;
 }
@@ -448,12 +451,14 @@ void loadfonts()
   if ((fontpath[0].empty()) || (fontpath[1].empty()))
   {
     showmessage(("One of the fonts cannot be found. Please check your installation directory."));
-    gClient.shutdown();
+    gGlobalStateClient.gClient.shutdown();
   }
 
-  const std::int32_t w = renderwidth;
-  const std::int32_t h = renderheight;
-  const float s = iif(CVar::r_scaleinterface, (float)(renderheight) / gameheight, 1.0f);
+  const std::int32_t w = gGlobalStateClientGame.renderwidth;
+  const std::int32_t h = gGlobalStateClientGame.renderheight;
+  const float s =
+    iif(CVar::r_scaleinterface,
+        (float)(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight, 1.0f);
 
   fonts[0] = gfxcreatefont(fontpath[0], npot(w / 2), npot(h / 2));
   fonts[1] = gfxcreatefont(fontpath[1], npot(w / 3), npot(h / 3));
@@ -491,7 +496,8 @@ void loadfonts()
   fontstyles[font_weapons_menu].flags = 0;
 
   fontstyles[font_world].font = fonts[1];
-  fontstyles[font_world].size = 128 * ((float)(renderheight) / gameheight);
+  fontstyles[font_world].size =
+    128 * ((float)(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight);
   fontstyles[font_world].stretch = (float)(CVar::font_1_scale) / 100;
   fontstyles[font_world].flags = 0;
 
@@ -513,7 +519,7 @@ auto initgamegraphics() -> bool
 
   if (initialized)
   {
-    if (gamerenderingparams.interfacename != loadedinterfacename)
+    if (gGlobalStateGameRendering.gamerenderingparams.interfacename != loadedinterfacename)
     {
       scaledata.custominterface.clear();
       loadmodinfo();
@@ -534,7 +540,8 @@ auto initgamegraphics() -> bool
   {
     windowflags = windowflags | SDL_WINDOW_FULLSCREEN;
   }
-  gamewindow = SDL_CreateWindow("Soldat", windowwidth, windowheight, windowflags);
+  gGlobalStateInput.gamewindow = SDL_CreateWindow("Soldat", gGlobalStateClientGame.windowwidth,
+                                                  gGlobalStateClientGame.windowheight, windowflags);
 
   auto& fs = GS::GetFileSystem();
   {
@@ -544,18 +551,18 @@ auto initgamegraphics() -> bool
     SDL_IOStream *iconfile = SDL_IOFromMem(filebuffer.data(), length(filebuffer));
 
     auto icon_surface = SDL_LoadBMP_IO(iconfile, 1);
-    SDL_SetWindowIcon(gamewindow, icon_surface);
+    SDL_SetWindowIcon(gGlobalStateInput.gamewindow, icon_surface);
     SDL_DestroySurface(icon_surface);
   }
 
-  if (gamewindow == nullptr)
+  if (gGlobalStateInput.gamewindow == nullptr)
   {
     showmessage("Error creating sdl3 window");
     result = false;
     return result;
   }
 
-  if (!gfxinitcontext(gamewindow, CVar::r_dithering, CVar::r_compatibility))
+  if (!gfxinitcontext(gGlobalStateInput.gamewindow, CVar::r_dithering, CVar::r_compatibility))
   {
     result = false;
     return result;
@@ -568,9 +575,9 @@ auto initgamegraphics() -> bool
     gfxlog(string("Error while setting SDL_GL_SetSwapInterval:") + SDL_GetError());
   }
 
-  gfxviewport(0, 0, windowwidth, windowheight);
+  gfxviewport(0, 0, gGlobalStateClientGame.windowwidth, gGlobalStateClientGame.windowheight);
 
-  textures = new pgfxsprite[GFX::END + 1];
+  gGlobalStateGameRendering.textures = new pgfxsprite[GFX::END + 1];
   loadmodinfo();
   loadmaintextures();
   loadinterface();
@@ -586,18 +593,22 @@ auto initgamegraphics() -> bool
 
   if (CVar::cl_actionsnap)
   {
-    actionsnaptexture = gfxcreaterendertarget(renderwidth, renderheight, 4, true);
+    actionsnaptexture = gfxcreaterendertarget(gGlobalStateClientGame.renderwidth,
+                                              gGlobalStateClientGame.renderheight, 4, true);
   }
 
   if (gfxframebuffersupported())
   {
-    if ((windowwidth != renderwidth) || (windowheight != renderheight))
+    if ((gGlobalStateClientGame.windowwidth != gGlobalStateClientGame.renderwidth) ||
+        (gGlobalStateClientGame.windowheight != gGlobalStateClientGame.renderheight))
     {
-      rendertarget = gfxcreaterendertarget(renderwidth, renderheight, 4, true);
+      rendertarget = gfxcreaterendertarget(gGlobalStateClientGame.renderwidth,
+                                           gGlobalStateClientGame.renderheight, 4, true);
 
       if (rendertarget->samples() > 0)
       {
-        rendertargetaa = gfxcreaterendertarget(renderwidth, renderheight, 4, false);
+        rendertargetaa = gfxcreaterendertarget(gGlobalStateClientGame.renderwidth,
+                                               gGlobalStateClientGame.renderheight, 4, false);
 
         if (CVar::r_resizefilter >= 2)
         {
@@ -634,7 +645,7 @@ void reloadgraphics()
   std::array<tmapcolor, 2> color;
   tmapgraphics *mg;
 
-  mg = &mapgfx;
+  mg = &gGlobalStateMapGraphics.mapgfx;
   mapinfo = mg->mapinfo;
   bgforce = mg->bgforce;
   color[0] = mg->bgforcedcolor[0];
@@ -667,7 +678,7 @@ void destroygamegraphics()
     return;
   }
 
-  SDL_SetWindowIcon(gamewindow, nullptr);
+  SDL_SetWindowIcon(gGlobalStateInput.gamewindow, nullptr);
 
   freeandnullptr(mainspritesheet);
   freeandnullptr(interfacespritesheet);
@@ -730,15 +741,17 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
   std::int32_t i;
   std::int32_t j;
 
-  s.camera.x = camerax;
-  s.camera.y = cameray;
-  s.mouse.x = mx;
-  s.mouse.y = my;
+  s.camera.x = gGlobalStateClient.camerax;
+  s.camera.y = gGlobalStateClient.cameray;
+  s.mouse.x = gGlobalStateClientGame.mx;
+  s.mouse.y = gGlobalStateClientGame.my;
 
-  camerax = lerp(cameraprev.x, camerax, p);
-  cameray = lerp(cameraprev.y, cameray, p);
-  mx = lerp(mouseprev.x, mx, p);
-  my = lerp(mouseprev.y, my, p);
+  gGlobalStateClient.camerax = lerp(gGlobalStateClient.cameraprev.x, gGlobalStateClient.camerax, p);
+  gGlobalStateClient.cameray = lerp(gGlobalStateClient.cameraprev.y, gGlobalStateClient.cameray, p);
+  gGlobalStateClientGame.mx =
+    lerp(gGlobalStateClientGame.mouseprev.x, gGlobalStateClientGame.mx, p);
+  gGlobalStateClientGame.my =
+    lerp(gGlobalStateClientGame.mouseprev.y, gGlobalStateClientGame.my, p);
 
   if (paused)
   {
@@ -793,12 +806,13 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
     ZoneScopedN("Sparks");
     for (i = 1; i <= max_sparks; i++)
     {
-      if (spark[i].active)
+      if (gGlobalStateGame.spark[i].active)
       {
-        j = spark[i].num;
+        j = gGlobalStateGame.spark[i].num;
         s.sparkpos[i] = GetSparkParts().pos[j];
         GetSparkParts().pos[j] = lerp(GetSparkParts().oldpos[j], GetSparkParts().pos[j], p);
-        spark[i].lifefloat = lerp(spark[i].lifeprev, spark[i].life, p);
+        gGlobalStateGame.spark[i].lifefloat =
+          lerp(gGlobalStateGame.spark[i].lifeprev, gGlobalStateGame.spark[i].life, p);
       }
     }
   }
@@ -831,10 +845,10 @@ void restorestate(tinterpolationstate &s)
 {
   std::int32_t i;
 
-  camerax = s.camera.x;
-  cameray = s.camera.y;
-  mx = s.mouse.x;
-  my = s.mouse.y;
+  gGlobalStateClient.camerax = s.camera.x;
+  gGlobalStateClient.cameray = s.camera.y;
+  gGlobalStateClientGame.mx = s.mouse.x;
+  gGlobalStateClientGame.my = s.mouse.y;
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
@@ -856,9 +870,9 @@ void restorestate(tinterpolationstate &s)
 
   for (i = 1; i <= max_sparks; i++)
   {
-    if (spark[i].active)
+    if (gGlobalStateGame.spark[i].active)
     {
-      GetSparkParts().pos[spark[i].num] = s.sparkpos[i];
+      GetSparkParts().pos[gGlobalStateGame.spark[i].num] = s.sparkpos[i];
     }
   }
 
@@ -891,7 +905,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
   trect rc;
   tgfxtexture *rt;
 
-  mg = &mapgfx;
+  mg = &gGlobalStateMapGraphics.mapgfx;
   auto &things = GS::GetThingSystem().GetThings();
 
   // graphics might be destroyed before end of game loop
@@ -903,7 +917,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
   if (rendertarget != nullptr)
   {
     gfxtarget(rendertarget);
-    gfxviewport(0, 0, renderwidth, renderheight);
+    gfxviewport(0, 0, gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight);
   }
   else
   {
@@ -912,29 +926,31 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
   if (!screenshotpath.empty())
   {
-    gfxsavescreen(screenshotpath, 0, 0, renderwidth, renderheight, screenshotasync);
+    gfxsavescreen(screenshotpath, 0, 0, gGlobalStateClientGame.renderwidth,
+                  gGlobalStateClientGame.renderheight, screenshotasync);
     screenshotpath = "";
   }
 
-  if ((showscreen != 0u) && actionsnaptaken)
+  if ((gGlobalStateClientGame.showscreen != 0u) && gGlobalStateClientGame.actionsnaptaken)
   {
     ZoneScopedN("Render1");
-    rc = trect(0, renderheight, renderwidth, 0);
+    rc = trect(0, gGlobalStateClientGame.renderheight, gGlobalStateClientGame.renderwidth, 0);
     gfxblit(actionsnaptexture, rendertarget, rc, rc, gfx_nearest);
     gfxtarget(rendertarget);
 
-    w = renderwidth;
-    h = renderheight;
+    w = gGlobalStateClientGame.renderwidth;
+    h = gGlobalStateClientGame.renderheight;
 
     if (CVar::r_scaleinterface)
     {
-      w = gamewidth;
-      h = gameheight;
+      w = gGlobalStateGame.gamewidth;
+      h = gGlobalStateGame.gameheight;
     }
 
     gfxbegin();
     gfxtransform(gfxmat3ortho(0, w, 0, h));
-    gfxtextpixelratio(vector2(w / renderwidth, h / renderheight));
+    gfxtextpixelratio(
+      vector2(w / gGlobalStateClientGame.renderwidth, h / gGlobalStateClientGame.renderheight));
     renderactionsnaptext(timeelapsed);
     gfxend();
   }
@@ -943,33 +959,33 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
     ZoneScopedN("Render2");
     grabactionsnap = false;
 
-    if ((CVar::cl_actionsnap) && (capscreen == 0))
+    if ((CVar::cl_actionsnap) && (gGlobalStateClientGame.capscreen == 0))
     {
-      capscreen = 255;
+      gGlobalStateClientGame.capscreen = 255;
       grabactionsnap = true;
-      actionsnaptaken = true;
+      gGlobalStateClientGame.actionsnaptaken = true;
       gfxtarget(actionsnaptexture);
     }
-    else if (capscreen != 255)
+    else if (gGlobalStateClientGame.capscreen != 255)
     {
-      capscreen -= 1;
+      gGlobalStateClientGame.capscreen -= 1;
     }
 
     interpolatestate(framepercent, interpolationstate, paused);
 
-    w = exp(CVar::r_zoom) * gamewidth;
-    h = exp(CVar::r_zoom) * gameheight;
+    w = exp(CVar::r_zoom) * gGlobalStateGame.gamewidth;
+    h = exp(CVar::r_zoom) * gGlobalStateGame.gameheight;
 
-    dx = camerax - w / 2;
-    dy = cameray - h / 2;
+    dx = gGlobalStateClient.camerax - w / 2;
+    dy = gGlobalStateClient.cameray - h / 2;
 
-    if (cameray > 0)
+    if (gGlobalStateClient.cameray > 0)
     {
-      gfxclear(mapgfx.bgcolorbtm);
+      gfxclear(gGlobalStateMapGraphics.mapgfx.bgcolorbtm);
     }
     else
     {
-      gfxclear(mapgfx.bgcolortop);
+      gfxclear(gGlobalStateMapGraphics.mapgfx.bgcolortop);
     }
 
     if (CVar::r_animations)
@@ -1037,9 +1053,9 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
         ZoneScopedN("RenderSpark");
         for (i = 1; i <= max_sparks; i++)
         {
-          if (spark[i].active)
+          if (gGlobalStateGame.spark[i].active)
           {
-            spark[i].render();
+            gGlobalStateGame.spark[i].render();
           }
         }
       }
@@ -1076,13 +1092,13 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
     if (!CVar::r_scaleinterface)
     {
-      w = renderwidth;
-      h = renderheight;
+      w = gGlobalStateClientGame.renderwidth;
+      h = gGlobalStateClientGame.renderheight;
     }
 
     if (grabactionsnap)
     {
-      rc = trect(0, renderheight, renderwidth, 0);
+      rc = trect(0, gGlobalStateClientGame.renderheight, gGlobalStateClientGame.renderwidth, 0);
       gfxblit(actionsnaptexture, rendertarget, rc, rc, gfx_nearest);
       gfxtarget(rendertarget);
     }
@@ -1106,46 +1122,52 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
     if (rendertargetaa != nullptr)
     {
-      rc = trect(0, renderheight, renderwidth, 0);
+      rc = trect(0, gGlobalStateClientGame.renderheight, gGlobalStateClientGame.renderwidth, 0);
       gfxblit(rendertarget, rendertargetaa, rc, rc, gfx_nearest);
       rt = rendertargetaa;
     }
 
-    if (((float)(screenwidth) / screenheight) >= ((float)(renderwidth) / renderheight))
+    if (((float)(gGlobalStateClientGame.screenwidth) / gGlobalStateClientGame.screenheight) >=
+        ((float)(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight))
     {
-      w = screenheight * ((float)(renderwidth) / renderheight);
-      h = screenheight;
+      w = gGlobalStateClientGame.screenheight *
+          ((float)(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight);
+      h = gGlobalStateClientGame.screenheight;
     }
     else
     {
-      w = screenwidth;
-      h = screenwidth * ((float)(renderheight) / renderwidth);
+      w = gGlobalStateClientGame.screenwidth;
+      h = gGlobalStateClientGame.screenwidth *
+          ((float)(gGlobalStateClientGame.renderheight) / gGlobalStateClientGame.renderwidth);
     }
 
-    dx = floor(0.5 * (screenwidth - w));
-    dy = floor(0.5 * (screenheight - h));
+    dx = floor(0.5 * (gGlobalStateClientGame.screenwidth - w));
+    dy = floor(0.5 * (gGlobalStateClientGame.screenheight - h));
 
-    if (screenwidth != windowwidth)
+    if (gGlobalStateClientGame.screenwidth != gGlobalStateClientGame.windowwidth)
     {
-      s = (float)(windowwidth) / screenwidth;
+      s = (float)(gGlobalStateClientGame.windowwidth) / gGlobalStateClientGame.screenwidth;
       w = w * s;
-      dx = (dx - (float)(screenwidth) / 2) * s + (float)(windowwidth) / 2;
+      dx = (dx - (float)(gGlobalStateClientGame.screenwidth) / 2) * s +
+           (float)(gGlobalStateClientGame.windowwidth) / 2;
     }
 
-    if (screenheight != windowheight)
+    if (gGlobalStateClientGame.screenheight != gGlobalStateClientGame.windowheight)
     {
-      s = (float)(windowheight) / screenheight;
+      s = (float)(gGlobalStateClientGame.windowheight) / gGlobalStateClientGame.screenheight;
       h = h * s;
-      dy = (dy - (float)(screenheight) / 2) * s + (float)(windowheight) / 2;
+      dy = (dy - (float)(gGlobalStateClientGame.screenheight) / 2) * s +
+           (float)(gGlobalStateClientGame.windowheight) / 2;
     }
 
     gfxtarget(nullptr);
-    gfxviewport(0, 0, windowwidth, windowheight);
+    gfxviewport(0, 0, gGlobalStateClientGame.windowwidth, gGlobalStateClientGame.windowheight);
     gfxclear(rgba(0));
-    gfxtransform(gfxmat3ortho(0, windowwidth, 0, windowheight));
+    gfxtransform(
+      gfxmat3ortho(0, gGlobalStateClientGame.windowwidth, 0, gGlobalStateClientGame.windowheight));
 
-    u = (float)(renderwidth) / rendertarget->width();
-    v = (float)(renderheight) / rendertarget->height();
+    u = (float)(gGlobalStateClientGame.renderwidth) / rendertarget->width();
+    v = (float)(gGlobalStateClientGame.renderheight) / rendertarget->height();
 
     gfxbegin();
     gfxdrawquad(rt, gfxvertex(dx + 0, dy + 0, 0, v, rgba(0xffffff)),
@@ -1163,8 +1185,9 @@ void rendergameinfo(const std::string &textstring)
   tgfxrect rc;
 
   gfxtarget(nullptr);
-  gfxviewport(0, 0, windowwidth, windowheight);
-  gfxtransform(gfxmat3ortho(0, windowwidth, 0, windowheight));
+  gfxviewport(0, 0, gGlobalStateClientGame.windowwidth, gGlobalStateClientGame.windowheight);
+  gfxtransform(
+    gfxmat3ortho(0, gGlobalStateClientGame.windowwidth, 0, gGlobalStateClientGame.windowheight));
   gfxclear(49, 61, 79, 255);
   setfontstyle(font_menu);
   gfxtextcolor(rgba(0xffffff));
@@ -1172,11 +1195,12 @@ void rendergameinfo(const std::string &textstring)
   gfxtextpixelratio(vector2(1, 1));
   rc = gfxtextmetrics(textstring);
   gfxbegin();
-  gfxdrawtext((float)((windowwidth - rc.width())) / 2, (float)((windowheight - rc.height())) / 2);
+  gfxdrawtext((float)((gGlobalStateClientGame.windowwidth - rc.width())) / 2,
+              (float)((gGlobalStateClientGame.windowheight - rc.height())) / 2);
   setfontstyle(font_small);
   rc = gfxtextmetrics(("Press ESC to quit the game"));
-  gfxdrawtext((float)((windowwidth - rc.width())) / 2,
-              ((float)((windowheight - rc.height())) / 2) + 100);
+  gfxdrawtext((float)((gGlobalStateClientGame.windowwidth - rc.width())) / 2,
+              ((float)((gGlobalStateClientGame.windowheight - rc.height())) / 2) + 100);
   gfxend();
   gfxpresent(true);
 }
@@ -1281,21 +1305,27 @@ auto dotextureloading(bool finishloading) -> bool
       if (GFXData[i].Group != GFXG::INTERFACE)
       {
         auto id = GFXData[i].ID;
-        textures[id] = mainspritesheet->getsprite(j);
-        textures[id]->scale = textures[id]->scale * ((float)(1) / imagescale[id]);
+        gGlobalStateGameRendering.textures[id] = mainspritesheet->getsprite(j);
+        gGlobalStateGameRendering.textures[id]->scale =
+          gGlobalStateGameRendering.textures[id]->scale * ((float)(1) / imagescale[id]);
 
         if (getsizeconstraint(i, w, h))
         {
-          if (((textures[id]->width * textures[id]->scale) > w) ||
-              ((textures[id]->height * textures[id]->scale) > h))
+          if (((gGlobalStateGameRendering.textures[id]->width *
+                gGlobalStateGameRendering.textures[id]->scale) > w) ||
+              ((gGlobalStateGameRendering.textures[id]->height *
+                gGlobalStateGameRendering.textures[id]->scale) > h))
           {
-            if (((float)(textures[id]->width) / textures[id]->height) > ((float)(w) / h))
+            if (((float)(gGlobalStateGameRendering.textures[id]->width) /
+                 gGlobalStateGameRendering.textures[id]->height) > ((float)(w) / h))
             {
-              textures[id]->scale = (float)(w) / textures[id]->width;
+              gGlobalStateGameRendering.textures[id]->scale =
+                (float)(w) / gGlobalStateGameRendering.textures[id]->width;
             }
             else
             {
-              textures[id]->scale = (float)(h) / textures[id]->height;
+              gGlobalStateGameRendering.textures[id]->scale =
+                (float)(h) / gGlobalStateGameRendering.textures[id]->height;
             }
           }
         }
@@ -1317,7 +1347,7 @@ auto dotextureloading(bool finishloading) -> bool
     s[length(s)] = ')';
     gfxlog(string("Loaded main spritesheet (") + s);
 
-    applygostekconstraints(textures);
+    applygostekconstraints(gGlobalStateGameRendering.textures);
   }
 
   if (interfacespritesheet->loading() != interfaceloading)
@@ -1329,8 +1359,9 @@ auto dotextureloading(bool finishloading) -> bool
       if (GFXData[i].Group == GFXG::INTERFACE)
       {
         auto id = GFXData[i].ID;
-        textures[id] = interfacespritesheet->getsprite(j);
-        textures[id]->scale = textures[id]->scale * ((float)(1) / imagescale[id]);
+        gGlobalStateGameRendering.textures[id] = interfacespritesheet->getsprite(j);
+        gGlobalStateGameRendering.textures[id]->scale =
+          gGlobalStateGameRendering.textures[id]->scale * ((float)(1) / imagescale[id]);
         j += 1;
       }
     }
@@ -1443,15 +1474,20 @@ TEST_SUITE("GameRenderingSuite")
 TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
 {
   SdlApp app("GameRenderingTest", 1280, 720, opengl);
-  SDL_GetWindowSize(app.GetWindow(), &windowwidth, &windowheight);
-  renderwidth = screenwidth = windowwidth;
-  renderheight = screenheight = windowheight;
+  SDL_GetWindowSize(app.GetWindow(), &gGlobalStateClientGame.windowwidth,
+                    &gGlobalStateClientGame.windowheight);
+  gGlobalStateClientGame.renderwidth = gGlobalStateClientGame.screenwidth =
+    gGlobalStateClientGame.windowwidth;
+  gGlobalStateClientGame.renderheight = gGlobalStateClientGame.screenheight =
+    gGlobalStateClientGame.windowheight;
   gfxSetGpuDevice(app.GetDevice());
   gfxinitcontext(app.GetWindow(), false, false);
   loadfonts();
   rendergameinfo("Test");
-  auto data = gfxsavescreen(0, 0, renderwidth, renderheight);
-  PngWriter writer(renderwidth, renderheight, std::move(data));
+  auto data =
+    gfxsavescreen(0, 0, gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight);
+  PngWriter writer(gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight,
+                   std::move(data));
   ApprovalTests::Approvals::verify(writer);
   gfxdestroycontext();
 }
@@ -1459,10 +1495,13 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
 TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(true))
 {
   SdlApp app("GameRenderingTest", 1280, 720, opengl);
-  SDL_GetWindowSize(app.GetWindow(), &windowwidth, &windowheight);
-  renderwidth = screenwidth = windowwidth;
-  renderheight = screenheight = windowheight;
-  gamewindow = app.GetWindow();
+  SDL_GetWindowSize(app.GetWindow(), &gGlobalStateClientGame.windowwidth,
+                    &gGlobalStateClientGame.windowheight);
+  gGlobalStateClientGame.renderwidth = gGlobalStateClientGame.screenwidth =
+    gGlobalStateClientGame.windowwidth;
+  gGlobalStateClientGame.renderheight = gGlobalStateClientGame.screenheight =
+    gGlobalStateClientGame.windowheight;
+  gGlobalStateInput.gamewindow = app.GetWindow();
   gfxSetGpuDevice(app.GetDevice());
   gfxinitcontext(app.GetWindow(), false, false);
   GlobalSystems<Config::CLIENT_MODULE>::Init();
@@ -1472,24 +1511,27 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(true))
 
   fs.Mount(userDirectory, "/user");
   fs.Mount(baseDirectory + "/soldat.smod", "/");
-  textures = new pgfxsprite[GFX::END + 1];
-  auto ret = getmapinfo(fs, "ctf_Ash", userDirectory, mapgfx.mapinfo);
+  gGlobalStateGameRendering.textures = new pgfxsprite[GFX::END + 1];
+  auto ret = getmapinfo(fs, "ctf_Ash", userDirectory, gGlobalStateMapGraphics.mapgfx.mapinfo);
   CHECK(ret);
   reloadgraphics();
-  gClient.loadweaponnames(fs, gundisplayname, moddir);
+  gGlobalStateClient.gClient.loadweaponnames(fs, gGlobalStateClient.gundisplayname,
+                                             gGlobalStateClient.moddir);
   createweaponsbase(GS::GetWeaponSystem().GetGuns());
   initgamemenus();
   loadfonts();
   renderframe(1.0f, 1.0f, true);
   std::this_thread::sleep_for(16ms);
-  auto data = gfxsavescreen(0, 0, renderwidth, renderheight);
-  PngWriter writer(renderwidth, renderheight, std::move(data));
+  auto data =
+    gfxsavescreen(0, 0, gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight);
+  PngWriter writer(gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight,
+                   std::move(data));
   ApprovalTests::Approvals::verify(writer);
   destroymapgraphics();
   gfxdestroycontext();
-  delete[] textures;
+  delete[] gGlobalStateGameRendering.textures;
   GlobalSystems<Config::CLIENT_MODULE>::Deinit();
-  gamewindow = nullptr;
+  gGlobalStateInput.gamewindow = nullptr;
   CHECK(true);
 }
 

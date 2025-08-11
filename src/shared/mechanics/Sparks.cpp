@@ -27,7 +27,9 @@ auto GetSparkParts() -> particlesystem &
 
 template particlesystem &GetSparkParts();
 
-std::int32_t sparkscount;
+GlobalStateSparks gGlobalStateSparks{
+  .sparkscount{},
+};
 
 using std::numbers::pi;
 
@@ -42,20 +44,22 @@ auto createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::ui
   std::int32_t result;
   result = 0;
 
-  if (camerafollowsprite > 0)
+  if (gGlobalStateClient.camerafollowsprite > 0)
   {
-    if (sprite_system.IsPlayerSprite(camerafollowsprite))
+    if (sprite_system.IsPlayerSprite(gGlobalStateClient.camerafollowsprite))
     {
-      if (!GS::GetGame().pointvisible(spos.x, spos.y, camerafollowsprite) && (sstyle != 38))
+      if (!GS::GetGame().pointvisible(spos.x, spos.y, gGlobalStateClient.camerafollowsprite) &&
+          (sstyle != 38))
       {
         result = 0;
         return result;
       }
     }
 
-    if (!sprite_system.IsPlayerSprite(camerafollowsprite))
+    if (!sprite_system.IsPlayerSprite(gGlobalStateClient.camerafollowsprite))
     {
-      if (!GS::GetGame().pointvisible2(spos.x, spos.y, camerafollowsprite) && (sstyle != 38))
+      if (!GS::GetGame().pointvisible2(spos.x, spos.y, gGlobalStateClient.camerafollowsprite) &&
+          (sstyle != 38))
       {
         result = 0;
         return result;
@@ -65,17 +69,17 @@ auto createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::ui
 
   for (i = 1; i <= CVar::r_maxsparks + 1; i++)
   {
-    if ((sparkscount > CVar::r_maxsparks - 50) &&
+    if ((gGlobalStateSparks.sparkscount > CVar::r_maxsparks - 50) &&
         ((sstyle == 3) || (sstyle == 4) || (sstyle == 26) || (sstyle == 27) || (sstyle == 59) ||
          (sstyle == 2)))
     {
       return result;
     }
-    if ((sparkscount > CVar::r_maxsparks - 40) && (sstyle == 1))
+    if ((gGlobalStateSparks.sparkscount > CVar::r_maxsparks - 40) && (sstyle == 1))
     {
       return result;
     }
-    if ((sparkscount > CVar::r_maxsparks - 30) && (sstyle == 24))
+    if ((gGlobalStateSparks.sparkscount > CVar::r_maxsparks - 30) && (sstyle == 24))
     {
       return result;
     }
@@ -85,7 +89,8 @@ auto createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::ui
       result = Random(CVar::r_maxsparks / 3) + 1;
       break;
     }
-    if (!spark[i].active && (spark[i].style == 0) && !GetSparkParts().active[i])
+    if (!gGlobalStateGame.spark[i].active && (gGlobalStateGame.spark[i].style == 0) &&
+        !GetSparkParts().active[i])
     {
       result = i;
       break;
@@ -95,12 +100,12 @@ auto createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::ui
   i = result;
 
   // activate sprite
-  spark[i].active = true;
-  spark[i].life = life;
-  spark[i].style = sstyle;
-  spark[i].num = i;
-  spark[i].owner = sowner;
-  spark[i].collidecount = 0;
+  gGlobalStateGame.spark[i].active = true;
+  gGlobalStateGame.spark[i].life = life;
+  gGlobalStateGame.spark[i].style = sstyle;
+  gGlobalStateGame.spark[i].num = i;
+  gGlobalStateGame.spark[i].owner = sowner;
+  gGlobalStateGame.spark[i].collidecount = 0;
 
   m = 1;
 
@@ -138,12 +143,13 @@ void tspark::update()
   }
 
   // wobble the screen when explosion
-  if ((sprite_system.IsPlayerSpriteValid()) && (camerafollowsprite > 0) && (!demoplayer.active()))
+  if ((sprite_system.IsPlayerSpriteValid()) && (gGlobalStateClient.camerafollowsprite > 0) &&
+      (!gGlobalStateDemo.demoplayer.active()))
   {
     if ((style == 17) || (style == 12) || (style == 14) || (style == 15) || (style == 28))
     {
       if (GS::GetGame().pointvisible(GetSparkParts().pos[num].x, GetSparkParts().pos[num].y,
-                                     camerafollowsprite))
+                                     gGlobalStateClient.camerafollowsprite))
       {
         if (life > explosion_anims * 2.3)
         // if ((Style = 17) and (Life > EXPLOSION_ANIMS * 2.5)) or
@@ -152,8 +158,8 @@ void tspark::update()
           wobble = life / 6;
           wobblex = Random(2 * wobble + 1);
           wobbley = Random(2 * wobble);
-          camerax = camerax - wobble + wobblex;
-          cameray = cameray - wobble + wobbley;
+          gGlobalStateClient.camerax = gGlobalStateClient.camerax - wobble + wobblex;
+          gGlobalStateClient.cameray = gGlobalStateClient.cameray - wobble + wobbley;
         }
       }
     }
@@ -208,7 +214,7 @@ void tspark::render() const
   std::int32_t i;
   auto &map = GS::GetGame().GetMap();
 
-  tgfxspritearray &t = textures;
+  tgfxspritearray &t = gGlobalStateGameRendering.textures;
   if (CVar::sv_realisticmode)
   {
     if ((owner > 0) && (owner < max_sprites + 1))
@@ -218,7 +224,7 @@ void tspark::render() const
         if (sprite_system.GetSprite(owner).visible == 0)
         {
           if (map.raycast(GetSparkParts().pos[num], sprite_system.GetPlayerSprite().skeleton.pos[9],
-                          grenvel, gamewidth, true) or
+                          grenvel, gGlobalStateGame.gamewidth, true) or
               (sprite_system.GetSprite(owner).visible == 0))
           {
             return;

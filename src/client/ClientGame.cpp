@@ -23,46 +23,50 @@
 
 using string = std::string;
 
-tvector2 mouseprev;
-float mx;
-float my;
-bool mapchanged = false;
-bool chatchanged = true; // used for blinking chat input
+// used for blinking chat input
 // DK_FIXME set it to true for now. I want to see something on screen
-bool shouldrenderframes = true; // false during game request phase
+// false during game request phase
 
 // us std::uint8_t  action snap
-std::uint8_t actionsnap = 1;
-bool actionsnaptaken = false;
-std::int32_t capscreen = 255;
-std::uint8_t showscreen = 0u;
-std::uint8_t screencounter = 255;
 
 // resolution
-bool isfullscreen;
-std::int32_t screenwidth = default_width;
-std::int32_t screenheight = default_height;
-std::int32_t renderwidth = 0;
-std::int32_t renderheight = 0;
-std::int32_t windowwidth = 0;
-std::int32_t windowheight = 0;
 
 // cha std::uint8_t f
-std::string chattext;
-std::string lastchattext;
-std::string firechattext;
-std::uint8_t chattype;
-std::string completionbase;
-std::int32_t completionbaseseparator;
-std::uint8_t currenttabcompleteplayer = 0;
-std::uint8_t cursorposition = 0;
-bool tabcompletepressed;
-std::int32_t chattimecounter;
 
-std::int32_t clientstopmovingcounter = 99999;
-bool forceclientspritesnapshotmov;
-std::uint32_t lastforceclientspritesnapshotmovtick;
-std::int32_t menutimer;
+GlobalStateClientGame gGlobalStateClientGame{
+  .mouseprev{},
+  .mx{},
+  .my{},
+  .mapchanged = false,
+  .chatchanged = true,
+  .shouldrenderframes = true,
+  .actionsnap = 1,
+  .actionsnaptaken = false,
+  .capscreen = 255,
+  .showscreen = 0u,
+  .screencounter = 255,
+  .isfullscreen{},
+  .screenwidth = default_width,
+  .screenheight = default_height,
+  .renderwidth = 0,
+  .renderheight = 0,
+  .windowwidth = 0,
+  .windowheight = 0,
+  .chattext{},
+  .lastchattext{},
+  .firechattext{},
+  .chattype{},
+  .completionbase{},
+  .completionbaseseparator{},
+  .currenttabcompleteplayer = 0,
+  .cursorposition = 0,
+  .tabcompletepressed{},
+  .chattimecounter{},
+  .clientstopmovingcounter = 99999,
+  .forceclientspritesnapshotmov{},
+  .lastforceclientspritesnapshotmovtick{},
+  .menutimer{},
+};
 
 struct tframetiming
 {
@@ -119,19 +123,25 @@ void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col)
   setfontstyle(font_big);
 
   w = rectwidth(gfxtextmetrics(text));
-  s = 4.8f * ((float)(renderheight) / 480.f);
+  s = 4.8f * ((float)(gGlobalStateClientGame.renderheight) / 480.f);
 
-  bigx[1] = 0;
-  bigtext[1] = text;
-  bigdelay[1] = delay;
-  bigscale[1] = std::fmin(1.f / 4.8f, (0.7f * renderwidth / w) / s);
-  bigcolor[1] = col;
-  bigposx[1] = (float)((renderwidth - s * w * bigscale[1])) / 2.f;
-  bigposy[1] = 420.f * _iscala.y;
+  gGlobalStateInterfaceGraphics.bigx[1] = 0;
+  gGlobalStateInterfaceGraphics.bigtext[1] = text;
+  gGlobalStateInterfaceGraphics.bigdelay[1] = delay;
+  gGlobalStateInterfaceGraphics.bigscale[1] =
+    std::fmin(1.f / 4.8f, (0.7f * gGlobalStateClientGame.renderwidth / w) / s);
+  gGlobalStateInterfaceGraphics.bigcolor[1] = col;
+  gGlobalStateInterfaceGraphics.bigposx[1] =
+    (float)((gGlobalStateClientGame.renderwidth -
+             s * w * gGlobalStateInterfaceGraphics.bigscale[1])) /
+    2.f;
+  gGlobalStateInterfaceGraphics.bigposy[1] = 420.f * gGlobalStateInterfaceGraphics._iscala.y;
 
   if (CVar::r_scaleinterface)
   {
-    bigposx[1] = bigposx[1] * ((float)(gamewidth) / renderwidth);
+    gGlobalStateInterfaceGraphics.bigposx[1] =
+      gGlobalStateInterfaceGraphics.bigposx[1] *
+      ((float)(gGlobalStateGame.gamewidth) / gGlobalStateClientGame.renderwidth);
   }
 }
 
@@ -152,9 +162,9 @@ void tabcomplete()
     return;
   }
 
-  chattextlen = length(chattext);
+  chattextlen = length(gGlobalStateClientGame.chattext);
 
-  if ((chattextlen > 1) && (chattext[2] == '^'))
+  if ((chattextlen > 1) && (gGlobalStateClientGame.chattext[2] == '^'))
   {
     offset = 1;
   }
@@ -164,7 +174,7 @@ void tabcomplete()
   }
 
   // If not already tab-completing, save and use this base text for tab completetion
-  if (currenttabcompleteplayer == 0)
+  if (gGlobalStateClientGame.currenttabcompleteplayer == 0)
   {
     NotImplemented("string operation");
 #if 0
@@ -182,7 +192,7 @@ void tabcomplete()
   }
 
   // Next potential match
-  continuedtabcompleteplayer = (currenttabcompleteplayer + 1) % max_players;
+  continuedtabcompleteplayer = (gGlobalStateClientGame.currenttabcompleteplayer + 1) % max_players;
 
   if (chattextlen > offset) // Dont complete if chat is empty
   {
@@ -193,15 +203,17 @@ void tabcomplete()
       if (sprite.IsActive() && (!sprite.player->demoplayer) &&
           (!sprite_system.IsPlayerSprite(next)))
       {
-        if ((completionbase.empty()) ||
-            std::string::npos != sprite.player->name.find(completionbase))
+        if ((gGlobalStateClientGame.completionbase.empty()) ||
+            std::string::npos != sprite.player->name.find(gGlobalStateClientGame.completionbase))
         {
-          availablechatspace = maxchattext - completionbaseseparator;
+          availablechatspace = maxchattext - gGlobalStateClientGame.completionbaseseparator;
           spacefittedname = sprite.player->name.substr(0, availablechatspace);
-          chattext = chattext.substr(0, completionbaseseparator) + spacefittedname;
-          currenttabcompleteplayer = next;
-          cursorposition = length((chattext));
-          tabcompletepressed = true;
+          gGlobalStateClientGame.chattext = gGlobalStateClientGame.chattext.substr(
+                                              0, gGlobalStateClientGame.completionbaseseparator) +
+                                            spacefittedname;
+          gGlobalStateClientGame.currenttabcompleteplayer = next;
+          gGlobalStateClientGame.cursorposition = length((gGlobalStateClientGame.chattext));
+          gGlobalStateClientGame.tabcompletepressed = true;
           break;
         }
       }
@@ -212,7 +224,7 @@ void tabcomplete()
 // Resets the stats of all weapons
 void resetweaponstats()
 {
-  for (auto &w : wepstats)
+  for (auto &w : gGlobalStateClient.wepstats)
   {
     w.shots = 0;
     w.hits = 0;
@@ -272,13 +284,13 @@ void gameloop()
       frametiming.elapsed = frametiming.elapsed + ((float)(1) / default_goalticks);
     }
 
-    clienttickcount += 1;
+    gGlobalStateNetworkClient.clienttickcount += 1;
     // Update main tick counter
     GS::GetGame().TickMainTickCounter();
 
-    if (menutimer > -1)
+    if (gGlobalStateClientGame.menutimer > -1)
     {
-      menutimer -= 1;
+      gGlobalStateClientGame.menutimer -= 1;
     }
 
     // General game updating
@@ -290,28 +302,28 @@ void gameloop()
       GS::GetDemoRecorder().saveposition();
     }
 
-    if ((game.GetMapchangecounter() < 0) && (escmenu->active))
+    if ((game.GetMapchangecounter() < 0) && (gGlobalStateGameMenus.escmenu->active))
     {
       // DEMO
       if (GS::GetDemoRecorder().active())
       {
         GS::GetDemoRecorder().savenextframe();
       }
-      if (demoplayer.active())
+      if (gGlobalStateDemo.demoplayer.active())
       {
         tdemoplayer::processdemo();
       }
     }
 
     // Radio Cooldown
-    if ((GS::GetGame().GetMainTickCounter() % second == 0) && (radiocooldown > 0) &&
-        (CVar::sv_radio))
+    if ((GS::GetGame().GetMainTickCounter() % second == 0) &&
+        (gGlobalStateClient.radiocooldown > 0) && (CVar::sv_radio))
     {
-      radiocooldown -= 1;
+      gGlobalStateClient.radiocooldown -= 1;
     }
 
     // Packet rate send adjusting
-    if (packetadjusting == 1)
+    if (gGlobalStateClient.packetadjusting == 1)
     {
       heavysendersnum = GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum();
 
@@ -333,19 +345,19 @@ void gameloop()
       adjust = 1.0;
     }
 
-    if ((sprite_system.IsPlayerSpriteValid()) && (!demoplayer.active()))
+    if ((sprite_system.IsPlayerSpriteValid()) && (!gGlobalStateDemo.demoplayer.active()))
     {
       // connection problems
-      if ((game.GetMapchangecounter() < 0) && escmenu->active)
+      if ((game.GetMapchangecounter() < 0) && gGlobalStateGameMenus.escmenu->active)
       {
-        noheartbeattime += 1;
+        gGlobalStateNetworkClient.noheartbeattime += 1;
       }
 
-      if (noheartbeattime > connectionproblem_time)
+      if (gGlobalStateNetworkClient.noheartbeattime > connectionproblem_time)
       {
         if (GS::GetGame().GetMainTickCounter() % 120 == 0)
         {
-          if (noheartbeattime > disconnection_time)
+          if (gGlobalStateNetworkClient.noheartbeattime > disconnection_time)
           {
             GS::GetMainConsole().console(("Connection timeout"), warning_message_color);
           }
@@ -355,30 +367,30 @@ void gameloop()
           }
         }
 
-        clientstopmovingcounter = 0;
+        gGlobalStateClientGame.clientstopmovingcounter = 0;
       }
 
-      if (noheartbeattime == disconnection_time)
+      if (gGlobalStateNetworkClient.noheartbeattime == disconnection_time)
       {
         GS::GetGame().showmapchangescoreboard();
 
-        gamemenushow(teammenu, false);
+        gamemenushow(gGlobalStateGameMenus.teammenu, false);
 
         GS::GetMainConsole().console(("Connection timeout"), warning_message_color);
 
         clientdisconnect(*GetNetwork());
       }
 
-      if (noheartbeattime < 0)
+      if (gGlobalStateNetworkClient.noheartbeattime < 0)
       {
-        noheartbeattime = 0;
+        gGlobalStateNetworkClient.noheartbeattime = 0;
       }
 
-      clientstopmovingcounter -= 1;
+      gGlobalStateClientGame.clientstopmovingcounter -= 1;
 
       auto &sprite = sprite_system.GetPlayerSprite();
 
-      if (connection == INTERNET)
+      if (gGlobalStateClient.connection == INTERNET)
       {
         if (sprite.IsActive())
         {
@@ -390,7 +402,7 @@ void gameloop()
               clientspritesnapshot();
             }
             if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(5 * adjust) == 0) ||
-                forceclientspritesnapshotmov)
+                gGlobalStateClientGame.forceclientspritesnapshotmov)
             {
               clientspritesnapshotmov();
             }
@@ -401,7 +413,7 @@ void gameloop()
           }
         }
       }
-      else if (connection == LAN)
+      else if (gGlobalStateClient.connection == LAN)
       {
         if (!sprite.deadmeat)
         {
@@ -411,7 +423,7 @@ void gameloop()
           }
 
           if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(3 * adjust) == 0) ||
-              forceclientspritesnapshotmov)
+              gGlobalStateClientGame.forceclientspritesnapshotmov)
           {
             clientspritesnapshotmov();
           }
@@ -422,7 +434,7 @@ void gameloop()
         }
       }
 
-      forceclientspritesnapshotmov = false;
+      gGlobalStateClientGame.forceclientspritesnapshotmov = false;
     } // playing
 
     // UDP.FlushMsg;
@@ -434,7 +446,7 @@ void gameloop()
     frametiming.prevrendertime = currenttime - frametiming.mindeltatime;
   }
 
-  if (shouldrenderframes &&
+  if (gGlobalStateClientGame.shouldrenderframes &&
       ((currenttime - frametiming.prevrendertime) >= frametiming.mindeltatime))
   {
     frametiming.prevrendertime = currenttime;
@@ -461,13 +473,13 @@ void gameloop()
   {
     if (game.GetMapchangename() == "EXIT*!*")
     {
-      gClient.exittomenu();
+      gGlobalStateClient.gClient.exittomenu();
     }
   }
 
-  if (mapchanged)
+  if (gGlobalStateClientGame.mapchanged)
   {
-    mapchanged = false;
+    gGlobalStateClientGame.mapchanged = false;
     resetframetiming();
   }
 
@@ -486,7 +498,7 @@ auto getcameratarget(bool backwards) -> std::uint8_t
   bool validcam;
 
   validcam = false;
-  newcam = camerafollowsprite;
+  newcam = gGlobalStateClient.camerafollowsprite;
   numloops = 0;
 
   do
@@ -560,7 +572,7 @@ auto getcameratarget(bool backwards) -> std::uint8_t
     validcam = true;
   } while (!validcam);
 
-  return iif(validcam, newcam, camerafollowsprite);
+  return iif(validcam, newcam, gGlobalStateClient.camerafollowsprite);
 }
 
 #ifdef STEAM

@@ -13,14 +13,16 @@
 #include <steam/isteamnetworkingsockets.h>
 #include <steam/isteamnetworkingutils.h>
 
-std::int32_t servertickcounter;
-PascalArray<std::int32_t, 1, max_players> noclientupdatetime;
-PascalArray<std::int32_t, 1, max_players> messagesasecnum;
-PascalArray<std::uint8_t, 1, max_players> floodwarnings;
-PascalArray<std::uint8_t, 1, max_players> pingwarnings;
-PascalArray<std::int32_t, 1, max_players> bullettime;
-PascalArray<std::int32_t, 1, max_players> grenadetime;
-PascalArray<bool, 1, max_players> knifecan;
+GlobalStateNetworkServer gGlobalStateNetworkServer{
+  .servertickcounter{},
+  .noclientupdatetime{},
+  .messagesasecnum{},
+  .floodwarnings{},
+  .pingwarnings{},
+  .bullettime{},
+  .grenadetime{},
+  .knifecan{},
+};
 
 auto LOG_NET = "network";
 

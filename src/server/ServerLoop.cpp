@@ -47,7 +47,7 @@ void apponidle()
   for (maincontrol = 1; maincontrol <= (game.GetTickTime() - game.GetTickTimeLast()); maincontrol++)
   { // frame rate independant code
 
-    servertickcounter += 1;
+    gGlobalStateNetworkServer.servertickcounter += 1;
     // Update main tick counter
     GS::GetGame().TickMainTickCounter();
     if (GS::GetGame().GetMainTickCounter() == 2147483640)
@@ -65,26 +65,27 @@ void apponidle()
     // Flood Nums Cancel
     if (GS::GetGame().GetMainTickCounter() % 1000 == 0)
     {
-      std::fill(std::begin(floodnum), std::end(floodnum), 0);
+      std::fill(std::begin(gGlobalStateServer.floodnum), std::end(gGlobalStateServer.floodnum), 0);
     }
 
     // clear last admin connect flood list every 3 seconds
     if (GS::GetGame().GetMainTickCounter() % (second * 3) == 0)
     {
-      std::fill(std::begin(lastadminips), std::end(lastadminips), "");
+      std::fill(std::begin(gGlobalStateServer.lastadminips),
+                std::end(gGlobalStateServer.lastadminips), "");
     }
 
     // Warnings Cancel
     if (GS::GetGame().GetMainTickCounter() % (minute * 5) == 0)
     {
-      for (auto &p : pingwarnings)
+      for (auto &p : gGlobalStateNetworkServer.pingwarnings)
       {
         if (p > 0)
         {
           p -= 1;
         }
       }
-      for (auto &f : floodwarnings)
+      for (auto &f : gGlobalStateNetworkServer.floodwarnings)
       {
         if (f > 0)
         {
@@ -136,8 +137,8 @@ void apponidle()
             {
               GS::GetMainConsole().console(sprite.player->name + " gets a ping warning",
                                            warning_message_color);
-              pingwarnings[sprite.num] += 1;
-              if (pingwarnings[sprite.num] > CVar::sv_warnings_ping)
+              gGlobalStateNetworkServer.pingwarnings[sprite.num] += 1;
+              if (gGlobalStateNetworkServer.pingwarnings[sprite.num] > CVar::sv_warnings_ping)
               {
                 kickplayer(sprite.num, true, kick_ping, sixty_minutes / 4, "Ping Kick");
               }
@@ -150,21 +151,23 @@ void apponidle()
       for (auto &sprite : sprite_system.GetActiveSprites())
       {
         j = sprite.num;
-        if (((CVar::net_lan == LAN) && (messagesasecnum[j] > CVar::net_floodingpacketslan)) ||
+        if (((CVar::net_lan == LAN) &&
+             (gGlobalStateNetworkServer.messagesasecnum[j] > CVar::net_floodingpacketslan)) ||
             ((CVar::net_lan == INTERNET) &&
-             (messagesasecnum[j] > CVar::net_floodingpacketsinternet)))
+             (gGlobalStateNetworkServer.messagesasecnum[j] > CVar::net_floodingpacketsinternet)))
         {
           GS::GetMainConsole().console(sprite.player->name + " is flooding the server",
                                        warning_message_color);
-          floodwarnings[j] += 1;
-          if (floodwarnings[j] > CVar::sv_warnings_flood)
+          gGlobalStateNetworkServer.floodwarnings[j] += 1;
+          if (gGlobalStateNetworkServer.floodwarnings[j] > CVar::sv_warnings_flood)
           {
             kickplayer(j, true, kick_flooding, sixty_minutes / 4, "Flood Kicked");
           }
         }
       }
 
-      std::fill(std::begin(messagesasecnum), std::end(messagesasecnum), 0);
+      std::fill(std::begin(gGlobalStateNetworkServer.messagesasecnum),
+                std::end(gGlobalStateNetworkServer.messagesasecnum), 0);
     }
 
     if (GS::GetGame().GetMainTickCounter() % (second * 10) == 0)
@@ -288,9 +291,10 @@ void apponidle()
         // connection problems
         if (GS::GetGame().GetMapchangecounter() < 0)
         {
-          noclientupdatetime[j] = noclientupdatetime[j] + 1;
+          gGlobalStateNetworkServer.noclientupdatetime[j] =
+            gGlobalStateNetworkServer.noclientupdatetime[j] + 1;
         }
-        if (noclientupdatetime[j] > disconnection_time)
+        if (gGlobalStateNetworkServer.noclientupdatetime[j] > disconnection_time)
         {
           serverplayerdisconnect(j, kick_noresponse);
           GS::GetMainConsole().console(sprite.player->name + " could not respond",
@@ -302,9 +306,9 @@ void apponidle()
           dobalancebots(1, sprite.player->team);
           continue;
         }
-        if (noclientupdatetime[j] < 0)
+        if (gGlobalStateNetworkServer.noclientupdatetime[j] < 0)
         {
-          noclientupdatetime[j] = 0;
+          gGlobalStateNetworkServer.noclientupdatetime[j] = 0;
         }
 
 #ifdef ENABLE_FAE
@@ -431,25 +435,25 @@ void updateframe()
         switch (CVar::sv_bonus_frequency)
         {
         case 1:
-          bonusfreq = 7400;
+          gGlobalStateServer.bonusfreq = 7400;
           break;
         case 2:
-          bonusfreq = 4300;
+          gGlobalStateServer.bonusfreq = 4300;
           break;
         case 3:
-          bonusfreq = 2500;
+          gGlobalStateServer.bonusfreq = 2500;
           break;
         case 4:
-          bonusfreq = 1600;
+          gGlobalStateServer.bonusfreq = 1600;
           break;
         case 5:
-          bonusfreq = 800;
+          gGlobalStateServer.bonusfreq = 800;
           break;
         }
 
         if (CVar::sv_bonus_berserker)
         {
-          if (GS::GetGame().GetMainTickCounter() % bonusfreq == 0)
+          if (GS::GetGame().GetMainTickCounter() % gGlobalStateServer.bonusfreq == 0)
           {
             if (Random(berserkerbonus_random) == 0)
             {
@@ -472,7 +476,7 @@ void updateframe()
 
         if (CVar::sv_bonus_predator)
         {
-          if (GS::GetGame().GetMainTickCounter() % bonusfreq == 0)
+          if (GS::GetGame().GetMainTickCounter() % gGlobalStateServer.bonusfreq == 0)
           {
             if (Random(predatorbonus_random) == 0)
             {
@@ -483,7 +487,7 @@ void updateframe()
 
         if (CVar::sv_bonus_vest)
         {
-          if (GS::GetGame().GetMainTickCounter() % (bonusfreq / 2) == 0)
+          if (GS::GetGame().GetMainTickCounter() % (gGlobalStateServer.bonusfreq / 2) == 0)
           {
             if (Random(vestbonus_random) == 0)
             {
@@ -507,7 +511,7 @@ void updateframe()
         }
         if (CVar::sv_bonus_cluster)
         {
-          if (GS::GetGame().GetMainTickCounter() % (bonusfreq / 2) == 0)
+          if (GS::GetGame().GetMainTickCounter() % (gGlobalStateServer.bonusfreq / 2) == 0)
           {
             if (Random(j) == 0)
             {
@@ -570,7 +574,7 @@ void updateframe()
               (sprite.player->grabbedinbase))
           {
             j = sprite.num;
-            cheattag[j] = 1;
+            gGlobalStateServer.cheattag[j] = 1;
 #ifdef SCRIPT
             if (!scrptdispatcher.onvotekickstart(255, j, "Server: Possible cheating"))
             {
@@ -624,11 +628,13 @@ void updateframe()
 
     if (GS::GetGame().GetMainTickCounter() % second == 0)
     {
-      if ((!lastreqip[0].empty()) && (lastreqip[0] == lastreqip[1]) &&
-          (lastreqip[1] == lastreqip[2]) && (lastreqip[2] == lastreqip[3]))
+      if ((!gGlobalStateServer.lastreqip[0].empty()) &&
+          (gGlobalStateServer.lastreqip[0] == gGlobalStateServer.lastreqip[1]) &&
+          (gGlobalStateServer.lastreqip[1] == gGlobalStateServer.lastreqip[2]) &&
+          (gGlobalStateServer.lastreqip[2] == gGlobalStateServer.lastreqip[3]))
       {
-        dropip = lastreqip[0];
-        GS::GetMainConsole().console(string("Firewalled IP ") + dropip, 0);
+        gGlobalStateServer.dropip = gGlobalStateServer.lastreqip[0];
+        GS::GetMainConsole().console(string("Firewalled IP ") + gGlobalStateServer.dropip, 0);
       }
     }
 
@@ -636,13 +642,13 @@ void updateframe()
     {
       for (j = 0; j <= 3; j++)
       {
-        lastreqip[j] = ""; // Reset last 4 IP requests in 3 seconds
+        gGlobalStateServer.lastreqip[j] = ""; // Reset last 4 IP requests in 3 seconds
       }
     }
 
     if (GS::GetGame().GetMainTickCounter() % (second * 30) == 0)
     {
-      dropip = ""; // Clear temporary firewall IP
+      gGlobalStateServer.dropip = ""; // Clear temporary firewall IP
     }
 
     if (GS::GetGame().GetMainTickCounter() % minute == 0)
@@ -687,10 +693,10 @@ void updateframe()
     }
 
     // Wave respawn count
-    waverespawncounter = waverespawncounter - 1;
-    if (waverespawncounter < 1)
+    gGlobalStateServer.waverespawncounter = gGlobalStateServer.waverespawncounter - 1;
+    if (gGlobalStateServer.waverespawncounter < 1)
     {
-      waverespawncounter = waverespawntime;
+      gGlobalStateServer.waverespawncounter = gGlobalStateServer.waverespawntime;
     }
 
     GS::GetGame().TickVote();
@@ -785,7 +791,7 @@ void updateframe()
   // HTF mode team score point
   if (GS::GetGame().GetPlayersTeamNum(2) == GS::GetGame().GetPlayersTeamNum(1))
   {
-    htftime = CVar::sv_htf_pointstime * 60;
+    gGlobalStateServer.htftime = CVar::sv_htf_pointstime * 60;
   }
 
   if (CVar::sv_gamemode == gamestyle_htf)
@@ -794,7 +800,7 @@ void updateframe()
     {
       if ((GS::GetGame().GetPlayersTeamNum(1) > 0) && (GS::GetGame().GetPlayersTeamNum(2) > 0))
       {
-        if (GS::GetGame().GetMainTickCounter() % htftime == 0)
+        if (GS::GetGame().GetMainTickCounter() % gGlobalStateServer.htftime == 0)
         {
           for (auto &sprite : sprite_system.GetActiveSprites())
           {
@@ -807,21 +813,23 @@ void updateframe()
 
                 if (sprite.player->team == team_alpha)
                 {
-                  htftime = htf_sec_point + 2 * second *
-                                              (GS::GetGame().GetPlayersTeamNum(1) -
-                                               GS::GetGame().GetPlayersTeamNum(2));
+                  gGlobalStateServer.htftime =
+                    htf_sec_point +
+                    2 * second *
+                      (GS::GetGame().GetPlayersTeamNum(1) - GS::GetGame().GetPlayersTeamNum(2));
                 }
 
                 if (sprite.player->team == team_bravo)
                 {
-                  htftime = htf_sec_point + 2 * second *
-                                              (GS::GetGame().GetPlayersTeamNum(2) -
-                                               GS::GetGame().GetPlayersTeamNum(1));
+                  gGlobalStateServer.htftime =
+                    htf_sec_point +
+                    2 * second *
+                      (GS::GetGame().GetPlayersTeamNum(2) - GS::GetGame().GetPlayersTeamNum(1));
                 }
 
-                if (htftime < htf_sec_point)
+                if (gGlobalStateServer.htftime < htf_sec_point)
                 {
-                  htftime = htf_sec_point;
+                  gGlobalStateServer.htftime = htf_sec_point;
                 }
 
                 GS::GetGame().sortplayers();

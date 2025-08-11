@@ -26,7 +26,12 @@ public:
 std::int32_t createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
                          std::uint8_t sowner, std::int32_t life);
 
-extern std::int32_t sparkscount;
+struct GlobalStateSparks
+{
+  std::int32_t sparkscount;
+};
+
+extern GlobalStateSparks gGlobalStateSparks;
 
 template <Config::Module M = Config::GetModule()>
 particlesystem &GetSparkParts();

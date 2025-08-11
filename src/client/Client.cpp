@@ -38,9 +38,6 @@
 #include <thread>
 #include <sstream>
 
-Client gClient;
-
-
 namespace
 {
 bool progready;
@@ -70,81 +67,77 @@ auto GetKillConsole() -> ConsoleMain & { return sKillConsole; }
 // Client.cpp variables
 static bool gamelooprun;
 
-std::string joinpassword;         // server password
-std::string joinport = "23073";   // join port to server
-std::string joinip = "127.0.0.1"; // join ip to server
+// server password
+// join port to server
+// join ip to server
 
-std::string basedirectory;
-
-std::string moddir;
-bool usesservermod;
-
-std::string gClientServerIP = "127.0.0.1";
-std::int32_t gClientServerPort = 23073;
-
-std::uint8_t connection = INTERNET;
-
-std::uint8_t sniperline_client_hpp = 0;
-
-std::uint8_t trails = 1;
-std::uint8_t spectator = 0; // TODO: Remove
-
-std::uint8_t packetadjusting = 1;
-
-bool limbolock;
-std::uint8_t selteam;
-
-std::uint8_t mysprite;
+// TODO: Remove
 
 // Weapon Stats
-PascalArray<tweaponstat, 1, 20> wepstats;
-std::uint8_t wepstatsnum = 0;
 
 // FIXME skipped item at index 0
-GunArray gundisplayname;
-
-std::uint8_t gamethingtarget;
-std::int32_t grenadeeffecttimer = 0;
-
-std::uint8_t badmapidcount;
-
-bool abnormalterminate = false;
-
-std::string hwid;
-
-std::uint16_t hitspraycounter;
-bool screentaken;
-
-bool targetmode = false;
-
-bool muteall = false;
-
-bool redirecttoserver = false;
-std::string redirectip;
-std::int32_t redirectport;
-std::string redirectmsg;
 
 // Radio Menu
-std::map<std::string, std::string> radiomenu;
-std::array<char, 2> rmenustate;
+
 //  RMenuState: array[0..1] of Char = ' ';
-bool showradiomenu = false;
-std::uint8_t radiocooldown = 3;
 
 // screen
-tvector2 cameraprev;
-float camerax;
-float cameray;          // camera x and y within world
-std::uint8_t camerafollowsprite; // Tag number of object to follow
 
-std::uint8_t notexts = 0;
-std::uint8_t freecam = 0;
+// camera x and y within world
+// Tag number of object to follow
+
+GlobalStateClient gGlobalStateClient{
+  .joinpassword{},
+  .joinport = "23073",
+  .joinip = "127.0.0.1",
+  .basedirectory{},
+  .moddir{},
+  .usesservermod{},
+  .gClientServerIP = "127.0.0.1",
+  .gClientServerPort = 23073,
+  .connection = INTERNET,
+  .sniperline_client_hpp = 0,
+  .trails = 1,
+  .spectator = 0,
+  .packetadjusting = 1,
+  .limbolock{},
+  .selteam{},
+  .mysprite{},
+  .wepstats{},
+  .wepstatsnum = 0,
+  .gundisplayname{},
+  .gamethingtarget{},
+  .grenadeeffecttimer = 0,
+  .badmapidcount{},
+  .abnormalterminate = false,
+  .hwid{},
+  .hitspraycounter{},
+  .screentaken{},
+  .targetmode = false,
+  .muteall = false,
+  .redirecttoserver = false,
+  .redirectip{},
+  .redirectport{},
+  .redirectmsg{},
+  .radiomenu{},
+  .rmenustate{},
+  .showradiomenu = false,
+  .radiocooldown = 3,
+  .cameraprev{},
+  .camerax{},
+  .cameray{},
+  .camerafollowsprite{},
+  .notexts = 0,
+  .freecam = 0,
+  .shotdistanceshow{},
+  .shotdistance{},
+  .shotlife{},
+  .shotricochet{},
+  .gClient{},
+};
 
 // bullet shot stats
-std::int32_t shotdistanceshow;
-float shotdistance;
-float shotlife;
-std::int32_t shotricochet;
+
 enum class GameState
 {
   Loading,
@@ -166,13 +159,12 @@ void restartgraph()
   map.loadmap(GS::GetFileSystem(), GS::GetGame().GetMapchange(), CVar::r_forcebg, CVar::r_forcebg_color1,
               CVar::r_forcebg_color2);
 
-
-  if (!escmenu->active)
+  if (!gGlobalStateGameMenus.escmenu->active)
   {
-    mx = gamewidthhalf;
-    my = gameheighthalf;
-    mouseprev.x = mx;
-    mouseprev.y = my;
+    gGlobalStateClientGame.mx = gGlobalStateGame.gamewidthhalf;
+    gGlobalStateClientGame.my = gGlobalStateGame.gameheighthalf;
+    gGlobalStateClientGame.mouseprev.x = gGlobalStateClientGame.mx;
+    gGlobalStateClientGame.mouseprev.y = gGlobalStateClientGame.my;
   }
 
   GS::GetMainConsole().console(("Graphics restart"), debug_message_color);
@@ -228,10 +220,11 @@ void redirectdialog()
   buttons[1].text = "No";
 
   data.flags = 0;
-  data.window = gamewindow;
+  data.window = gGlobalStateInput.gamewindow;
   data.title = "Server Redirect";
   auto msg =
-    (redirectmsg + "\r\n\r\nRedirect to server " + redirectip + ":" + inttostr(redirectport) + "?");
+    (gGlobalStateClient.redirectmsg + "\r\n\r\nRedirect to server " +
+     gGlobalStateClient.redirectip + ":" + inttostr(gGlobalStateClient.redirectport) + "?");
   data.message = msg.c_str();
   data.numbuttons = 2;
   data.buttons = &buttons.at(0);
@@ -242,20 +235,20 @@ void redirectdialog()
     return;
   }
 
-  redirecttoserver = false;
+  gGlobalStateClient.redirecttoserver = false;
 
   if (response == 0)
   {
-    joinip = redirectip;
-    joinport = inttostr(redirectport);
-    gClient.joinserver();
+    gGlobalStateClient.joinip = gGlobalStateClient.redirectip;
+    gGlobalStateClient.joinport = inttostr(gGlobalStateClient.redirectport);
+    gGlobalStateClient.gClient.joinserver();
   }
   else
   {
-    redirectip = "";
-    redirectport = 0;
-    redirectmsg = "";
-    gClient.exittomenu();
+    gGlobalStateClient.redirectip = "";
+    gGlobalStateClient.redirectport = 0;
+    gGlobalStateClient.redirectmsg = "";
+    gGlobalStateClient.gClient.exittomenu();
   }
 }
 
@@ -277,9 +270,9 @@ void Client::exittomenu()
     GS::GetDemoRecorder().stoprecord();
   }
 
-  if (demoplayer.active())
+  if (gGlobalStateDemo.demoplayer.active())
   {
-    demoplayer.stopdemo();
+    gGlobalStateDemo.demoplayer.stopdemo();
   }
 
   if (sprite_system.IsPlayerSpriteValid())
@@ -297,9 +290,9 @@ void Client::exittomenu()
 
   map.name = "";
 
-  if (escmenu != nullptr)
+  if (gGlobalStateGameMenus.escmenu != nullptr)
   {
-    gamemenushow(escmenu, false);
+    gamemenushow(gGlobalStateGameMenus.escmenu, false);
   }
 
   map.filename = ""; // force reloading next time
@@ -313,7 +306,7 @@ void Client::exittomenu()
   GS::GetBulletSystem().KillAll();
   for (i = 1; i <= max_sparks; i++)
   {
-    spark[i].kill();
+    gGlobalStateGame.spark[i].kill();
   }
   GS::GetThingSystem().KillAll();
 
@@ -321,36 +314,36 @@ void Client::exittomenu()
   for (i = 0; i < max_big_messages; i++)
   {
     // Big Text
-    bigtext[i] = "";
-    bigdelay[i] = 0;
-    bigscale[i] = 0;
-    bigcolor[i] = 0;
-    bigposx[i] = 0;
-    bigposy[i] = 0;
-    bigx[i] = 0;
+    gGlobalStateInterfaceGraphics.bigtext[i] = "";
+    gGlobalStateInterfaceGraphics.bigdelay[i] = 0;
+    gGlobalStateInterfaceGraphics.bigscale[i] = 0;
+    gGlobalStateInterfaceGraphics.bigcolor[i] = 0;
+    gGlobalStateInterfaceGraphics.bigposx[i] = 0;
+    gGlobalStateInterfaceGraphics.bigposy[i] = 0;
+    gGlobalStateInterfaceGraphics.bigx[i] = 0;
     // World Text
-    worldtext[i] = "";
-    worlddelay[i] = 0;
-    worldscale[i] = 0;
-    worldcolor[i] = 0;
-    worldposx[i] = 0;
-    worldposy[i] = 0;
-    worldx[i] = 0;
+    gGlobalStateInterfaceGraphics.worldtext[i] = "";
+    gGlobalStateInterfaceGraphics.worlddelay[i] = 0;
+    gGlobalStateInterfaceGraphics.worldscale[i] = 0;
+    gGlobalStateInterfaceGraphics.worldcolor[i] = 0;
+    gGlobalStateInterfaceGraphics.worldposx[i] = 0;
+    gGlobalStateInterfaceGraphics.worldposy[i] = 0;
+    gGlobalStateInterfaceGraphics.worldx[i] = 0;
   }
 
   // Reset ABOVE CHAT MESSAGE
   for (i = 1; i < max_sprites; i++)
   {
-    chatdelay[i] = 0;
-    chatmessage[i] = "";
-    chatteam[i] = false;
+    gGlobalStateInterfaceGraphics.chatdelay[i] = 0;
+    gGlobalStateInterfaceGraphics.chatmessage[i] = "";
+    gGlobalStateInterfaceGraphics.chatteam[i] = false;
   }
 
-  mysprite = 0;
-  camerafollowsprite = 0;
-  gamethingtarget = 0;
+  gGlobalStateClient.mysprite = 0;
+  gGlobalStateClient.camerafollowsprite = 0;
+  gGlobalStateClient.gamethingtarget = 0;
 
-  if (redirecttoserver)
+  if (gGlobalStateClient.redirecttoserver)
   {
     redirectdialog();
   }
@@ -390,7 +383,7 @@ static auto MountAssets(FileUtility &fu, const std::string &userdirectory,
 
     outGameModChecksum = sha1file(basedirectory + "/soldat.smod");
   }
-  moddir = "";
+  gGlobalStateClient.moddir = "";
   if (CVar::fs_mod != "")
   {
     LogDebugG("[FS] Mounting mods/{}.smod", lowercase(CVar::fs_mod));
@@ -400,7 +393,7 @@ static auto MountAssets(FileUtility &fu, const std::string &userdirectory,
       showmessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
       return false;
     }
-    moddir = std::string("/mods/") + lowercase(CVar::fs_mod) + '/';
+    gGlobalStateClient.moddir = std::string("/mods/") + lowercase(CVar::fs_mod) + '/';
     outCustomModChecksum = sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod");
   }
   return true;
@@ -410,11 +403,13 @@ static auto MountAssets(FileUtility &fu, const std::string &userdirectory,
 static void InitConsoles(bool test = false)
 {
   // Create Consoles
-  auto console = std::make_unique<ConsoleMain>(&GS::GetFileSystem(), 150,
-    round(CVar::ui_console_length * _rscala.y), 150);
+  auto console = std::make_unique<ConsoleMain>(
+    &GS::GetFileSystem(), 150,
+    round(CVar::ui_console_length * gGlobalStateInterfaceGraphics._rscala.y), 150);
   GS::SetMainConsole(std::move(console));
 
-  auto countMax = floor((0.85 * renderheight) / (CVar::font_consolelineheight * fontstylesize(font_small)));
+  auto countMax = floor((0.85 * gGlobalStateClientGame.renderheight) /
+                        (CVar::font_consolelineheight * fontstylesize(font_small)));
   if (test)
   {
     countMax = 20;
@@ -423,8 +418,9 @@ static void InitConsoles(bool test = false)
   InitBigConsole(&GS::GetFileSystem(),0, countMax, 1500000);
   GS::GetMainConsole().SetBigConsole(&GetBigConsole());
 
-  InitKillConsole(&GS::GetFileSystem(), 70, round(CVar::ui_killconsole_length * _rscala.y), 240);
-
+  InitKillConsole(&GS::GetFileSystem(), 70,
+                  round(CVar::ui_killconsole_length * gGlobalStateInterfaceGraphics._rscala.y),
+                  240);
 }
 
 void Client::startgame(int argc, char *argv[])
@@ -472,7 +468,7 @@ void Client::startgame(int argc, char *argv[])
   const std::string systemfallbacklang = "en_US"; // NOLINT
 
   // TODO remove HWIDs, replace by Fae auth tickets
-  hwid = "00000000000";
+  gGlobalStateClient.hwid = "00000000000";
 
   LogDebugG("[FS] Initializing system");
 
@@ -489,65 +485,74 @@ void Client::startgame(int argc, char *argv[])
   loadconfig("client.cfg", fs);
 
   // these might change so keep a backup to avoid changing the settings file
-  screenwidth = CVar::r_screenwidth;
-  screenheight = CVar::r_screenheight;
-  renderheight = CVar::r_renderheight;
-  renderwidth = CVar::r_renderwidth;
+  gGlobalStateClientGame.screenwidth = CVar::r_screenwidth;
+  gGlobalStateClientGame.screenheight = CVar::r_screenheight;
+  gGlobalStateClientGame.renderheight = CVar::r_renderheight;
+  gGlobalStateClientGame.renderwidth = CVar::r_renderwidth;
 
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
   SDL_DisplayID display = SDL_GetPrimaryDisplay();
   const SDL_DisplayMode* currentdisplay = SDL_GetCurrentDisplayMode(display);
 
-  if ((screenwidth == 0) || (screenheight == 0))
+  if ((gGlobalStateClientGame.screenwidth == 0) || (gGlobalStateClientGame.screenheight == 0))
   {
-    screenwidth = currentdisplay->w;
-    screenheight = currentdisplay->h;
+    gGlobalStateClientGame.screenwidth = currentdisplay->w;
+    gGlobalStateClientGame.screenheight = currentdisplay->h;
   }
 
-  if ((renderwidth == 0) || (renderheight == 0))
+  if ((gGlobalStateClientGame.renderwidth == 0) || (gGlobalStateClientGame.renderheight == 0))
   {
-    renderwidth = screenwidth;
-    renderheight = screenheight;
+    gGlobalStateClientGame.renderwidth = gGlobalStateClientGame.screenwidth;
+    gGlobalStateClientGame.renderheight = gGlobalStateClientGame.screenheight;
   }
 
   // Calculcate FOV to check for too high/low vision
-  float fov = (float)(renderwidth) / renderheight;
+  float fov = (float)(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight;
   if (fov > max_fov)
   {
-    renderwidth = ceil(renderheight * max_fov);
+    gGlobalStateClientGame.renderwidth = ceil(gGlobalStateClientGame.renderheight * max_fov);
     fov = max_fov;
   }
   else if (fov < min_fov)
   {
-    renderheight = ceil((float)(renderwidth) / min_fov);
+    gGlobalStateClientGame.renderheight =
+      ceil((float)(gGlobalStateClientGame.renderwidth) / min_fov);
     fov = min_fov;
   }
 
   // Calulcate internal game width based on the fov and internal height
-  gamewidth = round(fov * gameheight);
-  gamewidthhalf = (float)(gamewidth) / 2;
-  gameheighthalf = (float)(gameheight) / 2;
+  gGlobalStateGame.gamewidth = round(fov * gGlobalStateGame.gameheight);
+  gGlobalStateGame.gamewidthhalf = (float)(gGlobalStateGame.gamewidth) / 2;
+  gGlobalStateGame.gameheighthalf = (float)(gGlobalStateGame.gameheight) / 2;
 
   if (CVar::r_fullscreen == 0)
   {
     // avoid black bars in windowed mode
-    if (((float)(screenwidth) / screenheight) >= ((float)(renderwidth) / renderheight))
+    if (((float)(gGlobalStateClientGame.screenwidth) / gGlobalStateClientGame.screenheight) >=
+        ((float)(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight))
     {
-      screenwidth = round(screenheight * ((float)(renderwidth) / renderheight));
+      gGlobalStateClientGame.screenwidth =
+        round(gGlobalStateClientGame.screenheight *
+              ((float)(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight));
     }
     else
     {
-      screenheight = round(screenwidth * ((float)(renderheight) / renderwidth));
+      gGlobalStateClientGame.screenheight =
+        round(gGlobalStateClientGame.screenwidth *
+              ((float)(gGlobalStateClientGame.renderheight) / gGlobalStateClientGame.renderwidth));
     }
   }
 
   // window size equals "screen" size except in windowed fullscreen
-  windowwidth = screenwidth;
-  windowheight = screenheight;
+  gGlobalStateClientGame.windowwidth = gGlobalStateClientGame.screenwidth;
+  gGlobalStateClientGame.windowheight = gGlobalStateClientGame.screenheight;
 
-  LogInfo("gfx", "Window size: {}x{}", windowwidth, windowheight);
-  LogInfo("gfx", "Target resolution: {}x{}", screenwidth, screenheight);
-  LogInfo("gfx", "Internal resolution: {}x{}", renderwidth, renderheight);
+  LogInfo("gfx", "Window size: {}x{}", gGlobalStateClientGame.windowwidth,
+          gGlobalStateClientGame.windowheight);
+  LogInfo("gfx", "Target resolution: {}x{}", gGlobalStateClientGame.screenwidth,
+          gGlobalStateClientGame.screenheight);
+  LogInfo("gfx", "Internal resolution: {}x{}", gGlobalStateClientGame.renderwidth,
+          gGlobalStateClientGame.renderheight);
 
   // even windowed mode can behave as fullscreen with the right size
   // IsFullscreen := (WindowWidth = Screen.Width) and (WindowHeight = Screen.Height);
@@ -563,31 +568,34 @@ void Client::startgame(int argc, char *argv[])
   // it look distorted.
   if (CVar::r_scaleinterface)
   {
-    _rscala.x = 1;
-    _rscala.y = 1;
+    gGlobalStateInterfaceGraphics._rscala.x = 1;
+    gGlobalStateInterfaceGraphics._rscala.y = 1;
 
-    _iscala.x = (float)(gamewidth) / default_width;
-    _iscala.y = 1;
+    gGlobalStateInterfaceGraphics._iscala.x = (float)(gGlobalStateGame.gamewidth) / default_width;
+    gGlobalStateInterfaceGraphics._iscala.y = 1;
 
-    fragx = floor(gamewidthhalf - 300) - 25;
+    gGlobalStateInterfaceGraphics.fragx = floor(gGlobalStateGame.gamewidthhalf - 300) - 25;
   }
   else
   {
-    _rscala.x = (float)(renderwidth) / gamewidth;
-    _rscala.y = (float)(renderheight) / gameheight;
+    gGlobalStateInterfaceGraphics._rscala.x =
+      (float)(gGlobalStateClientGame.renderwidth) / gGlobalStateGame.gamewidth;
+    gGlobalStateInterfaceGraphics._rscala.y =
+      (float)(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight;
 
-    _iscala.x = (float)(renderwidth) / 640;
-    _iscala.y = (float)(renderheight) / 480;
+    gGlobalStateInterfaceGraphics._iscala.x = (float)(gGlobalStateClientGame.renderwidth) / 640;
+    gGlobalStateInterfaceGraphics._iscala.y = (float)(gGlobalStateClientGame.renderheight) / 480;
 
-    fragx = floor((float)(renderwidth) / 2 - 300) - 25;
+    gGlobalStateInterfaceGraphics.fragx =
+      floor((float)(gGlobalStateClientGame.renderwidth) / 2 - 300) - 25;
 
-    if (renderheight > gameheight)
+    if (gGlobalStateClientGame.renderheight > gGlobalStateGame.gameheight)
     {
-      fragy = round(10 * _rscala.y);
+      gGlobalStateInterfaceGraphics.fragy = round(10 * gGlobalStateInterfaceGraphics._rscala.y);
     }
   }
 
-  gamerenderingparams.interfacename = CVar::ui_style;
+  gGlobalStateGameRendering.gamerenderingparams.interfacename = CVar::ui_style;
 
   resetframetiming();
 
@@ -613,9 +621,10 @@ void Client::startgame(int argc, char *argv[])
 #endif
   }
 
-  if (inittranslation(ReadAsFileStream(fs, moddir + "/txt/" + systemlang + ".mo").get()))
+  if (inittranslation(
+        ReadAsFileStream(fs, gGlobalStateClient.moddir + "/txt/" + systemlang + ".mo").get()))
   {
-    LogDebugG("Game captions loaded from {}/txt/{}", moddir, systemlang);
+    LogDebugG("Game captions loaded from {}/txt/{}", gGlobalStateClient.moddir, systemlang);
   }
   else
   {
@@ -631,9 +640,9 @@ void Client::startgame(int argc, char *argv[])
   }
 
   loadsounds("");
-  if (length(moddir) > 0)
+  if (length(gGlobalStateClient.moddir) > 0)
   {
-    loadsounds(moddir);
+    loadsounds(gGlobalStateClient.moddir);
   }
 
   GS::GetConsoleLogFile().Log("Creating network interface.");
@@ -646,9 +655,9 @@ void Client::startgame(int argc, char *argv[])
   }
 
   AnimationSystem::Get().LoadAnimObjects("");
-  if (length(moddir) > 0)
+  if (length(gGlobalStateClient.moddir) > 0)
   {
-    AnimationSystem::Get().LoadAnimObjects(moddir);
+    AnimationSystem::Get().LoadAnimObjects(gGlobalStateClient.moddir);
   }
 
   // greet!
@@ -656,26 +665,26 @@ void Client::startgame(int argc, char *argv[])
   GS::GetMainConsole().console(("Welcome to Soldat "), default_message_color);
 
   // Load weapon display names
-  loadweaponnames(fs, gundisplayname, moddir);
+  loadweaponnames(fs, gGlobalStateClient.gundisplayname, gGlobalStateClient.moddir);
   createweaponsbase(GS::GetWeaponSystem().GetGuns());
 
   GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
-  playernamesshow = true;
+  gGlobalStateInterfaceGraphics.playernamesshow = true;
 
-  cursortext = "";
+  gGlobalStateInterfaceGraphics.cursortext = "";
 
   initgamemenus();
 
   {
     TIniFile ini{ReadAsFileStream(fs, "txt/radiomenu-default.ini")};
-    ini.ReadSectionValues("OPTIONS", radiomenu);
+    ini.ReadSectionValues("OPTIONS", gGlobalStateClient.radiomenu);
   }
 
   // Play demo
-  freecam = 1;
-  notexts = 0;
-  shotdistanceshow = -1;
+  gGlobalStateClient.freecam = 1;
+  gGlobalStateClient.notexts = 0;
+  gGlobalStateClient.shotdistanceshow = -1;
 
   if (CVar::r_compatibility)
   {
@@ -691,7 +700,8 @@ void Client::startgame(int argc, char *argv[])
 
   InitClientNetwork();
   GetNetwork()->SetDisconnectionCallback([](const char* msg){rendergameinfo(std::string("Network  error ") + msg);});
-  GetNetwork()->SetConnectionCallback([](NetworkClientImpl& nc) { clientrequestgame(nc, joinpassword);} );
+  GetNetwork()->SetConnectionCallback(
+    [](NetworkClientImpl &nc) { clientrequestgame(nc, gGlobalStateClient.joinpassword); });
 
   gamelooprun = true;
   rundeferredcommands();
@@ -703,7 +713,7 @@ void Client::shutdown()
 {
   exittomenu();
 
-  if (abnormalterminate)
+  if (gGlobalStateClient.abnormalterminate)
   {
     return;
   }
@@ -785,7 +795,7 @@ void startgameloop()
 #else
   while (gamelooprun)
   {
-    gClient.mainloop();
+    gGlobalStateClient.gClient.mainloop();
   }
 #endif
 }
@@ -794,7 +804,7 @@ void Client::joinserver()
 {
   resetframetiming();
 
-  gClientServerIP = trim(joinip);
+  gGlobalStateClient.gClientServerIP = trim(gGlobalStateClient.joinip);
 
   NotImplemented("No error checking");
 #if 0
@@ -803,9 +813,10 @@ void Client::joinserver()
 #endif
 
   // DEMO
-  if (joinport == "0")
+  if (gGlobalStateClient.joinport == "0")
   {
-    demoplayer.opendemo(GS::GetGame().GetUserDirectory() + "demos/" + joinip + ".sdm");
+    gGlobalStateDemo.demoplayer.opendemo(GS::GetGame().GetUserDirectory() + "demos/" +
+                                         gGlobalStateClient.joinip + ".sdm");
     tdemoplayer::processdemo();
     progready = true;
     gamelooprun = true;
@@ -814,14 +825,16 @@ void Client::joinserver()
   }
   else
   {
-    rendergameinfo(("Connecting to " + gClientServerIP + ":" + std::to_string(gClientServerPort)));
+    rendergameinfo(("Connecting to " + gGlobalStateClient.gClientServerIP + ":" +
+                    std::to_string(gGlobalStateClient.gClientServerPort)));
 
-    if (GetNetwork()->Connect(gClientServerIP, gClientServerPort))
+    if (GetNetwork()->Connect(gGlobalStateClient.gClientServerIP,
+                              gGlobalStateClient.gClientServerPort))
     {
       progready = true;
       gamelooprun = true;
       rendergameinfo(("Loading"));
-      clientrequestgame(*GetNetwork(), joinpassword);
+      clientrequestgame(*GetNetwork(), gGlobalStateClient.joinpassword);
       gGameState = GameState::Game;
     }
     else
@@ -931,7 +944,7 @@ TEST_SUITE("Client")
     tsha1digest checksum2;
     auto ret = MountAssets(fs, userDirectory, baseDirectory, checksum1, checksum2);
     CHECK_EQ(true, ret);
-    gClient.loadweaponnames(fs, ga, moddir);
+    gGlobalStateClient.gClient.loadweaponnames(fs, ga, gGlobalStateClient.moddir);
     CHECK_EQ("USSOCOM", ga[0]);
     CHECK_EQ("Desert Eagles", ga[1]);
     CHECK_EQ("HK MP5", ga[2]);
@@ -954,10 +967,10 @@ TEST_SUITE("Client")
   TEST_CASE_FIXTURE(ClientFixture, "Test console initialization")
   {
     GlobalSystems<Config::CLIENT_MODULE>::Init();
-    auto prev_y = _rscala.y;
-    _rscala.y = 1;
+    auto prev_y = gGlobalStateInterfaceGraphics._rscala.y;
+    gGlobalStateInterfaceGraphics._rscala.y = 1;
     InitConsoles(true);
-    _rscala.y = prev_y;
+    gGlobalStateInterfaceGraphics._rscala.y = prev_y;
     const auto& console = GS::GetMainConsole();
     //CHECK_EQ(0, console.countmax);
     //CHECK_EQ(150, console.scrolltickmax);
@@ -982,8 +995,8 @@ TEST_SUITE("Client")
       GlobalSystems<Config::CLIENT_MODULE>::Init();
       std::string game = {"SoldatGame"};
       std::array<char*, 1> argv = { game.data() };
-      gClient.startgame(argv.size(), argv.data());
-      gClient.shutdown();
+      gGlobalStateClient.gClient.startgame(argv.size(), argv.data());
+      gGlobalStateClient.gClient.shutdown();
       GlobalSystems<Config::CLIENT_MODULE>::Deinit();
   }
 

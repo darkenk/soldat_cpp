@@ -77,50 +77,50 @@ void commandconnect(std::vector<std::string> &args, std::uint8_t sender)
     GS::GetMainConsole().console("Usage: connect ip port password", game_message_color);
     return;
   }
-  gClient.exittomenu();
+  gGlobalStateClient.gClient.exittomenu();
   if (args[0] == "joinurl")
   {
     s = args[1];
-    joinip = getpiece(s, '/', 2);
-    joinip = getpiece(joinip, ':', 1);
+    gGlobalStateClient.joinip = getpiece(s, '/', 2);
+    gGlobalStateClient.joinip = getpiece(gGlobalStateClient.joinip, ':', 1);
 
-    joinport = getpiece(s, ':', 3);
-    joinport = getpiece(joinport, '/', 1);
+    gGlobalStateClient.joinport = getpiece(s, ':', 3);
+    gGlobalStateClient.joinport = getpiece(gGlobalStateClient.joinport, '/', 1);
     NotImplemented();
 #if 0
         joinport = ansireplacestr(joinport, '/', "");
 #endif
 
-    joinpassword = getpiece(s, '/', 4);
+    gGlobalStateClient.joinpassword = getpiece(s, '/', 4);
   }
   else
   {
-    joinip = args[1];
+    gGlobalStateClient.joinip = args[1];
     if (length(args) == 2)
     {
-      joinport = "23073";
+      gGlobalStateClient.joinport = "23073";
     }
     else
     {
-      joinport = args[2];
+      gGlobalStateClient.joinport = args[2];
     }
     if (length(args) > 3)
     {
-      joinpassword = args[3];
+      gGlobalStateClient.joinpassword = args[3];
     }
   }
-  gClient.joinserver();
+  gGlobalStateClient.gClient.joinserver();
 }
 
 void commandretry(std::vector<std::string> &args, std::uint8_t sender)
 {
-  gClient.exittomenu();
-  gClient.joinserver();
+  gGlobalStateClient.gClient.exittomenu();
+  gGlobalStateClient.gClient.joinserver();
 }
 
 void commanddisconnect(std::vector<std::string> &args, std::uint8_t sender)
 {
-  gClient.exittomenu();
+  gGlobalStateClient.gClient.exittomenu();
 }
 
 void commandsay(std::vector<std::string> &args, std::uint8_t sender)
@@ -175,9 +175,9 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
 
   if (str1 == "all")
   {
-    muteall = !muteall;
+    gGlobalStateClient.muteall = !gGlobalStateClient.muteall;
 
-    if (muteall)
+    if (gGlobalStateClient.muteall)
     {
       GS::GetMainConsole().console(("Everyone is muted"), client_message_color);
     }
@@ -234,7 +234,7 @@ void commandstop(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandshutdown(std::vector<std::string> &args, std::uint8_t sender)
 {
-  gClient.exittomenu();
+  gGlobalStateClient.gClient.exittomenu();
 }
 
 void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)
@@ -256,9 +256,9 @@ void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)
 
     playsound(SfxEffect::snapshot);
 
-    if (showscreen != 0u)
+    if (gGlobalStateClientGame.showscreen != 0u)
     {
-      showscreen = 0u;
+      gGlobalStateClientGame.showscreen = 0u;
     }
   }
 }
@@ -273,7 +273,7 @@ void commandswitchcam(std::vector<std::string> &args, std::uint8_t sender)
   }
   if (sprite_system.GetPlayerSprite().isspectator())
   {
-    camerafollowsprite = strtointdef(args[1], 0);
+    gGlobalStateClient.camerafollowsprite = strtointdef(args[1], 0);
   }
 }
 
@@ -296,9 +296,9 @@ void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
     {
       if (things[i].style == strtointdef(args[1], 0))
       {
-        camerafollowsprite = 0;
-        camerax = things[i].skeleton.pos[1].x;
-        cameray = things[i].skeleton.pos[1].y;
+        gGlobalStateClient.camerafollowsprite = 0;
+        gGlobalStateClient.camerax = things[i].skeleton.pos[1].x;
+        gGlobalStateClient.cameray = things[i].skeleton.pos[1].y;
       }
     }
   }
@@ -308,11 +308,12 @@ void commanddemotick(std::vector<std::string> &args, std::uint8_t sender)
 {
   if (args[0] == "demo_tick")
   {
-    demoplayer.position(strtointdef(args[1], 0));
+    gGlobalStateDemo.demoplayer.position(strtointdef(args[1], 0));
   }
   else
   {
-    demoplayer.position(GS::GetGame().GetMainTickCounter() + strtointdef(args[1], 0));
+    gGlobalStateDemo.demoplayer.position(GS::GetGame().GetMainTickCounter() +
+                                         strtointdef(args[1], 0));
   }
 }
 

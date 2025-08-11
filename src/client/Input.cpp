@@ -9,10 +9,11 @@
 /*#include "GameRendering.h"*/
 /*#include "typinfo.h"*/
 /*#include "TraceLog.h"*/
-std::array<bool, 512> keystatus;
-std::vector<tbind> binds;
-SDL_Window *gamewindow;
-
+GlobalStateInput gGlobalStateInput{
+  .keystatus{},
+  .binds{},
+  .gamewindow{},
+};
 
 auto constexpr LOG = "input";
 
@@ -50,10 +51,10 @@ auto bindkey(const std::string &key, const std::string &action, const std::strin
   bind.command = command;
   bind.keymod = modifier;
 
-  LogInfo(LOG, "BindKey id: {} Key: {} ({}), Mod: {} Command: {}", binds.size(), key, bind.keyid,
-          bind.keymod, command);
+  LogInfo(LOG, "BindKey id: {} Key: {} ({}), Mod: {} Command: {}", gGlobalStateInput.binds.size(),
+          key, bind.keyid, bind.keymod, command);
 
-  binds.push_back(bind);
+  gGlobalStateInput.binds.push_back(bind);
   bindkey_result = true;
   return bindkey_result;
 }
@@ -62,7 +63,7 @@ auto findkeybind(std::uint32_t keymods, SDL_Scancode keycode) -> pbind
 {
   pbind findkeybind_result = nullptr;
 
-  for (auto &bind : binds)
+  for (auto &bind : gGlobalStateInput.binds)
   {
     if ((bind.keyid == keycode) && (((bind.keymod & keymods) != 0) || (bind.keymod == keymods)))
     {
@@ -73,15 +74,12 @@ auto findkeybind(std::uint32_t keymods, SDL_Scancode keycode) -> pbind
   return findkeybind_result;
 }
 
-void unbindall()
-{
-  binds.clear();
-}
+void unbindall() { gGlobalStateInput.binds.clear(); }
 
 void startinput()
 {
   //SDL_SetWindowRelativeMouseMode(gamewindow, true);
-  SDL_StopTextInput(gamewindow);
+  SDL_StopTextInput(gGlobalStateInput.gamewindow);
 }
 
 auto GetActionEnum(const std::string_view &name) -> taction

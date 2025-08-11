@@ -1041,7 +1041,7 @@ void Thing<M>::update()
       if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
       {
 #ifndef SERVER
-        gamethingtarget = 0;
+        gGlobalStateClient.gamethingtarget = 0;
 #endif
         kill();
       }
@@ -1174,7 +1174,7 @@ void Thing<M>::render(double timeelapsed)
   struct tvector2 *pos3;
   struct tvector2 *pos4;
 
-  tgfxspritearray &t = textures;
+  tgfxspritearray &t = gGlobalStateGameRendering.textures;
 
   if (CVar::sv_realisticmode)
   {
@@ -1196,7 +1196,7 @@ void Thing<M>::render(double timeelapsed)
   pos4 = &skeleton.pos[4];
 
   // Iluminate the target thing
-  if (gamethingtarget == num)
+  if (gGlobalStateClient.gamethingtarget == num)
   {
     _p.x = pos1->x + (float)((pos2->x - pos1->x)) / 2 - 12.5;
     _p.y = pos1->y + (float)((pos2->y - pos1->y)) / 2 - 12.5;
@@ -1507,14 +1507,14 @@ void Thing<M>::polygonsrender()
   break;
   }
 
-  tc = &textures[texture]->texcoords;
+  tc = &gGlobalStateGameRendering.textures[texture]->texcoords;
 
   v[0] = gfxvertex(pos2.x, pos2.y, tc->left, tc->top, colorbase);
   v[1] = gfxvertex(pos1.x, pos1.y, tc->left, tc->bottom, colortop);
   v[2] = gfxvertex(pos4.x, pos4.y, tc->right, tc->bottom, colorbase);
   v[3] = gfxvertex(pos3.x, pos3.y, tc->right, tc->top, colorlow);
 
-  gfxdrawquad(textures[texture]->texture, v);
+  gfxdrawquad(gGlobalStateGameRendering.textures[texture]->texture, v);
 }
 #endif
 
@@ -2033,7 +2033,7 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
       }
     }
 
-    knifecan[j] = true;
+    gGlobalStateNetworkServer.knifecan[j] = true;
 
     switch (style)
     {

@@ -38,53 +38,49 @@
 bool progready = false;
 
 // config stuff
-std::int32_t bonusfreq = 3600;
-std::string serverip = "127.0.0.1";
-std::int32_t serverport = 23073;
-
-tstringlist mapslist;
-
-std::int8_t lastplayer;
 
 // Mute array
-PascalArray<std::string, 1, max_players> mutelist;
-PascalArray<std::string, 1, max_players> mutename;
 
 // TK array
-PascalArray<std::string, 1, max_players> tklist;      // IP
-PascalArray<std::int8_t, 1, max_players> tklistkills; // TK Warnings
+// IP
+// TK Warnings
 
-tstringlist remoteips;
-tstringlist adminips;
-
-std::array<std::string, 1000> floodip;
-std::array<std::int32_t, 1000> floodnum;
-
-std::array<std::string, 4> lastreqip; // last 4 IP"s to request game
-std::int8_t lastreqid = 0;
-std::string dropip;
-
-std::array<std::string, Constants::MAX_LAST_ADMIN_IPS> lastadminips;
-std::int32_t mapindex;
+// last 4 IP"s to request game
 
 std::int32_t AdminIPCounter = 0;
-
-std::int32_t waverespawntime;
-std::int32_t waverespawncounter;
-
-std::array<std::int8_t, max_sprites> bulletwarningcount;
-std::array<std::int8_t, max_sprites> cheattag;
 
 #ifdef RCON
 TAdminServer AdminServer; // TIdTCPServer;
 #endif
 
-std::int32_t htftime = Constants::HTF_SEC_POINT;
-
-std::string currentconf = "soldat.ini";
-
-std::string wmname;
-std::string wmversion;
+GlobalStateServer gGlobalStateServer{
+  .bonusfreq = 3600,
+  .serverip = "127.0.0.1",
+  .serverport = 23073,
+  .wmname{},
+  .wmversion{},
+  .mapslist{},
+  .lastplayer{},
+  .cheattag{},
+  .bulletwarningcount{},
+  .waverespawntime{},
+  .waverespawncounter{},
+  .remoteips{},
+  .adminips{},
+  .floodip{},
+  .floodnum{},
+  .lastreqip{},
+  .lastreqid = 0,
+  .dropip{},
+  .currentconf = "soldat.ini",
+  .htftime = Constants::HTF_SEC_POINT,
+  .mutelist{},
+  .mutename{},
+  .tklist{},
+  .tklistkills{},
+  .lastadminips{},
+  .mapindex{},
+};
 
 std::string ModDir;
 
@@ -182,7 +178,7 @@ void ActivateServer(int argc, char *argv[])
 
   auto& fs = GS::GetFileSystem();
 
-  servertickcounter = 0;
+  gGlobalStateNetworkServer.servertickcounter = 0;
   GS::GetGame().ResetMainTickCounter();
 
   // Initialize player dummy objects (cf. DummyPlayer definition for documentation)
@@ -295,23 +291,25 @@ void ActivateServer(int argc, char *argv[])
 
   if (fileexists(userDirectory + "configs/" + std::string(CVar::sv_maplist)))
   {
-    mapslist.loadfromfile(userDirectory + "configs/" + std::string(CVar::sv_maplist));
-    auto it = std::remove(mapslist.begin(), mapslist.end(), "");
-    mapslist.erase(it, mapslist.end());
+    gGlobalStateServer.mapslist.loadfromfile(userDirectory + "configs/" +
+                                             std::string(CVar::sv_maplist));
+    auto it =
+      std::remove(gGlobalStateServer.mapslist.begin(), gGlobalStateServer.mapslist.end(), "");
+    gGlobalStateServer.mapslist.erase(it, gGlobalStateServer.mapslist.end());
   }
 
-  if (mapslist.empty())
+  if (gGlobalStateServer.mapslist.empty())
   {
     WriteLn("");
     WriteLn("  No maps list found (adding default). Please add maps in configs/mapslist.txt");
     WriteLn("");
     if (not GS::GetGame().isteamgame())
     {
-      mapslist.add("Arena");
+      gGlobalStateServer.mapslist.add("Arena");
     }
     else
     {
-      mapslist.add("ctf_Ash");
+      gGlobalStateServer.mapslist.add("ctf_Ash");
     }
   }
 #if 0
@@ -342,17 +340,17 @@ void ActivateServer(int argc, char *argv[])
 #endif
   }
 
-  adminips = remoteips;
-  adminips.add("127.0.0.1");
+  gGlobalStateServer.adminips = gGlobalStateServer.remoteips;
+  gGlobalStateServer.adminips.add("127.0.0.1");
 
   // Flood IP stuff
   for (i = 1; i < max_floodips; i++)
   {
-    floodip[i] = " ";
+    gGlobalStateServer.floodip[i] = " ";
   }
   for (i = 1; i < max_floodips; i++)
   {
-    floodnum[i] = 0;
+    gGlobalStateServer.floodnum[i] = 0;
   }
 
 #ifdef RCON
@@ -458,7 +456,7 @@ void loadweapons(const std::string &Filename)
     auto& fs = GS::GetFileSystem();
     TIniFile ini{
       ReadAsFileStream(fs, "/user/configs/" + Filename + ".ini")};
-    if (loadweaponsconfig(ini, wmname, wmversion, guns))
+    if (loadweaponsconfig(ini, gGlobalStateServer.wmname, gGlobalStateServer.wmversion, guns))
     {
       buildweapons(guns);
     }
@@ -608,9 +606,9 @@ void startserver()
 
   for (i = 1; i < max_sprites; i++)
   {
-    noclientupdatetime[i] = 0;
-    time_spritesnapshot[i] = 0;
-    time_spritesnapshot_mov[i] = 0;
+    gGlobalStateNetworkServer.noclientupdatetime[i] = 0;
+    gGlobalStateNetworkServerSprite.time_spritesnapshot[i] = 0;
+    gGlobalStateNetworkServerSprite.time_spritesnapshot_mov[i] = 0;
   }
 
   for (i = 0; i < 5; i++)
@@ -632,7 +630,7 @@ void startserver()
     CVar::sv_kits_collide = false;
   }
 
-  mapindex = 0;
+  gGlobalStateServer.mapindex = 0;
   // StartMap = MapsList[MapIndex];
 
   auto &map = GS::GetGame().GetMap();
@@ -662,7 +660,8 @@ void startserver()
 #endif
   */
 
-  if (getmapinfo(fs, mapslist[mapindex], GS::GetGame().GetUserDirectory(), StartMap))
+  if (getmapinfo(fs, gGlobalStateServer.mapslist[gGlobalStateServer.mapindex],
+                 GS::GetGame().GetUserDirectory(), StartMap))
   {
     if (not map.loadmap(GS::GetFileSystem(), StartMap))
     {
@@ -842,13 +841,13 @@ void startserver()
 
   GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
-  lastplayer = 0;
+  gGlobalStateServer.lastplayer = 0;
 
   GS::GetGame().SetTimelimitcounter(CVar::sv_timelimit);
 
   // Wave respawn time
   updatewaverespawntime();
-  waverespawncounter = waverespawntime;
+  gGlobalStateServer.waverespawncounter = gGlobalStateServer.waverespawntime;
 
   GS::GetConsoleLogFile().Log("Starting Game Server.");
 
@@ -880,7 +879,7 @@ void startserver()
     return;
   }
 
-  serverport = GetServerNetwork()->Port();
+  gGlobalStateServer.serverport = GetServerNetwork()->Port();
 
   if (CVar::fileserver_enable)
   {
@@ -950,7 +949,7 @@ void nextmap()
 {
   LogDebugG("NextMap");
 
-  if (mapslist.empty())
+  if (gGlobalStateServer.mapslist.empty())
   {
     GS::GetMainConsole().console("Can"
                                  "t load maps from mapslist",
@@ -958,13 +957,13 @@ void nextmap()
   }
   else
   {
-    mapindex = mapindex + 1;
+    gGlobalStateServer.mapindex = gGlobalStateServer.mapindex + 1;
 
-    if (mapindex >= mapslist.size())
+    if (gGlobalStateServer.mapindex >= gGlobalStateServer.mapslist.size())
     {
-      mapindex = 0;
+      gGlobalStateServer.mapindex = 0;
     }
-    preparemapchange(mapslist[mapindex]);
+    preparemapchange(gGlobalStateServer.mapslist[gGlobalStateServer.mapindex]);
   }
 }
 

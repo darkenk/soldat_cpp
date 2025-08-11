@@ -64,7 +64,7 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
 
 #ifndef SERVER
   {
-    if (demoplayer.active())
+    if (gGlobalStateDemo.demoplayer.active())
     {
       if (!mustcreate)
       {
@@ -92,7 +92,7 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
         )))
     {
 #ifndef SERVER
-      if (bulletcansend(spos.x, spos.y, camerafollowsprite, svelocity.x))
+      if (bulletcansend(spos.x, spos.y, gGlobalStateClient.camerafollowsprite, svelocity.x))
 #endif
       {
         return result;
@@ -155,7 +155,7 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
 
   if (
 #ifndef SERVER
-    (sowner == camerafollowsprite) ||
+    (sowner == gGlobalStateClient.camerafollowsprite) ||
 #endif
     (sstyle == bullet_style_flamearrow) || (sstyle == bullet_style_flame))
   {
@@ -237,7 +237,8 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
   // SEND BULLLET THROUGH NETWORK
   if (net)
   {
-    if ((sprite_system.IsPlayerSprite(sowner)) && (clientstopmovingcounter > 0))
+    if ((sprite_system.IsPlayerSprite(sowner)) &&
+        (gGlobalStateClientGame.clientstopmovingcounter > 0))
     {
       if ((sprite_system.GetSprite(sowner).weapon.fireinterval > fireinterval_net) || mustcreate ||
           (b.style == bullet_style_fragnade) || (b.style == bullet_style_clusternade) ||
@@ -249,10 +250,11 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
       else if ((sprite_system.GetSprite(sowner).weapon.fireinterval <= fireinterval_net) &&
                (sprite_system.GetSprite(sowner).burstcount == 0) &&
                (GS::GetGame().GetMainTickCounter() >
-                lastforceclientspritesnapshotmovtick + fireinterval_net))
+                gGlobalStateClientGame.lastforceclientspritesnapshotmovtick + fireinterval_net))
       {
-        forceclientspritesnapshotmov = true;
-        lastforceclientspritesnapshotmovtick = GS::GetGame().GetMainTickCounter();
+        gGlobalStateClientGame.forceclientspritesnapshotmov = true;
+        gGlobalStateClientGame.lastforceclientspritesnapshotmovtick =
+          GS::GetGame().GetMainTickCounter();
       }
     }
   }
@@ -261,66 +263,66 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
   {
     if (b.style == bullet_style_fragnade)
     {
-      if (wepstats[18].shots == 0)
+      if (gGlobalStateClient.wepstats[18].shots == 0)
       {
-        wepstats[18].textureid = GFX::INTERFACE_NADE;
+        gGlobalStateClient.wepstats[18].textureid = GFX::INTERFACE_NADE;
       }
-      wepstats[18].shots = wepstats[18].shots + 1;
-      if (wepstatsnum == 0)
+      gGlobalStateClient.wepstats[18].shots = gGlobalStateClient.wepstats[18].shots + 1;
+      if (gGlobalStateClient.wepstatsnum == 0)
       {
-        wepstatsnum = 1;
+        gGlobalStateClient.wepstatsnum = 1;
       }
-      if (wepstats[18].name.empty())
+      if (gGlobalStateClient.wepstats[18].name.empty())
       {
-        wepstats[18].name = "Grenade";
+        gGlobalStateClient.wepstats[18].name = "Grenade";
       }
     }
     else if ((b.style == bullet_style_cluster) || (b.style == bullet_style_clusternade))
     {
-      if (wepstats[19].shots == 0)
+      if (gGlobalStateClient.wepstats[19].shots == 0)
       {
-        wepstats[19].textureid = GFX::INTERFACE_CLUSTER_NADE;
+        gGlobalStateClient.wepstats[19].textureid = GFX::INTERFACE_CLUSTER_NADE;
       }
-      wepstats[19].shots = wepstats[19].shots + 1;
-      if (wepstatsnum == 0)
+      gGlobalStateClient.wepstats[19].shots = gGlobalStateClient.wepstats[19].shots + 1;
+      if (gGlobalStateClient.wepstatsnum == 0)
       {
-        wepstatsnum = 1;
+        gGlobalStateClient.wepstatsnum = 1;
       }
-      if (wepstats[19].name.empty())
+      if (gGlobalStateClient.wepstats[19].name.empty())
       {
-        wepstats[19].name = "Clusters";
+        gGlobalStateClient.wepstats[19].name = "Clusters";
       }
     }
     else if (b.style == bullet_style_m2)
     {
-      if (wepstats[20].shots == 0)
+      if (gGlobalStateClient.wepstats[20].shots == 0)
       {
-        wepstats[20].textureid = GFX::INTERFACE_GUNS_M2;
+        gGlobalStateClient.wepstats[20].textureid = GFX::INTERFACE_GUNS_M2;
       }
-      wepstats[20].shots = wepstats[20].shots + 1;
-      if (wepstatsnum == 0)
+      gGlobalStateClient.wepstats[20].shots = gGlobalStateClient.wepstats[20].shots + 1;
+      if (gGlobalStateClient.wepstatsnum == 0)
       {
-        wepstatsnum = 1;
+        gGlobalStateClient.wepstatsnum = 1;
       }
-      if (wepstats[20].name.empty())
+      if (gGlobalStateClient.wepstats[20].name.empty())
       {
-        wepstats[20].name = "Stationary gun";
+        gGlobalStateClient.wepstats[20].name = "Stationary gun";
       }
     }
     else if (b.style == bullet_style_punch)
     {
-      if (wepstats[17].shots == 0)
+      if (gGlobalStateClient.wepstats[17].shots == 0)
       {
-        wepstats[17].textureid = GFX::INTERFACE_GUNS_FIST;
+        gGlobalStateClient.wepstats[17].textureid = GFX::INTERFACE_GUNS_FIST;
       }
-      wepstats[17].shots = wepstats[17].shots + 1;
-      if (wepstatsnum == 0)
+      gGlobalStateClient.wepstats[17].shots = gGlobalStateClient.wepstats[17].shots + 1;
+      if (gGlobalStateClient.wepstatsnum == 0)
       {
-        wepstatsnum = 1;
+        gGlobalStateClient.wepstatsnum = 1;
       }
-      if (wepstats[17].name.empty())
+      if (gGlobalStateClient.wepstats[17].name.empty())
       {
-        wepstats[17].name = "Hands";
+        gGlobalStateClient.wepstats[17].name = "Hands";
       }
     }
     else
@@ -331,69 +333,69 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
         j = 17;
       }
 
-      if (wepstats[j].shots == 0)
+      if (gGlobalStateClient.wepstats[j].shots == 0)
       {
         switch (j)
         {
         case 0:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_SOCOM;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_SOCOM;
           break;
         case 1:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_DEAGLES;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_DEAGLES;
           break;
         case 2:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_MP5;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_MP5;
           break;
         case 3:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_AK74;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_AK74;
           break;
         case 4:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_STEYR;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_STEYR;
           break;
         case 5:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_SPAS;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_SPAS;
           break;
         case 6:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_RUGER;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_RUGER;
           break;
         case 7:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_M79;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_M79;
           break;
         case 8:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_BARRETT;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_BARRETT;
           break;
         case 9:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_MINIMI;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_MINIMI;
           break;
         case 10:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_MINIGUN;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_MINIGUN;
           break;
         case 11:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_KNIFE;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_KNIFE;
           break;
         case 12:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_CHAINSAW;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_CHAINSAW;
           break;
         case 13:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_LAW;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_LAW;
           break;
         case 14:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_FLAMER;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_FLAMER;
           break;
         case 15:
         case 16:
-          wepstats[j].textureid = GFX::INTERFACE_GUNS_BOW;
+          gGlobalStateClient.wepstats[j].textureid = GFX::INTERFACE_GUNS_BOW;
           break;
         }
       }
-      wepstats[j].shots = wepstats[j].shots + 1;
-      if (wepstatsnum == 0)
+      gGlobalStateClient.wepstats[j].shots = gGlobalStateClient.wepstats[j].shots + 1;
+      if (gGlobalStateClient.wepstatsnum == 0)
       {
-        wepstatsnum = 1;
+        gGlobalStateClient.wepstatsnum = 1;
       }
-      if (wepstats[j].name.empty())
+      if (gGlobalStateClient.wepstats[j].name.empty())
       {
-        wepstats[j].name = sprite_system.GetPlayerSprite().weapon.name;
+        gGlobalStateClient.wepstats[j].name = sprite_system.GetPlayerSprite().weapon.name;
       }
     }
   }
@@ -500,8 +502,8 @@ auto bulletcansend(float x, float y, const std::int32_t i, float vx) -> bool
     }
   }
 #else
-  if ((x > (sx - gamewidth)) && (x < (sx + gamewidth)) && (y > (sy - gameheight)) &&
-      (y < (sy + gameheight)))
+  if ((x > (sx - gGlobalStateGame.gamewidth)) && (x < (sx + gGlobalStateGame.gamewidth)) &&
+      (y > (sy - gGlobalStateGame.gameheight)) && (y < (sy + gGlobalStateGame.gameheight)))
   {
     result = true;
   }
@@ -546,7 +548,7 @@ void hitspray()
   bink = sprite_system.GetPlayerSprite().weapon.bink;
   if (bink > 0)
   {
-    hitspraycounter = calculatebink(hitspraycounter, bink);
+    gGlobalStateClient.hitspraycounter = calculatebink(gGlobalStateClient.hitspraycounter, bink);
   }
 }
 
@@ -608,10 +610,12 @@ void calculaterecoil(float px, float py, float &cx, float &cy, float da)
   // M.X := (dx / SpriteSystem::Get().GetSprite(CameraFollowSprite).AimDistCoef) * 3;
   // M.Y := (dy / SpriteSystem::Get().GetSprite(CameraFollowSprite).AimDistCoef) * 3;
 
-  cx = px + ((dx + cos(alpha) * radius) / sprite_system.GetSprite(camerafollowsprite).aimdistcoef) *
-              (sprite_system.GetSprite(camerafollowsprite).aimdistcoef / 2);
-  cy = py + ((dy + sin(alpha) * radius) / sprite_system.GetSprite(camerafollowsprite).aimdistcoef) *
-              (sprite_system.GetSprite(camerafollowsprite).aimdistcoef / 2);
+  cx = px + ((dx + cos(alpha) * radius) /
+             sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef) *
+              (sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef / 2);
+  cy = py + ((dy + sin(alpha) * radius) /
+             sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef) *
+              (sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef / 2);
 
   // Lastly make sure that cursor is still at the same side as it was first
   if (dx > 0)
@@ -811,8 +815,10 @@ void Bullet<M>::update()
   {
     if (sprite_system.GetSprite(owner).position != pos_stand)
     {
-      camerax = GetBulletParts().pos[num].x + 5 * GetBulletParts().velocity[num].x;
-      cameray = GetBulletParts().pos[num].y + 5 * GetBulletParts().velocity[num].y;
+      gGlobalStateClient.camerax =
+        GetBulletParts().pos[num].x + 5 * GetBulletParts().velocity[num].x;
+      gGlobalStateClient.cameray =
+        GetBulletParts().pos[num].y + 5 * GetBulletParts().velocity[num].y;
     }
     else
     {
@@ -831,9 +837,10 @@ void Bullet<M>::update()
   {
     if (style != bullet_style_punch)
     {
-      if (camerafollowsprite > 0)
+      if (gGlobalStateClient.camerafollowsprite > 0)
       {
-        const auto &spritePartsPos = sprite_system.GetSpritePartsPos(camerafollowsprite);
+        const auto &spritePartsPos =
+          sprite_system.GetSpritePartsPos(gGlobalStateClient.camerafollowsprite);
         if ((GetBulletParts().pos[num].x > spritePartsPos.x - 200) &&
             (GetBulletParts().pos[num].x < spritePartsPos.x + 200) &&
             (GetBulletParts().pos[num].y > spritePartsPos.y - 350) &&
@@ -913,7 +920,7 @@ void Bullet<M>::render(double timeelapsed)
   float oy;
   float sinusvar;
 
-  tgfxspritearray &t = textures;
+  tgfxspritearray &t = gGlobalStateGameRendering.textures;
   bulletpos = GetBulletParts().pos[num];
 
   auto &map = GS::GetGame().GetMap();
@@ -927,7 +934,7 @@ void Bullet<M>::render(double timeelapsed)
         if (sprite_system.GetSprite(owner).visible == 0)
         {
           if (map.raycast(bulletpos, sprite_system.GetPlayerSprite().skeleton.pos[9], grenvel,
-                          gamewidth, true))
+                          gGlobalStateGame.gamewidth, true))
           {
             return;
           }
@@ -1005,7 +1012,7 @@ void Bullet<M>::render(double timeelapsed)
 
       if (hitbody > 0)
       {
-        if (trails == 1)
+        if (gGlobalStateClient.trails == 1)
         {
           if (timeoutfloat < bullet_timeout - 7)
           {
@@ -1020,7 +1027,7 @@ void Bullet<M>::render(double timeelapsed)
       }
       else
       {
-        if (trails == 1)
+        if (gGlobalStateClient.trails == 1)
         {
           if (timeoutfloat < bullet_timeout - 7)
           {
@@ -1038,7 +1045,7 @@ void Bullet<M>::render(double timeelapsed)
 
   case bullet_style_fragnade: {
     grenvel = vec2length(bulletvel);
-    if (trails == 1)
+    if (gGlobalStateClient.trails == 1)
     {
       if (timeoutfloat < grenade_timeout - 3)
       {
@@ -1089,7 +1096,7 @@ void Bullet<M>::render(double timeelapsed)
       roto = -angle2points(_p, _p2);
       gfxdrawsprite(t[GFX::WEAPONS_SPAS_BULLET], _p.x, _p.y, 0, 0, roto, rgba(0xffffff, 150));
 
-      if (trails == 1)
+      if (gGlobalStateClient.trails == 1)
       {
         if (timeoutfloat < bullet_timeout - 3)
         {
@@ -1117,7 +1124,7 @@ void Bullet<M>::render(double timeelapsed)
       gfxdrawsprite(t[GFX::WEAPONS_M79_BULLET], _p.x, _p.y, _scala.x, _scala.y, 0, 0,
                     degtorad(timeoutfloat * 6), rgba(0xffffff, 252));
 
-      if (trails == 1)
+      if (gGlobalStateClient.trails == 1)
       {
         if (timeoutfloat < bullet_timeout - 4)
         {
@@ -1170,7 +1177,7 @@ void Bullet<M>::render(double timeelapsed)
       roto = -angle2points(_p, _p2);
       gfxdrawsprite(t[GFX::WEAPONS_ARROW], _p.x, _p.y, 0, 0, roto);
 
-      if (trails == 1)
+      if (gGlobalStateClient.trails == 1)
       {
         if (timeoutfloat > arrow_resist)
         {
@@ -1222,7 +1229,7 @@ void Bullet<M>::render(double timeelapsed)
       roto = -angle2points(_p, _p2);
       gfxdrawsprite(t[GFX::WEAPONS_MISSILE], _p.x, _p.y, 0, 0, roto);
 
-      if (trails == 1)
+      if (gGlobalStateClient.trails == 1)
       {
         if (timeoutfloat < bullet_timeout - 7)
         {
@@ -1266,7 +1273,7 @@ void Bullet<M>::render(double timeelapsed)
       gfxdrawsprite(t[GFX::WEAPONS_BULLET], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                     rgba(0xffbf77, bulletalpha * 2));
 
-      if (trails == 1)
+      if (gGlobalStateClient.trails == 1)
       {
         if (timeoutfloat < m2bullet_timeout - 13)
         {
@@ -1844,8 +1851,8 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
               // Shake screen
               if ((sprite_system.IsPlayerSprite(owner)) && (ownerweapon == chainsaw_num))
               {
-                camerax = camerax - 3 + Random(7);
-                cameray = cameray - 3 + Random(7);
+                gGlobalStateClient.camerax = gGlobalStateClient.camerax - 3 + Random(7);
+                gGlobalStateClient.cameray = gGlobalStateClient.cameray - 3 + Random(7);
               }
 
               // Puff
@@ -3105,12 +3112,13 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
   {
     if (sprite_system.IsPlayerSpriteValid())
     {
-      const auto &spritePartsPos = sprite_system.GetSpritePartsPos(mysprite);
+      const auto &spritePartsPos =
+        sprite_system.GetSpritePartsPos(gGlobalStateClient.mysprite);
       if (sprite_system.GetPlayerSprite().GetHealth() > -50)
       {
         if (distance(GetBulletParts().pos[num], spritePartsPos) < grenadeeffect_dist)
         {
-          grenadeeffecttimer = 320;
+          gGlobalStateClient.grenadeeffecttimer = 320;
           playsound(SfxEffect::hum);
         }
       }

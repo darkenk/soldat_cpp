@@ -44,24 +44,24 @@ void update_frame()
 
   auto &game = GS::GetGame();
 
-  cameraprev.x = camerax;
-  cameraprev.y = cameray;
-  mouseprev.x = mx;
-  mouseprev.y = my;
+  gGlobalStateClient.cameraprev.x = gGlobalStateClient.camerax;
+  gGlobalStateClient.cameraprev.y = gGlobalStateClient.cameray;
+  gGlobalStateClientGame.mouseprev.x = gGlobalStateClientGame.mx;
+  gGlobalStateClientGame.mouseprev.y = gGlobalStateClientGame.my;
 
   auto &map = game.GetMap();
 
   if (game.GetMapchangecounter() < 0)
   {
     ZoneScopedN("Update1");
-    if (demoplayer.active() && escmenu->active)
+    if (gGlobalStateDemo.demoplayer.active() && gGlobalStateGameMenus.escmenu->active)
     {
       return;
     }
 
     {
       ZoneScopedN("SpriteParts");
-      if (clientstopmovingcounter > 0)
+      if (gGlobalStateClientGame.clientstopmovingcounter > 0)
       {
         sprite_system.UpdateSpriteParts();
       }
@@ -99,13 +99,13 @@ void update_frame()
 
     {
       ZoneScopedN("Sparks");
-      sparkscount = 0;
+      gGlobalStateSparks.sparkscount = 0;
       for (j = 1; j <= max_sparks; j++)
       {
-        if (spark[j].active)
+        if (gGlobalStateGame.spark[j].active)
         {
-          spark[j].update();
-          sparkscount += 1;
+          gGlobalStateGame.spark[j].update();
+          gGlobalStateSparks.sparkscount += 1;
         }
       }
     }
@@ -125,20 +125,21 @@ void update_frame()
 
     if (GS::GetGame().GetMainTickCounter() % second == 0)
     {
-      if (screencounter != 255)
+      if (gGlobalStateClientGame.screencounter != 255)
       {
         // TODO: don't rely on underflow
-        screencounter = 0xff & (screencounter - 1);
+        gGlobalStateClientGame.screencounter = 0xff & (gGlobalStateClientGame.screencounter - 1);
       }
     }
 
     // Change spectate target away from dead player
     if (GS::GetGame().GetMainTickCounter() % (second * 5) == 0)
     {
-      if ((camerafollowsprite > 0) && sprite_system.GetSprite(camerafollowsprite).deadmeat and
+      if ((gGlobalStateClient.camerafollowsprite > 0) &&
+          sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).deadmeat and
           (CVar::sv_realisticmode) && (CVar::sv_survivalmode) && !game.GetSurvivalEndRound())
       {
-        camerafollowsprite = getcameratarget(false);
+        gGlobalStateClient.camerafollowsprite = getcameratarget(false);
       }
     }
 
@@ -175,11 +176,11 @@ void update_frame()
 #endif
 
   // >> cursor on player <<
-  cursortext = "";
-  cursorfriendly = false;
+  gGlobalStateInterfaceGraphics.cursortext = "";
+  gGlobalStateInterfaceGraphics.cursorfriendly = false;
 
   // TODO(helloer): While watching demos this code needs to use SpectNumber instead of MySprite
-  if ((sprite_system.IsPlayerSpriteValid()) && (!demoplayer.active()))
+  if ((sprite_system.IsPlayerSpriteValid()) && (!gGlobalStateDemo.demoplayer.active()))
   {
     for (auto &sprite : sprite_system.GetActiveSprites())
     {
@@ -192,18 +193,21 @@ void update_frame()
           ((sprite.visible > 40) or (!CVar::sv_realisticmode)))
       {
         const auto &spritePartsPos = sprite_system.GetSpritePartsPos(j);
-        if (distance(-gamewidthhalf + camerax + mx, -gameheighthalf + cameray + my,
+        if (distance(-gGlobalStateGame.gamewidthhalf + gGlobalStateClient.camerax +
+                       gGlobalStateClientGame.mx,
+                     -gGlobalStateGame.gameheighthalf + gGlobalStateClient.cameray +
+                       gGlobalStateClientGame.my,
                      spritePartsPos.x, spritePartsPos.y) < cursorsprite_distance)
         {
-          cursortext = sprite.player->name;
+          gGlobalStateInterfaceGraphics.cursortext = sprite.player->name;
           if (game.isteamgame())
           {
             if (sprite.isinsameteam(sprite_system.GetPlayerSprite()))
             {
-              cursortext = cursortext + ' ' +
-                           inttostr(round((sprite.GetHealth() / game.GetStarthealth()) * 100)) +
-                           '%';
-              cursorfriendly = true;
+              gGlobalStateInterfaceGraphics.cursortext =
+                gGlobalStateInterfaceGraphics.cursortext + ' ' +
+                inttostr(round((sprite.GetHealth() / game.GetStarthealth()) * 100)) + '%';
+              gGlobalStateInterfaceGraphics.cursorfriendly = true;
             }
           }
 
@@ -212,7 +216,7 @@ void update_frame()
       }
     }
   }
-  cursortextlength = length(cursortext);
+  gGlobalStateInterfaceGraphics.cursortextlength = length(gGlobalStateInterfaceGraphics.cursortext);
 
   // bullet timer
   game.TickBulletTimeTimer();
@@ -266,15 +270,15 @@ void update_frame()
       GS::GetGame().SetSinusCounter(v);
     }
 
-    if (grenadeeffecttimer > -1)
+    if (gGlobalStateClient.grenadeeffecttimer > -1)
     {
-      grenadeeffecttimer = grenadeeffecttimer - 1;
+      gGlobalStateClient.grenadeeffecttimer = gGlobalStateClient.grenadeeffecttimer - 1;
     }
 
     // Spray counter
-    if (hitspraycounter > 0)
+    if (gGlobalStateClient.hitspraycounter > 0)
     {
-      hitspraycounter -= 1;
+      gGlobalStateClient.hitspraycounter -= 1;
     }
 
     // Idle counter
@@ -285,7 +289,7 @@ void update_frame()
         if (sprite_system.GetPlayerSprite().isnotspectator() &&
             (!sprite_system.GetPlayerSprite().player->demoplayer))
         {
-          if (oldmousex - round(mx) == 0)
+          if (oldmousex - round(gGlobalStateClientGame.mx) == 0)
           {
             idlecounter += 1;
           }
@@ -297,10 +301,10 @@ void update_frame()
           if (idlecounter > Constants::IDLE_KICK)
           {
             clientdisconnect(*GetNetwork());
-            gClient.exittomenu();
+            gGlobalStateClient.gClient.exittomenu();
           }
 
-          oldmousex = round(mx);
+          oldmousex = round(gGlobalStateClientGame.mx);
         }
       }
     }
@@ -371,117 +375,125 @@ void update_frame()
     // Chat Update
     for (j = 1; j <= max_sprites; j++)
     {
-      if (chatdelay[j] > 0)
+      if (gGlobalStateInterfaceGraphics.chatdelay[j] > 0)
       {
-        chatdelay[j] = chatdelay[j] - 1;
+        gGlobalStateInterfaceGraphics.chatdelay[j] = gGlobalStateInterfaceGraphics.chatdelay[j] - 1;
       }
     }
 
     // Big and World Message update
     for (j = 0; j < max_big_messages; j++)
     {
-      if (bigdelay[j] > 0)
+      if (gGlobalStateInterfaceGraphics.bigdelay[j] > 0)
       {
-        bigdelay[j] = bigdelay[j] - 1;
+        gGlobalStateInterfaceGraphics.bigdelay[j] = gGlobalStateInterfaceGraphics.bigdelay[j] - 1;
       }
-      if (worlddelay[j] > 0)
+      if (gGlobalStateInterfaceGraphics.worlddelay[j] > 0)
       {
-        worlddelay[j] = worlddelay[j] - 1;
+        gGlobalStateInterfaceGraphics.worlddelay[j] =
+          gGlobalStateInterfaceGraphics.worlddelay[j] - 1;
       }
     }
 
     // Shot dist update
-    if (shotdistanceshow > 0)
+    if (gGlobalStateClient.shotdistanceshow > 0)
     {
-      shotdistanceshow = shotdistanceshow - 1;
+      gGlobalStateClient.shotdistanceshow = gGlobalStateClient.shotdistanceshow - 1;
     }
 
     // Consoles Update
     GS::GetMainConsole().Update();
     GetKillConsole().Update(true);
 
-    if (chattimecounter > 0)
+    if (gGlobalStateClientGame.chattimecounter > 0)
     {
-      chattimecounter = chattimecounter - 1;
+      gGlobalStateClientGame.chattimecounter = gGlobalStateClientGame.chattimecounter - 1;
     }
   } // bullettime off
 
   // MOVE -=CAMERA=-
-  if ((camerafollowsprite > 0) && (camerafollowsprite < max_sprites + 1))
+  if ((gGlobalStateClient.camerafollowsprite > 0) &&
+      (gGlobalStateClient.camerafollowsprite < max_sprites + 1))
   {
-    if (sprite_system.GetSprite(camerafollowsprite).IsActive() &&
-        sprite_system.GetSprite(camerafollowsprite).isnotspectator())
+    if (sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).IsActive() &&
+        sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).isnotspectator())
     {
       // FIXME(skoskav): Scope zoom and non-default resolution makes this a bit complicated.
       // Why does the magic number ~6.8 work so well?
 
-      m.x = exp(CVar::r_zoom) *
-            ((mx - gamewidthhalf) / sprite_system.GetSprite(camerafollowsprite).aimdistcoef *
-             (((float)(2 * 640) / gamewidth - 1) +
-              (float)((gamewidth - 640)) / (float)gamewidth *
-                (float)(defaultaimdist - sprite_system.GetSprite(camerafollowsprite).aimdistcoef) /
-                6.8));
+      m.x =
+        exp(CVar::r_zoom) *
+        ((gGlobalStateClientGame.mx - gGlobalStateGame.gamewidthhalf) /
+         sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef *
+         (((float)(2 * 640) / gGlobalStateGame.gamewidth - 1) +
+          (float)((gGlobalStateGame.gamewidth - 640)) / (float)gGlobalStateGame.gamewidth *
+            (float)(defaultaimdist -
+                    sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef) /
+            6.8));
 
       m.y = exp(CVar::r_zoom) *
-            ((my - gameheighthalf) / sprite_system.GetSprite(camerafollowsprite).aimdistcoef);
-      camv.x = camerax;
-      camv.y = cameray;
-      auto &spritePartsPos = sprite_system.GetSpritePartsPos(camerafollowsprite);
+            ((gGlobalStateClientGame.my - gGlobalStateGame.gameheighthalf) /
+             sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef);
+      camv.x = gGlobalStateClient.camerax;
+      camv.y = gGlobalStateClient.cameray;
+      auto &spritePartsPos = sprite_system.GetSpritePartsPos(gGlobalStateClient.camerafollowsprite);
       p.x = spritePartsPos.x;
       p.y = spritePartsPos.y;
       norm = vec2subtract(p, camv);
       vec2scale(s, norm, camspeed);
       camv = vec2add(camv, s);
       camv = vec2add(camv, m);
-      camerax = camv.x;
-      cameray = camv.y;
+      gGlobalStateClient.camerax = camv.x;
+      gGlobalStateClient.cameray = camv.y;
     }
     else
     {
-      camerafollowsprite = 0;
+      gGlobalStateClient.camerafollowsprite = 0;
     }
   }
-  else if (camerafollowsprite == 0)
+  else if (gGlobalStateClient.camerafollowsprite == 0)
   {
-    displayratio = (float)(gamewidth) / 640;
+    displayratio = (float)(gGlobalStateGame.gamewidth) / 640;
 
-    if ((mx > 310 * displayratio) && (mx < 330 * displayratio) && (my > 230) && (my < 250))
+    if ((gGlobalStateClientGame.mx > 310 * displayratio) &&
+        (gGlobalStateClientGame.mx < 330 * displayratio) && (gGlobalStateClientGame.my > 230) &&
+        (gGlobalStateClientGame.my < 250))
     {
       m.x = 0;
       m.y = 0;
     }
     else
     {
-      m.x = (mx - gamewidthhalf) / spectatoraimdist;
-      m.y = (my - gameheighthalf) / spectatoraimdist;
+      m.x = (gGlobalStateClientGame.mx - gGlobalStateGame.gamewidthhalf) / spectatoraimdist;
+      m.y = (gGlobalStateClientGame.my - gGlobalStateGame.gameheighthalf) / spectatoraimdist;
     }
-    camv.x = camerax;
-    camv.y = cameray;
+    camv.x = gGlobalStateClient.camerax;
+    camv.y = gGlobalStateClient.cameray;
     camv = vec2add(camv, m);
-    camerax = camv.x;
-    cameray = camv.y;
+    gGlobalStateClient.camerax = camv.x;
+    gGlobalStateClient.cameray = camv.y;
   }
 
   // safety
   if ((sprite_system.IsPlayerSpriteValid()) && (sprite_system.GetPlayerSprite().isspectator()))
   {
-    if ((camerax > max_sectorz * map.GetSectorsDivision()) ||
-        (camerax < min_sectorz * map.GetSectorsDivision()) ||
-        (cameray > max_sectorz * map.GetSectorsDivision()) ||
-        (cameray < min_sectorz * map.GetSectorsDivision()))
+    if ((gGlobalStateClient.camerax > max_sectorz * map.GetSectorsDivision()) ||
+        (gGlobalStateClient.camerax < min_sectorz * map.GetSectorsDivision()) ||
+        (gGlobalStateClient.cameray > max_sectorz * map.GetSectorsDivision()) ||
+        (gGlobalStateClient.cameray < min_sectorz * map.GetSectorsDivision()))
     {
-      camerax = 0;
-      cameray = 0;
-      targetmode = false;
+      gGlobalStateClient.camerax = 0;
+      gGlobalStateClient.cameray = 0;
+      gGlobalStateClient.targetmode = false;
     }
   }
 
   // end game screen
-  if (screentaken)
+  if (gGlobalStateClient.screentaken)
   {
     if (game.GetMapchangecounter() < ((float)(default_mapchange_time) / 3))
     {
-      screentaken = false;
+      gGlobalStateClient.screentaken = false;
 #ifdef STEAM
       if (CVar::cl_steam_screenshots)
       {

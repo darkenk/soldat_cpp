@@ -135,68 +135,71 @@ void controlsprite(tsprite &spritec)
       spritec.bodyanimation.speed = 1;
     }
 #ifndef SERVER
-    if ((sprite_system.IsPlayerSprite(spritec.num)) && !escmenu->active)
+    if ((sprite_system.IsPlayerSprite(spritec.num)) && !gGlobalStateGameMenus.escmenu->active)
     {
       spritec.freecontrols();
 
-      sprite_system.GetPlayerSprite().control.mouseaimx = round(mx - gamewidthhalf + camerax);
-      sprite_system.GetPlayerSprite().control.mouseaimy = round(my - gameheighthalf + cameray);
+      sprite_system.GetPlayerSprite().control.mouseaimx = round(
+        gGlobalStateClientGame.mx - gGlobalStateGame.gamewidthhalf + gGlobalStateClient.camerax);
+      sprite_system.GetPlayerSprite().control.mouseaimy = round(
+        gGlobalStateClientGame.my - gGlobalStateGame.gameheighthalf + gGlobalStateClient.cameray);
 
-      if (!teammenu->active && !limbomenu->active)
+      if (!gGlobalStateGameMenus.teammenu->active && !gGlobalStateGameMenus.limbomenu->active)
       {
-        if (chattext.empty())
+        if (gGlobalStateClientGame.chattext.empty())
         {
-          for (i = low(binds); i <= high(binds) - 1; i++)
+          for (i = low(gGlobalStateInput.binds); i <= high(gGlobalStateInput.binds) - 1; i++)
           {
-            if (keystatus[binds[i].keyid] and
-                ((binds[i].keymod == 0) ||
-                 (static_cast<int>((binds[i].keymod != 0u) && (SDL_GetModState() != 0u)) != 0)))
+            if (gGlobalStateInput.keystatus[gGlobalStateInput.binds[i].keyid] and
+                ((gGlobalStateInput.binds[i].keymod == 0) ||
+                 (static_cast<int>((gGlobalStateInput.binds[i].keymod != 0u) &&
+                                   (SDL_GetModState() != 0u)) != 0)))
             {
-              if (binds[i].action == taction::left)
+              if (gGlobalStateInput.binds[i].action == taction::left)
               {
                 spritec.control.left = true;
               }
-              if (binds[i].action == taction::right)
+              if (gGlobalStateInput.binds[i].action == taction::right)
               {
                 spritec.control.right = true;
               }
-              if (binds[i].action == taction::taction_jump)
+              if (gGlobalStateInput.binds[i].action == taction::taction_jump)
               {
                 spritec.control.up = true;
               }
-              if (binds[i].action == taction::taction_crouch)
+              if (gGlobalStateInput.binds[i].action == taction::taction_crouch)
               {
                 spritec.control.down = true;
               }
-              if (binds[i].action == taction::fire)
+              if (gGlobalStateInput.binds[i].action == taction::fire)
               {
                 spritec.control.fire = true;
               }
-              if (binds[i].action == taction::jet)
+              if (gGlobalStateInput.binds[i].action == taction::jet)
               {
                 spritec.control.jetpack = true;
               }
-              if (binds[i].action == taction::taction_reload)
+              if (gGlobalStateInput.binds[i].action == taction::taction_reload)
               {
                 spritec.control.reload = true;
               }
-              if (binds[i].action == taction::changeweapon)
+              if (gGlobalStateInput.binds[i].action == taction::changeweapon)
               {
                 spritec.control.changeweapon = true;
               }
-              if (binds[i].action == taction::throwgrenade)
+              if (gGlobalStateInput.binds[i].action == taction::throwgrenade)
               {
                 spritec.control.thrownade = true;
               }
-              if (binds[i].action == taction::dropweapon)
+              if (gGlobalStateInput.binds[i].action == taction::dropweapon)
               {
                 spritec.control.throwweapon = true;
               }
-              if (binds[i].action == taction::taction_prone)
+              if (gGlobalStateInput.binds[i].action == taction::taction_prone)
               {
                 spritec.control.prone = true;
               }
-              if (binds[i].action == taction::flagthrow)
+              if (gGlobalStateInput.binds[i].action == taction::flagthrow)
               {
                 spritec.control.flagthrow = true;
               }
@@ -299,11 +302,11 @@ void controlsprite(tsprite &spritec)
         }
       }
 
-      if ((length(chattext) > 0) && keystatus[301])
+      if ((length(gGlobalStateClientGame.chattext) > 0) && gGlobalStateInput.keystatus[301])
       {
-        SDL_StopTextInput(gamewindow);
-        firechattext = chattext;
-        chattext = "";
+        SDL_StopTextInput(gGlobalStateInput.gamewindow);
+        gGlobalStateClientGame.firechattext = gGlobalStateClientGame.chattext;
+        gGlobalStateClientGame.chattext = "";
       }
 
       if (freecampressed and
@@ -313,15 +316,15 @@ void controlsprite(tsprite &spritec)
       }
 
       // change camera when dead
-      if (menutimer < 1)
+      if (gGlobalStateClientGame.menutimer < 1)
       {
-        if (!limbomenu->active)
+        if (!gGlobalStateGameMenus.limbomenu->active)
         {
           if (spritec.deadmeat)
           {
             if (spritec.control.fire or spritec.control.jetpack or spritec.control.up)
             {
-              if (!demoplayer.active() or (freecam == 1))
+              if (!gGlobalStateDemo.demoplayer.active() or (gGlobalStateClient.freecam == 1))
               {
                 if (GS::GetGame().GetPlayersNum() < 1)
                 {
@@ -345,15 +348,15 @@ void controlsprite(tsprite &spritec)
 
                 if ((cameratarget > 0) || !freecampressed)
                 {
-                  camerafollowsprite = cameratarget;
+                  gGlobalStateClient.camerafollowsprite = cameratarget;
 
-                  mx = gamewidthhalf;
-                  my = gameheighthalf;
-                  mouseprev.x = mx;
-                  mouseprev.y = my;
+                  gGlobalStateClientGame.mx = gGlobalStateGame.gamewidthhalf;
+                  gGlobalStateClientGame.my = gGlobalStateGame.gameheighthalf;
+                  gGlobalStateClientGame.mouseprev.x = gGlobalStateClientGame.mx;
+                  gGlobalStateClientGame.mouseprev.y = gGlobalStateClientGame.my;
                   spritec.control.fire = false;
                   spritec.control.jetpack = false;
-                  menutimer = 10;
+                  gGlobalStateClientGame.menutimer = 10;
                   freecampressed = cameratarget == 0;
                 }
               }
@@ -380,11 +383,11 @@ void controlsprite(tsprite &spritec)
         for (auto &sprite : sprite_system.GetActiveSprites())
         {
           // Following sprites
-          if ((spritec.num != camerafollowsprite) and spritec.isnotinsameteam(sprite) &&
-              spritec.isnotspectator())
+          if ((spritec.num != gGlobalStateClient.camerafollowsprite) and
+              spritec.isnotinsameteam(sprite) && spritec.isnotspectator())
           {
-            if (checkspritelineofsightvisibility(sprite_system.GetSprite(camerafollowsprite),
-                                                 sprite))
+            if (checkspritelineofsightvisibility(
+                  sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite), sprite))
             {
               sprite.visible = 45;
             }
@@ -713,11 +716,12 @@ void controlsprite(tsprite &spritec)
 
     // TARGET MODE
 #ifndef SERVER
-    if ((sprite_system.IsPlayerSprite(spritec.num)) && targetmode && spritec.control.fire)
+    if ((sprite_system.IsPlayerSprite(spritec.num)) && gGlobalStateClient.targetmode &&
+        spritec.control.fire)
     {
       clientfreecamtarget();
-      targetmode = false;
-      camerafollowsprite = mysprite;
+      gGlobalStateClient.targetmode = false;
+      gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
       spritec.control.fire = false;
       spritec.weapon.fireintervalprev = spritec.weapon.fireinterval;
       spritec.weapon.fireintervalcount = spritec.weapon.fireinterval;
@@ -928,8 +932,9 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
         spritec.dontdrop = true;
         // Force a snapshot to be sent
-        forceclientspritesnapshotmov = true;
-        lastforceclientspritesnapshotmovtick = GS::GetGame().GetMainTickCounter();
+        gGlobalStateClientGame.forceclientspritesnapshotmov = true;
+        gGlobalStateClientGame.lastforceclientspritesnapshotmovtick =
+          GS::GetGame().GetMainTickCounter();
 #endif
         b = spritec.getcursoraimdirection();
         vec2scale(playervelocity, spriteVelocity, guns[thrownknife].inheritedvelocity);
@@ -1831,7 +1836,7 @@ void controlsprite(tsprite &spritec)
       }
     }
 #ifndef SERVER
-    if (targetmode && (sprite_system.IsPlayerSprite(spritec.num)))
+    if (gGlobalStateClient.targetmode && (sprite_system.IsPlayerSprite(spritec.num)))
     {
       spritec.freecontrols();
     }
@@ -2549,7 +2554,7 @@ void controlsprite(tsprite &spritec)
     }
 
 #ifndef SERVER
-    if (clientstopmovingcounter < 1)
+    if (gGlobalStateClientGame.clientstopmovingcounter < 1)
     {
       spritec.freecontrols();
     }

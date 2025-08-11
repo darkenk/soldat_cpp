@@ -100,7 +100,7 @@ void serverhandlechatmessage(tmsgheader* netmessage, std::int32_t size, NetworkS
     return;
   }
 
-  messagesasecnum[player->spritenum] += 1;
+  gGlobalStateNetworkServer.messagesasecnum[player->spritenum] += 1;
 
   auto *v = reinterpret_cast<char16_t *>(&(reinterpret_cast<pmsg_stringmessage>(netmessage)->text));
   cs = U16toString(v);

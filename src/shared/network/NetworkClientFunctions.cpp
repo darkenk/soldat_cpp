@@ -27,7 +27,7 @@ void clienthandlevoteon(NetworkContext *netmessage)
 
   i = voteonmsg->who;
 
-  statsmenushow = false;
+  gGlobalStateInterfaceGraphics.statsmenushow = false;
 
   GS::GetGame().startvote(i, voteonmsg->votetype, voteonmsg->targetname.data(),
                           voteonmsg->reason.data());
@@ -139,13 +139,14 @@ void clienthandleweaponactivemessage(NetworkContext *netmessage)
 
   if ((wactivemessage->weapon > 0) && (wactivemessage->weapon <= main_weapons))
   {
-    weaponsel[mysprite][wactivemessage->weapon] = wactivemessage->active;
+    weaponsel[gGlobalStateClient.mysprite][wactivemessage->weapon] = wactivemessage->active;
 
     for (i = 1; i <= main_weapons; i++)
     {
       if (weaponSystem.IsEnabled(i))
       {
-        limbomenu->button[i - 1].active = (bool)(weaponsel[mysprite][i]);
+        gGlobalStateGameMenus.limbomenu->button[i - 1].active =
+          (bool)(weaponsel[gGlobalStateClient.mysprite][i]);
       }
     }
   }
@@ -167,19 +168,19 @@ void clienthandleclientfreecam(NetworkContext *netmessage)
   {
     if (freecammsg->freecamon == 1)
     {
-      camerafollowsprite = 0;
-      targetmode = true;
+      gGlobalStateClient.camerafollowsprite = 0;
+      gGlobalStateClient.targetmode = true;
     }
     else
     {
-      camerafollowsprite = mysprite;
-      targetmode = false;
+      gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
+      gGlobalStateClient.targetmode = false;
     }
 
     if ((freecammsg->targetpos.x != 0.0) && (freecammsg->targetpos.y != 0.0))
     {
-      camerax = freecammsg->targetpos.x;
-      cameray = freecammsg->targetpos.y;
+      gGlobalStateClient.camerax = freecammsg->targetpos.x;
+      gGlobalStateClient.cameray = freecammsg->targetpos.y;
     }
   }
 }
@@ -205,15 +206,15 @@ void clienthandlejoinserver(NetworkContext *netmessage)
 
   clientdisconnect(*GetNetwork());
 
-  redirecttoserver = true;
+  gGlobalStateClient.redirecttoserver = true;
   NotImplemented("network");
 #if 0
     redirectip = netaddrtostr(in_addr(joinservermsg->ip));
 #endif
-  redirectport = joinservermsg->port;
-  redirectmsg = trim((pmsg_joinserver(netmessage->packet)->showmsg.data()));
+  gGlobalStateClient.redirectport = joinservermsg->port;
+  gGlobalStateClient.redirectmsg = trim((pmsg_joinserver(netmessage->packet)->showmsg.data()));
 
-  gClient.exittomenu();
+  gGlobalStateClient.gClient.exittomenu();
 }
 
 void clienthandleplaysound(NetworkContext *netmessage)
@@ -228,7 +229,8 @@ void clienthandleplaysound(NetworkContext *netmessage)
 
   playsoundmsg = pmsg_playsound(netmessage->packet);
 
-  if (fs.Exists(std::string(moddir) + std::string("sfx/") + playsoundmsg->name.data()))
+  if (fs.Exists(std::string(gGlobalStateClient.moddir) + std::string("sfx/") +
+                playsoundmsg->name.data()))
   {
     // Name to ID, for easy use for scripters
     [[maybe_unused]] std::int32_t i = soundnametoid(playsoundmsg->name.data());

@@ -41,7 +41,7 @@ void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
   getmem(pchatmessage, size);
   fillchar(pchatmessage, size, 0);
   pchatmessage->header.id = msgid_chatmessage;
-  pchatmessage->num = mysprite;
+  pchatmessage->num = gGlobalStateClient.mysprite;
   pchatmessage->msgtype = msgtype;
 
   std::wstring_convert<deletable_facet<std::codecvt<char16_t, char, std::mbstate_t>>, char16_t>
@@ -91,27 +91,27 @@ void clienthandlechatmessage(NetworkContext *netmessage)
     }
   }
 
-  if ((sprite_system.GetSprite(i).muted) or muteall)
+  if ((sprite_system.GetSprite(i).muted) or gGlobalStateClient.muteall)
   {
     return;
   }
 
-  chatmessage[i] = cs;
-  chatteam[i] = (msgtype == msgtype_team);
+  gGlobalStateInterfaceGraphics.chatmessage[i] = cs;
+  gGlobalStateInterfaceGraphics.chatteam[i] = (msgtype == msgtype_team);
   d = std::count(cs.begin(), cs.end(), ' ');
 
   if (d == 0)
   {
-    chatdelay[i] = length(cs) * chardelay;
+    gGlobalStateInterfaceGraphics.chatdelay[i] = length(cs) * chardelay;
   }
   else
   {
-    chatdelay[i] = d * spacechardelay;
+    gGlobalStateInterfaceGraphics.chatdelay[i] = d * spacechardelay;
   }
 
-  if (chatdelay[i] > max_chatdelay)
+  if (gGlobalStateInterfaceGraphics.chatdelay[i] > max_chatdelay)
   {
-    chatdelay[i] = max_chatdelay;
+    gGlobalStateInterfaceGraphics.chatdelay[i] = max_chatdelay;
   }
 
   col = chat_message_color;
@@ -159,22 +159,26 @@ void clienthandlespecialmessage(NetworkContext *netmessage)
   }
   else if (specialmessage->msgtype == 1) // big text
   {
-    bigtext[specialmessage->layerid] = cs;
-    bigdelay[specialmessage->layerid] = specialmessage->delay;
-    bigscale[specialmessage->layerid] = specialmessage->scale;
-    bigcolor[specialmessage->layerid] = specialmessage->color;
-    bigposx[specialmessage->layerid] = specialmessage->x * _rscala.x;
-    bigposy[specialmessage->layerid] = specialmessage->y * _rscala.y;
-    bigx[specialmessage->layerid] = 100;
+    gGlobalStateInterfaceGraphics.bigtext[specialmessage->layerid] = cs;
+    gGlobalStateInterfaceGraphics.bigdelay[specialmessage->layerid] = specialmessage->delay;
+    gGlobalStateInterfaceGraphics.bigscale[specialmessage->layerid] = specialmessage->scale;
+    gGlobalStateInterfaceGraphics.bigcolor[specialmessage->layerid] = specialmessage->color;
+    gGlobalStateInterfaceGraphics.bigposx[specialmessage->layerid] =
+      specialmessage->x * gGlobalStateInterfaceGraphics._rscala.x;
+    gGlobalStateInterfaceGraphics.bigposy[specialmessage->layerid] =
+      specialmessage->y * gGlobalStateInterfaceGraphics._rscala.y;
+    gGlobalStateInterfaceGraphics.bigx[specialmessage->layerid] = 100;
   }
   else // world text
   {
-    worldtext[specialmessage->layerid] = cs;
-    worlddelay[specialmessage->layerid] = specialmessage->delay;
-    worldscale[specialmessage->layerid] = specialmessage->scale;
-    worldcolor[specialmessage->layerid] = specialmessage->color;
-    worldposx[specialmessage->layerid] = specialmessage->x * _rscala.x;
-    worldposy[specialmessage->layerid] = specialmessage->y * _rscala.y;
-    worldx[specialmessage->layerid] = 100;
+    gGlobalStateInterfaceGraphics.worldtext[specialmessage->layerid] = cs;
+    gGlobalStateInterfaceGraphics.worlddelay[specialmessage->layerid] = specialmessage->delay;
+    gGlobalStateInterfaceGraphics.worldscale[specialmessage->layerid] = specialmessage->scale;
+    gGlobalStateInterfaceGraphics.worldcolor[specialmessage->layerid] = specialmessage->color;
+    gGlobalStateInterfaceGraphics.worldposx[specialmessage->layerid] =
+      specialmessage->x * gGlobalStateInterfaceGraphics._rscala.x;
+    gGlobalStateInterfaceGraphics.worldposy[specialmessage->layerid] =
+      specialmessage->y * gGlobalStateInterfaceGraphics._rscala.y;
+    gGlobalStateInterfaceGraphics.worldx[specialmessage->layerid] = 100;
   }
 }

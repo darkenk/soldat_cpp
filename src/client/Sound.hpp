@@ -210,9 +210,14 @@ constexpr std::int32_t max_sources = 256;
 constexpr std::int32_t reserved_sources = 128;
 constexpr std::int32_t channel_weather = 127;
 
-extern std::vector<tscriptsound> scriptsamp;
-extern float volumeinternal;
-extern std::int32_t defaultchannel;
+struct GlobalStateSound
+{
+  std::vector<tscriptsound> scriptsamp;
+  float volumeinternal;
+  std::int32_t defaultchannel;
+};
+
+extern GlobalStateSound gGlobalStateSound;
 
 bool initsound();
 std::int8_t soundnametoid(const std::string &name);

@@ -35,7 +35,7 @@ void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, Net
   sprite_system.GetSprite(i).bulletcheckindex = 0;
   sprite_system.GetSprite(i).bulletcheckamount = 0;
 
-  messagesasecnum[playermsg->num] += 1;
+  gGlobalStateNetworkServer.messagesasecnum[playermsg->num] += 1;
 
   if ((GS::GetGame().IsVoteActive()) && (GS::GetGame().GetVoteType() == vote_kick))
   {
@@ -77,10 +77,11 @@ void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, Net
 
   for (j = 1; j <= max_players; j++)
   {
-    if ((trim(tklist[j]).empty()) || (tklist[j] == sprite_system.GetSprite(i).player->ip))
+    if ((trim(gGlobalStateServer.tklist[j]).empty()) ||
+        (gGlobalStateServer.tklist[j] == sprite_system.GetSprite(i).player->ip))
     {
-      tklistkills[j] = sprite_system.GetSprite(i).player->tkwarnings;
-      tklist[j] = sprite_system.GetSprite(i).player->ip;
+      gGlobalStateServer.tklistkills[j] = sprite_system.GetSprite(i).player->tkwarnings;
+      gGlobalStateServer.tklist[j] = sprite_system.GetSprite(i).player->ip;
       break;
     }
   }
@@ -130,8 +131,8 @@ void servermapchange(std::uint8_t id)
   for (auto &sprite : sprite_system.GetActiveSprites())
   {
     sprite.player->tkwarnings = 0;
-    tklist[sprite.num] = "";
-    tklistkills[sprite.num] = 0;
+    gGlobalStateServer.tklist[sprite.num] = "";
+    gGlobalStateServer.tklistkills[sprite.num] = 0;
   }
 
   if (id == 0)
@@ -317,14 +318,14 @@ void serverhandlevotemap(tmsgheader* netmessage, std::int32_t size, NetworkServe
   votemapmsg = pmsg_votemap(netmessage);
   i = player->spritenum;
 
-  if (votemapmsg->mapid > mapslist.size() - 1)
+  if (votemapmsg->mapid > gGlobalStateServer.mapslist.size() - 1)
   {
     return;
   }
 
   votemapreplymsg.header.id = msgid_votemapreply;
-  votemapreplymsg.count = mapslist.size();
-  strcpy(votemapreplymsg.mapname.data(), mapslist[votemapmsg->mapid].data());
+  votemapreplymsg.count = gGlobalStateServer.mapslist.size();
+  strcpy(votemapreplymsg.mapname.data(), gGlobalStateServer.mapslist[votemapmsg->mapid].data());
 
   GetServerNetwork()->SendData(&votemapreplymsg, sizeof(votemapreplymsg),
                                sprite_system.GetSprite(i).player->peer, true);

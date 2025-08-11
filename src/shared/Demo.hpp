@@ -115,5 +115,11 @@ public:
 #endif
 
 #ifndef SERVER
-extern tdemoplayer demoplayer;
+struct GlobalStateDemo
+{
+  tdemoplayer demoplayer;
+};
+
+extern GlobalStateDemo gGlobalStateDemo;
+
 #endif

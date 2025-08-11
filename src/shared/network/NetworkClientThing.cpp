@@ -115,7 +115,7 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
 
   if (thing.style == object_rambo_bow)
   {
-    gamethingtarget = i;
+    gGlobalStateClient.gamethingtarget = i;
   }
 }
 
@@ -279,7 +279,7 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
   thing.statictype = false;
   if (thing.style == object_rambo_bow)
   {
-    gamethingtarget = i;
+    gGlobalStateClient.gamethingtarget = i;
   }
 }
 
@@ -494,7 +494,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     sprite_system.GetSprite(thingtakensnap->who).weapon.fireinterval = 10;
     sprite_system.GetSprite(thingtakensnap->who).wearhelmet = 1;
     thing.kill();
-    gamethingtarget = 0;
+    gGlobalStateClient.gamethingtarget = 0;
 
     if ((sprite_system.IsPlayerSprite(thingtakensnap->who)) &&
         !sprite_system.GetPlayerSprite().deadmeat)

@@ -48,8 +48,8 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
     return;
   }
 
-  clienttickcount = spritesnap->serverticks;
-  lastheartbeatcounter = spritesnap->serverticks;
+  gGlobalStateNetworkClient.clienttickcount = spritesnap->serverticks;
+  gGlobalStateNetworkClient.lastheartbeatcounter = spritesnap->serverticks;
 
   auto &spritePartsPos = sprite_system.GetSpritePartsPos(i);
   auto &spriteVelocity = sprite_system.GetVelocity(i);
@@ -118,7 +118,7 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
     {
       if ((things[j].active) && (things[j].style == object_rambo_bow))
       {
-        gamethingtarget = 0;
+        gGlobalStateClient.gamethingtarget = 0;
         things[j].kill();
       }
     }
@@ -161,10 +161,10 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
 
   if (sprite_system.IsPlayerSprite(i))
   {
-    if (!targetmode)
+    if (!gGlobalStateClient.targetmode)
     {
-      camerafollowsprite = mysprite;
-      sprite.player->camera = mysprite;
+      gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
+      sprite.player->camera = gGlobalStateClient.mysprite;
     }
   }
 }
@@ -196,8 +196,8 @@ void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
     return;
   }
 
-  clienttickcount = spritesnapmajor->serverticks;
-  lastheartbeatcounter = spritesnapmajor->serverticks;
+  gGlobalStateNetworkClient.clienttickcount = spritesnapmajor->serverticks;
+  gGlobalStateNetworkClient.lastheartbeatcounter = spritesnapmajor->serverticks;
 
   auto &spritePartsPos = sprite_system.GetSpritePartsPos(i);
   auto &spriteVelocity = sprite_system.GetVelocity(i);
@@ -243,7 +243,7 @@ void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
     {
       if ((things[j].active) && (things[j].style == object_rambo_bow))
       {
-        gamethingtarget = 0;
+        gGlobalStateClient.gamethingtarget = 0;
         things[j].kill();
       }
     }
@@ -253,10 +253,10 @@ void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
 
   if (sprite_system.IsPlayerSprite(i))
   {
-    if (!targetmode)
+    if (!gGlobalStateClient.targetmode)
     {
-      camerafollowsprite = mysprite;
-      sprite.player->camera = mysprite;
+      gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
+      sprite.player->camera = gGlobalStateClient.mysprite;
     }
   }
 }
@@ -327,8 +327,8 @@ void clientspritesnapshotmov()
 
   clientmsg.header.id = msgid_clientspritesnapshot_mov;
 
-  auto &spritePartsPos = sprite_system.GetSpritePartsPos(mysprite);
-  auto &spriteVelocity = sprite_system.GetVelocity(mysprite);
+  auto &spritePartsPos = sprite_system.GetSpritePartsPos(gGlobalStateClient.mysprite);
+  auto &spriteVelocity = sprite_system.GetVelocity(gGlobalStateClient.mysprite);
 
   clientmsg.pos = spritePartsPos;
   clientmsg.velocity = spriteVelocity;
@@ -349,14 +349,14 @@ void clientspritesnapshotmov()
       (clientmsg.keys16 != oldclientsnapshotmovmsg.keys16) || ((clientmsg.keys16 & B6) == B6) ||
       (((sprite_system.GetPlayerSprite().weapon.fireinterval > fireinterval_net) ||
         (sprite_system.GetPlayerSprite().weapon.ammocount <= 0) ||
-        (round(mx) != oldclientsnapshotmovmsg.mouseaimx) ||
-        (round(my) != oldclientsnapshotmovmsg.mouseaimy)) &&
-       ((fabs(mx - oldclientsnapshotmovmsg.mouseaimx) >= mouseaimdelta) ||
-        (fabs(my - oldclientsnapshotmovmsg.mouseaimy) >= mouseaimdelta))))
+        (round(gGlobalStateClientGame.mx) != oldclientsnapshotmovmsg.mouseaimx) ||
+        (round(gGlobalStateClientGame.my) != oldclientsnapshotmovmsg.mouseaimy)) &&
+       ((fabs(gGlobalStateClientGame.mx - oldclientsnapshotmovmsg.mouseaimx) >= mouseaimdelta) ||
+        (fabs(gGlobalStateClientGame.my - oldclientsnapshotmovmsg.mouseaimy) >= mouseaimdelta))))
   {
     oldclientsnapshotmovmsg = clientmsg;
-    oldclientsnapshotmovmsg.mouseaimx = round(mx);
-    oldclientsnapshotmovmsg.mouseaimy = round(my);
+    oldclientsnapshotmovmsg.mouseaimx = round(gGlobalStateClientGame.mx);
+    oldclientsnapshotmovmsg.mouseaimy = round(gGlobalStateClientGame.my);
 
     GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
   }
@@ -368,7 +368,7 @@ void clientspritesnapshotdead()
   tmsg_clientspritesnapshot_dead clientmsg;
 
   clientmsg.header.id = msgid_clientspritesnapshot_dead;
-  clientmsg.camerafocus = camerafollowsprite;
+  clientmsg.camerafocus = gGlobalStateClient.camerafollowsprite;
 
   GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
 }
@@ -553,11 +553,11 @@ void clienthandlespritedeath(NetworkContext *netmessage)
     bigmessage(
       wideformat(_("Killed by {}"), sprite_system.GetSprite(deathsnap->killer).player->name),
       killmessagewait, die_message_color);
-    if (!limbolock)
+    if (!gGlobalStateClient.limbolock)
     {
-      gamemenushow(limbomenu);
+      gamemenushow(gGlobalStateGameMenus.limbomenu);
     }
-    menutimer = menu_time;
+    gGlobalStateClientGame.menutimer = menu_time;
     playsound(SfxEffect::playerdeath);
   }
 
@@ -577,12 +577,12 @@ void clienthandlespritedeath(NetworkContext *netmessage)
       bigmessage(multikillmessage[9], killmessagewait, kill_message_color);
     }
 
-    if ((shotdistance > -1) && (deathsnap->killer != i))
+    if ((gGlobalStateClient.shotdistance > -1) && (deathsnap->killer != i))
     {
-      shotdistanceshow = killmessagewait - 30;
-      shotdistance = deathsnap->shotdistance;
-      shotricochet = deathsnap->shotricochet;
-      shotlife = deathsnap->shotlife;
+      gGlobalStateClient.shotdistanceshow = killmessagewait - 30;
+      gGlobalStateClient.shotdistance = deathsnap->shotdistance;
+      gGlobalStateClient.shotricochet = deathsnap->shotricochet;
+      gGlobalStateClient.shotlife = deathsnap->shotlife;
     }
   }
 
@@ -724,7 +724,8 @@ void clienthandledelta_movement(NetworkContext *netmessage)
   auto *deltamov = pmsg_serverspritedelta_movement(netmessage->packet);
 
   // Older than Heartbeat Drop the Packet
-  if (!demoplayer.active() && (deltamov->servertick < lastheartbeatcounter))
+  if (!gGlobalStateDemo.demoplayer.active() &&
+      (deltamov->servertick < gGlobalStateNetworkClient.lastheartbeatcounter))
   {
     return;
   }
@@ -869,9 +870,10 @@ void clienthandleclientspritesnapshot_dead(NetworkContext *netmessage)
   {
     return;
   }
-  if (freecam == 0)
+  if (gGlobalStateClient.freecam == 0)
   {
-    camerafollowsprite = pmsg_clientspritesnapshot_dead(netmessage->packet)->camerafocus;
+    gGlobalStateClient.camerafollowsprite =
+      pmsg_clientspritesnapshot_dead(netmessage->packet)->camerafocus;
   }
 }
 

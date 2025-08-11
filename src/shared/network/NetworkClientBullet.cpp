@@ -27,7 +27,7 @@ void clientsendbullet(std::uint8_t i)
   bulletmsg.weaponnum = b.ownerweapon;
   bulletmsg.pos = GetBulletParts().pos[i];
   bulletmsg.velocity = GetBulletParts().velocity[i];
-  bulletmsg.clientticks = clienttickcount;
+  bulletmsg.clientticks = gGlobalStateNetworkClient.clienttickcount;
   bulletmsg.seed = b.seed;
 
   GetNetwork()->SendData(&bulletmsg, sizeof(bulletmsg), false);

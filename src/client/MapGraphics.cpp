@@ -16,7 +16,9 @@
 
 using string = std::string;
 
-tmapgraphics mapgfx;
+GlobalStateMapGraphics gGlobalStateMapGraphics{
+  .mapgfx{},
+};
 
 auto loadmaptexture(const string &texname, tgfxcolor colorkey) -> tgfximage *
 {
@@ -27,7 +29,7 @@ auto loadmaptexture(const string &texname, tgfxcolor colorkey) -> tgfximage *
   tgfximage *result;
   result = nullptr;
 
-  s[0] = moddir + "textures/" + texname;
+  s[0] = gGlobalStateClient.moddir + "textures/" + texname;
   s[1] = string("current_map/textures/") + texname;
 
   if (!fs.Exists(pngoverride(s[2])))
@@ -151,8 +153,8 @@ auto gettexturetargetscale(tmapfile &mapfile, tgfximage *image) -> float
   scale.x = 0;
   scale.y = 0;
 
-  resolutionx = (float)(renderwidth) / gamewidth;
-  resolutiony = (float)(renderheight) / gameheight;
+  resolutionx = (float)(gGlobalStateClientGame.renderwidth) / gGlobalStateGame.gamewidth;
+  resolutiony = (float)(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight;
 
   for (i = low(mapfile.polygons); i <= high(mapfile.polygons); i++)
   {
@@ -242,7 +244,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
   std::vector<std::int32_t> scenerysheetindex;
   auto& fs = GS::GetFileSystem();
 
-  tmapgraphics &mg = mapgfx;
+  tmapgraphics &mg = gGlobalStateMapGraphics.mapgfx;
   destroymapgraphics();
 
   mg.mapinfo = mapfile.mapinfo;
@@ -361,12 +363,16 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
       {
         prop = &mapfile.props[i];
         scenerycounters[prop->style - 1] += 1;
-        scenerymaxsize[prop->style - 1].x = max(
-          scenerymaxsize[prop->style - 1].x, (MyFloat)((MyFloat)fabs(prop->scalex * prop->width) *
-                                                       ((MyFloat)(renderheight) / gameheight)));
-        scenerymaxsize[prop->style - 1].y = max(
-          scenerymaxsize[prop->style - 1].y, (MyFloat)((MyFloat)fabs(prop->scaley * prop->height) *
-                                                       ((MyFloat)(renderheight) / gameheight)));
+        scenerymaxsize[prop->style - 1].x =
+          max(scenerymaxsize[prop->style - 1].x,
+              (MyFloat)((MyFloat)fabs(prop->scalex * prop->width) *
+                        ((MyFloat)(gGlobalStateClientGame.renderheight) /
+                         gGlobalStateGame.gameheight)));
+        scenerymaxsize[prop->style - 1].y =
+          max(scenerymaxsize[prop->style - 1].y,
+              (MyFloat)((MyFloat)fabs(prop->scaley * prop->height) *
+                        ((MyFloat)(gGlobalStateClientGame.renderheight) /
+                         gGlobalStateGame.gameheight)));
       }
     }
 
@@ -690,7 +696,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
   // background
 
   i = 4 * (proptotal + edgecount);
-  h = gameheight;
+  h = gGlobalStateGame.gameheight;
   d = max_sector * max((float)mapfile.sectorsdivision, (float)ceil(0.5 * h / max_sector));
 
   if (bgforce)
@@ -788,11 +794,11 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
 
   if (CVar::r_scaleinterface)
   {
-    w = 260 * ((float)(renderwidth) / gamewidth);
+    w = 260 * ((float)(gGlobalStateClientGame.renderwidth) / gGlobalStateGame.gamewidth);
   }
   else
   {
-    w = round(130 / (0.5 * gamewidth / renderwidth));
+    w = round(130 / (0.5 * gGlobalStateGame.gamewidth / gGlobalStateClientGame.renderwidth));
   }
 
   sx = w / ((bounds.right - bounds.left) + (bounds.bottom - bounds.top));
@@ -865,7 +871,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
 
     if (CVar::r_scaleinterface)
     {
-      sprite->scale = (float)(gamewidth) / renderwidth;
+      sprite->scale = (float)(gGlobalStateGame.gamewidth) / gGlobalStateClientGame.renderwidth;
       mg.minimapscale = mg.minimapscale * sprite->scale;
     }
 
@@ -891,7 +897,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
     settexturefilter(sprite->texture, false);
 
     gfxtarget(nullptr);
-    gfxviewport(0, 0, renderwidth, renderheight);
+    gfxviewport(0, 0, gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight);
   }
 }
 /*$POP*/
@@ -906,7 +912,7 @@ void updateprops(double t)
   tmapgraphics *mg;
   pgfxsprite sprite;
 
-  mg = &mapgfx;
+  mg = &gGlobalStateMapGraphics.mapgfx;
   vbindex = 0;
 
   for (i = low(mg->animations); i <= high(mg->animations); i++)
@@ -954,7 +960,7 @@ void renderprops(std::int32_t level)
 {
   std::int32_t i;
 
-  tmapgraphics &mg = mapgfx;
+  tmapgraphics &mg = gGlobalStateMapGraphics.mapgfx;
 
   for (i = 0; i <= high(mg.props[level]); i++)
   {
@@ -965,70 +971,72 @@ void renderprops(std::int32_t level)
 
 void renderminimap(float x, float y, std::uint8_t alpha)
 {
-  if (mapgfx.minimap.texture != nullptr)
+  if (gGlobalStateMapGraphics.mapgfx.minimap.texture != nullptr)
   {
-    gfxdrawsprite(&mapgfx.minimap, x, y, rgba(0xffffff, alpha));
+    gfxdrawsprite(&gGlobalStateMapGraphics.mapgfx.minimap, x, y, rgba(0xffffff, alpha));
   }
 }
 
 void worldtominimap(float x, float y, MyFloat &ox, MyFloat &oy)
 {
-  ox = (x - mapgfx.minimapoffset.x) * mapgfx.minimapscale;
-  oy = (y - mapgfx.minimapoffset.y) * mapgfx.minimapscale;
+  ox = (x - gGlobalStateMapGraphics.mapgfx.minimapoffset.x) *
+       gGlobalStateMapGraphics.mapgfx.minimapscale;
+  oy = (y - gGlobalStateMapGraphics.mapgfx.minimapoffset.y) *
+       gGlobalStateMapGraphics.mapgfx.minimapscale;
 }
 
 void destroymapgraphics()
 {
   std::int32_t i;
 
-  if (mapgfx.vertexbuffer != nullptr)
+  if (gGlobalStateMapGraphics.mapgfx.vertexbuffer != nullptr)
   {
-    gfxdeletebuffer(mapgfx.vertexbuffer);
+    gfxdeletebuffer(gGlobalStateMapGraphics.mapgfx.vertexbuffer);
   }
 
-  if (mapgfx.indexbuffer != nullptr)
+  if (gGlobalStateMapGraphics.mapgfx.indexbuffer != nullptr)
   {
-    gfxdeleteindexbuffer(mapgfx.indexbuffer);
+    gfxdeleteindexbuffer(gGlobalStateMapGraphics.mapgfx.indexbuffer);
   }
 
-  if (mapgfx.spritesheet != nullptr)
+  if (gGlobalStateMapGraphics.mapgfx.spritesheet != nullptr)
   {
-    freeandnullptr(mapgfx.spritesheet);
+    freeandnullptr(gGlobalStateMapGraphics.mapgfx.spritesheet);
   }
 
-  if (mapgfx.minimap.texture != nullptr)
+  if (gGlobalStateMapGraphics.mapgfx.minimap.texture != nullptr)
   {
-    gfxdeletetexture(mapgfx.minimap.texture);
+    gfxdeletetexture(gGlobalStateMapGraphics.mapgfx.minimap.texture);
   }
 
-  for (i = 0; i <= high(mapgfx.textures); i++)
+  for (i = 0; i <= high(gGlobalStateMapGraphics.mapgfx.textures); i++)
   {
-    if (mapgfx.textures[i] != nullptr)
+    if (gGlobalStateMapGraphics.mapgfx.textures[i] != nullptr)
     {
-      gfxdeletetexture(mapgfx.textures[i]);
+      gfxdeletetexture(gGlobalStateMapGraphics.mapgfx.textures[i]);
     }
   }
 
-  for (i = 0; i <= high(mapgfx.edgetextures); i++)
+  for (i = 0; i <= high(gGlobalStateMapGraphics.mapgfx.edgetextures); i++)
   {
-    if (mapgfx.edgetextures[i] != nullptr)
+    if (gGlobalStateMapGraphics.mapgfx.edgetextures[i] != nullptr)
     {
-      gfxdeletetexture(mapgfx.edgetextures[i]);
+      gfxdeletetexture(gGlobalStateMapGraphics.mapgfx.edgetextures[i]);
     }
   }
 
-  mapgfx.filename = "";
-  mapgfx.animations.clear();
-  mapgfx.animationscmd.clear();
-  mapgfx.animationsbuffer.clear();
-  mapgfx.animduration.clear();
-  mapgfx.props[0].clear();
-  mapgfx.props[1].clear();
-  mapgfx.props[2].clear();
-  mapgfx.textures.clear();
-  mapgfx.edgetextures.clear();
-  mapgfx.edges[0].clear();
-  mapgfx.edges[1].clear();
-  mapgfx.polys[0].clear();
-  mapgfx.polys[1].clear();
+  gGlobalStateMapGraphics.mapgfx.filename = "";
+  gGlobalStateMapGraphics.mapgfx.animations.clear();
+  gGlobalStateMapGraphics.mapgfx.animationscmd.clear();
+  gGlobalStateMapGraphics.mapgfx.animationsbuffer.clear();
+  gGlobalStateMapGraphics.mapgfx.animduration.clear();
+  gGlobalStateMapGraphics.mapgfx.props[0].clear();
+  gGlobalStateMapGraphics.mapgfx.props[1].clear();
+  gGlobalStateMapGraphics.mapgfx.props[2].clear();
+  gGlobalStateMapGraphics.mapgfx.textures.clear();
+  gGlobalStateMapGraphics.mapgfx.edgetextures.clear();
+  gGlobalStateMapGraphics.mapgfx.edges[0].clear();
+  gGlobalStateMapGraphics.mapgfx.edges[1].clear();
+  gGlobalStateMapGraphics.mapgfx.polys[0].clear();
+  gGlobalStateMapGraphics.mapgfx.polys[1].clear();
 }

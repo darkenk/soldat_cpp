@@ -109,9 +109,9 @@ void clienthandlenewplayer(NetworkContext *netmessage)
   if (newplayermsg->adoptspriteid == 1)
   {
     d = 1;
-    mysprite = i;
+    gGlobalStateClient.mysprite = i;
 
-    if (demoplayer.active())
+    if (gGlobalStateDemo.demoplayer.active())
     {
       sprite_system.GetPlayerSprite().player->demoplayer = true;
     }
@@ -121,21 +121,21 @@ void clienthandlenewplayer(NetworkContext *netmessage)
 
     if (player->team == team_spectator)
     {
-      camerafollowsprite = 0;
-      camerafollowsprite = getcameratarget();
-      gamemenushow(limbomenu, false);
+      gGlobalStateClient.camerafollowsprite = 0;
+      gGlobalStateClient.camerafollowsprite = getcameratarget();
+      gamemenushow(gGlobalStateGameMenus.limbomenu, false);
     }
     else
     {
-      camerafollowsprite = mysprite;
+      gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
     }
 
-    gamemenushow(teammenu, false);
-    clientplayerreceived = true;
-    clientplayerreceivedcounter = -1;
-    badmapidcount = 2;
-    heartbeattime = GS::GetGame().GetMainTickCounter();
-    heartbeattimewarnings = 0;
+    gamemenushow(gGlobalStateGameMenus.teammenu, false);
+    gGlobalStateNetworkClient.clientplayerreceived = true;
+    gGlobalStateNetworkClient.clientplayerreceivedcounter = -1;
+    gGlobalStateClient.badmapidcount = 2;
+    gGlobalStateGame.heartbeattime = GS::GetGame().GetMainTickCounter();
+    gGlobalStateGame.heartbeattimewarnings = 0;
 
     CVar::r_zoom = 0.0; // Reset zoom
 
@@ -143,8 +143,8 @@ void clienthandlenewplayer(NetworkContext *netmessage)
     {
       GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
     }
-    fragsmenushow = false;
-    statsmenushow = false;
+    gGlobalStateInterfaceGraphics.fragsmenushow = false;
+    gGlobalStateInterfaceGraphics.statsmenushow = false;
   }
 
   sprite_system.SetSpritePartsOldPos(i, newplayermsg->pos);
@@ -163,7 +163,7 @@ void clienthandlenewplayer(NetworkContext *netmessage)
 
     if (sprite_system.IsPlayerSpriteValid())
     {
-      gamemenushow(limbomenu);
+      gamemenushow(gGlobalStateGameMenus.limbomenu);
       newplayerweapon();
     }
   }
@@ -230,8 +230,8 @@ void clienthandlevoteresponse(NetworkContext *netmessage)
   }
 
   votemsgreply = pmsg_votemapreply(netmessage->packet);
-  votemapname = votemsgreply->mapname.data();
-  votemapcount = votemsgreply->count;
+  gGlobalStateNetworkClient.votemapname = votemsgreply->mapname.data();
+  gGlobalStateNetworkClient.votemapcount = votemsgreply->count;
 }
 
 void clientfreecamtarget()
@@ -240,8 +240,8 @@ void clientfreecamtarget()
 
   freecammsg.header.id = msgid_clientfreecam;
   freecammsg.freecamon = 0;
-  freecammsg.targetpos.x = camerax;
-  freecammsg.targetpos.y = cameray;
+  freecammsg.targetpos.x = gGlobalStateClient.camerax;
+  freecammsg.targetpos.y = gGlobalStateClient.cameray;
 
   GetNetwork()->SendData(&freecammsg, sizeof(freecammsg), true);
 }
@@ -441,13 +441,13 @@ void clienthandleplayerdisconnect(NetworkContext *netmessage)
   if ((sprite_system.IsPlayerSprite(playermsg->num)) && (GS::GetGame().GetMapchangecounter() < 1))
   {
     GS::GetGame().showmapchangescoreboard();
-    gamemenushow(teammenu, false);
+    gamemenushow(gGlobalStateGameMenus.teammenu, false);
   }
 
   if ((playermsg->why != kick_changeteam) && (playermsg->why != kick_leftgame))
   {
-    fragsmenushow = false;
-    statsmenushow = false;
+    gGlobalStateInterfaceGraphics.fragsmenushow = false;
+    gGlobalStateInterfaceGraphics.statsmenushow = false;
   }
 }
 
@@ -469,15 +469,15 @@ void clienthandlemapchange(NetworkContext *netmessage)
   GS::GetGame().SetMapchangename(mapchangename);
   GS::GetGame().SetMapchangecounter(mapchange->counter);
   GS::GetGame().SetMapchangechecksum(mapchange->mapchecksum);
-  fragsmenushow = true;
-  statsmenushow = false;
-  gamemenushow(limbomenu, false);
-  heartbeattime = GS::GetGame().GetMainTickCounter();
-  heartbeattimewarnings = 0;
+  gGlobalStateInterfaceGraphics.fragsmenushow = true;
+  gGlobalStateInterfaceGraphics.statsmenushow = false;
+  gamemenushow(gGlobalStateGameMenus.limbomenu, false);
+  gGlobalStateGame.heartbeattime = GS::GetGame().GetMainTickCounter();
+  gGlobalStateGame.heartbeattimewarnings = 0;
 
   if (CVar::cl_endscreenshot)
   {
-    screentaken = true;
+    gGlobalStateClient.screentaken = true;
   }
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
@@ -488,11 +488,11 @@ void clienthandlemapchange(NetworkContext *netmessage)
     stopsound(sprite.gattlingsoundchannel2);
   }
 
-  if (demoplayer.active())
+  if (gGlobalStateDemo.demoplayer.active())
   {
     GS::GetGame().showmapchangescoreboard("");
 
-    demoplayer.stopdemo();
+    gGlobalStateDemo.demoplayer.stopdemo();
     return;
   }
 
@@ -506,12 +506,12 @@ void clienthandlemapchange(NetworkContext *netmessage)
     {
       if (GS::GetGame().GetSortedPlayers(1).playernum > 0)
       {
-        camerafollowsprite = GS::GetGame().GetSortedPlayers(1).playernum;
+        gGlobalStateClient.camerafollowsprite = GS::GetGame().GetSortedPlayers(1).playernum;
       }
-      if (!escmenu->active)
+      if (!gGlobalStateGameMenus.escmenu->active)
       {
-        mx = gamewidthhalf;
-        my = gameheighthalf;
+        gGlobalStateClientGame.mx = gGlobalStateGame.gamewidthhalf;
+        gGlobalStateClientGame.my = gGlobalStateGame.gameheighthalf;
       }
     }
   }

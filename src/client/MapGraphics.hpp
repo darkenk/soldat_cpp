@@ -26,14 +26,19 @@ struct tmapgraphics
   std::array<std::vector<tgfxdrawcommand>, 3> props;
   tgfxsprite minimap;
   float minimapscale;
-  tvector2 minimapoffset;
+  tvector2 minimapoffset{};
   tgfxcolor bgcolortop, bgcolorbtm;
   std::int32_t background, backgroundcount;
   std::array<std::vector<tgfxdrawcommand>, 2> edges;
   std::array<std::vector<tgfxdrawcommand>, 2> polys;
 };
 
-extern tmapgraphics mapgfx;
+struct GlobalStateMapGraphics
+{
+  tmapgraphics mapgfx;
+};
+
+extern GlobalStateMapGraphics gGlobalStateMapGraphics;
 
 void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmapcolor bgcolorbtm);
 void destroymapgraphics();

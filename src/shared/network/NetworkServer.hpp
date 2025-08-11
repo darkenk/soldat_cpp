@@ -10,14 +10,19 @@
 // the bot object and free it when it is replaced.
 // Albeit this approach is very robust I'd prefer if we get rid of this and fix all .Active
 // checks (if any) later. Alternatively we could move a good bit if info from Player to Sprite.
-extern std::int32_t servertickcounter;
-extern PascalArray<std::int32_t, 1, max_players> noclientupdatetime;
-extern PascalArray<std::int32_t, 1, max_players> messagesasecnum;
-extern PascalArray<std::uint8_t, 1, max_players> floodwarnings;
-extern PascalArray<std::uint8_t, 1, max_players> pingwarnings;
-extern PascalArray<std::int32_t, 1, max_players> bullettime;
-extern PascalArray<std::int32_t, 1, max_players> grenadetime;
-extern PascalArray<bool, 1, max_players> knifecan;
+struct GlobalStateNetworkServer
+{
+  std::int32_t servertickcounter;
+  PascalArray<std::int32_t, 1, max_players> noclientupdatetime;
+  PascalArray<std::int32_t, 1, max_players> messagesasecnum;
+  PascalArray<std::uint8_t, 1, max_players> floodwarnings;
+  PascalArray<std::uint8_t, 1, max_players> pingwarnings;
+  PascalArray<std::int32_t, 1, max_players> bullettime;
+  PascalArray<std::int32_t, 1, max_players> grenadetime;
+  PascalArray<bool, 1, max_players> knifecan;
+};
+
+extern GlobalStateNetworkServer gGlobalStateNetworkServer;
 
 using HSoldatMessageId = std::uint32_t;
 
