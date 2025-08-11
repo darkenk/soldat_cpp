@@ -28,6 +28,14 @@
     },
     "C_Cpp.autoAddFileAssociations": false,
     "testMate.cpp.test.executables": "build/out/**/game/SoldatGame",
+    "testMate.cpp.test.advancedExecutables": [
+      {
+        "pattern": "build/out/**/game/SoldatGame",
+        "doctest": {
+          "prependTestRunningArgs": ["--exit"]
+        }
+      }
+    ],
     "testMate.cpp.debug.breakOnFailure": true,
     "testMate.cpp.debug.configTemplate": {
       "type": "cppvsdbg",
