@@ -214,7 +214,6 @@ ExternalProject_Add(
     USES_TERMINAL_INSTALL ON
 )
 
-
 ExternalProject_Add(
     soloud DEPENDS SDL3
     PREFIX "${CMAKE_BINARY_DIR}/third_party/soloud"
@@ -243,3 +242,19 @@ create_import_cmake_file(PROJECTS
     dbg_macro
     soloud
 )
+
+# tools
+ExternalProject_Add(
+  iwyu
+  PREFIX "${CMAKE_BINARY_DIR}/third_party/iwyu"
+  INSTALL_DIR "${CMAKE_BINARY_DIR}/install/iwyu"
+  GIT_REPOSITORY "https://github.com/include-what-you-use/include-what-you-use.git"
+  GIT_TAG "clang_20"
+  CMAKE_ARGS
+    -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+    -DCMAKE_BUILD_TYPE=Release
+  USES_TERMINAL_CONFIGURE ON
+  USES_TERMINAL_BUILD ON
+  USES_TERMINAL_INSTALL ON
+)
+# end tools

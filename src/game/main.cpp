@@ -1,12 +1,5 @@
 #include <stb_image_write.h>
 #include <stb_image.h>
-#include <ApprovalTests/Approvals.h>
-#include <ApprovalTests/core/ApprovalComparator.h>
-#include <ApprovalTests/core/FileApprover.h>
-#include <ApprovalTests/namers/ApprovalTestNamer.h>
-#include <ApprovalTests/namers/TemplatedCustomNamer.h>
-#include <ApprovalTests/reporters/CrossPlatformReporters.h>
-#include <ApprovalTests/utilities/EmptyFileCreatorByType.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
 #include <thread>
@@ -25,7 +18,6 @@
 #include "platform/include/Threads.hpp"
 #include "server/Server.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include "ApprovalTests/integrations/doctest/DocTestApprovals.h"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/SoldatConfig.hpp"
 
@@ -36,9 +28,10 @@
 
 // clang-format off
 #define DOCTEST_CONFIG_IMPLEMENT
-#include <doctest/doctest.h>
+#include <doctest/doctest.h> // IWYU: pragma keep
 
 #define APPROVALS_DOCTEST_EXISTING_MAIN
+#include <ApprovalTests/ApprovalTests.hpp> // IWYU: pragma keep
 // clang-format on
 
 template<int DesiredPrecision>
