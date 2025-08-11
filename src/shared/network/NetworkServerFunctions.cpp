@@ -2,11 +2,24 @@
 
 #include "NetworkServerFunctions.hpp"
 
+#include <array>
+#include <memory>
+
 #include "NetworkServer.hpp"
-#include "../Game.hpp"
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "common/Util.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 void serversendfreecam(std::uint8_t tonum, bool freecam, tvector2 pos)
 {

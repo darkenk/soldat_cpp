@@ -1,8 +1,18 @@
 #pragma once
 
-#include "Net.hpp"
 #include <functional>
 #include <map>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <string_view>
+
+#include "Net.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/network/Net.hpp"
+
+struct SteamNetworkingMessage_t;
 
 // We're assigning a dummy player class to all sprites that are currently not being controlled
 // by a player. This avoids nasty surprises with older code that reads .Player despite .Active

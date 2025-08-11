@@ -1,7 +1,21 @@
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_clipboard.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_gpu.h>
+#include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_properties.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_scancode.h>
+#include <SDL3/SDL_video.h>
+#include <stdint.h>
+#include <string.h>
 #include <cassert>
 #include <cstdlib>
+
 #include "Nuklear.hpp"
+#include "client/ui/nuklear_sdl3_gpu.hpp"
+
 #define NK_SDL_GPU_IMPLEMENTATION
 /*
  * ==============================================================

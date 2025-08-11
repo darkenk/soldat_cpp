@@ -1,10 +1,20 @@
 // automatically converted
 #include "LogFile.hpp"
-#include "Console.hpp"
-#include "FileUtility.hpp"
-#include "Logging.hpp"
 
 #include <sstream>
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <ctime>
+#include <format>
+#include <iomanip>
+#include <utility>
+
+#include "FileUtility.hpp"
+#include "Logging.hpp"
+#include "misc/PortUtilsSoldat.hpp"
+#include "port_utils/NotImplemented.hpp"
+#include "port_utils/Utilities.hpp"
 
 static constexpr std::int32_t max_logfilesize = 512000;
 
@@ -144,6 +154,8 @@ void LogFile::CreateNewLogIfCurrentLogIsTooBig()
 
 // TEST
 #include <doctest/doctest.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
 
 class LogFileFixture
 {

@@ -1,11 +1,24 @@
 // automatically converted
 #include "PolyMap.hpp"
+
+#include <Tracy.hpp>
+#include <stdlib.h>
+#include <map>
+#include <algorithm>
+#include <cmath>
+#include <cstring>
+#include <iterator>
+#include <utility>
+
 #include "Calc.hpp"
 #include "Constants.hpp"
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
-#include <Tracy.hpp>
-#include <map>
+#include "Waypoints.hpp"
+#include "port_utils/NotImplemented.hpp"
+#include "port_utils/Utilities.hpp"
+
+class FileUtility;
 
 namespace
 {
@@ -587,8 +600,6 @@ auto Polymap::collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::i
   }
   return collisiontestexcept_result;
 }
-#ifdef NoOverflowCheck /*$Q+*/ /*$UNDEF NoOverflowCheck*/
-#endif
 
 auto Polymap::ShouldTestPolygonWithRay(const std::uint8_t polygonType, const bool npcol,
                                        const bool nbcol, const bool flag,

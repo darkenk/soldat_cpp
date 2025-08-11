@@ -1,9 +1,15 @@
 #include "Nuklear.hpp"
+#include "client/ui/nuklear_sdl3_gpu.hpp"
 
 
 
 #pragma region tests
 #include <doctest/doctest.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_gpu.h>
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_stdinc.h>
+
 #include "../SdlApp.hpp"
 
 

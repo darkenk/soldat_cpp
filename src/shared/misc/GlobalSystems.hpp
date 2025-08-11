@@ -1,4 +1,8 @@
 #pragma once
+#include <memory>
+#include <type_traits>
+#include <utility>
+
 #include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 #include "common/FileUtility.hpp"
 #include "common/WeaponSystem.hpp"
@@ -8,13 +12,12 @@
 #include "shared/Game.hpp"
 #include "shared/mechanics/BulletSystem.hpp"
 #include "shared/mechanics/ThingSystem.hpp"
-#include <memory>
-#include <type_traits>
 
 class FileUtility;
 class ConsoleMain;
 class ConsoleServer;
 class LogFile;
+class WeaponSystem;
 
 template <Config::Module M>
 class GlobalSystems final : public GlobalSubsystem<GlobalSystems<M>>

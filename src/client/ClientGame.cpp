@@ -2,6 +2,15 @@
 
 #include "ClientGame.hpp"
 
+#include <common/Console.hpp>
+#include <Tracy.hpp>
+#include <SDL3/SDL_timer.h>
+#include <thread>
+#include <array>
+#include <chrono>
+#include <cmath>
+#include <memory>
+
 #include "Client.hpp"
 #include "GameMenus.hpp"
 #include "GameRendering.hpp"
@@ -16,10 +25,15 @@
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientSprite.hpp"
 #include "shared/network/NetworkClient.hpp"
-#include <common/Console.hpp>
-#include <SDL3/SDL.h>
-#include <Tracy.hpp>
-#include <thread>
+#include "common/Util.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 using string = std::string;
 

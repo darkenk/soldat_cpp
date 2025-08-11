@@ -1,6 +1,9 @@
 #include "Calc.hpp"
+
 #include <cmath>
 #include <numbers>
+
+#include "misc/SafeType.hpp"
 
 static auto sqr(float v) -> float { return v * v; }
 

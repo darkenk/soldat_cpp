@@ -1,5 +1,10 @@
 #include "Cvar.hpp"
+
 #include <map>
+#include <cctype>
+#include <cstdlib>
+
+#include "shared/misc/FlagSet.hpp"
 
 template <>
 auto FromString<std::int32_t>(const std::string_view &value,

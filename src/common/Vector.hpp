@@ -1,7 +1,9 @@
 #pragma once
-#include "misc/SafeType.hpp"
-#include <ostream>
 #include <spdlog/fmt/bundled/format.h>
+#include <ostream>
+#include <cmath>
+
+#include "misc/SafeType.hpp"
 
 typedef struct tvector2 *pvector2;
 struct tvector2

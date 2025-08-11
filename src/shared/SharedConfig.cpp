@@ -1,17 +1,30 @@
 // automatically converted
 
 #include "SharedConfig.hpp"
-#include "../server/Server.hpp"
+
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <cstdint>
+#include <memory>
+#include <stdexcept>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+
 #include "common/Constants.hpp"
-#include "Game.hpp"
 #include "common/Logging.hpp"
-#include "common/Util.hpp"
 #include "common/Weapons.hpp"
 #include "common/gfx.hpp"
 #include "common/misc/TIniFile.hpp"
 #include "network/Net.hpp"
 #include "shared/mechanics/Sprites.hpp"
-#include <sstream>
+#include "common/misc/PortUtils.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/Cvar.hpp"
 
 namespace
 {

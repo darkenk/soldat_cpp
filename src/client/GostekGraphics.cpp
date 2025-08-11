@@ -1,20 +1,34 @@
 // automatically converted
 
 #include "GostekGraphics.hpp"
+
+#include <Tracy.hpp>
+#include <math.h>
+#include <array>
+#include <memory_resource>
+#include <numbers>
+#include <set>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <vector>
+
 #include "GameRendering.hpp"
 #include "Gfx.hpp"
 #include "common/gfx.hpp"
-#include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <Tracy.hpp>
-#include <array>
-#include <memory_resource>
-#include <numbers>
-#include <set>
+#include "common/Anims.hpp"
+#include "common/Constants.hpp"
+#include "common/Parts.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/network/Net.hpp"
 
 using std::numbers::pi;
 
@@ -594,7 +608,7 @@ void rendergostek(tsprite &soldier)
   }
 
   alpha[alpha_base] = soldier.alpha;
-  alpha[alpha_blood] = max(0.0, min(255.0, 200 - round(soldier.GetHealth())));
+  alpha[alpha_blood] = max(0.0f, min(255.0f, 200 - round(soldier.GetHealth())));
 
   if (soldier.GetHealth() > (90 - 40 * static_cast<int>(CVar::sv_realisticmode)))
   {
@@ -928,7 +942,7 @@ void rendergostek(tsprite &soldier)
       }
       else if (gs.flex > 0)
       {
-        sx = min(1.5, sqrt(sqr(x2 - x1) + sqr(y2 - y1)) / gs.flex);
+        sx = min(1.5f, sqrt(sqr(x2 - x1) + sqr(y2 - y1)) / gs.flex);
       }
 
       drawgosteksprite(gGlobalStateGameRendering.textures[tex], x1, y1 + 1, sx, sy, cx, cy, r,

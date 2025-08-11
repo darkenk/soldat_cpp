@@ -1,13 +1,19 @@
 #pragma once
 
-#include "..//Vector.hpp"
-#include "../Util.hpp"
-#include "../Weapons.hpp"
+#include <stddef.h>
 #include <array>
 #include <cstdint>
 #include <mutex>
 #include <queue>
 #include <string>
+#include <cstring>
+#include <string_view>
+
+#include "..//Vector.hpp"
+#include "../Util.hpp"
+#include "../Weapons.hpp"
+#include "/home/darkenk/workspace/soldat/soldat_cpp/src/common/misc/PortUtilsSoldat.hpp"
+#include "/home/darkenk/workspace/soldat/soldat_cpp/src/common/misc/SHA1Helper.hpp"
 
 // Binary ops
 auto constexpr B1 = 1;

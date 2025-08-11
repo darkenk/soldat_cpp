@@ -1,10 +1,12 @@
 #pragma once
+#include <cstdint>
+
 #include "common/Vector.hpp"
 #include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
-#include <cstdint>
 
 class Polymap;
 class particlesystem;
+struct tvector2;
 
 class tspark
 {

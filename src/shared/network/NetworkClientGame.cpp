@@ -1,5 +1,13 @@
 // automatically converted
 #include "NetworkClientGame.hpp"
+
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <limits>
+#include <algorithm>
+#include <array>
+#include <memory>
+
 #include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
 #include "../../client/GameMenus.hpp"
@@ -17,7 +25,19 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <limits>
+#include "common/Constants.hpp"
+#include "common/Parts.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/Things.hpp"
+#include "shared/network/Net.hpp"
 
 void clienthandlenewplayer(NetworkContext *netmessage)
 {

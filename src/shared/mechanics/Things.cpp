@@ -1,7 +1,32 @@
 // automatically converted
 #include "Things.hpp"
 
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <cstring>
+#include <memory>
+#include <utility>
+#include <vector>
+#include <string>
+
 #include "common/Logging.hpp"
+#include "common/Anims.hpp"
+#include "common/Constants.hpp"
+#include "common/MapFile.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/network/Net.hpp"
+#include "shared/AnimationSystem.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Bullets.hpp"
+#include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 #ifndef SERVER
 #include "../../client/Client.hpp"
@@ -21,7 +46,6 @@
 #include "SpriteSystem.hpp"
 #include "common/Calc.hpp"
 #include "common/gfx.hpp"
-#include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 

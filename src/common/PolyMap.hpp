@@ -1,11 +1,22 @@
 #pragma once
 
+#include <array>
+#include <cstdint>
+#include <format>
+#include <limits>
+#include <string>
+#include <vector>
+
 #include "MapFile.hpp"
 #include "Util.hpp"
 #include "Vector.hpp"
 #include "Waypoints.hpp"
 #include "FileUtility.hpp"
 #include "misc/PortUtilsSoldat.hpp"
+#include "misc/SafeType.hpp"
+
+class FileUtility;
+class twaypoints;
 
 // Polygon constants go here
 // ...

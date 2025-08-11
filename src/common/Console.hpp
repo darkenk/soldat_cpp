@@ -1,7 +1,12 @@
 #pragma once
-#include "misc/PortUtilsSoldat.hpp"
 #include <cstdint>
 #include <string>
+#include <algorithm>
+#include <string_view>
+#include <vector>
+
+#include "misc/PortUtilsSoldat.hpp"
+#include "misc/PortUtils.hpp"
 
 class FileUtility;
 

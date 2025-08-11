@@ -2,24 +2,38 @@
 
 #include "Command.hpp"
 
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+
 #ifdef SERVER
 #include "../server/Server.hpp"
 #include "shared/network/NetworkUtils.hpp"
 #else
 #include "../client/Client.hpp"
 #endif
+#include <map>
+#include <sstream>
+#include <algorithm>
+#include <cctype>
+#include <cstddef>
+#include <iterator>
+#include <memory>
+#include <utility>
+
 #include "Cvar.hpp"
-#include "Game.hpp"
 #include "common/Console.hpp"
 #include "common/Logging.hpp"
-#include "common/misc/Config.hpp"
 #include "common/FileUtility.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <filesystem>
-#include <fstream>
-#include <map>
-#include <sstream>
+#include "common/Constants.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 static bool deferredinitialized = false;
 static std::map<std::string, tcommand *> commands;

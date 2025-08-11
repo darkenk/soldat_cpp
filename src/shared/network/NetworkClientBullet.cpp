@@ -1,14 +1,30 @@
 // automatically converted
 #include "NetworkClientBullet.hpp"
 
-#include "../../client/Client.hpp"
-#include "../Demo.hpp"
-#include "../Game.hpp"
+#include <math.h>
+#include <array>
+#include <memory>
+
 #include "../mechanics/Bullets.hpp"
 #include "NetworkClient.hpp"
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "common/Parts.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/mechanics/Things.hpp"
+#include "shared/network/Net.hpp"
 
 constexpr auto pingticksadd = 2;
 

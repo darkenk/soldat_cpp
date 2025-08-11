@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <cinttypes>
+#include <cstdint>
 
 std::string checknextmap();
 #if 0

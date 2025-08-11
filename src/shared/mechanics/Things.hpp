@@ -1,10 +1,16 @@
 #pragma once
 
+#include <array>
+#include <cstdint>
+
 #include "BackgroundState.hpp"
 #include "common/MapFile.hpp"
 #include "common/Parts.hpp"
-#include <array>
-#include <cstdint>
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SoldatConfig.hpp"
+
+struct tmappolygon;
+struct tvector2;
 
 class tthingcollision
 {

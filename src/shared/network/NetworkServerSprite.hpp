@@ -1,9 +1,15 @@
 #pragma once
 
-#include "../Constants.hpp"
-#include "NetworkServer.hpp"
 #include <array>
 #include <cstdint>
+
+#include "../Constants.hpp"
+#include "NetworkServer.hpp"
+#include "common/Constants.hpp"
+#include "common/network/Net.hpp"
+
+class NetworkServer;
+class TServerPlayer;
 
 void serverspritesnapshot(std::uint8_t r);
 void serverspritesnapshotmajor(std::uint8_t r);

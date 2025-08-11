@@ -1,4 +1,14 @@
 #include "NetworkClient.hpp"
+
+#include <steam/isteamnetworkingsockets.h>
+#include <steam/isteamnetworkingutils.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <steam/steamclientpublic.h>
+#include <steam/steamnetworkingtypes.h>
+#include <array>
+#include <utility>
+
 #include "../Demo.hpp"
 #include "NetworkClientBullet.hpp"
 #include "NetworkClientConnection.hpp"
@@ -10,8 +20,7 @@
 #include "NetworkClientThing.hpp"
 #include "common/Logging.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <steam/isteamnetworkingsockets.h>
-#include <steam/isteamnetworkingutils.h>
+#include "common/misc/PortUtils.hpp"
 
 static std::string_view NETMSG = "net_msg";
 auto constexpr LOG_NET = "network";

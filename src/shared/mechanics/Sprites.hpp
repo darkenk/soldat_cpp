@@ -1,5 +1,11 @@
 #pragma once
 
+#include <array>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <type_traits>
+
 #include "../AnimationSystem.hpp"
 #include "../Constants.hpp"
 #include "../network/Net.hpp"
@@ -8,8 +14,15 @@
 #include "common/PolyMap.hpp"
 #include "common/Vector.hpp"
 #include "common/Weapons.hpp"
-#include <array>
-#include <cstdint>
+#include "common/Anims.hpp"
+#include "common/Constants.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "shared/Constants.cpp.h"
+
+class tplayer;
+enum PolygonType : std::uint16_t;
 
 constexpr std::int32_t max_sprites = max_players;
 constexpr std::int32_t max_bullets = 254;

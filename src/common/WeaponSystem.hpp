@@ -1,5 +1,8 @@
 #pragma once
+#include <cstdint>
+
 #include "Weapons.hpp"
+#include "misc/PortUtilsSoldat.hpp"
 
 class WeaponSystem
 {

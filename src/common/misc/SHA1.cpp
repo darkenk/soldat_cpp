@@ -19,6 +19,10 @@
                          -- Zlatko Michailov <zlatko@michailov.org>
                              */
 #include "SHA1.hpp"
+
+#include <cstddef>
+#include <sstream>
+
 // NOLINTBEGIN
 namespace
 {

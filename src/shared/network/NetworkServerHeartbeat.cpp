@@ -1,11 +1,19 @@
 // automatically converted
 
 #include "NetworkServerHeartbeat.hpp"
+
 #include "NetworkServer.hpp"
-#include "../Demo.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/Cvar.hpp"
+#include "common/Constants.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/network/Net.hpp"
+#include "shared/AnimationSystem.hpp"
+#include "shared/Game.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 template<class TSprite, Config::Module M>
 void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSystem, Game<M>& game)
@@ -77,8 +85,17 @@ void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSys
 }
 // tests
 #include <doctest/doctest.h>
-#include "NetworkClient.hpp"
 #include <spdlog/spdlog.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <algorithm>
+#include <array>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <string_view>
+
+#include "NetworkClient.hpp"
 
 namespace
 {

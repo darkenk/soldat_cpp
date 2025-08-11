@@ -1,9 +1,10 @@
 #pragma once
 
-#include "misc/PortUtilsSoldat.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
+
+#include "misc/PortUtilsSoldat.hpp"
 
 struct tgun
 {

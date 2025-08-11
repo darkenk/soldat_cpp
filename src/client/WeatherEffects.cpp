@@ -2,12 +2,19 @@
 
 #include "WeatherEffects.hpp"
 
+#include <cstdint>
+
 #include "Client.hpp"
 #include "Sound.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "shared/mechanics/Sparks.hpp"
 
 // Backgorund animation and sound for rain
 void makerain()

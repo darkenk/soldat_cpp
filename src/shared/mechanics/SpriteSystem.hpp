@@ -1,8 +1,18 @@
 #pragma once
-#include "Sprites.hpp"
-#include "common/misc/GlobalSubsystem.hpp"
 #include <algorithm>
 #include <array>
+#include <cstddef>
+#include <cstdint>
+#include <iterator>
+#include <type_traits>
+#include <vector>
+
+#include "Sprites.hpp"
+#include "common/misc/GlobalSubsystem.hpp"
+#include "common/Parts.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SoldatConfig.hpp"
 
 #ifndef SERVER
 #include "../../client/Client.hpp"
@@ -19,6 +29,7 @@ public:
 
   public:
     class Iterator;
+
     using value_type = TSprite;
     using const_iterator = Iterator;
 

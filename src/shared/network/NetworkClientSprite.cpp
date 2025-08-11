@@ -1,6 +1,16 @@
 // automatically converted
 
 #include "NetworkClientSprite.hpp"
+
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <array>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <utility>
+
 #include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
 #include "../../client/GameMenus.hpp"
@@ -15,6 +25,23 @@
 #include "common/gfx.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "common/Anims.hpp"
+#include "common/Constants.hpp"
+#include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Bullets.hpp"
+#include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/mechanics/Things.hpp"
+#include "shared/network/Net.hpp"
 
 namespace
 {

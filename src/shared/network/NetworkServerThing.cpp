@@ -1,12 +1,24 @@
 // automatically converted
 #include "NetworkServerThing.hpp"
-#include "../Demo.hpp"
+
+#include <array>
+#include <memory>
+
 #include "../Game.hpp"
 #include "NetworkUtils.hpp"
 #include "NetworkServer.hpp"
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "common/Parts.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/mechanics/Things.hpp"
+#include "shared/network/Net.hpp"
 
 #ifdef SERVER
 void serverthingsnapshot(std::uint8_t tonum)

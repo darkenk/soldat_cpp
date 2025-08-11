@@ -1,6 +1,13 @@
 // automatically converted
 
 #include "NetworkClientConnection.hpp"
+
+#include <physfs.h>
+#include <alloca.h>
+#include <endian.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+
 #include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
 #include "../../client/GameMenus.hpp"
@@ -22,9 +29,25 @@
 #include "shared/Version.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <physfs.h>
-#include <source_location>
-#include <csignal>
+#include "common/Constants.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Util.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SHA1Helper.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/SourceLocation.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/AnimationSystem.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 using string = std::string;
 
@@ -813,6 +836,14 @@ template void clientrequestgame<NetworkClientImpl>(NetworkBase<NetworkClientImpl
 #pragma region tests
 
 #include <doctest/doctest.h>
+#include <array>
+#include <cstddef>
+#include <cstring>
+#include <memory>
+#include <new>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace
 {

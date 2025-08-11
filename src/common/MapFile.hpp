@@ -1,11 +1,18 @@
 #pragma once
 
+#include <array>
+#include <vector>
+#include <cstdint>
+#include <format>
+#include <string>
+
 #include "FileUtility.hpp"
 #include "Util.hpp"
 #include "Vector.hpp"
 #include "Waypoints.hpp"
-#include <array>
-#include <vector>
+#include "misc/SafeType.hpp"
+
+class FileUtility;
 
 constexpr std::int32_t max_polys = 5000;
 constexpr std::int32_t min_sector = -25;

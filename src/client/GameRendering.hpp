@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
+#include <string_view>
 
 #include "Gfx.hpp"
 /*#include "SDL2.h"*/

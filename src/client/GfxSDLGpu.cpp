@@ -1,17 +1,29 @@
 // automatically converted
 
-#include "Gfx.hpp"
+#include <cmath>
+#include <array>
+#include <cstdint>
+#include <cstring>
+#include <format>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
 
+#include "Gfx.hpp"
 #include "BinPack.hpp"
-#include "Input.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/Cvar.hpp"
 #include "shared/misc/FontAtlas.hpp"
 #include "shared/misc/SignalUtils.hpp"
-#include <SDL3/SDL.h>
-#include <cmath>
+#include "common/FileUtility.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+
 // clang-format off
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -24,30 +36,36 @@
 #pragma clang diagnostic ignored "-Wmissing-field-initializers"
 #endif // __clang__
 #include <freetype/freetype.h>
-#include <ft2build.h>
 #include <stb_image.h>
 #include <stb_image_resize.h>
 #include <stb_image_write.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_gpu.h>
+#include <SDL3/SDL_log.h>
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_properties.h>
+#include <SDL3/SDL_stdinc.h>
+#include <freetype/ftimage.h>
+#include <freetype/fttypes.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
 #ifdef __clang__
 #pragma clang diagnostic pop
 #elif defined(__GNUC__) // __clang__
 #pragma GCC diagnostic pop
 #endif // __GNUC__
-// clang-format on
-#include "shared/misc/GlobalSystems.hpp"
-#include "shared/misc/MemoryUtils.hpp"
 #include <Tracy.hpp>
+#include <glad/glad.h>
 #include <algorithm>
 #include <cstddef>
-#include <glad/glad.h>
-#include <iostream>
 #include <iterator>
-#include <map>
 #include <memory_resource>
 #include <sstream>
 #include <vector>
-#include "generated/generic.vert.hlsl.hpp"
-#include "generated/generic.frag.hlsl.hpp"
+
+// clang-format on
+#include "shared/misc/GlobalSystems.hpp"
+#include "shared/misc/MemoryUtils.hpp"
 #include "generated/generic.vert.hlsl.debug.hpp"
 #include "generated/generic.frag.hlsl.debug.hpp"
 

@@ -1,9 +1,13 @@
 #pragma once
 
-#include "SourceLocation.hpp"
-#include "Utilities.hpp"
 #include <array>
 #include <string_view>
+#include <algorithm>
+#include <cstdint>
+#include <iterator>
+
+#include "SourceLocation.hpp"
+#include "Utilities.hpp"
 
 namespace PortUtilities::NotImplemented
 {

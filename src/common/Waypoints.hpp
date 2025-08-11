@@ -1,9 +1,10 @@
 #pragma once
 
-#include "misc/PortUtilsSoldat.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
+
+#include "misc/PortUtilsSoldat.hpp"
 
 constexpr std::int32_t max_waypoints = 5000;
 constexpr std::int32_t max_connections = 20;

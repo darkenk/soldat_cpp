@@ -1,18 +1,25 @@
 // automatically converted
 
 #include "MapGraphics.hpp"
+
+#include <array>
+#include <cmath>
+#include <set>
+#include <cstring>
+
 #include "Client.hpp"
 #include "ClientGame.hpp"
 #include "GameRendering.hpp"
-#include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <array>
-#include <cmath>
-#include <cstddef>
-#include <set>
+#include "client/Gfx.hpp"
+#include "common/FileUtility.hpp"
+#include "common/PolyMap.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
 
 using string = std::string;
 

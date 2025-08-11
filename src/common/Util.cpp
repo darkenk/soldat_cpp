@@ -1,10 +1,12 @@
 // automatically converted
 #include "Util.hpp"
-#include "FileUtility.hpp"
-#include "misc/PortUtils.hpp"
-#include "misc/PortUtilsSoldat.hpp"
+
 #include <filesystem>
 #include <fstream>
+#include <cstddef>
+
+#include "FileUtility.hpp"
+#include "misc/PortUtilsSoldat.hpp"
 
 auto charcount(const char character, const std::string &str1) -> std::int32_t
 {

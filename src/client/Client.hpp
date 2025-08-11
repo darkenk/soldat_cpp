@@ -3,9 +3,11 @@
 #include <array>
 #include <map>
 #include <string>
+#include <cstdint>
 
 #include "common/Vector.hpp"
 #include "common/Weapons.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 
 class Console;
 class FileUtility;

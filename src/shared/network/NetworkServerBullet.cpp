@@ -1,6 +1,11 @@
 // automatically converted
 #include "NetworkServerBullet.hpp"
 
+#include <math.h>
+#include <array>
+#include <memory>
+#include <string>
+
 #include "../Game.hpp"
 #include "NetworkUtils.hpp"
 #include "NetworkServer.hpp"
@@ -8,6 +13,25 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include "../../server/Server.hpp"
+#include "common/Anims.hpp"
+#include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/Cvar.hpp"
+#include "shared/mechanics/Bullets.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/mechanics/Things.hpp"
+#include "shared/network/Net.hpp"
 
 namespace
 {

@@ -1,4 +1,19 @@
 #include "Server.hpp"
+
+#include <Tracy.hpp>
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <stdio.h>
+#include <array>
+#include <thread>
+#include <algorithm>
+#include <chrono>
+#include <memory>
+#include <ratio>
+#include <utility>
+#include <vector>
+
 #include "BanSystem.hpp"
 #include "FileServer.hpp"
 #include "ServerCommands.hpp"
@@ -12,7 +27,6 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/TFileStream.hpp"
 #include "shared/Command.hpp"
-#include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/SharedConfig.hpp"
@@ -28,10 +42,22 @@
 #include "shared/network/NetworkServerMessages.hpp"
 #include "shared/network/NetworkServerSprite.hpp"
 #include "shared/network/NetworkUtils.hpp"
-#include <Tracy.hpp>
-#include <array>
-#include <client/Client.hpp>
-#include <thread>
+#include "common/Console.hpp"
+#include "common/MapFile.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SHA1Helper.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/misc/TIniFile.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/AnimationSystem.hpp"
+#include "shared/Constants.cpp.h"
 
 // constexpr auto PATH_MAX = 4095;
 

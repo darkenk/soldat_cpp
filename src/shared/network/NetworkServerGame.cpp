@@ -1,5 +1,13 @@
 // automatically converted
 #include "NetworkServerGame.hpp"
+
+#include <string.h>
+#include <string>
+#include <algorithm>
+#include <array>
+#include <memory>
+#include <vector>
+
 #include "NetworkServer.hpp"
 #include "../../server/Server.hpp"
 #include "../../server/ServerHelper.hpp"
@@ -10,7 +18,16 @@
 #include "common/Util.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <string>
+#include "common/Constants.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SHA1Helper.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
 {

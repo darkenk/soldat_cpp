@@ -1,9 +1,13 @@
 #pragma once
 
+#include <string>
+#include <cstdint>
+#include <vector>
+
 #include "common/Anims.hpp"
 #include "common/misc/GlobalSubsystem.hpp"
 #include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
-#include <string>
+#include "common/Parts.hpp"
 
 class particlesystem;
 class Skeleton;

@@ -1,7 +1,10 @@
 // automatically converted
 #include "GameStrings.hpp"
-#include "misc/PortUtils.hpp"
-#include "misc/PortUtilsSoldat.hpp"
+
+#include "port_utils/NotImplemented.hpp"
+#include "port_utils/Utilities.hpp"
+
+class TStream;
 
 #define ENABLE_STUBS 1
 

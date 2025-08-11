@@ -1,6 +1,16 @@
 // automatically converted
 
 #include "ServerCommands.hpp"
+
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <algorithm>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "BanSystem.hpp"
 #include "Server.hpp"
 #include "ServerHelper.hpp"
@@ -18,6 +28,18 @@
 #include "shared/network/NetworkServerGame.hpp"
 #include "shared/network/NetworkServerMessages.hpp"
 #include "shared/network/NetworkUtils.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Util.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/Cvar.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 using string = std::string;
 

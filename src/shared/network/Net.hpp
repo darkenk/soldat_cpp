@@ -1,10 +1,13 @@
 #pragma once
 
+#include <cstdint>
+#include <string>
+#include <memory>
+#include <vector>
+
 #include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/network/Net.hpp"
-#include <cstdint>
-#include <string>
 
 #pragma pack(push, 1)
 

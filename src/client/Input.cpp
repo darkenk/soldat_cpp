@@ -1,7 +1,13 @@
 // automatically converted
 #include "Input.hpp"
+
+#include <SDL3/SDL_keyboard.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <map>
+#include <utility>
+
 #include "common/Logging.hpp"
-#include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 
 /*#include "Server.h"*/

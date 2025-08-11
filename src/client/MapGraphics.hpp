@@ -1,12 +1,16 @@
 #pragma once
 
+#include <array>
+#include <vector>
+#include <cstdint>
+#include <format>
+#include <string>
+
 #include "Gfx.hpp"
 #include "common/MapFile.hpp"
 #include "common/Util.hpp"
 #include "common/Vector.hpp"
-
-#include <array>
-#include <vector>
+#include "common/misc/SafeType.hpp"
 
 struct tmapgraphics
 {

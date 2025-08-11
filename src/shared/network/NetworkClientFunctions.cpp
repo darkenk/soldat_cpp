@@ -1,6 +1,11 @@
 // automatically converted
 #include "NetworkClientFunctions.hpp"
 
+#include <array>
+#include <cstdint>
+#include <string>
+#include <vector>
+
 #include "../../client/GameMenus.hpp"
 #include "../../client/InterfaceGraphics.hpp"
 #include "../../client/Sound.hpp"
@@ -12,6 +17,15 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "common/FileUtility.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/mechanics/Sprites.hpp"
 
 void clienthandlevoteon(NetworkContext *netmessage)
 {

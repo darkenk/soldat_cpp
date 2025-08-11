@@ -1,10 +1,14 @@
 // automatically converted
 #include "MapFile.hpp"
-#include "PhysFSExt.hpp"
-#include "misc/PortUtils.hpp"
+
+#include <physfs.h>
+#include <cassert>
+#include <cstring>
+
 #include "misc/PortUtilsSoldat.hpp"
 #include "port_utils/NotImplemented.hpp"
-#include <cassert>
+#include "FileUtility.hpp"
+#include "port_utils/Utilities.hpp"
 
 /******************************************************************************/
 /*                              Helper functions                              */

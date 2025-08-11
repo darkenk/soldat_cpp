@@ -2,13 +2,28 @@
 
 #include "ControlGame.hpp"
 
+#include <shared/network/NetworkClient.hpp>
+#include <SDL3/SDL_clipboard.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_scancode.h>
+#include <SDL3/SDL_video.h>
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <numeric>
+#include <array>
+#include <cstdint>
+#include <memory>
+#include <string>
+
 #include "Client.hpp"
 #include "ClientGame.hpp"
 #include "GameMenus.hpp"
 #include "Input.hpp"
 #include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
-#include "common/Logging.hpp"
 #include "common/Console.hpp"
 #include "common/GameStrings.hpp"
 #include "shared/Command.hpp"
@@ -17,13 +32,20 @@
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include "shared/network/NetworkClientBullet.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientGame.hpp"
 #include "shared/network/NetworkClientMessages.hpp"
-#include <SDL3/SDL.h>
-#include <numeric>
-#include <shared/network/NetworkClient.hpp>
+#include "common/Util.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 GlobalStateControlGame gGlobalStateControlGame{
   .votekickreasontype = false,
@@ -588,7 +610,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
     if ((gGlobalStateClientGame.chattext.empty()) && !gGlobalStateGameMenus.escmenu->active)
     {
       i = iif(action == taction::mousesensitivitydown, -5, 5);
-      CVar::cl_sensitivity = ((float)(max(0.0, i + floor(100 * CVar::cl_sensitivity))) / 100);
+      CVar::cl_sensitivity = ((float)(max(0.0f, i + floor(100 * CVar::cl_sensitivity))) / 100);
       GS::GetMainConsole().console(
         _("Sensitivity:") + (std::string(" ") + inttostr(floor(100 * CVar::cl_sensitivity)) + "%"),
         music_message_color);

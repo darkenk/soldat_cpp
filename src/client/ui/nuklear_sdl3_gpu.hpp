@@ -10,6 +10,12 @@
  */
 //#include "Nuklear.hpp"
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_gpu.h>
+#include <SDL3/SDL_version.h>
+#include <SDL3/SDL_video.h>
+
+#include "Nuklear.hpp"
 //#define NK_SDL_GPU_IMPLEMENTATION
 
 #ifndef NK_SDL_GPU_H_

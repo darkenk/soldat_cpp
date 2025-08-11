@@ -1,10 +1,15 @@
 // automatically converted
 
 #include "Weapons.hpp"
+
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <new>
+
 #include "Constants.hpp"
 #include "Logging.hpp"
 #include "gfx.hpp"
-#include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 
 void createweapons(bool floatisticmode, GunsDescription &guns, GunsDescription &defaultguns)
@@ -1250,11 +1255,6 @@ auto createwmchecksum(GunsDescription &guns) -> std::uint32_t
   result = hash;
   return result;
 }
-
-#ifdef NoRangeCheck /*$R+*/ /*$UNDEF NoRangeCheck*/
-#endif
-#ifdef NoOverflowCheck /*$Q+*/ /*$UNDEF NoOverflowCheck*/
-#endif
 
 auto weaponnumtoindex(std::uint8_t num, GunsDescription &guns) -> std::int32_t
 {

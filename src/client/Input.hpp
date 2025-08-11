@@ -8,11 +8,14 @@
 /*#include "SDL2.h"*/
 
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_scancode.h>
+#include <SDL3/SDL_video.h>
 #include <array>
 #include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
+#include <string_view>
 
 /*$scopedenums on*/
 enum taction

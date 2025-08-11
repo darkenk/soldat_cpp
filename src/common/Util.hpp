@@ -1,11 +1,14 @@
 #pragma once
 
-#include "misc/SHA1Helper.hpp"
-#include "FileUtility.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
+
+#include "misc/SHA1Helper.hpp"
+#include "FileUtility.hpp"
+
+class FileUtility;
 
 using tcolor = std::uint32_t;
 const std::uint32_t min_tcolor = 0;

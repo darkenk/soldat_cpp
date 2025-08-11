@@ -1,11 +1,14 @@
 #pragma once
 
-#include "FileUtility.hpp"
-#include "Vector.hpp"
-#include "misc/PortUtilsSoldat.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
+
+#include "FileUtility.hpp"
+#include "Vector.hpp"
+#include "misc/PortUtilsSoldat.hpp"
+
+class FileUtility;
 
 constexpr std::int32_t num_particles = 560;
 

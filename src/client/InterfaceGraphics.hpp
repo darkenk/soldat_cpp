@@ -1,12 +1,13 @@
 #pragma once
 
-#include "common/Vector.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/Constants.hpp"
-
 #include <array>
 #include <cstdint>
 #include <string>
+
+#include "common/Vector.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "shared/Constants.hpp"
+#include "shared/Constants.cpp.h"
 
 auto constexpr MAX_CHAT_SIZE = 32;
 

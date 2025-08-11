@@ -1,7 +1,17 @@
 #pragma once
 
-#include "Net.hpp"
 #include <functional>
+#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <string_view>
+
+#include "Net.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/SourceLocation.hpp"
+
+class tplayer;
 
 struct GlobalStateNetworkClient
 {

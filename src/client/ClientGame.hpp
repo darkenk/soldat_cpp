@@ -1,10 +1,12 @@
 #pragma once
 
+#include <string>
+#include <cstdint>
+
 /*#include "Windows.h"*/
 /*#include "SDL2.h"*/
 #include "common/Vector.hpp"
 #include "common/Constants.hpp"
-#include <string>
 
 void resetframetiming();
 void gameloop();

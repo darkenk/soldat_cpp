@@ -1,5 +1,7 @@
 #pragma once
 #include "Bullets.hpp"
+#include "common/Constants.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 
 template <class Bullet = tbullet>
 class TBulletSystem

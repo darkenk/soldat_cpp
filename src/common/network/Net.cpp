@@ -1,12 +1,21 @@
 #include "Net.hpp"
-#include "../Constants.hpp"
-#include "../Logging.hpp"
-#include "../misc/PortUtilsSoldat.hpp"
-#include <array>
-#include <numeric>
-#include <string>
+
 #include <steam/steamnetworkingsockets.h>
 #include <steam/isteamnetworkingutils.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <steam/isteamnetworkingsockets.h>
+#include <steam/steamnetworkingtypes.h>
+#include <string>
+#include <atomic>
+#include <type_traits>
+#include <utility>
+
+#include "../Logging.hpp"
+#include "/home/darkenk/workspace/soldat/soldat_cpp/src/common/Vector.hpp"
+#include "/home/darkenk/workspace/soldat/soldat_cpp/src/common/misc/SafeType.hpp"
+#include "/home/darkenk/workspace/soldat/soldat_cpp/src/common/port_utils/NotImplemented.hpp"
+#include "/home/darkenk/workspace/soldat/soldat_cpp/src/common/port_utils/Utilities.hpp"
 
 static_assert(sizeof(HSoldatNetConnection) == sizeof(HSteamNetConnection));
 static_assert(std::is_same_v<HSoldatNetConnection, HSteamNetConnection>);

@@ -2,6 +2,15 @@
 
 #include "UpdateFrame.hpp"
 
+#include <Tracy.hpp>
+#include <math.h>
+#include <cstdint>
+#include <algorithm>
+#include <array>
+#include <iterator>
+#include <memory>
+#include <string>
+
 #include "Client.hpp"
 #include "ClientGame.hpp"
 #include "GameMenus.hpp"
@@ -20,8 +29,22 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
-#include <Tracy.hpp>
-#include <cstdint>
+#include "common/Constants.hpp"
+#include "common/MapFile.hpp"
+#include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Bullets.hpp"
+#include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/mechanics/Things.hpp"
+#include "shared/network/Net.hpp"
 
 std::int32_t idlecounter, oldmousex;
 

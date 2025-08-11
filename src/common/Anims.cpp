@@ -1,5 +1,14 @@
 #include "Anims.hpp"
+
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <cmath>
+#include <string>
+#include <utility>
+
 #include "Logging.hpp"
+#include "misc/SafeType.hpp"
+#include "misc/TStream.hpp"
 
 // comes from Constants.cpp.h
 constexpr auto scale = 3;

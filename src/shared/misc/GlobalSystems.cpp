@@ -1,11 +1,14 @@
 #include "GlobalSystems.hpp"
+
+#include <memory>
+
 #include "common/FileUtility.hpp"
 #include "shared/AnimationSystem.hpp"
 #include "common/LogFile.hpp"
 #include "common/Console.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
-#include <memory>
+#include "common/WeaponSystem.hpp"
 #ifdef SERVER
 #include "server/Server.hpp"
 #endif // SERVER

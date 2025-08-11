@@ -1,6 +1,31 @@
 // automatically converted
 
 #include "GameRendering.hpp"
+
+#include <Tracy.hpp>
+#include <ApprovalTests/Approvals.h>
+#include <ApprovalTests/core/ApprovalWriter.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_iostream.h>
+#include <SDL3/SDL_surface.h>
+#include <SDL3/SDL_video.h>
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <stdio.h>
+#include <algorithm>
+#include <array>
+#include <cstdint>
+#include <filesystem>
+#include <set>
+#include <string>
+#include <chrono>
+#include <cstring>
+#include <iterator>
+#include <memory>
+#include <utility>
+#include <vector>
+
 #include "Client.hpp"
 #include "ClientGame.hpp"
 #include "GostekGraphics.hpp"
@@ -14,7 +39,6 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/TFileStream.hpp"
 #include "common/misc/TIniFile.hpp"
-#include "shared/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/Bullets.hpp"
@@ -23,17 +47,19 @@
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-
-#include <SDL3/SDL.h>
-#include <Tracy.hpp>
-#include <algorithm>
-#include <array>
-#include <cstdint>
-#include <filesystem>
-#include <set>
-#include <string>
-
 #include "common/gfx.hpp"
+#include "client/Gfx.hpp"
+#include "common/FileUtility.hpp"
+#include "common/MapFile.hpp"
+#include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
 
 GlobalStateGameRendering gGlobalStateGameRendering{
   .gamerenderingparams{},
@@ -708,21 +734,6 @@ void destroygamegraphics()
 
   initialized = false;
 }
-
-
-#if __EMSCRIPTEN__
-float lerp(float a, float b, float x)
-{
-  return a + (b - a) * x;
-}
-
-#else
-constexpr float lerp(float a, float b, float x)
-{
-  return a + (b - a) * x;
-}
-
-#endif
 
 constexpr auto lerp(const tvector2 &a, const tvector2 &b, float x) -> tvector2
 {
@@ -1412,13 +1423,11 @@ void gfxlogcallback(const std::string &s)
 
 #pragma region tests
 #include <doctest/doctest.h>
-#include <ApprovalTests/ApprovalTests.hpp>
-#include <stb_image.h>
-#include <stb_image_resize.h>
 #include <stb_image_write.h>
 #include <thread>
 
 #include "SdlApp.hpp"
+
 extern void gfxSetGpuDevice(SDL_GPUDevice* device);
 
 class PngWriter : public ApprovalTests::ApprovalWriter

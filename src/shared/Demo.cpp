@@ -2,6 +2,9 @@
 
 #include "Demo.hpp"
 
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+
 #ifdef SERVER
 #include "../server/Server.hpp"
 #else
@@ -9,18 +12,30 @@
 #include "../client/ClientGame.hpp"
 #include "../client/InterfaceGraphics.hpp"
 #endif
-#include "Cvar.hpp"
+#include <filesystem>
+#include <cstddef>
+#include <memory>
+#include <limits>
+
 #include "common/GameStrings.hpp"
 #include "common/MapFile.hpp"
-#include "common/Util.hpp"
 #include "common/Console.hpp"
-#include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Game.hpp"
 #include "shared/Version.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <filesystem>
+#include "common/Constants.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 using string = std::string;
 

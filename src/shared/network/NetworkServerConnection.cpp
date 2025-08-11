@@ -1,5 +1,6 @@
 // automatically converted
 #include "NetworkServerConnection.hpp"
+
 #include "NetworkServer.hpp"
 #include "../../server/BanSystem.hpp"
 #include "../../server/Server.hpp"
@@ -18,6 +19,21 @@
 #include "shared/Version.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "common/Constants.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Util.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SHA1Helper.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/AnimationSystem.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/Cvar.hpp"
+#include "shared/network/Net.hpp"
 
 auto constexpr minsperhour = 60;
 auto constexpr minsperday = 24 * minsperhour;
@@ -1043,6 +1059,16 @@ void serverhandlepong(tmsgheader* netmessage, std::int32_t size, NetworkServer& 
 
 // tests
 #include <doctest/doctest.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <algorithm>
+#include <array>
+#include <cstring>
+#include <memory>
+#include <new>
+#include <utility>
+#include <vector>
+
 #include "NetworkClient.hpp"
 #include "NetworkClientConnection.hpp"
 

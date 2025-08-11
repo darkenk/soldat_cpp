@@ -1,8 +1,18 @@
 #include "PhysFSExt.hpp"
-#include "Logging.hpp"
-#include "misc/PortUtilsSoldat.hpp"
-#include "misc/TStream.hpp"
+
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
 #include <filesystem>
+#include <array>
+#include <atomic>
+#include <cstddef>
+#include <cstdio>
+#include <mutex>
+#include <utility>
+
+#include "Logging.hpp"
+#include "misc/TStream.hpp"
+#include "misc/PortUtils.hpp"
 
 auto LOG = "physfs";
 

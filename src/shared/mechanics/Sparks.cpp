@@ -1,6 +1,14 @@
 // automatically converted
 
 #include "Sparks.hpp"
+
+#include <Tracy.hpp>
+#include <math.h>
+#include <numbers>
+#include <set>
+#include <memory>
+#include <vector>
+
 #include "../../client/Client.hpp"
 #include "../../client/GameRendering.hpp"
 #include "../../client/Gfx.hpp"
@@ -10,13 +18,17 @@
 #include "../Game.hpp"
 #include "common/Util.hpp"
 #include "common/gfx.hpp"
-#include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <Tracy.hpp>
-#include <numbers>
-#include <set>
+#include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SafeType.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 template <Config::Module M>
 auto GetSparkParts() -> particlesystem &

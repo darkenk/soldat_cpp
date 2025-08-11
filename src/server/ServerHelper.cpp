@@ -1,6 +1,14 @@
 // automatically converted
 #include "ServerHelper.hpp"
 
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <algorithm>
+#include <array>
+#include <iterator>
+#include <memory>
+
 #include "BanSystem.hpp"
 #include "Server.hpp"
 #include "common/Logging.hpp"
@@ -12,7 +20,15 @@
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkServerMessages.hpp"
-#include <filesystem>
+#include "common/Constants.hpp"
+#include "common/Util.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/network/Net.hpp"
 
 // procedure WriteLn1(S: Variant); overload;
 // begin

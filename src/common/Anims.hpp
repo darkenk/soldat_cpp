@@ -1,11 +1,14 @@
 #pragma once
 
-#include "Vector.hpp"
-#include "misc/PortUtilsSoldat.hpp"
-#include "misc/TStream.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
+
+#include "Vector.hpp"
+#include "misc/PortUtilsSoldat.hpp"
+#include "misc/TStream.hpp"
+
+class TStream;
 
 constexpr std::int32_t max_pos_index = 20;
 constexpr std::int32_t max_frames_index = 40;

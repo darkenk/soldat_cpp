@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
 
 #include "misc/Config.hpp"
 
@@ -17,6 +20,7 @@ public:
   };
 
   struct File;
+
   FileUtility(const std::string_view rootPrefix = "");
   ~FileUtility();
 

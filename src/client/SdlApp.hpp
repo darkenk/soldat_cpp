@@ -1,10 +1,13 @@
 #pragma once
 
 #include <SDL3/SDL_events.h>
+#include <SDL3/SDL_video.h>
 #include <cinttypes>
 #include <functional>
 #include <map>
 #include <string_view>
+#include <cstdint>
+#include <vector>
 
 typedef struct SDL_Window SDL_Window;
 typedef struct SDL_GLContextState *SDL_GLContext;

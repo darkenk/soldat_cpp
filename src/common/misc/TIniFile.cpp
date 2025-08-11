@@ -1,5 +1,9 @@
 #include "TIniFile.hpp"
+
 #include <regex>
+#include <utility>
+
+#include "PortUtilsSoldat.hpp"
 
 TIniFile::TIniFile(std::unique_ptr<TStream> stream) : Stream(std::move(stream))
 {

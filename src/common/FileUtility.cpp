@@ -1,15 +1,24 @@
 #include "FileUtility.hpp"
+
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <string.h>
+#include <filesystem>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+#include <algorithm>
+#include <array>
+#include <format>
+#include <iterator>
+#include <memory>
+
 #include "Logging.hpp"
 #include "PhysFSExt.hpp"
 #include "misc/PortUtils.hpp"
 #include "physfs.h"
 #include "port_utils/NotImplemented.hpp"
-#include <filesystem>
-#include <iostream>
-#include <set>
-#include <unordered_map>
-#include <utility>
-#include <vector>
+#include "port_utils/Utilities.hpp"
 
 namespace fs = std::filesystem;
 

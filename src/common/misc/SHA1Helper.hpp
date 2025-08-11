@@ -3,6 +3,8 @@
 #include <array>
 #include <cstdint>
 #include <string>
+#include <algorithm>
+#include <iterator>
 
 struct tsha1digest
 {

@@ -1,13 +1,18 @@
 #pragma once
 
-#include "misc/FlagSet.hpp"
-#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 #include <algorithm>
 #include <cstdint>
 #include <map>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <initializer_list>
+#include <iterator>
+#include <type_traits>
+#include <utility>
+
+#include "misc/FlagSet.hpp"
+#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 
 template <typename T, Config::Module M = Config::GetModule()>
 bool FromString(const std::string_view &value, T &outValue) noexcept;

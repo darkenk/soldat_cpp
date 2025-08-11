@@ -3,9 +3,28 @@
 // #define DEVELOPMENT
 
 #include "Client.hpp"
+
+#include <Tracy.hpp>
+#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_messagebox.h>
+#include <SDL3/SDL_video.h>
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <thread>
+#include <sstream>
+#include <algorithm>
+#include <chrono>
+#include <cstddef>
+#include <iterator>
+#include <memory>
+#include <new>
+#include <ratio>
+#include <utility>
+#include <vector>
+
 #include "ClientCommands.hpp"
 #include "ClientGame.hpp"
-#include "ControlGame.hpp"
 #include "GameMenus.hpp"
 #include "GameRendering.hpp"
 #include "Gfx.hpp"
@@ -15,7 +34,6 @@
 #include "common/FileUtility.hpp"
 #include "common/GameStrings.hpp"
 #include "common/Logging.hpp"
-#include "common/misc/Config.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/SHA1Helper.hpp"
@@ -25,7 +43,6 @@
 #include "common/Console.hpp"
 #include "common/LogFile.hpp"
 #include "shared/Command.hpp"
-#include "common/Constants.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
@@ -34,9 +51,17 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
-#include <Tracy.hpp>
-#include <thread>
-#include <sstream>
+#include "common/PolyMap.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/AnimationSystem.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sparks.hpp"
+#include "shared/network/Net.hpp"
 
 namespace
 {

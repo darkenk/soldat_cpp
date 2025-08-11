@@ -1,10 +1,15 @@
 // automatically converted
 
 #include "Waypoints.hpp"
+
+#include <Tracy.hpp>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <fstream>
+#include <utility>
+
 #include "Calc.hpp"
 #include "Logging.hpp"
-#include <Tracy.hpp>
-#include <fstream>
 
 auto operator>>(std::ifstream &in, twaypoint &waypoint) -> std::ifstream &
 {

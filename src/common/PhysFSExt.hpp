@@ -1,10 +1,13 @@
 #pragma once
 
-#include "misc/TStream.hpp"
-#include <memory>
 #include <physfs.h>
+#include <memory>
 #include <string>
 #include <vector>
+#include <cstdint>
+#include <string_view>
+
+#include "misc/TStream.hpp"
 
 using PhysFS_Buffer = std::vector<std::uint8_t>;
 

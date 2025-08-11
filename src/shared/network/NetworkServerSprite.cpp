@@ -1,12 +1,26 @@
 // automatically converted
 
 #include "NetworkServerSprite.hpp"
+
+#include <memory>
+#include <string>
+
 #include "../../server/Server.hpp"
-#include "../Demo.hpp"
 #include "../Game.hpp"
 #include "NetworkUtils.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Vector.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Bullets.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
+#include "shared/network/NetworkServer.hpp"
 
 GlobalStateNetworkServerSprite gGlobalStateNetworkServerSprite{
   .oldmovementmsg{},

@@ -1,19 +1,34 @@
 // automatically converted
 #include "NetworkClientMessages.hpp"
 
+#include <bits/types/mbstate_t.h>
+#include <string.h>
+#include <locale>
+#include <algorithm>
+#include <array>
+#include <cwchar>
+#include <memory>
+#include <utility>
+
 #include "../../client/Client.hpp"
 #include "../../client/InterfaceGraphics.hpp"
-#include "../Game.hpp"
 #include "../misc/MemoryUtils.hpp"
 #include "NetworkClient.hpp"
-#include "NetworkUtils.hpp"
 #include "common/Console.hpp"
 #include "common/GameStrings.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <codecvt>
-#include <locale>
+#include "common/Constants.hpp"
+#include "common/Util.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 // utility wrapper to adapt locale-bound facets for wstring/wbuffer convert
 template <class Facet>

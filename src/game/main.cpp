@@ -1,13 +1,33 @@
+#include <stb_image_write.h>
+#include <stb_image.h>
+#include <ApprovalTests/Approvals.h>
+#include <ApprovalTests/core/ApprovalComparator.h>
+#include <ApprovalTests/core/FileApprover.h>
+#include <ApprovalTests/namers/ApprovalTestNamer.h>
+#include <ApprovalTests/namers/TemplatedCustomNamer.h>
+#include <ApprovalTests/reporters/CrossPlatformReporters.h>
+#include <ApprovalTests/utilities/EmptyFileCreatorByType.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_init.h>
+#include <thread>
+#include <filesystem>
+#include <algorithm>
+#include <array>
+#include <cstdint>
+#include <cstdlib>
+#include <iterator>
+#include <memory>
+#include <string>
+
 #include "client/Client.hpp"
 #include "client/ControlGame.hpp"
 #include "common/Logging.hpp"
 #include "platform/include/Threads.hpp"
 #include "server/Server.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <thread>
-#include <stb_image_write.h>
-#include <stb_image.h>
-#include <filesystem>
+#include "ApprovalTests/integrations/doctest/DocTestApprovals.h"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/SoldatConfig.hpp"
 
 // clang-format off
 #define SDL_MAIN_USE_CALLBACKS
@@ -17,8 +37,8 @@
 // clang-format off
 #define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest/doctest.h>
+
 #define APPROVALS_DOCTEST_EXISTING_MAIN
-#include <ApprovalTests/ApprovalTests.hpp>
 // clang-format on
 
 template<int DesiredPrecision>

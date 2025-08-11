@@ -1,10 +1,13 @@
 #pragma once
 
-#include "common/FileUtility.hpp"
-#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 #include <string>
 #include <vector>
 #include <cstdint>
+
+#include "common/FileUtility.hpp"
+#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
+
+class FileUtility;
 
 template <Config::Module M = Config::GetModule()>
 void commandinit();

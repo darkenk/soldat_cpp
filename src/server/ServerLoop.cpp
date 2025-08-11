@@ -1,11 +1,23 @@
 // automatically converted
 
 #include "ServerLoop.hpp"
+
+#include <Tracy.hpp>
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <algorithm>
+#include <array>
+#include <cstdint>
+#include <iterator>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "BanSystem.hpp"
 #include "Server.hpp"
 #include "ServerHelper.hpp"
 #include "common/Logging.hpp"
-#include "common/Console.hpp"
 #include "common/LogFile.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
@@ -18,7 +30,22 @@
 #include "shared/network/NetworkServerHeartbeat.hpp"
 #include "shared/network/NetworkServerSprite.hpp"
 #include "shared/network/NetworkServerThing.hpp"
-#include <Tracy.hpp>
+#include "common/Constants.hpp"
+#include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Vector.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Bullets.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/mechanics/Things.hpp"
+#include "shared/network/Net.hpp"
 
 using string = std::string;
 

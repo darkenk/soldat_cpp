@@ -1,18 +1,29 @@
 // automatically converted
 #include "NetworkServerMessages.hpp"
 
+#include <bits/types/mbstate_t.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <cuchar>
+#include <array>
+#include <cstring>
+#include <memory>
+#include <utility>
+
 #include "../../server/Server.hpp"
 #include "../Command.hpp"
-#include "../Demo.hpp"
-#include "../Game.hpp"
 #include "../misc/MemoryUtils.hpp"
 #include "NetworkServer.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <clocale>
-#include <cuchar>
+#include "common/Util.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
                              std::uint8_t msgtype)

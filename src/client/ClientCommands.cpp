@@ -1,5 +1,12 @@
 // automatically converted
 #include "ClientCommands.hpp"
+
+#include <regex>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "Client.hpp"
 #include "ClientGame.hpp"
 #include "GameRendering.hpp"
@@ -8,13 +15,22 @@
 #include "common/Util.hpp"
 #include "common/Console.hpp"
 #include "shared/Command.hpp"
-#include "shared/Constants.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkClientMessages.hpp"
-#include <regex>
+#include "common/Parts.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/mechanics/Things.hpp"
+#include "shared/network/Net.hpp"
 
 std::uint8_t screenshotsinarow = 0;
 

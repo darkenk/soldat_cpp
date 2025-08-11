@@ -1,5 +1,7 @@
 #include "WeaponSystem.hpp"
 
+#include <algorithm>
+
 WeaponSystem::WeaponSystem()
 {
   std::ranges::fill(WeaponActive, 0);

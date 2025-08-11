@@ -1,10 +1,15 @@
 #include "PortUtils.hpp"
+
 // clang-format off
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/logger.h>
-// clang-format on
-#include <csignal>
+#include <spdlog/common.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace PortUtils
 {

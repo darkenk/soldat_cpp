@@ -1,5 +1,4 @@
 #include "SpriteSystem.hpp"
-#include <common/Logging.hpp>
 
 template <class TSprite>
 TSpriteSystem<TSprite>::TSpriteSystem() : ActiveSprites(Sprites)
@@ -75,6 +74,15 @@ void TSpriteSystem<TSprite>::UpdateSpriteParts()
 template class TSpriteSystem<>;
 
 #include <doctest/doctest.h>
+#include <algorithm>
+#include <cstdlib>
+#include <initializer_list>
+#include <new>
+
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
 
 class SpriteSystemFixture
 {

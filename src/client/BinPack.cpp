@@ -2,6 +2,7 @@
 #include "BinPack.hpp"
 
 #include <limits>
+#include <cstddef>
 
 #include "shared/misc/MemoryUtils.hpp"
 

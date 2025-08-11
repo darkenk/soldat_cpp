@@ -1,5 +1,8 @@
 // automatically converted
 #include "AnimationSystem.hpp"
+
+#include <array>
+
 #include "common/Anims.hpp"
 #include "common/LogFile.hpp"
 #include "common/Parts.hpp"
@@ -8,6 +11,7 @@
 #include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "shared/Constants.cpp.h"
 
 // TODO: add file missing checks
 // TODO: translate filenames into english

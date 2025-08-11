@@ -1,21 +1,33 @@
 // automatically converted
 
 #include "Sound.hpp"
+
+#include <soloud.h>
+#include <soloud_wav.h>
+#include <ctype.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <array>
+#include <string>
+#include <algorithm>
+#include <cmath>
+#include <iterator>
+#include <stdexcept>
+#include <utility>
+
 #include "Client.hpp"
 #include "common/Logging.hpp"
-#include "common/Parts.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
-#include "common/Constants.hpp"
 #include "common/Console.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <SDL3/SDL.h>
-#include <array>
-#include <soloud.h>
-#include <soloud_wav.h>
-#include <string>
+#include "common/FileUtility.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "shared/Constants.cpp.h"
 
 using string = std::string;
 

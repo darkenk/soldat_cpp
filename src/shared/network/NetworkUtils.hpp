@@ -1,8 +1,12 @@
 #pragma once
 
+#include <cstdint>
+
+#include "common/port_utils/SourceLocation.hpp"
+#include <string>
+
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
-#include <string>
 
 template <Config::Module M>
 class Sprite;

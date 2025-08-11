@@ -1,8 +1,20 @@
 #include "SdlApp.hpp"
-#include "shared/misc/SignalUtils.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
+
 #include <glad/glad.h>
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_gpu.h>
+#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_properties.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_stdinc.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+
+#include "shared/misc/SignalUtils.hpp"
+#include "common/Logging.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
 
 static void OpenGLGladDebug(const char *name, void * /*funcptr*/, int /*len_args*/, ...)
 {
@@ -153,6 +165,8 @@ void SdlApp::ProcessEvents()
 void SdlApp::Present() { NotImplemented("Present"); }
 
 #include <doctest/doctest.h>
+#include <array>
+#include <utility>
 
 TEST_CASE("Create SDL window")
 {

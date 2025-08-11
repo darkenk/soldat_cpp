@@ -1,5 +1,7 @@
 #include "TMemoryStream.hpp"
+
 #include <sstream>
+#include <string>
 
 class MemoryStream : public TStream
 {

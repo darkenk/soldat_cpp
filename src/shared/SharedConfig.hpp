@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+
+class TIniFile;
 #include "common/misc/TIniFile.hpp"
 #include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 #include "common/Weapons.hpp"

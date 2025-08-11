@@ -1,10 +1,15 @@
 // automatically converted
 
 #include "BanSystem.hpp"
+
 #include "Server.hpp"
 #include "ServerHelper.hpp"
-#include "common/Console.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
 
 GlobalStateBanSystem gGlobalStateBanSystem{
   .bannediplist{},

@@ -10,16 +10,25 @@
 #include "../../server/Server.hpp"
 #include "../../server/ServerHelper.hpp"
 #include "common/LogFile.hpp"
+#include "../network/NetworkServer.hpp"
 #include "../network/NetworkServerConnection.hpp"
 #include "../network/NetworkServerGame.hpp"
 #include "../network/NetworkServerMessages.hpp"
 #include "../network/NetworkServerSprite.hpp"
 #include "../network/NetworkServerThing.hpp"
 #endif
+#include <Tracy.hpp>
+#include <client/ClientGame.hpp>
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <limits>
+#include <new>
+#include <vector>
+
 #include "../Cvar.hpp"
 #include "../Game.hpp"
 #include "Control.hpp"
-#include "SpriteSystem.hpp"
 #include "common/Calc.hpp"
 #include "common/Console.hpp"
 #include "common/GameStrings.hpp"
@@ -28,8 +37,20 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <Tracy.hpp>
-#include <client/ClientGame.hpp>
+#include "common/MapFile.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Util.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/AnimationSystem.hpp"
+#include "shared/mechanics/BackgroundState.hpp"
+#include "shared/mechanics/Bullets.hpp"
+#include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/Things.hpp"
+#include "shared/network/Net.hpp"
 #if !SOLDAT_UTBOT
 #include <numbers>
 #endif // !SOLDAT_UTBOT

@@ -1,13 +1,17 @@
 // automatically converted
 #include "GameMenus.hpp"
 
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_keyboard.h>
+#include <math.h>
+#include <memory>
+
 #include "Client.hpp"
 #include "ClientGame.hpp"
 #include "ControlGame.hpp"
 #include "InterfaceGraphics.hpp"
 #include "Input.hpp"
 #include "Sound.hpp"
-#include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
@@ -18,7 +22,14 @@
 #include "shared/network/NetworkClientGame.hpp"
 #include "shared/network/NetworkClientMessages.hpp"
 #include "shared/network/NetworkClientSprite.hpp"
-#include <SDL3/SDL.h>
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/network/Net.hpp"
 
 using string = std::string;
 

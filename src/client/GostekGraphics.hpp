@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include "common/misc/TIniFile.hpp"
 #include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 #include "Gfx.hpp"

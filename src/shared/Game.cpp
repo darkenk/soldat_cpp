@@ -2,6 +2,9 @@
 
 #include "Game.hpp"
 
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+
 #ifndef SERVER
 #include "../client/Client.hpp"
 #include "../client/ClientGame.hpp"
@@ -16,15 +19,32 @@
 #include "shared/network/NetworkServerGame.hpp"
 #include "shared/network/NetworkServerSprite.hpp"
 #endif
+#include <chrono>
+#include <algorithm>
+#include <compare>
+#include <iterator>
+#include <limits>
+#include <memory>
+#include <vector>
+
 #include "Cvar.hpp"
 #include "Demo.hpp"
 #include "common/Console.hpp"
 #include "common/Util.hpp"
-#include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <chrono>
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/mechanics/Things.hpp"
+#include "shared/network/Net.hpp"
+#include "common/MapFile.hpp"
 
 #ifndef SERVER
 GlobalStateGame gGlobalStateGame {
@@ -39,14 +59,6 @@ GlobalStateGame gGlobalStateGame {
 };
 // / 2;
 // / 2;
-#endif
-
-#ifndef SERVER
-
-#endif
-
-#ifndef SERVER
-// spark game handling sprite
 #endif
 
 namespace

@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <string>
 
 #include "Constants.hpp"
 #include "common/Vector.hpp"
@@ -9,6 +10,17 @@
 #include "mechanics/Bullets.hpp"
 #include "mechanics/Sparks.hpp"
 #include "mechanics/Things.hpp"
+#include "common/Constants.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Util.hpp"
+#include "common/Waypoints.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SHA1Helper.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "shared/Constants.cpp.h"
+
+struct tvector2;
 
 struct tkillsort
 {

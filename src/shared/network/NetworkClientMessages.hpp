@@ -2,6 +2,7 @@
 
 #include <string>
 #include <cinttypes>
+#include <cstdint>
 
 struct NetworkContext;
 

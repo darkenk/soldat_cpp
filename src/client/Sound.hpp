@@ -1,10 +1,14 @@
 #pragma once
 
-#include "common/Vector.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <string_view>
+
+#include "common/Vector.hpp"
+
+struct tvector2;
 
 // Sound effects
 enum class SfxEffect : std::uint16_t

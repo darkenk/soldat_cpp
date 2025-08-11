@@ -1,9 +1,12 @@
 #pragma once
 
-#include "PortUtilsSoldat.hpp"
-#include "TStream.hpp"
 #include <map>
 #include <memory>
+#include <string>
+#include <string_view>
+
+#include "PortUtilsSoldat.hpp"
+#include "TStream.hpp"
 
 class TIniFile
 {

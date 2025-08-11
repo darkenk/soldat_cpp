@@ -13,6 +13,17 @@
 #include "../../client/Sound.hpp"
 #include "../network/NetworkClientBullet.hpp"
 #endif
+#include <Tracy.hpp>
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <limits>
+#include <algorithm>
+#include <cstring>
+#include <memory>
+#include <string>
+#include <utility>
+
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
@@ -22,8 +33,23 @@
 #include "common/gfx.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <Tracy.hpp>
-#include <limits>
+#include "client/Gfx.hpp"
+#include "common/Anims.hpp"
+#include "common/MapFile.hpp"
+#include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/mechanics/Things.hpp"
+#include "shared/network/Net.hpp"
 
 #if SOLDAT_UTBOT
 constexpr auto pi = 3.14159265358979323846;

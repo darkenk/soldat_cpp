@@ -1,11 +1,19 @@
 #pragma once
 
+#include <vector>
+#include <array>
+#include <cstdint>
+
 #include "common/Constants.hpp"
 #include "Things.hpp"
 #include "common/MapFile.hpp"
 #include "common/Parts.hpp"
 #include "common/Weapons.hpp"
-#include <vector>
+#include "common/Vector.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SoldatConfig.hpp"
+
+class particlesystem;
 
 using tspriteindexes = PascalArray<std::int32_t, 1, Constants::MAX_SPRITES>;
 using tspritedistances = PascalArray<float, 1, Constants::MAX_SPRITES>;

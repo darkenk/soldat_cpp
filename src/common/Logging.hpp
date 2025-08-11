@@ -3,6 +3,11 @@
 // clang-format off
 #include <spdlog/spdlog.h>
 #include <spdlog/logger.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
 // clang-format on
 
 void InitLogging();

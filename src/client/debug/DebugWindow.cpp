@@ -1,12 +1,13 @@
 #include "DebugWindow.hpp"
-// clang-format off
-#include <glad/glad.h>
-// clang-format on
-#include "client/SdlApp.hpp"
 
 #include <backends/imgui_impl_sdlgpu3.h>
 #include <backends/imgui_impl_sdl3.h>
 #include <imgui.h>
+#include <SDL3/SDL_gpu.h>
+#include <SDL3/SDL_pixels.h>
+
+// clang-format on
+#include "client/SdlApp.hpp"
 
 DebugWindow::DebugWindow(SdlApp &app): mApp{app}
 {
@@ -68,6 +69,9 @@ void DebugWindow::DrawEverything(SDL_GPUCommandBuffer* _command_buffer,  SDL_GPU
 
 // tests
 #include <doctest/doctest.h>
+#include <array>
+#include <cstddef>
+#include <new>
 
 namespace
 {

@@ -1,16 +1,32 @@
 #include "NetworkUtils.hpp"
+
+#include <spdlog/fmt/bundled/core.h>
+#include <spdlog/fmt/bundled/format.h>
+#include <algorithm>
+#include <cstring>
+#include <string>
+#include <memory>
+#include <utility>
+#include <vector>
+#include <array>
+
 #include "../Cvar.hpp"
 #include "../Game.hpp"
-#include "../Version.hpp"
 #include "../mechanics/Sprites.hpp"
 #include "common/Console.hpp"
 #include "common/Logging.hpp"
 #include "common/Weapons.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include <algorithm>
-#include <cstring>
-#include <string>
+#include "common/Anims.hpp"
+#include "common/Constants.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "common/port_utils/Utilities.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/network/Net.hpp"
 
 #ifdef SERVER
 #include "../../server/BanSystem.hpp"

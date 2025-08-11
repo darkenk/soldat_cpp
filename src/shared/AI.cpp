@@ -1,6 +1,12 @@
 // automatically converted
 
 #include "AI.hpp"
+
+#include <Tracy.hpp>
+#include <cmath>
+#include <memory>
+#include <string>
+
 #include "Game.hpp"
 #include "common/Calc.hpp"
 #include "common/Vector.hpp"
@@ -8,12 +14,21 @@
 #include "common/Weapons.hpp"
 #include "mechanics/Bullets.hpp"
 #include "mechanics/Sprites.hpp"
-#include "network/NetworkServer.hpp"
 #include "network/NetworkServerMessages.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/Cvar.hpp"
-#include <Tracy.hpp>
+#include "common/Anims.hpp"
+#include "common/Constants.hpp"
+#include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/network/Net.hpp"
+#include "shared/Constants.cpp.h"
+#include "shared/mechanics/Things.hpp"
+#include "shared/network/Net.hpp"
 
 constexpr auto sround(float v) -> std::int16_t { return static_cast<std::int16_t>(std::roundf(v)); }
 
