@@ -736,13 +736,6 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
   }
   else if (action == taction::voicechat)
   {
-#ifdef STEAM
-    if (!voicespeakingnow)
-    {
-      steamapi.user.startvoicerecording(0);
-      voicespeakingnow = true;
-    }
-#endif
   }
   else
   {
@@ -785,13 +778,6 @@ auto keyup(SDL_KeyboardEvent &keyevent) -> bool
 
   if (action == taction::voicechat)
   {
-#ifdef STEAM
-    if (voicespeakingnow)
-    {
-      steamapi.user.stopvoicerecording(0);
-      voicespeakingnow = false;
-    }
-#endif
   }
   else
   {

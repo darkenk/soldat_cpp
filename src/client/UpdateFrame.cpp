@@ -193,11 +193,6 @@ void update_frame()
     //    ControlSprite(SpriteSystem::Get().GetSprite(j));
   }
 
-#ifdef STEAM
-  if (voicespeakingnow)
-    getmicdata;
-#endif
-
   // >> cursor on player <<
   gGlobalStateInterfaceGraphics.cursortext = "";
   gGlobalStateInterfaceGraphics.cursorfriendly = false;
@@ -517,13 +512,6 @@ void update_frame()
     if (game.GetMapchangecounter() < ((float)(default_mapchange_time) / 3))
     {
       gGlobalStateClient.screentaken = false;
-#ifdef STEAM
-      if (CVar::cl_steam_screenshots)
-      {
-        steamapi.screenshots.triggerscreenshot(0);
-        return;
-      }
-#endif
       NotImplemented("No now() function");
 #if 0
             screenfile = GS::GetGame().GetUserDirectory() + "screens/" +

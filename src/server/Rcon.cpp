@@ -156,13 +156,7 @@ void tadminserver::processcommands()
       if (sortedplayers[i].playernum > 0)
       {
         refreshmsgx.name[i] = SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.name;
-#ifdef STEAM
-        refreshmsgx.hwid[i] = inttostr(
-          tsteamid(SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.steamid)
-            .getaccountid);
-#else
         refreshmsgx.hwid[i] = SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.hwid;
-#endif
         refreshmsgx.kills[i] =
           SpriteSystem::Get().GetSprite(sortedplayers[i].playernum).player.kills;
         refreshmsgx.caps[i] =

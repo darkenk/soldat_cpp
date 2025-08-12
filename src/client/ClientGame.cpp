@@ -588,24 +588,3 @@ auto getcameratarget(bool backwards) -> std::uint8_t
 
   return iif(validcam, newcam, gGlobalStateClient.camerafollowsprite);
 }
-
-#ifdef STEAM
-void getmicdata()
-{
-  evoiceresult availablevoice;
-  std::uint32_t availablevoicebytes;
-  array of std::uint8_t voicedata;
-
-  availablevoice = steamapi.user.getavailablevoice(&availablevoicebytes, nullptr, 0);
-
-  if ((availablevoice == k_evoiceresultok) && (availablevoicebytes > 0))
-  {
-    setlength(voicedata, availablevoicebytes);
-    availablevoice = steamapi.user.getvoice(true, voicedata, availablevoicebytes,
-                                            &availablevoicebytes, false, nullptr, 0, nullptr, 0);
-
-    if ((availablevoice == k_evoiceresultok) && (availablevoicebytes > 0))
-      clientsendvoicedata(voicedata, availablevoicebytes);
-  }
-}
-#endif

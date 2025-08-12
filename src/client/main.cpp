@@ -2,11 +2,11 @@
 #include "common/Logging.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-auto main(int argc, const char *argv[]) -> int
+auto main(int argc, char *argv[]) -> int
 {
   InitLogging();
   GlobalSystems<Config::CLIENT_MODULE>::Init();
-  startgame(argc, argv);
+  gGlobalStateClient.gClient.startgame(argc, argv);
   GlobalSystems<Config::CLIENT_MODULE>::Deinit();
   return 0;
 }

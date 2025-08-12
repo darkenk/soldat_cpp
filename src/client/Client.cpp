@@ -92,25 +92,6 @@ auto GetKillConsole() -> ConsoleMain & { return sKillConsole; }
 // Client.cpp variables
 static bool gamelooprun;
 
-// server password
-// join port to server
-// join ip to server
-
-// TODO: Remove
-
-// Weapon Stats
-
-// FIXME skipped item at index 0
-
-// Radio Menu
-
-//  RMenuState: array[0..1] of Char = ' ';
-
-// screen
-
-// camera x and y within world
-// Tag number of object to follow
-
 GlobalStateClient gGlobalStateClient{
   .joinpassword{},
   .joinport = "23073",

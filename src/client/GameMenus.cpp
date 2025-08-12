@@ -96,14 +96,10 @@ void initgamemenus()
       round((float)((gGlobalStateClientGame.renderheight - gGlobalStateGameMenus.escmenu->h)) / 2);
   }
 
-  //  SetLength(escmenu->Button, {$IFDEF STEAM}5{$ELSE}4{$ENDIF});
   initbutton(gGlobalStateGameMenus.escmenu, 0, string("1 ") + ("Exit to menu"), 5, 1 * 25, 240, 25);
   initbutton(gGlobalStateGameMenus.escmenu, 1, string("2 ") + ("Change map"), 5, 2 * 25, 240, 25);
   initbutton(gGlobalStateGameMenus.escmenu, 2, string("3 ") + ("Kick player"), 5, 3 * 25, 240, 25);
   initbutton(gGlobalStateGameMenus.escmenu, 3, string("4 ") + ("Change team"), 5, 4 * 25, 240, 25);
-#ifdef STEAM
-  initbutton(escmenu, 4, ("Server Website"), 5, 7 * 25, 240, 15);
-#endif
 
   // team menu
 
@@ -344,14 +340,6 @@ auto gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
         }
       }
       break;
-#ifdef STEAM
-      case 4: {
-        if (CVar::sv_website != "")
-          steamapi.friends.activategameoverlaytowebpage(
-            (pchar)(CVar::sv_website), k_eactivategameoverlaytowebpagemode_default);
-      }
-      break;
-#endif
       }
     }
     else if (menu == gGlobalStateGameMenus.teammenu)

@@ -279,11 +279,6 @@ void NetworkServer::HandleMessages(SteamNetworkingMessage_t *msg)
   case msgid_clientfreecam:
     serverhandleclientfreecam(packet, msg->m_cbSize, *this, player);
     break;
-
-#ifdef STEAM
-  MsgID_VoiceData:
-    ServerHandleVoiceData(IncomingMsg);
-#endif
   }
 }
 

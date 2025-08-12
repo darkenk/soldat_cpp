@@ -86,9 +86,6 @@ void apponidle()
     scrptdispatcher.onclocktick(0);
 #endif
 
-#ifdef STEAM
-    runmanualcallbacks(0);
-#endif
     // Flood Nums Cancel
     if (GS::GetGame().GetMainTickCounter() % 1000 == 0)
     {

@@ -120,21 +120,6 @@ void commandmap(std::vector<std::string> &args, std::uint8_t sender)
   }
   else
   {
-#ifdef STEAM
-    if (status.workshopid > 0)
-    {
-      mapchangeitemid = status.workshopid;
-      if (steamapi.ugc.downloaditem(mapchangeitemid, true))
-        GS::GetMainConsole().console(string("[Steam] Workshop map ") + inttostr(mapchangeitemid) +
-                                         " not found in cache, downloading.",
-                                       warning_message_color, sender);
-      else
-        GS::GetMainConsole().console(string("[Steam] Workshop map ") + inttostr(mapchangeitemid) +
-                                         " is invalid",
-                                       warning_message_color, sender);
-    }
-    else
-#endif
       GS::GetMainConsole().console(string("Map not found (") + args[1] + ')',
                                      warning_message_color, sender);
   }

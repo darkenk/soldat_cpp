@@ -58,12 +58,6 @@ TNetwork::~TNetwork()
   {
     GameNetworkingSockets_Kill();
   }
-#ifndef STEAM
-  NotImplemented("network");
-#if 0
-    NetworkingSockets->Destroy;
-#endif
-#endif
 }
 
 auto TNetwork::GetStringAddress(bool withPort) -> std::string

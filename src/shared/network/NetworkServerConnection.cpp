@@ -135,8 +135,6 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
 
   GS::GetMainConsole().console(
     player->ip + ':' + inttostr(player->port) +
-      //    '|' + {$IFDEF
-      //    STEAM}TSteamID(Player.SteamID).GetAsString{$ELSE}RequestMsg.HardwareID{$ENDIF} +
       " requesting game" + banreason + "...",
     server_message_color);
 
@@ -145,11 +143,6 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
   {
     state =
       scrptdispatcher.onrequestgame(player.ip,
-                                    //      {$IFDEF STEAM}
-                                    //      TSteamID(Player.SteamID).GetAsString
-                                    //      {$ELSE}
-                                    //      RequestMsg.HardwareID
-                                    //      {$ENDIF},
                                     player.port, state, (bool)(requestmsg.forwarded),
                                     (pchar)(&pmsg_requestgame(netmessage->m_pData)->password));
   }
@@ -511,10 +504,6 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
                              player.team, true);
 #endif
 
-#ifdef STEAMSTATS
-  requestuserstats(player.steamid);
-#endif
-
   if (sprite_system.GetSprite(player->spritenum)
         .active) // FIXME like above, it's always active is it not?
   {
@@ -769,8 +758,6 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
   newplayer.jetcolor = sprite_system.GetSprite(num).player->jetcolor;
   newplayer.team = sprite_system.GetSprite(num).player->team;
   newplayer.pos = sprite_system.GetSpritePartsPos(num);
-  //  NewPlayer.SteamID := {$IFDEF
-  //  STEAM}UInt64(SpriteSystem::Get().GetSprite(Num).Player.SteamID){$ELSE}0{$ENDIF};
 
   if (newplayer.team == team_spectator)
   {

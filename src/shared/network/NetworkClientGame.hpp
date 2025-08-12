@@ -14,7 +14,3 @@ void clienthandleplayerdisconnect(NetworkContext *netmessage);
 void clienthandlemapchange(NetworkContext *netmessage);
 void clienthandleflaginfo(NetworkContext *netmessage);
 void clienthandleidleanimation(NetworkContext *netmessage);
-#ifdef STEAM
-void clientsendvoicedata(pointer data, std::uint64_t datasize);
-void clienthandlevoicedata(NetworkContext *netmessage);
-#endif

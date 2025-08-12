@@ -68,11 +68,6 @@ void clienthandlenewplayer(NetworkContext *netmessage)
   player->jetcolor = newplayermsg->jetcolor;
   player->team = newplayermsg->team;
 
-#ifdef STEAM
-  player.steamid = tsteamid(newplayermsg->steamid);
-  player.steamfriend = steamapi.friends.hasfriend(player.steamid, ord(k_efriendflagimmediate));
-#endif
-
   player->controlmethod = human;
 
   player->hairstyle = 0;

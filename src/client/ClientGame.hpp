@@ -16,9 +16,6 @@ void tabcomplete();
 void resetweaponstats();
 void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col);
 std::uint8_t getcameratarget(bool backwards = false);
-#ifdef STEAM
-void getmicdata();
-#endif
 
 struct GlobalStateClientGame
 {

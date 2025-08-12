@@ -70,10 +70,6 @@ static void sPreprocessSprites(SpriteSystem &spriteSystem, tmsg_playerslist *pla
     newplayer->jetcolor = playerslistmsg->jetcolor[i];
     newplayer->team = playerslistmsg->team[i];
 
-#ifdef STEAM
-    newplayer.steamid = tsteamid(playerslistmsg->steamid[i]);
-#endif
-
     newplayer->secwep = 0;
     pos = playerslistmsg->pos[i];
     vel = playerslistmsg->vel[i];
@@ -408,17 +404,6 @@ void clienthandleplayerslist(NetworkContext *netmessage)
   }
   else
   {
-#ifdef STEAM
-    if (mapstatus.workshopid > 0)
-    {
-      rendergameinfo(_("Downloading workshop item: ") + (inttostr(mapstatus.workshopid)));
-      steamapi.ugc.downloaditem(mapstatus.workshopid, true);
-      mapchangeitemid = mapstatus.workshopid;
-      forcereconnect = true;
-      return;
-    }
-    else
-#endif
     {
       NotImplemented("network", "no download thread");
 #if 0
@@ -636,12 +621,6 @@ void clienthandleunaccepted(NetworkContext *netmessage)
   case wrong_checksum:
     rendergameinfo(_("This server requires a different smod file."));
     break;
-
-#ifdef STEAM
-  case steam_only:
-    rendergameinfo(_("This server accepts only Steam players."));
-    break;
-#endif
 
   case anticheat_rejected:
     rendergameinfo(_("Rejected by Anti-Cheat:") + ' ' + text);

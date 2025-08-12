@@ -19,6 +19,3 @@ void serverhandlevotekick(tmsgheader* netmessage, std::int32_t size, NetworkServ
 void serverhandlevotemap(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player);
 void serverhandlechangeteam(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player);
 void serversyncmsg(std::int32_t tonum = 0);
-#ifdef STEAM
-void serverhandlevoicedata(SteamNetworkingMessage_t *netmessage);
-#endif

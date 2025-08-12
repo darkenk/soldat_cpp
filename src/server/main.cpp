@@ -2,7 +2,7 @@
 #include "common/Logging.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-auto main(int argc, const char *argv[]) -> int
+auto main(int argc, char *argv[]) -> int
 {
   InitLogging();
   GlobalSystems<Config::SERVER_MODULE>::Init();

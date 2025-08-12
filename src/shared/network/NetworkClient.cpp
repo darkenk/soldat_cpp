@@ -373,10 +373,6 @@ void NetworkClientImpl::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
     }
 #endif
 
-#ifdef STEAM
-  msgid_voicedata:
-    clienthandlevoicedata(&nc);
-#endif
   }
 }
 

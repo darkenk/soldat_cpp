@@ -3113,14 +3113,6 @@ void renderinterface(float timeelapsed, float width, float height)
             }
 
             x = 30 + gGlobalStateInterfaceGraphics.fragx;
-#ifdef STEAM
-            // Steam Friend
-            if (!SpriteSystem::Get()
-                   .GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                   .player->steamfriend)
-              gfxdrawsprite(t[GFX::interface_friend], pixelalignx(fragx + 240), pixelaligny(y),
-                            color);
-#endif
 
             // reg star
             l = 0;
@@ -3401,10 +3393,6 @@ void renderinterface(float timeelapsed, float width, float height)
       renderkillconsoletexts(width);
     }
 
-#ifdef STEAM
-    if (CVar::cl_voicechat)
-      rendervoicechattexts();
-#endif
   }
 
   if (sprite_system.IsPlayerSpriteValid())

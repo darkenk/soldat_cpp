@@ -119,11 +119,6 @@ tservernetwork<Config::GetModule()> *UDP;
 TLobbyThread LobbyThread;
 #endif
 
-#ifdef STEAM
-// TSteamCallbacks SteamCallbacks;
-TSteamGS SteamAPI;
-#endif
-
 static void WriteLn(const std::string &msg) { LogDebugG("{}", msg); }
 
 #ifndef MSWINDOWS
@@ -438,11 +433,6 @@ void ShutDown()
 
 #ifdef SCRIPT
   ScrptDispatcher.Free;
-#endif
-
-#ifdef STEAM
-  Debug("[Steam] Shutdown");
-  SteamAPI.GameServer.Shutdown;
 #endif
 
   for (auto &s : SpriteSystem::Get().GetSprites())
@@ -1163,11 +1153,6 @@ auto kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
   if (Ban)
   {
     addbannedip(sprite_system.GetSprite(i).player->ip, Reason, time);
-#ifdef STEAM
-    AddBannedHW(IntToStr(SpriteSystem::Get().GetSprite(i).Player.SteamID.GetAccountID), Reason,
-                time);
-    {$ELSE} AddBannedHW(SpriteSystem::Get().GetSprite(i).Player.HWid, Reason, time);
-#endif
   }
 
   if (Ban)
@@ -1217,16 +1202,6 @@ auto kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
   Result = true;
   return Result;
 }
-
-#ifdef STEAM
-initialization
-// Mask exceptions on 32 and 64 bit fpc builds
-{
-  $IF defined(cpui386) or defined(cpux86_64)
-}
-// SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow,
-// exPrecision]);
-#endif
 
 void RunServer(int argc, char *argv[])
 {

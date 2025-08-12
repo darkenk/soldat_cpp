@@ -262,26 +262,6 @@ CVarString sv_lobbyurl{"sv_lobbyurl", "URL of the lobby server", CVarFlags::SERV
 
 CVarBool sv_steamonly{"sv_steamonly", "Enables/Disables steam only mode", CVarFlags::SERVER_FLAG, false};
 
-#ifdef STEAM
-CVarBool sv_voicechat{"sv_voicechat", "Enables voice chat",   true,
-                                     true,           CVarFlags::SERVER_FLAG, nullptr};
-CVarBool sv_voicechat_alltalk{"sv_voicechat_alltalk",
-                              "Enables voice chat from enemy team and spectators",
-                              false,
-                              false,
-                              CVarFlags::SERVER_FLAG,
-                              nullptr};
-CVarString sv_setsteamaccount{
-    "sv_setsteamaccount",
-    "Set game server account token to use for logging in to a persistent game server account",
-    "",
-    "",
-    CVarFlags::SERVER_FLAG,
-    nullptr,
-    32,
-    32};
-#endif
-
 CVarInt sv_warnings_flood{"sv_warnings_flood", "How many warnings someone who is flooding the server gets before getting kicked for 20 minutes", CVarFlags::SERVER_FLAG, 4};
 CVarInt sv_warnings_ping{"sv_warnings_ping", "How many warnings someone who has a ping outside the required values above gets before being kicked for 15 minutes", CVarFlags::SERVER_FLAG, 10};
 
