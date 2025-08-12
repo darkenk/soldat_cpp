@@ -75,4 +75,4 @@ add_custom_target(
     DEPENDS ${SPIRV_BINARY_FILES}
 )
 
-add_dependencies(SoldatGame Shaders)
+add_dependencies(SoldatClientLib Shaders)

@@ -548,7 +548,7 @@ void gfxdestroycontext()
 
   if (gfxcontext.ditheringtexture != 0)
   {
-    glDeleteTextures(1, &gfxcontext.ditheringtexture);
+    NotImplemented("rendering");
   }
 
   if (gfxcontext.textstrsize > 0)
@@ -602,28 +602,8 @@ void gfxtarget(tgfxtexture *rendertarget)
 void gfxblit(tgfxtexture *src, tgfxtexture *dst, trect srcrect, trect dstrect,
              tgfxtexturefilter filter)
 {
-  GLenum filtergl;
 
-  filtergl = GL_NEAREST;
-
-  if (filter == gfx_linear)
-  {
-    filtergl = GL_LINEAR;
-  }
-
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, src->ffbohandle);
-
-  if (dst != nullptr)
-  {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst->ffbohandle);
-  }
-  else
-  {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  }
-
-  glBlitFramebuffer(srcrect.left, srcrect.bottom, srcrect.right, srcrect.top, dstrect.left,
-                    dstrect.bottom, dstrect.right, dstrect.top, GL_COLOR_BUFFER_BIT, filtergl);
+  NotImplemented("rendering");
 }
 
 void gfxviewport(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h)
@@ -775,18 +755,7 @@ void gfxdraw(tgfxvertexbuffer *buffer, pgfxdrawcommand cmds, std::int32_t cmdcou
 void gfxdraw(tgfxvertexbuffer *buffer, tgfxindexbuffer *indexbuffer, pgfxdrawcommand cmds,
              std::int32_t cmdcount)
 {
-  std::int32_t i;
-
-  setupvertexattributes(buffer);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer->handle());
-
-  for (i = 1; i <= cmdcount; i++)
-  {
-    gfxbindtexture(cmds->texture);
-    glDrawElements(GL_TRIANGLES, cmds->count, GL_UNSIGNED_SHORT,
-                   (void *)(sizeof(std::uint16_t) * cmds->offset));
-    cmds += 1;
-  }
+  NotImplemented("rendering");
 }
 
 /*$pop*/
@@ -901,15 +870,6 @@ std::unique_ptr<std::uint8_t[]> gfxsavescreen(std::int32_t x, std::int32_t y, st
 void gfxsavescreen(const std::string &filename, std::int32_t x, std::int32_t y, std::int32_t w,
                    std::int32_t h, bool async)
 {
-  std::uint8_t *data;
-  std::uint8_t *src;
-
-  getmem(data, static_cast<std::size_t>(2 * w * h * 4));
-
-  src = data;
-  src += static_cast<ptrdiff_t>(w * h * 4);
-  glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, src);
-
   NotImplemented("rendering", "Lack of screenshot");
 #if 0
     tscreenshotthread *screenthread;

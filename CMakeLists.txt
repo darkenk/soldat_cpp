@@ -134,6 +134,8 @@ find_package(Freetype REQUIRED)
 find_package(GameNetworkingSockets REQUIRED)
 find_package(spdlog REQUIRED)
 
+option(ENABLE_TRACY "Enable tracy profiler" OFF)
+option(ENABLE_OPENGL "Enables opengl backend (deprecated)" OFF)
 option(ENABLE_IWYU "Enable incluw-what-you-use" OFF)
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 option(ENABLE_MOLD "Enable MOLD Linker" OFF)
@@ -220,8 +222,6 @@ set(CommonPCH
     "$<$<COMPILE_LANGUAGE:CXX>:${ROOT_DIR}/src/common/misc/PortUtils.hpp>"
     "$<$<COMPILE_LANGUAGE:CXX>:${ROOT_DIR}/src/common/misc/PortUtilsSoldat.hpp>"
 )
-
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror")
 
 #shared library must be compiled with client or server defines
 #add_subdirectory(src/shared)

@@ -25,6 +25,7 @@ set(SRC
     Weapons.cpp
     WeaponSystem.cpp
     LogFile.cpp
+    $<$<BOOL:${ENABLE_TRACY}>:${TRACY_SRC}>
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -32,7 +33,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set_source_files_properties(misc/SHA1.cpp PROPERTIES SKIP_PRECOMPILE_HEADERS TRUE COMPILE_FLAGS -O3)
 endif()
 
-add_library(CommonLib ${SRC} ${TRACY_SRC})
+add_library(CommonLib ${SRC})
 target_link_libraries(CommonLib
     spdlog::spdlog
     GameNetworkingSockets::GameNetworkingSockets_s
