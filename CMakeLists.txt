@@ -102,9 +102,6 @@ set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/imgui)
 set(NUKLEAR_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/nuklear)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace")
-#add_definitions(-DTRACY_ENABLE)
-
 # Add Library
 add_library(LibreSSL::Crypto UNKNOWN IMPORTED)
 
@@ -129,6 +126,7 @@ set_target_properties(
 )
 
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON")
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 #find_package(LibreSSL 3.4.3 REQUIRED EXACT)
 find_package(Freetype REQUIRED)
 find_package(GameNetworkingSockets REQUIRED)
@@ -142,6 +140,11 @@ option(ENABLE_MOLD "Enable MOLD Linker" OFF)
 option(ENABLE_COVERAGE "Enable Code Coverage" OFF)
 option(ENABLE_CLANG_TIDY "Enable Clang Tidy" OFF)
 option(ENABLE_PCH "Enable PCH" OFF)
+
+if (ENALBE_TRACY)
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftime-trace")
+  add_definitions(-DTRACY_ENABLE)
+endif()
 
 set(iwyu "${third_party_dependencies_path}/install/iwyu/bin/include-what-you-use")
 if (ENABLE_IWYU AND EXISTS ${iwyu})
