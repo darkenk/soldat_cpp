@@ -403,17 +403,17 @@ void Game<M>::countvote(std::uint8_t voter)
         // There should be no permanent bans by votes. Reduced to 1 day.
         if (gGlobalStateServer.cheattag[i] == 0)
         {
-          kickplayer(i, true, kick_voted, hour, "Vote Kicked");
+          gGlobalStateServer.kickplayer(i, true, kick_voted, hour, "Vote Kicked");
         }
         else
         {
-          kickplayer(i, true, kick_voted, day, "Vote Kicked by Server");
+          gGlobalStateServer.kickplayer(i, true, kick_voted, day, "Vote Kicked by Server");
         }
         dobalancebots(1, sprite_system.GetSprite(i).player->team);
       }
       else if (VoteType == vote_map)
       {
-        if (!preparemapchange(VoteTarget))
+        if (!gGlobalStateServer.preparemapchange(VoteTarget))
         {
           GS::GetMainConsole().console(string("Map not found (") + VoteTarget + ')',
                                    warning_message_color);
@@ -439,15 +439,15 @@ void Game<M>::showmapchangescoreboard(const std::string nextmap)
   mapchangename = nextmap;
   mapchangecounter = mapchangetime;
 #ifndef SERVER
-  gamemenushow(gGlobalStateGameMenus.limbomenu, false);
+  gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu, false);
   gGlobalStateInterfaceGraphics.fragsmenushow = true;
   gGlobalStateInterfaceGraphics.statsmenushow = false;
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
-    stopsound(sprite.reloadsoundchannel);
-    stopsound(sprite.jetssoundchannel);
-    stopsound(sprite.gattlingsoundchannel);
-    stopsound(sprite.gattlingsoundchannel2);
+    gGlobalStateSound.stopsound(sprite.reloadsoundchannel);
+    gGlobalStateSound.stopsound(sprite.jetssoundchannel);
+    gGlobalStateSound.stopsound(sprite.gattlingsoundchannel);
+    gGlobalStateSound.stopsound(sprite.gattlingsoundchannel2);
   }
 #endif
 }
@@ -506,7 +506,7 @@ void Game<M>::changemap()
   {
     GS::GetMainConsole().console(string("Error: Could not load map (") + mapchange.name + ')',
                              debug_message_color);
-    nextmap();
+    gGlobalStateServer.nextmap();
     return;
   }
 #endif
@@ -521,7 +521,7 @@ void Game<M>::changemap()
     if (!map.loadmap(fs, mapchangestatus, CVar::r_forcebg, CVar::r_forcebg_color1,
                      CVar::r_forcebg_color2))
     {
-      rendergameinfo(("Could not load map: ") + (mapchangename));
+      gGlobalStateGameRendering.rendergameinfo(("Could not load map: ") + (mapchangename));
       gGlobalStateClient.gClient.exittomenu();
       return;
     }
@@ -629,7 +629,7 @@ void Game<M>::changemap()
 
   if (sprite_system.IsPlayerSpriteValid())
   {
-    gamemenushow(gGlobalStateGameMenus.limbomenu);
+    gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu);
   }
 #endif
 
@@ -665,12 +665,12 @@ void Game<M>::changemap()
   if (!CVar::sv_survivalmode)
   {
     // spawn medikits
-    spawnthings(object_medical_kit, map.medikits);
+    gGlobalStateServer.spawnthings(object_medical_kit, map.medikits);
 
     // spawn grenadekits
     if (CVar::sv_maxgrenades > 0)
     {
-      spawnthings(object_grenade_kit, map.grenades);
+      gGlobalStateServer.spawnthings(object_grenade_kit, map.grenades);
     }
   }
 
@@ -707,7 +707,7 @@ void Game<M>::changemap()
     if ((gGlobalStateClient.camerafollowsprite == 0) or
         !sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).IsActive())
     {
-      gGlobalStateClient.camerafollowsprite = getcameratarget(0);
+      gGlobalStateClient.camerafollowsprite = gGlobalStateClientGame.getcameratarget(0);
       // If no appropriate player found, then just center the camera
       if (gGlobalStateClient.camerafollowsprite == 0)
       {
@@ -729,7 +729,7 @@ void Game<M>::changemap()
   if (sprite_system.IsPlayerSpriteValid())
   {
     auto &spritePartsPos = sprite_system.GetSpritePartsPos(gGlobalStateClient.mysprite);
-    playsound(SfxEffect::spawn, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::spawn, spritePartsPos);
   }
 
 #endif
@@ -758,7 +758,7 @@ void Game<M>::changemap()
   scrptdispatcher.onaftermapchange(map.name);
 #endif
 #ifdef SERVER
-  serverspritesnapshotmajor(netw);
+  gGlobalStateNetworkServerSprite.serverspritesnapshotmajor(netw);
   //  except
   //    on e: exception do
   //      WriteLn('Error changing map ' + e.message);
@@ -838,7 +838,7 @@ void Game<M>::sortplayers()
                 gGlobalStateClientGame.mouseprev.y = gGlobalStateClientGame.my;
               }
 #else
-              nextmap();
+              gGlobalStateServer.nextmap();
 #endif
             }
           }
@@ -946,7 +946,7 @@ void Game<M>::sortplayers()
     {
       if (teamscore[i] >= CVar::sv_killlimit)
       {
-        nextmap();
+        gGlobalStateServer.nextmap();
         break;
       }
     }

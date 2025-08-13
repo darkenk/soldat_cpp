@@ -13,9 +13,6 @@ class Console;
 class FileUtility;
 class ConsoleMain;
 
-Console &GetBigConsole();
-ConsoleMain &GetKillConsole();
-
 struct tweaponstat
 {
   std::string name;
@@ -40,6 +37,9 @@ public:
 
 struct GlobalStateClient
 {
+  Console &GetBigConsole();
+  ConsoleMain &GetKillConsole();
+  void showmessage(const std::string &messagetext);
   std::string joinpassword;
   std::string joinport;
   std::string joinip;
@@ -108,5 +108,3 @@ extern GlobalStateClient gGlobalStateClient;
 
 // camera x and y within world
 // Tag number of object to follow
-
-void showmessage(const std::string &messagetext);

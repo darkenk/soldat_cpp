@@ -241,8 +241,8 @@ void savetxtlists()
   LogTraceG("SaveTxtLists");
 
   // save ban files
-  savebannedlist(GS::GetGame().GetUserDirectory() + "configs/banned.txt");
-  savebannedlisthw(GS::GetGame().GetUserDirectory() + "configs/bannedhw.txt");
+  gGlobalStateBanSystem.savebannedlist(GS::GetGame().GetUserDirectory() + "configs/banned.txt");
+  gGlobalStateBanSystem.savebannedlisthw(GS::GetGame().GetUserDirectory() + "configs/bannedhw.txt");
 
   gGlobalStateServer.remoteips.savetofile(GS::GetGame().GetUserDirectory() + "configs/remote.txt");
 }
@@ -384,12 +384,12 @@ void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
       {
         if ((teams[1] > teams[2]) && (sprite.player->team == team_alpha))
         {
-          kickplayer(sprite.num, false, kick_leftgame, 0);
+          gGlobalStateServer.kickplayer(sprite.num, false, kick_leftgame, 0);
           return;
         }
         if ((teams[2] > teams[1]) && (sprite.player->team == team_bravo))
         {
-          kickplayer(sprite.num, false, kick_leftgame, 0);
+          gGlobalStateServer.kickplayer(sprite.num, false, kick_leftgame, 0);
           return;
         }
       }
@@ -404,7 +404,7 @@ void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
       {
         if (teams[1] > teams[2])
         {
-          kickplayer(sprite.num, false, kick_leftgame, 0);
+          gGlobalStateServer.kickplayer(sprite.num, false, kick_leftgame, 0);
           if (sprite.player->team == newteam)
           {
             dobalancebots(1, 2);
@@ -413,7 +413,7 @@ void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
         }
         if (teams[2] > teams[1])
         {
-          kickplayer(sprite.num, false, kick_leftgame, 0);
+          gGlobalStateServer.kickplayer(sprite.num, false, kick_leftgame, 0);
           if (sprite.player->team == newteam)
           {
             dobalancebots(1, 1);

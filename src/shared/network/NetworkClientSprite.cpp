@@ -343,7 +343,7 @@ void clientspritesnapshot()
 
   oldclientsnapshotmsg = clientmsg;
 
-  GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
+  gGlobalStateNetworkClient.GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
 }
 
 // CLIENT SPRITE SNAPSHOT MOV
@@ -385,7 +385,7 @@ void clientspritesnapshotmov()
     oldclientsnapshotmovmsg.mouseaimx = round(gGlobalStateClientGame.mx);
     oldclientsnapshotmovmsg.mouseaimy = round(gGlobalStateClientGame.my);
 
-    GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
+    gGlobalStateNetworkClient.GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
   }
 }
 
@@ -397,7 +397,7 @@ void clientspritesnapshotdead()
   clientmsg.header.id = msgid_clientspritesnapshot_dead;
   clientmsg.camerafocus = gGlobalStateClient.camerafollowsprite;
 
-  GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
+  gGlobalStateNetworkClient.GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
 }
 
 static auto sConvertKillBulletToGFX(const std::uint8_t killbullet) -> std::int32_t
@@ -577,31 +577,32 @@ void clienthandlespritedeath(NetworkContext *netmessage)
 
   if (sprite_system.IsPlayerSprite(i))
   {
-    bigmessage(
+    gGlobalStateClientGame.bigmessage(
       wideformat(_("Killed by {}"), sprite_system.GetSprite(deathsnap->killer).player->name),
       killmessagewait, die_message_color);
     if (!gGlobalStateClient.limbolock)
     {
-      gamemenushow(gGlobalStateGameMenus.limbomenu);
+      gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu);
     }
     gGlobalStateClientGame.menutimer = menu_time;
-    playsound(SfxEffect::playerdeath);
+    gGlobalStateSound.playsound(SfxEffect::playerdeath);
   }
 
   if (sprite_system.IsPlayerSprite(deathsnap->killer))
   {
-    bigmessage(wideformat(_("You killed {}"), sprite.player->name), killmessagewait,
-               kill_message_color);
+    gGlobalStateClientGame.bigmessage(wideformat(_("You killed {}"), sprite.player->name),
+                                      killmessagewait, kill_message_color);
 
     if ((sprite_system.GetSprite(deathsnap->killer).multikills > 1) &&
         (sprite_system.GetSprite(deathsnap->killer).multikills < 18))
     {
-      bigmessage(multikillmessage[sprite_system.GetSprite(deathsnap->killer).multikills],
-                 killmessagewait, kill_message_color);
+      gGlobalStateClientGame.bigmessage(
+        multikillmessage[sprite_system.GetSprite(deathsnap->killer).multikills], killmessagewait,
+        kill_message_color);
     }
     if (sprite_system.GetSprite(deathsnap->killer).multikills > 17)
     {
-      bigmessage(multikillmessage[9], killmessagewait, kill_message_color);
+      gGlobalStateClientGame.bigmessage(multikillmessage[9], killmessagewait, kill_message_color);
     }
 
     if ((gGlobalStateClient.shotdistance > -1) && (deathsnap->killer != i))
@@ -615,7 +616,7 @@ void clienthandlespritedeath(NetworkContext *netmessage)
 
   if ((sprite_system.IsPlayerSprite(deathsnap->killer)) && (sprite_system.IsPlayerSprite(i)))
   {
-    bigmessage(_("You killed yourself"), killmessagewait, die_message_color);
+    gGlobalStateClientGame.bigmessage(_("You killed yourself"), killmessagewait, die_message_color);
   }
 
   // This k seems to go to the rendering code through KillConsole.NumMessage,
@@ -666,15 +667,15 @@ void clienthandlespritedeath(NetworkContext *netmessage)
 
   if (deathsnap->killer != i)
   {
-    GetKillConsole().ConsoleAdd(
+    gGlobalStateClient.GetKillConsole().ConsoleAdd(
       (sprite_system.GetSprite(deathsnap->killer).player->name) + " (" +
         (inttostr(sprite_system.GetSprite(deathsnap->killer).player->kills)) + ')',
       col, k);
-    GetKillConsole().ConsoleAdd((sprite.player->name), col2, -255);
+    gGlobalStateClient.GetKillConsole().ConsoleAdd((sprite.player->name), col2, -255);
   }
   else
   {
-    GetKillConsole().ConsoleAdd(
+    gGlobalStateClient.GetKillConsole().ConsoleAdd(
       (sprite_system.GetSprite(deathsnap->killer).player->name) + " (" +
         (inttostr(sprite_system.GetSprite(deathsnap->killer).player->kills)) + ')',
       spectator_d_message_color, k);
@@ -883,8 +884,8 @@ void clienthandledelta_helmet(NetworkContext *netmessage)
   // helmet chop
   if (deltahelmet->wearhelmet == 0)
   {
-    createspark(sprite.skeleton.pos[12], spriteVelocity, 6, i, 198);
-    playsound(SfxEffect::headchop, sprite.skeleton.pos[12]);
+    gGlobalStateSparks.createspark(sprite.skeleton.pos[12], spriteVelocity, 6, i, 198);
+    gGlobalStateSound.playsound(SfxEffect::headchop, sprite.skeleton.pos[12]);
   }
 
   sprite.wearhelmet = deltahelmet->wearhelmet;

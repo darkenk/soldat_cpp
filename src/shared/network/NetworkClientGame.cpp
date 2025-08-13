@@ -137,15 +137,15 @@ void clienthandlenewplayer(NetworkContext *netmessage)
     if (player->team == team_spectator)
     {
       gGlobalStateClient.camerafollowsprite = 0;
-      gGlobalStateClient.camerafollowsprite = getcameratarget();
-      gamemenushow(gGlobalStateGameMenus.limbomenu, false);
+      gGlobalStateClient.camerafollowsprite = gGlobalStateClientGame.getcameratarget();
+      gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu, false);
     }
     else
     {
       gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
     }
 
-    gamemenushow(gGlobalStateGameMenus.teammenu, false);
+    gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.teammenu, false);
     gGlobalStateNetworkClient.clientplayerreceived = true;
     gGlobalStateNetworkClient.clientplayerreceivedcounter = -1;
     gGlobalStateClient.badmapidcount = 2;
@@ -178,7 +178,7 @@ void clienthandlenewplayer(NetworkContext *netmessage)
 
     if (sprite_system.IsPlayerSpriteValid())
     {
-      gamemenushow(gGlobalStateGameMenus.limbomenu);
+      gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu);
       newplayerweapon();
     }
   }
@@ -223,7 +223,7 @@ void clientvotekick(std::uint8_t num, bool ban, std::string reason)
   votemsg.ban = (std::uint8_t)(ban);
   votemsg.num = num;
   stringtoarray(votemsg.reason.data(), reason);
-  GetNetwork()->SendData(&votemsg, sizeof(votemsg), true);
+  gGlobalStateNetworkClient.GetNetwork()->SendData(&votemsg, sizeof(votemsg), true);
 }
 
 void clientvotemap(std::uint32_t mapid)
@@ -232,7 +232,7 @@ void clientvotemap(std::uint32_t mapid)
 
   votemsg.header.id = msgid_votemap;
   votemsg.mapid = mapid;
-  GetNetwork()->SendData(&votemsg, sizeof(votemsg), true);
+  gGlobalStateNetworkClient.GetNetwork()->SendData(&votemsg, sizeof(votemsg), true);
 }
 
 void clienthandlevoteresponse(NetworkContext *netmessage)
@@ -258,7 +258,7 @@ void clientfreecamtarget()
   freecammsg.targetpos.x = gGlobalStateClient.camerax;
   freecammsg.targetpos.y = gGlobalStateClient.cameray;
 
-  GetNetwork()->SendData(&freecammsg, sizeof(freecammsg), true);
+  gGlobalStateNetworkClient.GetNetwork()->SendData(&freecammsg, sizeof(freecammsg), true);
 }
 
 void clienthandleplayerdisconnect(NetworkContext *netmessage)
@@ -456,7 +456,7 @@ void clienthandleplayerdisconnect(NetworkContext *netmessage)
   if ((sprite_system.IsPlayerSprite(playermsg->num)) && (GS::GetGame().GetMapchangecounter() < 1))
   {
     GS::GetGame().showmapchangescoreboard();
-    gamemenushow(gGlobalStateGameMenus.teammenu, false);
+    gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.teammenu, false);
   }
 
   if ((playermsg->why != kick_changeteam) && (playermsg->why != kick_leftgame))
@@ -486,7 +486,7 @@ void clienthandlemapchange(NetworkContext *netmessage)
   GS::GetGame().SetMapchangechecksum(mapchange->mapchecksum);
   gGlobalStateInterfaceGraphics.fragsmenushow = true;
   gGlobalStateInterfaceGraphics.statsmenushow = false;
-  gamemenushow(gGlobalStateGameMenus.limbomenu, false);
+  gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu, false);
   gGlobalStateGame.heartbeattime = GS::GetGame().GetMainTickCounter();
   gGlobalStateGame.heartbeattimewarnings = 0;
 
@@ -497,10 +497,10 @@ void clienthandlemapchange(NetworkContext *netmessage)
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
-    stopsound(sprite.reloadsoundchannel);
-    stopsound(sprite.jetssoundchannel);
-    stopsound(sprite.gattlingsoundchannel);
-    stopsound(sprite.gattlingsoundchannel2);
+    gGlobalStateSound.stopsound(sprite.reloadsoundchannel);
+    gGlobalStateSound.stopsound(sprite.jetssoundchannel);
+    gGlobalStateSound.stopsound(sprite.gattlingsoundchannel);
+    gGlobalStateSound.stopsound(sprite.gattlingsoundchannel2);
   }
 
   if (gGlobalStateDemo.demoplayer.active())
@@ -555,8 +555,9 @@ void clienthandleflaginfo(NetworkContext *netmessage)
   {
     if (CVar::sv_gamemode == gamestyle_ctf)
     {
-      playsound(SfxEffect::capture);
-      bigmessage(_("Red Flag returned!"), capturemessagewait, alpha_message_color);
+      gGlobalStateSound.playsound(SfxEffect::capture);
+      gGlobalStateClientGame.bigmessage(_("Red Flag returned!"), capturemessagewait,
+                                        alpha_message_color);
 
       GS::GetMainConsole().console(
         wideformat(
@@ -573,8 +574,9 @@ void clienthandleflaginfo(NetworkContext *netmessage)
   {
     if (CVar::sv_gamemode == gamestyle_ctf)
     {
-      playsound(SfxEffect::capture);
-      bigmessage(_("Blue Flag returned!"), capturemessagewait, alpha_message_color);
+      gGlobalStateSound.playsound(SfxEffect::capture);
+      gGlobalStateClientGame.bigmessage(_("Blue Flag returned!"), capturemessagewait,
+                                        alpha_message_color);
 
       GS::GetMainConsole().console(
         wideformat(
@@ -589,7 +591,8 @@ void clienthandleflaginfo(NetworkContext *netmessage)
   }
   if (pmsg_serverflaginfo(netmessage->packet)->style == capturered)
   {
-    bigmessage(_("Alpha Team Scores!"), capturectfmessagewait, alpha_message_color);
+    gGlobalStateClientGame.bigmessage(_("Alpha Team Scores!"), capturectfmessagewait,
+                                      alpha_message_color);
     GS::GetMainConsole().console(
       wideformat(
         _("{} scores for Alpha Team"),
@@ -598,7 +601,7 @@ void clienthandleflaginfo(NetworkContext *netmessage)
 
     if (CVar::sv_gamemode == gamestyle_inf)
     {
-      playsound(SfxEffect::infiltmus);
+      gGlobalStateSound.playsound(SfxEffect::infiltmus);
 
       // flame it
       for (j = 1; j <= 10; j++)
@@ -607,16 +610,16 @@ void clienthandleflaginfo(NetworkContext *netmessage)
         a.y = things[GS::GetGame().GetTeamFlag(1)].skeleton.pos[2].y - 10 + Random(20);
         b.x = 0;
         b.y = 0;
-        createspark(a, b, 36, 0, 35);
+        gGlobalStateSparks.createspark(a, b, 36, 0, 35);
         if (Random(2) == 0)
         {
-          createspark(a, b, 37, 0, 75);
+          gGlobalStateSparks.createspark(a, b, 37, 0, 75);
         }
       }
     }
     else
     {
-      playsound(SfxEffect::ctf);
+      gGlobalStateSound.playsound(SfxEffect::ctf);
     }
     if (GS::GetGame().GetTeamFlag(2) > 0)
     {
@@ -624,8 +627,8 @@ void clienthandleflaginfo(NetworkContext *netmessage)
     }
 
     // cap spark
-    createspark(things[GS::GetGame().GetTeamFlag(1)].skeleton.pos[2], b, 61,
-                pmsg_serverflaginfo(netmessage->packet)->who, 18);
+    gGlobalStateSparks.createspark(things[GS::GetGame().GetTeamFlag(1)].skeleton.pos[2], b, 61,
+                                   pmsg_serverflaginfo(netmessage->packet)->who, 18);
 
     if (CVar::sv_survivalmode)
     {
@@ -634,21 +637,22 @@ void clienthandleflaginfo(NetworkContext *netmessage)
   }
   if (pmsg_serverflaginfo(netmessage->packet)->style == captureblue)
   {
-    bigmessage(_("Bravo Team Scores!"), capturectfmessagewait, bravo_message_color);
+    gGlobalStateClientGame.bigmessage(_("Bravo Team Scores!"), capturectfmessagewait,
+                                      bravo_message_color);
     GS::GetMainConsole().console(
       wideformat(
         _("{} scores for Bravo Team"),
         (sprite_system.GetSprite(pmsg_serverflaginfo(netmessage->packet)->who).player->name)),
       bravo_message_color);
-    playsound(SfxEffect::ctf);
+    gGlobalStateSound.playsound(SfxEffect::ctf);
     if (GS::GetGame().GetTeamFlag(1) > 0)
     {
       things[GS::GetGame().GetTeamFlag(1)].respawn();
     }
 
     // cap spark
-    createspark(things[GS::GetGame().GetTeamFlag(2)].skeleton.pos[2], b, 61,
-                pmsg_serverflaginfo(netmessage->packet)->who, 18);
+    gGlobalStateSparks.createspark(things[GS::GetGame().GetTeamFlag(2)].skeleton.pos[2], b, 61,
+                                   pmsg_serverflaginfo(netmessage->packet)->who, 18);
 
     if (CVar::sv_survivalmode)
     {

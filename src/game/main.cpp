@@ -117,7 +117,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
   RunTests(argc, argv);
   GlobalSystems<Config::CLIENT_MODULE>::Init();
   GlobalSystems<Config::SERVER_MODULE>::Init();
-  auto *state = new AppState{ .serverThread = std::thread([=]() { RunServer(argc, argv); }) }; 
+  auto *state =
+    new AppState{.serverThread = std::thread([=]() { gGlobalStateServer.RunServer(argc, argv); })};
   SetThreadName(state->serverThread, "Server");
   SetCurrentThreadName("Client");
   gGlobalStateClient.gClient.startgame(argc, argv);
@@ -133,13 +134,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-  gameinput(*event);
+  gGlobalStateControlGame.gameinput(*event);
   return SDL_APP_CONTINUE;
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-  ShutdownServer();
+  gGlobalStateServer.ShutdownServer();
   auto* state = reinterpret_cast<AppState*>(appstate);
   state->serverThread.join();
   delete state;

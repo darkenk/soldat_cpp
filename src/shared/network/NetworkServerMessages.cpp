@@ -62,7 +62,8 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
                 (((msgtype == msgtype_team) || (msgtype == msgtype_radio)) and
                  sprite_system.GetSprite(from).isinsameteam(sprite)))
             {
-              GetServerNetwork()->SendData(pchatmessage, size, sprite.player->peer, true);
+              gGlobalStateNetworkServer.GetServerNetwork()->SendData(pchatmessage, size,
+                                                                     sprite.player->peer, true);
             }
           }
         }
@@ -127,7 +128,8 @@ void serverhandlechatmessage(tmsgheader* netmessage, std::int32_t size, NetworkS
   if (length(cs) > 100)
   {
     // Fixed DoS Exploit that causes crash on clients.
-    kickplayer(player->spritenum, true, kick_flooding, twenty_minutes, "DoS Exploit");
+    gGlobalStateServer.kickplayer(player->spritenum, true, kick_flooding, twenty_minutes,
+                                  "DoS Exploit");
     return;
   }
 
@@ -216,7 +218,8 @@ void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8
     {
       if ((tonum == 0) || (sprite.num == tonum))
       {
-        GetServerNetwork()->SendData(pchatmessage, size, sprite.player->peer, true);
+        gGlobalStateNetworkServer.GetServerNetwork()->SendData(pchatmessage, size,
+                                                               sprite.player->peer, true);
       }
     }
   }

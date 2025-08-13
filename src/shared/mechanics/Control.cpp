@@ -372,7 +372,8 @@ void controlsprite(tsprite &spritec)
                 }
 
                 cameratarget =
-                  iif(i == 1, getcameratarget(spritec.control.jetpack), (std::uint8_t)0);
+                  iif(i == 1, gGlobalStateClientGame.getcameratarget(spritec.control.jetpack),
+                      (std::uint8_t)0);
 
                 if ((cameratarget > 0) || !freecampressed)
                 {
@@ -507,12 +508,12 @@ void controlsprite(tsprite &spritec)
       // smoke
       if (Random(8) == 0)
       {
-        createspark(a, spriteVelocity, 1, spritec.num, 75);
+        gGlobalStateSparks.createspark(a, spriteVelocity, 1, spritec.num, 75);
       }
       // sparks
       if (Random(7) == 0)
       {
-        createspark(a, b, 62, spritec.num, 40);
+        gGlobalStateSparks.createspark(a, b, 62, spritec.num, 40);
       }
 
       a.x = spritec.skeleton.pos[2].x - 1;
@@ -524,12 +525,12 @@ void controlsprite(tsprite &spritec)
       // smoke
       if (Random(8) == 0)
       {
-        createspark(a, spriteVelocity, 1, spritec.num, 75);
+        gGlobalStateSparks.createspark(a, spriteVelocity, 1, spritec.num, 75);
       }
       // sparks
       if (Random(7) == 0)
       {
-        createspark(a, b, 62, spritec.num, 40);
+        gGlobalStateSparks.createspark(a, b, 62, spritec.num, 40);
       }
 
 #endif
@@ -541,13 +542,13 @@ void controlsprite(tsprite &spritec)
       }
 
       // play rockets sound
-      playsound(SfxEffect::rocketz, spritePartsPos, spritec.jetssoundchannel);
+      gGlobalStateSound.playsound(SfxEffect::rocketz, spritePartsPos, spritec.jetssoundchannel);
 #endif
     }
     else
     {
 #ifndef SERVER
-      stopsound(spritec.jetssoundchannel);
+      gGlobalStateSound.stopsound(spritec.jetssoundchannel);
 #endif
     }
     // Jets
@@ -606,7 +607,7 @@ void controlsprite(tsprite &spritec)
                 if (spritec.weapon.startuptime > 0)
                 {
 #ifndef SERVER
-                  stopsound(spritec.gattlingsoundchannel2);
+                  gGlobalStateSound.stopsound(spritec.gattlingsoundchannel2);
 #endif
 
                   if (spritec.weapon.startuptimecount > 0)
@@ -617,17 +618,17 @@ void controlsprite(tsprite &spritec)
                       // Barrett wind up
                       if (spritec.weapon.num == barrett_num)
                       {
-                        playsound(SfxEffect::law_start, spritePartsPos,
-                                  spritec.gattlingsoundchannel);
+                        gGlobalStateSound.playsound(SfxEffect::law_start, spritePartsPos,
+                                                    spritec.gattlingsoundchannel);
 
-                      // Minigun wind up
+                        // Minigun wind up
                       }
                       else if (spritec.weapon.num == minigun_num)
                       {
-                        playsound(SfxEffect::minigun_start, spritePartsPos,
-                                  spritec.gattlingsoundchannel);
+                        gGlobalStateSound.playsound(SfxEffect::minigun_start, spritePartsPos,
+                                                    spritec.gattlingsoundchannel);
 
-                      // LAW wind up
+                        // LAW wind up
                       }
                       else if (spritec.weapon.num == law_num)
                       {
@@ -639,8 +640,8 @@ void controlsprite(tsprite &spritec)
                              ((spritec.legsanimation.id == AnimationType::Prone) &&
                               (spritec.legsanimation.currframe > 23))))
                         {
-                          playsound(SfxEffect::law_start, spritePartsPos,
-                                    spritec.gattlingsoundchannel);
+                          gGlobalStateSound.playsound(SfxEffect::law_start, spritePartsPos,
+                                                      spritec.gattlingsoundchannel);
                         }
                       }
                     }
@@ -672,14 +673,15 @@ void controlsprite(tsprite &spritec)
           else
           {
 #ifndef SERVER
-            stopsound(spritec.gattlingsoundchannel);
+            gGlobalStateSound.stopsound(spritec.gattlingsoundchannel);
 
             if (spritec.weapon.startuptimecount < spritec.weapon.startuptime)
             {
               if (spritec.weapon.num == minigun_num)
               {
                 // gattling end sound
-                playsound(SfxEffect::minigun_end, spritePartsPos, spritec.gattlingsoundchannel2);
+                gGlobalStateSound.playsound(SfxEffect::minigun_end, spritePartsPos,
+                                            spritec.gattlingsoundchannel2);
               }
               if (spritec.weapon.num == law_num)
               {
@@ -692,7 +694,8 @@ void controlsprite(tsprite &spritec)
                       (spritec.legsanimation.currframe > 23))))
                 {
                   // LAW wind down sound
-                  playsound(SfxEffect::law_end, spritePartsPos, spritec.gattlingsoundchannel2);
+                  gGlobalStateSound.playsound(SfxEffect::law_end, spritePartsPos,
+                                              spritec.gattlingsoundchannel2);
                 }
               }
             }
@@ -769,7 +772,7 @@ void controlsprite(tsprite &spritec)
       {
         spritec.bodyapplyanimation(AnimationType::Change, 1);
 #ifndef SERVER
-        setsoundpaused(spritec.reloadsoundchannel, true);
+        gGlobalStateSound.setsoundpaused(spritec.reloadsoundchannel, true);
 #endif
       }
     }
@@ -801,7 +804,7 @@ void controlsprite(tsprite &spritec)
       }
 
 #ifndef SERVER
-      stopsound(spritec.reloadsoundchannel);
+      gGlobalStateSound.stopsound(spritec.reloadsoundchannel);
 #endif
     }
 
@@ -845,7 +848,8 @@ void controlsprite(tsprite &spritec)
         (spritec.bodyanimation.currframe == 7))
     {
 #ifndef SERVER
-      playsound(SfxEffect::spas12_reload, spritePartsPos, spritec.reloadsoundchannel);
+      gGlobalStateSound.playsound(SfxEffect::spas12_reload, spritePartsPos,
+                                  spritec.reloadsoundchannel);
 #endif
       spritec.bodyanimation.currframe += 1;
     }
@@ -871,19 +875,19 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
       if (spritec.secondaryweapon.num == colt_num)
       {
-        playsound(SfxEffect::changespin, spritePartsPos);
+        gGlobalStateSound.playsound(SfxEffect::changespin, spritePartsPos);
       }
       else if (spritec.secondaryweapon.num == knife_num)
       {
-        playsound(SfxEffect::knife, spritePartsPos);
+        gGlobalStateSound.playsound(SfxEffect::knife, spritePartsPos);
       }
       else if (spritec.secondaryweapon.num == chainsaw_num)
       {
-        playsound(SfxEffect::chainsaw_d, spritePartsPos);
+        gGlobalStateSound.playsound(SfxEffect::chainsaw_d, spritePartsPos);
       }
       else
       {
-        playsound(SfxEffect::changeweapon, spritePartsPos);
+        gGlobalStateSound.playsound(SfxEffect::changeweapon, spritePartsPos);
       }
 #endif
       spritec.bodyanimation.currframe += 1;
@@ -922,7 +926,7 @@ void controlsprite(tsprite &spritec)
     {
       spritec.bodyapplyanimation(AnimationType::Stand, 1);
 #ifndef SERVER
-      setsoundpaused(spritec.reloadsoundchannel, false);
+      gGlobalStateSound.setsoundpaused(spritec.reloadsoundchannel, false);
 #endif
     }
 
@@ -931,7 +935,7 @@ void controlsprite(tsprite &spritec)
     if ((spritec.bodyanimation.id == AnimationType::ThrowWeapon) &&
         (spritec.bodyanimation.currframe == 2))
     {
-      playsound(SfxEffect::throwgun, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::throwgun, spritePartsPos);
     }
 #endif
     if (spritec.weapon.num != knife_num)
@@ -1001,7 +1005,7 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
         if (spritec.weapon.num == knife_num)
         {
-          playsound(SfxEffect::slash, spritePartsPos);
+          gGlobalStateSound.playsound(SfxEffect::slash, spritePartsPos);
         }
 #endif
 
@@ -1022,7 +1026,7 @@ void controlsprite(tsprite &spritec)
         createbullet(a, b, noweapon_num, spritec.num, 255, guns[noweapon].hitmultiply, true, true);
 
 #ifndef SERVER
-        playsound(SfxEffect::slash, spritePartsPos);
+        gGlobalStateSound.playsound(SfxEffect::slash, spritePartsPos);
 #endif
       }
     }
@@ -1047,7 +1051,7 @@ void controlsprite(tsprite &spritec)
       a.x = spritec.skeleton.pos[15].x + 2 - spritec.direction * 0.015 * b.x;
       a.y = spritec.skeleton.pos[15].y - 2 - spritec.direction * 0.015 * b.y;
 
-      createspark(a, b, 51, spritec.num, 255); // czerwona luska
+      gGlobalStateSparks.createspark(a, b, 51, spritec.num, 255); // czerwona luska
 #endif
       spritec.bodyanimation.currframe += 1;
     }
@@ -1064,7 +1068,7 @@ void controlsprite(tsprite &spritec)
       a.x = spritec.skeleton.pos[15].x + 2 - spritec.direction * 0.015 * b.x;
       a.y = spritec.skeleton.pos[15].y - 2 - spritec.direction * 0.015 * b.y;
 
-      createspark(a, b, 52, spritec.num, 255); /*m79 luska*/
+      gGlobalStateSparks.createspark(a, b, 52, spritec.num, 255); /*m79 luska*/
 #endif
       if (spritec.weapon.reloadtimecount > 0)
       {
@@ -1080,7 +1084,7 @@ void controlsprite(tsprite &spritec)
           (spritec.legsanimation.id != AnimationType::ProneMove))
       {
 #ifndef SERVER
-        playsound(SfxEffect::goprone, spritePartsPos);
+        gGlobalStateSound.playsound(SfxEffect::goprone, spritePartsPos);
 #endif
 
         spritec.legsapplyanimation(AnimationType::Prone, 1);
@@ -1111,7 +1115,7 @@ void controlsprite(tsprite &spritec)
             spritec.legsanimation.currframe = 9;
             spritec.control.prone = false;
 #ifndef SERVER
-            playsound(SfxEffect::standup, spritePartsPos);
+            gGlobalStateSound.playsound(SfxEffect::standup, spritePartsPos);
 #endif
           }
           if ((spritec.bodyanimation.id != AnimationType::Reload) &&
@@ -1256,7 +1260,7 @@ void controlsprite(tsprite &spritec)
           (spritec.bodyanimation.currframe == 17))
       {
 #ifndef SERVER
-        playsound(SfxEffect::stuff, spritePartsPos);
+        gGlobalStateSound.playsound(SfxEffect::stuff, spritePartsPos);
 #endif
         spritec.bodyanimation.currframe += 1;
       }
@@ -1270,8 +1274,8 @@ void controlsprite(tsprite &spritec)
           a = spritec.skeleton.pos[12];
           b = spritec.gethandsaimdirection();
           vec2scale(b, b, 2);
-          createspark(a, b, 32, spritec.num, 245);
-          playsound(SfxEffect::spit, spritePartsPos);
+          gGlobalStateSparks.createspark(a, b, 32, spritec.num, 245);
+          gGlobalStateSound.playsound(SfxEffect::spit, spritePartsPos);
 #endif
           spritec.idletime = default_idletime;
           spritec.idlerandom = -1;
@@ -1337,7 +1341,7 @@ void controlsprite(tsprite &spritec)
           {
             // Step 4/8
 #ifndef SERVER
-            playsound(SfxEffect::match, spritePartsPos);
+            gGlobalStateSound.playsound(SfxEffect::match, spritePartsPos);
 #endif
             spritec.bodyanimation.currframe += 1;
           }
@@ -1355,13 +1359,13 @@ void controlsprite(tsprite &spritec)
             a.x = a.x + spritec.direction * 4;
             b.x = 0;
             b.y = -0.7;
-            createspark(a, b, 31, spritec.num, 65);
-            playsound(SfxEffect::smoke, spritePartsPos);
+            gGlobalStateSparks.createspark(a, b, 31, spritec.num, 65);
+            gGlobalStateSound.playsound(SfxEffect::smoke, spritePartsPos);
 
             a = spritec.skeleton.pos[15];
             b.x = (float)(spritec.direction) / 2;
             b.y = 0.15;
-            createspark(a, b, 33, spritec.num, 245);
+            gGlobalStateSparks.createspark(a, b, 33, spritec.num, 245);
 #endif
             spritec.bodyanimation.currframe += 1;
             spritec.idletime = longer_idletime;
@@ -1383,8 +1387,8 @@ void controlsprite(tsprite &spritec)
           a.x = a.x + spritec.direction * 4;
           b.x = 0;
           b.y = -0.7;
-          createspark(a, b, 31, spritec.num, 65);
-          playsound(SfxEffect::smoke, spritePartsPos);
+          gGlobalStateSparks.createspark(a, b, 31, spritec.num, 65);
+          gGlobalStateSound.playsound(SfxEffect::smoke, spritePartsPos);
 #endif
           spritec.bodyanimation.currframe += 1;
         }
@@ -1398,7 +1402,7 @@ void controlsprite(tsprite &spritec)
           a = spritec.skeleton.pos[15];
           b.x = spritec.direction / 1.5;
           b.y = 0.1;
-          createspark(a, b, 34, spritec.num, 245);
+          gGlobalStateSparks.createspark(a, b, 34, spritec.num, 245);
 #endif
           spritec.bodyanimation.currframe += 1;
           spritec.idletime = default_idletime;
@@ -1489,7 +1493,7 @@ void controlsprite(tsprite &spritec)
         spritec.idlerandom = -1;
 
 #ifndef SERVER
-        playsound(SfxEffect::roar, spritePartsPos);
+        gGlobalStateSound.playsound(SfxEffect::roar, spritePartsPos);
 #endif
       }
     }
@@ -1504,7 +1508,7 @@ void controlsprite(tsprite &spritec)
         spritec.idletime = default_idletime;
 
 #ifndef SERVER
-        playsound(SfxEffect::piss, spritePartsPos);
+        gGlobalStateSound.playsound(SfxEffect::piss, spritePartsPos);
 #endif
       }
 
@@ -1521,7 +1525,7 @@ void controlsprite(tsprite &spritec)
             b = vec2subtract(spritec.skeleton.pos[20], lookpoint);
             vec2normalize(b, b);
             vec2scale(b, b, -1.3);
-            createspark(a, b, 57, spritec.num, 165);
+            gGlobalStateSparks.createspark(a, b, 57, spritec.num, 165);
 #endif
           }
         }
@@ -1536,7 +1540,7 @@ void controlsprite(tsprite &spritec)
             b = vec2subtract(spritec.skeleton.pos[20], lookpoint);
             vec2normalize(b, b);
             vec2scale(b, b, -1.9);
-            createspark(a, b, 57, spritec.num, 120);
+            gGlobalStateSparks.createspark(a, b, 57, spritec.num, 120);
 #endif
           }
         }
@@ -1552,7 +1556,7 @@ void controlsprite(tsprite &spritec)
             vec2normalize(b, b);
             vec2scale(b, b, -1.3);
 
-            createspark(a, b, 57, spritec.num, 120);
+            gGlobalStateSparks.createspark(a, b, 57, spritec.num, 120);
 #endif
           }
         }
@@ -1583,10 +1587,10 @@ void controlsprite(tsprite &spritec)
           }
 
 #ifndef SERVER
-          playsound(SfxEffect::mercy, spritePartsPos);
+          gGlobalStateSound.playsound(SfxEffect::mercy, spritePartsPos);
           if (spritec.weapon.num == minigun_num)
           {
-            playsound(SfxEffect::minigun_start, spritePartsPos);
+            gGlobalStateSound.playsound(SfxEffect::minigun_start, spritePartsPos);
           }
 #else
           serveridleanimation(spritec.num, spritec.idlerandom);
@@ -1611,18 +1615,18 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
           if (spritec.weapon.num == knife_num)
           {
-            playsound(SfxEffect::slash, spritePartsPos,
-                      sprite_system.GetSprite(spritec.num).gattlingsoundchannel);
+            gGlobalStateSound.playsound(SfxEffect::slash, spritePartsPos,
+                                        sprite_system.GetSprite(spritec.num).gattlingsoundchannel);
           }
           if (spritec.weapon.num == chainsaw_num)
           {
-            playsound(SfxEffect::chainsaw_r, spritePartsPos,
-                      sprite_system.GetSprite(spritec.num).gattlingsoundchannel);
+            gGlobalStateSound.playsound(SfxEffect::chainsaw_r, spritePartsPos,
+                                        sprite_system.GetSprite(spritec.num).gattlingsoundchannel);
           }
           if (spritec.weapon.num == noweapon_num)
           {
-            playsound(SfxEffect::dead_hit, spritePartsPos,
-                      sprite_system.GetSprite(spritec.num).gattlingsoundchannel);
+            gGlobalStateSound.playsound(SfxEffect::dead_hit, spritePartsPos,
+                                        sprite_system.GetSprite(spritec.num).gattlingsoundchannel);
           }
 
           if (sprite_system.IsPlayerSprite(spritec.num))
@@ -1700,9 +1704,9 @@ void controlsprite(tsprite &spritec)
           if (spritec.aimdistcoef == defaultaimdist)
           {
 #ifndef SERVER
-            playsound(SfxEffect::scope, spritePartsPos);
+            gGlobalStateSound.playsound(SfxEffect::scope, spritePartsPos);
 #else
-            serverspritedeltasmouse(spritec.num);
+            gGlobalStateNetworkServerSprite.serverspritedeltasmouse(spritec.num);
 #endif
           }
 
@@ -1714,9 +1718,9 @@ void controlsprite(tsprite &spritec)
               if (GS::GetGame().GetMainTickCounter() % 27 == 0)
               {
 #ifndef SERVER
-                playsound(SfxEffect::scoperun, spritePartsPos);
+                gGlobalStateSound.playsound(SfxEffect::scoperun, spritePartsPos);
 #else
-                serverspritedeltasmouse(spritec.num);
+                gGlobalStateNetworkServerSprite.serverspritedeltasmouse(spritec.num);
 #endif
               }
             }
@@ -1730,9 +1734,9 @@ void controlsprite(tsprite &spritec)
               if (GS::GetGame().GetMainTickCounter() % 27 == 0)
               {
 #ifndef SERVER
-                playsound(SfxEffect::scoperun, spritePartsPos);
+                gGlobalStateSound.playsound(SfxEffect::scoperun, spritePartsPos);
 #else
-                serverspritedeltasmouse(spritec.num);
+                gGlobalStateNetworkServerSprite.serverspritedeltasmouse(spritec.num);
 #endif
               }
             }
@@ -1748,15 +1752,15 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
             if (spritec.aimdistcoef == defaultaimdist)
             {
-              playsound(SfxEffect::scope, spritePartsPos);
+              gGlobalStateSound.playsound(SfxEffect::scope, spritePartsPos);
             }
 #endif
             if (GS::GetGame().GetMainTickCounter() % 27 == 0)
             {
 #ifndef SERVER
-              playsound(SfxEffect::scoperun, spritePartsPos);
+              gGlobalStateSound.playsound(SfxEffect::scoperun, spritePartsPos);
 #else
-              serverspritedeltasmouse(spritec.num);
+              gGlobalStateNetworkServerSprite.serverspritedeltasmouse(spritec.num);
 #endif
             }
           }
@@ -1767,9 +1771,9 @@ void controlsprite(tsprite &spritec)
         if (spritec.aimdistcoef != defaultaimdist)
         {
 #ifndef SERVER
-          playsound(SfxEffect::scopeback, spritePartsPos);
+          gGlobalStateSound.playsound(SfxEffect::scopeback, spritePartsPos);
 #else
-          serverspritedeltasmouse(spritec.num);
+          gGlobalStateNetworkServerSprite.serverspritedeltasmouse(spritec.num);
 #endif
         }
 
@@ -1955,10 +1959,10 @@ void controlsprite(tsprite &spritec)
             if ((spritec.legsanimation.id != AnimationType::RollBack) &&
                 (spritec.legsanimation.id != AnimationType::Roll))
             {
-              playsound(SfxEffect::roll, spritePartsPos);
+              gGlobalStateSound.playsound(SfxEffect::roll, spritePartsPos);
             }
 
-            setsoundpaused(spritec.reloadsoundchannel, true);
+            gGlobalStateSound.setsoundpaused(spritec.reloadsoundchannel, true);
 #endif
 
             if (spritec.direction == 1)
@@ -2022,10 +2026,10 @@ void controlsprite(tsprite &spritec)
             if ((spritec.legsanimation.id != AnimationType::RollBack) &&
                 (spritec.legsanimation.id != AnimationType::Roll))
             {
-              playsound(SfxEffect::roll, spritePartsPos);
+              gGlobalStateSound.playsound(SfxEffect::roll, spritePartsPos);
             }
 
-            setsoundpaused(spritec.reloadsoundchannel, true);
+            gGlobalStateSound.setsoundpaused(spritec.reloadsoundchannel, true);
 #endif
 
             if (spritec.direction == 1)
@@ -2126,7 +2130,7 @@ void controlsprite(tsprite &spritec)
           {
             spritec.legsapplyanimation(AnimationType::JumpSide, 1);
 #ifndef SERVER
-            playsound(SfxEffect::jump, spritePartsPos);
+            gGlobalStateSound.playsound(SfxEffect::jump, spritePartsPos);
 #endif
           }
 
@@ -2181,7 +2185,7 @@ void controlsprite(tsprite &spritec)
           {
             spritec.legsapplyanimation(AnimationType::JumpSide, 1);
 #ifndef SERVER
-            playsound(SfxEffect::jump, spritePartsPos);
+            gGlobalStateSound.playsound(SfxEffect::jump, spritePartsPos);
 #endif
           }
 
@@ -2230,7 +2234,7 @@ void controlsprite(tsprite &spritec)
           {
             spritec.legsapplyanimation(AnimationType::Jump, 1);
 #ifndef SERVER
-            playsound(SfxEffect::jump, spritePartsPos);
+            gGlobalStateSound.playsound(SfxEffect::jump, spritePartsPos);
 #endif
           }
 
@@ -2264,7 +2268,7 @@ void controlsprite(tsprite &spritec)
               (spritec.legsanimation.id != AnimationType::CrouchRunBack) &&
               (spritec.legsanimation.id != AnimationType::Crouch))
           {
-            playsound(SfxEffect::crouch, spritePartsPos);
+            gGlobalStateSound.playsound(SfxEffect::crouch, spritePartsPos);
           }
 #endif
 
@@ -2347,7 +2351,7 @@ void controlsprite(tsprite &spritec)
           {
             if (spritec.legsanimation.id != AnimationType::Stand)
             {
-              playsound(SfxEffect::stop, spritePartsPos);
+              gGlobalStateSound.playsound(SfxEffect::stop, spritePartsPos);
             }
           }
 #endif

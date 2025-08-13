@@ -233,15 +233,18 @@ void NetworkServer::HandleMessages(SteamNetworkingMessage_t *msg)
   switch (packet->id)
   {
   case msgid_clientspritesnapshot:
-    serverhandleclientspritesnapshot(packet, msg->m_cbSize, *this, player);
+    gGlobalStateNetworkServerSprite.serverhandleclientspritesnapshot(packet, msg->m_cbSize, *this,
+                                                                     player);
     break;
 
   case msgid_clientspritesnapshot_mov:
-    serverhandleclientspritesnapshot_mov(packet, msg->m_cbSize, *this, player);
+    gGlobalStateNetworkServerSprite.serverhandleclientspritesnapshot_mov(packet, msg->m_cbSize,
+                                                                         *this, player);
     break;
 
   case msgid_clientspritesnapshot_dead:
-    serverhandleclientspritesnapshot_dead(packet, msg->m_cbSize, *this, player);
+    gGlobalStateNetworkServerSprite.serverhandleclientspritesnapshot_dead(packet, msg->m_cbSize,
+                                                                          *this, player);
     break;
 
   case msgid_playerdisconnect:
@@ -378,15 +381,16 @@ namespace
 NetworkServer *gUDP;
 }
 
-auto InitNetworkServer(const std::string_view &host, uint32_t port) -> bool
+auto GlobalStateNetworkServer::InitNetworkServer(const std::string_view &host, uint32_t port)
+  -> bool
 {
   gUDP = new NetworkServer(host, port);
   return gUDP != nullptr;
 }
 
-auto GetServerNetwork() -> NetworkServer * { return gUDP; }
+auto GlobalStateNetworkServer::GetServerNetwork() -> NetworkServer * { return gUDP; }
 
-auto DeinitServerNetwork() -> bool
+auto GlobalStateNetworkServer::DeinitServerNetwork() -> bool
 {
   delete gUDP;
   gUDP = nullptr;

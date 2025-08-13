@@ -102,7 +102,7 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
   }
   else
   {
-    banindex = findban(player->ip);
+    banindex = gGlobalStateBanSystem.findban(player->ip);
 
     if (banindex > 0)
     {
@@ -111,7 +111,7 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
     }
     else
     {
-      banindex = findbanhw(requestmsg->hardwareid.data());
+      banindex = gGlobalStateBanSystem.findbanhw(requestmsg->hardwareid.data());
       if (banindex > 0)
       {
         state = banned_ip;
@@ -271,7 +271,7 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
                                server_message_color);
 
   // Set a network name for debugging purposes
-  GetServerNetwork()->SetConnectionName(player->peer, finalplayername);
+  gGlobalStateNetworkServer.GetServerNetwork()->SetConnectionName(player->peer, finalplayername);
 
   player->name = finalplayername;
   player->shirtcolor = playerinfomsg->shirtcolor & 0xffffff;
@@ -403,7 +403,7 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
 
   // create sprite and assign it our player object
   randomizestart(a, playerinfomsg->team);
-  auto players = GetServerNetwork()->GetPlayers();
+  auto players = gGlobalStateNetworkServer.GetServerNetwork()->GetPlayers();
   auto it = std::find_if(players.begin(), players.end(),
                          [&player](const auto &v) { return v.get() == player; });
   SoldatAssert(it != players.end());
@@ -527,7 +527,8 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
     gGlobalStateServer.floodnum[j] += 1;
     if (gGlobalStateServer.floodnum[j] > floodip_max)
     {
-      kickplayer(player->spritenum, true, kick_flooding, twenty_minutes, "Join game flood");
+      gGlobalStateServer.kickplayer(player->spritenum, true, kick_flooding, twenty_minutes,
+                                    "Join game flood");
     }
   }
   if (j == 0)
@@ -647,7 +648,8 @@ void serversendplaylist(HSoldatNetConnection peer)
   }
 
 #ifdef SERVER
-  GetServerNetwork()->SendData(&playerslist, sizeof(playerslist), peer, true);
+  gGlobalStateNetworkServer.GetServerNetwork()->SendData(&playerslist, sizeof(playerslist), peer,
+                                                         true);
 #else
   GS::GetDemoRecorder().saverecord(playerslist, sizeof(playerslist));
 #endif
@@ -736,8 +738,8 @@ void serversendunaccepted(HSoldatNetConnection peer, std::uint8_t state, const s
   std::strcpy(unaccepted->version.data(), soldat_version);
   strcpy(unaccepted->text.data(), message.data());
 
-  GetServerNetwork()->SendData(&unaccepted, size, peer, true);
-  GetServerNetwork()->CloseConnection(peer, false);
+  gGlobalStateNetworkServer.GetServerNetwork()->SendData(&unaccepted, size, peer, true);
+  gGlobalStateNetworkServer.GetServerNetwork()->CloseConnection(peer, false);
 }
 #endif
 
@@ -802,12 +804,12 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
   // NOTE we also send to pending players to avoid desynchronization of the players list
   if (!sprite_system.GetSprite(num).player->demoplayer)
   {
-    auto players = GetServerNetwork()->GetPlayers();
+    auto players = gGlobalStateNetworkServer.GetServerNetwork()->GetPlayers();
     for (auto &player : players)
     {
       newplayer.adoptspriteid = static_cast<std::uint8_t>(num == player->spritenum);
-      GetServerNetwork()->SendData(&newplayer, sizeof(newplayer), player->peer,
-                                   true);
+      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&newplayer, sizeof(newplayer),
+                                                             player->peer, true);
     }
   }
   else
@@ -839,11 +841,11 @@ void serverdisconnect()
   servermsg.header.id = msgid_serverdisconnect;
 
   // NOTE send to pending like above
-  auto players = GetServerNetwork()->GetPlayers();
+  auto players = gGlobalStateNetworkServer.GetServerNetwork()->GetPlayers();
   for (const auto &dstplayer : players)
   {
-    GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), dstplayer->peer,
-                                 true);
+    gGlobalStateNetworkServer.GetServerNetwork()->SendData(&servermsg, sizeof(servermsg),
+                                                           dstplayer->peer, true);
   }
 
   for (auto &s : SpriteSystem::Get().GetActiveSprites())
@@ -865,11 +867,11 @@ void serverplayerdisconnect(std::uint8_t num, std::uint8_t why)
   playermsg.why = why;
 
   // NOTE send to pending like above
-  auto players = GetServerNetwork()->GetPlayers();
+  auto players = gGlobalStateNetworkServer.GetServerNetwork()->GetPlayers();
   for (const auto &dstplayer : players)
   {
-    GetServerNetwork()->SendData(&playermsg, sizeof(playermsg), dstplayer->peer,
-                                 true);
+    gGlobalStateNetworkServer.GetServerNetwork()->SendData(&playermsg, sizeof(playermsg),
+                                                           dstplayer->peer, true);
   }
 
   NotImplemented("No time functions");
@@ -901,8 +903,8 @@ void serverping(std::uint8_t tonum)
 
   pingmsg.pingnum = pingsendcount[tonum];
 
-  GetServerNetwork()->SendData(&pingmsg, sizeof(pingmsg),
-                               sprite_system.GetSprite(tonum).player->peer, true);
+  gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+    &pingmsg, sizeof(pingmsg), sprite_system.GetSprite(tonum).player->peer, true);
 }
 #endif
 
@@ -955,16 +957,16 @@ void serversynccvars(std::uint8_t tonum, HSoldatNetConnection peer, bool fullsyn
       {
         if (sprite.player->controlmethod == human)
         {
-          GetServerNetwork()->SendData(varsmsg, sizeof(tmsg_serversynccvars) + buffersize,
-                                       sprite.player->peer, true);
+          gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+            varsmsg, sizeof(tmsg_serversynccvars) + buffersize, sprite.player->peer, true);
         }
       }
     }
   }
   else
   {
-    GetServerNetwork()->SendData(varsmsg, sizeof(tmsg_serversynccvars) + buffersize, peer,
-                                 true);
+    gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+      varsmsg, sizeof(tmsg_serversynccvars) + buffersize, peer, true);
   }
 #else
   GS::GetDemoRecorder().saverecord(varsmsg, sizeof(varsmsg) + buffersize);
@@ -1012,8 +1014,8 @@ void servervars(std::uint8_t tonum)
   }
 
 #ifdef SERVER
-  GetServerNetwork()->SendData(&varsmsg, sizeof(varsmsg),
-                               sprite_system.GetSprite(tonum).player->peer, true);
+  gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+    &varsmsg, sizeof(varsmsg), sprite_system.GetSprite(tonum).player->peer, true);
 #else
   GS::GetDemoRecorder().saverecord(varsmsg, sizeof(varsmsg));
 #endif

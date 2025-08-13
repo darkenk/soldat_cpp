@@ -322,7 +322,7 @@ void Sprite<M>::update()
     if (sprite_system.IsPlayerSprite(num))
     {
       respawncounter = 19999;
-      gamemenushow(gGlobalStateGameMenus.limbomenu, false);
+      gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu, false);
     }
 #endif
   }
@@ -610,11 +610,11 @@ void Sprite<M>::update()
             {
               if (Random(rnd) == 0)
               {
-                createspark(m4, m3, 5, num, 85 - Random(25));
+                gGlobalStateSparks.createspark(m4, m3, 5, num, 85 - Random(25));
               }
               else if (Random(rnd / 3) == 0)
               {
-                createspark(m4, m3, 4, num, 85 - Random(25));
+                gGlobalStateSparks.createspark(m4, m3, 4, num, 85 - Random(25));
               }
             }
           }
@@ -649,19 +649,19 @@ void Sprite<M>::update()
 
               if (Random(rnd) == 0)
               {
-                createspark(m4, m3, 36, num, 35);
+                gGlobalStateSparks.createspark(m4, m3, 36, num, 35);
                 if (Random(8) == 0)
                 {
-                  playsound(SfxEffect::onfire, spritePartsPos);
+                  gGlobalStateSound.playsound(SfxEffect::onfire, spritePartsPos);
                 }
                 if (Random(2) == 0)
                 {
-                  playsound(SfxEffect::firecrack, spritePartsPos);
+                  gGlobalStateSound.playsound(SfxEffect::firecrack, spritePartsPos);
                 }
               }
               else if (Random(rnd / 3) == 0)
               {
-                createspark(m4, m3, 37, num, 75);
+                gGlobalStateSparks.createspark(m4, m3, 37, num, 75);
               }
             }
           }
@@ -807,7 +807,7 @@ void Sprite<M>::update()
 #ifndef SERVER
         if (reloadsoundchannel > -2)
         {
-          setsoundpaused(reloadsoundchannel, false);
+          gGlobalStateSound.setsoundpaused(reloadsoundchannel, false);
         }
 #endif
 
@@ -897,7 +897,7 @@ void Sprite<M>::update()
 
           if (weaponreloadsound != SfxEffect::INVALID)
           {
-            playsound(weaponreloadsound, spritePartsPos, reloadsoundchannel);
+            gGlobalStateSound.playsound(weaponreloadsound, spritePartsPos, reloadsoundchannel);
           }
         }
 
@@ -909,36 +909,36 @@ void Sprite<M>::update()
         {
           if (weapon.num == eagle_num)
           {
-            createspark(m3, m4, 18, num, 255);
+            gGlobalStateSparks.createspark(m3, m4, 18, num, 255);
             m3.x = skeleton.pos[15].x - 2;
             m3.y = skeleton.pos[15].y + 7;
             m4.x = spriteVelocity.x + 0.3;
             m4.y = spriteVelocity.y - 0.003;
-            createspark(m3, m4, 18, num, 255);
+            gGlobalStateSparks.createspark(m3, m4, 18, num, 255);
           }
           else if (weapon.num == mp5_num)
           {
-            createspark(m3, m4, 11, num, 255);
+            gGlobalStateSparks.createspark(m3, m4, 11, num, 255);
           }
           else if (weapon.num == ak74_num)
           {
-            createspark(m3, m4, 9, num, 255);
+            gGlobalStateSparks.createspark(m3, m4, 9, num, 255);
           }
           else if (weapon.num == steyraug_num)
           {
-            createspark(m3, m4, 19, num, 255);
+            gGlobalStateSparks.createspark(m3, m4, 19, num, 255);
           }
           else if (weapon.num == barrett_num)
           {
-            createspark(m3, m4, 20, num, 255);
+            gGlobalStateSparks.createspark(m3, m4, 20, num, 255);
           }
           else if (weapon.num == m249_num)
           {
-            createspark(m3, m4, 10, num, 255);
+            gGlobalStateSparks.createspark(m3, m4, 10, num, 255);
           }
           else if (weapon.num == colt_num)
           {
-            createspark(m3, m4, 23, num, 255);
+            gGlobalStateSparks.createspark(m3, m4, 23, num, 255);
           }
         }
 #endif
@@ -1041,14 +1041,15 @@ void Sprite<M>::update()
             m3.x = m3.x + direction * 3;
             m4.x = 0;
             m4.y = -0.25;
-            createspark(m3, m4, 1, num, 20);
+            gGlobalStateSparks.createspark(m3, m4, 1, num, 20);
             if (weapon.ammocount == 0)
             {
-              playsound(SfxEffect::chainsaw_o, spritePartsPos, gattlingsoundchannel);
+              gGlobalStateSound.playsound(SfxEffect::chainsaw_o, spritePartsPos, gattlingsoundchannel);
             }
             else
             {
-              playsound(SfxEffect::chainsaw_m, spritePartsPos, gGlobalStateSound.defaultchannel);
+              gGlobalStateSound.playsound(SfxEffect::chainsaw_m, spritePartsPos,
+                                          gGlobalStateSound.defaultchannel);
             }
           }
         }
@@ -1057,7 +1058,7 @@ void Sprite<M>::update()
         {
           if (weapon.ammocount > 0)
           {
-            playsound(SfxEffect::chainsaw_r, spritePartsPos, gattlingsoundchannel);
+            gGlobalStateSound.playsound(SfxEffect::chainsaw_r, spritePartsPos, gattlingsoundchannel);
           }
         }
       }
@@ -1076,7 +1077,7 @@ void Sprite<M>::update()
               m3.x = m3.x + direction * 3 - 8 + (float)(Random(80)) / 10;
               m4.x = 0;
               m4.y = -0.3;
-              createspark(m3, m4, 1, num, 20);
+              gGlobalStateSparks.createspark(m3, m4, 1, num, 20);
             }
           }
         }
@@ -1089,7 +1090,7 @@ void Sprite<M>::update()
         {
           m3.x = skeleton.pos[15].x + direction * 6;
           m3.y = skeleton.pos[15].y - 5;
-          createspark(m3, vector2(0, -0.5), 36, num, 40);
+          gGlobalStateSparks.createspark(m3, vector2(0, -0.5), 36, num, 40);
         }
       }
 #endif
@@ -1146,7 +1147,7 @@ void Sprite<M>::update()
 
         if (Random(rnd) == 0)
         {
-          createspark(m4, m3, 5, num, 55 - Random(20));
+          gGlobalStateSparks.createspark(m4, m3, 5, num, 55 - Random(20));
         }
       }
 
@@ -1166,7 +1167,7 @@ void Sprite<M>::update()
 
         if (Random(rnd) == 0)
         {
-          createspark(m4, m3, 36, num, 40 - Random(10));
+          gGlobalStateSparks.createspark(m4, m3, 36, num, 40 - Random(10));
         }
       }
 
@@ -1186,7 +1187,7 @@ void Sprite<M>::update()
 
         if (Random(rnd) == 0)
         {
-          createspark(m4, m3, 4, num, 65 - Random(10));
+          gGlobalStateSparks.createspark(m4, m3, 4, num, 65 - Random(10));
         }
       }
 #endif
@@ -1242,7 +1243,7 @@ void Sprite<M>::update()
             m3.x = m3.x + direction * 4;
             m4.x = 0;
             m4.y = -0.75;
-            createspark(m3, m4, 31, num, 55);
+            gGlobalStateSparks.createspark(m3, m4, 31, num, 55);
             if (Random(2) == 0)
             {
               m3 = skeleton.pos[9];
@@ -1250,8 +1251,8 @@ void Sprite<M>::update()
               m3.x = m3.x + direction * 4.1;
               m4.x = 0;
               m4.y = -0.69;
-              createspark(m3, m4, 31, num, 55);
-              playsound(SfxEffect::smoke, spritePartsPos);
+              gGlobalStateSparks.createspark(m3, m4, 31, num, 55);
+              gGlobalStateSound.playsound(SfxEffect::smoke, spritePartsPos);
               if (Random(2) == 0)
               {
                 m3 = skeleton.pos[9];
@@ -1259,7 +1260,7 @@ void Sprite<M>::update()
                 m3.x = m3.x + direction * 3.9;
                 m4.x = 0;
                 m4.y = -0.81;
-                createspark(m3, m4, 31, num, 55);
+                gGlobalStateSparks.createspark(m3, m4, 31, num, 55);
               }
             }
           }
@@ -1279,7 +1280,7 @@ void Sprite<M>::update()
               m3.x = m3.x + direction * 4;
               m4.x = 0;
               m4.y = -0.75;
-              createspark(m3, m4, 31, num, 55);
+              gGlobalStateSparks.createspark(m3, m4, 31, num, 55);
             }
           }
         }
@@ -1358,7 +1359,7 @@ void Sprite<M>::update()
       if (respawncounter < 1)
       {
         respawn();
-        serverspritesnapshotmajorfloat(num, netw);
+        gGlobalStateNetworkServerSprite.serverspritesnapshotmajorfloat(num, netw);
       }
 #endif
 
@@ -1481,10 +1482,10 @@ void Sprite<M>::kill()
 #endif
 
 #ifndef SERVER
-  stopsound(reloadsoundchannel);
-  stopsound(jetssoundchannel);
-  stopsound(gattlingsoundchannel);
-  stopsound(gattlingsoundchannel2);
+  gGlobalStateSound.stopsound(reloadsoundchannel);
+  gGlobalStateSound.stopsound(jetssoundchannel);
+  gGlobalStateSound.stopsound(gattlingsoundchannel);
+  gGlobalStateSound.stopsound(gattlingsoundchannel2);
 #endif
 
   if (num > 0)
@@ -1692,7 +1693,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
       {
         if (!bullet[what].dontcheat)
         {
-          kickplayer(sprite_system.GetSprite(who).num, true, kick_cheat, day, "Not allowed weapon");
+          gGlobalStateServer.kickplayer(sprite_system.GetSprite(who).num, true, kick_cheat, day,
+                                        "Not allowed weapon");
           return;
         }
       }
@@ -1726,7 +1728,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         }
         if (sprite_system.GetSprite(who).player->tkwarnings > (CVar::sv_warnings_tk - 1))
         {
-          kickplayer(who, true, kick_console, 3600 * 15, "Team Killing");
+          gGlobalStateServer.kickplayer(who, true, kick_console, 3600 * 15, "Team Killing");
         }
       }
     }
@@ -2126,7 +2128,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     // the sound of death...
     if (!deadmeat)
     {
-      playsound(SfxEffect::death + Random(3), spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::death + Random(3), spritePartsPos);
     }
 #endif
   }
@@ -2170,19 +2172,20 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             // RandSeed := RandSeed * i;
             b.x = (cos(deg2rad((float)(360) / 50 * i)) * randomrange(1, 3));
             b.y = (sin(deg2rad((float)(360) / 50 * i)) * randomrange(1, 3));
-            createspark(a, b, iif(i < 25, randomrange(4, 5), 5), num, 100 - Random(20));
+            gGlobalStateSparks.createspark(a, b, iif(i < 25, randomrange(4, 5), 5), num,
+                                           100 - Random(20));
           }
         }
 
         if (bullet[what].ownerweapon == barrett_num)
         {
           // corpse explode
-          playsound(SfxEffect::bryzg, skeleton.pos[12]);
+          gGlobalStateSound.playsound(SfxEffect::bryzg, skeleton.pos[12]);
         }
 
         if (sprite_system.IsPlayerSprite(who))
         {
-          playsound(SfxEffect::boomheadshot);
+          gGlobalStateSound.playsound(SfxEffect::boomheadshot);
         }
       }
     }
@@ -2190,7 +2193,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     // siup leb!
     if (!deadmeat)
     {
-      playsound(SfxEffect::headchop, skeleton.pos[12]);
+      gGlobalStateSound.playsound(SfxEffect::headchop, skeleton.pos[12]);
     }
 #endif
   }
@@ -2210,7 +2213,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 
 #ifndef SERVER
     // play bryzg sound!
-    playsound(SfxEffect::bryzg, skeleton.pos[12]);
+    gGlobalStateSound.playsound(SfxEffect::bryzg, skeleton.pos[12]);
 #endif
   }
   break;
@@ -2229,7 +2232,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
       skeleton.constraints[23].active = false;
 
 #ifndef SERVER
-      playsound(SfxEffect::killberserk, skeleton.pos[12]);
+      gGlobalStateSound.playsound(SfxEffect::killberserk, skeleton.pos[12]);
 #endif
     }
   }
@@ -2239,7 +2242,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
   {
     if (bullet[what].ownerweapon == flamer_num)
     {
-      playsound(SfxEffect::burn, skeleton.pos[12]);
+      gGlobalStateSound.playsound(SfxEffect::burn, skeleton.pos[12]);
     }
   }
 #endif
@@ -2247,7 +2250,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
   if (!deadmeat && (hascigar == 10))
   {
 #ifndef SERVER
-    createspark(skeleton.pos[12], impact, 34, num, 245);
+    gGlobalStateSparks.createspark(skeleton.pos[12], impact, 34, num, 245);
 #endif
     hascigar = 0;
   }
@@ -2288,7 +2291,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                 sprite.isnotspectator())
             {
               auto &spritePartsPos = sprite_system.GetSpritePartsPos(sprite.num);
-              playsound(SfxEffect::roar, spritePartsPos);
+              gGlobalStateSound.playsound(SfxEffect::roar, spritePartsPos);
             }
           }
 #endif
@@ -2398,16 +2401,16 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
           {
             if (things[i].style == object_alpha_flag)
             { // Alpha
-              bigmessage(wideformat(_("{} Flag dropped!"), _("Red")), capturemessagewait,
-                         capture_message_color);
+              gGlobalStateClientGame.bigmessage(wideformat(_("{} Flag dropped!"), _("Red")),
+                                                capturemessagewait, capture_message_color);
             }
             else if (things[i].style == object_bravo_flag)
             { // Bravo
-              bigmessage(wideformat(_("{} Flag dropped!"), _("Blue")), capturemessagewait,
-                         capture_message_color);
+              gGlobalStateClientGame.bigmessage(wideformat(_("{} Flag dropped!"), _("Blue")),
+                                                capturemessagewait, capture_message_color);
             }
 
-            playsound(SfxEffect::infilt_point);
+            gGlobalStateSound.playsound(SfxEffect::infilt_point);
           }
         }
 #endif
@@ -2433,14 +2436,14 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifdef SERVER
   if (!deadmeat)
   {
-    serverspritedeath(num, who, what, where);
+    gGlobalStateNetworkServerSprite.serverspritedeath(num, who, what, where);
   }
 
   LogTraceG("TSprite.Die 3");
 #endif
 
 #ifndef SERVER
-  stopsound(reloadsoundchannel);
+  gGlobalStateSound.stopsound(reloadsoundchannel);
 #endif
   auto &weaponsel = GS::GetGame().GetWeaponsel();
 
@@ -2928,14 +2931,14 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
           if ((fabs(spriteVelocity.y) > 2.2) && (fabs(spriteVelocity.y) < 3.4) &&
               (polytype != poly_type_bouncy))
           {
-            playsound(SfxEffect::fall, spritePartsPos);
+            gGlobalStateSound.playsound(SfxEffect::fall, spritePartsPos);
           }
 #endif
 
           if (fabs(spriteVelocity.y) > 3.5)
           {
 #ifndef SERVER
-            playsound(SfxEffect::fall_hard, spritePartsPos);
+            gGlobalStateSound.playsound(SfxEffect::fall_hard, spritePartsPos);
 #endif
 
             // Hit ground
@@ -2945,7 +2948,7 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
               {
                 healthhit(spriteVelocity.y * 5, num, 12, -1, spos);
 #ifndef SERVER
-                playsound(SfxEffect::fall, spritePartsPos);
+                gGlobalStateSound.playsound(SfxEffect::fall, spritePartsPos);
 #endif
               }
             }
@@ -2964,7 +2967,7 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
                 spos.x = (float)(spriteVelocity.x) / 4;
                 spos.y = -0.8;
                 vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
-                createspark(pos, spos, 1, num, 70);
+                gGlobalStateSparks.createspark(pos, spos, 1, num, 70);
               }
             }
 
@@ -2977,22 +2980,22 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
                 spos.x = (float)(spriteVelocity.x) / 4;
                 spos.y = -1.3;
                 vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
-                createspark(pos, spos, 1, num, 70);
+                gGlobalStateSparks.createspark(pos, spos, 1, num, 70);
               }
             }
 
             if (map.steps == 0)
             {
-              playsound(SfxEffect::step + Random(4), spritePartsPos);
+              gGlobalStateSound.playsound(SfxEffect::step + Random(4), spritePartsPos);
             }
             if (map.steps == 1)
             {
-              playsound(SfxEffect::step5 + Random(4), spritePartsPos);
+              gGlobalStateSound.playsound(SfxEffect::step5 + Random(4), spritePartsPos);
             }
 
             if (map.weather == 1)
             {
-              playsound(SfxEffect::water_step, spritePartsPos);
+              gGlobalStateSound.playsound(SfxEffect::water_step, spritePartsPos);
             }
           }
 
@@ -3004,11 +3007,11 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
           {
             if (Random(2) == 0)
             {
-              playsound(SfxEffect::crouch_move, spritePartsPos);
+              gGlobalStateSound.playsound(SfxEffect::crouch_move, spritePartsPos);
             }
             else if (Random(2) == 0)
             {
-              playsound(SfxEffect::crouch_movel, spritePartsPos);
+              gGlobalStateSound.playsound(SfxEffect::crouch_movel, spritePartsPos);
             }
           }
 
@@ -3016,7 +3019,7 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
           if ((legsanimation.id == AnimationType::ProneMove) && (legsanimation.currframe == 8) &&
               (legsanimation.count == 1))
           {
-            playsound(SfxEffect::prone_move, spritePartsPos);
+            gGlobalStateSound.playsound(SfxEffect::prone_move, spritePartsPos);
           }
 
           if ((fabs(spriteVelocity.x) > 2.4) && (legsanimation.id != AnimationType::Run) &&
@@ -3025,7 +3028,7 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
             spos.x = (float)(spriteVelocity.x) / 4;
             spos.y = -0.9;
             vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
-            createspark(pos, spos, 1, num, 70);
+            gGlobalStateSparks.createspark(pos, spos, 1, num, 70);
           }
 #endif
 
@@ -3055,7 +3058,7 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
 #ifndef SERVER
               if (vec2length(perp) > 1)
               {
-                playsound(SfxEffect::bounce, spritePartsPos);
+                gGlobalStateSound.playsound(SfxEffect::bounce, spritePartsPos);
               }
 #endif
             }
@@ -3091,7 +3094,7 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
                     spos.x = spriteVelocity.x * 3;
                     spos.y = -spriteVelocity.y * 2;
                     vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
-                    createspark(pos, spos, 1, num, 70);
+                    gGlobalStateSparks.createspark(pos, spos, 1, num, 70);
                   }
                 }
 #endif
@@ -3286,12 +3289,12 @@ auto Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y) -> b
 
           if ((fabs(a.y) > 0.8) && (deadcollidecount < 13))
           {
-            playsound(SfxEffect::bodyfall, skeleton.pos[i]);
+            gGlobalStateSound.playsound(SfxEffect::bodyfall, skeleton.pos[i]);
           }
 
           if ((fabs(a.y) > 2.1) && (deadcollidecount < 4))
           {
-            playsound(SfxEffect::bonecrack, skeleton.pos[i]);
+            gGlobalStateSound.playsound(SfxEffect::bonecrack, skeleton.pos[i]);
           }
 #endif
 
@@ -3384,11 +3387,11 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 
         if (polytype == poly_type_hurts)
         {
-          playsound(SfxEffect::arg, spritePartsPos);
+          gGlobalStateSound.playsound(SfxEffect::arg, spritePartsPos);
         }
         else if (polytype == poly_type_lava)
         {
-          playsound(SfxEffect::lava, spritePartsPos);
+          gGlobalStateSound.playsound(SfxEffect::lava, spritePartsPos);
         }
 #endif
       }
@@ -3408,7 +3411,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
         a = pos;
         a.y = a.y - 3.0;
 #ifndef SERVER
-        createspark(a, vector2(0, -1.3), 36, num, 40);
+        gGlobalStateSparks.createspark(a, vector2(0, -1.3), 36, num, 40);
 #endif
 
         if (Random(3) == 0)
@@ -3429,7 +3432,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 #ifdef SERVER
         healthhit(-2, num, 12, -1, spriteVelocity);
 #else
-        playsound(SfxEffect::regenerate, spritePartsPos);
+        gGlobalStateSound.playsound(SfxEffect::regenerate, spritePartsPos);
 #endif
       }
     }
@@ -3443,7 +3446,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
       b.x = 0;
       b.y = 0;
 #ifndef SERVER
-      createspark(a, vector2(0, -1.3), 36, num, 40);
+      gGlobalStateSparks.createspark(a, vector2(0, -1.3), 36, num, 40);
 #else
       servercreatebullet(a, b, m79_num, num, 255, guns[m79].hitmultiply, true);
       healthhit(4000, num, 12, -1, spriteVelocity);
@@ -3460,7 +3463,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 #ifdef SERVER
         Health = Health - 10;
 #else
-        playsound(SfxEffect::arg, spritePartsPos);
+        gGlobalStateSound.playsound(SfxEffect::arg, spritePartsPos);
 #endif
       }
     }
@@ -3752,8 +3755,8 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
     wearhelmet = 0;
 #ifndef SERVER
     auto &spriteVelocity = sprite_system.GetVelocity(num);
-    createspark(skeleton.pos[12], spriteVelocity, 6, num, 198);
-    playsound(SfxEffect::headchop, skeleton.pos[where]);
+    gGlobalStateSparks.createspark(skeleton.pos[12], spriteVelocity, 6, num, 198);
+    gGlobalStateSound.playsound(SfxEffect::headchop, skeleton.pos[where]);
 #endif
   }
 
@@ -3939,7 +3942,7 @@ void Sprite<M>::respawn()
 
   if (sprite_system.IsPlayerSprite(num))
   {
-    playsound(SfxEffect::wermusic, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::wermusic, spritePartsPos);
   }
 #endif
 
@@ -4223,11 +4226,11 @@ void Sprite<M>::respawn()
   // Spawn sound
   if (!sprite_system.IsPlayerSprite(num))
   {
-    playsound(SfxEffect::spawn, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::spawn, spritePartsPos);
   }
 
   // spawn spark
-  createspark(spritePartsPos, spriteVelocity, 25, num, 33);
+  gGlobalStateSparks.createspark(spritePartsPos, spriteVelocity, 25, num, 33);
 #endif
 
   freecontrols();
@@ -4485,8 +4488,8 @@ void Sprite<M>::changeteam_ServerVariant(std::int32_t team, bool adminchange, st
       if (player->team == team_spectator)
       {
         gGlobalStateClient.camerafollowsprite = 0;
-        gGlobalStateClient.camerafollowsprite = getcameratarget();
-        gamemenushow(gGlobalStateGameMenus.limbomenu, false);
+        gGlobalStateClient.camerafollowsprite = gGlobalStateClientGame.getcameratarget();
+        gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu, false);
       }
       else
       {
@@ -4725,7 +4728,7 @@ void Sprite<M>::fire()
     a.y = a.y + b.y * 2;
     bn = createbullet(a, b, weapon.num, num, 255, weapon.hitmultiply, true, false);
 #ifndef SERVER
-    playsound(SfxEffect::flamer, spritePartsPos, gattlingsoundchannel);
+    gGlobalStateSound.playsound(SfxEffect::flamer, spritePartsPos, gattlingsoundchannel);
 #endif
   }
 
@@ -4823,7 +4826,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::ak74_fire, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::ak74_fire, spritePartsPos);
     }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
@@ -4845,7 +4848,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (!col)
     {
-      createspark(a, c, 68, num, 255); // shell
+      gGlobalStateSparks.createspark(a, c, 68, num, 255); // shell
     }
 #endif
   }
@@ -4854,7 +4857,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::m249_fire, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::m249_fire, spritePartsPos);
     }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
@@ -4876,7 +4879,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (!col)
     {
-      createspark(a, c, 72, num, 255); // shell
+      gGlobalStateSparks.createspark(a, c, 72, num, 255); // shell
     }
 #endif
   }
@@ -4885,7 +4888,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::ruger77_fire, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::ruger77_fire, spritePartsPos);
     }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
@@ -4907,7 +4910,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (!col)
     {
-      createspark(a, c, 70, num, 255); // shell
+      gGlobalStateSparks.createspark(a, c, 70, num, 255); // shell
     }
 #endif
   }
@@ -4916,7 +4919,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::mp5_fire, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::mp5_fire, spritePartsPos);
     }
     a.x = skeleton.pos[15].x + 2 - 0.2 * b.x;
     a.y = skeleton.pos[15].y - 2 - 0.2 * b.y;
@@ -4940,7 +4943,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (!col)
     {
-      createspark(a, c, 67, num, 255); // shell
+      gGlobalStateSparks.createspark(a, c, 67, num, 255); // shell
     }
 #endif
   }
@@ -4949,7 +4952,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::spas12_fire, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::spas12_fire, spritePartsPos);
     }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position != pos_prone) &&
@@ -4969,7 +4972,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::m79_fire, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::m79_fire, spritePartsPos);
     }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position != pos_prone) &&
@@ -4983,7 +4986,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::deserteagle_fire, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::deserteagle_fire, spritePartsPos);
     }
     a.x = skeleton.pos[15].x + 3 - 0.17 * b.x;
     a.y = skeleton.pos[15].y - 2 - 0.15 * b.y;
@@ -5007,7 +5010,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (!col)
     {
-      createspark(a, c, 66, num, 255); // shell
+      gGlobalStateSparks.createspark(a, c, 66, num, 255); // shell
     }
     if (!col)
     {
@@ -5015,7 +5018,7 @@ void Sprite<M>::fire()
       a.y = skeleton.pos[15].y - 3 - 0.3 * b.y;
       c.x = spriteVelocity.x + direction * aimdirection.y * (Random(0) * 0.5 + 0.8);
       c.y = spriteVelocity.y - direction * aimdirection.x * (Random(0) * 0.5 + 0.8);
-      createspark(a, c, 66, num, 255); // shell
+      gGlobalStateSparks.createspark(a, c, 66, num, 255); // shell
     }
 #endif
   }
@@ -5024,11 +5027,11 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::steyraug_fire, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::steyraug_fire, spritePartsPos);
     }
     if (!col)
     {
-      createspark(a, c, 69, num, 255); // shell
+      gGlobalStateSparks.createspark(a, c, 69, num, 255); // shell
     }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
@@ -5053,7 +5056,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::barretm82_fire, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::barretm82_fire, spritePartsPos);
     }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (bodyanimation.id != AnimationType::GetUp) &&
@@ -5064,7 +5067,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (!col)
     {
-      createspark(a, c, 71, num, 255); // shell
+      gGlobalStateSparks.createspark(a, c, 71, num, 255); // shell
     }
 #endif
   }
@@ -5073,7 +5076,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::minigun_fire, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::minigun_fire, spritePartsPos);
     }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
@@ -5084,7 +5087,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (!col)
     {
-      createspark(a, c, 73, num, 255); // shell
+      gGlobalStateSparks.createspark(a, c, 73, num, 255); // shell
     }
 #endif
   }
@@ -5093,13 +5096,13 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::colt1911_fire, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::colt1911_fire, spritePartsPos);
     }
     a.x = skeleton.pos[15].x + 2 - 0.2 * b.x;
     a.y = skeleton.pos[15].y - 2 - 0.2 * b.y;
     if (!col)
     {
-      createspark(a, c, 65, num, 255); // shell
+      gGlobalStateSparks.createspark(a, c, 65, num, 255); // shell
     }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
@@ -5124,7 +5127,7 @@ void Sprite<M>::fire()
 #ifndef SERVER
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::bow_fire, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::bow_fire, spritePartsPos);
     }
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
@@ -5149,7 +5152,7 @@ void Sprite<M>::fire()
   {
     if (bonusstyle != bonus_predator)
     {
-      playsound(SfxEffect::law, spritePartsPos);
+      gGlobalStateSound.playsound(SfxEffect::law, spritePartsPos);
     }
   }
 
@@ -5158,7 +5161,7 @@ void Sprite<M>::fire()
   vec2scale(muzzlesmokevector, muzzlesmokevector, 0.5);
   a = vec2add(a, muzzlesmokevector);
   vec2scale(muzzlesmokevector, muzzlesmokevector, 0.2);
-  createspark(a, muzzlesmokevector, 35, num, 10);
+  gGlobalStateSparks.createspark(a, muzzlesmokevector, 35, num, 10);
 #endif
 
   if (burstcount < 255)
@@ -5385,7 +5388,7 @@ void Sprite<M>::throwgrenade()
   {
     bodyapplyanimation(AnimationType::Throw, 1);
 #ifndef SERVER
-    setsoundpaused(reloadsoundchannel, true);
+    gGlobalStateSound.setsoundpaused(reloadsoundchannel, true);
 #endif
   }
 
@@ -5408,8 +5411,8 @@ void Sprite<M>::throwgrenade()
       b = gethandsaimdirection();
       b.x = b.x * 0.5;
       b.y = b.y + 0.4;
-      createspark(a, b, 30, num, 255); // Pin
-      playsound(SfxEffect::grenade_pullout, a);
+      gGlobalStateSparks.createspark(a, b, 30, num, 255); // Pin
+      gGlobalStateSound.playsound(SfxEffect::grenade_pullout, a);
     }
   }
 #endif
@@ -5471,7 +5474,7 @@ void Sprite<M>::throwgrenade()
             calculatebink(gGlobalStateClient.hitspraycounter, -guns[fraggrenade].bink);
       }
 
-        playsound(SfxEffect::grenade_throw, a);
+      gGlobalStateSound.playsound(SfxEffect::grenade_throw, a);
 #endif
       }
     }
@@ -5496,7 +5499,7 @@ void Sprite<M>::throwgrenade()
         bodyapplyanimation(AnimationType::SlideBack, 1);
       }
 #ifndef SERVER
-      setsoundpaused(reloadsoundchannel, false);
+      gGlobalStateSound.setsoundpaused(reloadsoundchannel, false);
 #endif
     }
   }

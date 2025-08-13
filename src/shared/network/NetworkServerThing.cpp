@@ -76,8 +76,8 @@ void serverthingsnapshot(std::uint8_t tonum)
 
       if (send)
       {
-        GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
-                                     sprite_system.GetSprite(tonum).player->peer, false);
+        gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+          &thingmsg, sizeof(thingmsg), sprite_system.GetSprite(tonum).player->peer, false);
       }
     }
   }
@@ -119,8 +119,8 @@ void serverthingmustsnapshot(const std::uint8_t i)
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg), sprite.player->peer,
-                                   false);
+      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
+                                                             sprite.player->peer, false);
     }
   }
 }
@@ -162,8 +162,8 @@ void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
         thingmsg.holdingsprite = thing.holdingsprite;
 
 #ifdef SERVER
-        GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
-                                     sprite_system.GetSprite(tonum).player->peer, false);
+        gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+          &thingmsg, sizeof(thingmsg), sprite_system.GetSprite(tonum).player->peer, false);
 #else
         GS::GetDemoRecorder().saverecord(thingmsg, sizeof(thingmsg));
 #endif
@@ -206,8 +206,8 @@ void serverthingmustsnapshotonconnectto(const std::uint8_t i, const std::uint8_t
   thingmsg.style = thing.style;
   thingmsg.holdingsprite = thing.holdingsprite;
 
-  GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
-                               sprite_system.GetSprite(tonum).player->peer, false);
+  gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+    &thingmsg, sizeof(thingmsg), sprite_system.GetSprite(tonum).player->peer, false);
 }
 
 void serverthingtaken(const std::uint8_t i, const std::uint8_t w)
@@ -228,8 +228,8 @@ void serverthingtaken(const std::uint8_t i, const std::uint8_t w)
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg), sprite.player->peer,
-                                   false);
+      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
+                                                             sprite.player->peer, false);
     }
   }
 }

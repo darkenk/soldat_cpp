@@ -1,11 +1,10 @@
 #pragma once
 
+union SDL_Event;
 struct GlobalStateControlGame
 {
+  void gameinput(SDL_Event &event);
   bool votekickreasontype;
 };
 
 extern GlobalStateControlGame gGlobalStateControlGame;
-
-union SDL_Event;
-void gameinput(SDL_Event &event);

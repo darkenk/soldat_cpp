@@ -73,7 +73,7 @@ void commandaddbot(std::vector<std::string> &args, std::uint8_t sender)
 
   tempstr = args[0];
   teamset = strtointdef({tempstr[6], 1}, 1);
-  addbotplayer(name, teamset);
+  gGlobalStateServer.addbotplayer(name, teamset);
 }
 
 void commandaddbots(std::vector<std::string> &args, std::uint8_t sender)
@@ -91,13 +91,13 @@ void commandaddbots(std::vector<std::string> &args, std::uint8_t sender)
   auto amount = strtointdef(args[1], 2);
   for (auto i = 0; i < amount; i++)
   {
-    addbotplayer("Terminator", i % 2 + 1);
+    gGlobalStateServer.addbotplayer("Terminator", i % 2 + 1);
   }
 }
 
 void commandnextmap(std::vector<std::string> &args, std::uint8_t sender)
 {
-  nextmap();
+  gGlobalStateServer.nextmap();
 }
 
 void commandmap(std::vector<std::string> &args, std::uint8_t sender)
@@ -116,7 +116,7 @@ void commandmap(std::vector<std::string> &args, std::uint8_t sender)
 
   if (getmapinfo(GS::GetFileSystem(), args[1], GS::GetGame().GetUserDirectory(), status))
   {
-    preparemapchange(args[1]);
+    gGlobalStateServer.preparemapchange(args[1]);
   }
   else
   {
@@ -176,7 +176,7 @@ void commandkick(std::vector<std::string> &args, std::uint8_t sender)
   targets = commandtarget(name, sender);
   for (i = 0; i <= high(targets); i++)
   {
-    kickplayer(targets[i], false, kick_console, 0);
+    gGlobalStateServer.kickplayer(targets[i], false, kick_console, 0);
   }
 }
 
@@ -187,7 +187,7 @@ void commandkicklast(std::vector<std::string> &args, std::uint8_t sender)
   {
     if (sprite_system.GetSprite(gGlobalStateServer.lastplayer).IsActive())
     {
-      kickplayer(gGlobalStateServer.lastplayer, false, kick_console, 0);
+      gGlobalStateServer.kickplayer(gGlobalStateServer.lastplayer, false, kick_console, 0);
     }
   }
 }
@@ -224,7 +224,8 @@ void commandban(std::vector<std::string> &args, std::uint8_t sender)
   targets = commandtarget(name, sender);
   for (i = 0; i <= high(targets); i++)
   {
-    kickplayer(targets[i], true, kick_console, (day * 30), std::string("Banned by ") + tempstr);
+    gGlobalStateServer.kickplayer(targets[i], true, kick_console, (day * 30),
+                                  std::string("Banned by ") + tempstr);
   }
 }
 
@@ -257,13 +258,13 @@ void commandbaniphw(std::vector<std::string> &args, std::uint8_t sender)
 
   if (args[0] == "banhw")
   {
-    addbannedhw(name, string("Banned by ") + tempstr, (day * 30));
+    gGlobalStateBanSystem.addbannedhw(name, string("Banned by ") + tempstr, (day * 30));
     GS::GetMainConsole().console(string("HWID ") + name + " banned", client_message_color,
                                    sender);
   }
   else
   {
-    addbannedip(name, string("Banned by ") + tempstr, day * 30);
+    gGlobalStateBanSystem.addbannedip(name, string("Banned by ") + tempstr, day * 30);
     GS::GetMainConsole().console(string("IP number ") + name + " banned", client_message_color,
                                    sender);
   }
@@ -287,13 +288,13 @@ void commandunban(std::vector<std::string> &args, std::uint8_t sender)
     return;
   }
 
-  if (delbannedip(name))
+  if (gGlobalStateBanSystem.delbannedip(name))
   {
     GS::GetMainConsole().console(string("IP number ") + name + " unbanned", client_message_color,
                                  sender);
   }
 
-  if (delbannedhw(name))
+  if (gGlobalStateBanSystem.delbannedhw(name))
   {
     GS::GetMainConsole().console(string("HWID ") + name + " unbanned", client_message_color,
                                  sender);
@@ -304,13 +305,13 @@ void commandunban(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandunbanlast(std::vector<std::string> &args, std::uint8_t sender)
 {
-  if (delbannedip(gGlobalStateBanSystem.lastban))
+  if (gGlobalStateBanSystem.delbannedip(gGlobalStateBanSystem.lastban))
   {
     GS::GetMainConsole().console(string("IP number ") + gGlobalStateBanSystem.lastban + " unbanned",
                                  client_message_color, sender);
   }
 
-  if (delbannedhw(gGlobalStateBanSystem.lastbanhw))
+  if (gGlobalStateBanSystem.delbannedhw(gGlobalStateBanSystem.lastbanhw))
   {
     GS::GetMainConsole().console(string("HWID ") + gGlobalStateBanSystem.lastbanhw + " unbanned",
                                  client_message_color, sender);
@@ -507,7 +508,7 @@ void commandloadwep(std::vector<std::string> &args, std::uint8_t sender)
     name = args[1];
   }
 
-  loadweapons(name);
+  gGlobalStateServer.loadweapons(name);
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
@@ -560,7 +561,7 @@ void commandloadcon(std::vector<std::string> &args, std::uint8_t sender)
   loadconfig(name, GS::GetFileSystem());
   GS::GetMainConsole().console(string("Config reloaded ") + gGlobalStateServer.currentconf,
                                client_message_color, sender);
-  startserver();
+  gGlobalStateServer.startserver();
 }
 
 void commandloadlist(std::vector<std::string> &args, std::uint8_t sender)
@@ -775,7 +776,8 @@ void commandtempban(std::vector<std::string> &args, std::uint8_t sender)
 
   tempstr = args[2];
   // *BAN*
-  addbannedip(tempstr, "Temporary Ban by an Admin", strtointdef(name, 1) * minute);
+  gGlobalStateBanSystem.addbannedip(tempstr, "Temporary Ban by an Admin",
+                                    strtointdef(name, 1) * minute);
   GS::GetMainConsole().console(string("IP number ") + tempstr + " banned for " + name +
                                    " minutes.",
                                  client_message_color, sender);
@@ -891,13 +893,14 @@ void commandbanlist(std::vector<std::string> &args, std::uint8_t sender)
 void commandnetstats(std::vector<std::string> &args, std::uint8_t sender)
 {
   {
-    auto statstext = GetServerNetwork()->GetDetailedConnectionStatus(1);
+    auto statstext = gGlobalStateNetworkServer.GetServerNetwork()->GetDetailedConnectionStatus(1);
     LogInfo("network", "{}", statstext);
   }
-  auto players = GetServerNetwork()->GetPlayers();
+  auto players = gGlobalStateNetworkServer.GetServerNetwork()->GetPlayers();
   for (auto &dstplayer : players)
   {
-    auto statstext = GetServerNetwork()->GetDetailedConnectionStatus(dstplayer->peer);
+    auto statstext =
+      gGlobalStateNetworkServer.GetServerNetwork()->GetDetailedConnectionStatus(dstplayer->peer);
     {
       LogInfo("network", "----------------\n{}\n{}\n{}\n----------------",
         dstplayer->name, dstplayer->peer, statstext);

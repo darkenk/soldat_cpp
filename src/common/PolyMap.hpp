@@ -3,6 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <format>
+#include <functional>
 #include <limits>
 #include <string>
 #include <vector>
@@ -90,8 +91,8 @@ const std::int32_t background_poly_unknown = -2;
 // No background poly is currently being interacted with
 const std::int32_t background_poly_none = -1;
 
-typedef void (*tloadmapgraphics)(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop,
-                                 tmapcolor bgcolorbtm);
+using tloadmapgraphics = std::function<void(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop,
+                                 tmapcolor bgcolorbtm)>;
 
 class Polymap
 {

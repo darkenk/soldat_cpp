@@ -70,10 +70,10 @@ void clienthandleserversyncmsg(NetworkContext *netmessage)
     GS::GetGame().SetMapchangename("PAUSE*!*");
     for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
     {
-      stopsound(sprite.reloadsoundchannel);
-      stopsound(sprite.jetssoundchannel);
-      stopsound(sprite.gattlingsoundchannel);
-      stopsound(sprite.gattlingsoundchannel2);
+      gGlobalStateSound.stopsound(sprite.reloadsoundchannel);
+      gGlobalStateSound.stopsound(sprite.jetssoundchannel);
+      gGlobalStateSound.stopsound(sprite.gattlingsoundchannel);
+      gGlobalStateSound.stopsound(sprite.gattlingsoundchannel2);
     }
   }
   else if (GS::GetGame().GetMapchangecounter() == 999999999)
@@ -218,7 +218,7 @@ void clienthandlejoinserver(NetworkContext *netmessage)
                         server_message_color);
 #endif
 
-  clientdisconnect(*GetNetwork());
+  clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
 
   gGlobalStateClient.redirecttoserver = true;
   NotImplemented("network");
@@ -247,7 +247,7 @@ void clienthandleplaysound(NetworkContext *netmessage)
                 playsoundmsg->name.data()))
   {
     // Name to ID, for easy use for scripters
-    [[maybe_unused]] std::int32_t i = soundnametoid(playsoundmsg->name.data());
+    [[maybe_unused]] std::int32_t i = gGlobalStateSound.soundnametoid(playsoundmsg->name.data());
     NotImplemented("network");
 #if 0
         // Sound downloaded, but not initialized. So intialize it

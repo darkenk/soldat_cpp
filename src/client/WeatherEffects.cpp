@@ -45,11 +45,11 @@ void makerain()
       a.x = a.x + 128 - 50 + Random(90);
       a.y = gGlobalStateClient.cameray - gGlobalStateGame.gameheighthalf - 128 - 60 + Random(150);
 
-      createspark(a, b, 38, 255, 60);
+      gGlobalStateSparks.createspark(a, b, 38, 255, 60);
     }
   }
 
-  playsound(SfxEffect::wind, channel_weather);
+  gGlobalStateSound.playsound(SfxEffect::wind, channel_weather);
 }
 
 // Backgorund animation and sound for sandstorm
@@ -81,11 +81,11 @@ void makesandstorm()
       a.x = a.x + 128 - 50 + Random(90);
       a.y = gGlobalStateClient.cameray - gGlobalStateGame.gameheighthalf - 256 - 60 + Random(150);
 
-      createspark(a, b, 39, 255, 80);
+      gGlobalStateSparks.createspark(a, b, 39, 255, 80);
     }
   }
 
-  playsound(SfxEffect::wind, channel_weather);
+  gGlobalStateSound.playsound(SfxEffect::wind, channel_weather);
 }
 
 // Backgorund animation and sound for snow
@@ -117,9 +117,9 @@ void makesnow()
       a.x = a.x + 128 - 50 + Random(90);
       a.y = gGlobalStateClient.cameray - gGlobalStateGame.gameheighthalf - 60 + Random(150);
 
-      createspark(a, b, 53, 255, 80);
+      gGlobalStateSparks.createspark(a, b, 53, 255, 80);
     }
   }
 
-  playsound(SfxEffect::wind, channel_weather);
+  gGlobalStateSound.playsound(SfxEffect::wind, channel_weather);
 }

@@ -855,7 +855,7 @@ void Bullet<M>::update()
   // his sound
   if ((timeout == bullet_timeout - 25) && (style != bullet_style_shotgun))
   {
-    playsound(SfxEffect::bulletby, GetBulletParts().pos[num]);
+    gGlobalStateSound.playsound(SfxEffect::bulletby, GetBulletParts().pos[num]);
   }
 
   // whiizz above head
@@ -872,7 +872,7 @@ void Bullet<M>::update()
             (GetBulletParts().pos[num].y > spritePartsPos.y - 350) &&
             (GetBulletParts().pos[num].y < spritePartsPos.y + 100))
         {
-          playsound(SfxEffect::bulletby2 + Random(4), GetBulletParts().pos[num]);
+          gGlobalStateSound.playsound(SfxEffect::bulletby2 + Random(4), GetBulletParts().pos[num]);
           whizzed = true;
         }
       }
@@ -885,12 +885,12 @@ void Bullet<M>::update()
     // smoke
     if (Random(2) == 0)
     {
-      createspark(GetBulletParts().pos[num], vector2(0, -0.5), 37, num, 40);
+      gGlobalStateSparks.createspark(GetBulletParts().pos[num], vector2(0, -0.5), 37, num, 40);
     }
 
     if (Random(2) == 0)
     {
-      createspark(GetBulletParts().pos[num], vector2(0, -0.5), 36, num, 40);
+      gGlobalStateSparks.createspark(GetBulletParts().pos[num], vector2(0, -0.5), 36, num, 40);
     }
   }
 
@@ -898,10 +898,11 @@ void Bullet<M>::update()
   if (style == bullet_style_law)
   {
     // smoke
-    createspark(GetBulletParts().pos[num], vector2(0, -1.5), 59, num, 50);
+    gGlobalStateSparks.createspark(GetBulletParts().pos[num], vector2(0, -1.5), 59, num, 50);
     if (Random(2) == 0)
     {
-      createspark(GetBulletParts().pos[num], GetBulletParts().velocity[num], 2, num, 5);
+      gGlobalStateSparks.createspark(GetBulletParts().pos[num], GetBulletParts().velocity[num], 2,
+                                     num, 5);
     }
   }
 #endif
@@ -918,7 +919,7 @@ void Bullet<M>::update()
   {
     if (Random(5) == 0)
     {
-      createspark(
+      gGlobalStateSparks.createspark(
         GetBulletParts().pos[num],
         vector2(GetBulletParts().velocity[num].x * 0.5, GetBulletParts().velocity[num].y * 0.5), 4,
         owner, 90);
@@ -1509,7 +1510,7 @@ auto Bullet<M>::checkmapcollision(float x, float y) -> tvector2
                 if (vec2length(GetBulletParts().velocity[num]) > 1.5)
                 {
                   const auto &spritePartsPos = sprite_system.GetSpritePartsPos(num);
-                  playsound(SfxEffect::grenade_bounce, spritePartsPos);
+                  gGlobalStateSound.playsound(SfxEffect::grenade_bounce, spritePartsPos);
                 }
               }
 #endif
@@ -1887,7 +1888,7 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
               a = vec2add(GetBulletParts().pos[num], a);
               if (CVar::r_maxsparks > (max_sparks - 10))
               {
-                createspark(a, a, 50, j, 31);
+                gGlobalStateSparks.createspark(a, a, 50, j, 31);
               }
 
               // Shread clothes
@@ -1914,7 +1915,7 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
                     {
                       a.x = sin(Random(100));
                       a.y = cos(Random(100));
-                      createspark(pos, a, clothesshreadstyle, j, 120);
+                      gGlobalStateSparks.createspark(pos, a, clothesshreadstyle, j, 120);
                     }
                   }
                 }
@@ -1925,16 +1926,17 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
               {
                 if (!sprite_system.GetSprite(j).deadmeat)
                 {
-                  playsound(SfxEffect::hit_arg + Random(3), GetBulletParts().pos[num]);
+                  gGlobalStateSound.playsound(SfxEffect::hit_arg + Random(3),
+                                              GetBulletParts().pos[num]);
                 }
                 else
                 {
-                  playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
+                  gGlobalStateSound.playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
                 }
               }
               else
               {
-                playsound(SfxEffect::vesthit, GetBulletParts().pos[num]);
+                gGlobalStateSound.playsound(SfxEffect::vesthit, GetBulletParts().pos[num]);
               }
 #endif
 
@@ -2057,16 +2059,17 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
                 {
                   if (!sprite_system.GetSprite(j).deadmeat)
                   {
-                    playsound(SfxEffect::hit_arg + Random(3), GetBulletParts().pos[num]);
+                    gGlobalStateSound.playsound(SfxEffect::hit_arg + Random(3),
+                                                GetBulletParts().pos[num]);
                   }
                   else
                   {
-                    playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
+                    gGlobalStateSound.playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
                   }
                 }
                 else
                 {
-                  playsound(SfxEffect::vesthit, GetBulletParts().pos[num]);
+                  gGlobalStateSound.playsound(SfxEffect::vesthit, GetBulletParts().pos[num]);
                 }
 #endif
 
@@ -2212,7 +2215,7 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
               a = vec2add(GetBulletParts().pos[num], a);
               if (CVar::r_maxsparks > (max_sparks - 10))
               {
-                createspark(a, a, 50, j, 31);
+                gGlobalStateSparks.createspark(a, a, 50, j, 31);
               }
 
               // Shread clothes
@@ -2239,7 +2242,7 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
                     {
                       a.x = sin(Random(100));
                       a.y = cos(Random(100));
-                      createspark(pos, a, clothesshreadstyle, j, 120);
+                      gGlobalStateSparks.createspark(pos, a, clothesshreadstyle, j, 120);
                     }
                   }
                 }
@@ -2258,16 +2261,17 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
                 {
                   if (!sprite_system.GetSprite(j).deadmeat)
                   {
-                    playsound(SfxEffect::hit_arg + Random(3), GetBulletParts().pos[num]);
+                    gGlobalStateSound.playsound(SfxEffect::hit_arg + Random(3),
+                                                GetBulletParts().pos[num]);
                   }
                   else
                   {
-                    playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
+                    gGlobalStateSound.playsound(SfxEffect::dead_hit, GetBulletParts().pos[num]);
                   }
                 }
                 else
                 {
-                  playsound(SfxEffect::vesthit, GetBulletParts().pos[num]);
+                  gGlobalStateSound.playsound(SfxEffect::vesthit, GetBulletParts().pos[num]);
                 }
               }
 #endif
@@ -2508,7 +2512,7 @@ auto Bullet<M>::checkcollidercollision(float lasthitdist) -> tvector2
               {
                 a.x = sin(Random(100));
                 a.y = cos(Random(100));
-                createspark(pos, a, 44 + Random(4), j, 120);
+                gGlobalStateSparks.createspark(pos, a, 44 + Random(4), j, 120);
               }
             }
           }
@@ -2523,7 +2527,7 @@ auto Bullet<M>::checkcollidercollision(float lasthitdist) -> tvector2
 #endif
 
 #ifndef SERVER
-          playsound(SfxEffect::colliderhit, GetBulletParts().pos[num]);
+          gGlobalStateSound.playsound(SfxEffect::colliderhit, GetBulletParts().pos[num]);
 #endif
 
           hit(hit_type_wall);
@@ -2603,29 +2607,29 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 
     b.x = b.x * (0.6 + (float)(Random(8)) / 10);
     b.y = b.y * (0.8 + (float)(Random(4)) / 10);
-    createspark(a, b, 3, owner, 60);
+    gGlobalStateSparks.createspark(a, b, 3, owner, 60);
 
     b.x = b.x * (0.8 + (float)(Random(4)) / 10);
     b.y = b.y * (0.6 + (float)(Random(8)) / 10);
-    createspark(a, b, 3, owner, 65);
+    gGlobalStateSparks.createspark(a, b, 3, owner, 65);
 
     vec2scale(b, b, 0.4 + (float)(Random(4)) / 10);
-    createspark(a, b, 1, owner, 60);
+    gGlobalStateSparks.createspark(a, b, 1, owner, 60);
 
     b.x = b.x * (0.5 + (float)(Random(4)) / 10);
     b.y = b.y * (0.7 + (float)(Random(8)) / 10);
-    createspark(a, b, 3, owner, 50);
+    gGlobalStateSparks.createspark(a, b, 3, owner, 50);
 
     b.x = 0;
     b.y = 0;
     if (CVar::r_maxsparks > (max_sparks - 5))
     {
-      createspark(a, b, 56, owner, 22);
+      gGlobalStateSparks.createspark(a, b, 56, owner, 22);
     }
 
     if (timeout < bullet_timeout - 5)
     {
-      playsound(SfxEffect::ric + Random(4), GetBulletParts().pos[num]);
+      gGlobalStateSound.playsound(SfxEffect::ric + Random(4), GetBulletParts().pos[num]);
     }
 #endif
   }
@@ -2640,31 +2644,31 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     // Vec3Normalize(b, b);
     b.x = b.x * 1.2;
     b.y = b.y * 0.85;
-    createspark(a, b, 4, owner, 70);
+    gGlobalStateSparks.createspark(a, b, 4, owner, 70);
 
     b.x = b.x * 0.745;
     b.y = b.y * 1.1;
-    createspark(a, b, 4, owner, 75);
+    gGlobalStateSparks.createspark(a, b, 4, owner, 75);
     b.x = b.x * 0.9;
     b.y = b.y * 0.85;
     if (Random(2) == 0)
     {
-      createspark(a, b, 4, owner, 75);
+      gGlobalStateSparks.createspark(a, b, 4, owner, 75);
     }
 
     b.x = b.x * 1.2;
     b.y = b.y * 0.85;
-    createspark(a, b, 5, owner, 80);
+    gGlobalStateSparks.createspark(a, b, 5, owner, 80);
 
     b.x = b.x * 1;
     b.y = b.y * 1;
-    createspark(a, b, 5, owner, 85);
+    gGlobalStateSparks.createspark(a, b, 5, owner, 85);
 
     b.x = b.x * 0.5;
     b.y = b.y * 1.05;
     if (Random(2) == 0)
     {
-      createspark(a, b, 5, owner, 75);
+      gGlobalStateSparks.createspark(a, b, 5, owner, 75);
     }
 
     for (i = 1; i <= 7; i++)
@@ -2673,7 +2677,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
       {
         b.x = sin(Random(100)) * 1.6;
         b.y = cos(Random(100)) * 1.6;
-        createspark(a, b, 4, owner, 55);
+        gGlobalStateSparks.createspark(a, b, 4, owner, 55);
       }
     }
 #endif
@@ -2687,16 +2691,16 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 
     if (CVar::r_maxsparks > (max_sparks - 10))
     {
-      createspark(GetBulletParts().pos[num], a, 60, owner, 255);
+      gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 60, owner, 255);
     }
 
     if (CVar::r_maxsparks > (max_sparks - 10))
     {
-      createspark(GetBulletParts().pos[num], a, 54, owner, smoke_anims * 4 + 10);
+      gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 54, owner, smoke_anims * 4 + 10);
     }
 
-    createspark(GetBulletParts().pos[num], a, 12, owner, explosion_anims * 3);
-    playsound(SfxEffect::m79_explosion, GetBulletParts().pos[num]);
+    gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 12, owner, explosion_anims * 3);
+    gGlobalStateSound.playsound(SfxEffect::m79_explosion, GetBulletParts().pos[num]);
 #endif
 
     explosionhit(hit_type_explode, spritehit, where);
@@ -2709,16 +2713,16 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 
     if (CVar::r_maxsparks > (max_sparks - 10))
     {
-      createspark(GetBulletParts().pos[num], a, 60, owner, 190);
+      gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 60, owner, 190);
     }
 
     if (CVar::r_maxsparks > (max_sparks - 10))
     {
-      createspark(GetBulletParts().pos[num], a, 54, owner, smoke_anims * 4 + 10);
+      gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 54, owner, smoke_anims * 4 + 10);
     }
 
-    createspark(GetBulletParts().pos[num], a, 17, owner, explosion_anims * 3);
-    playsound(SfxEffect::grenade_explosion, GetBulletParts().pos[num]);
+    gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 17, owner, explosion_anims * 3);
+    gGlobalStateSound.playsound(SfxEffect::grenade_explosion, GetBulletParts().pos[num]);
 #endif
 
     explosionhit(hit_type_fragnade, spritehit, where);
@@ -2731,9 +2735,9 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     a = vec2add(GetBulletParts().pos[num], GetBulletParts().velocity[num]);
     vec2scale(b, b, -0.02);
     vec2scale(b, b, 0.4 + (float)(Random(4)) / 10);
-    createspark(a, b, 1, owner, 70);
+    gGlobalStateSparks.createspark(a, b, 1, owner, 70);
 
-    playsound(SfxEffect::bodyfall, GetBulletParts().pos[num]);
+    gGlobalStateSound.playsound(SfxEffect::bodyfall, GetBulletParts().pos[num]);
 #endif
   }
   break;
@@ -2742,9 +2746,9 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 #ifndef SERVER
     b.x = 0;
     b.y = 0;
-    createspark(GetBulletParts().pos[num], b, 29, owner, 55);
+    gGlobalStateSparks.createspark(GetBulletParts().pos[num], b, 29, owner, 55);
 
-    playsound(SfxEffect::clustergrenade, GetBulletParts().pos[num]);
+    gGlobalStateSound.playsound(SfxEffect::clustergrenade, GetBulletParts().pos[num]);
 #endif
 
     a = vec2subtract(GetBulletParts().pos[num], GetBulletParts().velocity[num]);
@@ -2764,8 +2768,8 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
   case hit_type_cluster: {
 #ifndef SERVER
     a = vector2(0.0, 0.0);
-    createspark(GetBulletParts().pos[num], a, 28, owner, explosion_anims * 3);
-    playsound(SfxEffect::cluster_explosion, GetBulletParts().pos[num]);
+    gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 28, owner, explosion_anims * 3);
+    gGlobalStateSound.playsound(SfxEffect::cluster_explosion, GetBulletParts().pos[num]);
 #endif
 
     explosionhit(hit_type_cluster, spritehit, where);
@@ -2775,8 +2779,8 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
   case hit_type_flak: {
 #ifndef SERVER
     a = vector2(0.0, 0.0);
-    createspark(GetBulletParts().pos[num], a, 29, owner, 55);
-    playsound(SfxEffect::m2explode, GetBulletParts().pos[num]);
+    gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 29, owner, 55);
+    gGlobalStateSound.playsound(SfxEffect::m2explode, GetBulletParts().pos[num]);
 #endif
 
     explosionhit(hit_type_flak, spritehit, where);
@@ -2796,16 +2800,16 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 
     b.x = b.x * 1.2;
     b.y = b.y * 0.85;
-    createspark(a, b, 4, owner, 60);
+    gGlobalStateSparks.createspark(a, b, 4, owner, 60);
     b.x = b.x * 0.745;
     b.y = b.y * 1.1;
-    createspark(a, b, 4, owner, 65);
+    gGlobalStateSparks.createspark(a, b, 4, owner, 65);
     b.x = b.x * 1.5;
     b.y = b.y * 0.4;
-    createspark(a, b, 5, owner, 70);
+    gGlobalStateSparks.createspark(a, b, 5, owner, 70);
     b.x = b.x * 1;
     b.y = b.y * 1;
-    createspark(a, b, 5, owner, 75);
+    gGlobalStateSparks.createspark(a, b, 5, owner, 75);
     b.x = b.x * 0.4;
     b.y = b.y * 1.15;
 
@@ -2815,7 +2819,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
       {
         b.x = sin(Random(100)) * 1.2;
         b.y = cos(Random(100)) * 1.2;
-        createspark(a, b, 4, owner, 50);
+        gGlobalStateSparks.createspark(a, b, 4, owner, 50);
       }
     }
   }
@@ -2827,24 +2831,24 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 
     b.x = (-2.0 + (float)(Random(40)) / 10.0);
     b.y = (-2.0 + (float)(Random(40)) / 10.0);
-    createspark(a, b, 26, owner, 35);
+    gGlobalStateSparks.createspark(a, b, 26, owner, 35);
     b.x = (-2.0 + (float)(Random(40)) / 10.0);
     b.y = (-2.0 + (float)(Random(40)) / 10.0);
-    createspark(a, b, 26, owner, 35);
+    gGlobalStateSparks.createspark(a, b, 26, owner, 35);
     b.x = (-3.0 + (float)(Random(60)) / 10.0);
     b.y = (-3.0 + (float)(Random(60)) / 10.0);
-    createspark(a, b, 26, owner, 35);
+    gGlobalStateSparks.createspark(a, b, 26, owner, 35);
     b.x = (-3.0 + (float)(Random(60)) / 10.0);
     b.y = (-3.0 + (float)(Random(60)) / 10.0);
-    createspark(a, b, 26, owner, 35);
+    gGlobalStateSparks.createspark(a, b, 26, owner, 35);
     b.x = (-3.0 + (float)(Random(60)) / 10.0);
     b.y = (-3.0 + (float)(Random(60)) / 10.0);
-    createspark(a, b, 26, owner, 35);
+    gGlobalStateSparks.createspark(a, b, 26, owner, 35);
     b.x = (-3.0 + (float)(Random(60)) / 10.0);
     b.y = (-3.0 + (float)(Random(60)) / 10.0);
-    createspark(a, b, 27, owner, 35);
+    gGlobalStateSparks.createspark(a, b, 27, owner, 35);
 
-    playsound(SfxEffect::ric5 + Random(3), GetBulletParts().pos[num]);
+    gGlobalStateSound.playsound(SfxEffect::ric5 + Random(3), GetBulletParts().pos[num]);
   }
   break;
 #endif
@@ -2982,8 +2986,8 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
         s = sqrt(s);
 
 #ifndef SERVER
-        createspark(spritePartsPos, vector2(0, -0.01), 5, owner, 80);
-        playsound(SfxEffect::explosion_erg, spritePartsPos);
+        gGlobalStateSparks.createspark(spritePartsPos, vector2(0, -0.01), 5, owner, 80);
+        gGlobalStateSound.playsound(SfxEffect::explosion_erg, spritePartsPos);
 #endif
 
         // collision respond
@@ -3145,7 +3149,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
         if (distance(GetBulletParts().pos[num], spritePartsPos) < grenadeeffect_dist)
         {
           gGlobalStateClient.grenadeeffecttimer = 320;
-          playsound(SfxEffect::hum);
+          gGlobalStateSound.playsound(SfxEffect::hum);
         }
       }
     }
@@ -3166,19 +3170,19 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
       b.y = b.y - 3.5 + ((float)(Random(65)) / 10.0);
       if (Random(4) == 0)
       {
-        createspark(a, b, 40, owner, 180 + Random(50));
+        gGlobalStateSparks.createspark(a, b, 40, owner, 180 + Random(50));
       }
       if (Random(4) == 0)
       {
-        createspark(a, b, 41, owner, 180 + Random(50));
+        gGlobalStateSparks.createspark(a, b, 41, owner, 180 + Random(50));
       }
       if (Random(4) == 0)
       {
-        createspark(a, b, 42, owner, 180 + Random(50));
+        gGlobalStateSparks.createspark(a, b, 42, owner, 180 + Random(50));
       }
       if (Random(4) == 0)
       {
-        createspark(a, b, 43, owner, 180 + Random(50));
+        gGlobalStateSparks.createspark(a, b, 43, owner, 180 + Random(50));
       }
     }
   }
@@ -3197,19 +3201,19 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
       b.y = b.y - 3.5 + ((float)(Random(65)) / 10.0);
       if (Random(rnd) == 0)
       {
-        createspark(a, b, 44, owner, 120);
+        gGlobalStateSparks.createspark(a, b, 44, owner, 120);
       }
       if (Random(rnd) == 0)
       {
-        createspark(a, b, 45, owner, 120);
+        gGlobalStateSparks.createspark(a, b, 45, owner, 120);
       }
       if (Random(rnd) == 0)
       {
-        createspark(a, b, 46, owner, 120);
+        gGlobalStateSparks.createspark(a, b, 46, owner, 120);
       }
       if (Random(rnd) == 0)
       {
-        createspark(a, b, 47, owner, 120);
+        gGlobalStateSparks.createspark(a, b, 47, owner, 120);
       }
     }
   }
@@ -3227,15 +3231,15 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
       b.y = b.y - 3.5 + ((float)(Random(65)) / 10.0);
       if (Random(rnd) == 0)
       {
-        createspark(a, b, 2, owner, 120);
+        gGlobalStateSparks.createspark(a, b, 2, owner, 120);
       }
       if (Random(rnd) == 0)
       {
-        createspark(a, b, 2, owner, 120);
+        gGlobalStateSparks.createspark(a, b, 2, owner, 120);
       }
       if (Random(rnd) == 0)
       {
-        createspark(a, b, 2, owner, 120);
+        gGlobalStateSparks.createspark(a, b, 2, owner, 120);
       }
     }
   }
@@ -3255,7 +3259,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
       vec2scale(b, GetBulletParts().velocity[num], s);
       b.x = -b.x - 3.5 + ((float)(Random(70)) / 10);
       b.y = b.y - 3.5 + ((float)(Random(65)) / 10);
-      createspark(a, b, 64, owner, 35);
+      gGlobalStateSparks.createspark(a, b, 64, owner, 35);
     }
   }
 #endif

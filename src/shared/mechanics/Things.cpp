@@ -1080,7 +1080,7 @@ void Thing<M>::update()
     {
       if (vec2length(vec2subtract(skeleton.pos[2], skeleton.oldpos[2])) > 1.0)
       {
-        playsound(SfxEffect::flag + Random(2), skeleton.pos[2]);
+        gGlobalStateSound.playsound(SfxEffect::flag + Random(2), skeleton.pos[2]);
       }
     }
   }
@@ -1660,7 +1660,7 @@ auto Thing<M>::checkmapcollision(std::int32_t i, float x, float y) -> bool
                 ((vec2length(vec2subtract(skeleton.pos[i], skeleton.oldpos[i])) > 1.5) &&
                  (collidecount[i] < 30)))
             {
-              playsound(SfxEffect::weaponhit, skeleton.pos[i]);
+              gGlobalStateSound.playsound(SfxEffect::weaponhit, skeleton.pos[i]);
             }
 #endif
           }
@@ -1682,7 +1682,7 @@ auto Thing<M>::checkmapcollision(std::int32_t i, float x, float y) -> bool
                 ((vec2length(vec2subtract(skeleton.pos[i], skeleton.oldpos[i])) > 1.5) &&
                  (collidecount[i] < 3)))
             {
-              playsound(SfxEffect::kit_fall + Random(2), skeleton.pos[i]);
+              gGlobalStateSound.playsound(SfxEffect::kit_fall + Random(2), skeleton.pos[i]);
             }
 #endif
           }
@@ -1697,7 +1697,7 @@ auto Thing<M>::checkmapcollision(std::int32_t i, float x, float y) -> bool
                 ((vec2length(vec2subtract(skeleton.pos[i], skeleton.oldpos[i])) > 1.5) &&
                  (collidecount[i] < 3)))
             {
-              playsound(SfxEffect::flag + Random(2), skeleton.pos[i]);
+              gGlobalStateSound.playsound(SfxEffect::flag + Random(2), skeleton.pos[i]);
             }
 #endif
           }
@@ -2556,7 +2556,7 @@ auto Thing<M>::checkstationaryguncollision(bool clientcheck) -> std::int32_t
                 if (sprite.usetime > m2gun_overheat)
                 {
 #ifndef SERVER
-                  playsound(SfxEffect::m2overheat, spritePartsPos);
+                  gGlobalStateSound.playsound(SfxEffect::m2overheat, spritePartsPos);
 #endif
                   return result;
                 }
@@ -2585,7 +2585,7 @@ auto Thing<M>::checkstationaryguncollision(bool clientcheck) -> std::int32_t
 #ifndef SERVER
                 pos = vec2add(pos, norm);
                 vec2scale(norm, norm, 0.1);
-                createspark(pos, norm, 35, sprite.num, 15); // smoke
+                gGlobalStateSparks.createspark(pos, norm, 35, sprite.num, 15); // smoke
 
                 colpos = norm;
                 norm.y = -sprite.direction * norm.x;
@@ -2593,9 +2593,9 @@ auto Thing<M>::checkstationaryguncollision(bool clientcheck) -> std::int32_t
                 vec2scale(norm, norm, 0.2);
                 pos.x = skeleton.pos[3].x + 18;
                 pos.y = skeleton.pos[3].y - 20;
-                createspark(pos, norm, 22, sprite.num, 255); // hull
+                gGlobalStateSparks.createspark(pos, norm, 22, sprite.num, 255); // hull
 
-                playsound(SfxEffect::m2fire, spritePartsPos);
+                gGlobalStateSound.playsound(SfxEffect::m2fire, spritePartsPos);
 #endif
 
                 sprite.usetime += 1;
@@ -2646,7 +2646,7 @@ auto Thing<M>::checkstationaryguncollision(bool clientcheck) -> std::int32_t
               if (sprite.legsanimation.id == AnimationType::Stand)
               {
 #ifndef SERVER
-                playsound(SfxEffect::m2use, spritePartsPos);
+                gGlobalStateSound.playsound(SfxEffect::m2use, spritePartsPos);
 #endif
 
                 statictype = true;

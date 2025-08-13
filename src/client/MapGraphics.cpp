@@ -39,7 +39,7 @@ auto loadmaptexture(const string &texname, tgfxcolor colorkey) -> tgfximage *
   s[0] = gGlobalStateClient.moddir + "textures/" + texname;
   s[1] = string("current_map/textures/") + texname;
 
-  if (!fs.Exists(pngoverride(s[2])))
+  if (!fs.Exists(gGlobalStateGameRendering.pngoverride(s[2])))
   {
     s[1] = string("textures/") + texname;
   }
@@ -55,7 +55,7 @@ auto loadmaptexture(const string &texname, tgfxcolor colorkey) -> tgfximage *
 
   for (const auto &v : s)
   {
-    filename = pngoverride(v);
+    filename = gGlobalStateGameRendering.pngoverride(v);
 
     if (fs.Exists(filename))
     {
@@ -81,7 +81,7 @@ auto loadmaptexture(const string &texname, tgfxcolor colorkey) -> tgfximage *
   return result;
 }
 
-void settexturefilter(tgfxtexture *texture, bool allowmipmaps)
+void GlobalStateMapGraphics::settexturefilter(tgfxtexture *texture, bool allowmipmaps)
 {
   std::int32_t i;
   std::array<tgfxtexturefilter, 2> filters;
@@ -110,7 +110,7 @@ void settexturefilter(tgfxtexture *texture, bool allowmipmaps)
   }
 }
 
-auto gettexturetargetscale(tmapfile &mapfile, tgfximage *image) -> float;
+;
 
 static void updatescale(const tmapvertex p, tmapvertex q, const float &resolutionx,
                         tgfximage *image, const float &resolutiony, tvector2 &scale)
@@ -144,7 +144,7 @@ static void updatescale(const tmapvertex p, tmapvertex q, const float &resolutio
   }
 }
 
-auto gettexturetargetscale(tmapfile &mapfile, tgfximage *image) -> float
+auto GlobalStateMapGraphics::gettexturetargetscale(tmapfile &mapfile, tgfximage *image) -> float
 {
   std::int32_t i;
   tvector2 scale;
@@ -197,7 +197,8 @@ struct tedge
   std::int32_t textureindex;
 };
 
-void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmapcolor bgcolorbtm)
+void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop,
+                                             tmapcolor bgcolorbtm)
 {
   std::int32_t i;
   std::int32_t j;
@@ -252,7 +253,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
   auto& fs = GS::GetFileSystem();
 
   tmapgraphics &mg = gGlobalStateMapGraphics.mapgfx;
-  destroymapgraphics();
+  gGlobalStateMapGraphics.destroymapgraphics();
 
   mg.mapinfo = mapfile.mapinfo;
   mg.filename = mapfile.filename;
@@ -280,7 +281,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
 
     if (CVar::r_optimizetextures)
     {
-      scale = gettexturetargetscale(mapfile, image);
+      scale = gGlobalStateMapGraphics.gettexturetargetscale(mapfile, image);
       imgwidth = max(2, min(image->width(), (std::int32_t)round(scale * image->width())));
       imgheight = max(2, min(image->height(), (std::int32_t)round(scale * image->height())));
     }
@@ -303,7 +304,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
 
     gfxupdatetexture(mg.textures[i], 0, 0, imgwidth, imgheight, image->getimagedata(0));
     gfxtexturewrap(mg.textures[i], gfx_repeat, gfx_repeat);
-    settexturefilter(mg.textures[i], true);
+    gGlobalStateMapGraphics.settexturefilter(mg.textures[i], true);
     freeandnullptr(image);
 
     // load edge texture
@@ -325,7 +326,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
       mg.edgetextures[i] =
         gfxcreatetexture(image->width(), image->height(), 4, image->getimagedata(0),
                          mapfile.mapname + "smooth_edghes");
-      settexturefilter(mg.edgetextures[i], true);
+      gGlobalStateMapGraphics.settexturefilter(mg.edgetextures[i], true);
 
       edgesprites[i]->scale = 1;
       edgesprites[i]->texture = mg.edgetextures[i];
@@ -405,10 +406,11 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
       if (scenerycounters[i] > 0)
       {
 
-        auto str = pngoverride("current_map/scenery-gfx" + mapfile.scenery[i].filename);
+        auto str = gGlobalStateGameRendering.pngoverride("current_map/scenery-gfx" +
+                                                         mapfile.scenery[i].filename);
         if (not fs.Exists(str))
         {
-          str = pngoverride("scenery-gfx/" + mapfile.scenery[i].filename);
+          str = gGlobalStateGameRendering.pngoverride("scenery-gfx/" + mapfile.scenery[i].filename);
         }
 
         if (CVar::r_optimizetextures)
@@ -438,7 +440,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
     {
       //      Str := Str + Format('%dx%d ', [Sheet.Texture[i].Width,
       //      Sheet.Texture[i].Height]);
-      settexturefilter(sheet->gettexture(i), true);
+      gGlobalStateMapGraphics.settexturefilter(sheet->gettexture(i), true);
     }
 
     //    Str[Length(Str)] := ')';
@@ -901,7 +903,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
     gfxend();
     gfxdeletetexture(texture);
 
-    settexturefilter(sprite->texture, false);
+    gGlobalStateMapGraphics.settexturefilter(sprite->texture, false);
 
     gfxtarget(nullptr);
     gfxviewport(0, 0, gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight);
@@ -909,7 +911,7 @@ void loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmap
 }
 /*$POP*/
 
-void updateprops(double t)
+void GlobalStateMapGraphics::updateprops(double t)
 {
   std::int32_t i;
   std::int32_t vbindex;
@@ -963,7 +965,7 @@ void updateprops(double t)
   }
 }
 
-void renderprops(std::int32_t level)
+void GlobalStateMapGraphics::renderprops(std::int32_t level)
 {
   std::int32_t i;
 
@@ -976,7 +978,7 @@ void renderprops(std::int32_t level)
   }
 }
 
-void renderminimap(float x, float y, std::uint8_t alpha)
+void GlobalStateMapGraphics::renderminimap(float x, float y, std::uint8_t alpha)
 {
   if (gGlobalStateMapGraphics.mapgfx.minimap.texture != nullptr)
   {
@@ -984,7 +986,7 @@ void renderminimap(float x, float y, std::uint8_t alpha)
   }
 }
 
-void worldtominimap(float x, float y, MyFloat &ox, MyFloat &oy)
+void GlobalStateMapGraphics::worldtominimap(float x, float y, MyFloat &ox, MyFloat &oy)
 {
   ox = (x - gGlobalStateMapGraphics.mapgfx.minimapoffset.x) *
        gGlobalStateMapGraphics.mapgfx.minimapscale;
@@ -992,7 +994,7 @@ void worldtominimap(float x, float y, MyFloat &ox, MyFloat &oy)
        gGlobalStateMapGraphics.mapgfx.minimapscale;
 }
 
-void destroymapgraphics()
+void GlobalStateMapGraphics::destroymapgraphics()
 {
   std::int32_t i;
 

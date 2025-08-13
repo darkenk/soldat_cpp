@@ -85,9 +85,9 @@ auto InitKillConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
 
 } // namespace
 
-auto GetBigConsole() -> Console & { return sBigConsole; }
+auto GlobalStateClient::GetBigConsole() -> Console & { return sBigConsole; }
 
-auto GetKillConsole() -> ConsoleMain & { return sKillConsole; }
+auto GlobalStateClient::GetKillConsole() -> ConsoleMain & { return sKillConsole; }
 
 // Client.cpp variables
 static bool gamelooprun;
@@ -157,7 +157,7 @@ static GameState gGameState{GameState::Loading};
 
 void restartgraph()
 {
-  dotextureloading(true);
+  gGlobalStateGameRendering.dotextureloading(true);
 
   auto &map = GS::GetGame().GetMap();
 
@@ -217,7 +217,7 @@ void redirectdialog()
   SDL_MessageBoxData data;
   std::int32_t response;
 
-  rendergameinfo("Server Redirect");
+  gGlobalStateGameRendering.rendergameinfo("Server Redirect");
   buttons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
   buttons[0].buttonID = 0;
   buttons[0].text = "Yes";
@@ -283,14 +283,14 @@ void Client::exittomenu()
 
   if (sprite_system.IsPlayerSpriteValid())
   {
-    clientdisconnect(*GetNetwork());
+    clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
   }
-  if (GetNetwork() != nullptr)
+  if (gGlobalStateNetworkClient.GetNetwork() != nullptr)
   {
-    GetNetwork()->Disconnect(true);
+    gGlobalStateNetworkClient.GetNetwork()->Disconnect(true);
   }
 
-  stopsound(channel_weather);
+  gGlobalStateSound.stopsound(channel_weather);
 
   auto &map = GS::GetGame().GetMap();
 
@@ -298,7 +298,7 @@ void Client::exittomenu()
 
   if (gGlobalStateGameMenus.escmenu != nullptr)
   {
-    gamemenushow(gGlobalStateGameMenus.escmenu, false);
+    gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.escmenu, false);
   }
 
   map.filename = ""; // force reloading next time
@@ -375,7 +375,7 @@ static auto MountAssets(FileUtility &fu, const std::string &userdirectory,
   {
     if (!fu.Mount(userdirectory, "/"))
     {
-      showmessage(("Could not load base game archive (game directory)."));
+      gGlobalStateClient.showmessage(("Could not load base game archive (game directory)."));
       return false;
     }
   }
@@ -383,7 +383,8 @@ static auto MountAssets(FileUtility &fu, const std::string &userdirectory,
   {
     if (!fu.Mount(basedirectory + "/soldat.smod", "/"))
     {
-      showmessage(("Could not load base game archive (soldat.smod). Try to reinstall the game."));
+      gGlobalStateClient.showmessage(
+        ("Could not load base game archive (soldat.smod). Try to reinstall the game."));
       return false;
     }
 
@@ -396,7 +397,8 @@ static auto MountAssets(FileUtility &fu, const std::string &userdirectory,
     if (!fu.Mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
                   (std::string("mods/") + lowercase(CVar::fs_mod) + "/")))
     {
-      showmessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
+      gGlobalStateClient.showmessage(
+        (std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
       return false;
     }
     gGlobalStateClient.moddir = std::string("/mods/") + lowercase(CVar::fs_mod) + '/';
@@ -414,15 +416,16 @@ static void InitConsoles(bool test = false)
     round(CVar::ui_console_length * gGlobalStateInterfaceGraphics._rscala.y), 150);
   GS::SetMainConsole(std::move(console));
 
-  auto countMax = floor((0.85 * gGlobalStateClientGame.renderheight) /
-                        (CVar::font_consolelineheight * fontstylesize(font_small)));
+  auto countMax =
+    floor((0.85 * gGlobalStateClientGame.renderheight) /
+          (CVar::font_consolelineheight * gGlobalStateGameRendering.fontstylesize(font_small)));
   if (test)
   {
     countMax = 20;
   }
 
   InitBigConsole(&GS::GetFileSystem(),0, countMax, 1500000);
-  GS::GetMainConsole().SetBigConsole(&GetBigConsole());
+  GS::GetMainConsole().SetBigConsole(&gGlobalStateClient.GetBigConsole());
 
   InitKillConsole(&GS::GetFileSystem(), 70,
                   round(CVar::ui_killconsole_length * gGlobalStateInterfaceGraphics._rscala.y),
@@ -478,7 +481,7 @@ void Client::startgame(int argc, char *argv[])
 
   LogDebugG("[FS] Initializing system");
 
-  loadinterfacearchives(userDirectory + "/custom-interfaces/");
+  gGlobalStateInterfaceGraphics.loadinterfacearchives(userDirectory + "/custom-interfaces/");
 
   fs.Copy("/configs/bindings.cfg", "/user/configs/bindings.cfg");
   fs.Copy("/configs/client.cfg", "/user/configs/client.cfg");
@@ -603,14 +606,15 @@ void Client::startgame(int argc, char *argv[])
 
   gGlobalStateGameRendering.gamerenderingparams.interfacename = CVar::ui_style;
 
-  resetframetiming();
+  gGlobalStateClientGame.resetframetiming();
 
   gfxlog("Loading game graphics");
 
-  if (!initgamegraphics())
+  if (!gGlobalStateGameRendering.initgamegraphics())
   {
-    showmessage(std::string("The required OpenGL functionality isn't supported. ") +
-                "Please, update your video drivers and try again.");
+    gGlobalStateClient.showmessage(
+      std::string("The required OpenGL functionality isn't supported. ") +
+      "Please, update your video drivers and try again.");
     // ExitButtonClick(nullptr);
     return;
   }
@@ -639,16 +643,16 @@ void Client::startgame(int argc, char *argv[])
 
   GS::GetConsoleLogFile().Log("Initializing Sound Library.");
   // Init Sound Library
-  if (!initsound())
+  if (!gGlobalStateSound.initsound())
   {
     GS::GetConsoleLogFile().Log("Failed to initialize Sound Library.");
     // Let the player know that he has no sound (no popup window)
   }
 
-  loadsounds("");
+  gGlobalStateSound.loadsounds("");
   if (length(gGlobalStateClient.moddir) > 0)
   {
-    loadsounds(gGlobalStateClient.moddir);
+    gGlobalStateSound.loadsounds(gGlobalStateClient.moddir);
   }
 
   GS::GetConsoleLogFile().Log("Creating network interface.");
@@ -680,7 +684,7 @@ void Client::startgame(int argc, char *argv[])
 
   gGlobalStateInterfaceGraphics.cursortext = "";
 
-  initgamemenus();
+  gGlobalStateGameMenus.initgamemenus();
 
   {
     TIniFile ini{ReadAsFileStream(fs, "txt/radiomenu-default.ini")};
@@ -699,14 +703,15 @@ void Client::startgame(int argc, char *argv[])
 
   GS::GetConsoleLogFile().WriteToFile();
 
+  gGlobalStateClientGame.resetframetiming();
+  gGlobalStateGameRendering.initgamegraphics();
+  gGlobalStateGameRendering.dotextureloading(true);
 
-  resetframetiming();
-  initgamegraphics();
-  dotextureloading(true);
-
-  InitClientNetwork();
-  GetNetwork()->SetDisconnectionCallback([](const char* msg){rendergameinfo(std::string("Network  error ") + msg);});
-  GetNetwork()->SetConnectionCallback(
+  gGlobalStateNetworkClient.InitClientNetwork();
+  gGlobalStateNetworkClient.GetNetwork()->SetDisconnectionCallback([](const char *msg) {
+    gGlobalStateGameRendering.rendergameinfo(std::string("Network  error ") + msg);
+  });
+  gGlobalStateNetworkClient.GetNetwork()->SetConnectionCallback(
     [](NetworkClientImpl &nc) { clientrequestgame(nc, gGlobalStateClient.joinpassword); });
 
   gamelooprun = true;
@@ -727,7 +732,7 @@ void Client::shutdown()
   GS::GetConsoleLogFile().Log("Freeing sprites.");
 
   // Free GFX
-  destroygamegraphics();
+  gGlobalStateGameRendering.destroygamegraphics();
 
   for (auto &s : SpriteSystem::Get().GetSprites())
   {
@@ -738,11 +743,11 @@ void Client::shutdown()
 
   GS::GetConsoleLogFile().Log("UDP closing.");
 
-  DeinitClientNetwork();
+  gGlobalStateNetworkClient.DeinitClientNetwork();
 
   GS::GetConsoleLogFile().Log("Sound closing.");
 
-  closesound();
+  gGlobalStateSound.closesound();
   SDL_Quit();
 
   GS::GetConsoleLogFile().Log("FS closing.");
@@ -763,21 +768,21 @@ bool Client::mainloop()
     return gamelooprun;
   }
   auto begin = std::chrono::system_clock::now();
-  GetNetwork()->ProcessLoop();
+  gGlobalStateNetworkClient.GetNetwork()->ProcessLoop();
   //gameinput();
   switch (gGameState)
   {
     case GameState::Loading:
-      rendergameinfo(("Loading"));
+      gGlobalStateGameRendering.rendergameinfo(("Loading"));
       break;
     case GameState::Game:
       if (progready)
       {
-        gameloop();
+        gGlobalStateClientGame.gameloop();
       }
       break;
     case GameState::ConnectionTimedOut:
-      rendergameinfo(("Connection timed out."));
+      gGlobalStateGameRendering.rendergameinfo(("Connection timed out."));
       break;
   }
   auto end = std::chrono::system_clock::now();
@@ -808,7 +813,7 @@ void startgameloop()
 
 void Client::joinserver()
 {
-  resetframetiming();
+  gGlobalStateClientGame.resetframetiming();
 
   gGlobalStateClient.gClientServerIP = trim(gGlobalStateClient.joinip);
 
@@ -826,34 +831,35 @@ void Client::joinserver()
     tdemoplayer::processdemo();
     progready = true;
     gamelooprun = true;
-    rendergameinfo(("Loading"));
+    gGlobalStateGameRendering.rendergameinfo(("Loading"));
     startgameloop();
   }
   else
   {
-    rendergameinfo(("Connecting to " + gGlobalStateClient.gClientServerIP + ":" +
-                    std::to_string(gGlobalStateClient.gClientServerPort)));
+    gGlobalStateGameRendering.rendergameinfo(
+      ("Connecting to " + gGlobalStateClient.gClientServerIP + ":" +
+       std::to_string(gGlobalStateClient.gClientServerPort)));
 
-    if (GetNetwork()->Connect(gGlobalStateClient.gClientServerIP,
-                              gGlobalStateClient.gClientServerPort))
+    if (gGlobalStateNetworkClient.GetNetwork()->Connect(gGlobalStateClient.gClientServerIP,
+                                                        gGlobalStateClient.gClientServerPort))
     {
       progready = true;
       gamelooprun = true;
-      rendergameinfo(("Loading"));
-      clientrequestgame(*GetNetwork(), gGlobalStateClient.joinpassword);
+      gGlobalStateGameRendering.rendergameinfo(("Loading"));
+      clientrequestgame(*gGlobalStateNetworkClient.GetNetwork(), gGlobalStateClient.joinpassword);
       gGameState = GameState::Game;
     }
     else
     {
       GS::GetMainConsole().console("[NET] Failed to connect to  server" +
-                                     GetNetwork()->GetStringAddress(true),
+                                     gGlobalStateNetworkClient.GetNetwork()->GetStringAddress(true),
                                    warning_message_color);
       return;
     }
   }
 }
 
-void showmessage(const std::string &message)
+void GlobalStateClient::showmessage(const std::string &message)
 {
   SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message.c_str(), nullptr);
 };
@@ -983,13 +989,13 @@ TEST_SUITE("Client")
     CHECK_EQ(150, console.GetNewMessageWait());
     CHECK_EQ(0, console.GetCount());
 
-    const auto& big = GetBigConsole();
+    const auto &big = gGlobalStateClient.GetBigConsole();
     //CHECK_EQ(0, big.countmax); todo countmax in tests
     //CHECK_EQ(1500000, big.scrolltickmax);
     CHECK_EQ(0, big.GetNewMessageWait());
     CHECK_EQ(0, big.GetCount());
 
-    const auto& kill = GetKillConsole();
+    const auto &kill = gGlobalStateClient.GetKillConsole();
     //CHECK_EQ(0, kill.countmax);
     //CHECK_EQ(240, kill.scrolltickmax);
     CHECK_EQ(70, kill.GetNewMessageWait());

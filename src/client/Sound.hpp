@@ -216,27 +216,24 @@ constexpr std::int32_t channel_weather = 127;
 
 struct GlobalStateSound
 {
+  bool initsound();
+  bool setsoundpaused(std::int32_t channel, bool paused);
+  bool setvolume(std::int32_t channel, float volume);
+  bool stopsound(std::int32_t channel);
+  float scalevolumesetting(const uint8_t volumesetting);
+  std::int8_t soundnametoid(const std::string &name);
+  tsoundsample loadsample(const std::string_view &name, const tsoundsample &samp);
+  void closesound();
+  void fplaysound(SfxEffect samplenum, float listenerx, float listenery, float emitterx,
+                  float emittery, std::int32_t chan);
+  void loadsounds(const std::string &moddir);
+  void playsound(SfxEffect sample);
+  void playsound(SfxEffect sample, const tvector2 &emitter);
+  void playsound(SfxEffect sample, const tvector2 &emitter, int32_t channel);
+  void playsound(SfxEffect sample, std::int32_t channel);
   std::vector<tscriptsound> scriptsamp;
   float volumeinternal;
   std::int32_t defaultchannel;
 };
 
 extern GlobalStateSound gGlobalStateSound;
-
-bool initsound();
-std::int8_t soundnametoid(const std::string &name);
-tsoundsample loadsample(const std::string_view &name, const tsoundsample &samp);
-float scalevolumesetting(const uint8_t volumesetting);
-void loadsounds(const std::string &moddir);
-void closesound();
-void fplaysound(SfxEffect samplenum, float listenerx, float listenery, float emitterx,
-                float emittery, std::int32_t chan);
-void playsound(SfxEffect sample);
-void playsound(SfxEffect sample, std::int32_t channel);
-void playsound(SfxEffect sample, const tvector2 &emitter);
-void playsound(SfxEffect sample, const tvector2 &emitter, int32_t channel);
-bool stopsound(std::int32_t channel);
-
-bool setsoundpaused(std::int32_t channel, bool paused);
-
-bool setvolume(std::int32_t channel, float volume);

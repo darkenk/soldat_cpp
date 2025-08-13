@@ -169,7 +169,7 @@ static void CreateDirectoryStructure(FileUtility &fs)
   SoldatEnsure(fs.MkDir("/user/mods"));
 }
 
-void ActivateServer(int argc, char *argv[])
+void GlobalStateServer::ActivateServer(int argc, char *argv[])
 {
   std::int32_t i;
   NotImplemented("network", "Rewrite message");
@@ -350,8 +350,8 @@ void ActivateServer(int argc, char *argv[])
     NotImplemented("Failed to create configs/bannedhw.txt");
   }
 
-  loadbannedlist(userDirectory + "configs/banned.txt");
-  loadbannedlisthw(userDirectory + "configs/bannedhw.txt");
+  gGlobalStateBanSystem.loadbannedlist(userDirectory + "configs/banned.txt");
+  gGlobalStateBanSystem.loadbannedlisthw(userDirectory + "configs/bannedhw.txt");
 
   if (fileexists(userDirectory + "configs/remote.txt"))
   {
@@ -405,13 +405,13 @@ void ShutDown()
     SysUtils.DeleteFile(userdirectory + "logs/" + sv_pidfilename);
 #endif
 
-  if (GetServerNetwork() != nullptr)
+  if (gGlobalStateNetworkServer.GetServerNetwork() != nullptr)
   {
     serverdisconnect();
 
     GS::GetMainConsole().console("Shutting down game networking.", game_message_color);
 
-    DeinitServerNetwork();
+    gGlobalStateNetworkServer.DeinitServerNetwork();
   }
 
 #ifdef RCON
@@ -451,7 +451,7 @@ void ShutDown()
   commanddeinit();
 }
 
-void loadweapons(const std::string &Filename)
+void GlobalStateServer::loadweapons(const std::string &Filename)
 {
   bool IsRealistic;
   LogDebugG("LoadWeapons");
@@ -502,7 +502,7 @@ void loadweapons(const std::string &Filename)
   }
 }
 
-auto addbotplayer(const std::string &name, std::int32_t team) -> std::int8_t
+auto GlobalStateServer::addbotplayer(const std::string &name, std::int32_t team) -> std::int8_t
 {
   auto &sprite_system = SpriteSystem::Get();
   tvector2 a;
@@ -586,7 +586,7 @@ auto addbotplayer(const std::string &name, std::int32_t team) -> std::int8_t
   return Result;
 }
 
-void startserver()
+void GlobalStateServer::startserver()
 {
   auto &sprite_system = SpriteSystem::Get();
   tvector2 a;
@@ -703,12 +703,12 @@ void startserver()
   {
     GS::GetMainConsole().console("Realistic Mode ON", mode_message_color);
     GS::GetGame().SetStarthealth(Constants::REALISTIC_HEALTH);
-    loadweapons("weapons_realistic");
+    gGlobalStateServer.loadweapons("weapons_realistic");
   }
   else
   {
     GS::GetGame().SetStarthealth(Constants::DEFAULT_HEALTH);
-    loadweapons("weapons");
+    gGlobalStateServer.loadweapons("weapons");
   }
 
   // Weapons
@@ -797,12 +797,12 @@ void startserver()
   if (not CVar::sv_survivalmode)
   {
     // spawn medikits
-    spawnthings(Constants::OBJECT_MEDICAL_KIT, map.medikits);
+    gGlobalStateServer.spawnthings(Constants::OBJECT_MEDICAL_KIT, map.medikits);
 
     // spawn grenadekits
     if (CVar::sv_maxgrenades > 0)
     {
-      spawnthings(Constants::OBJECT_GRENADE_KIT, map.grenades);
+      gGlobalStateServer.spawnthings(Constants::OBJECT_GRENADE_KIT, map.grenades);
     }
   }
   else
@@ -867,25 +867,27 @@ void startserver()
 
   GS::GetConsoleLogFile().Log("Starting Game Server.");
 
-  InitNetworkServer(std::string(CVar::net_ip), CVar::net_port);
-  GetServerNetwork()->SetDisconnectionCallback([&sprite_system](std::shared_ptr<TServerPlayer> player) {
-    // the sprite may be zero if we"re still in the setup phase
-    if (player->spritenum != 0)
-    {
-      GS::GetMainConsole().console(player->name + " could not respond", warning_message_color);
-      serverplayerdisconnect(player->spritenum, kick_noresponse);
-    #ifdef SCRIPT
-      ScrptDispatcher.OnLeaveGame(Player->spritenum, false);
+  gGlobalStateNetworkServer.InitNetworkServer(std::string(CVar::net_ip), CVar::net_port);
+  gGlobalStateNetworkServer.GetServerNetwork()->SetDisconnectionCallback(
+    [&sprite_system](std::shared_ptr<TServerPlayer> player) {
+      // the sprite may be zero if we"re still in the setup phase
+      if (player->spritenum != 0)
+      {
+        GS::GetMainConsole().console(player->name + " could not respond", warning_message_color);
+        serverplayerdisconnect(player->spritenum, kick_noresponse);
+#ifdef SCRIPT
+        ScrptDispatcher.OnLeaveGame(Player->spritenum, false);
     #endif
-      sprite_system.GetSprite(player->spritenum).kill();
-      sprite_system.GetSprite(player->spritenum).player = std::make_shared<TServerPlayer>();
-    }
-  });
+        sprite_system.GetSprite(player->spritenum).kill();
+        sprite_system.GetSprite(player->spritenum).player = std::make_shared<TServerPlayer>();
+      }
+    });
 
-  if (GetServerNetwork()->IsActive())
+  if (gGlobalStateNetworkServer.GetServerNetwork()->IsActive())
   {
     WriteLn("[NET] Game networking initialized.");
-    WriteLn("[NET] Server is listening on " + GetServerNetwork()->GetStringAddress(true));
+    WriteLn("[NET] Server is listening on " +
+            gGlobalStateNetworkServer.GetServerNetwork()->GetStringAddress(true));
   }
   else
   {
@@ -895,7 +897,7 @@ void startserver()
     return;
   }
 
-  gGlobalStateServer.serverport = GetServerNetwork()->Port();
+  gGlobalStateServer.serverport = gGlobalStateNetworkServer.GetServerNetwork()->Port();
 
   if (CVar::fileserver_enable)
   {
@@ -924,25 +926,25 @@ void startserver()
 
   for (k = 0; k < CVar::bots_random_alpha; k++)
   {
-    addbotplayer(randombot(), 1);
+    gGlobalStateServer.addbotplayer(randombot(), 1);
   }
   for (k = 0; k < CVar::bots_random_bravo; k++)
   {
-    addbotplayer(randombot(), 2);
+    gGlobalStateServer.addbotplayer(randombot(), 2);
   }
   for (k = 0; k < CVar::bots_random_charlie; k++)
   {
-    addbotplayer(randombot(), 3);
+    gGlobalStateServer.addbotplayer(randombot(), 3);
   }
   for (k = 0; k < CVar::bots_random_delta; k++)
   {
-    addbotplayer(randombot(), 4);
+    gGlobalStateServer.addbotplayer(randombot(), 4);
   }
 
   GS::GetGame().updategamestats();
 }
 
-auto preparemapchange(std::string Name) -> bool
+auto GlobalStateServer::preparemapchange(std::string Name) -> bool
 {
   tmapinfo Status;
   bool Result = false;
@@ -961,7 +963,7 @@ auto preparemapchange(std::string Name) -> bool
   return Result;
 }
 
-void nextmap()
+void GlobalStateServer::nextmap()
 {
   LogDebugG("NextMap");
 
@@ -979,11 +981,11 @@ void nextmap()
     {
       gGlobalStateServer.mapindex = 0;
     }
-    preparemapchange(gGlobalStateServer.mapslist[gGlobalStateServer.mapindex]);
+    gGlobalStateServer.preparemapchange(gGlobalStateServer.mapslist[gGlobalStateServer.mapindex]);
   }
 }
 
-void spawnthings(std::int8_t Style, std::int8_t Amount)
+void GlobalStateServer::spawnthings(std::int8_t Style, std::int8_t Amount)
 {
   std::int32_t i;
   std::int32_t k;
@@ -1067,8 +1069,8 @@ void spawnthings(std::int8_t Style, std::int8_t Amount)
   }
 }
 
-auto kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
-                std::string Reason) -> bool
+auto GlobalStateServer::kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
+                                   std::string Reason) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
@@ -1152,7 +1154,7 @@ auto kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
 
   if (Ban)
   {
-    addbannedip(sprite_system.GetSprite(i).player->ip, Reason, time);
+    gGlobalStateBanSystem.addbannedip(sprite_system.GetSprite(i).player->ip, Reason, time);
   }
 
   if (Ban)
@@ -1203,14 +1205,14 @@ auto kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
   return Result;
 }
 
-void RunServer(int argc, char *argv[])
+void GlobalStateServer::RunServer(int argc, char *argv[])
 {
-  ActivateServer(argc, argv);
+  gGlobalStateServer.ActivateServer(argc, argv);
   writepid();
 
   if (progready)
   {
-    startserver();
+    gGlobalStateServer.startserver();
   }
   while (progready)
   {
@@ -1227,7 +1229,7 @@ void RunServer(int argc, char *argv[])
   ShutDown();
 }
 
-void ShutdownServer() { progready = false; }
+void GlobalStateServer::ShutdownServer() { progready = false; }
 
 void ConsoleServer::console(const std::string_view what, std::int32_t col, std::uint8_t sender)
 {

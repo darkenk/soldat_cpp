@@ -64,7 +64,7 @@ void apponidle()
   game.number27timing(); // makes the program go and do the timing calculations
 
   // NET RECEIVE
-  GetServerNetwork()->ProcessLoop();
+  gGlobalStateNetworkServer.GetServerNetwork()->ProcessLoop();
 
 #ifdef RCON
   if (adminserver != nullptr)
@@ -164,7 +164,8 @@ void apponidle()
               gGlobalStateNetworkServer.pingwarnings[sprite.num] += 1;
               if (gGlobalStateNetworkServer.pingwarnings[sprite.num] > CVar::sv_warnings_ping)
               {
-                kickplayer(sprite.num, true, kick_ping, sixty_minutes / 4, "Ping Kick");
+                gGlobalStateServer.kickplayer(sprite.num, true, kick_ping, sixty_minutes / 4,
+                                              "Ping Kick");
               }
             }
           }
@@ -185,7 +186,8 @@ void apponidle()
           gGlobalStateNetworkServer.floodwarnings[j] += 1;
           if (gGlobalStateNetworkServer.floodwarnings[j] > CVar::sv_warnings_flood)
           {
-            kickplayer(j, true, kick_flooding, sixty_minutes / 4, "Flood Kicked");
+            gGlobalStateServer.kickplayer(j, true, kick_flooding, sixty_minutes / 4,
+                                          "Flood Kicked");
           }
         }
       }
@@ -198,7 +200,7 @@ void apponidle()
     {
       for (auto &sprite : sprite_system.GetActiveSprites())
       {
-        GetServerNetwork()->UpdateNetworkStats(sprite.player);
+        gGlobalStateNetworkServer.GetServerNetwork()->UpdateNetworkStats(sprite.player);
       }
     }
 
@@ -223,23 +225,24 @@ void apponidle()
     {
       if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) == 0)
       {
-        serverspritesnapshot(netw);
+        gGlobalStateNetworkServerSprite.serverspritesnapshot(netw);
       }
 
       if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(15 * adjust) == 0) &&
           (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) != 0))
       {
-        serverspritesnapshotmajor(netw);
+        gGlobalStateNetworkServerSprite.serverspritesnapshotmajor(netw);
       }
 
       if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(20 * adjust) == 0)
       {
-        serverskeletonsnapshot(netw);
+        gGlobalStateNetworkServerSprite.serverskeletonsnapshot(netw);
       }
 
       if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(59 * adjust) == 0)
       {
-        serverheartbeat(*GetServerNetwork(), sprite_system, GS::GetGame());
+        serverheartbeat(*gGlobalStateNetworkServer.GetServerNetwork(), sprite_system,
+                        GS::GetGame());
       }
 
       if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(4 * adjust) == 0) &&
@@ -250,7 +253,7 @@ void apponidle()
         {
           if (sprite.player->controlmethod == bot)
           {
-            serverspritedeltas(sprite.num);
+            gGlobalStateNetworkServerSprite.serverspritedeltas(sprite.num);
           }
         }
       }
@@ -261,7 +264,7 @@ void apponidle()
             (std::int32_t)round(CVar::net_t1_snapshot * adjust) ==
           0)
       {
-        serverspritesnapshot(netw);
+        gGlobalStateNetworkServerSprite.serverspritesnapshot(netw);
       }
 
       if ((GS::GetGame().GetMainTickCounter() %
@@ -271,21 +274,22 @@ void apponidle()
              (std::int32_t)round(CVar::net_t1_snapshot * adjust) !=
            0))
       {
-        serverspritesnapshotmajor(netw);
+        gGlobalStateNetworkServerSprite.serverspritesnapshotmajor(netw);
       }
 
       if (GS::GetGame().GetMainTickCounter() %
             (std::int32_t)round(CVar::net_t1_deadsnapshot * adjust) ==
           0)
       {
-        serverskeletonsnapshot(netw);
+        gGlobalStateNetworkServerSprite.serverskeletonsnapshot(netw);
       }
 
       if (GS::GetGame().GetMainTickCounter() %
             (std::int32_t)round(CVar::net_t1_heartbeat * adjust) ==
           0)
       {
-        serverheartbeat(*GetServerNetwork(), sprite_system, GS::GetGame());
+        serverheartbeat(*gGlobalStateNetworkServer.GetServerNetwork(), sprite_system,
+                        GS::GetGame());
       }
 
       if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(CVar::net_t1_delta * adjust) ==
@@ -301,7 +305,7 @@ void apponidle()
         {
           if (sprite.player->controlmethod == bot)
           {
-            serverspritedeltas(sprite.num);
+            gGlobalStateNetworkServerSprite.serverspritedeltas(sprite.num);
           }
         }
       }
@@ -481,7 +485,7 @@ void updateframe()
           {
             if (Random(berserkerbonus_random) == 0)
             {
-              spawnthings(object_berserk_kit, 1);
+              gGlobalStateServer.spawnthings(object_berserk_kit, 1);
             }
           }
         }
@@ -493,7 +497,7 @@ void updateframe()
           {
             if (Random(j) == 0)
             {
-              spawnthings(object_flamer_kit, 1);
+              gGlobalStateServer.spawnthings(object_flamer_kit, 1);
             }
           }
         }
@@ -504,7 +508,7 @@ void updateframe()
           {
             if (Random(predatorbonus_random) == 0)
             {
-              spawnthings(object_predator_kit, 1);
+              gGlobalStateServer.spawnthings(object_predator_kit, 1);
             }
           }
         }
@@ -515,7 +519,7 @@ void updateframe()
           {
             if (Random(vestbonus_random) == 0)
             {
-              spawnthings(object_vest_kit, 1);
+              gGlobalStateServer.spawnthings(object_vest_kit, 1);
             }
           }
         }
@@ -539,7 +543,7 @@ void updateframe()
           {
             if (Random(j) == 0)
             {
-              spawnthings(object_cluster_kit, 1);
+              gGlobalStateServer.spawnthings(object_cluster_kit, 1);
             }
           }
         }
@@ -641,7 +645,8 @@ void updateframe()
         if (sprite.player->chatwarnings > 5)
         {
           // 20 Minutes is too harsh
-          kickplayer(sprite.num, true, kick_flooding, five_minutes, "Chat Flood");
+          gGlobalStateServer.kickplayer(sprite.num, true, kick_flooding, five_minutes,
+                                        "Chat Flood");
         }
         if (sprite.player->chatwarnings > 0)
         {
@@ -688,8 +693,8 @@ void updateframe()
     // Ban Timers v2
     if (GS::GetGame().GetMainTickCounter() % minute == 0)
     {
-      updateipbanlist();
-      updatehwbanlist();
+      gGlobalStateBanSystem.updateipbanlist();
+      gGlobalStateBanSystem.updatehwbanlist();
     }
 
     if (GS::GetGame().GetMainTickCounter() % minute == 0)
@@ -736,7 +741,7 @@ void updateframe()
     }
     if (GS::GetGame().GetTimelimitcounter() == 1)
     {
-      nextmap();
+      gGlobalStateServer.nextmap();
     }
 
     GS::GetGame().SetTimeleftmin(GS::GetGame().GetTimelimitcounter() / minute);

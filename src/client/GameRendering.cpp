@@ -3,8 +3,6 @@
 #include "GameRendering.hpp"
 
 #include <Tracy.hpp>
-#include <ApprovalTests/Approvals.h>
-#include <ApprovalTests/core/ApprovalWriter.h>
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_surface.h>
@@ -256,13 +254,13 @@ auto getimagescale(const std::string &imagepath) -> float
   return strtofloatdef(scale, 1);
 }
 
-void takescreenshot(string filename, bool async)
+void GlobalStateGameRendering::takescreenshot(string filename, bool async)
 {
   screenshotpath = filename;
   screenshotasync = async;
 }
 
-auto pngoverride(const std::string_view &filename) -> string
+auto GlobalStateGameRendering::pngoverride(const std::string_view &filename) -> string
 {
   std::string f{filename};
   std::replace(f.begin(), f.end(), '\\', '/');
@@ -270,7 +268,7 @@ auto pngoverride(const std::string_view &filename) -> string
   return overridefileext(GS::GetFileSystem(), f, ".png");
 }
 
-auto pngoverride(const std::string &filename) -> string
+auto GlobalStateGameRendering::pngoverride(const std::string &filename) -> string
 {
   std::string f{filename};
   std::replace(f.begin(), f.end(), '\\', '/');
@@ -298,11 +296,12 @@ void loadmaintextures()
       color.color.b = (i.ColorKey & 0xff0000) >> 16;
       color.color.a = (i.ColorKey & 0xff000000) >> 24;
 
-      auto path = pngoverride(gGlobalStateClient.moddir + std::string(i.Path));
+      auto path =
+        gGlobalStateGameRendering.pngoverride(gGlobalStateClient.moddir + std::string(i.Path));
 
       if (!fs.Exists(path))
       {
-        path = pngoverride(i.Path);
+        path = gGlobalStateGameRendering.pngoverride(i.Path);
       }
 
       imagescale[id] = getimagescale(path);
@@ -333,7 +332,7 @@ void loadinterfacetextures(const std::string interfacename)
   std::string path;
   tgfxcolor color;
   float scale;
-  bool iscustom = !isdefaultinterface(interfacename);
+  bool iscustom = !gGlobalStateInterfaceGraphics.isdefaultinterface(interfacename);
   auto& fs = GS::GetFileSystem();
 
   if (iscustom)
@@ -379,20 +378,21 @@ void loadinterfacetextures(const std::string interfacename)
       if (iscustom && (i >= custom_first) && (i <= custom_last))
       {
         path = prefix + std::string(GFXData[i].Path.data() + cutlength + 1);
-        path = pngoverride(path);
+        path = gGlobalStateGameRendering.pngoverride(path);
 
         if (!fs.Exists(path))
         {
-          path = pngoverride(GFXData[i].Path);
+          path = gGlobalStateGameRendering.pngoverride(GFXData[i].Path);
         }
       }
       else
       {
-        path = pngoverride(gGlobalStateClient.moddir + std::string(GFXData[i].Path));
+        path = gGlobalStateGameRendering.pngoverride(gGlobalStateClient.moddir +
+                                                     std::string(GFXData[i].Path));
 
         if (!fs.Exists(path))
         {
-          path = pngoverride(GFXData[i].Path);
+          path = gGlobalStateGameRendering.pngoverride(GFXData[i].Path);
         }
       }
 
@@ -414,7 +414,8 @@ void loadinterfacetextures(const std::string interfacename)
 
 void loadinterface()
 {
-  if (loadinterfacedata(gGlobalStateGameRendering.gamerenderingparams.interfacename))
+  if (gGlobalStateInterfaceGraphics.loadinterfacedata(
+        gGlobalStateGameRendering.gamerenderingparams.interfacename))
   {
     loadinterfacetextures(gGlobalStateGameRendering.gamerenderingparams.interfacename);
   }
@@ -476,7 +477,8 @@ void loadfonts()
 
   if ((fontpath[0].empty()) || (fontpath[1].empty()))
   {
-    showmessage(("One of the fonts cannot be found. Please check your installation directory."));
+    gGlobalStateClient.showmessage(
+      ("One of the fonts cannot be found. Please check your installation directory."));
     gGlobalStateClient.gClient.shutdown();
   }
 
@@ -539,7 +541,7 @@ void loadfonts()
   }
 }
 
-auto initgamegraphics() -> bool
+auto GlobalStateGameRendering::initgamegraphics() -> bool
 {
   bool result = true;
 
@@ -583,7 +585,7 @@ auto initgamegraphics() -> bool
 
   if (gGlobalStateInput.gamewindow == nullptr)
   {
-    showmessage("Error creating sdl3 window");
+    gGlobalStateClient.showmessage("Error creating sdl3 window");
     result = false;
     return result;
   }
@@ -594,7 +596,7 @@ auto initgamegraphics() -> bool
     return result;
   }
 
-  startinput();
+  gGlobalStateInput.startinput();
 
   if (SDL_GL_SetSwapInterval(CVar::r_swapeffect) == false)
   {
@@ -608,10 +610,13 @@ auto initgamegraphics() -> bool
   loadmaintextures();
   loadinterface();
   loadfonts();
-
-  auto &map = GS::GetGame().GetMap();
-
-  map.loadgraphics = &loadmapgraphics;
+  
+  {
+    auto &map = GS::GetGame().GetMap();
+    map.loadgraphics = [](tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop, tmapcolor bgcolorbtm) {
+      gGlobalStateMapGraphics.loadmapgraphics(mapfile, bgforce, bgcolortop, bgcolorbtm);
+    };
+  }
   if (!gfxframebuffersupported())
   {
     CVar::cl_actionsnap = false;
@@ -663,7 +668,7 @@ auto initgamegraphics() -> bool
   return result;
 }
 
-void reloadgraphics()
+void GlobalStateGameRendering::reloadgraphics()
 {
   tmapfile mapfile;
   tmapinfo mapinfo;
@@ -679,7 +684,7 @@ void reloadgraphics()
 
   freeandnullptr(mainspritesheet);
   freeandnullptr(interfacespritesheet);
-  destroymapgraphics();
+  gGlobalStateMapGraphics.destroymapgraphics();
 
   gostekdata.clear();
   scaledata.root.clear();
@@ -689,13 +694,13 @@ void reloadgraphics()
   loadmodinfo();
   loadmaintextures();
   loadinterface();
-  dotextureloading(true);
+  gGlobalStateGameRendering.dotextureloading(true);
 
   loadmapfile(GS::GetFileSystem(), mapinfo, mapfile);
-  loadmapgraphics(mapfile, bgforce, color[0], color[1]);
+  gGlobalStateMapGraphics.loadmapgraphics(mapfile, bgforce, color[0], color[1]);
 }
 
-void destroygamegraphics()
+void GlobalStateGameRendering::destroygamegraphics()
 {
   std::int32_t i;
 
@@ -729,7 +734,7 @@ void destroygamegraphics()
     gfxdeletetexture(rendertargetaa);
   }
 
-  destroymapgraphics();
+  gGlobalStateMapGraphics.destroymapgraphics();
   gfxdestroycontext();
 
   initialized = false;
@@ -820,8 +825,10 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
       if (gGlobalStateGame.spark[i].active)
       {
         j = gGlobalStateGame.spark[i].num;
-        s.sparkpos[i] = GetSparkParts().pos[j];
-        GetSparkParts().pos[j] = lerp(GetSparkParts().oldpos[j], GetSparkParts().pos[j], p);
+        s.sparkpos[i] = gGlobalStateSparks.GetSparkParts().pos[j];
+        gGlobalStateSparks.GetSparkParts().pos[j] =
+          lerp(gGlobalStateSparks.GetSparkParts().oldpos[j],
+               gGlobalStateSparks.GetSparkParts().pos[j], p);
         gGlobalStateGame.spark[i].lifefloat =
           lerp(gGlobalStateGame.spark[i].lifeprev, gGlobalStateGame.spark[i].life, p);
       }
@@ -883,7 +890,7 @@ void restorestate(tinterpolationstate &s)
   {
     if (gGlobalStateGame.spark[i].active)
     {
-      GetSparkParts().pos[gGlobalStateGame.spark[i].num] = s.sparkpos[i];
+      gGlobalStateSparks.GetSparkParts().pos[gGlobalStateGame.spark[i].num] = s.sparkpos[i];
     }
   }
 
@@ -898,7 +905,7 @@ void restorestate(tinterpolationstate &s)
   }
 }
 
-void renderframe(double timeelapsed, double framepercent, bool paused)
+void GlobalStateGameRendering::renderframe(double timeelapsed, double framepercent, bool paused)
 {
   ZoneScopedN("RenderFrame");
   auto &sprite_system = SpriteSystem::Get();
@@ -962,7 +969,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
     gfxtransform(gfxmat3ortho(0, w, 0, h));
     gfxtextpixelratio(
       vector2(w / gGlobalStateClientGame.renderwidth, h / gGlobalStateClientGame.renderheight));
-    renderactionsnaptext(timeelapsed);
+    gGlobalStateInterfaceGraphics.renderactionsnaptext(timeelapsed);
     gfxend();
   }
   else
@@ -1001,7 +1008,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
     if (CVar::r_animations)
     {
-      updateprops(timeelapsed);
+      gGlobalStateMapGraphics.updateprops(timeelapsed);
     }
 
     gfxtransform(gfxmat3ortho(0, 1, dy, h + dy));
@@ -1024,7 +1031,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
 
     if (CVar::r_renderbackground)
     {
-      renderprops(0);
+      gGlobalStateMapGraphics.renderprops(0);
     }
 
     gfxbegin();
@@ -1073,7 +1080,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
     }
 
     gfxend();
-    renderprops(1);
+    gGlobalStateMapGraphics.renderprops(1);
     gfxbegin();
 
     for (i = 1; i <= max_things; i++)
@@ -1098,7 +1105,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
     }
 
     gfxsetmipmapbias(CVar::r_mipmapbias);
-    renderprops(2);
+    gGlobalStateMapGraphics.renderprops(2);
     gfxsetmipmapbias(0);
 
     if (!CVar::r_scaleinterface)
@@ -1119,7 +1126,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
       ZoneScopedN("RenderUI");
       gfxbegin();
       gfxtransform(gfxmat3ortho(0, w, 0, h));
-      renderinterface(timeelapsed, w, h);
+      gGlobalStateInterfaceGraphics.renderinterface(timeelapsed, w, h);
       gfxend();
     }
 
@@ -1191,7 +1198,7 @@ void renderframe(double timeelapsed, double framepercent, bool paused)
   gfxpresent(CVar::r_glfinish);
 }
 
-void rendergameinfo(const std::string &textstring)
+void GlobalStateGameRendering::rendergameinfo(const std::string &textstring)
 {
   tgfxrect rc;
 
@@ -1200,7 +1207,7 @@ void rendergameinfo(const std::string &textstring)
   gfxtransform(
     gfxmat3ortho(0, gGlobalStateClientGame.windowwidth, 0, gGlobalStateClientGame.windowheight));
   gfxclear(49, 61, 79, 255);
-  setfontstyle(font_menu);
+  gGlobalStateGameRendering.setfontstyle(font_menu);
   gfxtextcolor(rgba(0xffffff));
   gfxtextshadow(1, 1, rgba(0));
   gfxtextpixelratio(vector2(1, 1));
@@ -1208,7 +1215,7 @@ void rendergameinfo(const std::string &textstring)
   gfxbegin();
   gfxdrawtext((float)((gGlobalStateClientGame.windowwidth - rc.width())) / 2,
               (float)((gGlobalStateClientGame.windowheight - rc.height())) / 2);
-  setfontstyle(font_small);
+  gGlobalStateGameRendering.setfontstyle(font_small);
   rc = gfxtextmetrics(("Press ESC to quit the game"));
   gfxdrawtext((float)((gGlobalStateClientGame.windowwidth - rc.width())) / 2,
               ((float)((gGlobalStateClientGame.windowheight - rc.height())) / 2) + 100);
@@ -1267,7 +1274,7 @@ auto getsizeconstraint(std::int32_t id, std::int32_t &w, std::int32_t &h) -> boo
   return result;
 }
 
-auto dotextureloading(bool finishloading) -> bool
+auto GlobalStateGameRendering::dotextureloading(bool finishloading) -> bool
 {
   std::int32_t i;
   std::int32_t j;
@@ -1352,7 +1359,7 @@ auto dotextureloading(bool finishloading) -> bool
       s = s + fmt::format("{}x{} ", mainspritesheet->gettexture(i)->width(),
                           mainspritesheet->gettexture(i)->height());
 
-      settexturefilter(mainspritesheet->gettexture(i), true);
+      gGlobalStateMapGraphics.settexturefilter(mainspritesheet->gettexture(i), true);
     }
 
     s[length(s)] = ')';
@@ -1384,7 +1391,7 @@ auto dotextureloading(bool finishloading) -> bool
       s = s + fmt::format("{}x{} ", interfacespritesheet->gettexture(i)->width(),
                           interfacespritesheet->gettexture(i)->height());
 
-      settexturefilter(interfacespritesheet->gettexture(i), false);
+      gGlobalStateMapGraphics.settexturefilter(interfacespritesheet->gettexture(i), false);
     }
 
     s[length(s)] = ')';
@@ -1400,18 +1407,21 @@ auto dotextureloading(bool finishloading) -> bool
   return dotextureloading_result;
 }
 
-void setfontstyle(std::int32_t style)
+void GlobalStateGameRendering::setfontstyle(std::int32_t style)
 {
   gfxsetfonttable(fontstyles[style].font, fontstyles[style].tableindex);
 }
 
-void setfontstyle(std::int32_t style, float scale)
+void GlobalStateGameRendering::setfontstyle(std::int32_t style, float scale)
 {
   gfxsetfont(fontstyles[style].font, scale * fontstyles[style].size, fontstyles[style].flags,
              fontstyles[style].stretch);
 }
 
-auto fontstylesize(std::int32_t style) -> std::int32_t { return fontstyles[style].size; }
+auto GlobalStateGameRendering::fontstylesize(std::int32_t style) -> std::int32_t
+{
+  return fontstyles[style].size;
+}
 
 void gfxlogcallback(const std::string &s)
 {
@@ -1424,7 +1434,10 @@ void gfxlogcallback(const std::string &s)
 #pragma region tests
 #include <doctest/doctest.h>
 #include <stb_image_write.h>
+#include <ApprovalTests/Approvals.h>
+#include <ApprovalTests/core/ApprovalWriter.h>
 #include <thread>
+#include "GameMenus.hpp"
 
 #include "SdlApp.hpp"
 
@@ -1460,8 +1473,6 @@ private:
   std::unique_ptr<std::uint8_t[]> m_data;
 };
 
-
-extern void initgamemenus();
 namespace
 {
 
@@ -1492,7 +1503,7 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
   gfxSetGpuDevice(app.GetDevice());
   gfxinitcontext(app.GetWindow(), false, false);
   loadfonts();
-  rendergameinfo("Test");
+  gGlobalStateGameRendering.rendergameinfo("Test");
   auto data =
     gfxsavescreen(0, 0, gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight);
   PngWriter writer(gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight,
@@ -1523,20 +1534,20 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(true))
   gGlobalStateGameRendering.textures = new pgfxsprite[GFX::END + 1];
   auto ret = getmapinfo(fs, "ctf_Ash", userDirectory, gGlobalStateMapGraphics.mapgfx.mapinfo);
   CHECK(ret);
-  reloadgraphics();
+  gGlobalStateGameRendering.reloadgraphics();
   gGlobalStateClient.gClient.loadweaponnames(fs, gGlobalStateClient.gundisplayname,
                                              gGlobalStateClient.moddir);
   createweaponsbase(GS::GetWeaponSystem().GetGuns());
-  initgamemenus();
+  gGlobalStateGameMenus.initgamemenus();
   loadfonts();
-  renderframe(1.0f, 1.0f, true);
+  gGlobalStateGameRendering.renderframe(1.0f, 1.0f, true);
   std::this_thread::sleep_for(16ms);
   auto data =
     gfxsavescreen(0, 0, gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight);
   PngWriter writer(gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight,
                    std::move(data));
   ApprovalTests::Approvals::verify(writer);
-  destroymapgraphics();
+  gGlobalStateMapGraphics.destroymapgraphics();
   gfxdestroycontext();
   delete[] gGlobalStateGameRendering.textures;
   GlobalSystems<Config::CLIENT_MODULE>::Deinit();

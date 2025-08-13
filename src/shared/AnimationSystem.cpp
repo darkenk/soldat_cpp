@@ -150,10 +150,10 @@ void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 
   if constexpr (Config::GetModule() == Config::CLIENT_MODULE)
   {
-    GetSparkParts().destroy();
-    GetSparkParts().timestep = 1;
-    GetSparkParts().gravity = grav / 1.4;
-    GetSparkParts().edamping = 0.998;
+    gGlobalStateSparks.GetSparkParts().destroy();
+    gGlobalStateSparks.GetSparkParts().timestep = 1;
+    gGlobalStateSparks.GetSparkParts().gravity = grav / 1.4;
+    gGlobalStateSparks.GetSparkParts().edamping = 0.998;
   }
 }
 

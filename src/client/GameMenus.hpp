@@ -23,6 +23,11 @@ struct tgamemenu
 
 struct GlobalStateGameMenus
 {
+  bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex);
+  bool gamemenuclick();
+  void gamemenumousemove();
+  void gamemenushow(pgamemenu menu, bool show = true);
+  void initgamemenus();
   std::vector<tgamemenu> gamemenu;
   pgamemenu hoveredmenu;
   pgamebutton hoveredbutton;
@@ -37,9 +42,3 @@ struct GlobalStateGameMenus
 };
 
 extern GlobalStateGameMenus gGlobalStateGameMenus;
-
-void initgamemenus();
-void gamemenushow(pgamemenu menu, bool show = true);
-bool gamemenuaction(pgamemenu menu, std::int32_t buttonindex);
-void gamemenumousemove();
-bool gamemenuclick();

@@ -76,8 +76,8 @@ void serverbulletsnapshot(const std::uint8_t i, std::uint8_t tonum, bool forced)
                           sprite.player->camera, GetBulletParts().velocity[i].x) or
             forced)
         {
-          GetServerNetwork()->SendData(&bulletmsg, sizeof(bulletmsg), sprite.player->peer,
-                                       false);
+          gGlobalStateNetworkServer.GetServerNetwork()->SendData(&bulletmsg, sizeof(bulletmsg),
+                                                                 sprite.player->peer, false);
         }
       }
     }
@@ -191,7 +191,7 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
 
   if ((style == bullet_style_thrownknife) && (!weaponSystem.IsEnabled(knife)))
   {
-    if (kickplayer(p, true, kick_cheat, day, "Knife-Spawn Cheat"))
+    if (gGlobalStateServer.kickplayer(p, true, kick_cheat, day, "Knife-Spawn Cheat"))
     {
       return;
     }
@@ -346,7 +346,7 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
           GS::GetMainConsole().console(std::string("** DETECTED KNIFE CHEATING FROM ") +
                                          sprite.player->name + " **",
                                        server_message_color);
-          kickplayer(p, true, kick_cheat, day, "Knife Throw Cheat");
+          gGlobalStateServer.kickplayer(p, true, kick_cheat, day, "Knife Throw Cheat");
         }
       }
     }

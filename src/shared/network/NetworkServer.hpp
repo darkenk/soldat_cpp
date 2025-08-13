@@ -14,26 +14,6 @@
 
 struct SteamNetworkingMessage_t;
 
-// We're assigning a dummy player class to all sprites that are currently not being controlled
-// by a player. This avoids nasty surprises with older code that reads .Player despite .Active
-// being false. A player object is swapped in by CreateSprite as needed. For bots we simply leave
-// the bot object and free it when it is replaced.
-// Albeit this approach is very robust I'd prefer if we get rid of this and fix all .Active
-// checks (if any) later. Alternatively we could move a good bit if info from Player to Sprite.
-struct GlobalStateNetworkServer
-{
-  std::int32_t servertickcounter;
-  PascalArray<std::int32_t, 1, max_players> noclientupdatetime;
-  PascalArray<std::int32_t, 1, max_players> messagesasecnum;
-  PascalArray<std::uint8_t, 1, max_players> floodwarnings;
-  PascalArray<std::uint8_t, 1, max_players> pingwarnings;
-  PascalArray<std::int32_t, 1, max_players> bullettime;
-  PascalArray<std::int32_t, 1, max_players> grenadetime;
-  PascalArray<bool, 1, max_players> knifecan;
-};
-
-extern GlobalStateNetworkServer gGlobalStateNetworkServer;
-
 using HSoldatMessageId = std::uint32_t;
 
 class NetworkServer : public TNetwork
@@ -86,7 +66,25 @@ private:
   bool SendData(const std::byte *data, std::int32_t size, HSoldatNetConnection peer, bool reliable);
 };
 
+// We're assigning a dummy player class to all sprites that are currently not being controlled
+// by a player. This avoids nasty surprises with older code that reads .Player despite .Active
+// being false. A player object is swapped in by CreateSprite as needed. For bots we simply leave
+// the bot object and free it when it is replaced.
+// Albeit this approach is very robust I'd prefer if we get rid of this and fix all .Active
+// checks (if any) later. Alternatively we could move a good bit if info from Player to Sprite.
+struct GlobalStateNetworkServer
+{
+  NetworkServer *GetServerNetwork();
+  bool DeinitServerNetwork();
+  bool InitNetworkServer(const std::string_view &host, std::uint32_t port);
+  std::int32_t servertickcounter;
+  PascalArray<std::int32_t, 1, max_players> noclientupdatetime;
+  PascalArray<std::int32_t, 1, max_players> messagesasecnum;
+  PascalArray<std::uint8_t, 1, max_players> floodwarnings;
+  PascalArray<std::uint8_t, 1, max_players> pingwarnings;
+  PascalArray<std::int32_t, 1, max_players> bullettime;
+  PascalArray<std::int32_t, 1, max_players> grenadetime;
+  PascalArray<bool, 1, max_players> knifecan;
+};
 
-bool InitNetworkServer(const std::string_view &host, std::uint32_t port);
-NetworkServer *GetServerNetwork();
-bool DeinitServerNetwork();
+extern GlobalStateNetworkServer gGlobalStateNetworkServer;

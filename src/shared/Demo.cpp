@@ -462,7 +462,7 @@ void tdemoplayer::position(std::int32_t ticks)
     }
 
     GS::GetMainConsole().ResetCount();
-    GetBigConsole().ResetCount();
+    gGlobalStateClient.GetBigConsole().ResetCount();
   }
 
   GS::GetGame().SetGoalTicks(default_goalticks * 20);

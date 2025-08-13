@@ -162,7 +162,7 @@ void update_frame()
           sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).deadmeat and
           (CVar::sv_realisticmode) && (CVar::sv_survivalmode) && !game.GetSurvivalEndRound())
       {
-        gGlobalStateClient.camerafollowsprite = getcameratarget(false);
+        gGlobalStateClient.camerafollowsprite = gGlobalStateClientGame.getcameratarget(false);
       }
     }
 
@@ -256,7 +256,7 @@ void update_frame()
       if (game.GetMapchangename() != "EXIT*!*")
       {
         game.changemap();
-        resetweaponstats();
+        gGlobalStateClientGame.resetweaponstats();
       }
     }
 
@@ -318,7 +318,7 @@ void update_frame()
 
           if (idlecounter > Constants::IDLE_KICK)
           {
-            clientdisconnect(*GetNetwork());
+            clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
             gGlobalStateClient.gClient.exittomenu();
           }
 
@@ -351,7 +351,7 @@ void update_frame()
                                            (inttostr(game.GetTimelimitcounter() / 60)) + ' ' +
                                            _("seconds"),
                                          game_message_color);
-            playsound(SfxEffect::signal);
+            gGlobalStateSound.playsound(SfxEffect::signal);
           }
         }
       }
@@ -363,7 +363,7 @@ void update_frame()
                                          (inttostr(game.GetTimelimitcounter() / 60)) + ' ' +
                                          _("seconds"),
                                        game_message_color);
-          playsound(SfxEffect::signal);
+          gGlobalStateSound.playsound(SfxEffect::signal);
         }
       }
       else if (game.GetTimelimitcounter() < 18001)
@@ -374,7 +374,7 @@ void update_frame()
                                          (inttostr(game.GetTimelimitcounter() / 3600)) + ' ' +
                                          _("minutes"),
                                        game_message_color);
-          playsound(SfxEffect::signal);
+          gGlobalStateSound.playsound(SfxEffect::signal);
         }
       }
       else if (game.GetTimelimitcounter() % 18000 == 0)
@@ -383,7 +383,7 @@ void update_frame()
                                        (inttostr(game.GetTimelimitcounter() / 3600)) + ' ' +
                                        _("minutes"),
                                      game_message_color);
-        playsound(SfxEffect::signal);
+        gGlobalStateSound.playsound(SfxEffect::signal);
       }
     }
 
@@ -421,7 +421,7 @@ void update_frame()
 
     // Consoles Update
     GS::GetMainConsole().Update();
-    GetKillConsole().Update(true);
+    gGlobalStateClient.GetKillConsole().Update(true);
 
     if (gGlobalStateClientGame.chattimecounter > 0)
     {
@@ -517,7 +517,7 @@ void update_frame()
             screenfile = GS::GetGame().GetUserDirectory() + "screens/" +
                          formatdatetime("yyyy-mm-dd_hh-nn-ss_", now()) + map.name + "_endgame.png";
 #endif
-      takescreenshot(screenfile);
+      gGlobalStateGameRendering.takescreenshot(screenfile);
     }
   }
 

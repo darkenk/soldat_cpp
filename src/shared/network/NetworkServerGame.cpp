@@ -58,7 +58,7 @@ void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, Net
   {
     if (strtoint(GS::GetGame().GetVoteTarget()) == i)
     {
-      kickplayer(i, true, kick_voted, five_minutes, "Vote Kicked (Left game)");
+      gGlobalStateServer.kickplayer(i, true, kick_voted, five_minutes, "Vote Kicked (Left game)");
       GS::GetGame().stopvote();
       return;
     }
@@ -120,13 +120,13 @@ void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, Net
   sprite_system.GetSprite(i).kill();
   sprite_system.GetSprite(i).player = std::make_shared<TServerPlayer>();
   NotImplemented("Check if &player is used properly to remove player");
-  auto players = GetServerNetwork()->GetPlayers();
+  auto players = gGlobalStateNetworkServer.GetServerNetwork()->GetPlayers();
   auto peer = player->peer;
   players.erase(std::remove_if(players.begin(), players.end(),
                                [&player](const auto &v) { return v.get() == player; }),
                 players.end());
 
-  GetServerNetwork()->CloseConnection(peer, true);
+  gGlobalStateNetworkServer.GetServerNetwork()->CloseConnection(peer, true);
 
   dobalancebots(1, sprite_system.GetSprite(i).player->team);
 }
@@ -166,8 +166,8 @@ void servermapchange(std::uint8_t id)
   else if ((sprite_system.GetSprite(id).active) &&
            (sprite_system.GetSprite(id).player->controlmethod == human))
   {
-    GetServerNetwork()->SendData(&mapchangemsg, sizeof(mapchangemsg),
-                                 sprite_system.GetSprite(id).player->peer, true);
+    gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+      &mapchangemsg, sizeof(mapchangemsg), sprite_system.GetSprite(id).player->peer, true);
   }
 }
 
@@ -183,7 +183,8 @@ void serverflaginfo(std::uint8_t style, std::uint8_t who)
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->SendData(&flagmsg, sizeof(flagmsg), sprite.player->peer, true);
+      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&flagmsg, sizeof(flagmsg),
+                                                             sprite.player->peer, true);
     }
   }
 }
@@ -200,7 +201,8 @@ void serveridleanimation(std::uint8_t num, std::int16_t style)
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->SendData(&idlemsg, sizeof(idlemsg), sprite.player->peer, true);
+      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&idlemsg, sizeof(idlemsg),
+                                                             sprite.player->peer, true);
     }
   }
 }
@@ -221,7 +223,8 @@ void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string ta
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->SendData(&votemsg, sizeof(votemsg), sprite.player->peer, true);
+      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&votemsg, sizeof(votemsg),
+                                                             sprite.player->peer, true);
     }
   }
 }
@@ -236,7 +239,8 @@ void serversendvoteoff()
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->SendData(&votemsg, sizeof(votemsg), sprite.player->peer, true);
+      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&votemsg, sizeof(votemsg),
+                                                             sprite.player->peer, true);
     }
   }
 }
@@ -344,8 +348,8 @@ void serverhandlevotemap(tmsgheader* netmessage, std::int32_t size, NetworkServe
   votemapreplymsg.count = gGlobalStateServer.mapslist.size();
   strcpy(votemapreplymsg.mapname.data(), gGlobalStateServer.mapslist[votemapmsg->mapid].data());
 
-  GetServerNetwork()->SendData(&votemapreplymsg, sizeof(votemapreplymsg),
-                               sprite_system.GetSprite(i).player->peer, true);
+  gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+    &votemapreplymsg, sizeof(votemapreplymsg), sprite_system.GetSprite(i).player->peer, true);
 }
 
 void serverhandlechangeteam(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
@@ -384,7 +388,8 @@ void serversyncmsg(std::int32_t tonum)
     {
       if (sprite.player->controlmethod == human)
       {
-        GetServerNetwork()->SendData(&syncmsg, sizeof(syncmsg), sprite.player->peer, true);
+        gGlobalStateNetworkServer.GetServerNetwork()->SendData(&syncmsg, sizeof(syncmsg),
+                                                               sprite.player->peer, true);
       }
     }
   }

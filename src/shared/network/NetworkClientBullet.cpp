@@ -46,7 +46,7 @@ void clientsendbullet(std::uint8_t i)
   bulletmsg.clientticks = gGlobalStateNetworkClient.clienttickcount;
   bulletmsg.seed = b.seed;
 
-  GetNetwork()->SendData(&bulletmsg, sizeof(bulletmsg), false);
+  gGlobalStateNetworkClient.GetNetwork()->SendData(&bulletmsg, sizeof(bulletmsg), false);
   NotImplemented("network");
 #if 0
     if (GS::GetDemoRecorder().active())

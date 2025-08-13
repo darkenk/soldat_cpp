@@ -31,13 +31,13 @@
 #include "shared/network/Net.hpp"
 
 template <Config::Module M>
-auto GetSparkParts() -> particlesystem &
+auto GlobalStateSparks::GetSparkParts() -> particlesystem &
 {
   static particlesystem b;
   return b;
 }
 
-template particlesystem &GetSparkParts();
+template particlesystem &GlobalStateSparks::GetSparkParts();
 
 GlobalStateSparks gGlobalStateSparks{
   .sparkscount{},
@@ -45,8 +45,8 @@ GlobalStateSparks gGlobalStateSparks{
 
 using std::numbers::pi;
 
-auto createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::uint8_t sowner,
-                 std::int32_t life) -> std::int32_t
+auto GlobalStateSparks::createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle,
+                                    std::uint8_t sowner, std::int32_t life) -> std::int32_t
 {
   ZoneScopedN("CreateSpark");
   auto &sprite_system = SpriteSystem::Get();
@@ -102,7 +102,7 @@ auto createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::ui
       break;
     }
     if (!gGlobalStateGame.spark[i].active && (gGlobalStateGame.spark[i].style == 0) &&
-        !GetSparkParts().active[i])
+        !gGlobalStateSparks.GetSparkParts().active[i])
     {
       result = i;
       break;
@@ -122,7 +122,7 @@ auto createspark(tvector2 spos, tvector2 svelocity, std::uint8_t sstyle, std::ui
   m = 1;
 
   // activate sprite part
-  GetSparkParts().createpart(spos, svelocity, m, i);
+  gGlobalStateSparks.GetSparkParts().createpart(spos, svelocity, m, i);
 
   result = i;
   return result;
@@ -143,7 +143,7 @@ void tspark::update()
 
   if (!(noneuler_style.contains(style)))
   {
-    GetSparkParts().doeulertimestepfor(num);
+    gGlobalStateSparks.GetSparkParts().doeulertimestepfor(num);
   }
 
   checkoutofbounds();
@@ -151,7 +151,8 @@ void tspark::update()
   // check collision with map
   if (collidable_style.contains(style))
   {
-    checkmapcollision(GetSparkParts().pos[num].x, GetSparkParts().pos[num].y);
+    checkmapcollision(gGlobalStateSparks.GetSparkParts().pos[num].x,
+                      gGlobalStateSparks.GetSparkParts().pos[num].y);
   }
 
   // wobble the screen when explosion
@@ -160,7 +161,8 @@ void tspark::update()
   {
     if ((style == 17) || (style == 12) || (style == 14) || (style == 15) || (style == 28))
     {
-      if (GS::GetGame().pointvisible(GetSparkParts().pos[num].x, GetSparkParts().pos[num].y,
+      if (GS::GetGame().pointvisible(gGlobalStateSparks.GetSparkParts().pos[num].x,
+                                     gGlobalStateSparks.GetSparkParts().pos[num].y,
                                      gGlobalStateClient.camerafollowsprite))
       {
         if (life > explosion_anims * 2.3)
@@ -180,7 +182,8 @@ void tspark::update()
   // smoke luska
   if ((CVar::r_maxsparks > (max_sparks - 10)) && (style > 64) && (life > 235) && (Random(32) == 0))
   {
-    createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 31, owner, 40);
+    gGlobalStateSparks.createspark(gGlobalStateSparks.GetSparkParts().pos[num],
+                                   gGlobalStateSparks.GetSparkParts().velocity[num], 31, owner, 40);
   }
 
   // smoke m79 luska
@@ -188,24 +191,31 @@ void tspark::update()
   {
     if ((life > 235) && (Random(6) == 0))
     {
-      createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 31, owner, 40);
+      gGlobalStateSparks.createspark(gGlobalStateSparks.GetSparkParts().pos[num],
+                                     gGlobalStateSparks.GetSparkParts().velocity[num], 31, owner,
+                                     40);
     }
 
     if ((life > 85) && (life < 235) && (Random(15) == 0))
     {
-      createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 31, owner, 35);
+      gGlobalStateSparks.createspark(gGlobalStateSparks.GetSparkParts().pos[num],
+                                     gGlobalStateSparks.GetSparkParts().velocity[num], 31, owner,
+                                     35);
     }
 
     if ((life < 85) && (Random(24) == 0))
     {
-      createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 31, owner, 30);
+      gGlobalStateSparks.createspark(gGlobalStateSparks.GetSparkParts().pos[num],
+                                     gGlobalStateSparks.GetSparkParts().velocity[num], 31, owner,
+                                     30);
     }
   }
 
   // iskry
   if ((CVar::r_maxsparks > (max_sparks - 10)) && (style == 2) && (Random(8) == 0))
   {
-    createspark(GetSparkParts().pos[num], vector2(0, 0), 26, owner, 35);
+    gGlobalStateSparks.createspark(gGlobalStateSparks.GetSparkParts().pos[num], vector2(0, 0), 26,
+                                   owner, 35);
   }
 
   lifeprev = life;
@@ -235,8 +245,9 @@ void tspark::render() const
       {
         if (sprite_system.GetSprite(owner).visible == 0)
         {
-          if (map.raycast(GetSparkParts().pos[num], sprite_system.GetPlayerSprite().skeleton.pos[9],
-                          grenvel, gGlobalStateGame.gamewidth, true) or
+          if (map.raycast(gGlobalStateSparks.GetSparkParts().pos[num],
+                          sprite_system.GetPlayerSprite().skeleton.pos[9], grenvel,
+                          gGlobalStateGame.gamewidth, true) or
               (sprite_system.GetSprite(owner).visible == 0))
           {
             return;
@@ -246,8 +257,8 @@ void tspark::render() const
     }
   }
 
-  _p.x = GetSparkParts().pos[num].x;
-  _p.y = GetSparkParts().pos[num].y;
+  _p.x = gGlobalStateSparks.GetSparkParts().pos[num].x;
+  _p.y = gGlobalStateSparks.GetSparkParts().pos[num].y;
   l = lifefloat;
 
   switch (style)
@@ -653,10 +664,11 @@ auto tspark::checkmapcollision(float x, float y) -> bool
             vec2normalize(perp, perp);
             vec2scale(perp, perp, d);
 
-            GetSparkParts().velocity[num] = vec2subtract(GetSparkParts().velocity[num], perp);
+            gGlobalStateSparks.GetSparkParts().velocity[num] =
+              vec2subtract(gGlobalStateSparks.GetSparkParts().velocity[num], perp);
 
-            vec2scale(GetSparkParts().velocity[num], GetSparkParts().velocity[num],
-                      spark_surfacecoef);
+            vec2scale(gGlobalStateSparks.GetSparkParts().velocity[num],
+                      gGlobalStateSparks.GetSparkParts().velocity[num], spark_surfacecoef);
 
             switch (style)
             {
@@ -669,14 +681,15 @@ auto tspark::checkmapcollision(float x, float y) -> bool
               {
                 if (Random(2) == 0)
                 {
-                  createspark(pos, perp, 26, owner, 35);
+                  gGlobalStateSparks.createspark(pos, perp, 26, owner, 35);
                 }
                 else
                 {
-                  createspark(pos, perp, 27, owner, 35);
+                  gGlobalStateSparks.createspark(pos, perp, 27, owner, 35);
                 }
 
-                playsound(SfxEffect::ts, GetSparkParts().pos[num]);
+                gGlobalStateSound.playsound(SfxEffect::ts,
+                                            gGlobalStateSparks.GetSparkParts().pos[num]);
               }
             }
             break;
@@ -687,11 +700,11 @@ auto tspark::checkmapcollision(float x, float y) -> bool
               perp.y = -perp.y;
               if (Random(7) == 0)
               {
-                createspark(pos, perp, 26, owner, 35);
+                gGlobalStateSparks.createspark(pos, perp, 26, owner, 35);
               }
               else
               {
-                createspark(pos, perp, 27, owner, 35);
+                gGlobalStateSparks.createspark(pos, perp, 27, owner, 35);
               }
 
               if (collidecount > 4)
@@ -704,7 +717,9 @@ auto tspark::checkmapcollision(float x, float y) -> bool
             case 5: {
               if (style == 5)
               {
-                createspark(GetSparkParts().pos[num], GetSparkParts().velocity[num], 55, owner, 30);
+                gGlobalStateSparks.createspark(gGlobalStateSparks.GetSparkParts().pos[num],
+                                               gGlobalStateSparks.GetSparkParts().velocity[num], 55,
+                                               owner, 30);
               }
 
               if (collidecount > 1)
@@ -716,7 +731,8 @@ auto tspark::checkmapcollision(float x, float y) -> bool
             case 6: {
               if ((collidecount == 0) || (collidecount == 2) || (collidecount == 4))
               {
-                playsound(SfxEffect::clipfall, GetSparkParts().pos[num]);
+                gGlobalStateSound.playsound(SfxEffect::clipfall,
+                                            gGlobalStateSparks.GetSparkParts().pos[num]);
               }
 
               if (collidecount > 4)
@@ -742,7 +758,8 @@ auto tspark::checkmapcollision(float x, float y) -> bool
             case 73: {
               if ((collidecount == 0) || (collidecount == 2) || (collidecount == 4))
               {
-                playsound(SfxEffect::shell + Random(2), GetSparkParts().pos[num]);
+                gGlobalStateSound.playsound(SfxEffect::shell + Random(2),
+                                            gGlobalStateSparks.GetSparkParts().pos[num]);
               }
               if (collidecount > 4)
               {
@@ -751,7 +768,8 @@ auto tspark::checkmapcollision(float x, float y) -> bool
             }
             break;
             case 51: {
-              playsound(SfxEffect::gaugeshell, GetSparkParts().pos[num]);
+              gGlobalStateSound.playsound(SfxEffect::gaugeshell,
+                                          gGlobalStateSparks.GetSparkParts().pos[num]);
               if (collidecount > 4)
               {
                 kill();
@@ -776,7 +794,8 @@ auto tspark::checkmapcollision(float x, float y) -> bool
             case 23: {
               if ((collidecount == 0) || (collidecount == 4))
               {
-                playsound(SfxEffect::clipfall, GetSparkParts().pos[num]);
+                gGlobalStateSound.playsound(SfxEffect::clipfall,
+                                            gGlobalStateSparks.GetSparkParts().pos[num]);
               }
 
               if (collidecount > 4)
@@ -791,11 +810,11 @@ auto tspark::checkmapcollision(float x, float y) -> bool
               perp.y = -perp.y;
               if (Random(2) == 0)
               {
-                createspark(pos, perp, 58, owner, 50);
+                gGlobalStateSparks.createspark(pos, perp, 58, owner, 50);
               }
               else
               {
-                createspark(pos, perp, 58, owner, 50);
+                gGlobalStateSparks.createspark(pos, perp, 58, owner, 50);
               }
             }
             break;
@@ -819,7 +838,7 @@ void tspark::kill()
   style = 0;
   if (num > 0)
   {
-    GetSparkParts().active[num] = false;
+    gGlobalStateSparks.GetSparkParts().active[num] = false;
   }
 }
 
@@ -830,7 +849,7 @@ void tspark::checkoutofbounds()
   auto &map = GS::GetGame().GetMap();
 
   bound = map.sectorsnum * map.GetSectorsDivision() - 10;
-  sparkpartspos = &GetSparkParts().pos[num];
+  sparkpartspos = &gGlobalStateSparks.GetSparkParts().pos[num];
 
   if ((fabs(sparkpartspos->x) > bound) || (fabs(sparkpartspos->y) > bound))
   {

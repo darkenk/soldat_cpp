@@ -67,7 +67,7 @@ void clienthandleheartbeat(NetworkContext *netmessage)
     {
       if (heartbeat->teamscore[team_bravo] % 5 == 0)
       {
-        playsound(SfxEffect::infilt_point);
+        gGlobalStateSound.playsound(SfxEffect::infilt_point);
       }
     }
   }
@@ -78,14 +78,14 @@ void clienthandleheartbeat(NetworkContext *netmessage)
     {
       if (heartbeat->teamscore[team_alpha] % 5 == 0)
       {
-        playsound(SfxEffect::infilt_point);
+        gGlobalStateSound.playsound(SfxEffect::infilt_point);
       }
     }
     if (heartbeat->teamscore[team_bravo] > GS::GetGame().GetTeamScore(team_bravo))
     {
       if (heartbeat->teamscore[team_bravo] % 5 == 0)
       {
-        playsound(SfxEffect::infilt_point);
+        gGlobalStateSound.playsound(SfxEffect::infilt_point);
       }
     }
   }
@@ -109,7 +109,7 @@ void clienthandleheartbeat(NetworkContext *netmessage)
   if (gGlobalStateClient.badmapidcount < 1)
   {
     GS::GetMainConsole().console(_("Wrong map version detected"), server_message_color);
-    clientdisconnect(*GetNetwork());
+    clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
     GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
     return;
   }

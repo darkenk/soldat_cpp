@@ -23,8 +23,8 @@ GlobalStateInput gGlobalStateInput{
 
 auto constexpr LOG = "input";
 
-auto bindkey(const std::string &key, const std::string &action, const std::string &command,
-             std::uint32_t modifier) -> bool
+auto GlobalStateInput::bindkey(const std::string &key, const std::string &action,
+                               const std::string &command, std::uint32_t modifier) -> bool
 {
   bool bindkey_result = false;
   tbind bind;
@@ -46,13 +46,13 @@ auto bindkey(const std::string &key, const std::string &action, const std::strin
     return bindkey_result;
   }
 
-  if (findkeybind(modifier, (SDL_Scancode)bind.keyid) != nullptr)
+  if (gGlobalStateInput.findkeybind(modifier, (SDL_Scancode)bind.keyid) != nullptr)
   {
     LogWarn(LOG, "Key {} is already binded", key);
     return bindkey_result;
   }
 
-  bind.action = GetActionEnum(action.substr(1));
+  bind.action = gGlobalStateInput.GetActionEnum(action.substr(1));
 
   bind.command = command;
   bind.keymod = modifier;
@@ -65,7 +65,7 @@ auto bindkey(const std::string &key, const std::string &action, const std::strin
   return bindkey_result;
 }
 
-auto findkeybind(std::uint32_t keymods, SDL_Scancode keycode) -> pbind
+auto GlobalStateInput::findkeybind(std::uint32_t keymods, SDL_Scancode keycode) -> pbind
 {
   pbind findkeybind_result = nullptr;
 
@@ -80,15 +80,15 @@ auto findkeybind(std::uint32_t keymods, SDL_Scancode keycode) -> pbind
   return findkeybind_result;
 }
 
-void unbindall() { gGlobalStateInput.binds.clear(); }
+void GlobalStateInput::unbindall() { gGlobalStateInput.binds.clear(); }
 
-void startinput()
+void GlobalStateInput::startinput()
 {
   //SDL_SetWindowRelativeMouseMode(gamewindow, true);
   SDL_StopTextInput(gGlobalStateInput.gamewindow);
 }
 
-auto GetActionEnum(const std::string_view &name) -> taction
+auto GlobalStateInput::GetActionEnum(const std::string_view &name) -> taction
 {
   static const std::map<std::string_view, taction> m{
     {"none", none},

@@ -37,7 +37,7 @@ float shotlifeServer;
 float shotricochetServer;
 
 // SERVER SNAPSHOT
-void serverspritesnapshot(std::uint8_t r)
+void GlobalStateNetworkServerSprite::serverspritesnapshot(std::uint8_t r)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_serverspritesnapshot servermsg;
@@ -128,8 +128,8 @@ void serverspritesnapshot(std::uint8_t r)
           {
             if (sprite.player->controlmethod == human)
             {
-              GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), sprite.player->peer,
-                                           false);
+              gGlobalStateNetworkServer.GetServerNetwork()->SendData(&servermsg, sizeof(servermsg),
+                                                                     sprite.player->peer, false);
             }
           }
         }
@@ -143,7 +143,7 @@ void serverspritesnapshot(std::uint8_t r)
 }
 
 // SERVER SNAPSHOT MAJOR
-void serverspritesnapshotmajor(std::uint8_t r)
+void GlobalStateNetworkServerSprite::serverspritesnapshotmajor(std::uint8_t r)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_serverspritesnapshot_major servermsg;
@@ -189,8 +189,8 @@ void serverspritesnapshotmajor(std::uint8_t r)
           {
             if (sprite.player->controlmethod == human)
             {
-              GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), sprite.player->peer,
-                                           false);
+              gGlobalStateNetworkServer.GetServerNetwork()->SendData(&servermsg, sizeof(servermsg),
+                                                                     sprite.player->peer, false);
             }
           }
         }
@@ -207,7 +207,8 @@ void serverspritesnapshotmajor(std::uint8_t r)
   }
 }
 
-void serverspritesnapshotmajorfloat(const std::uint8_t who, std::uint8_t r)
+void GlobalStateNetworkServerSprite::serverspritesnapshotmajorfloat(const std::uint8_t who,
+                                                                    std::uint8_t r)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_serverspritesnapshot_major servermsg;
@@ -237,8 +238,8 @@ void serverspritesnapshotmajorfloat(const std::uint8_t who, std::uint8_t r)
     {
       if (sprite.player->controlmethod == human)
       {
-        GetServerNetwork()->SendData(&servermsg, sizeof(servermsg), sprite.player->peer,
-                                     false);
+        gGlobalStateNetworkServer.GetServerNetwork()->SendData(&servermsg, sizeof(servermsg),
+                                                               sprite.player->peer, false);
       }
     }
   }
@@ -253,7 +254,7 @@ void serverspritesnapshotmajorfloat(const std::uint8_t who, std::uint8_t r)
 }
 
 // SERVER SKELETON SNAPSHOT
-void serverskeletonsnapshot(std::uint8_t r)
+void GlobalStateNetworkServerSprite::serverskeletonsnapshot(std::uint8_t r)
 {
   tmsg_serverskeletonsnapshot skeletonmsg;
 
@@ -280,8 +281,8 @@ void serverskeletonsnapshot(std::uint8_t r)
         {
           if (sprite.player->controlmethod == human)
           {
-            GetServerNetwork()->SendData(&skeletonmsg, sizeof(skeletonmsg), sprite.player->peer,
-                                         false);
+            gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+              &skeletonmsg, sizeof(skeletonmsg), sprite.player->peer, false);
           }
         }
       }
@@ -289,8 +290,8 @@ void serverskeletonsnapshot(std::uint8_t r)
   }
 }
 
-void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulletnum,
-                       std::int32_t where)
+void GlobalStateNetworkServerSprite::serverspritedeath(std::int32_t who, std::int32_t killer,
+                                                       std::int32_t bulletnum, std::int32_t where)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_spritedeath spritedeathmsg;
@@ -399,14 +400,14 @@ void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulle
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->SendData(&spritedeathmsg, sizeof(spritedeathmsg), sprite.player->peer,
-                                   false);
+      gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+        &spritedeathmsg, sizeof(spritedeathmsg), sprite.player->peer, false);
     }
   }
 }
 
 // SEND DELTAS OF SPRITE
-void serverspritedeltas(const std::uint8_t i)
+void GlobalStateNetworkServerSprite::serverspritedeltas(const std::uint8_t i)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_serverspritedelta_movement movementmsg;
@@ -458,8 +459,8 @@ void serverspritedeltas(const std::uint8_t i)
             (((vec2length(a) > posdelta) || (vec2length(b) > veldelta)) &&
              (movementmsg.keys16 != gGlobalStateNetworkServerSprite.oldmovementmsg[j][i].keys16)))
         {
-          GetServerNetwork()->SendData(&movementmsg, sizeof(movementmsg),
-                                       sprite_system.GetSprite(j).player->peer, false);
+          gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+            &movementmsg, sizeof(movementmsg), sprite_system.GetSprite(j).player->peer, false);
           gGlobalStateNetworkServerSprite.oldmovementmsg[j][i] = movementmsg;
         }
       }
@@ -479,8 +480,8 @@ void serverspritedeltas(const std::uint8_t i)
                                        sprite.player->camera) or
             (sprite.isspectator() && (sprite.player->port == 0))) // visible to sprite
         {
-          GetServerNetwork()->SendData(&weaponsmsg, sizeof(weaponsmsg), sprite.player->peer,
-                                       false);
+          gGlobalStateNetworkServer.GetServerNetwork()->SendData(&weaponsmsg, sizeof(weaponsmsg),
+                                                                 sprite.player->peer, false);
           gGlobalStateNetworkServerSprite.oldweaponsmsg[j][i] = weaponsmsg;
         }
       }
@@ -494,15 +495,15 @@ void serverspritedeltas(const std::uint8_t i)
     {
       if (helmetmsg.wearhelmet != gGlobalStateNetworkServerSprite.oldhelmetmsg[j][i].wearhelmet)
       {
-        GetServerNetwork()->SendData(&helmetmsg, sizeof(helmetmsg), sprite.player->peer,
-                                     false);
+        gGlobalStateNetworkServer.GetServerNetwork()->SendData(&helmetmsg, sizeof(helmetmsg),
+                                                               sprite.player->peer, false);
         gGlobalStateNetworkServerSprite.oldhelmetmsg[j][i] = helmetmsg;
       }
     }
   }
 }
 
-void serverspritedeltasmouse(std::uint8_t i)
+void GlobalStateNetworkServerSprite::serverspritedeltasmouse(std::uint8_t i)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_serverspritedelta_mouseaim mouseaimmsg;
@@ -517,14 +518,17 @@ void serverspritedeltasmouse(std::uint8_t i)
     const auto j = sprite.num;
     if ((sprite.player->controlmethod == human) && (j != i))
     {
-      GetServerNetwork()->SendData(&mouseaimmsg, sizeof(mouseaimmsg), sprite.player->peer,
-                                   false);
+      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&mouseaimmsg, sizeof(mouseaimmsg),
+                                                             sprite.player->peer, false);
       gGlobalStateNetworkServerSprite.oldmouseaimmsg[j][i] = mouseaimmsg;
     }
   }
 }
 
-void serverhandleclientspritesnapshot(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void GlobalStateNetworkServerSprite::serverhandleclientspritesnapshot(tmsgheader *netmessage,
+                                                                      std::int32_t size,
+                                                                      NetworkServer &network,
+                                                                      TServerPlayer *player)
 {
   auto &sprite_system = SpriteSystem::Get();
   pmsg_clientspritesnapshot clientmsg;
@@ -600,15 +604,18 @@ void serverhandleclientspritesnapshot(tmsgheader* netmessage, std::int32_t size,
 
   if (checkweaponnotallowed(i))
   {
-    kickplayer(i, true, kick_cheat, day, "Not allowed weapon");
+    gGlobalStateServer.kickplayer(i, true, kick_cheat, day, "Not allowed weapon");
     return;
   }
 
-  serverspritedeltas(i);
+  gGlobalStateNetworkServerSprite.serverspritedeltas(i);
 
   gGlobalStateNetworkServerSprite.time_spritesnapshot[i] = GS::GetGame().GetMainTickCounter();
 }
-void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void GlobalStateNetworkServerSprite::serverhandleclientspritesnapshot_mov(tmsgheader *netmessage,
+                                                                          std::int32_t size,
+                                                                          NetworkServer &network,
+                                                                          TServerPlayer *player)
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
@@ -654,12 +661,15 @@ void serverhandleclientspritesnapshot_mov(tmsgheader* netmessage, std::int32_t s
     sprite.player->knifewarnings = 0;
   }
 
-  serverspritedeltas(i);
+  gGlobalStateNetworkServerSprite.serverspritedeltas(i);
 
   gGlobalStateNetworkServerSprite.time_spritesnapshot_mov[i] = GS::GetGame().GetMainTickCounter();
 }
 
-void serverhandleclientspritesnapshot_dead(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void GlobalStateNetworkServerSprite::serverhandleclientspritesnapshot_dead(tmsgheader *netmessage,
+                                                                           std::int32_t size,
+                                                                           NetworkServer &network,
+                                                                           TServerPlayer *player)
 {
   auto &sprite_system = SpriteSystem::Get();
   pmsg_clientspritesnapshot_dead clientdeadmsg;

@@ -178,7 +178,7 @@ void clientsendplayerinfo()
         ((gGlobalStateClient.selteam > team_bravo) &&
          (gGlobalStateClient.selteam < team_spectator)))
     {
-      gamemenushow(gGlobalStateGameMenus.teammenu);
+      gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.teammenu);
       return;
     }
   }
@@ -186,7 +186,7 @@ void clientsendplayerinfo()
   {
     if (gGlobalStateClient.selteam < team_alpha)
     {
-      gamemenushow(gGlobalStateGameMenus.teammenu);
+      gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.teammenu);
       return;
     }
   }
@@ -196,7 +196,7 @@ void clientsendplayerinfo()
   {
     changemsg.header.id = msgid_changeteam;
     changemsg.team = gGlobalStateClient.selteam;
-    GetNetwork()->SendData(&changemsg, sizeof(changemsg), true);
+    gGlobalStateNetworkClient.GetNetwork()->SendData(&changemsg, sizeof(changemsg), true);
     return;
   }
 
@@ -254,7 +254,7 @@ void clientsendplayerinfo()
   playerinfo.gamemodchecksum.Dummy[4] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[4]);
   playerinfo.custommodchecksum = GS::GetGame().GetCustomModChecksum();
 
-  GetNetwork()->SendData(&playerinfo, sizeof(playerinfo), true);
+  gGlobalStateNetworkClient.GetNetwork()->SendData(&playerinfo, sizeof(playerinfo), true);
   gGlobalStateNetworkClient.clientplayersent = true;
   gGlobalStateNetworkClient.clientplayerreceivedcounter = clientplayerrecieved_time;
 }
@@ -273,7 +273,7 @@ void clientdisconnect(NetworkBase<T> &client)
     client.SendData(&playermsg, sizeof(playermsg), true);
 
     GS::GetConsoleLogFile().Log(string("Client Disconnect from ") +
-                                GetNetwork()->GetStringAddress(true));
+                                gGlobalStateNetworkClient.GetNetwork()->GetStringAddress(true));
     client.ProcessLoop();
     client.Disconnect(false);
   }
@@ -319,11 +319,12 @@ void clienthandleplayerslist(NetworkContext *netmessage)
   if (!gGlobalStateDemo.demoplayer.active())
   {
     GS::GetMainConsole().console(_("Connection accepted to") + ' ' +
-                                   (GetNetwork()->GetStringAddress(true)),
+                                   (gGlobalStateNetworkClient.GetNetwork()->GetStringAddress(true)),
                                  client_message_color);
   }
 
-  gGlobalStateClient.gClientServerIP = GetNetwork()->GetStringAddress(false);
+  gGlobalStateClient.gClientServerIP =
+    gGlobalStateNetworkClient.GetNetwork()->GetStringAddress(false);
   NotImplemented("network", "no sha1 checks");
 #if 1
   mapname = trim(playerslistmsg->mapname.data());
@@ -352,13 +353,14 @@ void clienthandleplayerslist(NetworkContext *netmessage)
         if (PHYSFS_mount((pchar)(GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod"),
                          (pchar)(string("mods/") + modname + '/'), 0) == 0)
         {
-          showmessage(_(string("Could not load mod archive (") + modname + ")."));
+          gGlobalStateClient.showmessage(
+            _(string("Could not load mod archive (") + modname + ")."));
           return;
         }
         gGlobalStateClient.moddir = string("/mods/") + modname + '/';
         GS::GetGame().SetCustomModChecksum(checksum);
         AnimationSystem::Get().LoadAnimObjects(gGlobalStateClient.moddir);
-        loadsounds(gGlobalStateClient.moddir);
+        gGlobalStateSound.loadsounds(gGlobalStateClient.moddir);
         forcegraphicsreload = true;
         gGlobalStateClient.usesservermod = true;
         GS::GetMainConsole().console(_(string("Loading server mod: ") + modname),
@@ -381,7 +383,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
       {
         gGlobalStateClient.moddir = CVar::fs_mod;
         AnimationSystem::Get().LoadAnimObjects(gGlobalStateClient.moddir);
-        loadsounds(gGlobalStateClient.moddir);
+        gGlobalStateSound.loadsounds(gGlobalStateClient.moddir);
         forcegraphicsreload = true;
         gGlobalStateClient.usesservermod = false;
       }
@@ -397,7 +399,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
     if (!map.loadmap(fs, mapstatus, CVar::r_forcebg, CVar::r_forcebg_color1,
                      CVar::r_forcebg_color2))
     {
-      rendergameinfo(_("Could not load map: ") + (mapname));
+      gGlobalStateGameRendering.rendergameinfo(_("Could not load map: ") + (mapname));
       gGlobalStateClient.gClient.exittomenu();
       return;
     }
@@ -421,7 +423,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
 
   if (forcegraphicsreload)
   {
-    reloadgraphics();
+    gGlobalStateGameRendering.reloadgraphics();
     forcegraphicsreload = false;
   }
 
@@ -433,7 +435,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
 
   if (!gGlobalStateDemo.demoplayer.active())
   {
-    rendergameinfo(_("Waiting to join game..."));
+    gGlobalStateGameRendering.rendergameinfo(_("Waiting to join game..."));
   }
 
   gGlobalStateClient.mysprite = 0;
@@ -456,7 +458,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
   gGlobalStateNetworkClient.clienttickcount = playerslistmsg->serverticks;
   gGlobalStateNetworkClient.noheartbeattime = 0;
   GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
-  gamemenushow(gGlobalStateGameMenus.escmenu, false);
+  gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.escmenu, false);
   gGlobalStateClient.limbolock = false;
 
   if (GS::GetGame().IsVoteActive())
@@ -464,7 +466,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
     GS::GetGame().stopvote();
   }
 
-  resetweaponstats();
+  gGlobalStateClientGame.resetweaponstats();
 
   gGlobalStateNetworkClient.clientplayerreceived = false;
   gGlobalStateNetworkClient.clientplayersent = false;
@@ -496,13 +498,13 @@ void clienthandleplayerslist(NetworkContext *netmessage)
 
     if (CVar::sv_gamemode == gamestyle_teammatch)
     {
-      gamemenushow(gGlobalStateGameMenus.teammenu);
+      gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.teammenu);
     }
 
     if ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf) ||
         (CVar::sv_gamemode == gamestyle_htf))
     {
-      gamemenushow(gGlobalStateGameMenus.teammenu);
+      gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.teammenu);
       if (CVar::sv_balanceteams)
       {
         gGlobalStateClient.selteam = 0;
@@ -603,31 +605,32 @@ void clienthandleunaccepted(NetworkContext *netmessage)
     break;
 
   case wrong_password:
-    rendergameinfo(_("Wrong server password"));
+    gGlobalStateGameRendering.rendergameinfo(_("Wrong server password"));
     break;
 
   case banned_ip:
-    rendergameinfo(_("You have been banned on this server. Reason:") + ' ' + text);
+    gGlobalStateGameRendering.rendergameinfo(_("You have been banned on this server. Reason:") +
+                                             ' ' + text);
     break;
 
   case server_full:
-    rendergameinfo(_("Server is full"));
+    gGlobalStateGameRendering.rendergameinfo(_("Server is full"));
     break;
 
   case invalid_handshake:
-    rendergameinfo(_("Unspecified internal protocol error"));
+    gGlobalStateGameRendering.rendergameinfo(_("Unspecified internal protocol error"));
     break;
 
   case wrong_checksum:
-    rendergameinfo(_("This server requires a different smod file."));
+    gGlobalStateGameRendering.rendergameinfo(_("This server requires a different smod file."));
     break;
 
   case anticheat_rejected:
-    rendergameinfo(_("Rejected by Anti-Cheat:") + ' ' + text);
+    gGlobalStateGameRendering.rendergameinfo(_("Rejected by Anti-Cheat:") + ' ' + text);
     break;
   }
 
-  clientdisconnect(*GetNetwork());
+  clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
   gGlobalStateClient.gClient.exittomenu();
 }
 

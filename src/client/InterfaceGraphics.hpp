@@ -14,6 +14,11 @@ auto constexpr MAX_CHAT_SIZE = 32;
 // Chat stuff
 struct GlobalStateInterfaceGraphics
 {
+  bool isdefaultinterface(const std::string &interfacename);
+  bool loadinterfacedata(const std::string &interfacename);
+  void loadinterfacearchives(const std::string &path, bool firstonly = false);
+  void renderactionsnaptext(double t);
+  void renderinterface(float timeelapsed, float width, float height);
   PascalArray<std::string, 1, MAX_CHAT_SIZE> chatmessage;
   PascalArray<bool, 1, MAX_CHAT_SIZE> chatteam;
   PascalArray<std::int32_t, 1, MAX_CHAT_SIZE> chatdelay;
@@ -53,9 +58,3 @@ extern GlobalStateInterfaceGraphics gGlobalStateInterfaceGraphics;
 // Big Text
 
 // World Text
-
-void loadinterfacearchives(const std::string &path, bool firstonly = false);
-bool loadinterfacedata(const std::string &interfacename);
-void renderinterface(float timeelapsed, float width, float height);
-void renderactionsnaptext(double t);
-bool isdefaultinterface(const std::string& interfacename);

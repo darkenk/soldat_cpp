@@ -8,17 +8,16 @@
 #include "common/Vector.hpp"
 #include "common/Constants.hpp"
 
-void resetframetiming();
-void gameloop();
-std::int32_t getgamefps();
-float getcurrenttime();
-void tabcomplete();
-void resetweaponstats();
-void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col);
-std::uint8_t getcameratarget(bool backwards = false);
-
 struct GlobalStateClientGame
 {
+  float getcurrenttime();
+  std::int32_t getgamefps();
+  std::uint8_t getcameratarget(bool backwards = false);
+  void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col);
+  void gameloop();
+  void resetframetiming();
+  void resetweaponstats();
+  void tabcomplete();
   tvector2 mouseprev;
   float mx;
   float my;

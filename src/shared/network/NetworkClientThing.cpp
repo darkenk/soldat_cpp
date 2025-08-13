@@ -356,8 +356,8 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     // request the new thing if not active
     requestthingmsg.header.id = msgid_requestthing;
     requestthingmsg.thingid = i;
-    GetNetwork()->SendData(&requestthingmsg, sizeof(requestthingmsg),
-                           false);
+    gGlobalStateNetworkClient.GetNetwork()->SendData(&requestthingmsg, sizeof(requestthingmsg),
+                                                     false);
     return;
   }
 
@@ -379,7 +379,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   case object_bravo_flag:
   case object_pointmatch_flag: {
     // capture sound
-    playsound(SfxEffect::capture, thing.skeleton.pos[1]);
+    gGlobalStateSound.playsound(SfxEffect::capture, thing.skeleton.pos[1]);
     thing.holdingsprite = thingtakensnap->who;
     thing.statictype = false;
 
@@ -478,7 +478,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
 
     if (!smallcaptext.empty())
     {
-      bigmessage(bigcaptext, capturemessagewait, capcolor);
+      gGlobalStateClientGame.bigmessage(bigcaptext, capturemessagewait, capcolor);
       NotImplemented("network");
 #if 0
             GS::GetMainConsole().console(smallcaptext, (SpriteSystem::Get().GetSprite(j).player->name), capcolor);
@@ -509,7 +509,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   }
   break;
   case object_rambo_bow: {
-    playsound(SfxEffect::takebow, thing.skeleton.pos[1]);
+    gGlobalStateSound.playsound(SfxEffect::takebow, thing.skeleton.pos[1]);
     sprite_system.GetSprite(thingtakensnap->who).applyweaponbynum(bow_num, 1, 1);
     sprite_system.GetSprite(thingtakensnap->who).applyweaponbynum(bow2_num, 2, 1);
     sprite_system.GetSprite(thingtakensnap->who).weapon.ammocount = 1;
@@ -526,31 +526,32 @@ void clienthandlethingtaken(NetworkContext *netmessage)
 
     if (sprite_system.IsPlayerSprite(thingtakensnap->who))
     {
-      bigmessage(_("You got the Bow!"), capturemessagewait, capture_message_color);
+      gGlobalStateClientGame.bigmessage(_("You got the Bow!"), capturemessagewait,
+                                        capture_message_color);
     }
     else
     {
-      bigmessage(
+      gGlobalStateClientGame.bigmessage(
         wideformat(_("{} got the Bow!"), sprite_system.GetSprite(thingtakensnap->who).player->name),
         capturemessagewait, capture_message_color);
     }
   }
   break;
   case object_medical_kit: {
-    playsound(SfxEffect::takemedikit, thing.skeleton.pos[1]);
+    gGlobalStateSound.playsound(SfxEffect::takemedikit, thing.skeleton.pos[1]);
     sprite_system.GetSprite(thingtakensnap->who).SetHealth(GS::GetGame().GetStarthealth());
     thing.kill();
   }
   break;
   case object_grenade_kit: {
-    playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
+    gGlobalStateSound.playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
     sprite_system.GetSprite(thingtakensnap->who).SetThirdWeapon(guns[fraggrenade]);
     sprite_system.GetSprite(thingtakensnap->who).tertiaryweapon.ammocount = CVar::sv_maxgrenades;
     thing.kill();
   }
   break;
   case object_flamer_kit: {
-    playsound(SfxEffect::godflame, thing.skeleton.pos[1]);
+    gGlobalStateSound.playsound(SfxEffect::godflame, thing.skeleton.pos[1]);
     sprite_system.GetSprite(thingtakensnap->who).bonustime = flamerbonustime;
     sprite_system.GetSprite(thingtakensnap->who).bonusstyle = bonus_flamegod;
     sprite_system.GetSprite(thingtakensnap->who)
@@ -558,7 +559,8 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     sprite_system.GetSprite(thingtakensnap->who).applyweaponbynum(flamer_num, 1);
     if (sprite_system.IsPlayerSprite(thingtakensnap->who))
     {
-      bigmessage(_("Flame God Mode!"), capturemessagewait, bonus_message_color);
+      gGlobalStateClientGame.bigmessage(_("Flame God Mode!"), capturemessagewait,
+                                        bonus_message_color);
       if (!sprite_system.GetPlayerSprite().deadmeat)
       {
         clientspritesnapshot();
@@ -568,45 +570,49 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   }
   break;
   case object_predator_kit: {
-    playsound(SfxEffect::predator, thing.skeleton.pos[1]);
+    gGlobalStateSound.playsound(SfxEffect::predator, thing.skeleton.pos[1]);
     sprite_system.GetSprite(thingtakensnap->who).alpha = predatoralpha;
     sprite_system.GetSprite(thingtakensnap->who).bonustime = predatorbonustime;
     sprite_system.GetSprite(thingtakensnap->who).bonusstyle = bonus_predator;
     if (sprite_system.IsPlayerSprite(thingtakensnap->who))
     {
-      bigmessage(_("Predator Mode!"), capturemessagewait, bonus_message_color);
+      gGlobalStateClientGame.bigmessage(_("Predator Mode!"), capturemessagewait,
+                                        bonus_message_color);
     }
     thing.kill();
   }
   break;
   case object_vest_kit: {
-    playsound(SfxEffect::vesttake, thing.skeleton.pos[1]);
+    gGlobalStateSound.playsound(SfxEffect::vesttake, thing.skeleton.pos[1]);
     sprite_system.GetSprite(thingtakensnap->who).vest = defaultvest;
     if (sprite_system.IsPlayerSprite(thingtakensnap->who))
     {
-      bigmessage(_("Bulletproof Vest!"), capturemessagewait, capture_message_color);
+      gGlobalStateClientGame.bigmessage(_("Bulletproof Vest!"), capturemessagewait,
+                                        capture_message_color);
     }
     thing.kill();
   }
   break;
   case object_berserk_kit: {
-    playsound(SfxEffect::berserker, thing.skeleton.pos[1]);
+    gGlobalStateSound.playsound(SfxEffect::berserker, thing.skeleton.pos[1]);
     sprite_system.GetSprite(thingtakensnap->who).bonusstyle = bonus_berserker;
     sprite_system.GetSprite(thingtakensnap->who).bonustime = berserkerbonustime;
     if (sprite_system.IsPlayerSprite(thingtakensnap->who))
     {
-      bigmessage(_("Berserker Mode!"), capturemessagewait, bonus_message_color);
+      gGlobalStateClientGame.bigmessage(_("Berserker Mode!"), capturemessagewait,
+                                        bonus_message_color);
     }
     thing.kill();
   }
   break;
   case object_cluster_kit: {
-    playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
+    gGlobalStateSound.playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
     sprite_system.GetSprite(thingtakensnap->who).SetThirdWeapon(guns[clustergrenade]);
     sprite_system.GetSprite(thingtakensnap->who).tertiaryweapon.ammocount = cluster_grenades;
     if (sprite_system.IsPlayerSprite(thingtakensnap->who))
     {
-      bigmessage(_("Cluster Grenades!"), capturemessagewait, capture_message_color);
+      gGlobalStateClientGame.bigmessage(_("Cluster Grenades!"), capturemessagewait,
+                                        capture_message_color);
     }
     thing.kill();
   }
@@ -630,7 +636,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
     thing.statictype = true;
     sprite_system.GetSprite(thingtakensnap->who).stat = i;
     const auto &spritePartsPos = sprite_system.GetSpritePartsPos(thingtakensnap->who);
-    playsound(SfxEffect::m2use, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::m2use, spritePartsPos);
   }
   break;
   }
@@ -638,7 +644,7 @@ void clienthandlethingtaken(NetworkContext *netmessage)
   if (((thing.style > object_pointmatch_flag) && (thing.style < object_rambo_bow)) ||
       ((thing.style > object_parachute) && (thing.style < object_stationary_gun)))
   {
-    playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
+    gGlobalStateSound.playsound(SfxEffect::pickupgun, thing.skeleton.pos[1]);
     sprite_system.GetSprite(thingtakensnap->who).weapon.fireintervalprev =
       sprite_system.GetSprite(thingtakensnap->who).weapon.fireinterval;
     sprite_system.GetSprite(thingtakensnap->who).weapon.fireintervalcount =

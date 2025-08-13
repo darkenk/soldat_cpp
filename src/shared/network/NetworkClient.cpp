@@ -416,23 +416,26 @@ NetworkClientImpl *gUDP = nullptr;
 }
 
 template <Config::Module M>
-void DeinitClientNetwork() requires(Config::IsClient(M))
+void GlobalStateNetworkClient::DeinitClientNetwork()
+  requires(Config::IsClient(M))
 {
   delete gUDP;
   gUDP = nullptr;
 }
 
 template <Config::Module M>
-auto GetNetwork() -> NetworkClientImpl *requires(Config::IsClient(M)) { return gUDP; }
+auto GlobalStateNetworkClient::GetNetwork()
+  -> NetworkClientImpl *requires(Config::IsClient(M)) { return gUDP; }
 
 template <Config::Module M>
-void InitClientNetwork() requires(Config::IsClient(M))
+void GlobalStateNetworkClient::InitClientNetwork()
+  requires(Config::IsClient(M))
 {
   gUDP = new NetworkClientImpl();
 }
 
-template NetworkClientImpl *GetNetwork<Config::GetModule()>();
+template NetworkClientImpl *GlobalStateNetworkClient::GetNetwork<Config::GetModule()>();
 #ifndef SERVER
-template void InitClientNetwork<Config::GetModule()>();
-template void DeinitClientNetwork<Config::GetModule()>();
+template void GlobalStateNetworkClient::InitClientNetwork<Config::GetModule()>();
+template void GlobalStateNetworkClient::DeinitClientNetwork<Config::GetModule()>();
 #endif

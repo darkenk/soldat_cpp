@@ -98,12 +98,12 @@ struct tframetiming
 
 tframetiming frametiming;
 
-void resetframetiming()
+void GlobalStateClientGame::resetframetiming()
 {
   frametiming.frequency = SDL_GetPerformanceFrequency();
   frametiming.starttime = SDL_GetPerformanceCounter();
 
-  frametiming.prevtime = getcurrenttime();
+  frametiming.prevtime = gGlobalStateClientGame.getcurrenttime();
   frametiming.prevrendertime = frametiming.prevtime;
   frametiming.accumulator = 0;
   frametiming.mindeltatime = 0;
@@ -122,19 +122,20 @@ void resetframetiming()
   GS::GetGame().SetTickTimeLast(0);
 }
 
-auto getcurrenttime() -> float
+auto GlobalStateClientGame::getcurrenttime() -> float
 {
   auto x = SDL_GetPerformanceCounter();
   return (float)((x - frametiming.starttime)) / frametiming.frequency;
 }
 
-void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col)
+void GlobalStateClientGame::bigmessage(const std::string &text, std::int32_t delay,
+                                       std::uint32_t col)
 {
   float w;
   float s;
 
   gfxtextpixelratio(vector2(1, 1));
-  setfontstyle(font_big);
+  gGlobalStateGameRendering.setfontstyle(font_big);
 
   w = rectwidth(gfxtextmetrics(text));
   s = 4.8f * ((float)(gGlobalStateClientGame.renderheight) / 480.f);
@@ -160,7 +161,7 @@ void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col)
 }
 
 // In-game nickname tab completion
-void tabcomplete()
+void GlobalStateClientGame::tabcomplete()
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
@@ -236,7 +237,7 @@ void tabcomplete()
 }
 
 // Resets the stats of all weapons
-void resetweaponstats()
+void GlobalStateClientGame::resetweaponstats()
 {
   for (auto &w : gGlobalStateClient.wepstats)
   {
@@ -248,9 +249,9 @@ void resetweaponstats()
   }
 }
 
-auto getgamefps() -> std::int32_t { return frametiming.fps; }
+auto GlobalStateClientGame::getgamefps() -> std::int32_t { return frametiming.fps; }
 
-void gameloop()
+void GlobalStateClientGame::gameloop()
 {
   ZoneScopedN("gameloop");
   auto &sprite_system = SpriteSystem::Get();
@@ -266,7 +267,7 @@ void gameloop()
 
   gamepaused = (GS::GetGame().GetMapchangecounter() >= 0);
 
-  currenttime = getcurrenttime();
+  currenttime = gGlobalStateClientGame.getcurrenttime();
 
   frametime = currenttime - frametiming.prevtime;
 
@@ -388,11 +389,11 @@ void gameloop()
       {
         GS::GetGame().showmapchangescoreboard();
 
-        gamemenushow(gGlobalStateGameMenus.teammenu, false);
+        gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.teammenu, false);
 
         GS::GetMainConsole().console(("Connection timeout"), warning_message_color);
 
-        clientdisconnect(*GetNetwork());
+        clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
       }
 
       if (gGlobalStateNetworkClient.noheartbeattime < 0)
@@ -475,11 +476,12 @@ void gameloop()
 
     if (gamepaused)
     {
-      renderframe(frametiming.elapsed, framepercent, true);
+      gGlobalStateGameRendering.renderframe(frametiming.elapsed, framepercent, true);
     }
     else
     {
-      renderframe(frametiming.elapsed - dt * (1 - framepercent), framepercent, false);
+      gGlobalStateGameRendering.renderframe(frametiming.elapsed - dt * (1 - framepercent),
+                                            framepercent, false);
     }
   }
 
@@ -494,7 +496,7 @@ void gameloop()
   if (gGlobalStateClientGame.mapchanged)
   {
     gGlobalStateClientGame.mapchanged = false;
-    resetframetiming();
+    gGlobalStateClientGame.resetframetiming();
   }
 
   if (CVar::r_sleeptime > 0)
@@ -504,7 +506,7 @@ void gameloop()
   }
 }
 
-auto getcameratarget(bool backwards) -> std::uint8_t
+auto GlobalStateClientGame::getcameratarget(bool backwards) -> std::uint8_t
 {
   auto &sprite_system = SpriteSystem::Get();
   std::uint8_t newcam;

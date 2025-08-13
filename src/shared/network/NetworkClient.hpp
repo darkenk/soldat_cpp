@@ -12,9 +12,19 @@
 #include "common/port_utils/SourceLocation.hpp"
 
 class tplayer;
+class NetworkClientImpl;
 
 struct GlobalStateNetworkClient
 {
+  template <Config::Module M = Config::GetModule()>
+  NetworkClientImpl *GetNetwork()
+    requires(Config::IsClient(M));
+  template <Config::Module M = Config::GetModule()>
+  void DeinitClientNetwork()
+    requires(Config::IsClient(M));
+  template <Config::Module M = Config::GetModule()>
+  void InitClientNetwork()
+    requires(Config::IsClient(M));
   std::int32_t clienttickcount;
   std::int32_t lastheartbeatcounter;
   std::int32_t clientplayerreceivedcounter;
@@ -28,8 +38,6 @@ struct GlobalStateNetworkClient
 };
 
 extern GlobalStateNetworkClient gGlobalStateNetworkClient;
-
-class NetworkClientImpl;
 
 struct NetworkContext
 {
@@ -105,10 +113,3 @@ private:
   ConnectionCallback mConnectionCallback;
   HSoldatNetConnection mPeer;
 };
-
-template <Config::Module M = Config::GetModule()>
-void InitClientNetwork() requires(Config::IsClient(M));
-template <Config::Module M = Config::GetModule()>
-NetworkClientImpl *GetNetwork() requires(Config::IsClient(M));
-template <Config::Module M = Config::GetModule()>
-void DeinitClientNetwork() requires(Config::IsClient(M));

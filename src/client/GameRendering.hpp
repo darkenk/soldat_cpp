@@ -23,21 +23,21 @@ constexpr std::int32_t font_last = font_world;
 
 struct GlobalStateGameRendering
 {
+  bool dotextureloading(bool finishloading = false);
+  bool initgamegraphics();
+  std::int32_t fontstylesize(std::int32_t style);
+  std::string pngoverride(const std::string &filename);
+  std::string pngoverride(const std::string_view &filename);
+  void destroygamegraphics();
+  void gfxSetGpuDevice(SDL_GPUDevice *device);
+  void reloadgraphics();
+  void renderframe(double timeelapsed, double framepercent, bool paused);
+  void rendergameinfo(const std::string &textstring);
+  void setfontstyle(std::int32_t style);
+  void setfontstyle(std::int32_t style, float scale);
+  void takescreenshot(std::string filename, bool async = true);
   tgamerenderingparams gamerenderingparams;
   tgfxspritearray textures;
 };
 
 extern GlobalStateGameRendering gGlobalStateGameRendering;
-
-bool initgamegraphics();
-void reloadgraphics();
-void destroygamegraphics();
-void renderframe(double timeelapsed, double framepercent, bool paused);
-void rendergameinfo(const std::string &textstring);
-bool dotextureloading(bool finishloading = false);
-void setfontstyle(std::int32_t style);
-void setfontstyle(std::int32_t style, float scale);
-std::int32_t fontstylesize(std::int32_t style);
-void takescreenshot(std::string filename, bool async = true);
-std::string pngoverride(const std::string_view &filename);
-std::string pngoverride(const std::string &filename);

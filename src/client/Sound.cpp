@@ -469,13 +469,14 @@ private:
 
 SoundEngine Engine;
 
-auto initsound() -> bool
+auto GlobalStateSound::initsound() -> bool
 {
   LogDebug(AUDIO, "InitSound");
   return Engine.InitSound();
 }
 
-auto loadsample(const std::string_view &name, const tsoundsample &samp) -> tsoundsample
+auto GlobalStateSound::loadsample(const std::string_view &name, const tsoundsample &samp)
+  -> tsoundsample
 {
   return Engine.LoadSample(name, samp);
 }
@@ -488,7 +489,7 @@ static auto uppercase(const std::string_view &str) -> std::string
   return temp;
 }
 
-auto soundnametoid(const std::string &name) -> std::int8_t
+auto GlobalStateSound::soundnametoid(const std::string &name) -> std::int8_t
 {
   std::uint8_t i;
 
@@ -516,12 +517,12 @@ auto soundnametoid(const std::string &name) -> std::int8_t
   VolumeSetting the volume percentage to scale
   return the volume scaled for internal use
 */
-auto scalevolumesetting(const std::uint8_t volumesetting) -> float
+auto GlobalStateSound::scalevolumesetting(const std::uint8_t volumesetting) -> float
 {
   return (power(1.0404, volumesetting) - 1) / (1.0404 - 1) / 1275;
 }
 
-void loadsounds(const string &moddir)
+void GlobalStateSound::loadsounds(const string &moddir)
 {
 
   std::string sfxpath;
@@ -536,7 +537,7 @@ void loadsounds(const string &moddir)
   {
     if (!sample_files[i].empty())
     {
-      samp[i] = loadsample((sfxpath + sample_files[i].data()), samp[i]);
+      samp[i] = gGlobalStateSound.loadsample((sfxpath + sample_files[i].data()), samp[i]);
       if (!samp[i].loaded)
       {
         GS::GetMainConsole().console(
@@ -546,50 +547,47 @@ void loadsounds(const string &moddir)
   }
 }
 
-void closesound()
-{
-  Engine.CloseSound();
-}
+void GlobalStateSound::closesound() { Engine.CloseSound(); }
 
-void fplaysound(SfxEffect samplenum, float listenerx, float listenery, float emitterx,
-                float emittery, std::int32_t chan)
+void GlobalStateSound::fplaysound(SfxEffect samplenum, float listenerx, float listenery,
+                                  float emitterx, float emittery, std::int32_t chan)
 {
   Engine.fplaysound(samplenum, listenerx, listenery, emitterx, emittery, chan);
 }
 
-void playsound(SfxEffect sample)
+void GlobalStateSound::playsound(SfxEffect sample)
 {
-  fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
-             gGlobalStateClient.camerax, gGlobalStateClient.cameray,
-             gGlobalStateSound.defaultchannel);
+  gGlobalStateSound.fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
+                               gGlobalStateClient.camerax, gGlobalStateClient.cameray,
+                               gGlobalStateSound.defaultchannel);
 }
 
-void playsound(SfxEffect sample, std::int32_t channel)
+void GlobalStateSound::playsound(SfxEffect sample, std::int32_t channel)
 {
-  fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
-             gGlobalStateClient.camerax, gGlobalStateClient.cameray, channel);
+  gGlobalStateSound.fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
+                               gGlobalStateClient.camerax, gGlobalStateClient.cameray, channel);
 }
 
-void playsound(SfxEffect sample, const tvector2 &emitter)
+void GlobalStateSound::playsound(SfxEffect sample, const tvector2 &emitter)
 {
-  fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray, emitter.x, emitter.y,
-             gGlobalStateSound.defaultchannel);
+  gGlobalStateSound.fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
+                               emitter.x, emitter.y, gGlobalStateSound.defaultchannel);
 }
 
-void playsound(SfxEffect sample, const tvector2 &emitter, int32_t channel)
+void GlobalStateSound::playsound(SfxEffect sample, const tvector2 &emitter, int32_t channel)
 {
-  fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray, emitter.x, emitter.y,
-             channel);
+  gGlobalStateSound.fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
+                               emitter.x, emitter.y, channel);
 }
 
-auto stopsound(std::int32_t channel) -> bool { return Engine.stopsound(channel); }
+auto GlobalStateSound::stopsound(std::int32_t channel) -> bool { return Engine.stopsound(channel); }
 
-auto setsoundpaused(std::int32_t channel, bool paused) -> bool
+auto GlobalStateSound::setsoundpaused(std::int32_t channel, bool paused) -> bool
 {
   return Engine.setsoundpaused(channel, paused);
 }
 
-auto setvolume(std::int32_t channel, float volume) -> bool
+auto GlobalStateSound::setvolume(std::int32_t channel, float volume) -> bool
 {
   return Engine.setvolume(channel, volume);
 }

@@ -55,8 +55,6 @@ enum taction
   last_taction
 };
 
-taction GetActionEnum(const std::string_view &name);
-
 typedef struct tbind *pbind;
 struct tbind
 {
@@ -71,14 +69,14 @@ constexpr std::int32_t km_alt = 1 << 0;
 constexpr std::int32_t km_ctrl = 1 << 1;
 constexpr std::int32_t km_shift = 1 << 2;
 
-bool bindkey(const std::string &key, const std::string &action, const std::string &command,
-             std::uint32_t modifier);
-pbind findkeybind(std::uint32_t keymods, SDL_Scancode keycode);
-void startinput();
-void unbindall();
-
 struct GlobalStateInput
 {
+  bool bindkey(const std::string &key, const std::string &action, const std::string &command,
+               std::uint32_t modifier);
+  pbind findkeybind(std::uint32_t keymods, SDL_Scancode keycode);
+  taction GetActionEnum(const std::string_view &name);
+  void startinput();
+  void unbindall();
   std::array<bool, 512> keystatus;
   std::vector<tbind> binds;
   SDL_Window *gamewindow;

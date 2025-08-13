@@ -64,31 +64,31 @@ void playradiosound(std::uint8_t RadioID)
   switch (RadioID)
   {
   case 11:
-    playsound(SfxEffect::radio_efcup, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::radio_efcup, spritePartsPos);
     break;
   case 12:
-    playsound(SfxEffect::radio_efcmid, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::radio_efcmid, spritePartsPos);
     break;
   case 13:
-    playsound(SfxEffect::radio_efcdown, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::radio_efcdown, spritePartsPos);
     break;
   case 21:
-    playsound(SfxEffect::radio_ffcup, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::radio_ffcup, spritePartsPos);
     break;
   case 22:
-    playsound(SfxEffect::radio_ffcmid, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::radio_ffcmid, spritePartsPos);
     break;
   case 23:
-    playsound(SfxEffect::radio_ffcdown, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::radio_ffcdown, spritePartsPos);
     break;
   case 31:
-    playsound(SfxEffect::radio_esup, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::radio_esup, spritePartsPos);
     break;
   case 32:
-    playsound(SfxEffect::radio_esmid, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::radio_esmid, spritePartsPos);
     break;
   case 33:
-    playsound(SfxEffect::radio_esdown, spritePartsPos);
+    gGlobalStateSound.playsound(SfxEffect::radio_esdown, spritePartsPos);
     break;
   }
 }
@@ -314,7 +314,7 @@ void newplayerweapon()
   std::int32_t SecWep;
   if (sprite_system.GetPlayerSprite().weapon.num == noweapon_num)
   {
-    gamemenushow(gGlobalStateGameMenus.limbomenu);
+    gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu);
   }
 
   i = gGlobalStateClient.mysprite;
@@ -446,7 +446,7 @@ auto updateantiflood(std::string SrcIP) -> std::int32_t
 
     if (gGlobalStateServer.floodnum[FloodID] > floodip_max)
     {
-      addbannedip(SrcIP, "Flooding", Constants::TWENTY_MINUTES);
+      gGlobalStateBanSystem.addbannedip(SrcIP, "Flooding", Constants::TWENTY_MINUTES);
       GS::GetMainConsole().console("IP number " + SrcIP + " banned for flooding", client_message_color);
     }
   }

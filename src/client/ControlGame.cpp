@@ -179,7 +179,7 @@ auto chatkeydown(std::uint8_t keymods, SDL_Keycode keycode) -> bool
       break;
 
       case SDLK_TAB:
-        tabcomplete();
+        gGlobalStateClientGame.tabcomplete();
         break;
 
       case SDLK_RETURN:
@@ -240,11 +240,12 @@ auto menukeydown(std::uint8_t keymods, SDL_Scancode keycode) -> bool
     }
     else if (gGlobalStateGameMenus.kickmenu->active || gGlobalStateGameMenus.mapmenu->active)
     {
-      gamemenushow(gGlobalStateGameMenus.escmenu);
+      gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.escmenu);
     }
     else
     {
-      gamemenushow(gGlobalStateGameMenus.escmenu, !gGlobalStateGameMenus.escmenu->active);
+      gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.escmenu,
+                                         !gGlobalStateGameMenus.escmenu->active);
     }
   }
   else if ((keycode >= SDL_SCANCODE_1) && (keycode <= SDL_SCANCODE_0))
@@ -253,15 +254,16 @@ auto menukeydown(std::uint8_t keymods, SDL_Scancode keycode) -> bool
     {
       if (keymods == km_none)
       {
-        result =
-          gamemenuaction(gGlobalStateGameMenus.teammenu, ((keycode - SDL_SCANCODE_1) + 1) % 10);
+        result = gGlobalStateGameMenus.gamemenuaction(gGlobalStateGameMenus.teammenu,
+                                                      ((keycode - SDL_SCANCODE_1) + 1) % 10);
       }
     }
     else if (gGlobalStateGameMenus.escmenu->active)
     {
       if (keymods == km_none)
       {
-        result = gamemenuaction(gGlobalStateGameMenus.escmenu, keycode - SDL_SCANCODE_1);
+        result = gGlobalStateGameMenus.gamemenuaction(gGlobalStateGameMenus.escmenu,
+                                                      keycode - SDL_SCANCODE_1);
       }
     }
     else if (gGlobalStateGameMenus.limbomenu->active)
@@ -269,10 +271,12 @@ auto menukeydown(std::uint8_t keymods, SDL_Scancode keycode) -> bool
       switch (keymods)
       {
       case km_none:
-        result = gamemenuaction(gGlobalStateGameMenus.limbomenu, keycode - SDL_SCANCODE_1);
+        result = gGlobalStateGameMenus.gamemenuaction(gGlobalStateGameMenus.limbomenu,
+                                                      keycode - SDL_SCANCODE_1);
         break;
       case km_ctrl:
-        result = gamemenuaction(gGlobalStateGameMenus.limbomenu, keycode - SDL_SCANCODE_1 + 10);
+        result = gGlobalStateGameMenus.gamemenuaction(gGlobalStateGameMenus.limbomenu,
+                                                      keycode - SDL_SCANCODE_1 + 10);
         break;
       }
     }
@@ -487,7 +491,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
   }
 
   // bindings
-  bind = findkeybind(keymods, keycode);
+  bind = gGlobalStateInput.findkeybind(keymods, keycode);
   result = bind != nullptr;
 
   if (!result)
@@ -598,8 +602,8 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
 
       if (CVar::snd_volume != i)
       {
-        gGlobalStateSound.volumeinternal = scalevolumesetting(CVar::snd_volume);
-        setvolume(-1, gGlobalStateSound.volumeinternal);
+        gGlobalStateSound.volumeinternal = gGlobalStateSound.scalevolumesetting(CVar::snd_volume);
+        gGlobalStateSound.setvolume(-1, gGlobalStateSound.volumeinternal);
         GS::GetMainConsole().console(std::string("Volume: ") + inttostr(CVar::snd_volume) + "%",
                                      music_message_color);
       }
@@ -678,7 +682,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
       }
       else
       {
-        playsound(SfxEffect::snapshot);
+        gGlobalStateSound.playsound(SfxEffect::snapshot);
       }
     }
     else
@@ -694,7 +698,8 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
     {
       if (sprite_system.GetPlayerSprite().deadmeat)
       {
-        gamemenushow(gGlobalStateGameMenus.limbomenu, !gGlobalStateGameMenus.limbomenu->active);
+        gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu,
+                                           !gGlobalStateGameMenus.limbomenu->active);
         gGlobalStateClient.limbolock = !gGlobalStateGameMenus.limbomenu->active;
         GS::GetMainConsole().console(
           iif(gGlobalStateClient.limbolock, _("Weapons menu disabled"), _("Weapons menu active")),
@@ -712,7 +717,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
             (((prinum != noweapon_num) || (pricount == 0)) &&
              ((secnum != noweapon_num) || (seccount == 0))))
         {
-          gamemenushow(gGlobalStateGameMenus.limbomenu, false);
+          gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu, false);
           gGlobalStateClient.limbolock = !gGlobalStateClient.limbolock;
           GS::GetMainConsole().console(
             iif(gGlobalStateClient.limbolock, _("Weapons menu disabled"), _("Weapons menu active")),
@@ -766,7 +771,7 @@ auto keyup(SDL_KeyboardEvent &keyevent) -> bool
   }
 
   // bindings
-  bind = findkeybind(keymods, keycode);
+  bind = gGlobalStateInput.findkeybind(keymods, keycode);
   result = bind != nullptr;
 
   if (!result)
@@ -786,7 +791,7 @@ auto keyup(SDL_KeyboardEvent &keyevent) -> bool
   return result;
 }
 
-void gameinput(SDL_Event& event)
+void GlobalStateControlGame::gameinput(SDL_Event &event)
 {
   std::string str1;
   bool chatenabled;
@@ -797,7 +802,7 @@ void gameinput(SDL_Event& event)
     switch (event.type)
     {
     case SDL_EVENT_QUIT: {
-      clientdisconnect(*GetNetwork());
+      clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
       gGlobalStateClient.gClient.shutdown();
     }
     break;
@@ -817,7 +822,7 @@ void gameinput(SDL_Event& event)
     break;
 
     case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-      if (!gamemenuclick())
+      if (!gGlobalStateGameMenus.gamemenuclick())
       {
         gGlobalStateInput.keystatus[event.button.button + 300] = true;
       }
@@ -875,7 +880,7 @@ void gameinput(SDL_Event& event)
           max(0.f, min((float)gGlobalStateGame.gameheight,
                        gGlobalStateClientGame.my + event.motion.yrel * CVar::cl_sensitivity));
 
-        gamemenumousemove();
+        gGlobalStateGameMenus.gamemenumousemove();
       }
     }
     break;

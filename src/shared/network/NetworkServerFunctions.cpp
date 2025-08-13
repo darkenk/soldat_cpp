@@ -30,8 +30,8 @@ void serversendfreecam(std::uint8_t tonum, bool freecam, tvector2 pos)
   freecammsg.freecamon = (std::uint8_t)(freecam);
   freecammsg.targetpos = pos;
 
-  GetServerNetwork()->SendData(&freecammsg, sizeof(freecammsg),
-                               sprite_system.GetSprite(tonum).player->peer, true);
+  gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+    &freecammsg, sizeof(freecammsg), sprite_system.GetSprite(tonum).player->peer, true);
 }
 
 void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state)
@@ -49,16 +49,16 @@ void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state)
     {
       if (sprite.player->controlmethod == human)
       {
-        GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg), sprite.player->peer,
-                                     true);
+        gGlobalStateNetworkServer.GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg),
+                                                               sprite.player->peer, true);
       }
     }
   }
   else if ((sprite_system.GetSprite(id).active) &&
            (sprite_system.GetSprite(id).player->controlmethod == human))
   {
-    GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg), sprite_system.GetSprite(id).player->peer,
-                                 true);
+    gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+      &wepmsg, sizeof(wepmsg), sprite_system.GetSprite(id).player->peer, true);
   }
 }
 
@@ -93,8 +93,8 @@ void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, 
     wepmsg.ammocount = ammo;
     wepmsg.secammocount = secammo;
 
-    GetServerNetwork()->SendData(&wepmsg, sizeof(wepmsg), sprite_system.GetSprite(id).player->peer,
-                                 true);
+    gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+      &wepmsg, sizeof(wepmsg), sprite_system.GetSprite(id).player->peer, true);
   }
 
 #ifdef SCRIPT
@@ -130,7 +130,8 @@ void moveplayer(const std::uint8_t id, float x, float y)
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->SendData(&movemsg, sizeof(movemsg), sprite.player->peer, true);
+      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&movemsg, sizeof(movemsg),
+                                                             sprite.player->peer, true);
     }
   }
 }
@@ -159,7 +160,8 @@ void modifyplayervelocity(const std::uint8_t id, float velx, float vely)
   {
     if (sprite.player->controlmethod == human)
     {
-      GetServerNetwork()->SendData(&velmsg, sizeof(velmsg), sprite.player->peer, true);
+      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&velmsg, sizeof(velmsg),
+                                                             sprite.player->peer, true);
     }
   }
 }
@@ -181,8 +183,8 @@ void forwardclient(std::uint8_t id, const std::string &targetip, std::int32_t ta
   if ((sprite_system.GetSprite(id).active) &&
       (sprite_system.GetSprite(id).player->controlmethod == human))
   {
-    GetServerNetwork()->SendData(&joinservermsg, sizeof(joinservermsg),
-                                 sprite_system.GetSprite(id).player->peer, true);
+    gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+      &joinservermsg, sizeof(joinservermsg), sprite_system.GetSprite(id).player->peer, true);
   }
 }
 
@@ -206,16 +208,16 @@ void playsound(std::uint8_t id, const std::string &name, float x, float y)
       if ((sprite_system.GetSprite(id).active) &&
           (sprite_system.GetSprite(id).player->controlmethod == human))
       {
-        GetServerNetwork()->SendData(&playsoundmsg, sizeof(playsoundmsg),
-                                     sprite_system.GetSprite(id).player->peer, true);
+        gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+          &playsoundmsg, sizeof(playsoundmsg), sprite_system.GetSprite(id).player->peer, true);
       }
     }
   }
   else if ((sprite_system.GetSprite(id).active) &&
            (sprite_system.GetSprite(id).player->controlmethod == human))
   {
-    GetServerNetwork()->SendData(&playsoundmsg, sizeof(playsoundmsg),
-                                 sprite_system.GetSprite(id).player->peer, true);
+    gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+      &playsoundmsg, sizeof(playsoundmsg), sprite_system.GetSprite(id).player->peer, true);
   }
 }
 

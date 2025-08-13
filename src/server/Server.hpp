@@ -15,6 +15,17 @@
 
 struct GlobalStateServer
 {
+  bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
+                  std::string Reason = "");
+  bool preparemapchange(std::string Name);
+  std::int8_t addbotplayer(const std::string &name, std::int32_t team);
+  void ActivateServer(int argc, char *argv[]);
+  void RunServer(int argc, char *argv[]);
+  void ShutdownServer();
+  void loadweapons(const std::string &Filename);
+  void nextmap();
+  void spawnthings(std::int8_t Style, std::int8_t Amount);
+  void startserver();
   std::int32_t bonusfreq;
   std::string serverip;
   std::int32_t serverport;
@@ -52,18 +63,6 @@ extern GlobalStateServer gGlobalStateServer;
 // TK array
 // IP
 // TK Warnings
-
-void spawnthings(std::int8_t Style, std::int8_t Amount);
-void nextmap();
-bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
-                std::string Reason = "");
-bool preparemapchange(std::string Name);
-std::int8_t addbotplayer(const std::string& name, std::int32_t team);
-void loadweapons(const std::string &Filename);
-void startserver();
-void ActivateServer(int argc, char *argv[]);
-void RunServer(int argc, char *argv[]);
-void ShutdownServer();
 
 class FileUtility;
 

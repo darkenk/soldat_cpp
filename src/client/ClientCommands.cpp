@@ -76,11 +76,11 @@ void commandbind(std::vector<std::string> &args, std::uint8_t sender)
 
   if (args[2][0] == '+')
   {
-    bindkey(bindkeyname, commandstring, commandstring, modifier);
+    gGlobalStateInput.bindkey(bindkeyname, commandstring, commandstring, modifier);
   }
   else
   {
-    bindkey(bindkeyname, "+bind", commandstring, modifier);
+    gGlobalStateInput.bindkey(bindkeyname, "+bind", commandstring, modifier);
   }
 }
 
@@ -216,7 +216,7 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandunbindall(std::vector<std::string> &args, std::uint8_t sender)
 {
-  unbindall();
+  gGlobalStateInput.unbindall();
   GS::GetMainConsole().console("Unbinded all binds", game_message_color);
 }
 
@@ -268,9 +268,9 @@ void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)
 
     GS::GetMainConsole().console((("Screenshot saved to ") + screenfile), debug_message_color);
 
-    takescreenshot(screenfile);
+    gGlobalStateGameRendering.takescreenshot(screenfile);
 
-    playsound(SfxEffect::snapshot);
+    gGlobalStateSound.playsound(SfxEffect::snapshot);
 
     if (gGlobalStateClientGame.showscreen != 0u)
     {

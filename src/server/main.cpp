@@ -6,7 +6,7 @@ auto main(int argc, char *argv[]) -> int
 {
   InitLogging();
   GlobalSystems<Config::SERVER_MODULE>::Init();
-  RunServer(argc, argv);
+  gGlobalStateServer.RunServer(argc, argv);
   GlobalSystems<Config::SERVER_MODULE>::Deinit();
   return 0;
 }
