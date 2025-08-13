@@ -489,7 +489,7 @@ void GlobalStateClientGame::gameloop()
   {
     if (game.GetMapchangename() == "EXIT*!*")
     {
-      gGlobalStateClient.gClient.exittomenu();
+      gGlobalStateClient.exittomenu();
     }
   }
 

@@ -23,9 +23,10 @@ struct tweaponstat
 
 using GunArray = std::array<std::string, 17>;
 
-class Client
+struct GlobalStateClient
 {
-public:
+  Console &GetBigConsole();
+  ConsoleMain &GetKillConsole();
   void joinserver();
   void startgame(int argc, char *argv[]);
   void shutdown();
@@ -33,12 +34,6 @@ public:
   void restartgraph();
   bool mainloop();
   void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir);
-};
-
-struct GlobalStateClient
-{
-  Console &GetBigConsole();
-  ConsoleMain &GetKillConsole();
   void showmessage(const std::string &messagetext);
   std::string joinpassword;
   std::string joinport;
@@ -86,25 +81,6 @@ struct GlobalStateClient
   float shotdistance;
   float shotlife;
   std::int32_t shotricochet;
-  Client gClient;
 };
 
 extern GlobalStateClient gGlobalStateClient;
-// server passsword
-// join port to server
-// join ip to server
-
-// TODO: Remove
-
-// Weapon Stats
-
-// FIXME skipped item at index 0
-
-// Radio Menu
-
-//  RMenuState: array[0..1] of Char = ' ';
-
-// screen
-
-// camera x and y within world
-// Tag number of object to follow

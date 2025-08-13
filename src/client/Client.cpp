@@ -139,7 +139,6 @@ GlobalStateClient gGlobalStateClient{
   .shotdistance{},
   .shotlife{},
   .shotricochet{},
-  .gClient{},
 };
 
 // bullet shot stats
@@ -176,7 +175,7 @@ void restartgraph()
   GS::GetMainConsole().console(("Graphics restart"), debug_message_color);
 }
 
-void Client::loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
+void GlobalStateClient::loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
 {
   SoldatAssert(gunDisplayName.size() == double_weapons);
   std::int32_t i;
@@ -247,18 +246,18 @@ void redirectdialog()
   {
     gGlobalStateClient.joinip = gGlobalStateClient.redirectip;
     gGlobalStateClient.joinport = inttostr(gGlobalStateClient.redirectport);
-    gGlobalStateClient.gClient.joinserver();
+    gGlobalStateClient.joinserver();
   }
   else
   {
     gGlobalStateClient.redirectip = "";
     gGlobalStateClient.redirectport = 0;
     gGlobalStateClient.redirectmsg = "";
-    gGlobalStateClient.gClient.exittomenu();
+    gGlobalStateClient.exittomenu();
   }
 }
 
-void Client::exittomenu()
+void GlobalStateClient::exittomenu()
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
@@ -432,7 +431,7 @@ static void InitConsoles(bool test = false)
                   240);
 }
 
-void Client::startgame(int argc, char *argv[])
+void GlobalStateClient::startgame(int argc, char *argv[])
 {
   initclientcommands();
   commandinit();
@@ -720,7 +719,7 @@ void Client::startgame(int argc, char *argv[])
   // startgameloop();
 }
 
-void Client::shutdown()
+void GlobalStateClient::shutdown()
 {
   exittomenu();
 
@@ -761,7 +760,7 @@ void Client::shutdown()
   gamelooprun = false;
 }
 
-bool Client::mainloop()
+bool GlobalStateClient::mainloop()
 {
   if (!gamelooprun)
   {
@@ -806,12 +805,12 @@ void startgameloop()
 #else
   while (gamelooprun)
   {
-    gGlobalStateClient.gClient.mainloop();
+    gGlobalStateClient.mainloop();
   }
 #endif
 }
 
-void Client::joinserver()
+void GlobalStateClient::joinserver()
 {
   gGlobalStateClientGame.resetframetiming();
 
@@ -956,7 +955,7 @@ TEST_SUITE("Client")
     tsha1digest checksum2;
     auto ret = MountAssets(fs, userDirectory, baseDirectory, checksum1, checksum2);
     CHECK_EQ(true, ret);
-    gGlobalStateClient.gClient.loadweaponnames(fs, ga, gGlobalStateClient.moddir);
+    gGlobalStateClient.loadweaponnames(fs, ga, gGlobalStateClient.moddir);
     CHECK_EQ("USSOCOM", ga[0]);
     CHECK_EQ("Desert Eagles", ga[1]);
     CHECK_EQ("HK MP5", ga[2]);
@@ -1007,8 +1006,8 @@ TEST_SUITE("Client")
       GlobalSystems<Config::CLIENT_MODULE>::Init();
       std::string game = {"SoldatGame"};
       std::array<char*, 1> argv = { game.data() };
-      gGlobalStateClient.gClient.startgame(argv.size(), argv.data());
-      gGlobalStateClient.gClient.shutdown();
+      gGlobalStateClient.startgame(argv.size(), argv.data());
+      gGlobalStateClient.shutdown();
       GlobalSystems<Config::CLIENT_MODULE>::Deinit();
   }
 

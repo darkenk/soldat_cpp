@@ -228,7 +228,7 @@ void clienthandlejoinserver(NetworkContext *netmessage)
   gGlobalStateClient.redirectport = joinservermsg->port;
   gGlobalStateClient.redirectmsg = trim((pmsg_joinserver(netmessage->packet)->showmsg.data()));
 
-  gGlobalStateClient.gClient.exittomenu();
+  gGlobalStateClient.exittomenu();
 }
 
 void clienthandleplaysound(NetworkContext *netmessage)

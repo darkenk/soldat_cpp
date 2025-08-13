@@ -479,7 +479,7 @@ void loadfonts()
   {
     gGlobalStateClient.showmessage(
       ("One of the fonts cannot be found. Please check your installation directory."));
-    gGlobalStateClient.gClient.shutdown();
+    gGlobalStateClient.shutdown();
   }
 
   const std::int32_t w = gGlobalStateClientGame.renderwidth;
@@ -1535,7 +1535,7 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(true))
   auto ret = getmapinfo(fs, "ctf_Ash", userDirectory, gGlobalStateMapGraphics.mapgfx.mapinfo);
   CHECK(ret);
   gGlobalStateGameRendering.reloadgraphics();
-  gGlobalStateClient.gClient.loadweaponnames(fs, gGlobalStateClient.gundisplayname,
+  gGlobalStateClient.loadweaponnames(fs, gGlobalStateClient.gundisplayname,
                                              gGlobalStateClient.moddir);
   createweaponsbase(GS::GetWeaponSystem().GetGuns());
   gGlobalStateGameMenus.initgamemenus();

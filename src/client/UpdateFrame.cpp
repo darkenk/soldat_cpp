@@ -319,7 +319,7 @@ void update_frame()
           if (idlecounter > Constants::IDLE_KICK)
           {
             clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
-            gGlobalStateClient.gClient.exittomenu();
+            gGlobalStateClient.exittomenu();
           }
 
           oldmousex = round(gGlobalStateClientGame.mx);

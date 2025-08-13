@@ -280,7 +280,7 @@ void clientdisconnect(NetworkBase<T> &client)
   else
   {
     client.Disconnect(true);
-    gGlobalStateClient.gClient.exittomenu();
+    gGlobalStateClient.exittomenu();
   }
 }
 
@@ -400,7 +400,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
                      CVar::r_forcebg_color2))
     {
       gGlobalStateGameRendering.rendergameinfo(_("Could not load map: ") + (mapname));
-      gGlobalStateClient.gClient.exittomenu();
+      gGlobalStateClient.exittomenu();
       return;
     }
   }
@@ -631,7 +631,7 @@ void clienthandleunaccepted(NetworkContext *netmessage)
   }
 
   clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
-  gGlobalStateClient.gClient.exittomenu();
+  gGlobalStateClient.exittomenu();
 }
 
 void clienthandleserverdisconnect(NetworkContext *netmessage)

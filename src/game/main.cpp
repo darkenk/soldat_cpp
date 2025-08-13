@@ -121,14 +121,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
     new AppState{.serverThread = std::thread([=]() { gGlobalStateServer.RunServer(argc, argv); })};
   SetThreadName(state->serverThread, "Server");
   SetCurrentThreadName("Client");
-  gGlobalStateClient.gClient.startgame(argc, argv);
+  gGlobalStateClient.startgame(argc, argv);
   *appstate = state;
   return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-  auto continue_run = gGlobalStateClient.gClient.mainloop();
+  auto continue_run = gGlobalStateClient.mainloop();
   return continue_run ? SDL_APP_CONTINUE : SDL_APP_SUCCESS;
 }
 

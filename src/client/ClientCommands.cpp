@@ -93,7 +93,7 @@ void commandconnect(std::vector<std::string> &args, std::uint8_t sender)
     GS::GetMainConsole().console("Usage: connect ip port password", game_message_color);
     return;
   }
-  gGlobalStateClient.gClient.exittomenu();
+  gGlobalStateClient.exittomenu();
   if (args[0] == "joinurl")
   {
     s = args[1];
@@ -125,18 +125,18 @@ void commandconnect(std::vector<std::string> &args, std::uint8_t sender)
       gGlobalStateClient.joinpassword = args[3];
     }
   }
-  gGlobalStateClient.gClient.joinserver();
+  gGlobalStateClient.joinserver();
 }
 
 void commandretry(std::vector<std::string> &args, std::uint8_t sender)
 {
-  gGlobalStateClient.gClient.exittomenu();
-  gGlobalStateClient.gClient.joinserver();
+  gGlobalStateClient.exittomenu();
+  gGlobalStateClient.joinserver();
 }
 
 void commanddisconnect(std::vector<std::string> &args, std::uint8_t sender)
 {
-  gGlobalStateClient.gClient.exittomenu();
+  gGlobalStateClient.exittomenu();
 }
 
 void commandsay(std::vector<std::string> &args, std::uint8_t sender)
@@ -250,7 +250,7 @@ void commandstop(std::vector<std::string> &args, std::uint8_t sender)
 
 void commandshutdown(std::vector<std::string> &args, std::uint8_t sender)
 {
-  gGlobalStateClient.gClient.exittomenu();
+  gGlobalStateClient.exittomenu();
 }
 
 void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)

@@ -522,15 +522,15 @@ void Game<M>::changemap()
                      CVar::r_forcebg_color2))
     {
       gGlobalStateGameRendering.rendergameinfo(("Could not load map: ") + (mapchangename));
-      gGlobalStateClient.gClient.exittomenu();
+      gGlobalStateClient.exittomenu();
       return;
     }
     // Map.Name := MapChangeName;
   }
   else
   {
-    gGlobalStateClient.gClient.exittomenu();
-    gGlobalStateClient.gClient.joinserver();
+    gGlobalStateClient.exittomenu();
+    gGlobalStateClient.joinserver();
     return;
   }
 #endif
