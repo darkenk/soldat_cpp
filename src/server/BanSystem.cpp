@@ -32,7 +32,7 @@ void GlobalStateBanSystem::addbannedip(const std::string &ip, std::string reason
   std::int32_t findex;
 
   findex = 0;
-  if (gGlobalStateBanSystem.checkbannedip(ip))
+  if (checkbannedip(ip))
   {
     return;
   }
@@ -193,7 +193,7 @@ void GlobalStateBanSystem::updateipbanlist()
                                        gGlobalStateBanSystem.bannediplist[j].ip + " (" +
                                        gGlobalStateBanSystem.bannediplist[j].reason + ") unbanned",
                                      client_message_color);
-        gGlobalStateBanSystem.delbannedip(gGlobalStateBanSystem.bannediplist[j].ip);
+        delbannedip(gGlobalStateBanSystem.bannediplist[j].ip);
         savetxtlists();
       }
     }
@@ -208,7 +208,7 @@ void GlobalStateBanSystem::addbannedhw(const std::string &hw, std::string reason
   std::int32_t findex;
 
   findex = 0;
-  if (gGlobalStateBanSystem.checkbannedhw(hw))
+  if (checkbannedhw(hw))
   {
     return;
   }
@@ -369,7 +369,7 @@ void GlobalStateBanSystem::updatehwbanlist()
                                        gGlobalStateBanSystem.bannedhwlist[j].hw + " (" +
                                        gGlobalStateBanSystem.bannedhwlist[j].reason + ") unbanned",
                                      client_message_color);
-        gGlobalStateBanSystem.delbannedhw(gGlobalStateBanSystem.bannedhwlist[j].hw);
+        delbannedhw(gGlobalStateBanSystem.bannedhwlist[j].hw);
         savetxtlists();
       }
     }

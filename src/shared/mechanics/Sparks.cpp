@@ -102,7 +102,7 @@ auto GlobalStateSparks::createspark(tvector2 spos, tvector2 svelocity, std::uint
       break;
     }
     if (!gGlobalStateGame.spark[i].active && (gGlobalStateGame.spark[i].style == 0) &&
-        !gGlobalStateSparks.GetSparkParts().active[i])
+        !GetSparkParts().active[i])
     {
       result = i;
       break;
@@ -122,7 +122,7 @@ auto GlobalStateSparks::createspark(tvector2 spos, tvector2 svelocity, std::uint
   m = 1;
 
   // activate sprite part
-  gGlobalStateSparks.GetSparkParts().createpart(spos, svelocity, m, i);
+  GetSparkParts().createpart(spos, svelocity, m, i);
 
   result = i;
   return result;

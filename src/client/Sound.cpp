@@ -537,7 +537,7 @@ void GlobalStateSound::loadsounds(const string &moddir)
   {
     if (!sample_files[i].empty())
     {
-      samp[i] = gGlobalStateSound.loadsample((sfxpath + sample_files[i].data()), samp[i]);
+      samp[i] = loadsample((sfxpath + sample_files[i].data()), samp[i]);
       if (!samp[i].loaded)
       {
         GS::GetMainConsole().console(
@@ -557,27 +557,27 @@ void GlobalStateSound::fplaysound(SfxEffect samplenum, float listenerx, float li
 
 void GlobalStateSound::playsound(SfxEffect sample)
 {
-  gGlobalStateSound.fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
-                               gGlobalStateClient.camerax, gGlobalStateClient.cameray,
-                               gGlobalStateSound.defaultchannel);
+  fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
+             gGlobalStateClient.camerax, gGlobalStateClient.cameray,
+             gGlobalStateSound.defaultchannel);
 }
 
 void GlobalStateSound::playsound(SfxEffect sample, std::int32_t channel)
 {
-  gGlobalStateSound.fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
-                               gGlobalStateClient.camerax, gGlobalStateClient.cameray, channel);
+  fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
+             gGlobalStateClient.camerax, gGlobalStateClient.cameray, channel);
 }
 
 void GlobalStateSound::playsound(SfxEffect sample, const tvector2 &emitter)
 {
-  gGlobalStateSound.fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
-                               emitter.x, emitter.y, gGlobalStateSound.defaultchannel);
+  fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray, emitter.x, emitter.y,
+             gGlobalStateSound.defaultchannel);
 }
 
 void GlobalStateSound::playsound(SfxEffect sample, const tvector2 &emitter, int32_t channel)
 {
-  gGlobalStateSound.fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
-                               emitter.x, emitter.y, channel);
+  fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray, emitter.x, emitter.y,
+             channel);
 }
 
 auto GlobalStateSound::stopsound(std::int32_t channel) -> bool { return Engine.stopsound(channel); }

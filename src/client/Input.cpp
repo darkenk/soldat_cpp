@@ -46,13 +46,13 @@ auto GlobalStateInput::bindkey(const std::string &key, const std::string &action
     return bindkey_result;
   }
 
-  if (gGlobalStateInput.findkeybind(modifier, (SDL_Scancode)bind.keyid) != nullptr)
+  if (findkeybind(modifier, (SDL_Scancode)bind.keyid) != nullptr)
   {
     LogWarn(LOG, "Key {} is already binded", key);
     return bindkey_result;
   }
 
-  bind.action = gGlobalStateInput.GetActionEnum(action.substr(1));
+  bind.action = GetActionEnum(action.substr(1));
 
   bind.command = command;
   bind.keymod = modifier;

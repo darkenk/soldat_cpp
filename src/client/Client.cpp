@@ -611,9 +611,8 @@ void GlobalStateClient::startgame(int argc, char *argv[])
 
   if (!gGlobalStateGameRendering.initgamegraphics())
   {
-    gGlobalStateClient.showmessage(
-      std::string("The required OpenGL functionality isn't supported. ") +
-      "Please, update your video drivers and try again.");
+    showmessage(std::string("The required OpenGL functionality isn't supported. ") +
+                "Please, update your video drivers and try again.");
     // ExitButtonClick(nullptr);
     return;
   }

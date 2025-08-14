@@ -103,7 +103,7 @@ void GlobalStateClientGame::resetframetiming()
   frametiming.frequency = SDL_GetPerformanceFrequency();
   frametiming.starttime = SDL_GetPerformanceCounter();
 
-  frametiming.prevtime = gGlobalStateClientGame.getcurrenttime();
+  frametiming.prevtime = getcurrenttime();
   frametiming.prevrendertime = frametiming.prevtime;
   frametiming.accumulator = 0;
   frametiming.mindeltatime = 0;
@@ -267,7 +267,7 @@ void GlobalStateClientGame::gameloop()
 
   gamepaused = (GS::GetGame().GetMapchangecounter() >= 0);
 
-  currenttime = gGlobalStateClientGame.getcurrenttime();
+  currenttime = getcurrenttime();
 
   frametime = currenttime - frametiming.prevtime;
 
@@ -496,7 +496,7 @@ void GlobalStateClientGame::gameloop()
   if (gGlobalStateClientGame.mapchanged)
   {
     gGlobalStateClientGame.mapchanged = false;
-    gGlobalStateClientGame.resetframetiming();
+    resetframetiming();
   }
 
   if (CVar::r_sleeptime > 0)

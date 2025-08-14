@@ -312,7 +312,7 @@ auto GlobalStateInterfaceGraphics::loadinterfacedata(const std::string &interfac
   intalign.vestbar = 1;
 
   // not registered / default interface
-  if (gGlobalStateInterfaceGraphics.isdefaultinterface(interfacename))
+  if (isdefaultinterface(interfacename))
   {
     loaddefaultinterfacedata();
     return loadinterfacedata_result;

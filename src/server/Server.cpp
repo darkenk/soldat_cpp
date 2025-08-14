@@ -703,12 +703,12 @@ void GlobalStateServer::startserver()
   {
     GS::GetMainConsole().console("Realistic Mode ON", mode_message_color);
     GS::GetGame().SetStarthealth(Constants::REALISTIC_HEALTH);
-    gGlobalStateServer.loadweapons("weapons_realistic");
+    loadweapons("weapons_realistic");
   }
   else
   {
     GS::GetGame().SetStarthealth(Constants::DEFAULT_HEALTH);
-    gGlobalStateServer.loadweapons("weapons");
+    loadweapons("weapons");
   }
 
   // Weapons
@@ -797,12 +797,12 @@ void GlobalStateServer::startserver()
   if (not CVar::sv_survivalmode)
   {
     // spawn medikits
-    gGlobalStateServer.spawnthings(Constants::OBJECT_MEDICAL_KIT, map.medikits);
+    spawnthings(Constants::OBJECT_MEDICAL_KIT, map.medikits);
 
     // spawn grenadekits
     if (CVar::sv_maxgrenades > 0)
     {
-      gGlobalStateServer.spawnthings(Constants::OBJECT_GRENADE_KIT, map.grenades);
+      spawnthings(Constants::OBJECT_GRENADE_KIT, map.grenades);
     }
   }
   else
@@ -926,19 +926,19 @@ void GlobalStateServer::startserver()
 
   for (k = 0; k < CVar::bots_random_alpha; k++)
   {
-    gGlobalStateServer.addbotplayer(randombot(), 1);
+    addbotplayer(randombot(), 1);
   }
   for (k = 0; k < CVar::bots_random_bravo; k++)
   {
-    gGlobalStateServer.addbotplayer(randombot(), 2);
+    addbotplayer(randombot(), 2);
   }
   for (k = 0; k < CVar::bots_random_charlie; k++)
   {
-    gGlobalStateServer.addbotplayer(randombot(), 3);
+    addbotplayer(randombot(), 3);
   }
   for (k = 0; k < CVar::bots_random_delta; k++)
   {
-    gGlobalStateServer.addbotplayer(randombot(), 4);
+    addbotplayer(randombot(), 4);
   }
 
   GS::GetGame().updategamestats();
@@ -981,7 +981,7 @@ void GlobalStateServer::nextmap()
     {
       gGlobalStateServer.mapindex = 0;
     }
-    gGlobalStateServer.preparemapchange(gGlobalStateServer.mapslist[gGlobalStateServer.mapindex]);
+    preparemapchange(gGlobalStateServer.mapslist[gGlobalStateServer.mapindex]);
   }
 }
 
@@ -1207,12 +1207,12 @@ auto GlobalStateServer::kickplayer(std::int8_t num, bool Ban, std::int32_t why, 
 
 void GlobalStateServer::RunServer(int argc, char *argv[])
 {
-  gGlobalStateServer.ActivateServer(argc, argv);
+  ActivateServer(argc, argv);
   writepid();
 
   if (progready)
   {
-    gGlobalStateServer.startserver();
+    startserver();
   }
   while (progready)
   {

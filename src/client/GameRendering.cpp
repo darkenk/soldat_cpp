@@ -694,7 +694,7 @@ void GlobalStateGameRendering::reloadgraphics()
   loadmodinfo();
   loadmaintextures();
   loadinterface();
-  gGlobalStateGameRendering.dotextureloading(true);
+  dotextureloading(true);
 
   loadmapfile(GS::GetFileSystem(), mapinfo, mapfile);
   gGlobalStateMapGraphics.loadmapgraphics(mapfile, bgforce, color[0], color[1]);
@@ -1207,7 +1207,7 @@ void GlobalStateGameRendering::rendergameinfo(const std::string &textstring)
   gfxtransform(
     gfxmat3ortho(0, gGlobalStateClientGame.windowwidth, 0, gGlobalStateClientGame.windowheight));
   gfxclear(49, 61, 79, 255);
-  gGlobalStateGameRendering.setfontstyle(font_menu);
+  setfontstyle(font_menu);
   gfxtextcolor(rgba(0xffffff));
   gfxtextshadow(1, 1, rgba(0));
   gfxtextpixelratio(vector2(1, 1));
@@ -1215,7 +1215,7 @@ void GlobalStateGameRendering::rendergameinfo(const std::string &textstring)
   gfxbegin();
   gfxdrawtext((float)((gGlobalStateClientGame.windowwidth - rc.width())) / 2,
               (float)((gGlobalStateClientGame.windowheight - rc.height())) / 2);
-  gGlobalStateGameRendering.setfontstyle(font_small);
+  setfontstyle(font_small);
   rc = gfxtextmetrics(("Press ESC to quit the game"));
   gfxdrawtext((float)((gGlobalStateClientGame.windowwidth - rc.width())) / 2,
               ((float)((gGlobalStateClientGame.windowheight - rc.height())) / 2) + 100);

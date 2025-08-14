@@ -608,7 +608,7 @@ void GlobalStateNetworkServerSprite::serverhandleclientspritesnapshot(tmsgheader
     return;
   }
 
-  gGlobalStateNetworkServerSprite.serverspritedeltas(i);
+  serverspritedeltas(i);
 
   gGlobalStateNetworkServerSprite.time_spritesnapshot[i] = GS::GetGame().GetMainTickCounter();
 }
@@ -661,7 +661,7 @@ void GlobalStateNetworkServerSprite::serverhandleclientspritesnapshot_mov(tmsghe
     sprite.player->knifewarnings = 0;
   }
 
-  gGlobalStateNetworkServerSprite.serverspritedeltas(i);
+  serverspritedeltas(i);
 
   gGlobalStateNetworkServerSprite.time_spritesnapshot_mov[i] = GS::GetGame().GetMainTickCounter();
 }

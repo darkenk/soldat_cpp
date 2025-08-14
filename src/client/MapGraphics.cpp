@@ -253,7 +253,7 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
   auto& fs = GS::GetFileSystem();
 
   tmapgraphics &mg = gGlobalStateMapGraphics.mapgfx;
-  gGlobalStateMapGraphics.destroymapgraphics();
+  destroymapgraphics();
 
   mg.mapinfo = mapfile.mapinfo;
   mg.filename = mapfile.filename;
@@ -281,7 +281,7 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
 
     if (CVar::r_optimizetextures)
     {
-      scale = gGlobalStateMapGraphics.gettexturetargetscale(mapfile, image);
+      scale = gettexturetargetscale(mapfile, image);
       imgwidth = max(2, min(image->width(), (std::int32_t)round(scale * image->width())));
       imgheight = max(2, min(image->height(), (std::int32_t)round(scale * image->height())));
     }
@@ -304,7 +304,7 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
 
     gfxupdatetexture(mg.textures[i], 0, 0, imgwidth, imgheight, image->getimagedata(0));
     gfxtexturewrap(mg.textures[i], gfx_repeat, gfx_repeat);
-    gGlobalStateMapGraphics.settexturefilter(mg.textures[i], true);
+    settexturefilter(mg.textures[i], true);
     freeandnullptr(image);
 
     // load edge texture
@@ -326,7 +326,7 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
       mg.edgetextures[i] =
         gfxcreatetexture(image->width(), image->height(), 4, image->getimagedata(0),
                          mapfile.mapname + "smooth_edghes");
-      gGlobalStateMapGraphics.settexturefilter(mg.edgetextures[i], true);
+      settexturefilter(mg.edgetextures[i], true);
 
       edgesprites[i]->scale = 1;
       edgesprites[i]->texture = mg.edgetextures[i];
@@ -440,7 +440,7 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
     {
       //      Str := Str + Format('%dx%d ', [Sheet.Texture[i].Width,
       //      Sheet.Texture[i].Height]);
-      gGlobalStateMapGraphics.settexturefilter(sheet->gettexture(i), true);
+      settexturefilter(sheet->gettexture(i), true);
     }
 
     //    Str[Length(Str)] := ')';
@@ -903,7 +903,7 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
     gfxend();
     gfxdeletetexture(texture);
 
-    gGlobalStateMapGraphics.settexturefilter(sprite->texture, false);
+    settexturefilter(sprite->texture, false);
 
     gfxtarget(nullptr);
     gfxviewport(0, 0, gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight);
