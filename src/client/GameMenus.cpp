@@ -65,71 +65,61 @@ void GlobalStateGameMenus::initgamemenus()
 {
   std::string s;
 
-  gGlobalStateGameMenus.hoveredmenu = nullptr;
-  gGlobalStateGameMenus.hoveredbutton = nullptr;
-  gGlobalStateGameMenus.hoveredbuttonindex = 0;
+  hoveredmenu = nullptr;
+  hoveredbutton = nullptr;
+  hoveredbuttonindex = 0;
 
-  setlength(gGlobalStateGameMenus.gamemenu, 5);
-  gGlobalStateGameMenus.escmenu = gGlobalStateGameMenus.gamemenu.data();
-  gGlobalStateGameMenus.teammenu = &gGlobalStateGameMenus.gamemenu[1];
-  gGlobalStateGameMenus.limbomenu = &gGlobalStateGameMenus.gamemenu[2];
-  gGlobalStateGameMenus.kickmenu = &gGlobalStateGameMenus.gamemenu[3];
-  gGlobalStateGameMenus.mapmenu = &gGlobalStateGameMenus.gamemenu[4];
+  setlength(gamemenu, 5);
+  escmenu = gamemenu.data();
+  teammenu = &gamemenu[1];
+  limbomenu = &gamemenu[2];
+  kickmenu = &gamemenu[3];
+  mapmenu = &gamemenu[4];
 
   // esc menu
 
-  gGlobalStateGameMenus.escmenu->w = 300;
-  gGlobalStateGameMenus.escmenu->h = 200;
+  escmenu->w = 300;
+  escmenu->h = 200;
 
   if (CVar::r_scaleinterface)
   {
-    gGlobalStateGameMenus.escmenu->x =
-      round((float)((gGlobalStateGame.gamewidth - gGlobalStateGameMenus.escmenu->w)) / 2);
-    gGlobalStateGameMenus.escmenu->y =
-      round((float)((gGlobalStateGame.gameheight - gGlobalStateGameMenus.escmenu->h)) / 2);
+    escmenu->x = round((float)((gGlobalStateGame.gamewidth - escmenu->w)) / 2);
+    escmenu->y = round((float)((gGlobalStateGame.gameheight - escmenu->h)) / 2);
   }
   else
   {
-    gGlobalStateGameMenus.escmenu->x =
-      round((float)((gGlobalStateClientGame.renderwidth - gGlobalStateGameMenus.escmenu->w)) / 2);
-    gGlobalStateGameMenus.escmenu->y =
-      round((float)((gGlobalStateClientGame.renderheight - gGlobalStateGameMenus.escmenu->h)) / 2);
+    escmenu->x = round((float)((gGlobalStateClientGame.renderwidth - escmenu->w)) / 2);
+    escmenu->y = round((float)((gGlobalStateClientGame.renderheight - escmenu->h)) / 2);
   }
 
-  initbutton(gGlobalStateGameMenus.escmenu, 0, string("1 ") + ("Exit to menu"), 5, 1 * 25, 240, 25);
-  initbutton(gGlobalStateGameMenus.escmenu, 1, string("2 ") + ("Change map"), 5, 2 * 25, 240, 25);
-  initbutton(gGlobalStateGameMenus.escmenu, 2, string("3 ") + ("Kick player"), 5, 3 * 25, 240, 25);
-  initbutton(gGlobalStateGameMenus.escmenu, 3, string("4 ") + ("Change team"), 5, 4 * 25, 240, 25);
+  initbutton(escmenu, 0, string("1 ") + ("Exit to menu"), 5, 1 * 25, 240, 25);
+  initbutton(escmenu, 1, string("2 ") + ("Change map"), 5, 2 * 25, 240, 25);
+  initbutton(escmenu, 2, string("3 ") + ("Kick player"), 5, 3 * 25, 240, 25);
+  initbutton(escmenu, 3, string("4 ") + ("Change team"), 5, 4 * 25, 240, 25);
 
   // team menu
 
-  gGlobalStateGameMenus.teammenu->w = 0;
-  gGlobalStateGameMenus.teammenu->h = 0;
-  gGlobalStateGameMenus.teammenu->x = 0;
-  gGlobalStateGameMenus.teammenu->y = 0;
+  teammenu->w = 0;
+  teammenu->h = 0;
+  teammenu->x = 0;
+  teammenu->y = 0;
 
-  setlength(gGlobalStateGameMenus.teammenu->button, 6);
-  initbutton(gGlobalStateGameMenus.teammenu, 0, string("0 ") + ("0 Player"), 40, 140 + 40 * 1, 215,
-             35);
-  initbutton(gGlobalStateGameMenus.teammenu, 1, string("1 ") + ("Alpha Team"), 40, 140 + 40 * 1,
-             215, 35);
-  initbutton(gGlobalStateGameMenus.teammenu, 2, string("2 ") + ("Bravo Team"), 40, 140 + 40 * 2,
-             215, 35);
-  initbutton(gGlobalStateGameMenus.teammenu, 3, string("3 ") + ("Charlie Team"), 40, 140 + 40 * 3,
-             215, 35);
-  initbutton(gGlobalStateGameMenus.teammenu, 4, string("4 ") + ("Delta Team"), 40, 140 + 40 * 4,
-             215, 35);
-  initbutton(gGlobalStateGameMenus.teammenu, 5, string("5 ") + ("Spectator"), 40, 140 + 40 * 5, 215,
-             35);
+  setlength(teammenu->button, 6);
+  initbutton(teammenu, 0, string("0 ") + ("0 Player"), 40, 140 + 40 * 1, 215, 35);
+  initbutton(teammenu, 1, string("1 ") + ("Alpha Team"), 40, 140 + 40 * 1, 215, 35);
+  initbutton(teammenu, 2, string("2 ") + ("Bravo Team"), 40, 140 + 40 * 2, 215, 35);
+  initbutton(teammenu, 3, string("3 ") + ("Charlie Team"), 40, 140 + 40 * 3, 215, 35);
+  initbutton(teammenu, 4, string("4 ") + ("Delta Team"), 40, 140 + 40 * 4, 215, 35);
+  initbutton(teammenu, 5, string("5 ") + ("Spectator"), 40, 140 + 40 * 5, 215, 35);
 
   // limbo menu
 
-  gGlobalStateGameMenus.limbomenu->w = 0;
-  gGlobalStateGameMenus.limbomenu->h = 0;
-  gGlobalStateGameMenus.limbomenu->x = 0;
-  gGlobalStateGameMenus.limbomenu->y = 0;
+  limbomenu->w = 0;
+  limbomenu->h = 0;
+  limbomenu->x = 0;
+  limbomenu->y = 0;
 
-  setlength(gGlobalStateGameMenus.limbomenu->button, main_weapons);
+  setlength(limbomenu->button, main_weapons);
 
   for (std::int32_t i = 0; i <= main_weapons - 1; i++)
   {
@@ -143,36 +133,35 @@ void GlobalStateGameMenus::initgamemenus()
       s = (gGlobalStateClient.gundisplayname[GS::GetWeaponSystem().GetGuns()[i + 1].num]);
     }
 
-    initbutton(gGlobalStateGameMenus.limbomenu, i, s, 35,
-               154 + 18 * (i + ord(i >= primary_weapons)), 235, 16);
+    initbutton(limbomenu, i, s, 35, 154 + 18 * (i + ord(i >= primary_weapons)), 235, 16);
   }
 
   // kick menu
 
-  gGlobalStateGameMenus.kickmenu->w = 370;
-  gGlobalStateGameMenus.kickmenu->h = 90;
-  gGlobalStateGameMenus.kickmenu->x = 125;
-  gGlobalStateGameMenus.kickmenu->y = 355;
+  kickmenu->w = 370;
+  kickmenu->h = 90;
+  kickmenu->x = 125;
+  kickmenu->y = 355;
 
-  setlength(gGlobalStateGameMenus.kickmenu->button, 4);
-  initbutton(gGlobalStateGameMenus.kickmenu, 0, "<<<<", 15, 35, 90, 25);
-  initbutton(gGlobalStateGameMenus.kickmenu, 1, ">>>>", 265, 35, 90, 25);
-  initbutton(gGlobalStateGameMenus.kickmenu, 2, ("Kick"), 105, 55, 90, 25);
-  initbutton(gGlobalStateGameMenus.kickmenu, 3, ("Ban"), 195, 55, 80, 25);
+  setlength(kickmenu->button, 4);
+  initbutton(kickmenu, 0, "<<<<", 15, 35, 90, 25);
+  initbutton(kickmenu, 1, ">>>>", 265, 35, 90, 25);
+  initbutton(kickmenu, 2, ("Kick"), 105, 55, 90, 25);
+  initbutton(kickmenu, 3, ("Ban"), 195, 55, 80, 25);
 
-  gGlobalStateGameMenus.kickmenu->button[3].active = false; // TODO: ban not supported for now
+  kickmenu->button[3].active = false; // TODO: ban not supported for now
 
   // map menu
 
-  gGlobalStateGameMenus.mapmenu->w = 370;
-  gGlobalStateGameMenus.mapmenu->h = 90;
-  gGlobalStateGameMenus.mapmenu->x = 125;
-  gGlobalStateGameMenus.mapmenu->y = 355;
+  mapmenu->w = 370;
+  mapmenu->h = 90;
+  mapmenu->x = 125;
+  mapmenu->y = 355;
 
-  setlength(gGlobalStateGameMenus.mapmenu->button, 3);
-  initbutton(gGlobalStateGameMenus.mapmenu, 0, "<<<<", 15, 35, 90, 25);
-  initbutton(gGlobalStateGameMenus.mapmenu, 1, ">>>>", 265, 35, 90, 25);
-  initbutton(gGlobalStateGameMenus.mapmenu, 2, ("Select"), 120, 55, 90, 25);
+  setlength(mapmenu->button, 3);
+  initbutton(mapmenu, 0, "<<<<", 15, 35, 90, 25);
+  initbutton(mapmenu, 1, ">>>>", 265, 35, 90, 25);
+  initbutton(mapmenu, 2, ("Select"), 120, 55, 90, 25);
 }
 
 void hideall()
@@ -187,11 +176,11 @@ void hideall()
 
 void GlobalStateGameMenus::gamemenushow(pgamemenu menu, bool show)
 {
-  if (menu == gGlobalStateGameMenus.escmenu)
+  if (menu == escmenu)
   {
     if (show)
     {
-      if (gGlobalStateGameMenus.limbomenu->active)
+      if (limbomenu->active)
       {
         limbowasactive = true;
       }
@@ -221,11 +210,11 @@ void GlobalStateGameMenus::gamemenushow(pgamemenu menu, bool show)
       gGlobalStateInterfaceGraphics.noobshow = false;
       if (limbowasactive)
       {
-        gGlobalStateGameMenus.limbomenu->active = true;
+        limbomenu->active = true;
       }
     }
   }
-  else if ((menu == gGlobalStateGameMenus.teammenu) && show)
+  else if ((menu == teammenu) && show)
   {
     hideall();
 
@@ -258,22 +247,22 @@ void GlobalStateGameMenus::gamemenushow(pgamemenu menu, bool show)
       }
       }
   }
-  else if ((menu == gGlobalStateGameMenus.mapmenu) && show)
+  else if ((menu == mapmenu) && show)
   {
-    clientvotemap(gGlobalStateGameMenus.mapmenuindex);
-    gGlobalStateGameMenus.kickmenu->active = false;
+    clientvotemap(mapmenuindex);
+    kickmenu->active = false;
   }
-  else if ((menu == gGlobalStateGameMenus.kickmenu) && show)
+  else if ((menu == kickmenu) && show)
   {
-    gGlobalStateGameMenus.kickmenuindex = 1;
-    gGlobalStateGameMenus.mapmenu->active = false;
+    kickmenuindex = 1;
+    mapmenu->active = false;
 
     if (GS::GetGame().GetPlayersNum() < 1)
     {
       menu = nullptr;
     }
   }
-  else if (menu == gGlobalStateGameMenus.limbomenu)
+  else if (menu == limbomenu)
   {
     menu->active = false;
 
@@ -305,7 +294,7 @@ auto GlobalStateGameMenus::gamemenuaction(pgamemenu menu, std::int32_t buttonind
   if ((buttonindex >= 0) && (buttonindex < length(menu->button)) &&
       menu->button[buttonindex].active)
   {
-    if (menu == gGlobalStateGameMenus.escmenu)
+    if (menu == escmenu)
     {
       result = true;
 
@@ -319,30 +308,30 @@ auto GlobalStateGameMenus::gamemenuaction(pgamemenu menu, std::int32_t buttonind
       }
       break;
       case 1:
-        gamemenushow(gGlobalStateGameMenus.mapmenu, !gGlobalStateGameMenus.mapmenu->active);
+        gamemenushow(mapmenu, !mapmenu->active);
         break;
       case 2:
-        gamemenushow(gGlobalStateGameMenus.kickmenu, !gGlobalStateGameMenus.kickmenu->active);
+        gamemenushow(kickmenu, !kickmenu->active);
         break;
       case 3: {
         result = (sprite_system.IsPlayerSpriteValid()) && (GS::GetGame().GetMapchangecounter() < 0);
 
         if (result)
         {
-          gamemenushow(gGlobalStateGameMenus.teammenu);
+          gamemenushow(teammenu);
           GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
           gGlobalStateClient.selteam = 0;
         }
         else if ((!sprite_system.IsPlayerSpriteValid()) && GS::GetGame().isteamgame())
         {
           result = true;
-          gamemenushow(gGlobalStateGameMenus.teammenu);
+          gamemenushow(teammenu);
         }
       }
       break;
       }
     }
-    else if (menu == gGlobalStateGameMenus.teammenu)
+    else if (menu == teammenu)
     {
       result = true;
       gamemenushow(menu, false);
@@ -355,52 +344,48 @@ auto GlobalStateGameMenus::gamemenuaction(pgamemenu menu, std::int32_t buttonind
         clientsendplayerinfo();
       }
     }
-    else if (menu == gGlobalStateGameMenus.kickmenu)
+    else if (menu == kickmenu)
     {
-      i = gGlobalStateGameMenus.kickmenuindex;
+      i = kickmenuindex;
 
       if (GS::GetGame().GetPlayersNum() < 1)
       {
-        gamemenushow(gGlobalStateGameMenus.kickmenu, false);
+        gamemenushow(kickmenu, false);
       }
       else
       {
         switch (buttonindex)
         {
         case 0: { // prev
-          gGlobalStateGameMenus.kickmenuindex =
-            ((max_sprites + gGlobalStateGameMenus.kickmenuindex - 2) % max_sprites) + 1;
-          while (!(sprite_system.GetSprite(gGlobalStateGameMenus.kickmenuindex).IsActive() or
-                   sprite_system.GetSprite(gGlobalStateGameMenus.kickmenuindex).player->demoplayer))
+          kickmenuindex = ((max_sprites + kickmenuindex - 2) % max_sprites) + 1;
+          while (!(sprite_system.GetSprite(kickmenuindex).IsActive() or
+                   sprite_system.GetSprite(kickmenuindex).player->demoplayer))
           {
-            gGlobalStateGameMenus.kickmenuindex =
-              ((max_sprites + gGlobalStateGameMenus.kickmenuindex - 2) % max_sprites) + 1;
+            kickmenuindex = ((max_sprites + kickmenuindex - 2) % max_sprites) + 1;
           }
 
-          result = (gGlobalStateGameMenus.kickmenuindex != i);
+          result = (kickmenuindex != i);
         }
         break;
 
         case 1: { // next
-          gGlobalStateGameMenus.kickmenuindex =
-            (gGlobalStateGameMenus.kickmenuindex % max_sprites) + 1;
-          while (!(sprite_system.GetSprite(gGlobalStateGameMenus.kickmenuindex).IsActive() or
-                   sprite_system.GetSprite(gGlobalStateGameMenus.kickmenuindex).player->demoplayer))
+          kickmenuindex = (kickmenuindex % max_sprites) + 1;
+          while (!(sprite_system.GetSprite(kickmenuindex).IsActive() or
+                   sprite_system.GetSprite(kickmenuindex).player->demoplayer))
           {
-            gGlobalStateGameMenus.kickmenuindex =
-              (gGlobalStateGameMenus.kickmenuindex % max_sprites) + 1;
+            kickmenuindex = (kickmenuindex % max_sprites) + 1;
           }
 
-          result = (gGlobalStateGameMenus.kickmenuindex != i);
+          result = (kickmenuindex != i);
         }
         break;
 
         case 2: { // kick
-          result = (!sprite_system.IsPlayerSprite(gGlobalStateGameMenus.kickmenuindex));
+          result = (!sprite_system.IsPlayerSprite(kickmenuindex));
 
           if (result)
           {
-            gamemenushow(gGlobalStateGameMenus.escmenu, false);
+            gamemenushow(escmenu, false);
             gGlobalStateClientGame.chattext = ' ';
             gGlobalStateClientGame.chatchanged = true;
             gGlobalStateControlGame.votekickreasontype = true;
@@ -411,41 +396,40 @@ auto GlobalStateGameMenus::gamemenuaction(pgamemenu menu, std::int32_t buttonind
         }
       }
     }
-    else if (menu == gGlobalStateGameMenus.mapmenu)
+    else if (menu == mapmenu)
     {
       if (GS::GetGame().GetPlayersNum() < 1)
       {
-        gamemenushow(gGlobalStateGameMenus.kickmenu, false);
+        gamemenushow(kickmenu, false);
       }
       else
       {
         switch (buttonindex)
         {
         case 0: { // prev
-          if (gGlobalStateGameMenus.mapmenuindex > 0)
+          if (mapmenuindex > 0)
           {
-            gGlobalStateGameMenus.mapmenuindex = gGlobalStateGameMenus.mapmenuindex - 1;
-            clientvotemap(gGlobalStateGameMenus.mapmenuindex);
+            mapmenuindex = mapmenuindex - 1;
+            clientvotemap(mapmenuindex);
           }
 
-          result = (gGlobalStateGameMenus.kickmenuindex != 0);
+          result = (kickmenuindex != 0);
         }
         break;
 
         case 1: { // next
-          if (gGlobalStateGameMenus.mapmenuindex < gGlobalStateNetworkClient.votemapcount - 1)
+          if (mapmenuindex < gGlobalStateNetworkClient.votemapcount - 1)
           {
-            gGlobalStateGameMenus.mapmenuindex = gGlobalStateGameMenus.mapmenuindex + 1;
-            clientvotemap(gGlobalStateGameMenus.mapmenuindex);
+            mapmenuindex = mapmenuindex + 1;
+            clientvotemap(mapmenuindex);
           }
 
-          result =
-            (gGlobalStateGameMenus.mapmenuindex <= gGlobalStateNetworkClient.votemapcount - 1);
+          result = (mapmenuindex <= gGlobalStateNetworkClient.votemapcount - 1);
         }
         break;
 
         case 2: { // vote map
-          gamemenushow(gGlobalStateGameMenus.escmenu, false);
+          gamemenushow(escmenu, false);
           clientsendstringmessage(string("votemap ") + (gGlobalStateNetworkClient.votemapname),
                                   msgtype_cmd);
         }
@@ -453,7 +437,7 @@ auto GlobalStateGameMenus::gamemenuaction(pgamemenu menu, std::int32_t buttonind
         }
       }
     }
-    else if ((menu == gGlobalStateGameMenus.limbomenu) && (sprite_system.IsPlayerSpriteValid()))
+    else if ((menu == limbomenu) && (sprite_system.IsPlayerSpriteValid()))
     {
       result = true;
       i = buttonindex + 1;
@@ -472,7 +456,7 @@ auto GlobalStateGameMenus::gamemenuaction(pgamemenu menu, std::int32_t buttonind
 
           if (sprite_system.GetPlayerSprite().selweapon > 0)
           {
-            gamemenushow(gGlobalStateGameMenus.limbomenu, false);
+            gamemenushow(limbomenu, false);
             if (!sprite_system.GetPlayerSprite().deadmeat and
                 sprite_system.GetPlayerSprite().weapon.num != bow_num and
                 sprite_system.GetPlayerSprite().weapon.num != bow2_num)
@@ -494,7 +478,7 @@ auto GlobalStateGameMenus::gamemenuaction(pgamemenu menu, std::int32_t buttonind
 
           if (count == 0)
           {
-            gamemenushow(gGlobalStateGameMenus.limbomenu, false);
+            gamemenushow(limbomenu, false);
             sprite_system.GetPlayerSprite().SetFirstWeapon(
               sprite_system.GetPlayerSprite().secondaryweapon);
             sprite_system.GetPlayerSprite().SetSecondWeapon(
@@ -525,27 +509,26 @@ void GlobalStateGameMenus::gamemenumousemove()
   float y;
   pgamebutton btn;
 
-  gGlobalStateGameMenus.hoveredmenu = nullptr;
-  gGlobalStateGameMenus.hoveredbutton = nullptr;
-  gGlobalStateGameMenus.hoveredbuttonindex = 0;
+  hoveredmenu = nullptr;
+  hoveredbutton = nullptr;
+  hoveredbuttonindex = 0;
 
   x = gGlobalStateClientGame.mx * gGlobalStateInterfaceGraphics._rscala.x;
   y = gGlobalStateClientGame.my * gGlobalStateInterfaceGraphics._rscala.y;
 
-  for (i = low(gGlobalStateGameMenus.gamemenu); i <= high(gGlobalStateGameMenus.gamemenu); i++)
+  for (i = low(gamemenu); i <= high(gamemenu); i++)
   {
-    if (gGlobalStateGameMenus.gamemenu[i].active)
+    if (gamemenu[i].active)
     {
-      for (j = low(gGlobalStateGameMenus.gamemenu[i].button);
-           j <= high(gGlobalStateGameMenus.gamemenu[i].button); j++)
+      for (j = low(gamemenu[i].button); j <= high(gamemenu[i].button); j++)
       {
-        btn = &gGlobalStateGameMenus.gamemenu[i].button[j];
+        btn = &gamemenu[i].button[j];
 
         if (btn->active && (x > btn->x1) && (x < btn->x2) && (y > btn->y1) && (y < btn->y2))
         {
-          gGlobalStateGameMenus.hoveredmenu = &gGlobalStateGameMenus.gamemenu[i];
-          gGlobalStateGameMenus.hoveredbutton = btn;
-          gGlobalStateGameMenus.hoveredbuttonindex = j;
+          hoveredmenu = &gamemenu[i];
+          hoveredbutton = btn;
+          hoveredbuttonindex = j;
           return;
         }
       }
@@ -555,10 +538,9 @@ void GlobalStateGameMenus::gamemenumousemove()
 
 auto GlobalStateGameMenus::gamemenuclick() -> bool
 {
-  if (gGlobalStateGameMenus.hoveredbutton != nullptr)
+  if (hoveredbutton != nullptr)
   {
-    return gamemenuaction(gGlobalStateGameMenus.hoveredmenu,
-                          gGlobalStateGameMenus.hoveredbuttonindex);
+    return gamemenuaction(hoveredmenu, hoveredbuttonindex);
   }
   return false;
 }

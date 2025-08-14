@@ -2181,8 +2181,7 @@ void GlobalStateInterfaceGraphics::renderactionsnaptext(double t)
 
   gGlobalStateGameRendering.setfontstyle(font_small);
   gfxtextcolor(rgba(230, 65, 60, 150 + fabs(round(sin(5.1 * t) * 100))));
-  gfxdrawtext(str1, 30 * gGlobalStateInterfaceGraphics._iscala.x,
-              412 * gGlobalStateInterfaceGraphics._iscala.y);
+  gfxdrawtext(str1, 30 * _iscala.x, 412 * _iscala.y);
 }
 
 void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float width, float height)
@@ -2269,19 +2268,18 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
 
     for (i = 0; i < max_big_messages; i++)
     {
-      if (gGlobalStateInterfaceGraphics.bigdelay[i] > 0)
+      if (bigdelay[i] > 0)
       {
         dy = 0;
-        alfa = (std::uint32_t)gGlobalStateInterfaceGraphics.bigcolor[i] >> 24;
+        alfa = (std::uint32_t)bigcolor[i] >> 24;
         // somebody might have defined color as $RRGGBB not $AARRGGBB
         // effectively leaving AA component 0
         if (alfa == 0)
         {
           alfa = 255;
         }
-        alfa = max(min(3 * gGlobalStateInterfaceGraphics.bigdelay[i] + 25, alfa), 0);
-        scale = gGlobalStateInterfaceGraphics.bigscale[i] *
-                ((float)(gGlobalStateClientGame.renderheight) / 480) * 4.8;
+        alfa = max(min(3 * bigdelay[i] + 25, alfa), 0);
+        scale = bigscale[i] * ((float)(gGlobalStateClientGame.renderheight) / 480) * 4.8;
 
         if (scale * gGlobalStateGameRendering.fontstylesize(font_big) > maxsize)
         {
@@ -2296,55 +2294,49 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
 
           if (widescreencut)
           {
-            dy = -30 * gGlobalStateInterfaceGraphics._iscala.y;
+            dy = -30 * _iscala.y;
           }
         }
 
         gGlobalStateGameRendering.setfontstyle(font_big, scale);
-        gfxtextcolor(rgba(gGlobalStateInterfaceGraphics.bigcolor[i], alfa));
+        gfxtextcolor(rgba(bigcolor[i], alfa));
         gfxtextshadow(1, 1, rgba(0, power((float)(alfa) / 255, 4) * alfa));
-        gfxdrawtext(gGlobalStateInterfaceGraphics.bigtext[i],
-                    gGlobalStateInterfaceGraphics.bigposx[i],
-                    gGlobalStateInterfaceGraphics.bigposy[i] + dy);
+        gfxdrawtext(bigtext[i], bigposx[i], bigposy[i] + dy);
         gfxtextverticalalign(gfx_top);
         gfxtextscale(1);
       }
 
-      if (gGlobalStateInterfaceGraphics.worlddelay[i] > 0)
+      if (worlddelay[i] > 0)
       {
-        alfa = (unsigned long)gGlobalStateInterfaceGraphics.worldcolor[i] >> 24;
+        alfa = (unsigned long)worldcolor[i] >> 24;
         // somebody might have defined color as $RRGGBB not $AARRGGBB
         // effectively leaving AA component 0
         if (alfa == 0)
         {
           alfa = 255;
         }
-        alfa = max(min(3 * gGlobalStateInterfaceGraphics.worlddelay[i] + 25, alfa), 0);
-        x = gGlobalStateInterfaceGraphics.worldposx[i] +
-            (0.5 * gGlobalStateGame.gamewidth - gGlobalStateClient.camerax) *
-              gGlobalStateInterfaceGraphics._rscala.x;
-        y = gGlobalStateInterfaceGraphics.worldposy[i] +
-            (0.5 * gGlobalStateGame.gameheight - gGlobalStateClient.cameray) *
-              gGlobalStateInterfaceGraphics._rscala.y;
+        alfa = max(min(3 * worlddelay[i] + 25, alfa), 0);
+        x = worldposx[i] +
+            (0.5 * gGlobalStateGame.gamewidth - gGlobalStateClient.camerax) * _rscala.x;
+        y = worldposy[i] +
+            (0.5 * gGlobalStateGame.gameheight - gGlobalStateClient.cameray) * _rscala.y;
 
-        scale = gGlobalStateInterfaceGraphics.worldscale[i];
+        scale = worldscale[i];
 
-        if (gGlobalStateInterfaceGraphics.worldscale[i] *
-              gGlobalStateGameRendering.fontstylesize(font_world) >
-            maxsize)
+        if (worldscale[i] * gGlobalStateGameRendering.fontstylesize(font_world) > maxsize)
         {
           scale = maxsize / gGlobalStateGameRendering.fontstylesize(font_world);
         }
 
-        if (scale != gGlobalStateInterfaceGraphics.worldscale[i])
+        if (scale != worldscale[i])
         {
-          gfxtextscale((float)(gGlobalStateInterfaceGraphics.worldscale[i]) / scale);
+          gfxtextscale((float)(worldscale[i]) / scale);
         }
 
         gGlobalStateGameRendering.setfontstyle(font_world, scale);
-        gfxtextcolor(rgba(gGlobalStateInterfaceGraphics.worldcolor[i], alfa));
+        gfxtextcolor(rgba(worldcolor[i], alfa));
         gfxtextshadow(1, 1, rgba(0, power((float)(alfa) / 255, 4) * alfa));
-        gfxdrawtext(gGlobalStateInterfaceGraphics.worldtext[i], x, y);
+        gfxdrawtext(worldtext[i], x, y);
         gfxtextscale(1);
       }
     }
@@ -2395,8 +2387,8 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
     {
       if (int_.health)
       {
-        x = pixelalignx(int_.healthico_x * gGlobalStateInterfaceGraphics._iscala.x);
-        y = pixelaligny(int_.healthico_y * gGlobalStateInterfaceGraphics._iscala.y);
+        x = pixelalignx(int_.healthico_x * _iscala.x);
+        y = pixelaligny(int_.healthico_y * _iscala.y);
 
         gfxdrawsprite(t[GFX::INTERFACE_HEALTH], x, y, 0, 0, degtorad(int_.healthico_rotate), color);
 
@@ -2416,8 +2408,8 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
 
       if (int_.ammo)
       {
-        x = pixelalignx(int_.ammoico_x * gGlobalStateInterfaceGraphics._iscala.x);
-        y = pixelaligny(int_.ammoico_y * gGlobalStateInterfaceGraphics._iscala.y);
+        x = pixelalignx(int_.ammoico_x * _iscala.x);
+        y = pixelaligny(int_.ammoico_y * _iscala.y);
 
         gfxdrawsprite(t[GFX::INTERFACE_AMMO], x, y, 0, 0, degtorad(int_.ammoico_rotate), color);
 
@@ -2439,11 +2431,11 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
 
       if (int_.fire)
       {
-        x = pixelalignx(relinfo.firebar_rel_x * gGlobalStateInterfaceGraphics._iscala.x +
-                        (int_.firebar_x - relinfo.firebar_rel_x));
+        x =
+          pixelalignx(relinfo.firebar_rel_x * _iscala.x + (int_.firebar_x - relinfo.firebar_rel_x));
 
-        y = pixelaligny(relinfo.firebar_rel_y * gGlobalStateInterfaceGraphics._iscala.y +
-                        (int_.firebar_y - relinfo.firebar_rel_y));
+        y =
+          pixelaligny(relinfo.firebar_rel_y * _iscala.y + (int_.firebar_y - relinfo.firebar_rel_y));
 
         gfxdrawsprite(t[GFX::INTERFACE_FIRE_BAR_R], x, y, 0, 0, degtorad(int_.firebar_rotate),
                       color);
@@ -2456,8 +2448,8 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
 
       if (int_.jet)
       {
-        x = pixelalignx(int_.jetico_x * gGlobalStateInterfaceGraphics._iscala.x);
-        y = pixelaligny(int_.jetico_y * gGlobalStateInterfaceGraphics._iscala.y);
+        x = pixelalignx(int_.jetico_x * _iscala.x);
+        y = pixelaligny(int_.jetico_y * _iscala.y);
 
         gfxdrawsprite(t[GFX::INTERFACE_JET], x, y, 0, 0, degtorad(int_.jetico_rotate), color);
 
@@ -2492,16 +2484,16 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
           {
             if (int_.nades_pos == horizontal)
             {
-              x = pixelalignx(relinfo.nadesbar_rel_x * gGlobalStateInterfaceGraphics._iscala.x +
-                              dx * j + (int_.nades_x - relinfo.nadesbar_rel_x));
-              y = pixelaligny(relinfo.nadesbar_rel_y * gGlobalStateInterfaceGraphics._iscala.y +
+              x = pixelalignx(relinfo.nadesbar_rel_x * _iscala.x + dx * j +
+                              (int_.nades_x - relinfo.nadesbar_rel_x));
+              y = pixelaligny(relinfo.nadesbar_rel_y * _iscala.y +
                               (int_.nades_y - relinfo.nadesbar_rel_y));
             }
             else if (int_.nades_pos == vertical)
             {
-              x = pixelalignx(relinfo.nadesbar_rel_x * gGlobalStateInterfaceGraphics._iscala.x +
+              x = pixelalignx(relinfo.nadesbar_rel_x * _iscala.x +
                               (int_.nades_x - relinfo.nadesbar_rel_x));
-              y = pixelaligny(relinfo.nadesbar_rel_y * gGlobalStateInterfaceGraphics._iscala.y +
+              y = pixelaligny(relinfo.nadesbar_rel_y * _iscala.y +
                               (int_.nades_y - relinfo.nadesbar_rel_y) - dy * j + dy * 6);
             }
 
@@ -2535,10 +2527,8 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
       cursorsize.y = t[GFX::INTERFACE_CURSOR]->height * t[GFX::INTERFACE_CURSOR]->scale;
 
       // Base crosshair offset. Larger offset if interface scaling is enabled
-      cursorscaledoffset.x =
-        (float)(cursorsize.x) / 2 * cursorscale / gGlobalStateInterfaceGraphics._rscala.x;
-      cursorscaledoffset.y =
-        (float)(cursorsize.y) / 2 * cursorscale / gGlobalStateInterfaceGraphics._rscala.y;
+      cursorscaledoffset.x = (float)(cursorsize.x) / 2 * cursorscale / _rscala.x;
+      cursorscaledoffset.y = (float)(cursorsize.y) / 2 * cursorscale / _rscala.y;
 
       moveacc = spriteme->getmoveacc();
       inaccuracy = gGlobalStateClient.hitspraycounter + moveacc * 100;
@@ -2554,11 +2544,11 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
       }
 
       // Color and alpha for crosshair
-      if (gGlobalStateInterfaceGraphics.cursortextlength > 0)
+      if (cursortextlength > 0)
       {
         alfa = CVar::ui_status_transparency - 50;
 
-        if (gGlobalStateInterfaceGraphics.cursorfriendly)
+        if (cursorfriendly)
         {
           cursorcolor = 0x33ff33;
         }
@@ -2593,35 +2583,28 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
 
         if (roto < 1200)
         {
-          x = pixelalignx(characteroffset.x * gGlobalStateInterfaceGraphics._rscala.x);
-          y = pixelaligny(characteroffset.y * gGlobalStateInterfaceGraphics._rscala.y);
+          x = pixelalignx(characteroffset.x * _rscala.x);
+          y = pixelaligny(characteroffset.y * _rscala.y);
 
           gfxdrawsprite(
-            t[GFX::INTERFACE_SIGHT], x - 1, y - 1,
-            (roto / 240) * gGlobalStateInterfaceGraphics._rscala.x,
-            (roto / 480) * gGlobalStateInterfaceGraphics._rscala.y, 1, 1,
-            -angle2points(
-              vector2(x, y),
-              vector2(gGlobalStateClientGame.mx * gGlobalStateInterfaceGraphics._rscala.x,
-                      gGlobalStateClientGame.my * gGlobalStateInterfaceGraphics._rscala.y)),
-            rgba(0xffffff, round((roto / 240) * gGlobalStateInterfaceGraphics._rscala.x * 32)));
+            t[GFX::INTERFACE_SIGHT], x - 1, y - 1, (roto / 240) * _rscala.x,
+            (roto / 480) * _rscala.y, 1, 1,
+            -angle2points(vector2(x, y), vector2(gGlobalStateClientGame.mx * _rscala.x,
+                                                 gGlobalStateClientGame.my * _rscala.y)),
+            rgba(0xffffff, round((roto / 240) * _rscala.x * 32)));
         }
       }
 
       if (!gGlobalStateDemo.demoplayer.active())
       {
-        x = pixelalignx((gGlobalStateClientGame.mx - cursorscaledoffset.x) *
-                        gGlobalStateInterfaceGraphics._rscala.x);
-        y = pixelaligny((gGlobalStateClientGame.my - cursorscaledoffset.y) *
-                        gGlobalStateInterfaceGraphics._rscala.y);
+        x = pixelalignx((gGlobalStateClientGame.mx - cursorscaledoffset.x) * _rscala.x);
+        y = pixelaligny((gGlobalStateClientGame.my - cursorscaledoffset.y) * _rscala.y);
       }
       else
       {
-        x = pixelalignx((gGlobalStateGame.gamewidthhalf - gGlobalStateClient.camerax) *
-                          gGlobalStateInterfaceGraphics._rscala.x +
+        x = pixelalignx((gGlobalStateGame.gamewidthhalf - gGlobalStateClient.camerax) * _rscala.x +
                         spriteme->control.mouseaimx);
-        y = pixelaligny((gGlobalStateGame.gameheighthalf - gGlobalStateClient.cameray) *
-                          gGlobalStateInterfaceGraphics._rscala.y +
+        y = pixelaligny((gGlobalStateGame.gameheighthalf - gGlobalStateClient.cameray) * _rscala.y +
                         spriteme->control.mouseaimy);
       }
 
@@ -2652,8 +2635,8 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
       x = t[GFX::INTERFACE_ARROW]->width * t[GFX::INTERFACE_ARROW]->scale;
       y = t[GFX::INTERFACE_ARROW]->height * t[GFX::INTERFACE_ARROW]->scale;
 
-      indicatoroffset.x = x / 2 / gGlobalStateInterfaceGraphics._rscala.x;
-      indicatoroffset.y = y / 2 / gGlobalStateInterfaceGraphics._rscala.y;
+      indicatoroffset.x = x / 2 / _rscala.x;
+      indicatoroffset.y = y / 2 / _rscala.y;
 
       x = characteroffset.x - indicatoroffset.x;
       y = characteroffset.y - indicatoroffset.y - 15;
@@ -2668,8 +2651,8 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
         y = y + 2 * sin(5.1 * timeelapsed);
       }
 
-      x = x * gGlobalStateInterfaceGraphics._rscala.x;
-      y = y * gGlobalStateInterfaceGraphics._rscala.y;
+      x = x * _rscala.x;
+      y = y * _rscala.y;
 
       gfxdrawsprite(t[GFX::INTERFACE_ARROW], x, y, rgba(0xffffff, alfa));
     }
@@ -2682,10 +2665,10 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
     }
 
     // Ping dot
-    if (int_.ping && gGlobalStateInterfaceGraphics.playernamesshow)
+    if (int_.ping && playernamesshow)
     {
-      x = int_.ping_x * gGlobalStateInterfaceGraphics._iscala.x;
-      y = int_.ping_y * gGlobalStateInterfaceGraphics._iscala.y;
+      x = int_.ping_x * _iscala.x;
+      y = int_.ping_y * _iscala.y;
       _scala.x = 0.5 + (float)(spriteme->player->realping) / 600;
       _scala.y = 0.45 + (float)(spriteme->player->realping) / 600;
 
@@ -2743,8 +2726,7 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
       alfa = 255;
       if (gGlobalStateClientGame.renderwidth < 1024)
       {
-        if (gGlobalStateInterfaceGraphics.fragsmenushow ||
-            gGlobalStateInterfaceGraphics.statsmenushow)
+        if (fragsmenushow || statsmenushow)
         {
           alfa = 50;
         }
@@ -2766,7 +2748,7 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
 
             l2 = l2 + killconsole_separate_height;
 
-            x = x * gGlobalStateInterfaceGraphics._iscala.x;
+            x = x * _iscala.x;
             y = y + l2;
             _scala.x = 0.8;
             _scala.y = 0.8;
@@ -2781,14 +2763,14 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
 
   // Minimap
 
-  if (gGlobalStateInterfaceGraphics.minimapshow)
+  if (minimapshow)
   {
-    gGlobalStateMapGraphics.renderminimap(
-      pixelalignx(CVar::ui_minimap_posx * gGlobalStateInterfaceGraphics._rscala.x),
-      pixelaligny(CVar::ui_minimap_posy), round(CVar::ui_status_transparency * 0.85));
+    gGlobalStateMapGraphics.renderminimap(pixelalignx(CVar::ui_minimap_posx * _rscala.x),
+                                          pixelaligny(CVar::ui_minimap_posy),
+                                          round(CVar::ui_status_transparency * 0.85));
   }
 
-  if (gGlobalStateInterfaceGraphics.minimapshow && (!CVar::sv_minimap))
+  if (minimapshow && (!CVar::sv_minimap))
   {
     alfa = CVar::ui_minimap_transparency;
 
@@ -2872,7 +2854,7 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
           gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, 0.65, color);
 
           // Chat indicator
-          if (gGlobalStateInterfaceGraphics.chatdelay[sprite.num] > 0)
+          if (chatdelay[sprite.num] > 0)
           {
             p.x = sprite.skeleton.pos[7].x;
             p.y = sprite.skeleton.pos[7].y - 40;
@@ -2885,12 +2867,12 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
   }
 
   // Background for self Weapon Stats
-  if (gGlobalStateInterfaceGraphics.statsmenushow && !gGlobalStateInterfaceGraphics.fragsmenushow)
+  if (statsmenushow && !fragsmenushow)
   {
     _scala.x = (float)(590) / background_width;
     _scala.y = (float)(((gGlobalStateClient.wepstatsnum * 20) + 85)) / background_width;
-    x = 25 + gGlobalStateInterfaceGraphics.fragx;
-    y = 5 + gGlobalStateInterfaceGraphics.fragy;
+    x = 25 + fragx;
+    y = 5 + fragy;
 
     gfxdrawsprite(t[GFX::INTERFACE_BACK], x, y, _scala.x, _scala.y,
                   rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
@@ -2903,8 +2885,8 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
       {
         // Draw the weapons image
         z += 1;
-        x = 30 + gGlobalStateInterfaceGraphics.fragx;
-        y = ((z * 20) + 50) + gGlobalStateInterfaceGraphics.fragy;
+        x = 30 + fragx;
+        y = ((z * 20) + 50) + fragy;
 
         gfxdrawsprite(t[gGlobalStateClient.wepstats[j].textureid], x, y);
       }
@@ -2916,12 +2898,12 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
   auto &game = GS::GetGame();
 
   // Background For Frags Stats
-  if (gGlobalStateInterfaceGraphics.fragsmenushow)
+  if (fragsmenushow)
   {
     if (gGlobalStateClient.notexts == 0)
     {
-      x = 25 + gGlobalStateInterfaceGraphics.fragx;
-      y = 5 + gGlobalStateInterfaceGraphics.fragy;
+      x = 25 + fragx;
+      y = 5 + fragy;
       i = 0;
 
       if (game.GetTeamplayersnum(1) > 0)
@@ -2963,24 +2945,23 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
 
       _scala.x = (float)(590) / background_width;
       _scala.y = fragmenubottom / background_width;
-      y = y - (gGlobalStateInterfaceGraphics.fragsscrolllev * 20);
+      y = y - (fragsscrolllev * 20);
 
       gfxdrawsprite(t[GFX::INTERFACE_BACK], x, y, _scala.x, _scala.y,
                     rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
 
       if ((_scala.y * background_width) > height - 80)
       {
-        gGlobalStateInterfaceGraphics.fragsscrollmax =
-          round((float)((_scala.y * background_width - height + 80)) / 20);
+        fragsscrollmax = round((float)((_scala.y * background_width - height + 80)) / 20);
       }
       else
       {
-        gGlobalStateInterfaceGraphics.fragsscrollmax = 0;
+        fragsscrollmax = 0;
       }
 
-      if (gGlobalStateInterfaceGraphics.fragsscrollmax != 0)
+      if (fragsscrollmax != 0)
       {
-        x = 580 + gGlobalStateInterfaceGraphics.fragx;
+        x = 580 + fragx;
         y = height / 2;
         gfxdrawsprite(t[GFX::INTERFACE_SCROLL], x, y,
                       rgba(0xffffff, fabs(round(sin(5.1 * timeelapsed) * 255))));
@@ -3031,8 +3012,8 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
           if (!sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                  .player->demoplayer)
           {
-            x = 32 + gGlobalStateInterfaceGraphics.fragx;
-            y = 61 + j * fragsmenu_player_height + gGlobalStateInterfaceGraphics.fragy;
+            x = 32 + fragx;
+            y = 61 + j * fragsmenu_player_height + fragy;
 
             if (CVar::ui_hidespectators and
                 sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).isspectator())
@@ -3046,14 +3027,14 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
               if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                     .player->team == team_alpha)
               {
-                y = 70 + (ids[1] * 15) + teamposstep[1] + gGlobalStateInterfaceGraphics.fragy;
+                y = 70 + (ids[1] * 15) + teamposstep[1] + fragy;
                 ids[1] = ids[1] + 1;
               }
               else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                          .player->team == team_bravo)
               {
                 y = 70 + game.GetTeamplayersnum(1) * fragsmenu_player_height + teamposstep[2] +
-                    gGlobalStateInterfaceGraphics.fragy + (ids[2] * 15);
+                    fragy + (ids[2] * 15);
                 ids[2] = ids[2] + 1;
               }
               // if sv_gamemode.IntValue = GAMESTYLE_TEAMMATCH then
@@ -3064,7 +3045,7 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
                 y = 70 +
                     (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2)) *
                       fragsmenu_player_height +
-                    teamposstep[3] + gGlobalStateInterfaceGraphics.fragy + (ids[3] * 15);
+                    teamposstep[3] + fragy + (ids[3] * 15);
                 ids[3] = ids[3] + 1;
               }
               else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
@@ -3074,7 +3055,7 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
                     (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2) +
                      game.GetTeamplayersnum(3)) *
                       fragsmenu_player_height +
-                    teamposstep[4] + gGlobalStateInterfaceGraphics.fragy + (ids[4] * 15);
+                    teamposstep[4] + fragy + (ids[4] * 15);
                 ids[4] = ids[4] + 1;
               }
               // end;
@@ -3085,7 +3066,7 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
                     (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2) +
                      game.GetTeamplayersnum(3) + game.GetTeamplayersnum(4)) *
                       fragsmenu_player_height +
-                    teamposstep[0] + gGlobalStateInterfaceGraphics.fragy + (ids[0] * 15);
+                    teamposstep[0] + fragy + (ids[0] * 15);
                 ids[0] = ids[0] + 1;
               }
               else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
@@ -3096,11 +3077,11 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
                      game.GetTeamplayersnum(3) + game.GetTeamplayersnum(4) +
                      game.GetTeamplayersnum(0)) *
                       fragsmenu_player_height +
-                    teamposstep[5] + gGlobalStateInterfaceGraphics.fragy + (ids[5] * 15);
+                    teamposstep[5] + fragy + (ids[5] * 15);
                 ids[5] = ids[5] + 1;
               }
             }
-            y = y - (gGlobalStateInterfaceGraphics.fragsscrolllev * 20);
+            y = y - (fragsscrolllev * 20);
 
             if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).deadmeat and
                 sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
@@ -3110,7 +3091,7 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
                             rgba(0xffffff, CVar::ui_status_transparency));
             }
 
-            x = 31 + gGlobalStateInterfaceGraphics.fragx;
+            x = 31 + fragx;
 
             if (sprite_system.IsPlayerSprite(GS::GetGame().GetSortedPlayers(j).playernum))
             {
@@ -3118,7 +3099,7 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
                             rgba(0xffffff, CVar::ui_status_transparency));
             }
 
-            x = 30 + gGlobalStateInterfaceGraphics.fragx;
+            x = 30 + fragx;
 
             // reg star
             l = 0;
@@ -3139,8 +3120,7 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
 
             if (l != 0)
             {
-              gfxdrawsprite(t[l], pixelalignx(gGlobalStateInterfaceGraphics.fragx + 259),
-                            pixelaligny(y - 1), color);
+              gfxdrawsprite(t[l], pixelalignx(fragx + 259), pixelaligny(y - 1), color);
             }
 
             // flag icon
@@ -3149,18 +3129,16 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
                 sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
                   .isnotspectator())
             {
-              gfxdrawsprite(t[GFX::INTERFACE_FLAG],
-                            pixelalignx(gGlobalStateInterfaceGraphics.fragx + 337),
-                            pixelaligny(y - 1), color);
+              gfxdrawsprite(t[GFX::INTERFACE_FLAG], pixelalignx(fragx + 337), pixelaligny(y - 1),
+                            color);
             }
 
             // mute sign
             if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).muted or
                 gGlobalStateClient.muteall)
             {
-              gfxdrawsprite(t[GFX::INTERFACE_MUTE],
-                            pixelalignx(gGlobalStateInterfaceGraphics.fragx + 246),
-                            pixelaligny(y - 1), color);
+              gfxdrawsprite(t[GFX::INTERFACE_MUTE], pixelalignx(fragx + 246), pixelaligny(y - 1),
+                            color);
             }
 
             // bot icon
@@ -3168,14 +3146,11 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
                    .player->jetcolor &
                  0xff000000) == color_transparency_bot)
             {
-              gfxdrawsprite(t[GFX::INTERFACE_BOT],
-                            pixelalignx(gGlobalStateInterfaceGraphics.fragx + 534), pixelaligny(y),
-                            color);
+              gfxdrawsprite(t[GFX::INTERFACE_BOT], pixelalignx(fragx + 534), pixelaligny(y), color);
             }
 
             gfxdrawsprite(
-              t[GFX::INTERFACE_CONNECTION], pixelalignx(gGlobalStateInterfaceGraphics.fragx + 520),
-              pixelaligny(y + 2),
+              t[GFX::INTERFACE_CONNECTION], pixelalignx(fragx + 520), pixelaligny(y + 2),
               rgba(
                 (std::uint8_t)((
                   (255 * (100 - sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
@@ -3252,17 +3227,16 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
   // vote on
   if (GS::GetGame().IsVoteActive())
   {
-    gfxdrawsprite(t[GFX::INTERFACE_BACK], 45 * gGlobalStateInterfaceGraphics._iscala.x,
-                  400 * gGlobalStateInterfaceGraphics._iscala.y, (float)(252) / background_width,
-                  (float)(40) / background_width,
+    gfxdrawsprite(t[GFX::INTERFACE_BACK], 45 * _iscala.x, 400 * _iscala.y,
+                  (float)(252) / background_width, (float)(40) / background_width,
                   rgba(0xffffff, round(CVar::ui_status_transparency * 0.36)));
   }
 
   // Team Box
   if (int_.team && !gGlobalStateDemo.demoplayer.active() && GS::GetGame().isteamgame())
   {
-    x = int_.teambox_x * gGlobalStateInterfaceGraphics._iscala.x;
-    y = int_.teambox_y * gGlobalStateInterfaceGraphics._iscala.y;
+    x = int_.teambox_x * _iscala.x;
+    y = int_.teambox_y * _iscala.y;
 
     gfxdrawsprite(t[GFX::INTERFACE_BACK], x, y, (float)(57) / background_width,
                   (float)(88) / background_width, rgba(0xffffff, round(int_.alpha * 0.56)));
@@ -3272,8 +3246,8 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
     {
       if (CVar::sv_gamemode == gamestyle_ctf)
       {
-        x = pixelalignx((int_.teambox_x + 4) * gGlobalStateInterfaceGraphics._iscala.x);
-        y = pixelaligny((int_.teambox_y + 5) * gGlobalStateInterfaceGraphics._iscala.y);
+        x = pixelalignx((int_.teambox_x + 4) * _iscala.x);
+        y = pixelaligny((int_.teambox_y + 5) * _iscala.y);
 
         if (!things[GS::GetGame().GetTeamFlag(1)].inbase)
         {
@@ -3291,8 +3265,8 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
       {
         if (!things[GS::GetGame().GetTeamFlag(2)].inbase)
         {
-          x = pixelalignx((int_.teambox_x + 19) * gGlobalStateInterfaceGraphics._iscala.x);
-          y = pixelaligny((int_.teambox_y + 3) * gGlobalStateInterfaceGraphics._iscala.y);
+          x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
+          y = pixelaligny((int_.teambox_y + 3) * _iscala.y);
 
           gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff, round(int_.alpha)));
         }
@@ -3305,15 +3279,15 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
         if (sprite_system.GetSprite(things[GS::GetGame().GetTeamFlag(1)].holdingsprite)
               .player->team == team_alpha)
         {
-          x = pixelalignx((int_.teambox_x + 19) * gGlobalStateInterfaceGraphics._iscala.x);
-          y = pixelaligny((int_.teambox_y + 3) * gGlobalStateInterfaceGraphics._iscala.y);
+          x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
+          y = pixelaligny((int_.teambox_y + 3) * _iscala.y);
 
           gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff0000, round(int_.alpha)));
         }
         else
         {
-          x = pixelalignx((int_.teambox_x + 19) * gGlobalStateInterfaceGraphics._iscala.x);
-          y = pixelaligny((int_.teambox_y + 3) * gGlobalStateInterfaceGraphics._iscala.y);
+          x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
+          y = pixelaligny((int_.teambox_y + 3) * _iscala.y);
 
           gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff, round(int_.alpha)));
         }
@@ -3346,7 +3320,7 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
 
     if (GS::GetGame().GetMapchangecounter() > 0)
     {
-      if (gGlobalStateInterfaceGraphics.fragsmenushow && (GS::GetGame().GetPlayersNum() > 1) &&
+      if (fragsmenushow && (GS::GetGame().GetPlayersNum() > 1) &&
           (GS::GetGame().GetMapchangecounter() < 999999999))
       {
         renderendgametexts(fragmenubottom);
@@ -3356,17 +3330,16 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
       {
         // game paused
         gfxtextcolor(rgba(185, 250, 138));
-        gfxdrawtext(("Game paused"), 197 + gGlobalStateInterfaceGraphics.fragx,
-                    24 + gGlobalStateInterfaceGraphics.fragy);
+        gfxdrawtext(("Game paused"), 197 + fragx, 24 + fragy);
       }
     }
 
-    if (gGlobalStateInterfaceGraphics.statsmenushow)
+    if (statsmenushow)
     {
       renderweaponstatstexts();
     }
 
-    if (gGlobalStateInterfaceGraphics.fragsmenushow)
+    if (fragsmenushow)
     {
       renderfragsmenutexts(fragmenubottom);
     }
@@ -3405,7 +3378,7 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
   {
     renderchattexts();
 
-    if (gGlobalStateInterfaceGraphics.playernamesshow)
+    if (playernamesshow)
     {
       renderplayernames(width, height);
     }
@@ -3422,13 +3395,12 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
     gGlobalStateGameRendering.setfontstyle(font_small);
 
     // cursor text
-    if ((gGlobalStateInterfaceGraphics.cursortextlength > 0) &&
-        (GS::GetGame().GetMapchangecounter() < 0) && !gGlobalStateGameMenus.teammenu->active &&
-        !gGlobalStateGameMenus.escmenu->active && !gGlobalStateDemo.demoplayer.active())
+    if ((cursortextlength > 0) && (GS::GetGame().GetMapchangecounter() < 0) &&
+        !gGlobalStateGameMenus.teammenu->active && !gGlobalStateGameMenus.escmenu->active &&
+        !gGlobalStateDemo.demoplayer.active())
     {
-      x = gGlobalStateClientGame.mx * gGlobalStateInterfaceGraphics._rscala.x -
-          0.5 * rectwidth(gfxtextmetrics((gGlobalStateInterfaceGraphics.cursortext)));
-      y = (gGlobalStateClientGame.my + 10) * gGlobalStateInterfaceGraphics._rscala.y;
+      x = gGlobalStateClientGame.mx * _rscala.x - 0.5 * rectwidth(gfxtextmetrics((cursortext)));
+      y = (gGlobalStateClientGame.my + 10) * _rscala.y;
 
       gfxtextcolor(rgba(0xffffff, 0x77));
       gfxdrawtext(x, y);
@@ -3439,7 +3411,7 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
     {
       x = (width - rectwidth(gfxtextmetrics(("Free Camera")))) / 2;
       gfxtextcolor(rgba(205, 205, 205));
-      gfxdrawtext(x, 430 * gGlobalStateInterfaceGraphics._iscala.y);
+      gfxdrawtext(x, 430 * _iscala.y);
     }
     else if ((gGlobalStateClient.camerafollowsprite > 0) &&
              (gGlobalStateClient.camerafollowsprite <= max_sprites) &&
@@ -3453,16 +3425,16 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
           2;
 
       gfxtextcolor(rgba(205, 205 - i * 105, 205 - i * 105));
-      gfxdrawtext(x, 430 * gGlobalStateInterfaceGraphics._iscala.y);
+      gfxdrawtext(x, 430 * _iscala.y);
     }
 
     // FPS && connection info
-    if (gGlobalStateInterfaceGraphics.coninfoshow)
+    if (coninfoshow)
     {
       gfxtextcolor(rgba(239, 170, 200));
 
-      x = gGlobalStateInterfaceGraphics._iscala.x;
-      y = gGlobalStateInterfaceGraphics._iscala.y;
+      x = _iscala.x;
+      y = _iscala.y;
 
       gfxdrawtext(string("FPS: ") + inttostr(gGlobalStateClientGame.getgamefps()), 460 * x, 10 * y);
 
@@ -3529,19 +3501,16 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
     if (GS::GetDemoRecorder().active())
     {
       gfxtextcolor(rgba(195, 0, 0, fabs(sin(5.1 * timeelapsed / 2) * 255)));
-      gfxdrawtext("REC", 612 * gGlobalStateInterfaceGraphics._iscala.x,
-                  1 * gGlobalStateInterfaceGraphics._iscala.y);
+      gfxdrawtext("REC", 612 * _iscala.x, 1 * _iscala.y);
     }
 
     // default keys help
-    if (gGlobalStateInterfaceGraphics.noobshow && gGlobalStateGameMenus.escmenu->active &&
+    if (noobshow && gGlobalStateGameMenus.escmenu->active &&
         (gGlobalStateClientGame.chattext.empty()))
     {
       gGlobalStateGameRendering.setfontstyle(font_smallest);
       gfxtextcolor(rgba(250, 90, 95));
-      gfxdrawtext(("Default keys (shown for first 3 game runs)"),
-                  30 * gGlobalStateInterfaceGraphics._rscala.x,
-                  28 * gGlobalStateInterfaceGraphics._rscala.y);
+      gfxdrawtext(("Default keys (shown for first 3 game runs)"), 30 * _rscala.x, 28 * _rscala.y);
       gGlobalStateGameRendering.setfontstyle(font_small);
 
       for (i = 1; i <= 8; i++)
@@ -3550,38 +3519,30 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
         switch (i)
         {
         case 1:
-          gfxdrawtext(("[A]/[D] move left/right"), 30 * gGlobalStateInterfaceGraphics._rscala.x,
-                      (28 + 12 * i) * gGlobalStateInterfaceGraphics._rscala.y);
+          gfxdrawtext(("[A]/[D] move left/right"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
           break;
         case 2:
-          gfxdrawtext(("[W]/[S]/[X] jump / crouch / lie down"),
-                      30 * gGlobalStateInterfaceGraphics._rscala.x,
-                      (28 + 12 * i) * gGlobalStateInterfaceGraphics._rscala.y);
+          gfxdrawtext(("[W]/[S]/[X] jump / crouch / lie down"), 30 * _rscala.x,
+                      (28 + 12 * i) * _rscala.y);
           break;
         case 3:
-          gfxdrawtext(("[Left Mouse] fire!"), 30 * gGlobalStateInterfaceGraphics._rscala.x,
-                      (28 + 12 * i) * gGlobalStateInterfaceGraphics._rscala.y);
+          gfxdrawtext(("[Left Mouse] fire!"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
           break;
         case 4:
-          gfxdrawtext(("[Right Mouse] jet boots"), 30 * gGlobalStateInterfaceGraphics._rscala.x,
-                      (28 + 12 * i) * gGlobalStateInterfaceGraphics._rscala.y);
+          gfxdrawtext(("[Right Mouse] jet boots"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
           break;
         case 5:
-          gfxdrawtext(("hold [E] to toss grenade"), 30 * gGlobalStateInterfaceGraphics._rscala.x,
-                      (28 + 12 * i) * gGlobalStateInterfaceGraphics._rscala.y);
+          gfxdrawtext(("hold [E] to toss grenade"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
           break;
         case 6:
-          gfxdrawtext(("[R] reloads weapon"), 30 * gGlobalStateInterfaceGraphics._rscala.x,
-                      (28 + 12 * i) * gGlobalStateInterfaceGraphics._rscala.y);
+          gfxdrawtext(("[R] reloads weapon"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
           break;
         case 7:
-          gfxdrawtext(("[Q] change weapon / [F] throw weapon"),
-                      30 * gGlobalStateInterfaceGraphics._rscala.x,
-                      (28 + 12 * i) * gGlobalStateInterfaceGraphics._rscala.y);
+          gfxdrawtext(("[Q] change weapon / [F] throw weapon"), 30 * _rscala.x,
+                      (28 + 12 * i) * _rscala.y);
           break;
         case 8:
-          gfxdrawtext(("[T] chat / [Y] team chat"), 30 * gGlobalStateInterfaceGraphics._rscala.x,
-                      (28 + 12 * i) * gGlobalStateInterfaceGraphics._rscala.y);
+          gfxdrawtext(("[T] chat / [Y] team chat"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
           break;
         }
       }
@@ -3592,9 +3553,8 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
         (!static_cast<bool>(gGlobalStateClientGame.showscreen)) && (CVar::cl_actionsnap))
     {
       gfxtextcolor(rgba(230, 65, 60, 150 + fabs(round(sin(5.1 * timeelapsed) * 100))));
-      gfxdrawtext(string("[[ ") + ("Press F5 to View Screen Cap") + " ]]",
-                  30 * gGlobalStateInterfaceGraphics._iscala.x,
-                  412 * gGlobalStateInterfaceGraphics._iscala.y);
+      gfxdrawtext(string("[[ ") + ("Press F5 to View Screen Cap") + " ]]", 30 * _iscala.x,
+                  412 * _iscala.y);
     }
 
     // shot distance
@@ -3604,18 +3564,15 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
 
       str1 =
         string("DISTANCE: ") + (floattostrf(gGlobalStateClient.shotdistance, fffixed, 12, 2)) + 'm';
-      gfxdrawtext(str1, 390 * gGlobalStateInterfaceGraphics._iscala.x,
-                  431 * gGlobalStateInterfaceGraphics._iscala.y);
+      gfxdrawtext(str1, 390 * _iscala.x, 431 * _iscala.y);
 
       str1 = string("AIRTIME: ") + (floattostrf(gGlobalStateClient.shotlife, fffixed, 12, 2)) + 's';
-      gfxdrawtext(str1, 228 * gGlobalStateInterfaceGraphics._iscala.x,
-                  431 * gGlobalStateInterfaceGraphics._iscala.y);
+      gfxdrawtext(str1, 228 * _iscala.x, 431 * _iscala.y);
 
       if (gGlobalStateClient.shotricochet > 0)
       {
         str1 = string("RICOCHETS: ") + (inttostr(gGlobalStateClient.shotricochet));
-        gfxdrawtext(str1, 62 * gGlobalStateInterfaceGraphics._iscala.x,
-                    431 * gGlobalStateInterfaceGraphics._iscala.y);
+        gfxdrawtext(str1, 62 * _iscala.x, 431 * _iscala.y);
       }
     }
   }
@@ -3624,13 +3581,12 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
   if (widescreencut)
   {
     gfxdrawquad(nullptr, gfxvertex(0, 0, 0, 0, rgba(0)), gfxvertex(width, 0, 0, 0, rgba(0)),
-                gfxvertex(width, 80 * gGlobalStateInterfaceGraphics._rscala.y, 0, 0, rgba(0)),
-                gfxvertex(0, 80 * gGlobalStateInterfaceGraphics._rscala.y, 0, 0, rgba(0)));
+                gfxvertex(width, 80 * _rscala.y, 0, 0, rgba(0)),
+                gfxvertex(0, 80 * _rscala.y, 0, 0, rgba(0)));
 
-    gfxdrawquad(
-      nullptr, gfxvertex(0, height - 80 * gGlobalStateInterfaceGraphics._rscala.y, 0, 0, rgba(0)),
-      gfxvertex(width, height - 80 * gGlobalStateInterfaceGraphics._rscala.y, 0, 0, rgba(0)),
-      gfxvertex(width, height, 0, 0, rgba(0)), gfxvertex(0, height, 0, 0, rgba(0)));
+    gfxdrawquad(nullptr, gfxvertex(0, height - 80 * _rscala.y, 0, 0, rgba(0)),
+                gfxvertex(width, height - 80 * _rscala.y, 0, 0, rgba(0)),
+                gfxvertex(width, height, 0, 0, rgba(0)), gfxvertex(0, height, 0, 0, rgba(0)));
   }
 
   rendergamemenutexts(width, height);
@@ -3646,8 +3602,8 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
   {
     if (!gGlobalStateDemo.demoplayer.active() or gGlobalStateGameMenus.escmenu->active)
     {
-      x = pixelalignx(gGlobalStateClientGame.mx * gGlobalStateInterfaceGraphics._rscala.x);
-      y = pixelaligny(gGlobalStateClientGame.my * gGlobalStateInterfaceGraphics._rscala.y);
+      x = pixelalignx(gGlobalStateClientGame.mx * _rscala.x);
+      y = pixelaligny(gGlobalStateClientGame.my * _rscala.y);
 
       gfxdrawsprite(t[GFX::INTERFACE_MENUCURSOR], x, y,
                     rgba(0xffffff, CVar::ui_status_transparency));

@@ -252,7 +252,7 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
   std::vector<std::int32_t> scenerysheetindex;
   auto& fs = GS::GetFileSystem();
 
-  tmapgraphics &mg = gGlobalStateMapGraphics.mapgfx;
+  tmapgraphics &mg = mapgfx;
   destroymapgraphics();
 
   mg.mapinfo = mapfile.mapinfo;
@@ -921,7 +921,7 @@ void GlobalStateMapGraphics::updateprops(double t)
   tmapgraphics *mg;
   pgfxsprite sprite;
 
-  mg = &gGlobalStateMapGraphics.mapgfx;
+  mg = &mapgfx;
   vbindex = 0;
 
   for (i = low(mg->animations); i <= high(mg->animations); i++)
@@ -969,7 +969,7 @@ void GlobalStateMapGraphics::renderprops(std::int32_t level)
 {
   std::int32_t i;
 
-  tmapgraphics &mg = gGlobalStateMapGraphics.mapgfx;
+  tmapgraphics &mg = mapgfx;
 
   for (i = 0; i <= high(mg.props[level]); i++)
   {
@@ -980,72 +980,70 @@ void GlobalStateMapGraphics::renderprops(std::int32_t level)
 
 void GlobalStateMapGraphics::renderminimap(float x, float y, std::uint8_t alpha)
 {
-  if (gGlobalStateMapGraphics.mapgfx.minimap.texture != nullptr)
+  if (mapgfx.minimap.texture != nullptr)
   {
-    gfxdrawsprite(&gGlobalStateMapGraphics.mapgfx.minimap, x, y, rgba(0xffffff, alpha));
+    gfxdrawsprite(&mapgfx.minimap, x, y, rgba(0xffffff, alpha));
   }
 }
 
 void GlobalStateMapGraphics::worldtominimap(float x, float y, MyFloat &ox, MyFloat &oy)
 {
-  ox = (x - gGlobalStateMapGraphics.mapgfx.minimapoffset.x) *
-       gGlobalStateMapGraphics.mapgfx.minimapscale;
-  oy = (y - gGlobalStateMapGraphics.mapgfx.minimapoffset.y) *
-       gGlobalStateMapGraphics.mapgfx.minimapscale;
+  ox = (x - mapgfx.minimapoffset.x) * mapgfx.minimapscale;
+  oy = (y - mapgfx.minimapoffset.y) * mapgfx.minimapscale;
 }
 
 void GlobalStateMapGraphics::destroymapgraphics()
 {
   std::int32_t i;
 
-  if (gGlobalStateMapGraphics.mapgfx.vertexbuffer != nullptr)
+  if (mapgfx.vertexbuffer != nullptr)
   {
-    gfxdeletebuffer(gGlobalStateMapGraphics.mapgfx.vertexbuffer);
+    gfxdeletebuffer(mapgfx.vertexbuffer);
   }
 
-  if (gGlobalStateMapGraphics.mapgfx.indexbuffer != nullptr)
+  if (mapgfx.indexbuffer != nullptr)
   {
-    gfxdeleteindexbuffer(gGlobalStateMapGraphics.mapgfx.indexbuffer);
+    gfxdeleteindexbuffer(mapgfx.indexbuffer);
   }
 
-  if (gGlobalStateMapGraphics.mapgfx.spritesheet != nullptr)
+  if (mapgfx.spritesheet != nullptr)
   {
-    freeandnullptr(gGlobalStateMapGraphics.mapgfx.spritesheet);
+    freeandnullptr(mapgfx.spritesheet);
   }
 
-  if (gGlobalStateMapGraphics.mapgfx.minimap.texture != nullptr)
+  if (mapgfx.minimap.texture != nullptr)
   {
-    gfxdeletetexture(gGlobalStateMapGraphics.mapgfx.minimap.texture);
+    gfxdeletetexture(mapgfx.minimap.texture);
   }
 
-  for (i = 0; i <= high(gGlobalStateMapGraphics.mapgfx.textures); i++)
+  for (i = 0; i <= high(mapgfx.textures); i++)
   {
-    if (gGlobalStateMapGraphics.mapgfx.textures[i] != nullptr)
+    if (mapgfx.textures[i] != nullptr)
     {
-      gfxdeletetexture(gGlobalStateMapGraphics.mapgfx.textures[i]);
+      gfxdeletetexture(mapgfx.textures[i]);
     }
   }
 
-  for (i = 0; i <= high(gGlobalStateMapGraphics.mapgfx.edgetextures); i++)
+  for (i = 0; i <= high(mapgfx.edgetextures); i++)
   {
-    if (gGlobalStateMapGraphics.mapgfx.edgetextures[i] != nullptr)
+    if (mapgfx.edgetextures[i] != nullptr)
     {
-      gfxdeletetexture(gGlobalStateMapGraphics.mapgfx.edgetextures[i]);
+      gfxdeletetexture(mapgfx.edgetextures[i]);
     }
   }
 
-  gGlobalStateMapGraphics.mapgfx.filename = "";
-  gGlobalStateMapGraphics.mapgfx.animations.clear();
-  gGlobalStateMapGraphics.mapgfx.animationscmd.clear();
-  gGlobalStateMapGraphics.mapgfx.animationsbuffer.clear();
-  gGlobalStateMapGraphics.mapgfx.animduration.clear();
-  gGlobalStateMapGraphics.mapgfx.props[0].clear();
-  gGlobalStateMapGraphics.mapgfx.props[1].clear();
-  gGlobalStateMapGraphics.mapgfx.props[2].clear();
-  gGlobalStateMapGraphics.mapgfx.textures.clear();
-  gGlobalStateMapGraphics.mapgfx.edgetextures.clear();
-  gGlobalStateMapGraphics.mapgfx.edges[0].clear();
-  gGlobalStateMapGraphics.mapgfx.edges[1].clear();
-  gGlobalStateMapGraphics.mapgfx.polys[0].clear();
-  gGlobalStateMapGraphics.mapgfx.polys[1].clear();
+  mapgfx.filename = "";
+  mapgfx.animations.clear();
+  mapgfx.animationscmd.clear();
+  mapgfx.animationsbuffer.clear();
+  mapgfx.animduration.clear();
+  mapgfx.props[0].clear();
+  mapgfx.props[1].clear();
+  mapgfx.props[2].clear();
+  mapgfx.textures.clear();
+  mapgfx.edgetextures.clear();
+  mapgfx.edges[0].clear();
+  mapgfx.edges[1].clear();
+  mapgfx.polys[0].clear();
+  mapgfx.polys[1].clear();
 }

@@ -81,17 +81,17 @@ auto GlobalStateSparks::createspark(tvector2 spos, tvector2 svelocity, std::uint
 
   for (i = 1; i <= CVar::r_maxsparks + 1; i++)
   {
-    if ((gGlobalStateSparks.sparkscount > CVar::r_maxsparks - 50) &&
+    if ((sparkscount > CVar::r_maxsparks - 50) &&
         ((sstyle == 3) || (sstyle == 4) || (sstyle == 26) || (sstyle == 27) || (sstyle == 59) ||
          (sstyle == 2)))
     {
       return result;
     }
-    if ((gGlobalStateSparks.sparkscount > CVar::r_maxsparks - 40) && (sstyle == 1))
+    if ((sparkscount > CVar::r_maxsparks - 40) && (sstyle == 1))
     {
       return result;
     }
-    if ((gGlobalStateSparks.sparkscount > CVar::r_maxsparks - 30) && (sstyle == 24))
+    if ((sparkscount > CVar::r_maxsparks - 30) && (sstyle == 24))
     {
       return result;
     }

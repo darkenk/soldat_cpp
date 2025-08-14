@@ -850,7 +850,7 @@ void GlobalStateControlGame::gameinput(SDL_Event &event)
         else if (length(gGlobalStateClientGame.chattext) > 0)
         {
           if (length(gGlobalStateClientGame.chattext) <
-              iif(gGlobalStateControlGame.votekickreasontype, REASON_CHARS - 1, maxchattext))
+              iif(votekickreasontype, REASON_CHARS - 1, maxchattext))
           {
             gGlobalStateClientGame.chatchanged = true;
             gGlobalStateClientGame.currenttabcompleteplayer = 0;

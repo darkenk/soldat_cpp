@@ -344,11 +344,11 @@ void GlobalStateClient::exittomenu()
     gGlobalStateInterfaceGraphics.chatteam[i] = false;
   }
 
-  gGlobalStateClient.mysprite = 0;
-  gGlobalStateClient.camerafollowsprite = 0;
-  gGlobalStateClient.gamethingtarget = 0;
+  mysprite = 0;
+  camerafollowsprite = 0;
+  gamethingtarget = 0;
 
-  if (gGlobalStateClient.redirecttoserver)
+  if (redirecttoserver)
   {
     redirectdialog();
   }
@@ -476,7 +476,7 @@ void GlobalStateClient::startgame(int argc, char *argv[])
   const std::string systemfallbacklang = "en_US"; // NOLINT
 
   // TODO remove HWIDs, replace by Fae auth tickets
-  gGlobalStateClient.hwid = "00000000000";
+  hwid = "00000000000";
 
   LogDebugG("[FS] Initializing system");
 
@@ -629,10 +629,9 @@ void GlobalStateClient::startgame(int argc, char *argv[])
 #endif
   }
 
-  if (inittranslation(
-        ReadAsFileStream(fs, gGlobalStateClient.moddir + "/txt/" + systemlang + ".mo").get()))
+  if (inittranslation(ReadAsFileStream(fs, moddir + "/txt/" + systemlang + ".mo").get()))
   {
-    LogDebugG("Game captions loaded from {}/txt/{}", gGlobalStateClient.moddir, systemlang);
+    LogDebugG("Game captions loaded from {}/txt/{}", moddir, systemlang);
   }
   else
   {
@@ -648,9 +647,9 @@ void GlobalStateClient::startgame(int argc, char *argv[])
   }
 
   gGlobalStateSound.loadsounds("");
-  if (length(gGlobalStateClient.moddir) > 0)
+  if (length(moddir) > 0)
   {
-    gGlobalStateSound.loadsounds(gGlobalStateClient.moddir);
+    gGlobalStateSound.loadsounds(moddir);
   }
 
   GS::GetConsoleLogFile().Log("Creating network interface.");
@@ -663,9 +662,9 @@ void GlobalStateClient::startgame(int argc, char *argv[])
   }
 
   AnimationSystem::Get().LoadAnimObjects("");
-  if (length(gGlobalStateClient.moddir) > 0)
+  if (length(moddir) > 0)
   {
-    AnimationSystem::Get().LoadAnimObjects(gGlobalStateClient.moddir);
+    AnimationSystem::Get().LoadAnimObjects(moddir);
   }
 
   // greet!
@@ -673,7 +672,7 @@ void GlobalStateClient::startgame(int argc, char *argv[])
   GS::GetMainConsole().console(("Welcome to Soldat "), default_message_color);
 
   // Load weapon display names
-  loadweaponnames(fs, gGlobalStateClient.gundisplayname, gGlobalStateClient.moddir);
+  loadweaponnames(fs, gundisplayname, moddir);
   createweaponsbase(GS::GetWeaponSystem().GetGuns());
 
   GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
@@ -686,13 +685,13 @@ void GlobalStateClient::startgame(int argc, char *argv[])
 
   {
     TIniFile ini{ReadAsFileStream(fs, "txt/radiomenu-default.ini")};
-    ini.ReadSectionValues("OPTIONS", gGlobalStateClient.radiomenu);
+    ini.ReadSectionValues("OPTIONS", radiomenu);
   }
 
   // Play demo
-  gGlobalStateClient.freecam = 1;
-  gGlobalStateClient.notexts = 0;
-  gGlobalStateClient.shotdistanceshow = -1;
+  freecam = 1;
+  notexts = 0;
+  shotdistanceshow = -1;
 
   if (CVar::r_compatibility)
   {
@@ -710,7 +709,7 @@ void GlobalStateClient::startgame(int argc, char *argv[])
     gGlobalStateGameRendering.rendergameinfo(std::string("Network  error ") + msg);
   });
   gGlobalStateNetworkClient.GetNetwork()->SetConnectionCallback(
-    [](NetworkClientImpl &nc) { clientrequestgame(nc, gGlobalStateClient.joinpassword); });
+    [this](NetworkClientImpl &nc) { clientrequestgame(nc, joinpassword); });
 
   gamelooprun = true;
   rundeferredcommands();
@@ -722,7 +721,7 @@ void GlobalStateClient::shutdown()
 {
   exittomenu();
 
-  if (gGlobalStateClient.abnormalterminate)
+  if (abnormalterminate)
   {
     return;
   }
@@ -813,7 +812,7 @@ void GlobalStateClient::joinserver()
 {
   gGlobalStateClientGame.resetframetiming();
 
-  gGlobalStateClient.gClientServerIP = trim(gGlobalStateClient.joinip);
+  gClientServerIP = trim(joinip);
 
   NotImplemented("No error checking");
 #if 0
@@ -822,10 +821,10 @@ void GlobalStateClient::joinserver()
 #endif
 
   // DEMO
-  if (gGlobalStateClient.joinport == "0")
+  if (joinport == "0")
   {
-    gGlobalStateDemo.demoplayer.opendemo(GS::GetGame().GetUserDirectory() + "demos/" +
-                                         gGlobalStateClient.joinip + ".sdm");
+    gGlobalStateDemo.demoplayer.opendemo(GS::GetGame().GetUserDirectory() + "demos/" + joinip +
+                                         ".sdm");
     tdemoplayer::processdemo();
     progready = true;
     gamelooprun = true;
@@ -835,16 +834,14 @@ void GlobalStateClient::joinserver()
   else
   {
     gGlobalStateGameRendering.rendergameinfo(
-      ("Connecting to " + gGlobalStateClient.gClientServerIP + ":" +
-       std::to_string(gGlobalStateClient.gClientServerPort)));
+      ("Connecting to " + gClientServerIP + ":" + std::to_string(gClientServerPort)));
 
-    if (gGlobalStateNetworkClient.GetNetwork()->Connect(gGlobalStateClient.gClientServerIP,
-                                                        gGlobalStateClient.gClientServerPort))
+    if (gGlobalStateNetworkClient.GetNetwork()->Connect(gClientServerIP, gClientServerPort))
     {
       progready = true;
       gamelooprun = true;
       gGlobalStateGameRendering.rendergameinfo(("Loading"));
-      clientrequestgame(*gGlobalStateNetworkClient.GetNetwork(), gGlobalStateClient.joinpassword);
+      clientrequestgame(*gGlobalStateNetworkClient.GetNetwork(), joinpassword);
       gGameState = GameState::Game;
     }
     else

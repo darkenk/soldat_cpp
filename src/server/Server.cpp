@@ -312,25 +312,23 @@ void GlobalStateServer::ActivateServer(int argc, char *argv[])
 
   if (fileexists(userDirectory + "configs/" + std::string(CVar::sv_maplist)))
   {
-    gGlobalStateServer.mapslist.loadfromfile(userDirectory + "configs/" +
-                                             std::string(CVar::sv_maplist));
-    auto it =
-      std::remove(gGlobalStateServer.mapslist.begin(), gGlobalStateServer.mapslist.end(), "");
-    gGlobalStateServer.mapslist.erase(it, gGlobalStateServer.mapslist.end());
+    mapslist.loadfromfile(userDirectory + "configs/" + std::string(CVar::sv_maplist));
+    auto it = std::remove(mapslist.begin(), mapslist.end(), "");
+    mapslist.erase(it, mapslist.end());
   }
 
-  if (gGlobalStateServer.mapslist.empty())
+  if (mapslist.empty())
   {
     WriteLn("");
     WriteLn("  No maps list found (adding default). Please add maps in configs/mapslist.txt");
     WriteLn("");
     if (not GS::GetGame().isteamgame())
     {
-      gGlobalStateServer.mapslist.add("Arena");
+      mapslist.add("Arena");
     }
     else
     {
-      gGlobalStateServer.mapslist.add("ctf_Ash");
+      mapslist.add("ctf_Ash");
     }
   }
 #if 0
@@ -361,17 +359,17 @@ void GlobalStateServer::ActivateServer(int argc, char *argv[])
 #endif
   }
 
-  gGlobalStateServer.adminips = gGlobalStateServer.remoteips;
-  gGlobalStateServer.adminips.add("127.0.0.1");
+  adminips = remoteips;
+  adminips.add("127.0.0.1");
 
   // Flood IP stuff
   for (i = 1; i < max_floodips; i++)
   {
-    gGlobalStateServer.floodip[i] = " ";
+    floodip[i] = " ";
   }
   for (i = 1; i < max_floodips; i++)
   {
-    gGlobalStateServer.floodnum[i] = 0;
+    floodnum[i] = 0;
   }
 
 #ifdef RCON
@@ -472,7 +470,7 @@ void GlobalStateServer::loadweapons(const std::string &Filename)
     auto& fs = GS::GetFileSystem();
     TIniFile ini{
       ReadAsFileStream(fs, "/user/configs/" + Filename + ".ini")};
-    if (loadweaponsconfig(ini, gGlobalStateServer.wmname, gGlobalStateServer.wmversion, guns))
+    if (loadweaponsconfig(ini, wmname, wmversion, guns))
     {
       buildweapons(guns);
     }
@@ -646,7 +644,7 @@ void GlobalStateServer::startserver()
     CVar::sv_kits_collide = false;
   }
 
-  gGlobalStateServer.mapindex = 0;
+  mapindex = 0;
   // StartMap = MapsList[MapIndex];
 
   auto &map = GS::GetGame().GetMap();
@@ -676,8 +674,7 @@ void GlobalStateServer::startserver()
 #endif
   */
 
-  if (getmapinfo(fs, gGlobalStateServer.mapslist[gGlobalStateServer.mapindex],
-                 GS::GetGame().GetUserDirectory(), StartMap))
+  if (getmapinfo(fs, mapslist[mapindex], GS::GetGame().GetUserDirectory(), StartMap))
   {
     if (not map.loadmap(GS::GetFileSystem(), StartMap))
     {
@@ -857,13 +854,13 @@ void GlobalStateServer::startserver()
 
   GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
-  gGlobalStateServer.lastplayer = 0;
+  lastplayer = 0;
 
   GS::GetGame().SetTimelimitcounter(CVar::sv_timelimit);
 
   // Wave respawn time
   updatewaverespawntime();
-  gGlobalStateServer.waverespawncounter = gGlobalStateServer.waverespawntime;
+  waverespawncounter = waverespawntime;
 
   GS::GetConsoleLogFile().Log("Starting Game Server.");
 
@@ -897,7 +894,7 @@ void GlobalStateServer::startserver()
     return;
   }
 
-  gGlobalStateServer.serverport = gGlobalStateNetworkServer.GetServerNetwork()->Port();
+  serverport = gGlobalStateNetworkServer.GetServerNetwork()->Port();
 
   if (CVar::fileserver_enable)
   {
@@ -967,7 +964,7 @@ void GlobalStateServer::nextmap()
 {
   LogDebugG("NextMap");
 
-  if (gGlobalStateServer.mapslist.empty())
+  if (mapslist.empty())
   {
     GS::GetMainConsole().console("Can"
                                  "t load maps from mapslist",
@@ -975,13 +972,13 @@ void GlobalStateServer::nextmap()
   }
   else
   {
-    gGlobalStateServer.mapindex = gGlobalStateServer.mapindex + 1;
+    mapindex = mapindex + 1;
 
-    if (gGlobalStateServer.mapindex >= gGlobalStateServer.mapslist.size())
+    if (mapindex >= mapslist.size())
     {
-      gGlobalStateServer.mapindex = 0;
+      mapindex = 0;
     }
-    preparemapchange(gGlobalStateServer.mapslist[gGlobalStateServer.mapindex]);
+    preparemapchange(mapslist[mapindex]);
   }
 }
 

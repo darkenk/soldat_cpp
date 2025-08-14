@@ -495,13 +495,13 @@ auto GlobalStateSound::soundnametoid(const std::string &name) -> std::int8_t
 
   std::int8_t result;
   result = -1;
-  if (high(gGlobalStateSound.scriptsamp) < 0)
+  if (high(scriptsamp) < 0)
   {
     return result;
   }
-  for (i = 0; i < gGlobalStateSound.scriptsamp.size(); i++)
+  for (i = 0; i < scriptsamp.size(); i++)
   {
-    if (uppercase(gGlobalStateSound.scriptsamp[i].name) == uppercase(name))
+    if (uppercase(scriptsamp[i].name) == uppercase(name))
     {
       result = i;
       break;
@@ -558,8 +558,7 @@ void GlobalStateSound::fplaysound(SfxEffect samplenum, float listenerx, float li
 void GlobalStateSound::playsound(SfxEffect sample)
 {
   fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray,
-             gGlobalStateClient.camerax, gGlobalStateClient.cameray,
-             gGlobalStateSound.defaultchannel);
+             gGlobalStateClient.camerax, gGlobalStateClient.cameray, defaultchannel);
 }
 
 void GlobalStateSound::playsound(SfxEffect sample, std::int32_t channel)
@@ -571,7 +570,7 @@ void GlobalStateSound::playsound(SfxEffect sample, std::int32_t channel)
 void GlobalStateSound::playsound(SfxEffect sample, const tvector2 &emitter)
 {
   fplaysound(sample, gGlobalStateClient.camerax, gGlobalStateClient.cameray, emitter.x, emitter.y,
-             gGlobalStateSound.defaultchannel);
+             defaultchannel);
 }
 
 void GlobalStateSound::playsound(SfxEffect sample, const tvector2 &emitter, int32_t channel)

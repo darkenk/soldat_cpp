@@ -138,25 +138,21 @@ void GlobalStateClientGame::bigmessage(const std::string &text, std::int32_t del
   gGlobalStateGameRendering.setfontstyle(font_big);
 
   w = rectwidth(gfxtextmetrics(text));
-  s = 4.8f * ((float)(gGlobalStateClientGame.renderheight) / 480.f);
+  s = 4.8f * ((float)(renderheight) / 480.f);
 
   gGlobalStateInterfaceGraphics.bigx[1] = 0;
   gGlobalStateInterfaceGraphics.bigtext[1] = text;
   gGlobalStateInterfaceGraphics.bigdelay[1] = delay;
-  gGlobalStateInterfaceGraphics.bigscale[1] =
-    std::fmin(1.f / 4.8f, (0.7f * gGlobalStateClientGame.renderwidth / w) / s);
+  gGlobalStateInterfaceGraphics.bigscale[1] = std::fmin(1.f / 4.8f, (0.7f * renderwidth / w) / s);
   gGlobalStateInterfaceGraphics.bigcolor[1] = col;
   gGlobalStateInterfaceGraphics.bigposx[1] =
-    (float)((gGlobalStateClientGame.renderwidth -
-             s * w * gGlobalStateInterfaceGraphics.bigscale[1])) /
-    2.f;
+    (float)((renderwidth - s * w * gGlobalStateInterfaceGraphics.bigscale[1])) / 2.f;
   gGlobalStateInterfaceGraphics.bigposy[1] = 420.f * gGlobalStateInterfaceGraphics._iscala.y;
 
   if (CVar::r_scaleinterface)
   {
-    gGlobalStateInterfaceGraphics.bigposx[1] =
-      gGlobalStateInterfaceGraphics.bigposx[1] *
-      ((float)(gGlobalStateGame.gamewidth) / gGlobalStateClientGame.renderwidth);
+    gGlobalStateInterfaceGraphics.bigposx[1] = gGlobalStateInterfaceGraphics.bigposx[1] *
+                                               ((float)(gGlobalStateGame.gamewidth) / renderwidth);
   }
 }
 
@@ -177,9 +173,9 @@ void GlobalStateClientGame::tabcomplete()
     return;
   }
 
-  chattextlen = length(gGlobalStateClientGame.chattext);
+  chattextlen = length(chattext);
 
-  if ((chattextlen > 1) && (gGlobalStateClientGame.chattext[2] == '^'))
+  if ((chattextlen > 1) && (chattext[2] == '^'))
   {
     offset = 1;
   }
@@ -189,7 +185,7 @@ void GlobalStateClientGame::tabcomplete()
   }
 
   // If not already tab-completing, save and use this base text for tab completetion
-  if (gGlobalStateClientGame.currenttabcompleteplayer == 0)
+  if (currenttabcompleteplayer == 0)
   {
     NotImplemented("string operation");
 #if 0
@@ -207,7 +203,7 @@ void GlobalStateClientGame::tabcomplete()
   }
 
   // Next potential match
-  continuedtabcompleteplayer = (gGlobalStateClientGame.currenttabcompleteplayer + 1) % max_players;
+  continuedtabcompleteplayer = (currenttabcompleteplayer + 1) % max_players;
 
   if (chattextlen > offset) // Dont complete if chat is empty
   {
@@ -218,17 +214,15 @@ void GlobalStateClientGame::tabcomplete()
       if (sprite.IsActive() && (!sprite.player->demoplayer) &&
           (!sprite_system.IsPlayerSprite(next)))
       {
-        if ((gGlobalStateClientGame.completionbase.empty()) ||
-            std::string::npos != sprite.player->name.find(gGlobalStateClientGame.completionbase))
+        if ((completionbase.empty()) ||
+            std::string::npos != sprite.player->name.find(completionbase))
         {
-          availablechatspace = maxchattext - gGlobalStateClientGame.completionbaseseparator;
+          availablechatspace = maxchattext - completionbaseseparator;
           spacefittedname = sprite.player->name.substr(0, availablechatspace);
-          gGlobalStateClientGame.chattext = gGlobalStateClientGame.chattext.substr(
-                                              0, gGlobalStateClientGame.completionbaseseparator) +
-                                            spacefittedname;
-          gGlobalStateClientGame.currenttabcompleteplayer = next;
-          gGlobalStateClientGame.cursorposition = length((gGlobalStateClientGame.chattext));
-          gGlobalStateClientGame.tabcompletepressed = true;
+          chattext = chattext.substr(0, completionbaseseparator) + spacefittedname;
+          currenttabcompleteplayer = next;
+          cursorposition = length((chattext));
+          tabcompletepressed = true;
           break;
         }
       }
@@ -303,9 +297,9 @@ void GlobalStateClientGame::gameloop()
     // Update main tick counter
     GS::GetGame().TickMainTickCounter();
 
-    if (gGlobalStateClientGame.menutimer > -1)
+    if (menutimer > -1)
     {
-      gGlobalStateClientGame.menutimer -= 1;
+      menutimer -= 1;
     }
 
     // General game updating
@@ -382,7 +376,7 @@ void GlobalStateClientGame::gameloop()
           }
         }
 
-        gGlobalStateClientGame.clientstopmovingcounter = 0;
+        clientstopmovingcounter = 0;
       }
 
       if (gGlobalStateNetworkClient.noheartbeattime == disconnection_time)
@@ -401,7 +395,7 @@ void GlobalStateClientGame::gameloop()
         gGlobalStateNetworkClient.noheartbeattime = 0;
       }
 
-      gGlobalStateClientGame.clientstopmovingcounter -= 1;
+      clientstopmovingcounter -= 1;
 
       auto &sprite = sprite_system.GetPlayerSprite();
 
@@ -417,7 +411,7 @@ void GlobalStateClientGame::gameloop()
               clientspritesnapshot();
             }
             if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(5 * adjust) == 0) ||
-                gGlobalStateClientGame.forceclientspritesnapshotmov)
+                forceclientspritesnapshotmov)
             {
               clientspritesnapshotmov();
             }
@@ -438,7 +432,7 @@ void GlobalStateClientGame::gameloop()
           }
 
           if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(3 * adjust) == 0) ||
-              gGlobalStateClientGame.forceclientspritesnapshotmov)
+              forceclientspritesnapshotmov)
           {
             clientspritesnapshotmov();
           }
@@ -449,7 +443,7 @@ void GlobalStateClientGame::gameloop()
         }
       }
 
-      gGlobalStateClientGame.forceclientspritesnapshotmov = false;
+      forceclientspritesnapshotmov = false;
     } // playing
 
     // UDP.FlushMsg;
@@ -461,7 +455,7 @@ void GlobalStateClientGame::gameloop()
     frametiming.prevrendertime = currenttime - frametiming.mindeltatime;
   }
 
-  if (gGlobalStateClientGame.shouldrenderframes &&
+  if (shouldrenderframes &&
       ((currenttime - frametiming.prevrendertime) >= frametiming.mindeltatime))
   {
     frametiming.prevrendertime = currenttime;
@@ -493,9 +487,9 @@ void GlobalStateClientGame::gameloop()
     }
   }
 
-  if (gGlobalStateClientGame.mapchanged)
+  if (mapchanged)
   {
-    gGlobalStateClientGame.mapchanged = false;
+    mapchanged = false;
     resetframetiming();
   }
 

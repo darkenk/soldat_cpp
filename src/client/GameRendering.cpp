@@ -605,7 +605,7 @@ auto GlobalStateGameRendering::initgamegraphics() -> bool
 
   gfxviewport(0, 0, gGlobalStateClientGame.windowwidth, gGlobalStateClientGame.windowheight);
 
-  gGlobalStateGameRendering.textures = new pgfxsprite[GFX::END + 1];
+  textures = new pgfxsprite[GFX::END + 1];
   loadmodinfo();
   loadmaintextures();
   loadinterface();
@@ -1323,27 +1323,21 @@ auto GlobalStateGameRendering::dotextureloading(bool finishloading) -> bool
       if (GFXData[i].Group != GFXG::INTERFACE)
       {
         auto id = GFXData[i].ID;
-        gGlobalStateGameRendering.textures[id] = mainspritesheet->getsprite(j);
-        gGlobalStateGameRendering.textures[id]->scale =
-          gGlobalStateGameRendering.textures[id]->scale * ((float)(1) / imagescale[id]);
+        textures[id] = mainspritesheet->getsprite(j);
+        textures[id]->scale = textures[id]->scale * ((float)(1) / imagescale[id]);
 
         if (getsizeconstraint(i, w, h))
         {
-          if (((gGlobalStateGameRendering.textures[id]->width *
-                gGlobalStateGameRendering.textures[id]->scale) > w) ||
-              ((gGlobalStateGameRendering.textures[id]->height *
-                gGlobalStateGameRendering.textures[id]->scale) > h))
+          if (((textures[id]->width * textures[id]->scale) > w) ||
+              ((textures[id]->height * textures[id]->scale) > h))
           {
-            if (((float)(gGlobalStateGameRendering.textures[id]->width) /
-                 gGlobalStateGameRendering.textures[id]->height) > ((float)(w) / h))
+            if (((float)(textures[id]->width) / textures[id]->height) > ((float)(w) / h))
             {
-              gGlobalStateGameRendering.textures[id]->scale =
-                (float)(w) / gGlobalStateGameRendering.textures[id]->width;
+              textures[id]->scale = (float)(w) / textures[id]->width;
             }
             else
             {
-              gGlobalStateGameRendering.textures[id]->scale =
-                (float)(h) / gGlobalStateGameRendering.textures[id]->height;
+              textures[id]->scale = (float)(h) / textures[id]->height;
             }
           }
         }
@@ -1365,7 +1359,7 @@ auto GlobalStateGameRendering::dotextureloading(bool finishloading) -> bool
     s[length(s)] = ')';
     gfxlog(string("Loaded main spritesheet (") + s);
 
-    applygostekconstraints(gGlobalStateGameRendering.textures);
+    applygostekconstraints(textures);
   }
 
   if (interfacespritesheet->loading() != interfaceloading)
@@ -1377,9 +1371,8 @@ auto GlobalStateGameRendering::dotextureloading(bool finishloading) -> bool
       if (GFXData[i].Group == GFXG::INTERFACE)
       {
         auto id = GFXData[i].ID;
-        gGlobalStateGameRendering.textures[id] = interfacespritesheet->getsprite(j);
-        gGlobalStateGameRendering.textures[id]->scale =
-          gGlobalStateGameRendering.textures[id]->scale * ((float)(1) / imagescale[id]);
+        textures[id] = interfacespritesheet->getsprite(j);
+        textures[id]->scale = textures[id]->scale * ((float)(1) / imagescale[id]);
         j += 1;
       }
     }

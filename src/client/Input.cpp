@@ -57,10 +57,10 @@ auto GlobalStateInput::bindkey(const std::string &key, const std::string &action
   bind.command = command;
   bind.keymod = modifier;
 
-  LogInfo(LOG, "BindKey id: {} Key: {} ({}), Mod: {} Command: {}", gGlobalStateInput.binds.size(),
-          key, bind.keyid, bind.keymod, command);
+  LogInfo(LOG, "BindKey id: {} Key: {} ({}), Mod: {} Command: {}", binds.size(), key, bind.keyid,
+          bind.keymod, command);
 
-  gGlobalStateInput.binds.push_back(bind);
+  binds.push_back(bind);
   bindkey_result = true;
   return bindkey_result;
 }
@@ -80,12 +80,12 @@ auto GlobalStateInput::findkeybind(std::uint32_t keymods, SDL_Scancode keycode) 
   return findkeybind_result;
 }
 
-void GlobalStateInput::unbindall() { gGlobalStateInput.binds.clear(); }
+void GlobalStateInput::unbindall() { binds.clear(); }
 
 void GlobalStateInput::startinput()
 {
   //SDL_SetWindowRelativeMouseMode(gamewindow, true);
-  SDL_StopTextInput(gGlobalStateInput.gamewindow);
+  SDL_StopTextInput(gamewindow);
 }
 
 auto GlobalStateInput::GetActionEnum(const std::string_view &name) -> taction
