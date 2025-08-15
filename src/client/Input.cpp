@@ -16,9 +16,7 @@
 /*#include "typinfo.h"*/
 /*#include "TraceLog.h"*/
 GlobalStateInput gGlobalStateInput{
-  .keystatus{},
-  .binds{},
-  .gamewindow{},
+
 };
 
 auto constexpr LOG = "input";

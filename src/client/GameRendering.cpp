@@ -60,8 +60,7 @@
 #include "shared/Constants.cpp.h"
 
 GlobalStateGameRendering gGlobalStateGameRendering{
-  .gamerenderingparams{},
-  .textures{},
+
 };
 
 using string = std::string;

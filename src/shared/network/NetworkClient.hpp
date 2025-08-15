@@ -25,16 +25,16 @@ struct GlobalStateNetworkClient
   template <Config::Module M = Config::GetModule()>
   void InitClientNetwork()
     requires(Config::IsClient(M));
-  std::int32_t clienttickcount;
-  std::int32_t lastheartbeatcounter;
-  std::int32_t clientplayerreceivedcounter;
-  bool clientplayerreceived;
-  bool clientplayersent;
-  bool clientvarsrecieved;
-  bool requestinggame;
-  std::int32_t noheartbeattime;
-  std::string votemapname;
-  std::uint32_t votemapcount;
+  std::int32_t clienttickcount = {};
+  std::int32_t lastheartbeatcounter = {};
+  std::int32_t clientplayerreceivedcounter = {};
+  bool clientplayerreceived = {};
+  bool clientplayersent = {};
+  bool clientvarsrecieved = {};
+  bool requestinggame = {};
+  std::int32_t noheartbeattime = 0;
+  std::string votemapname = {};
+  std::uint32_t votemapcount = {};
 };
 
 extern GlobalStateNetworkClient gGlobalStateNetworkClient;

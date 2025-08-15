@@ -36,8 +36,8 @@ struct GlobalStateGameRendering
   void setfontstyle(std::int32_t style);
   void setfontstyle(std::int32_t style, float scale);
   void takescreenshot(std::string filename, bool async = true);
-  tgamerenderingparams gamerenderingparams;
-  tgfxspritearray textures;
+  tgamerenderingparams gamerenderingparams = {};
+  tgfxspritearray textures = {};
 };
 
 extern GlobalStateGameRendering gGlobalStateGameRendering;

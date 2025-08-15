@@ -41,10 +41,10 @@ struct GlobalStateBanSystem
   void savebannedlisthw(const std::string &filename);
   void updatehwbanlist();
   void updateipbanlist();
-  std::vector<tbanip> bannediplist;
-  std::vector<tbanhw> bannedhwlist;
-  std::string lastban;
-  std::string lastbanhw;
+  std::vector<tbanip> bannediplist = {};
+  std::vector<tbanhw> bannedhwlist = {};
+  std::string lastban = {};
+  std::string lastbanhw = {};
 };
 
 extern GlobalStateBanSystem gGlobalStateBanSystem;

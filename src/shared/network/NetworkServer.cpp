@@ -26,14 +26,7 @@
 #include "shared/network/Net.hpp"
 
 GlobalStateNetworkServer gGlobalStateNetworkServer{
-  .servertickcounter{},
-  .noclientupdatetime{},
-  .messagesasecnum{},
-  .floodwarnings{},
-  .pingwarnings{},
-  .bullettime{},
-  .grenadetime{},
-  .knifecan{},
+
 };
 
 auto LOG_NET = "network";

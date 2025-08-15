@@ -33,14 +33,14 @@ struct tkillsort
 #ifndef SERVER
 struct GlobalStateGame
 {
-  std::int32_t gamewidth;
-  std::int32_t gameheight;
-  float gamewidthhalf;
-  float gameheighthalf;
-  PascalArray<tkillsort, 1, Constants::MAX_PLAYERS> sortedteamscore;
-  std::int32_t heartbeattime;
-  std::int32_t heartbeattimewarnings;
-  PascalArray<tspark, 1, Constants::MAX_SPARKS> spark;
+  std::int32_t gamewidth = default_width;
+  std::int32_t gameheight = default_height;
+  float gamewidthhalf = default_width;
+  float gameheighthalf = default_height;
+  PascalArray<tkillsort, 1, Constants::MAX_PLAYERS> sortedteamscore = {};
+  std::int32_t heartbeattime = {};
+  std::int32_t heartbeattimewarnings = {};
+  PascalArray<tspark, 1, Constants::MAX_SPARKS> spark = {};
 };
 
 extern GlobalStateGame gGlobalStateGame;

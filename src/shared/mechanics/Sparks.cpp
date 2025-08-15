@@ -40,7 +40,7 @@ auto GlobalStateSparks::GetSparkParts() -> particlesystem &
 template particlesystem &GlobalStateSparks::GetSparkParts();
 
 GlobalStateSparks gGlobalStateSparks{
-  .sparkscount{},
+
 };
 
 using std::numbers::pi;

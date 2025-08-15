@@ -117,7 +117,7 @@ public:
 #ifndef SERVER
 struct GlobalStateDemo
 {
-  tdemoplayer demoplayer;
+  tdemoplayer demoplayer = {};
 };
 
 extern GlobalStateDemo gGlobalStateDemo;

@@ -48,7 +48,7 @@
 #include "shared/network/Net.hpp"
 
 GlobalStateControlGame gGlobalStateControlGame{
-  .votekickreasontype = false,
+
 };
 
 void clearchattext()

@@ -24,7 +24,7 @@
 using string = std::string;
 
 GlobalStateMapGraphics gGlobalStateMapGraphics{
-  .mapgfx{},
+
 };
 
 auto loadmaptexture(const string &texname, tgfxcolor colorkey) -> tgfximage *

@@ -80,32 +80,7 @@ TAdminServer AdminServer; // TIdTCPServer;
 #endif
 
 GlobalStateServer gGlobalStateServer{
-  .bonusfreq = 3600,
-  .serverip = "127.0.0.1",
-  .serverport = 23073,
-  .wmname{},
-  .wmversion{},
-  .mapslist{},
-  .lastplayer{},
-  .cheattag{},
-  .bulletwarningcount{},
-  .waverespawntime{},
-  .waverespawncounter{},
-  .remoteips{},
-  .adminips{},
-  .floodip{},
-  .floodnum{},
-  .lastreqip{},
-  .lastreqid = 0,
-  .dropip{},
-  .currentconf = "soldat.ini",
-  .htftime = Constants::HTF_SEC_POINT,
-  .mutelist{},
-  .mutename{},
-  .tklist{},
-  .tklistkills{},
-  .lastadminips{},
-  .mapindex{},
+
 };
 
 std::string ModDir;

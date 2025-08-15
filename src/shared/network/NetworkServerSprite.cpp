@@ -23,13 +23,7 @@
 #include "shared/network/NetworkServer.hpp"
 
 GlobalStateNetworkServerSprite gGlobalStateNetworkServerSprite{
-  .oldmovementmsg{},
-  .oldmouseaimmsg{},
-  .oldweaponsmsg{},
-  .oldhelmetmsg{},
-  .oldspritesnapshotmsg{},
-  .time_spritesnapshot{},
-  .time_spritesnapshot_mov{},
+
 };
 
 float shotdistanceServer;

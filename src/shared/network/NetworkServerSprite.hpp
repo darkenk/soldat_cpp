@@ -29,19 +29,19 @@ struct GlobalStateNetworkServerSprite
   void serverspritesnapshotmajorfloat(const uint8_t who, std::uint8_t r);
   std::array<std::array<tmsg_serverspritedelta_movement, Constants::MAX_SPRITES>,
              Constants::MAX_SPRITES>
-    oldmovementmsg;
+    oldmovementmsg = {};
   std::array<std::array<tmsg_serverspritedelta_mouseaim, Constants::MAX_SPRITES>,
              Constants::MAX_SPRITES>
-    oldmouseaimmsg;
+    oldmouseaimmsg = {};
   std::array<std::array<tmsg_serverspritedelta_weapons, Constants::MAX_SPRITES>,
              Constants::MAX_SPRITES>
-    oldweaponsmsg;
+    oldweaponsmsg = {};
   std::array<std::array<tmsg_serverspritedelta_helmet, Constants::MAX_SPRITES>,
              Constants::MAX_SPRITES>
-    oldhelmetmsg;
-  std::array<tmsg_serverspritesnapshot, Constants::MAX_SPRITES> oldspritesnapshotmsg;
-  std::array<std::int32_t, Constants::MAX_SPRITES> time_spritesnapshot;
-  std::array<std::int32_t, Constants::MAX_SPRITES> time_spritesnapshot_mov;
+    oldhelmetmsg = {};
+  std::array<tmsg_serverspritesnapshot, Constants::MAX_SPRITES> oldspritesnapshotmsg = {};
+  std::array<std::int32_t, Constants::MAX_SPRITES> time_spritesnapshot = {};
+  std::array<std::int32_t, Constants::MAX_SPRITES> time_spritesnapshot_mov = {};
 };
 
 extern GlobalStateNetworkServerSprite gGlobalStateNetworkServerSprite;

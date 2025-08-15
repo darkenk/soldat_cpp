@@ -28,17 +28,17 @@ struct GlobalStateGameMenus
   void gamemenumousemove();
   void gamemenushow(pgamemenu menu, bool show = true);
   void initgamemenus();
-  std::vector<tgamemenu> gamemenu;
-  pgamemenu hoveredmenu;
-  pgamebutton hoveredbutton;
-  std::int32_t hoveredbuttonindex;
-  pgamemenu escmenu;
-  pgamemenu teammenu;
-  pgamemenu limbomenu;
-  pgamemenu kickmenu;
-  pgamemenu mapmenu;
-  std::int32_t kickmenuindex;
-  std::int32_t mapmenuindex;
+  std::vector<tgamemenu> gamemenu = {};
+  pgamemenu hoveredmenu = {};
+  pgamebutton hoveredbutton = {};
+  std::int32_t hoveredbuttonindex = {};
+  pgamemenu escmenu = {};
+  pgamemenu teammenu = {};
+  pgamemenu limbomenu = {};
+  pgamemenu kickmenu = {};
+  pgamemenu mapmenu = {};
+  std::int32_t kickmenuindex = 0;
+  std::int32_t mapmenuindex = 0;
 };
 
 extern GlobalStateGameMenus gGlobalStateGameMenus;

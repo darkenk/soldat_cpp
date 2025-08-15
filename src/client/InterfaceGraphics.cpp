@@ -58,38 +58,7 @@ using string = std::string;
 // World Text
 
 GlobalStateInterfaceGraphics gGlobalStateInterfaceGraphics{
-  .chatmessage{},
-  .chatteam{},
-  .chatdelay{},
-  .bigtext{},
-  .bigdelay{},
-  .bigx{},
-  .bigscale{},
-  .bigcolor{},
-  .bigposx{},
-  .bigposy{},
-  .worldtext{},
-  .worlddelay{},
-  .worldx{},
-  .worldscale{},
-  .worldcolor{},
-  .worldposx{},
-  .worldposy{},
-  .cursortext{},
-  .cursortextlength{},
-  .cursorfriendly{},
-  .fragsmenushow{},
-  .statsmenushow{},
-  .coninfoshow{},
-  .playernamesshow{},
-  .minimapshow{},
-  .noobshow{},
-  .fragsscrollmax = 0,
-  .fragsscrolllev = 0,
-  ._rscala{},
-  ._iscala{},
-  .fragx{},
-  .fragy{},
+
 };
 
 struct tinterfacerelinfo

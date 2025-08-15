@@ -34,9 +34,7 @@ using string = std::string;
 std::array<tsoundsample, ToUint32(SfxEffect::COUNT)> samp;
 
 GlobalStateSound gGlobalStateSound{
-  .scriptsamp{},
-  .volumeinternal = 0.5f,
-  .defaultchannel = -1,
+
 };
 
 static std::string_view AUDIO = "audio";

@@ -34,17 +34,7 @@
 using string = std::string;
 
 GlobalStateGameMenus gGlobalStateGameMenus{
-  .gamemenu{},
-  .hoveredmenu{},
-  .hoveredbutton{},
-  .hoveredbuttonindex{},
-  .escmenu{},
-  .teammenu{},
-  .limbomenu{},
-  .kickmenu{},
-  .mapmenu{},
-  .kickmenuindex = 0,
-  .mapmenuindex = 0,
+
 };
 
 bool limbowasactive;

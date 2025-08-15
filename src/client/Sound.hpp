@@ -231,9 +231,9 @@ struct GlobalStateSound
   void playsound(SfxEffect sample, const tvector2 &emitter);
   void playsound(SfxEffect sample, const tvector2 &emitter, int32_t channel);
   void playsound(SfxEffect sample, std::int32_t channel);
-  std::vector<tscriptsound> scriptsamp;
-  float volumeinternal;
-  std::int32_t defaultchannel;
+  std::vector<tscriptsound> scriptsamp = {};
+  float volumeinternal = 0.5f;
+  std::int32_t defaultchannel = -1;
 };
 
 extern GlobalStateSound gGlobalStateSound;

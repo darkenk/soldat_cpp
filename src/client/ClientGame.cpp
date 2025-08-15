@@ -48,38 +48,7 @@ using string = std::string;
 // cha std::uint8_t f
 
 GlobalStateClientGame gGlobalStateClientGame{
-  .mouseprev{},
-  .mx{},
-  .my{},
-  .mapchanged = false,
-  .chatchanged = true,
-  .shouldrenderframes = true,
-  .actionsnap = 1,
-  .actionsnaptaken = false,
-  .capscreen = 255,
-  .showscreen = 0u,
-  .screencounter = 255,
-  .isfullscreen{},
-  .screenwidth = default_width,
-  .screenheight = default_height,
-  .renderwidth = 0,
-  .renderheight = 0,
-  .windowwidth = 0,
-  .windowheight = 0,
-  .chattext{},
-  .lastchattext{},
-  .firechattext{},
-  .chattype{},
-  .completionbase{},
-  .completionbaseseparator{},
-  .currenttabcompleteplayer = 0,
-  .cursorposition = 0,
-  .tabcompletepressed{},
-  .chattimecounter{},
-  .clientstopmovingcounter = 99999,
-  .forceclientspritesnapshotmov{},
-  .lastforceclientspritesnapshotmovtick{},
-  .menutimer{},
+
 };
 
 struct tframetiming

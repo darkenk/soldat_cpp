@@ -47,15 +47,8 @@
 #include "common/MapFile.hpp"
 
 #ifndef SERVER
-GlobalStateGame gGlobalStateGame {
-  .gamewidth = default_width,
-  .gameheight = default_height,
-  .gamewidthhalf = default_width,
-  .gameheighthalf = default_height,
-  .sortedteamscore = {},
-  .heartbeattime = {},
-  .heartbeattimewarnings = {},
-  .spark = {},
+GlobalStateGame gGlobalStateGame{
+
 };
 // / 2;
 // / 2;

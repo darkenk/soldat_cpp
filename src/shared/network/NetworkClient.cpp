@@ -26,16 +26,7 @@ static std::string_view NETMSG = "net_msg";
 auto constexpr LOG_NET = "network";
 
 GlobalStateNetworkClient gGlobalStateNetworkClient{
-  .clienttickcount{},
-  .lastheartbeatcounter{},
-  .clientplayerreceivedcounter{},
-  .clientplayerreceived{},
-  .clientplayersent{},
-  .clientvarsrecieved{},
-  .requestinggame{},
-  .noheartbeattime = 0,
-  .votemapname{},
-  .votemapcount{},
+
 };
 
 void NetworkClientImpl::ProcessLoopImpl()

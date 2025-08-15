@@ -41,7 +41,7 @@ using string = std::string;
 
 #ifndef SERVER
 GlobalStateDemo gGlobalStateDemo{
-  .demoplayer{},
+
 };
 
 #endif

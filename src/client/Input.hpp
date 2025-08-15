@@ -77,9 +77,9 @@ struct GlobalStateInput
   taction GetActionEnum(const std::string_view &name);
   void startinput();
   void unbindall();
-  std::array<bool, 512> keystatus;
-  std::vector<tbind> binds;
-  SDL_Window *gamewindow;
+  std::array<bool, 512> keystatus = {};
+  std::vector<tbind> binds = {};
+  SDL_Window *gamewindow = {};
 };
 
 extern GlobalStateInput gGlobalStateInput;

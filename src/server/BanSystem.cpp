@@ -12,10 +12,7 @@
 #include "shared/Constants.cpp.h"
 
 GlobalStateBanSystem gGlobalStateBanSystem{
-  .bannediplist{},
-  .bannedhwlist{},
-  .lastban{},
-  .lastbanhw{},
+
 };
 
 static auto matchesmask([[maybe_unused]] const std::string &v,
