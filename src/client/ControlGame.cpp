@@ -51,7 +51,7 @@ GlobalStateControlGame gGlobalStateControlGame{
 
 };
 
-void clearchattext()
+void GlobalStateControlGame::clearchattext()
 {
   gGlobalStateClientGame.lastchattext = gGlobalStateClientGame.chattext;
   gGlobalStateClientGame.firechattext = "";
@@ -63,7 +63,7 @@ void clearchattext()
   SDL_StopTextInput(gGlobalStateInput.gamewindow);
 }
 
-auto filterchattext(const std::string &str1) -> std::string
+auto GlobalStateControlGame::filterchattext(const std::string &str1) -> std::string
 {
   std::string result;
   result = std::accumulate(str1.begin(), str1.end(), result, [](const auto &out, const auto &c) {
@@ -76,7 +76,7 @@ auto filterchattext(const std::string &str1) -> std::string
   return result;
 }
 
-auto chatkeydown(std::uint8_t keymods, SDL_Keycode keycode) -> bool
+auto GlobalStateControlGame::chatkeydown(std::uint8_t keymods, SDL_Keycode keycode) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t len;
@@ -223,7 +223,7 @@ auto chatkeydown(std::uint8_t keymods, SDL_Keycode keycode) -> bool
   return result;
 }
 
-auto menukeydown(std::uint8_t keymods, SDL_Scancode keycode) -> bool
+auto GlobalStateControlGame::menukeydown(std::uint8_t keymods, SDL_Scancode keycode) -> bool
 {
   bool result;
   result = false;
@@ -284,7 +284,7 @@ auto menukeydown(std::uint8_t keymods, SDL_Scancode keycode) -> bool
   return result;
 }
 
-auto keydown(SDL_KeyboardEvent &keyevent) -> bool
+auto GlobalStateControlGame::keydown(SDL_KeyboardEvent &keyevent) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
@@ -749,7 +749,7 @@ auto keydown(SDL_KeyboardEvent &keyevent) -> bool
   return result;
 }
 
-auto keyup(SDL_KeyboardEvent &keyevent) -> bool
+auto GlobalStateControlGame::keyup(SDL_KeyboardEvent &keyevent) -> bool
 {
   std::uint8_t keymods;
   SDL_Scancode keycode;

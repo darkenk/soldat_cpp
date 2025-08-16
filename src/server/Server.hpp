@@ -52,17 +52,15 @@ struct GlobalStateServer
   PascalArray<std::int8_t, 1, max_players> tklistkills = {};
   std::array<std::string, Constants::MAX_LAST_ADMIN_IPS> lastadminips = {};
   std::int32_t mapindex = {};
+
+private:
+  void CreateDirectoryStructure(FileUtility &fs);
+  void WriteLn(const std::string &msg);
+  void DaemonizeProgram();
+  void ShutDown();
 };
 
 extern GlobalStateServer gGlobalStateServer;
-
-// last 4 IP"s to request game
-
-// Mute array
-
-// TK array
-// IP
-// TK Warnings
 
 class FileUtility;
 

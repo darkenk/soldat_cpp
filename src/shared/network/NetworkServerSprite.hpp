@@ -42,6 +42,8 @@ struct GlobalStateNetworkServerSprite
   std::array<tmsg_serverspritesnapshot, Constants::MAX_SPRITES> oldspritesnapshotmsg = {};
   std::array<std::int32_t, Constants::MAX_SPRITES> time_spritesnapshot = {};
   std::array<std::int32_t, Constants::MAX_SPRITES> time_spritesnapshot_mov = {};
+
+private:
 };
 
 extern GlobalStateNetworkServerSprite gGlobalStateNetworkServerSprite;

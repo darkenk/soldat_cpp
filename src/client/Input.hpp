@@ -80,6 +80,8 @@ struct GlobalStateInput
   std::array<bool, 512> keystatus = {};
   std::vector<tbind> binds = {};
   SDL_Window *gamewindow = {};
+
+private:
 };
 
 extern GlobalStateInput gGlobalStateInput;

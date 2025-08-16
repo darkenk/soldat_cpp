@@ -73,18 +73,6 @@ struct ttextureloaddata
   std::uint32_t colorkey;
 };
 
-struct tinterpolationstate
-{
-  tvector2 camera;
-  tvector2 mouse;
-  std::array<PascalArray<tvector2, 1, max_sprites>, 24> spritepos;
-  PascalArray<tvector2, 1, max_bullets> bulletpos;
-  PascalArray<tvector2, 1, max_bullets> bulletvel;
-  PascalArray<float, 1, max_bullets> bullethitmul;
-  PascalArray<tvector2, 1, max_sparks> sparkpos;
-  PascalArray<PascalArray<tvector2, 1, 4>, 1, max_things> thingpos;
-};
-
 struct tfontstyle
 {
   tgfxfont font;
@@ -133,7 +121,7 @@ static struct
   TIniFile::Entries custominterface;
 } scaledata;
 
-void loadmodinfo()
+void GlobalStateGameRendering::loadmodinfo()
 {
   std::unique_ptr<TIniFile> rootini;
   std::unique_ptr<TIniFile> modini;
@@ -205,7 +193,7 @@ void loadmodinfo()
   // cleanup
 }
 
-auto getimagescale(const std::string &imagepath) -> float
+auto GlobalStateGameRendering::getimagescale(const std::string &imagepath) -> float
 {
   std::string scale;
   std::string key;
@@ -274,7 +262,7 @@ auto GlobalStateGameRendering::pngoverride(const std::string &filename) -> strin
   return overridefileext(GS::GetFileSystem(), f, ".png");
 }
 
-void loadmaintextures()
+void GlobalStateGameRendering::loadmaintextures()
 {
   auto &fs = GS::GetFileSystem();
 
@@ -320,7 +308,7 @@ void loadmaintextures()
   mainspritesheet->startloading();
 }
 
-void loadinterfacetextures(const std::string interfacename)
+void GlobalStateGameRendering::loadinterfacetextures(const std::string interfacename)
 {
   const std::int32_t custom_first = GFX::INTERFACE_CURSOR;
   const std::int32_t custom_last = GFX::INTERFACE_TITLE_R;
@@ -411,7 +399,7 @@ void loadinterfacetextures(const std::string interfacename)
   interfacespritesheet->startloading();
 }
 
-void loadinterface()
+void GlobalStateGameRendering::loadinterface()
 {
   if (gGlobalStateInterfaceGraphics.loadinterfacedata(
         gGlobalStateGameRendering.gamerenderingparams.interfacename))
@@ -426,7 +414,7 @@ void loadinterface()
   loadedinterfacename = gGlobalStateGameRendering.gamerenderingparams.interfacename;
 }
 
-auto getfontpath(string fontfile) -> string
+auto GlobalStateGameRendering::getfontpath(string fontfile) -> string
 {
   std::string result;
   auto p = std::filesystem::path(gGlobalStateClient.basedirectory + fontfile);
@@ -437,7 +425,7 @@ auto getfontpath(string fontfile) -> string
   return result;
 }
 
-auto getfontpath(string fallback, string &fontfile) -> string
+auto GlobalStateGameRendering::getfontpath(string fallback, string &fontfile) -> string
 {
   std::string result;
   if (fontfile == "play-regular.ttf")
@@ -463,7 +451,7 @@ auto getfontpath(string fallback, string &fontfile) -> string
   return result;
 }
 
-void loadfonts()
+void GlobalStateGameRendering::loadfonts()
 {
   std::array<string, 2> fontfile;
   std::array<string, 2> fontpath;
@@ -739,7 +727,8 @@ void GlobalStateGameRendering::destroygamegraphics()
   initialized = false;
 }
 
-constexpr auto lerp(const tvector2 &a, const tvector2 &b, float x) -> tvector2
+constexpr auto lerp(const tvector2 &a, const tvector2 &b, float x)
+  -> tvector2
 {
   tvector2 lerp_result;
   lerp_result.x = a.x + (b.x - a.x) * x;
@@ -747,7 +736,7 @@ constexpr auto lerp(const tvector2 &a, const tvector2 &b, float x) -> tvector2
   return lerp_result;
 }
 
-void interpolatestate(float p, tinterpolationstate &s, bool paused)
+void GlobalStateGameRendering::interpolatestate(float p, tinterpolationstate &s, bool paused)
 {
   ZoneScopedN("InterpolateState");
   static const std::set<std::int32_t> kit_styles = {
@@ -858,7 +847,7 @@ void interpolatestate(float p, tinterpolationstate &s, bool paused)
   }
 }
 
-void restorestate(tinterpolationstate &s)
+void GlobalStateGameRendering::restorestate(tinterpolationstate &s)
 {
   std::int32_t i;
 
@@ -1240,7 +1229,8 @@ auto arraycontains(const T &list, std::int32_t x) -> bool
   return result;
 }
 
-auto getsizeconstraint(std::int32_t id, std::int32_t &w, std::int32_t &h) -> bool
+auto GlobalStateGameRendering::getsizeconstraint(std::int32_t id, std::int32_t &w, std::int32_t &h)
+  -> bool
 {
   const std::array<std::int32_t, 35> weapons_list = {
     {GFX::WEAPONS_AK74,      GFX::WEAPONS_AK74_2,      GFX::WEAPONS_AK74_FIRE,
@@ -1415,10 +1405,7 @@ auto GlobalStateGameRendering::fontstylesize(std::int32_t style) -> std::int32_t
   return fontstyles[style].size;
 }
 
-void gfxlogcallback(const std::string &s)
-{
-  LogDebugG("[GFX] {}", s);
-}
+void GlobalStateGameRendering::gfxlogcallback(const std::string &s) { LogDebugG("[GFX] {}", s); }
 
 // initialization
 //  GfxLog := @GfxLogCallback;
@@ -1494,7 +1481,7 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
     gGlobalStateClientGame.windowheight;
   gfxSetGpuDevice(app.GetDevice());
   gfxinitcontext(app.GetWindow(), false, false);
-  loadfonts();
+  gGlobalStateGameRendering.loadfonts();
   gGlobalStateGameRendering.rendergameinfo("Test");
   auto data =
     gfxsavescreen(0, 0, gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight);
@@ -1531,7 +1518,7 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(true))
                                              gGlobalStateClient.moddir);
   createweaponsbase(GS::GetWeaponSystem().GetGuns());
   gGlobalStateGameMenus.initgamemenus();
-  loadfonts();
+  gGlobalStateGameRendering.loadfonts();
   gGlobalStateGameRendering.renderframe(1.0f, 1.0f, true);
   std::this_thread::sleep_for(16ms);
   auto data =

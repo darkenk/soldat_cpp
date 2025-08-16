@@ -27,7 +27,8 @@ GlobalStateMapGraphics gGlobalStateMapGraphics{
 
 };
 
-auto loadmaptexture(const string &texname, tgfxcolor colorkey) -> tgfximage *
+auto GlobalStateMapGraphics::loadmaptexture(const string &texname, tgfxcolor colorkey)
+  -> tgfximage *
 {
   std::array<string, 3> s;
   std::string filename;
@@ -112,8 +113,9 @@ void GlobalStateMapGraphics::settexturefilter(tgfxtexture *texture, bool allowmi
 
 ;
 
-static void updatescale(const tmapvertex p, tmapvertex q, const float &resolutionx,
-                        tgfximage *image, const float &resolutiony, tvector2 &scale)
+void GlobalStateMapGraphics::updatescale(const tmapvertex p, tmapvertex q,
+                                                const float &resolutionx, tgfximage *image,
+                                                const float &resolutiony, tvector2 &scale)
 {
   MyFloat dx;
   MyFloat dy;

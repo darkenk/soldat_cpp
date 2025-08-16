@@ -32,7 +32,6 @@ struct GlobalStateClient
   void startgame(int argc, char *argv[]);
   void shutdown();
   void exittomenu();
-  void restartgraph();
   bool mainloop();
   void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir);
   void showmessage(const std::string &messagetext);
@@ -82,6 +81,24 @@ struct GlobalStateClient
   float shotdistance = {};
   float shotlife = {};
   std::int32_t shotricochet = {};
+
+  // should be private, but there are tests written for those methods already
+  auto MountAssets(FileUtility &fu, const std::string &userdirectory,
+                          const std::string &basedirectory, tsha1digest &outGameModChecksum,
+                          tsha1digest &outCustomModChecksum) -> bool;
+  void CreateDirectoryStructure(FileUtility &fs);
+  void InitConsoles(bool test = false);
+
+private:
+  friend class ClientFixture;
+  auto InitBigConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
+                      const std::int32_t countMax, const std::int32_t scrollTickMax) -> Console &;
+  auto InitKillConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
+                       const std::int32_t countMax, const std::int32_t scrollTickMax)
+    -> ConsoleMain &;
+  void redirectdialog();
+  void restartgraph();
+  void startgameloop();
 };
 
 extern GlobalStateClient gGlobalStateClient;

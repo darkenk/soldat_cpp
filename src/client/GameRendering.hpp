@@ -5,11 +5,24 @@
 #include <string_view>
 
 #include "Gfx.hpp"
+#include "shared/mechanics/Sprites.hpp"
 /*#include "SDL2.h"*/
 
 struct tgamerenderingparams
 {
   std::string interfacename;
+};
+
+struct tinterpolationstate
+{
+  tvector2 camera;
+  tvector2 mouse;
+  std::array<PascalArray<tvector2, 1, max_sprites>, 24> spritepos;
+  PascalArray<tvector2, 1, max_bullets> bulletpos;
+  PascalArray<tvector2, 1, max_bullets> bulletvel;
+  PascalArray<float, 1, max_bullets> bullethitmul;
+  PascalArray<tvector2, 1, max_sparks> sparkpos;
+  PascalArray<PascalArray<tvector2, 1, 4>, 1, max_things> thingpos;
 };
 
 constexpr std::int32_t font_big = 0;
@@ -38,6 +51,21 @@ struct GlobalStateGameRendering
   void takescreenshot(std::string filename, bool async = true);
   tgamerenderingparams gamerenderingparams = {};
   tgfxspritearray textures = {};
+
+  void loadfonts(); // should be private, but there are tests already
+
+private:
+  auto getfontpath(std::string fallback, std::string &fontfile) -> std::string;
+  auto getfontpath(std::string fontfile) -> std::string;
+  auto getimagescale(const std::string &imagepath) -> float;
+  auto getsizeconstraint(std::int32_t id, std::int32_t &w, std::int32_t &h) -> bool;
+  void gfxlogcallback(const std::string &s);
+  void interpolatestate(float p, tinterpolationstate &s, bool paused);
+  void loadinterface();
+  void loadinterfacetextures(const std::string interfacename);
+  void loadmaintextures();
+  void loadmodinfo();
+  void restorestate(tinterpolationstate &s);
 };
 
 extern GlobalStateGameRendering gGlobalStateGameRendering;

@@ -234,6 +234,8 @@ struct GlobalStateSound
   std::vector<tscriptsound> scriptsamp = {};
   float volumeinternal = 0.5f;
   std::int32_t defaultchannel = -1;
+
+private:
 };
 
 extern GlobalStateSound gGlobalStateSound;

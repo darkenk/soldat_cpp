@@ -413,7 +413,8 @@ public:
 protected:
 };
 
-inline void sHelperProcessMessages(std::unique_ptr<NetworkServer>& server, std::unique_ptr<NetworkClientImpl>& client)
+inline void sHelperProcessMessages(
+  std::unique_ptr<NetworkServer> &server, std::unique_ptr<NetworkClientImpl> &client)
 {
   client->FlushMsg();
   server->FlushMsg();

@@ -39,8 +39,8 @@ GlobalStateSound gGlobalStateSound{
 
 static std::string_view AUDIO = "audio";
 
-constexpr void Add(std::array<std::string_view, ToUint32(SfxEffect::COUNT)> &ref, SfxEffect sample,
-                   std::string_view name)
+constexpr void Add(std::array<std::string_view, ToUint32(SfxEffect::COUNT)> &ref,
+                                     SfxEffect sample, std::string_view name)
 {
   auto &s = ref[ToUint32(sample)];
   if (not s.empty())
@@ -50,7 +50,8 @@ constexpr void Add(std::array<std::string_view, ToUint32(SfxEffect::COUNT)> &ref
   s = name;
 }
 
-constexpr auto GenerateSampleFileNames() -> std::array<std::string_view, ToUint32(SfxEffect::COUNT)>
+constexpr auto GenerateSampleFileNames()
+  -> std::array<std::string_view, ToUint32(SfxEffect::COUNT)>
 {
   std::array<std::string_view, ToUint32(SfxEffect::COUNT)> ref;
   Add(ref, SfxEffect::ak74_fire, "ak74-fire.wav");

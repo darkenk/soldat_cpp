@@ -48,6 +48,11 @@ struct GlobalStateMapGraphics
   void updateprops(double t);
   void worldtominimap(float x, float y, MyFloat &ox, MyFloat &oy);
   tmapgraphics mapgfx = {};
+
+private:
+  auto loadmaptexture(const std::string &texname, tgfxcolor colorkey) -> tgfximage *;
+  static void updatescale(const tmapvertex p, tmapvertex q, const float &resolutionx,
+                          tgfximage *image, const float &resolutiony, tvector2 &scale);
 };
 
 extern GlobalStateMapGraphics gGlobalStateMapGraphics;

@@ -71,19 +71,22 @@ bool progready;
 Console sBigConsole;
 ConsoleMain sKillConsole;
 
-auto InitBigConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
-                    const std::int32_t countMax, const std::int32_t scrollTickMax) -> Console &
+} // namespace
+
+auto GlobalStateClient::InitBigConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
+                                       const std::int32_t countMax,
+                                       const std::int32_t scrollTickMax) -> Console &
 {
   return *new (&sBigConsole) Console(filesystem, newMessageWait, countMax, scrollTickMax);
 }
 
-auto InitKillConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
-                     const std::int32_t countMax, const std::int32_t scrollTickMax) -> ConsoleMain &
+auto GlobalStateClient::InitKillConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
+                                        const std::int32_t countMax,
+                                        const std::int32_t scrollTickMax) -> ConsoleMain &
 {
   return *new (&sKillConsole) ConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax);
 }
 
-} // namespace
 
 auto GlobalStateClient::GetBigConsole() -> Console & { return sBigConsole; }
 
@@ -109,7 +112,7 @@ static GameState gGameState{GameState::Loading};
 
 // End Client.cpp variables
 
-void restartgraph()
+void GlobalStateClient::restartgraph()
 {
   gGlobalStateGameRendering.dotextureloading(true);
 
@@ -165,7 +168,7 @@ void GlobalStateClient::loadweaponnames(FileUtility& fs, GunArray& gunDisplayNam
   }
 }
 
-void redirectdialog()
+void GlobalStateClient::redirectdialog()
 {
   std::array<SDL_MessageBoxButtonData, 2> buttons;
   SDL_MessageBoxData data;
@@ -309,7 +312,7 @@ void GlobalStateClient::exittomenu()
   }
 }
 
-static void CreateDirectoryStructure(FileUtility &fs)
+void GlobalStateClient::CreateDirectoryStructure(FileUtility &fs)
 {
   SoldatEnsure(fs.MkDir("/user/configs"));
   SoldatEnsure(fs.MkDir("/user/screens"));
@@ -320,9 +323,10 @@ static void CreateDirectoryStructure(FileUtility &fs)
   SoldatEnsure(fs.MkDir("/user/mods"));
 }
 
-static auto MountAssets(FileUtility &fu, const std::string &userdirectory,
-                        const std::string &basedirectory, tsha1digest &outGameModChecksum,
-                        tsha1digest &outCustomModChecksum) -> bool
+auto GlobalStateClient::MountAssets(FileUtility &fu, const std::string &userdirectory,
+                                           const std::string &basedirectory,
+                                           tsha1digest &outGameModChecksum,
+                                           tsha1digest &outCustomModChecksum) -> bool
 {
   LogDebugG("[FS] Mounting game archive");
   if (CVar::fs_localmount)
@@ -362,7 +366,7 @@ static auto MountAssets(FileUtility &fu, const std::string &userdirectory,
 }
 
 // TODO: throw away test variable
-static void InitConsoles(bool test = false)
+void GlobalStateClient::InitConsoles(bool test)
 {
   // Create Consoles
   auto console = std::make_unique<ConsoleMain>(
@@ -751,7 +755,7 @@ bool GlobalStateClient::mainloop()
 #include <emscripten.h>
 #endif
 
-void startgameloop()
+void GlobalStateClient::startgameloop()
 {
 #if __EMSCRIPTEN__
   emscripten_set_main_loop(loop, 30, 1);
@@ -830,6 +834,12 @@ public:
   ClientFixture(const ClientFixture &) = delete;
 
 protected:
+  void t() {
+    FileUtility fu;
+    fu.Mount("tmpfs.memory", "/user");
+    GlobalStateClient gsc;
+    gsc.CreateDirectoryStructure(fu);
+  }
 };
 
 TEST_SUITE("Client")
@@ -839,7 +849,8 @@ TEST_SUITE("Client")
   {
     FileUtility fu;
     fu.Mount("tmpfs.memory", "/user");
-    CreateDirectoryStructure(fu);
+    GlobalStateClient gsc;
+    gsc.CreateDirectoryStructure(fu);
     auto *f = fu.Open("/user/logs/nice_log.txt", FileUtility::FileMode::Write);
     CHECK_NE(nullptr, f);
     FileUtility::Close(f);
@@ -892,7 +903,8 @@ TEST_SUITE("Client")
     }
     tsha1digest customMod;
     tsha1digest mod;
-    CHECK_EQ(true, MountAssets(fu, "", testDir, mod, customMod));
+    GlobalStateClient gsc;
+    CHECK_EQ(true, gsc.MountAssets(fu, "", testDir, mod, customMod));
     //std::filesystem::remove_all(testDir);
   }
 
@@ -904,9 +916,10 @@ TEST_SUITE("Client")
     const auto baseDirectory = FileUtility::GetBasePath();
     tsha1digest checksum1;
     tsha1digest checksum2;
-    auto ret = MountAssets(fs, userDirectory, baseDirectory, checksum1, checksum2);
+    GlobalStateClient gsc;
+    auto ret = gsc.MountAssets(fs, userDirectory, baseDirectory, checksum1, checksum2);
     CHECK_EQ(true, ret);
-    gGlobalStateClient.loadweaponnames(fs, ga, gGlobalStateClient.moddir);
+    gsc.loadweaponnames(fs, ga, gsc.moddir);
     CHECK_EQ("USSOCOM", ga[0]);
     CHECK_EQ("Desert Eagles", ga[1]);
     CHECK_EQ("HK MP5", ga[2]);
@@ -931,7 +944,8 @@ TEST_SUITE("Client")
     GlobalSystems<Config::CLIENT_MODULE>::Init();
     auto prev_y = gGlobalStateInterfaceGraphics._rscala.y;
     gGlobalStateInterfaceGraphics._rscala.y = 1;
-    InitConsoles(true);
+    GlobalStateClient gsc;
+    gsc.InitConsoles(true);
     gGlobalStateInterfaceGraphics._rscala.y = prev_y;
     const auto& console = GS::GetMainConsole();
     //CHECK_EQ(0, console.countmax);

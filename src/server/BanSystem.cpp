@@ -15,8 +15,8 @@ GlobalStateBanSystem gGlobalStateBanSystem{
 
 };
 
-static auto matchesmask([[maybe_unused]] const std::string &v,
-                        [[maybe_unused]] const std::string &mask) -> bool
+auto GlobalStateBanSystem::matchesmask([[maybe_unused]] const std::string &v,
+                                              [[maybe_unused]] const std::string &mask) -> bool
 {
   NotImplemented();
   return false;

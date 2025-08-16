@@ -85,6 +85,8 @@ struct GlobalStateNetworkServer
   PascalArray<std::int32_t, 1, max_players> bullettime = {};
   PascalArray<std::int32_t, 1, max_players> grenadetime = {};
   PascalArray<bool, 1, max_players> knifecan = {};
+
+private:
 };
 
 extern GlobalStateNetworkServer gGlobalStateNetworkServer;

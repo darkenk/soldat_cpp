@@ -45,6 +45,10 @@ struct GlobalStateBanSystem
   std::vector<tbanhw> bannedhwlist = {};
   std::string lastban = {};
   std::string lastbanhw = {};
+
+private:
+  static auto matchesmask([[maybe_unused]] const std::string &v,
+                          [[maybe_unused]] const std::string &mask) -> bool;
 };
 
 extern GlobalStateBanSystem gGlobalStateBanSystem;

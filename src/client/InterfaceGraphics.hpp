@@ -51,6 +51,8 @@ struct GlobalStateInterfaceGraphics
   tvector2 _iscala{};
   std::int32_t fragx = {};
   std::int32_t fragy = {};
+
+private:
 };
 
 extern GlobalStateInterfaceGraphics gGlobalStateInterfaceGraphics;

@@ -35,6 +35,8 @@ struct GlobalStateNetworkClient
   std::int32_t noheartbeattime = 0;
   std::string votemapname = {};
   std::uint32_t votemapcount = {};
+
+private:
 };
 
 extern GlobalStateNetworkClient gGlobalStateNetworkClient;

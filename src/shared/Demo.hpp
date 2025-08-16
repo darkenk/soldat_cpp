@@ -118,6 +118,8 @@ public:
 struct GlobalStateDemo
 {
   tdemoplayer demoplayer = {};
+
+private:
 };
 
 extern GlobalStateDemo gGlobalStateDemo;

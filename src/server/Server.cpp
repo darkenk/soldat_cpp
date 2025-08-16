@@ -94,13 +94,13 @@ tservernetwork<Config::GetModule()> *UDP;
 TLobbyThread LobbyThread;
 #endif
 
-static void WriteLn(const std::string &msg) { LogDebugG("{}", msg); }
+void GlobalStateServer::WriteLn(const std::string &msg) { LogDebugG("{}", msg); }
 
 #ifndef MSWINDOWS
 // from lazdaemon package
 //  BUG"Old instance (the parent) writes it"s consolelog
 // no idea how to avoid it. Perhaps somebody who knows this code could fix it.
-void DaemonizeProgram()
+void GlobalStateServer::DaemonizeProgram()
 {
   NotImplemented("network");
 #if 0
@@ -134,7 +134,7 @@ void DaemonizeProgram()
 }
 #endif // MSWINDOWS
 
-static void CreateDirectoryStructure(FileUtility &fs)
+void GlobalStateServer::CreateDirectoryStructure(FileUtility &fs)
 {
   SoldatEnsure(fs.MkDir("/user/configs"));
   SoldatEnsure(fs.MkDir("/user/demos"));
@@ -367,7 +367,7 @@ void GlobalStateServer::ActivateServer(int argc, char *argv[])
   // rundeferredcommands();
 }
 
-void ShutDown()
+void GlobalStateServer::ShutDown()
 {
   LogDebugG("ShutDown");
   progready = false;

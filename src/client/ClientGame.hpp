@@ -50,6 +50,8 @@ struct GlobalStateClientGame
   bool forceclientspritesnapshotmov = {};
   std::uint32_t lastforceclientspritesnapshotmovtick = {};
   std::int32_t menutimer = {};
+
+private:
 };
 
 extern GlobalStateClientGame gGlobalStateClientGame;

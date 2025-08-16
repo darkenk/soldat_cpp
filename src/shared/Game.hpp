@@ -41,6 +41,8 @@ struct GlobalStateGame
   std::int32_t heartbeattime = {};
   std::int32_t heartbeattimewarnings = {};
   PascalArray<tspark, 1, Constants::MAX_SPARKS> spark = {};
+
+private:
 };
 
 extern GlobalStateGame gGlobalStateGame;

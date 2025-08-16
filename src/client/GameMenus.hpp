@@ -39,6 +39,11 @@ struct GlobalStateGameMenus
   pgamemenu mapmenu = {};
   std::int32_t kickmenuindex = 0;
   std::int32_t mapmenuindex = 0;
+
+private:
+  void hideall();
+  void initbutton(pgamemenu menu, std::int32_t button, const std::string &caption, std::int32_t x,
+                  std::int32_t y, std::int32_t w, std::int32_t h, bool active = true);
 };
 
 extern GlobalStateGameMenus gGlobalStateGameMenus;
