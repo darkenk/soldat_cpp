@@ -204,14 +204,14 @@ void GlobalStateClient::redirectdialog()
   {
     gGlobalStateClient.joinip = gGlobalStateClient.redirectip;
     gGlobalStateClient.joinport = inttostr(gGlobalStateClient.redirectport);
-    gGlobalStateClient.joinserver();
+    joinserver();
   }
   else
   {
     gGlobalStateClient.redirectip = "";
     gGlobalStateClient.redirectport = 0;
     gGlobalStateClient.redirectmsg = "";
-    gGlobalStateClient.exittomenu();
+    exittomenu();
   }
 }
 
@@ -333,7 +333,7 @@ auto GlobalStateClient::MountAssets(FileUtility &fu, const std::string &userdire
   {
     if (!fu.Mount(userdirectory, "/"))
     {
-      gGlobalStateClient.showmessage(("Could not load base game archive (game directory)."));
+      showmessage(("Could not load base game archive (game directory)."));
       return false;
     }
   }
@@ -341,8 +341,7 @@ auto GlobalStateClient::MountAssets(FileUtility &fu, const std::string &userdire
   {
     if (!fu.Mount(basedirectory + "/soldat.smod", "/"))
     {
-      gGlobalStateClient.showmessage(
-        ("Could not load base game archive (soldat.smod). Try to reinstall the game."));
+      showmessage(("Could not load base game archive (soldat.smod). Try to reinstall the game."));
       return false;
     }
 
@@ -355,8 +354,7 @@ auto GlobalStateClient::MountAssets(FileUtility &fu, const std::string &userdire
     if (!fu.Mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
                   (std::string("mods/") + lowercase(CVar::fs_mod) + "/")))
     {
-      gGlobalStateClient.showmessage(
-        (std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
+      showmessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
       return false;
     }
     gGlobalStateClient.moddir = std::string("/mods/") + lowercase(CVar::fs_mod) + '/';
@@ -383,7 +381,7 @@ void GlobalStateClient::InitConsoles(bool test)
   }
 
   InitBigConsole(&GS::GetFileSystem(),0, countMax, 1500000);
-  GS::GetMainConsole().SetBigConsole(&gGlobalStateClient.GetBigConsole());
+  GS::GetMainConsole().SetBigConsole(&GetBigConsole());
 
   InitKillConsole(&GS::GetFileSystem(), 70,
                   round(CVar::ui_killconsole_length * gGlobalStateInterfaceGraphics._rscala.y),
@@ -762,7 +760,7 @@ void GlobalStateClient::startgameloop()
 #else
   while (gamelooprun)
   {
-    gGlobalStateClient.mainloop();
+    mainloop();
   }
 #endif
 }

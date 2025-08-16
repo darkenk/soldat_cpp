@@ -283,12 +283,11 @@ void GlobalStateGameRendering::loadmaintextures()
       color.color.b = (i.ColorKey & 0xff0000) >> 16;
       color.color.a = (i.ColorKey & 0xff000000) >> 24;
 
-      auto path =
-        gGlobalStateGameRendering.pngoverride(gGlobalStateClient.moddir + std::string(i.Path));
+      auto path = pngoverride(gGlobalStateClient.moddir + std::string(i.Path));
 
       if (!fs.Exists(path))
       {
-        path = gGlobalStateGameRendering.pngoverride(i.Path);
+        path = pngoverride(i.Path);
       }
 
       imagescale[id] = getimagescale(path);
@@ -365,21 +364,20 @@ void GlobalStateGameRendering::loadinterfacetextures(const std::string interface
       if (iscustom && (i >= custom_first) && (i <= custom_last))
       {
         path = prefix + std::string(GFXData[i].Path.data() + cutlength + 1);
-        path = gGlobalStateGameRendering.pngoverride(path);
+        path = pngoverride(path);
 
         if (!fs.Exists(path))
         {
-          path = gGlobalStateGameRendering.pngoverride(GFXData[i].Path);
+          path = pngoverride(GFXData[i].Path);
         }
       }
       else
       {
-        path = gGlobalStateGameRendering.pngoverride(gGlobalStateClient.moddir +
-                                                     std::string(GFXData[i].Path));
+        path = pngoverride(gGlobalStateClient.moddir + std::string(GFXData[i].Path));
 
         if (!fs.Exists(path))
         {
-          path = gGlobalStateGameRendering.pngoverride(GFXData[i].Path);
+          path = pngoverride(GFXData[i].Path);
         }
       }
 
