@@ -1181,7 +1181,7 @@ void GlobalStateGameRendering::rendergameinfo(const std::string &textstring)
 }
 
 template <typename T>
-auto arraycontains(const T &list, std::int32_t x) -> bool
+constexpr auto arraycontains(const T &list, std::int32_t x) -> bool
 {
   std::int32_t i;
 

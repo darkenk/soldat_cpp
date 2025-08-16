@@ -8,8 +8,10 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/Constants.hpp"
 #include "shared/Constants.cpp.h"
+#include "Gfx.hpp"
 
 auto constexpr MAX_CHAT_SIZE = 32;
+
 
 // Chat stuff
 struct GlobalStateInterfaceGraphics
@@ -53,6 +55,46 @@ struct GlobalStateInterfaceGraphics
   std::int32_t fragy = {};
 
 private:
+  struct tattr
+  {
+    float cur;
+    float def;
+    std::string des;
+  };
+  auto getweaponattribdesc(tattr &attr) -> std::string;
+  auto isinteractiveinterface() -> bool;
+  auto pixelalignx(float x) -> float;
+  auto pixelaligny(float y) -> float;
+  auto tominimap(const tvector2 pos, float scale = 1) -> tvector2;
+  void drawline(float x, float y, float w, tgfxcolor color);
+  void getweaponattribs(std::int32_t i, std::vector<tattr> &attrs);
+  void loaddefaultinterfacedata();
+  void renderbar(std::int32_t t, std::uint8_t postype, std::int32_t x, std::int32_t rx,
+                 std::int32_t y, std::int32_t ry, std::int32_t w, std::int32_t h, std::int32_t r,
+                 float p, bool leftalign = true)
+
+    ;
+  void renderceasefirecounter();
+  void renderchatinput(float w, float h, double t);
+  void renderchattexts();
+  void renderconsoletexts(float w);
+  void renderendgametexts(float fragmenubottom);
+  void renderescmenutext(float w, float h);
+  void renderfragsmenutexts(float fragmenubottom);
+  void rendergamemenutexts(float w, float h);
+  void renderkickwindowtext();
+  void renderkillconsoletexts(float w);
+  void rendermapwindowtext();
+  void renderplayerinterfacetexts(std::int32_t playerindex);
+  void renderplayername(float width, float height, std::int32_t i, bool onlyoffscreen);
+  void renderplayernames(float width, float height);
+  void renderradiomenutexts();
+  void renderrespawnandsurvivaltexts();
+  void renderteammenutext();
+  void renderteamscoretexts();
+  void rendervotemenutexts();
+  void renderweaponmenutext();
+  void renderweaponstatstexts();
 };
 
 extern GlobalStateInterfaceGraphics gGlobalStateInterfaceGraphics;

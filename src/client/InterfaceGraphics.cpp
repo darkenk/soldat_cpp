@@ -166,7 +166,7 @@ auto GlobalStateInterfaceGraphics::isdefaultinterface(const std::string &interfa
   return (interfacename.empty()) || (interfacename == "Default");
 }
 
-void loaddefaultinterfacedata()
+void GlobalStateInterfaceGraphics::loaddefaultinterfacedata()
 {
   // Create default INTERFACE
   intalign.weapon = 1;
@@ -366,18 +366,24 @@ auto GlobalStateInterfaceGraphics::loadinterfacedata(const std::string &interfac
 }
 
 // Does the HUD overlay belong to the player?
-auto isinteractiveinterface() -> bool
+auto GlobalStateInterfaceGraphics::isinteractiveinterface() -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
   return sprite_system.GetPlayerSprite().isnotspectator() or
          ((gGlobalStateClient.camerafollowsprite > 0) && (CVar::sv_advancedspectator));
 }
 
-auto pixelalignx(float x) -> float { return pixelsize.x * floor(x / pixelsize.x); }
+auto GlobalStateInterfaceGraphics::pixelalignx(float x) -> float
+{
+  return pixelsize.x * floor(x / pixelsize.x);
+}
 
-auto pixelaligny(float y) -> float { return pixelsize.y * floor(y / pixelsize.y); }
+auto GlobalStateInterfaceGraphics::pixelaligny(float y) -> float
+{
+  return pixelsize.y * floor(y / pixelsize.y);
+}
 
-void drawline(float x, float y, float w, tgfxcolor color)
+void GlobalStateInterfaceGraphics::drawline(float x, float y, float w, tgfxcolor color)
 {
   float x0;
   float y0;
@@ -393,7 +399,7 @@ void drawline(float x, float y, float w, tgfxcolor color)
               gfxvertex(x1, y1, 0, 0, color), gfxvertex(x0, y1, 0, 0, color));
 }
 
-auto tominimap(const tvector2 pos, float scale = 1) -> tvector2
+auto GlobalStateInterfaceGraphics::tominimap(const tvector2 pos, float scale) -> tvector2
 {
   tvector2 result;
   gGlobalStateMapGraphics.worldtominimap(pos.x, pos.y, result.x, result.y);
@@ -410,9 +416,10 @@ auto tominimap(const tvector2 pos, float scale = 1) -> tvector2
   return result;
 }
 
-void renderbar(std::int32_t t, std::uint8_t postype, std::int32_t x, std::int32_t rx,
-               std::int32_t y, std::int32_t ry, std::int32_t w, std::int32_t h, std::int32_t r,
-               float p, bool leftalign = true)
+void GlobalStateInterfaceGraphics::renderbar(std::int32_t t, std::uint8_t postype, std::int32_t x,
+                                             std::int32_t rx, std::int32_t y, std::int32_t ry,
+                                             std::int32_t w, std::int32_t h, std::int32_t r,
+                                             float p, bool leftalign)
 
 {
   float px;
@@ -462,14 +469,7 @@ void renderbar(std::int32_t t, std::uint8_t postype, std::int32_t x, std::int32_
                 rgba(0xffffff, int_.alpha), rc);
 }
 
-struct tattr
-{
-  float cur;
-  float def;
-  std::string des;
-};
-
-void getweaponattribs(std::int32_t i, std::vector<tattr> &attrs)
+void GlobalStateInterfaceGraphics::getweaponattribs(std::int32_t i, std::vector<tattr> &attrs)
 {
   auto &curgun = GS::GetWeaponSystem().GetGuns()[i];
   auto &defgun = GS::GetWeaponSystem().GetDefaultGuns()[i];
@@ -529,14 +529,14 @@ void getweaponattribs(std::int32_t i, std::vector<tattr> &attrs)
   attrs[12].des = ("Inh. Speed");
 }
 
-auto getweaponattribdesc(tattr &attr) -> std::string
+auto GlobalStateInterfaceGraphics::getweaponattribdesc(tattr &attr) -> std::string
 {
   return string("    |-") + attr.des + " : " +
          (attr.def != 0 ? inttostr(round(attr.cur / attr.def * 100)) + "%" : "NEW") + " (" +
          formatfloat("0.####", attr.cur) + '/' + formatfloat("0.####", attr.def) + ')';
 }
 
-void renderweaponmenutext()
+void GlobalStateInterfaceGraphics::renderweaponmenutext()
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
@@ -667,7 +667,7 @@ void renderweaponmenutext()
   }
 }
 
-void renderescmenutext(float w, float h)
+void GlobalStateInterfaceGraphics::renderescmenutext(float w, float h)
 {
   std::int32_t i;
   float x;
@@ -723,7 +723,7 @@ void renderescmenutext(float w, float h)
   }
 }
 
-void renderteammenutext()
+void GlobalStateInterfaceGraphics::renderteammenutext()
 {
   std::int32_t i;
   std::uint8_t alpha;
@@ -793,7 +793,7 @@ void renderteammenutext()
   }
 }
 
-void renderkickwindowtext()
+void GlobalStateInterfaceGraphics::renderkickwindowtext()
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
@@ -841,7 +841,7 @@ void renderkickwindowtext()
   }
 }
 
-void rendermapwindowtext()
+void GlobalStateInterfaceGraphics::rendermapwindowtext()
 {
   std::int32_t i;
   float x;
@@ -886,7 +886,7 @@ void rendermapwindowtext()
   }
 }
 
-void rendergamemenutexts(float w, float h)
+void GlobalStateInterfaceGraphics::rendergamemenutexts(float w, float h)
 {
   if (gGlobalStateGameMenus.limbomenu->active)
   {
@@ -914,7 +914,7 @@ void rendergamemenutexts(float w, float h)
   }
 }
 
-void renderplayerinterfacetexts(std::int32_t playerindex)
+void GlobalStateInterfaceGraphics::renderplayerinterfacetexts(std::int32_t playerindex)
 {
   auto &sprite_system = SpriteSystem::Get();
   tsprite *me;
@@ -1112,7 +1112,7 @@ void renderplayerinterfacetexts(std::int32_t playerindex)
   }
 }
 
-void renderteamscoretexts()
+void GlobalStateInterfaceGraphics::renderteamscoretexts()
 {
   std::int32_t i;
   std::int32_t teamcount;
@@ -1146,7 +1146,7 @@ void renderteamscoretexts()
   }
 }
 
-void renderendgametexts(float fragmenubottom)
+void GlobalStateInterfaceGraphics::renderendgametexts(float fragmenubottom)
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
@@ -1217,7 +1217,7 @@ void renderendgametexts(float fragmenubottom)
   }
 }
 
-void renderweaponstatstexts()
+void GlobalStateInterfaceGraphics::renderweaponstatstexts()
 {
   std::int32_t i;
   std::int32_t j;
@@ -1276,7 +1276,7 @@ void renderweaponstatstexts()
               gGlobalStateInterfaceGraphics.fragy + (j + 1) * 20 + 50);
 }
 
-void renderfragsmenutexts(float fragmenubottom)
+void GlobalStateInterfaceGraphics::renderfragsmenutexts(float fragmenubottom)
 {
   auto &sprite_system = SpriteSystem::Get();
   tgfxcolor color;
@@ -1597,7 +1597,7 @@ void renderfragsmenutexts(float fragmenubottom)
   }
 }
 
-void renderconsoletexts(float w)
+void GlobalStateInterfaceGraphics::renderconsoletexts(float w)
 {
   auto *console = !gGlobalStateClientGame.chattext.empty() ? &gGlobalStateClient.GetBigConsole()
                                                            : &GS::GetMainConsole();
@@ -1650,7 +1650,7 @@ void renderconsoletexts(float w)
   }
 }
 
-void renderkillconsoletexts(float w)
+void GlobalStateInterfaceGraphics::renderkillconsoletexts(float w)
 {
   std::uint8_t alpha = 245;
   bool tiny = false;
@@ -1706,7 +1706,7 @@ void renderkillconsoletexts(float w)
   }
 }
 
-void renderchattexts()
+void GlobalStateInterfaceGraphics::renderchattexts()
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
@@ -1768,7 +1768,7 @@ void renderchattexts()
   gfxtextverticalalign(gfx_top);
 }
 
-void renderchatinput(float w, float h, double t)
+void GlobalStateInterfaceGraphics::renderchatinput(float w, float h, double t)
 {
   std::string str1;
   tgfxrect rc;
@@ -1853,7 +1853,7 @@ void renderchatinput(float w, float h, double t)
   }
 }
 
-void renderrespawnandsurvivaltexts()
+void GlobalStateInterfaceGraphics::renderrespawnandsurvivaltexts()
 {
   auto &sprite_system = SpriteSystem::Get();
   tsprite *me;
@@ -1922,7 +1922,7 @@ void renderrespawnandsurvivaltexts()
   }
 }
 
-void renderradiomenutexts()
+void GlobalStateInterfaceGraphics::renderradiomenutexts()
 {
   std::set<std::int32_t> radio_gamestyles = {gamestyle_ctf, gamestyle_inf, gamestyle_htf};
   std::string s;
@@ -1980,7 +1980,7 @@ void renderradiomenutexts()
   }
 }
 
-void rendervotemenutexts()
+void GlobalStateInterfaceGraphics::rendervotemenutexts()
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
@@ -2037,7 +2037,8 @@ void rendervotemenutexts()
   }
 }
 
-void renderplayername(float width, float height, std::int32_t i, bool onlyoffscreen)
+void GlobalStateInterfaceGraphics::renderplayername(float width, float height, std::int32_t i,
+                                                    bool onlyoffscreen)
 {
   auto &sprite_system = SpriteSystem::Get();
   std::uint8_t alpha;
@@ -2091,7 +2092,7 @@ void renderplayername(float width, float height, std::int32_t i, bool onlyoffscr
   }
 }
 
-void renderplayernames(float width, float height)
+void GlobalStateInterfaceGraphics::renderplayernames(float width, float height)
 {
   auto &sprite_system = SpriteSystem::Get();
   gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
@@ -2122,7 +2123,7 @@ void renderplayernames(float width, float height)
   }
 }
 
-void renderceasefirecounter()
+void GlobalStateInterfaceGraphics::renderceasefirecounter()
 {
   auto &sprite_system = SpriteSystem::Get();
   float x;
