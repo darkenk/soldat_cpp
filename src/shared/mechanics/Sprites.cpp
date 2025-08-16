@@ -2091,9 +2091,6 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 #ifdef SERVER
   if (what > 0)
   {
-    extern float shotdistanceServer;
-    extern float shotlifeServer;
-    extern float shotricochetServer;
     auto &b = bullet[what];
     if (((what == 1) && (where == 1)) || (b.style == bullet_style_flame) || deadmeat)
     {
@@ -2102,9 +2099,9 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     else
     {
       a = vec2subtract(GetBulletParts().pos[what], b.initial);
-      shotdistanceServer = (float)(vec2length(a)) / 14;
-      shotricochetServer = b.ricochetcount;
-      shotlifeServer = (float)((GS::GetGame().GetMainTickCounter() - b.startuptime)) / 60;
+      gGlobalStateNetworkServerSprite.shotdistanceServer = (float)(vec2length(a)) / 14;
+      gGlobalStateNetworkServerSprite.shotricochetServer = b.ricochetcount;
+      gGlobalStateNetworkServerSprite.shotlifeServer = (float)((GS::GetGame().GetMainTickCounter() - b.startuptime)) / 60;
     }
   }
 

@@ -73,15 +73,6 @@ struct ttextureloaddata
   std::uint32_t colorkey;
 };
 
-struct tfontstyle
-{
-  tgfxfont font;
-  std::int32_t tableindex;
-  float size;
-  float stretch;
-  std::uint32_t flags;
-};
-
 // struct GfxDataEntry
 //{
 //    constexpr GfxDataEntry(const std::int32_t ID, const std::int32_t Group,
@@ -100,26 +91,6 @@ struct tfontstyle
 //    {$INCLUDE gfx.inc}
 //    {$UNDEF GFXDATA}
 //  );
-
-bool initialized;
-std::string loadedinterfacename;
-tgfxspritesheet *mainspritesheet = nullptr;
-tgfxspritesheet *interfacespritesheet = nullptr;
-std::array<tgfxfont, 2> fonts;
-PascalArray<tfontstyle, 0, font_last> fontstyles;
-tgfxtexture *actionsnaptexture = nullptr;
-tgfxtexture *rendertarget = nullptr;
-tgfxtexture *rendertargetaa = nullptr;
-std::string screenshotpath;
-bool screenshotasync;
-PascalArray<float, 1, GFX::END> imagescale;
-static TIniFile::Entries gostekdata;
-static struct
-{
-  TIniFile::Entries root;
-  TIniFile::Entries currentmod;
-  TIniFile::Entries custominterface;
-} scaledata;
 
 void GlobalStateGameRendering::loadmodinfo()
 {
@@ -737,9 +708,9 @@ constexpr auto lerp(const tvector2 &a, const tvector2 &b, float x)
 void GlobalStateGameRendering::interpolatestate(float p, tinterpolationstate &s, bool paused)
 {
   ZoneScopedN("InterpolateState");
-  static const std::set<std::int32_t> kit_styles = {
-    object_medical_kit, object_grenade_kit, object_flamer_kit, object_predator_kit,
-    object_vest_kit,    object_berserk_kit, object_cluster_kit};
+  static const std::set<std::int32_t> kit_styles = {object_medical_kit,  object_grenade_kit, object_flamer_kit,
+                                       object_predator_kit, object_vest_kit,    object_berserk_kit,
+                                       object_cluster_kit};
   std::int32_t i;
   std::int32_t j;
 

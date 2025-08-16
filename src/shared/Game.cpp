@@ -54,16 +54,6 @@ GlobalStateGame gGlobalStateGame{
 // / 2;
 #endif
 
-namespace
-{
-// NUMBER27's TIMING ROUTINES
-std::chrono::steady_clock::time_point timeinmil,
-  timeinmillast; // time in Milliseconds the computer has
-// been running
-std::chrono::milliseconds timepassed;      // Time in Milliseconds the program has been running
-std::chrono::seconds seconds, secondslast; // Seconds the program has been running
-} // namespace
-
 using string = std::string;
 
 // Timing routine

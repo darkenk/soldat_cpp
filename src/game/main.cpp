@@ -119,8 +119,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
   GlobalSystems<Config::SERVER_MODULE>::Init();
   auto *state =
     new AppState{.serverThread = std::thread([=]() { gGlobalStateServer.RunServer(argc, argv); })};
-  SetThreadName(state->serverThread, "Server");
-  SetCurrentThreadName("Client");
+  SetThreadName(state->serverThread, "SoldatServer");
+  SetCurrentThreadName("SoldatClient");
   gGlobalStateClient.startgame(argc, argv);
   *appstate = state;
   return SDL_APP_CONTINUE;

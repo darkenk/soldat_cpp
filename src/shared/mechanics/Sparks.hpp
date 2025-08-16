@@ -1,8 +1,10 @@
 #pragma once
-#include <cstdint>
+#include <cinttypes>
+#include <set>
 
 #include "common/Vector.hpp"
 #include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
+#include "common/Parts.hpp"
 
 class Polymap;
 class particlesystem;
@@ -35,6 +37,7 @@ struct GlobalStateSparks
   std::int32_t sparkscount = {};
 
 private:
+  particlesystem b;
 };
 
 extern GlobalStateSparks gGlobalStateSparks;

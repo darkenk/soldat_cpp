@@ -40,7 +40,6 @@
 #include "common/misc/TFileStream.hpp"
 #include "common/misc/TIniFile.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/Console.hpp"
 #include "common/LogFile.hpp"
 #include "shared/Command.hpp"
 #include "shared/Cvar.hpp"
@@ -63,16 +62,6 @@
 #include "shared/mechanics/Sparks.hpp"
 #include "shared/network/Net.hpp"
 
-namespace
-{
-bool progready;
-
-
-Console sBigConsole;
-ConsoleMain sKillConsole;
-
-} // namespace
-
 auto GlobalStateClient::InitBigConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
                                        const std::int32_t countMax,
                                        const std::int32_t scrollTickMax) -> Console &
@@ -93,24 +82,10 @@ auto GlobalStateClient::GetBigConsole() -> Console & { return sBigConsole; }
 auto GlobalStateClient::GetKillConsole() -> ConsoleMain & { return sKillConsole; }
 
 // Client.cpp variables
-static bool gamelooprun;
 
 GlobalStateClient gGlobalStateClient{
 
 };
-
-// bullet shot stats
-
-enum class GameState
-{
-  Loading,
-  Game,
-  ConnectionTimedOut
-};
-
-static GameState gGameState{GameState::Loading};
-
-// End Client.cpp variables
 
 void GlobalStateClient::restartgraph()
 {
@@ -951,13 +926,13 @@ TEST_SUITE("Client")
     CHECK_EQ(150, console.GetNewMessageWait());
     CHECK_EQ(0, console.GetCount());
 
-    const auto &big = gGlobalStateClient.GetBigConsole();
+    const auto &big = gsc.GetBigConsole();
     //CHECK_EQ(0, big.countmax); todo countmax in tests
     //CHECK_EQ(1500000, big.scrolltickmax);
     CHECK_EQ(0, big.GetNewMessageWait());
     CHECK_EQ(0, big.GetCount());
 
-    const auto &kill = gGlobalStateClient.GetKillConsole();
+    const auto &kill = gsc.GetKillConsole();
     //CHECK_EQ(0, kill.countmax);
     //CHECK_EQ(240, kill.scrolltickmax);
     CHECK_EQ(70, kill.GetNewMessageWait());
@@ -969,8 +944,9 @@ TEST_SUITE("Client")
       GlobalSystems<Config::CLIENT_MODULE>::Init();
       std::string game = {"SoldatGame"};
       std::array<char*, 1> argv = { game.data() };
-      gGlobalStateClient.startgame(argv.size(), argv.data());
-      gGlobalStateClient.shutdown();
+      GlobalStateClient gsc;
+      gsc.startgame(argv.size(), argv.data());
+      gsc.shutdown();
       GlobalSystems<Config::CLIENT_MODULE>::Deinit();
   }
 

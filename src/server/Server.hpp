@@ -54,6 +54,8 @@ struct GlobalStateServer
   std::int32_t mapindex = {};
 
 private:
+  bool progready = false;
+  std::string ModDir;
   void CreateDirectoryStructure(FileUtility &fs);
   void WriteLn(const std::string &msg);
   void DaemonizeProgram();

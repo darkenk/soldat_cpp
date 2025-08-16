@@ -52,6 +52,7 @@ protected:
   bool factive;
   std::string fname;
   std::uint8_t foldcam;
+  std::uint64_t rsize{};
 
 public:
   bool active()

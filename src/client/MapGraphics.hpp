@@ -5,9 +5,11 @@
 #include <cstdint>
 #include <format>
 #include <string>
+#include <set>
 
 #include "Gfx.hpp"
 #include "common/MapFile.hpp"
+#include "common/PolyMap.hpp"
 #include "common/Util.hpp"
 #include "common/Vector.hpp"
 #include "common/misc/SafeType.hpp"
@@ -50,6 +52,8 @@ struct GlobalStateMapGraphics
   tmapgraphics mapgfx = {};
 
 private:
+  std::array<std::int32_t, 6> idx = {{0, 1, 2, 2, 3, 0}};
+  std::set<std::int32_t> backpoly = {poly_type_background, poly_type_background_transition};
   auto loadmaptexture(const std::string &texname, tgfxcolor colorkey) -> tgfximage *;
   static void updatescale(const tmapvertex p, tmapvertex q, const float &resolutionx,
                           tgfximage *image, const float &resolutiony, tvector2 &scale);

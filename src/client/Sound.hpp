@@ -9,6 +9,7 @@
 #include "common/Vector.hpp"
 
 struct tvector2;
+class SoundEngine;
 
 // Sound effects
 enum class SfxEffect : std::uint16_t
@@ -236,6 +237,7 @@ struct GlobalStateSound
   std::int32_t defaultchannel = -1;
 
 private:
+  std::unique_ptr<SoundEngine> Engine;
 };
 
 extern GlobalStateSound gGlobalStateSound;

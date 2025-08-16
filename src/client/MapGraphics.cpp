@@ -189,9 +189,6 @@ auto GlobalStateMapGraphics::gettexturetargetscale(tmapfile &mapfile, tgfximage 
 /*$PUSH*/
 /*$WARN 4056 off : Conversion between ordinals and pointers is not portable*/
 
-const std::set<std::int32_t> backpoly = {poly_type_background, poly_type_background_transition};
-const std::array<std::int32_t, 6> idx = {{0, 1, 2, 2, 3, 0}};
-
 struct tedge
 {
   pmapvertex a, b;

@@ -33,7 +33,7 @@
 template <Config::Module M>
 auto GlobalStateSparks::GetSparkParts() -> particlesystem &
 {
-  static particlesystem b;
+
   return b;
 }
 
@@ -131,12 +131,12 @@ auto GlobalStateSparks::createspark(tvector2 spos, tvector2 svelocity, std::uint
 void tspark::update()
 {
   auto &sprite_system = SpriteSystem::Get();
+  static const std::set<std::int32_t> collidable_style = {2,  4,  5,  6,  7,  8,  9,  10, 11, 13, 16, 18, 19, 20,
+                                          21, 22, 23, 30, 32, 33, 34, 40, 41, 42, 43, 48, 49, 51,
+                                          52, 57, 62, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73};
   static const std::set<std::int32_t> noneuler_style = {12, 13, 14, 15, 17, 24, 25, 28,
-                                                        29, 31, 36, 37, 50, 54, 56, 60};
+                                                      29, 31, 36, 37, 50, 54, 56, 60};
 
-  static const std::set<std::int32_t> collidable_style = {
-    2,  4,  5,  6,  7,  8,  9,  10, 11, 13, 16, 18, 19, 20, 21, 22, 23, 30, 32, 33, 34,
-    40, 41, 42, 43, 48, 49, 51, 52, 57, 62, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73};
   std::int32_t wobble;
   std::int32_t wobblex;
   std::int32_t wobbley;

@@ -37,8 +37,6 @@ GlobalStateGameMenus gGlobalStateGameMenus{
 
 };
 
-bool limbowasactive;
-
 void GlobalStateGameMenus::initbutton(pgamemenu menu, std::int32_t button,
                                       const std::string &caption, std::int32_t x, std::int32_t y,
                                       std::int32_t w, std::int32_t h, bool active)

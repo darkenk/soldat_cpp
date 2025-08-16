@@ -51,22 +51,6 @@ GlobalStateClientGame gGlobalStateClientGame{
 
 };
 
-struct tframetiming
-{
-  std::int64_t frequency;
-  std::int64_t starttime;
-  double prevtime;
-  double prevrendertime;
-  double accumulator;
-  double mindeltatime;
-  double elapsed;
-  std::int32_t counter;
-  std::int32_t fps;
-  double fpsaccum;
-};
-
-tframetiming frametiming;
-
 void GlobalStateClientGame::resetframetiming()
 {
   frametiming.frequency = SDL_GetPerformanceFrequency();

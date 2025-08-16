@@ -26,10 +26,6 @@ GlobalStateNetworkServerSprite gGlobalStateNetworkServerSprite{
 
 };
 
-float shotdistanceServer;
-float shotlifeServer;
-float shotricochetServer;
-
 // SERVER SNAPSHOT
 void GlobalStateNetworkServerSprite::serverspritesnapshot(std::uint8_t r)
 {

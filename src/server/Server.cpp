@@ -61,8 +61,6 @@
 
 // constexpr auto PATH_MAX = 4095;
 
-bool progready = false;
-
 // config stuff
 
 // Mute array
@@ -73,8 +71,6 @@ bool progready = false;
 
 // last 4 IP"s to request game
 
-std::int32_t AdminIPCounter = 0;
-
 #ifdef RCON
 TAdminServer AdminServer; // TIdTCPServer;
 #endif
@@ -82,8 +78,6 @@ TAdminServer AdminServer; // TIdTCPServer;
 GlobalStateServer gGlobalStateServer{
 
 };
-
-std::string ModDir;
 
 // DK_TODO replace tservernetwork with tservernetowrk<SERVER>
 #if 0

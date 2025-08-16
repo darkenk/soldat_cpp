@@ -54,8 +54,6 @@ auto extractfilename(const std::string &filepath) -> std::string
   return std::filesystem::path(filepath).stem();
 }
 
-std::uint64_t rsize;
-
 } // namespace
 
 template <std::size_t N>

@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdint>
 
+#include "common/Console.hpp"
 #include "common/Vector.hpp"
 #include "common/Weapons.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
@@ -90,6 +91,17 @@ struct GlobalStateClient
   void InitConsoles(bool test = false);
 
 private:
+  enum class GameState
+  {
+    Loading,
+    Game,
+    ConnectionTimedOut
+  };
+  Console sBigConsole;
+  ConsoleMain sKillConsole;
+  GameState gGameState{GameState::Loading};
+  bool gamelooprun{};
+  bool progready{};
   friend class ClientFixture;
   auto InitBigConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
                       const std::int32_t countMax, const std::int32_t scrollTickMax) -> Console &;

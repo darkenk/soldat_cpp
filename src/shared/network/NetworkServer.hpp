@@ -87,6 +87,7 @@ struct GlobalStateNetworkServer
   PascalArray<bool, 1, max_players> knifecan = {};
 
 private:
+  NetworkServer *gUDP{};
 };
 
 extern GlobalStateNetworkServer gGlobalStateNetworkServer;

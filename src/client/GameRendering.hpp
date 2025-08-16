@@ -3,10 +3,12 @@
 #include <string>
 #include <cstdint>
 #include <string_view>
+#include <set>
 
 #include "Gfx.hpp"
+#include "common/gfx.hpp"
 #include "shared/mechanics/Sprites.hpp"
-/*#include "SDL2.h"*/
+#include "common/misc/TIniFile.hpp"
 
 struct tgamerenderingparams
 {
@@ -55,6 +57,33 @@ struct GlobalStateGameRendering
   void loadfonts(); // should be private, but there are tests already
 
 private:
+  struct tfontstyle
+  {
+    tgfxfont font;
+    std::int32_t tableindex;
+    float size;
+    float stretch;
+    std::uint32_t flags;
+  };
+  PascalArray<float, 1, GFX::END> imagescale;
+  PascalArray<tfontstyle, 0, font_last> fontstyles;
+  TIniFile::Entries gostekdata;
+  bool initialized{};
+  bool screenshotasync{};
+  std::array<tgfxfont, 2> fonts;
+  std::string loadedinterfacename;
+  std::string screenshotpath;
+  struct
+  {
+    TIniFile::Entries root;
+    TIniFile::Entries currentmod;
+    TIniFile::Entries custominterface;
+  } scaledata;
+  tgfxspritesheet *interfacespritesheet = nullptr;
+  tgfxspritesheet *mainspritesheet = nullptr;
+  tgfxtexture *actionsnaptexture = nullptr;
+  tgfxtexture *rendertarget = nullptr;
+  tgfxtexture *rendertargetaa = nullptr;
   auto getfontpath(std::string fallback, std::string &fontfile) -> std::string;
   auto getfontpath(std::string fontfile) -> std::string;
   auto getimagescale(const std::string &imagepath) -> float;

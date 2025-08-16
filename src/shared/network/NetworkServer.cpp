@@ -29,7 +29,7 @@ GlobalStateNetworkServer gGlobalStateNetworkServer{
 
 };
 
-auto LOG_NET = "network";
+constexpr auto LOG_NET = "network";
 
 NetworkServer::NetworkServer(const std::string_view host, std::uint32_t port)
 {
@@ -367,11 +367,6 @@ auto NetworkServer::GetDetailedConnectionStatus(HSoldatNetConnection hConn) cons
 void NetworkServer::SetConnectionName(const HSoldatNetConnection hConn, const std::string_view name)
 {
   mNetworkingSockets->SetConnectionName(hConn, name.data());
-}
-
-namespace
-{
-NetworkServer *gUDP;
 }
 
 auto GlobalStateNetworkServer::InitNetworkServer(const std::string_view &host, uint32_t port)

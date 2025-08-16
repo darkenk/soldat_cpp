@@ -30,14 +30,7 @@
 #include "shared/Constants.cpp.h"
 
 using string = std::string;
-
-std::array<tsoundsample, ToUint32(SfxEffect::COUNT)> samp;
-
-GlobalStateSound gGlobalStateSound{
-
-};
-
-static std::string_view AUDIO = "audio";
+constexpr std::string_view AUDIO = "audio";
 
 constexpr void Add(std::array<std::string_view, ToUint32(SfxEffect::COUNT)> &ref,
                                      SfxEffect sample, std::string_view name)
@@ -277,6 +270,12 @@ public:
     return result;
   }
 
+  auto LoadSample(std::int32_t i, const std::string_view name) -> bool
+  {
+    samp[i] = LoadSample(name, samp[i]);
+    return samp[i].loaded;
+  }
+
   void CloseSound()
   {
     std::for_each(std::begin(Waves), std::end(Waves), [](auto &w) {
@@ -464,20 +463,28 @@ private:
   SoLoud::Soloud Engine;
   std::array<SoLoud::Wav *, ToUint32(SfxEffect::COUNT)> Waves = {};
   std::array<SoLoud::handle, max_sources> sources{};
+  std::array<tsoundsample, ToUint32(SfxEffect::COUNT)> samp;
 };
 
-SoundEngine Engine;
+
+GlobalStateSound gGlobalStateSound{
+
+};
 
 auto GlobalStateSound::initsound() -> bool
 {
   LogDebug(AUDIO, "InitSound");
-  return Engine.InitSound();
+  if (Engine == nullptr)
+  {
+    Engine = std::make_unique<SoundEngine>();
+  }
+  return Engine->InitSound();
 }
 
 auto GlobalStateSound::loadsample(const std::string_view &name, const tsoundsample &samp)
   -> tsoundsample
 {
-  return Engine.LoadSample(name, samp);
+  return Engine->LoadSample(name, samp);
 }
 
 static auto uppercase(const std::string_view &str) -> std::string
@@ -536,8 +543,7 @@ void GlobalStateSound::loadsounds(const string &moddir)
   {
     if (!sample_files[i].empty())
     {
-      samp[i] = loadsample((sfxpath + sample_files[i].data()), samp[i]);
-      if (!samp[i].loaded)
+      if (!Engine->LoadSample(i, (sfxpath + sample_files[i].data())))
       {
         GS::GetMainConsole().console(
           string("Unable to load file ") + sfxpath + sample_files[i].data(), debug_message_color);
@@ -546,12 +552,12 @@ void GlobalStateSound::loadsounds(const string &moddir)
   }
 }
 
-void GlobalStateSound::closesound() { Engine.CloseSound(); }
+void GlobalStateSound::closesound() { Engine->CloseSound(); }
 
 void GlobalStateSound::fplaysound(SfxEffect samplenum, float listenerx, float listenery,
                                   float emitterx, float emittery, std::int32_t chan)
 {
-  Engine.fplaysound(samplenum, listenerx, listenery, emitterx, emittery, chan);
+  Engine->fplaysound(samplenum, listenerx, listenery, emitterx, emittery, chan);
 }
 
 void GlobalStateSound::playsound(SfxEffect sample)
@@ -578,14 +584,14 @@ void GlobalStateSound::playsound(SfxEffect sample, const tvector2 &emitter, int3
              channel);
 }
 
-auto GlobalStateSound::stopsound(std::int32_t channel) -> bool { return Engine.stopsound(channel); }
+auto GlobalStateSound::stopsound(std::int32_t channel) -> bool { return Engine->stopsound(channel); }
 
 auto GlobalStateSound::setsoundpaused(std::int32_t channel, bool paused) -> bool
 {
-  return Engine.setsoundpaused(channel, paused);
+  return Engine->setsoundpaused(channel, paused);
 }
 
 auto GlobalStateSound::setvolume(std::int32_t channel, float volume) -> bool
 {
-  return Engine.setvolume(channel, volume);
+  return Engine->setvolume(channel, volume);
 }

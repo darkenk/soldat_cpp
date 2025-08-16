@@ -3,6 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <string>
+#include <chrono>
 
 #include "Constants.hpp"
 #include "common/Vector.hpp"
@@ -46,9 +47,6 @@ private:
 };
 
 extern GlobalStateGame gGlobalStateGame;
-
-// / 2;
-// / 2;
 #endif
 
 #ifndef SERVER
@@ -430,6 +428,10 @@ protected:
   Game();
 
 private:
+  std::chrono::milliseconds timepassed{};
+  std::chrono::seconds seconds{}, secondslast{};
+  std::chrono::steady_clock::time_point timeinmil{}, timeinmillast{};
+
   bool VoteActive = false;
   std::uint8_t VoteType = vote_map;
   std::string VoteTarget;
@@ -444,8 +446,8 @@ private:
   twaypoints botpath;
   Polymap map;
 
-  std::int32_t ticktime;
-  std::int32_t ticktimelast;
+  std::int32_t ticktime{};
+  std::int32_t ticktimelast{};
   std::int32_t goalticks = default_goalticks;
   std::int32_t bullettimetimer;
 
