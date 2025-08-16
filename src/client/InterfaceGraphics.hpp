@@ -55,6 +55,75 @@ struct GlobalStateInterfaceGraphics
   std::int32_t fragy = {};
 
 private:
+  double chatinputtime{};
+  struct
+  { // 0: left; 1: right
+    std::uint8_t weapon;
+    std::uint8_t bullets;
+    std::uint8_t healthbar;
+    std::uint8_t ammobar;
+    std::uint8_t reloadbar;
+    std::uint8_t firebar;
+    std::uint8_t jetbar;
+    std::uint8_t vestbar;
+  } intalign;
+
+  struct tinterfacerelinfo
+  {
+    std::int32_t healthbar_rel_x, healthbar_rel_y;
+    std::int32_t jetbar_rel_x, jetbar_rel_y;
+    std::int32_t ammobar_rel_x, ammobar_rel_y;
+    std::int32_t firebar_rel_x, firebar_rel_y;
+    std::int32_t nadesbar_rel_x, nadesbar_rel_y;
+  };
+
+  struct tinterface
+  {
+    std::uint8_t alpha;
+    bool health, ammo, vest, jet, nades, bullets, weapon, fire, team, ping, status;
+    std::int32_t healthico_x, healthico_y;
+    std::int32_t healthico_rotate;
+    std::int32_t healthbar_x, healthbar_y;
+    std::int32_t healthbar_width, healthbar_height;
+    std::uint8_t healthbar_pos;
+    std::int32_t healthbar_rotate;
+    std::int32_t ammoico_x, ammoico_y;
+    std::int32_t ammoico_rotate;
+    std::int32_t ammobar_x, ammobar_y;
+    std::int32_t ammobar_width, ammobar_height;
+    std::uint8_t ammobar_pos;
+    std::int32_t ammobar_rotate;
+    std::int32_t jetico_x, jetico_y;
+    std::int32_t jetico_rotate;
+    std::int32_t jetbar_x, jetbar_y;
+    std::int32_t jetbar_width, jetbar_height;
+    std::uint8_t jetbar_pos;
+    std::int32_t jetbar_rotate;
+    std::int32_t vestbar_x, vestbar_y;
+    std::int32_t vestbar_width, vestbar_height;
+    std::uint8_t vestbar_pos;
+    std::int32_t vestbar_rotate;
+    std::int32_t nades_x, nades_y;
+    std::int32_t nades_width, nades_height;
+    std::uint8_t nades_pos;
+    std::int32_t bullets_x, bullets_y;
+    std::int32_t weapon_x, weapon_y;
+    std::int32_t fireico_x, fireico_y;
+    std::int32_t fireico_rotate;
+    std::int32_t firebar_x, firebar_y;
+    std::int32_t firebar_width, firebar_height;
+    std::uint8_t firebar_pos;
+    std::int32_t firebar_rotate;
+    std::int32_t teambox_x, teambox_y;
+    std::int32_t ping_x, ping_y;
+    std::int32_t status_x, status_y;
+  };
+
+  using pinterface = tinterface *;
+
+  tinterface int_;
+  tinterfacerelinfo relinfo;
+  tvector2 pixelsize;
   struct tattr
   {
     float cur;
