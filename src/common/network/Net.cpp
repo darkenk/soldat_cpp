@@ -25,6 +25,10 @@ auto constexpr LOG_MSG = "net_msg";
 void NetworksGlobalCallback(SteamNetConnectionStatusChangedCallback_t* pInfo)
 {
   auto *network = reinterpret_cast<TNetwork *>(pInfo->m_info.m_nUserData);
+  if (network == nullptr)
+  {
+    return;
+  }
   network->EmplaceSteamNetConnectionStatusChangeMessage(pInfo);
 }
 

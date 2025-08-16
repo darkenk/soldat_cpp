@@ -119,8 +119,7 @@ void NetworkServer::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
 
     if (Player == nullptr)
     {
-      // darkenk: hm?
-      mNetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
+      CloseConnection(pInfo->m_hConn, true);
       return;
     }
 
@@ -136,8 +135,7 @@ void NetworkServer::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
     // as anti-cheat handles etc.
     std::erase_if(mPlayers, [&Player](const auto &v) { return Player == v.get(); });
     mConnectionMap.erase(it);
-
-    mNetworkingSockets->CloseConnection(pInfo->m_hConn, 0, "", false);
+    CloseConnection(pInfo->m_hConn, true);
     break;
   }
   case k_ESteamNetworkingConnectionState_Connecting: {
@@ -154,7 +152,7 @@ void NetworkServer::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pIn
       if (not mNetworkingSockets->SetConnectionPollGroup(pInfo->m_hConn, FPollGroup))
       {
         LogWarn(LOG_NET, "Failed to set poll group for user");
-        mNetworkingSockets->CloseConnection(pInfo->m_hConn, 0, nullptr, false);
+        CloseConnection(pInfo->m_hConn, false);
         return;
       }
       mNetworkingSockets->AcceptConnection(pInfo->m_hConn);
@@ -327,13 +325,14 @@ auto NetworkServer::Disconnect(bool now) -> bool
 
   for (const auto &player : mPlayers)
   {
-    mNetworkingSockets->CloseConnection(player->peer, 0, "", !now);
+    CloseConnection(player->peer, now);
   }
   mPlayers.clear();
   return true;
 }
 void NetworkServer::CloseConnection(HSoldatNetConnection peer, bool now)
 {
+  mNetworkingSockets->SetConnectionUserData(peer, 0);
   mNetworkingSockets->CloseConnection(peer, 0, "", !now);
 }
 
@@ -372,16 +371,15 @@ void NetworkServer::SetConnectionName(const HSoldatNetConnection hConn, const st
 auto GlobalStateNetworkServer::InitNetworkServer(const std::string_view &host, uint32_t port)
   -> bool
 {
-  gUDP = new NetworkServer(host, port);
-  return gUDP != nullptr;
+  mUdp = std::make_unique<NetworkServer>(host, port);
+  return true;
 }
 
-auto GlobalStateNetworkServer::GetServerNetwork() -> NetworkServer * { return gUDP; }
+auto GlobalStateNetworkServer::GetServerNetwork() -> NetworkServer * { return mUdp.get(); }
 
 auto GlobalStateNetworkServer::DeinitServerNetwork() -> bool
 {
-  delete gUDP;
-  gUDP = nullptr;
+  mUdp.release();
   return true;
 }
 

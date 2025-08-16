@@ -87,7 +87,7 @@ struct GlobalStateNetworkServer
   PascalArray<bool, 1, max_players> knifecan = {};
 
 private:
-  NetworkServer *gUDP{};
+  std::unique_ptr<NetworkServer> mUdp;
 };
 
 extern GlobalStateNetworkServer gGlobalStateNetworkServer;

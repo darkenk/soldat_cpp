@@ -401,28 +401,22 @@ auto NetworkClientImpl::DisconnectImpl(bool now) -> bool
   return true;
 }
 
-namespace
-{
-NetworkClientImpl *gUDP = nullptr;
-}
-
 template <Config::Module M>
 void GlobalStateNetworkClient::DeinitClientNetwork()
   requires(Config::IsClient(M))
 {
-  delete gUDP;
-  gUDP = nullptr;
+  mUdp.release();
 }
 
 template <Config::Module M>
 auto GlobalStateNetworkClient::GetNetwork()
-  -> NetworkClientImpl *requires(Config::IsClient(M)) { return gUDP; }
+  -> NetworkClientImpl *requires(Config::IsClient(M)) { return mUdp.get(); }
 
 template <Config::Module M>
 void GlobalStateNetworkClient::InitClientNetwork()
   requires(Config::IsClient(M))
 {
-  gUDP = new NetworkClientImpl();
+  mUdp = std::make_unique<NetworkClientImpl>();
 }
 
 template NetworkClientImpl *GlobalStateNetworkClient::GetNetwork<Config::GetModule()>();

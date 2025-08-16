@@ -37,6 +37,7 @@ struct GlobalStateNetworkClient
   std::uint32_t votemapcount = {};
 
 private:
+  std::unique_ptr<NetworkClientImpl> mUdp;
 };
 
 extern GlobalStateNetworkClient gGlobalStateNetworkClient;
