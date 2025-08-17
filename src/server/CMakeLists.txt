@@ -55,6 +55,7 @@ target_link_libraries(SoldatServerLib
     Freetype::Freetype
     GameNetworkingSockets::GameNetworkingSockets_s
     ApprovalTests::ApprovalTests
+    Boost::Boost.DI
 )
 
 if (ENABLE_PCH)
@@ -75,6 +76,7 @@ target_link_libraries(SoldatServer
     Freetype::Freetype
     ${PHYSFS_LIBRARY}
     GameNetworkingSockets::GameNetworkingSockets_s
+    Boost::Boost.DI
 )
 target_include_directories(SoldatServer PRIVATE
     ./config

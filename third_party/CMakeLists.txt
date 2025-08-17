@@ -230,6 +230,22 @@ ExternalProject_Add(
     USES_TERMINAL_INSTALL ON
 )
 
+ExternalProject_Add(
+    boost.di
+    PREFIX "${CMAKE_BINARY_DIR}/third_party/boost.di"
+    INSTALL_DIR "${CMAKE_BINARY_DIR}/install/boost.di"
+    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/di"
+    CMAKE_ARGS
+        -DBOOST_DI_OPT_BUILD_TESTS=OFF
+        -DBOOST_DI_OPT_BUILD_EXAMPLES=OFF
+        -DBOOST_DI_OPT_INSTALL=ON
+        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+    USES_TERMINAL_CONFIGURE ON
+    USES_TERMINAL_BUILD ON
+    USES_TERMINAL_INSTALL ON
+    BUILD_ALWAYS ON
+)
+
 create_import_cmake_file(PROJECTS
     SDL3
     SDL_shadercross
@@ -241,6 +257,7 @@ create_import_cmake_file(PROJECTS
     freetype
     dbg_macro
     soloud
+    boost.di
 )
 
 # tools

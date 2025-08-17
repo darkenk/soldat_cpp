@@ -81,6 +81,7 @@ target_link_libraries(SoldatClientLib
     spdlog::spdlog
     ApprovalTests::ApprovalTests
     SoLoud::soloud
+    Boost::Boost.DI
 )
 
 if (ENABLE_PCH)
@@ -100,6 +101,7 @@ target_link_libraries(SoldatClient
     ${PHYSFS_LIBRARY}
     GameNetworkingSockets::GameNetworkingSockets_s
     spdlog::spdlog
+    Boost::Boost.DI
 )
 target_include_directories(SoldatClient PRIVATE
     ./config

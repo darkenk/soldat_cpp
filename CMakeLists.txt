@@ -131,6 +131,7 @@ set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 find_package(Freetype REQUIRED)
 find_package(GameNetworkingSockets REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(Boost.DI REQUIRED)
 
 option(ENABLE_TRACY "Enable tracy profiler" OFF)
 option(ENABLE_OPENGL "Enables opengl backend (deprecated)" OFF)
