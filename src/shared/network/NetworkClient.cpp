@@ -29,7 +29,7 @@ GlobalStateNetworkClient gGlobalStateNetworkClient{
 
 };
 
-void NetworkClientImpl::ProcessLoopImpl()
+void NetworkClientImpl::ProcessLoop()
 {
   std::int32_t numMsgs;
   PSteamNetworkingMessage_t IncomingMsg;
@@ -112,7 +112,7 @@ void NetworkClientImpl::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t
 
 NetworkClientImpl::NetworkClientImpl(): mPeer(k_HSteamNetConnection_Invalid) {}
 
-auto NetworkClientImpl::ConnectImpl(const std::string_view host, std::uint32_t port) -> bool
+auto NetworkClientImpl::Connect(const std::string_view host, std::uint32_t port) -> bool
 {
   SteamNetworkingIPAddr address; // NOLINT
   std::array<SteamNetworkingConfigValue_t, 2> initSettings; // NOLINT
@@ -125,7 +125,8 @@ auto NetworkClientImpl::ConnectImpl(const std::string_view host, std::uint32_t p
   mNetworkingSockets->InitAuthentication();
 
   initSettings[0].SetInt32(k_ESteamNetworkingConfig_IP_AllowWithoutAuth, 1);
-  initSettings[1].SetInt64(k_ESteamNetworkingConfig_ConnectionUserData, reinterpret_cast<std::int64_t>(this));
+  auto _this = dynamic_cast<TNetwork*>(this); // required for NetworksGlobalCallback, FIXME
+  initSettings[1].SetInt64(k_ESteamNetworkingConfig_ConnectionUserData, reinterpret_cast<std::int64_t>(_this));
 
   mPeer = mNetworkingSockets->ConnectByIPAddress(address, initSettings.size(), initSettings.data());
   mIpAddress = host;
@@ -394,7 +395,7 @@ auto NetworkClientImpl::SendDataImpl(const std::byte *data, std::int32_t size, b
   return true;
 }
 
-auto NetworkClientImpl::DisconnectImpl(bool now) -> bool
+auto NetworkClientImpl::Disconnect(bool now) -> bool
 {
   mNetworkingSockets->CloseConnection(mPeer, 0, "", !now);
   mPeer = k_HSteamNetConnection_Invalid;

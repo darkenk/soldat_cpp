@@ -129,8 +129,7 @@ static void sPreprocessSprites(SpriteSystem &spriteSystem, tmsg_playerslist *pla
 }
 
 // REQUEST GAME FROM SERVER
-template <typename T>
-void clientrequestgame(NetworkBase<T> &network, std::string_view password)
+void clientrequestgame(INetwork &network, std::string_view password)
 {
   const std::int32_t size = tmsg_requestgame::sCalculateSize(password);
   auto *buff = static_cast<uint8_t *>(alloca(size));
@@ -259,8 +258,7 @@ void clientsendplayerinfo()
   gGlobalStateNetworkClient.clientplayerreceivedcounter = clientplayerrecieved_time;
 }
 
-template <typename T>
-void clientdisconnect(NetworkBase<T> &client)
+void clientdisconnect(INetwork &client)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_playerdisconnect playermsg;
@@ -284,8 +282,13 @@ void clientdisconnect(NetworkBase<T> &client)
   }
 }
 
-template <typename T>
-void clientpong(NetworkBase<T> &network, const std::uint8_t pingnum)
+void ClientPongMsg::send(const std::uint8_t pingnum)
+{
+  tmsg_pong pongmsg(pingnum);
+  mNetwork.SendData(pongmsg);
+}
+
+void clientpong(INetwork& network, const std::uint8_t pingnum)
 {
   tmsg_pong pongmsg(pingnum);
   network.SendData(pongmsg);
@@ -812,9 +815,6 @@ void clienthandlesynccvars(NetworkContext *netmessage)
   }
 }
 
-template void clientrequestgame<NetworkClientImpl>(NetworkBase<NetworkClientImpl> &,
-                                                   std::string_view);
-
 #pragma region tests
 
 #include <doctest/doctest.h>
@@ -826,10 +826,52 @@ template void clientrequestgame<NetworkClientImpl>(NetworkBase<NetworkClientImpl
 #include <string>
 #include <utility>
 #include <vector>
+#include <boost/di.hpp>
+#include <boost/di/extension/scopes/scoped.hpp>
+#include <boost/di/extension/scopes/session.hpp>
+#include <boost/di/extension/scopes/shared.hpp>
 
 namespace
 {
+  
+class NetworkTestClient : public INetwork
+{
+public:
+  template <typename T>
+  [[nodiscard]] auto GetData() const -> T &
+  {
+    SoldatAssert(GetSize() >= sizeof(T));
+    return *reinterpret_cast<T *>(mMessage.get());
+  }
+  [[nodiscard]] auto GetSize() const -> std::int32_t { return mSize; }
+  [[nodiscard]] auto GetReliable() const -> bool { return mReliable; }
 
+  void ProcessLoop() override {}
+  bool Connect(const std::string_view host, std::uint32_t port) override { return true; }
+  bool Disconnect(bool now) override { return true; }
+protected:
+  auto SendDataImpl(const std::byte *data, const std::int32_t size, const bool reliable,
+                    const source_location& /*unused*/) -> bool override final
+  {
+    mMessage = std::make_unique<std::byte[]>(size);
+    std::memcpy(mMessage.get(), data, size);
+    mSize = size;
+    mReliable = reliable;
+    return true;
+  }
+
+private:
+  std::unique_ptr<std::byte[]> mMessage;
+  std::int32_t mSize = 0;
+  bool mReliable = false;
+};
+
+constexpr auto make_injector()
+{
+  return boost::di::make_injector<boost::di::extension::shared_config>(
+    boost::di::bind<INetwork>.to<NetworkTestClient>().in(boost::di::extension::shared)
+  );
+}
 
 class NetworkClientConnectionFixture
 {
@@ -850,6 +892,7 @@ public:
   NetworkClientConnectionFixture(const NetworkClientConnectionFixture &) = delete;
 
 protected:
+  decltype(make_injector()) injector = make_injector();
 };
 
 // Add helper functions
@@ -878,39 +921,11 @@ auto verifyPlayer(const tsprite &sprite, const std::string &name, std::uint32_t 
   return true;
 }
 
-class TestClient : public NetworkBase<TestClient>
-{
-public:
-  template <typename T>
-  [[nodiscard]] auto GetData() const -> T &
-  {
-    SoldatAssert(GetSize() >= sizeof(T));
-    return *reinterpret_cast<T *>(mMessage.get());
-  }
-  [[nodiscard]] auto GetSize() const -> std::int32_t { return mSize; }
-  [[nodiscard]] auto GetReliable() const -> bool { return mReliable; }
-
-private:
-  friend class NetworkBase<TestClient>;
-  std::unique_ptr<std::byte[]> mMessage;
-  std::int32_t mSize = 0;
-  bool mReliable = false;
-  auto SendDataImpl(const std::byte *data, std::int32_t size, bool reliable,
-                    source_location /*unused*/) -> bool
-  {
-    mMessage = std::make_unique<std::byte[]>(size);
-    std::memcpy(mMessage.get(), data, size);
-    mSize = size;
-    mReliable = reliable;
-    return true;
-  }
-};
-
 TEST_SUITE("NetworkClientConnection")
 {
   TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "Send requestgame")
   {
-    TestClient tc;
+    auto& tc = injector.create<NetworkTestClient&>();
     clientrequestgame(tc, "");
     auto msg = tc.GetData<tmsg_requestgame>();
     CHECK_EQ("1.8.0", doctest::String(msg.version.data()));
@@ -921,7 +936,7 @@ TEST_SUITE("NetworkClientConnection")
 
   TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "Check weird computation of requestgame message size")
   {
-    TestClient tc;
+    auto& tc = injector.create<NetworkTestClient&>();
     clientrequestgame(tc, "asdf");
     auto msg = tc.GetData<tmsg_requestgame>();
     CHECK_EQ("1.8.0", doctest::String(msg.version.data()));
@@ -932,7 +947,7 @@ TEST_SUITE("NetworkClientConnection")
 
   TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "Send disconnection event")
   {
-    TestClient tc;
+    auto& tc = injector.create<NetworkTestClient&>();
     clientrequestgame(tc, "asdf");
     auto msg = tc.GetData<tmsg_requestgame>();
     CHECK_EQ("1.8.0", doctest::String(msg.version.data()));
@@ -943,8 +958,9 @@ TEST_SUITE("NetworkClientConnection")
 
   TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "Send pong")
   {
-    TestClient tc;
-    clientpong(tc, 12);
+    auto& tc = injector.create<NetworkTestClient&>();
+    auto pong = injector.create<ClientPongMsg>();
+    pong.send(12);
     auto msg = tc.GetData<tmsg_pong>();
     CHECK_EQ(msgid_pong, msg.header.id);
     CHECK_EQ(12, msg.pingnum);

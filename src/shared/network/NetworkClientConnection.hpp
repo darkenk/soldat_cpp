@@ -3,17 +3,26 @@
 #include <cstdint>
 #include <string_view>
 
-template<typename T>
-class NetworkBase;
 struct NetworkContext;
+class INetwork;
 
-template<typename T>
-void clientrequestgame(NetworkBase<T>& network, std::string_view password);
-template <typename T>
-void clientdisconnect(NetworkBase<T> &client);
+void clientrequestgame(INetwork& network, std::string_view password);
+void clientdisconnect(INetwork& client);
 void clientsendplayerinfo();
-template<typename T>
-void clientpong(NetworkBase<T>& network, std::uint8_t pingnum);
+class ClientPongMsg final
+{
+public:
+    explicit ClientPongMsg(INetwork& network):mNetwork{network} {};
+    ClientPongMsg() = delete;
+    ClientPongMsg(ClientPongMsg&) = default;
+    ClientPongMsg(ClientPongMsg&&) = default;
+    ~ClientPongMsg() = default;
+    void send(const std::uint8_t pingnum);
+
+private:
+    INetwork& mNetwork;
+};
+void clientpong(INetwork& network, std::uint8_t pingnum);
 void clienthandleplayerslist(NetworkContext *netmessage);
 void clienthandleunaccepted(NetworkContext *netmessage);
 void clienthandleserverdisconnect(NetworkContext *netmessage);
