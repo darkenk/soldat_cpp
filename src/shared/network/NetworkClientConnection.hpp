@@ -5,6 +5,7 @@
 
 struct NetworkContext;
 class INetwork;
+class NetworkMessageCreator;
 
 void clientrequestgame(INetwork& network, std::string_view password);
 void clientdisconnect(INetwork& client);
@@ -12,7 +13,7 @@ void clientsendplayerinfo();
 class ClientPongMsg final
 {
 public:
-    explicit ClientPongMsg(INetwork& network):mNetwork{network} {};
+    explicit ClientPongMsg(INetwork& network): mNetwork(network) {}
     ClientPongMsg() = delete;
     ClientPongMsg(ClientPongMsg&) = default;
     ClientPongMsg(ClientPongMsg&&) = default;

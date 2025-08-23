@@ -19,6 +19,7 @@
 #include "../misc/BitStream.hpp"
 #include "NetworkClient.hpp"
 #include "NetworkClientSprite.hpp"
+#include "NetworkMessageCreator.hpp"
 #include "NetworkUtils.hpp"
 #include "common/Console.hpp"
 #include "common/GameStrings.hpp"
@@ -827,13 +828,23 @@ void clienthandlesynccvars(NetworkContext *netmessage)
 #include <utility>
 #include <vector>
 #include <boost/di.hpp>
-#include <boost/di/extension/scopes/scoped.hpp>
-#include <boost/di/extension/scopes/session.hpp>
 #include <boost/di/extension/scopes/shared.hpp>
 
 namespace
 {
-  
+
+class NetworkTestClient;
+class NetworkTestMessageCreator;
+
+constexpr auto make_injector()
+{
+  return boost::di::make_injector<boost::di::extension::shared_config>(
+    boost::di::bind<NetworkMessageCreator>.in(boost::di::extension::shared),
+    boost::di::bind<INetwork>.to<NetworkTestClient>().in(boost::di::extension::shared),
+    boost::di::bind<SpriteSystem>.in(boost::di::extension::shared)
+  );
+}
+
 class NetworkTestClient : public INetwork
 {
 public:
@@ -849,6 +860,7 @@ public:
   void ProcessLoop() override {}
   bool Connect(const std::string_view host, std::uint32_t port) override { return true; }
   bool Disconnect(bool now) override { return true; }
+
 protected:
   auto SendDataImpl(const std::byte *data, const std::int32_t size, const bool reliable,
                     const source_location& /*unused*/) -> bool override final
@@ -865,13 +877,6 @@ private:
   std::int32_t mSize = 0;
   bool mReliable = false;
 };
-
-constexpr auto make_injector()
-{
-  return boost::di::make_injector<boost::di::extension::shared_config>(
-    boost::di::bind<INetwork>.to<NetworkTestClient>().in(boost::di::extension::shared)
-  );
-}
 
 class NetworkClientConnectionFixture
 {
@@ -959,7 +964,8 @@ TEST_SUITE("NetworkClientConnection")
   TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "Send pong")
   {
     auto& tc = injector.create<NetworkTestClient&>();
-    auto pong = injector.create<ClientPongMsg>();
+    auto& creator = injector.create<NetworkMessageCreator&>();
+    auto pong = creator.CreateMsg<ClientPongMsg>();
     pong.send(12);
     auto msg = tc.GetData<tmsg_pong>();
     CHECK_EQ(msgid_pong, msg.header.id);

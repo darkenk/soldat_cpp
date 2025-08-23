@@ -22,7 +22,7 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include "common/misc/PortUtils.hpp"
 
-static std::string_view NETMSG = "net_msg";
+constexpr std::string_view NETMSG = "net_msg";
 auto constexpr LOG_NET = "network";
 
 GlobalStateNetworkClient gGlobalStateNetworkClient{
