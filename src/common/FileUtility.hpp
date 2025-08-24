@@ -25,7 +25,7 @@ public:
   ~FileUtility();
 
   bool Mount(const std::string_view item, const std::string_view mount_point);
-  static void Unmount(const std::string_view item);
+  void Unmount(const std::string_view item);
   File *Open(const std::string_view path, FileMode fm);
   static void Close(File *file);
   static std::size_t Read(File *file, std::byte *data, const std::size_t size);

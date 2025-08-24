@@ -173,7 +173,7 @@ public:
     logFile.Enable(true);
     logFile.Init(logName);
   }
-  ~LogFileFixture() { FileUtility::Unmount("tmpfs.memory"); }
+  ~LogFileFixture() { mockFileUtility.Unmount("tmpfs.memory"); }
 
   auto ReadFile(const std::string_view filename) -> std::string
   {

@@ -81,7 +81,7 @@ TestEntry=1.0
     FileUtility::Close(f);
   }
   TFileStreamFixture(const TFileStreamFixture &) = delete;
-  ~TFileStreamFixture() { FileUtility::Unmount("tmpfs.memory"); }
+  ~TFileStreamFixture() { FS.Unmount("tmpfs.memory"); }
 
 protected:
   FileUtility FS;

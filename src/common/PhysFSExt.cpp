@@ -148,5 +148,6 @@ auto PhysFS_DeinitThreadSafe() -> bool
   {
     return true;
   }
-  return PHYSFS_deinit() != 0;
+  const bool ret = PHYSFS_deinit() != 0;
+  return ret;
 }

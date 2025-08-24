@@ -21,6 +21,7 @@
 #include "port_utils/Utilities.hpp"
 
 namespace fs = std::filesystem;
+using namespace std::string_view_literals;
 
 namespace
 {
@@ -38,7 +39,8 @@ struct PHYSFS_IoMemory
   static auto Create(const std::string &nodeName, FileContent *content = nullptr) -> PHYSFS_Io *
   {
     auto *io = new PHYSFS_Io();
-    io->version = 0, io->opaque = new PHYSFS_IoMemory(nodeName, content);
+    io->version = 0;
+    io->opaque = new PHYSFS_IoMemory(nodeName, content);
     io->read = PHYSFS_IoMemory::Read;
     io->write = PHYSFS_IoMemory::Write;
     io->seek = PHYSFS_IoMemory::Seek;
@@ -151,6 +153,11 @@ struct Memory
 
   Memory(PHYSFS_Io *io, const char *name) : m_name{name}, m_io{io} {
     m_directories.emplace_back("");
+  }
+
+  ~Memory()
+  {
+    m_io->destroy(m_io);
   }
 
   static auto GetThis(void *opaque) -> Memory * { return reinterpret_cast<Memory *>(opaque); }
@@ -275,10 +282,11 @@ FileUtility::~FileUtility()
 auto FileUtility::Mount(const std::string_view item, const std::string_view mount_point) -> bool
 {
   auto mp = ApplyRootPrefix(mount_point);
-  if (item == "tmpfs.memory")
+  if (item == "tmpfs.memory"sv)
   {
+    const auto fname = ApplyRootPrefix(item);
     auto *io = PHYSFS_IoMemory::Create(mp);
-    auto e = PHYSFS_mountIo(io, item.data(), mp.c_str(), 0);
+    const auto e = PHYSFS_mountIo(io, fname.data(), mp.c_str(), 0);
     SoldatAssert(e != 0);
     return e != 0;
   }
@@ -294,7 +302,8 @@ auto FileUtility::Mount(const std::string_view item, const std::string_view moun
 
 void FileUtility::Unmount(const std::string_view item)
 {
-  auto e = PHYSFS_unmount(item.data());
+  const auto fname = (item == "tmpfs.memory"sv) ? ApplyRootPrefix(item) : std::string(item);
+  auto e = PHYSFS_unmount(fname.data());
   SoldatAssert(e != 0);
 }
 
@@ -623,8 +632,16 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Filesystem does not leak between two diff
   FileUtility fu2("/test2");
   fu2.Mount("tmpfs.memory", "/fs_mem");
 
+  {
+    auto *f = fu2.Open("/fs_mem/valid2", FileUtility::FileMode::Write);
+    FileUtility::Write(f, testData.data(), testData.size());
+    FileUtility::Close(f);
+  }
+
   CHECK_EQ(true, fu.Exists("/fs_mem/valid"));
   CHECK_EQ(false, fu2.Exists("/fs_mem/valid"));
+  CHECK_EQ(false, fu.Exists("/fs_mem/valid2"));
+  CHECK_EQ(true, fu2.Exists("/fs_mem/valid2"));
 }
 
 TEST_CASE_FIXTURE(FileUtilityFixture, "The same file can be mounted twice in different objects")
