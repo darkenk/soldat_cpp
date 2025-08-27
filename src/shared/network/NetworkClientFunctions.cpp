@@ -47,7 +47,7 @@ void clienthandlevoteon(NetworkContext *netmessage)
                           voteonmsg->reason.data());
 }
 
-void clienthandlevoteoff()
+void clienthandlevoteoff(NetworkContext *netmessage)
 {
   GS::GetGame().stopvote();
 }

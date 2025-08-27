@@ -117,7 +117,44 @@ void NetworkClientImpl::RegisterMsgHandler(msgid id, msg_handler handler)
 
 NetworkClientImpl::NetworkClientImpl(): mPeer(k_HSteamNetConnection_Invalid)
 {
-  
+  RegisterMsgHandler(msgid_bulletsnapshot, clienthandlebulletsnapshot);
+  RegisterMsgHandler(msgid_chatmessage, clienthandlechatmessage);
+  RegisterMsgHandler(msgid_clientfreecam, clienthandleclientfreecam);
+  RegisterMsgHandler(msgid_clientspritesnapshot_dead, clienthandleclientspritesnapshot_dead);
+  RegisterMsgHandler(msgid_delta_helmet, clienthandledelta_helmet);
+  RegisterMsgHandler(msgid_delta_mouseaim, clienthandledelta_mouseaim);
+  RegisterMsgHandler(msgid_delta_movement, clienthandledelta_movement);
+  RegisterMsgHandler(msgid_delta_weapons, clienthandledelta_weapons);
+  RegisterMsgHandler(msgid_flaginfo, clienthandleflaginfo);
+  RegisterMsgHandler(msgid_forceposition, clienthandleforceposition);
+  RegisterMsgHandler(msgid_forcevelocity, clienthandleforcevelocity);
+  RegisterMsgHandler(msgid_forceweapon, clienthandleforceweapon);
+  RegisterMsgHandler(msgid_heartbeat, clienthandleheartbeat);
+  RegisterMsgHandler(msgid_idleanimation, clienthandleidleanimation);
+  RegisterMsgHandler(msgid_joinserver, clienthandlejoinserver);
+  RegisterMsgHandler(msgid_mapchange, clienthandlemapchange);
+  RegisterMsgHandler(msgid_newplayer, clienthandlenewplayer);
+  RegisterMsgHandler(msgid_ping, clienthandleping);
+  RegisterMsgHandler(msgid_playerdisconnect, clienthandleplayerdisconnect);
+  RegisterMsgHandler(msgid_playerslist, clienthandleplayerslist);
+  RegisterMsgHandler(msgid_playsound, clienthandleplaysound);
+  RegisterMsgHandler(msgid_serverdisconnect, clienthandleserverdisconnect);
+  RegisterMsgHandler(msgid_serverskeletonsnapshot, clienthandleserverskeletonsnapshot);
+  RegisterMsgHandler(msgid_serverspritesnapshot, clienthandleserverspritesnapshot);
+  RegisterMsgHandler(msgid_serverspritesnapshot_major, clienthandleserverspritesnapshot_major);
+  RegisterMsgHandler(msgid_serversyncmsg, clienthandleserversyncmsg);
+  RegisterMsgHandler(msgid_serverthingmustsnapshot, clienthandleserverthingmustsnapshot);
+  RegisterMsgHandler(msgid_serverthingsnapshot, clienthandleserverthingsnapshot);
+  RegisterMsgHandler(msgid_servervars, clienthandleservervars);
+  RegisterMsgHandler(msgid_specialmessage, clienthandlespecialmessage);
+  RegisterMsgHandler(msgid_spritedeath, clienthandlespritedeath);
+  RegisterMsgHandler(msgid_synccvars, clienthandlesynccvars);
+  RegisterMsgHandler(msgid_thingtaken, clienthandlethingtaken);
+  RegisterMsgHandler(msgid_unaccepted, clienthandleunaccepted);
+  RegisterMsgHandler(msgid_votemapreply, clienthandlevoteresponse);
+  RegisterMsgHandler(msgid_voteoff, clienthandlevoteoff);
+  RegisterMsgHandler(msgid_voteon, clienthandlevoteon);
+  RegisterMsgHandler(msgid_weaponactivemessage, clienthandleweaponactivemessage);
 }
 
 auto NetworkClientImpl::Connect(const std::string_view host, std::uint32_t port) -> bool
@@ -190,189 +227,14 @@ void NetworkClientImpl::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 
   NetworkContext nc{nullptr, PacketHeader, IncomingMsg->m_cbSize, *this};
 
-  switch (PacketHeader->id)
+  auto handler = mMessageHandlers.find(PacketHeader->id);
+  if (handler != mMessageHandlers.end())
   {
-  case msgid_playerslist:
-    clienthandleplayerslist(&nc);
-    break;
-
-  case msgid_unaccepted:
-    clienthandleunaccepted(&nc);
-    break;
-
-  case msgid_newplayer:
-    clienthandlenewplayer(&nc);
-    break;
-
-#ifdef ENABLE_FAE
-  MsgID_FaeData:
-    ClientHandleFaeChallenge(IncomingMsg);
-#endif
-
-    // PLAYING GAME MESSAGES
-
-  case msgid_serverspritesnapshot:
-    clienthandleserverspritesnapshot(&nc);
-    break;
-
-  case msgid_serverspritesnapshot_major:
-    clienthandleserverspritesnapshot_major(&nc);
-    break;
-
-  case msgid_serverskeletonsnapshot:
-    clienthandleserverskeletonsnapshot(&nc);
-    break;
-
-  case msgid_bulletsnapshot:
-    clienthandlebulletsnapshot(&nc);
-    break;
-
-  case msgid_heartbeat:
-    clienthandleheartbeat(&nc);
-    break;
-
-  case msgid_serverthingsnapshot:
-    clienthandleserverthingsnapshot(&nc);
-    break;
-
-  case msgid_serverthingmustsnapshot:
-    clienthandleserverthingmustsnapshot(&nc);
-    break;
-
-  case msgid_thingtaken:
-    clienthandlethingtaken(&nc);
-    break;
-
-  case msgid_spritedeath:
-    clienthandlespritedeath(&nc);
-    break;
-
-  case msgid_serverdisconnect:
-    clienthandleserverdisconnect(&nc);
-    break;
-
-  case msgid_playerdisconnect:
-    clienthandleplayerdisconnect(&nc);
-    break;
-
-  case msgid_delta_movement:
-    clienthandledelta_movement(&nc);
-    break;
-
-  case msgid_delta_mouseaim:
-    clienthandledelta_mouseaim(&nc);
-    break;
-
-  case msgid_delta_weapons:
-    clienthandledelta_weapons(&nc);
-    break;
-
-  case msgid_delta_helmet:
-    clienthandledelta_helmet(&nc);
-    break;
-
-  case msgid_chatmessage:
-    clienthandlechatmessage(&nc);
-    break;
-
-  case msgid_ping:
-    clienthandleping(&nc);
-    break;
-
-  case msgid_mapchange:
-    clienthandlemapchange(&nc);
-    break;
-
-  case msgid_flaginfo:
-    clienthandleflaginfo(&nc);
-    break;
-
-  case msgid_idleanimation:
-    clienthandleidleanimation(&nc);
-    break;
-
-  case msgid_voteon:
-    clienthandlevoteon(&nc);
-    break;
-
-  case msgid_clientspritesnapshot_dead:
-    clienthandleclientspritesnapshot_dead(&nc);
-    break;
-
-  case msgid_servervars:
-    clienthandleservervars(&nc);
-    break;
-
-  case msgid_serversyncmsg:
-    clienthandleserversyncmsg(&nc);
-    break;
-
-  case msgid_forceposition:
-    clienthandleforceposition(&nc);
-    break;
-
-  case msgid_forcevelocity:
-    clienthandleforcevelocity(&nc);
-    break;
-
-  case msgid_forceweapon:
-    clienthandleforceweapon(&nc);
-    break;
-
-  case msgid_specialmessage:
-    clienthandlespecialmessage(&nc);
-    break;
-
-  case msgid_weaponactivemessage:
-    clienthandleweaponactivemessage(&nc);
-    break;
-
-  case msgid_clientfreecam:
-    clienthandleclientfreecam(&nc);
-    break;
-
-  case msgid_voteoff:
-    clienthandlevoteoff();
-    break;
-
-  case msgid_votemapreply:
-    clienthandlevoteresponse(&nc);
-    break;
-
-  case msgid_joinserver:
-    clienthandlejoinserver(&nc);
-    break;
-
-  case msgid_playsound:
-    clienthandleplaysound(&nc);
-    break;
-
-  case msgid_synccvars:
-    clienthandlesynccvars(&nc);
-    break;
-#if 0
-    case 92: {
-#pragma pack(push, 1)
-        struct test
-        {
-            tmsgheader header;
-            std::uint8_t pbyte;
-            bool pboolean;
-            std::uint32_t plongword;
-            std::uint16_t pword;
-            float psingle;
-            std::int32_t plongint;
-            std::int16_t psmallint;
-            std::int32_t pinteger;
-        };
-#pragma pack(pop)
-        auto varmsg = reinterpret_cast<test *>(IncomingMsg->m_pData);
-        Debug("varmsg %d", varmsg->plongword);
-
-        break;
-    }
-#endif
-
+    handler->second(&nc);
+  }
+  else
+  {
+    LogWarn(LOG_NET, "Unknown message {:x}", PacketHeader->id);
   }
 }
 

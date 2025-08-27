@@ -3,7 +3,7 @@
 struct NetworkContext;
 
 void clienthandlevoteon(NetworkContext *netmessage);
-void clienthandlevoteoff();
+void clienthandlevoteoff(NetworkContext *netmessage);
 void clienthandleserversyncmsg(NetworkContext *netmessage);
 void clienthandleforceposition(NetworkContext *netmessage);
 void clienthandleforcevelocity(NetworkContext *netmessage);
