@@ -110,7 +110,15 @@ void NetworkClientImpl::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t
   }
 }
 
-NetworkClientImpl::NetworkClientImpl(): mPeer(k_HSteamNetConnection_Invalid) {}
+void NetworkClientImpl::RegisterMsgHandler(msgid id, msg_handler handler)
+{
+  mMessageHandlers[id] = handler;
+}
+
+NetworkClientImpl::NetworkClientImpl(): mPeer(k_HSteamNetConnection_Invalid)
+{
+  
+}
 
 auto NetworkClientImpl::Connect(const std::string_view host, std::uint32_t port) -> bool
 {

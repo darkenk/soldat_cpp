@@ -98,7 +98,11 @@ public:
   bool Disconnect(bool now) override;
 
 protected:
+  using msgid = int;
+  using msg_handler = std::function<void(NetworkContext*)>;
   void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
+  void RegisterMsgHandler(msgid id, msg_handler handler);
+  
 
 private:
   void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);
@@ -108,4 +112,5 @@ private:
   DisconnectionCallback mDisconnectionCallback;
   ConnectionCallback mConnectionCallback;
   HSoldatNetConnection mPeer;
+  std::unordered_map<msgid, msg_handler> mMessageHandlers;
 };
