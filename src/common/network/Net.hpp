@@ -12,8 +12,8 @@
 #include "..//Vector.hpp"
 #include "../Util.hpp"
 #include "../Weapons.hpp"
-#include "/home/darkenk/workspace/soldat/soldat_cpp/src/common/misc/PortUtilsSoldat.hpp"
-#include "/home/darkenk/workspace/soldat/soldat_cpp/src/common/misc/SHA1Helper.hpp"
+#include "../misc/PortUtilsSoldat.hpp"
+#include "../misc/SHA1Helper.hpp"
 
 // Binary ops
 auto constexpr B1 = 1;
@@ -166,6 +166,14 @@ using PSteamNetworkingIPAddr = SteamNetworkingIPAddr *;
 using PSteamNetworkingMessage_t = SteamNetworkingMessage_t *;
 
 using HSoldatNetConnection = std::uint32_t;
+struct NetworkContext;
+
+class INetMessageHandler
+{
+public:
+  virtual ~INetMessageHandler() = default;
+  virtual void Handle(NetworkContext* nc) = 0;
+};
 
 class TNetwork
 {

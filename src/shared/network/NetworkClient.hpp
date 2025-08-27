@@ -102,7 +102,7 @@ protected:
   using msg_handler = std::function<void(NetworkContext*)>;
   void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
   void RegisterMsgHandler(msgid id, msg_handler handler);
-  
+  void RegisterMsgHandler(msgid id, std::unique_ptr<INetMessageHandler> handler);  
 
 private:
   void HandleMessages(PSteamNetworkingMessage_t IncomingMsg);
@@ -113,4 +113,5 @@ private:
   ConnectionCallback mConnectionCallback;
   HSoldatNetConnection mPeer;
   std::unordered_map<msgid, msg_handler> mMessageHandlers;
+  std::unordered_map<msgid, std::unique_ptr<INetMessageHandler>> mMessageHandlers_;
 };

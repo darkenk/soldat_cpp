@@ -115,6 +115,11 @@ void NetworkClientImpl::RegisterMsgHandler(msgid id, msg_handler handler)
   mMessageHandlers[id] = handler;
 }
 
+void NetworkClientImpl::RegisterMsgHandler(msgid id, std::unique_ptr<INetMessageHandler> handler)
+{
+  mMessageHandlers_[id] = std::move(handler);
+}
+
 NetworkClientImpl::NetworkClientImpl(): mPeer(k_HSteamNetConnection_Invalid)
 {
   RegisterMsgHandler(msgid_bulletsnapshot, clienthandlebulletsnapshot);
@@ -129,7 +134,7 @@ NetworkClientImpl::NetworkClientImpl(): mPeer(k_HSteamNetConnection_Invalid)
   RegisterMsgHandler(msgid_forceposition, clienthandleforceposition);
   RegisterMsgHandler(msgid_forcevelocity, clienthandleforcevelocity);
   RegisterMsgHandler(msgid_forceweapon, clienthandleforceweapon);
-  RegisterMsgHandler(msgid_heartbeat, clienthandleheartbeat);
+  RegisterMsgHandler(msgid_heartbeat, std::make_unique<ClientHandleHeartbeat>());
   RegisterMsgHandler(msgid_idleanimation, clienthandleidleanimation);
   RegisterMsgHandler(msgid_joinserver, clienthandlejoinserver);
   RegisterMsgHandler(msgid_mapchange, clienthandlemapchange);
@@ -227,10 +232,13 @@ void NetworkClientImpl::HandleMessages(PSteamNetworkingMessage_t IncomingMsg)
 
   NetworkContext nc{nullptr, PacketHeader, IncomingMsg->m_cbSize, *this};
 
-  auto handler = mMessageHandlers.find(PacketHeader->id);
-  if (handler != mMessageHandlers.end())
+  if (auto handler = mMessageHandlers.find(PacketHeader->id); handler != mMessageHandlers.end())
   {
     handler->second(&nc);
+  }
+  else if (auto handler = mMessageHandlers_.find(PacketHeader->id); handler != mMessageHandlers_.end())
+  {
+    handler->second->Handle(&nc);
   }
   else
   {

@@ -12,10 +12,10 @@
 #include <utility>
 
 #include "../Logging.hpp"
-#include "/home/darkenk/workspace/soldat/soldat_cpp/src/common/Vector.hpp"
-#include "/home/darkenk/workspace/soldat/soldat_cpp/src/common/misc/SafeType.hpp"
-#include "/home/darkenk/workspace/soldat/soldat_cpp/src/common/port_utils/NotImplemented.hpp"
-#include "/home/darkenk/workspace/soldat/soldat_cpp/src/common/port_utils/Utilities.hpp"
+#include "../Vector.hpp"
+#include "../misc/SafeType.hpp"
+#include "../port_utils/NotImplemented.hpp"
+#include "../port_utils/Utilities.hpp"
 
 static_assert(sizeof(HSoldatNetConnection) == sizeof(HSteamNetConnection));
 static_assert(std::is_same_v<HSoldatNetConnection, HSteamNetConnection>);

@@ -27,7 +27,8 @@
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/network/Net.hpp"
 
-void clienthandleheartbeat(NetworkContext *netmessage)
+
+void ClientHandleHeartbeat::Handle(NetworkContext *netmessage)
 {
   tmsg_heartbeat *heartbeat;
   std::int32_t i;
