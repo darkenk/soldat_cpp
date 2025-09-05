@@ -4,9 +4,9 @@ Conversion was made with help of [ptoc](https://github.com/knizhnik/ptoc). Both 
 The big missing part is scriptcore and pascalscript in server. Places with missing code (mostly due to converter issue)
 are marked by `NotImplemented()` function.
 
-To test client and server you need [assets](https://github.com/Soldat/base).
+This is rather a toy project, to test various ideas.
 
-# Current external dependencies
+# Current external dependencies (**Outdated**)
 * freetype-2.10.4
 * GameNetworkingSockets-1.3.0
 * glad
@@ -23,23 +23,8 @@ To test client and server you need [assets](https://github.com/Soldat/base).
 * Tracy-0.7.8
 
 # Build
-Currently only linux x64 and linux aarch64 are supported.
-## Requirements
-* Clang-12
-* cmake-3.18
-* python-3
-* automake
-* autotools-dev
+Currently only linux x64 is actively developed.
 
-## Steps
-```bash
-cd build
-./setup.py
-mkdir out/linux_x86
-cd out/linux_x86
-cmake ../../../ -DCMAKE_BUILD_TYPE:STRING=Debug
-cmake --build --target SoldatClient SoldatServer
-```
 
 ## Debugging
 ### Mouse locking while debugging on linux
