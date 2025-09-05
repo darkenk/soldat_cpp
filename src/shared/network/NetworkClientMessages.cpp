@@ -29,17 +29,27 @@
 #include "shared/Constants.cpp.h"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/network/Net.hpp"
+#include "common/Logging.hpp"
 
-// utility wrapper to adapt locale-bound facets for wstring/wbuffer convert
-template <class Facet>
-struct deletable_facet : Facet
+using namespace std::literals::string_view_literals;
+
+constexpr auto TAG = "network"sv;
+
+static std::u16string utf8_to_utf16(const std::string_view utf8)
 {
-  template <class... Args>
-  deletable_facet(Args &&...args) : Facet(std::forward<Args>(args)...)
+  char* converted = SDL_iconv_string("UTF-16LE", "UTF-8", utf8.data(), utf8.size());
+  if (converted == nullptr)
   {
+    LogWarn(TAG, "Cannot convert from utf8_to_utf16 {}. Error {}", utf8.data(), SDL_GetError());
+    return std::u16string();
   }
-  ~deletable_facet() override = default;
-};
+
+  size_t len = SDL_utf8strlen(utf8.data());
+  std::u16string result(reinterpret_cast<char16_t*>(converted), len);
+
+  SDL_free(converted);
+  return result;
+}
 
 void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
 {
@@ -59,9 +69,7 @@ void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
   pchatmessage->num = gGlobalStateClient.mysprite;
   pchatmessage->msgtype = msgtype;
 
-  std::wstring_convert<deletable_facet<std::codecvt<char16_t, char, std::mbstate_t>>, char16_t>
-    conv16;
-  std::u16string text16 = conv16.from_bytes(text);
+  std::u16string text16 = utf8_to_utf16(text);
 
   memcpy(&pchatmessage->text, text16.data(), text16.size() * 2);
   memset(&pchatmessage->text + text16.size() * 2, 0, 2);
@@ -197,3 +205,32 @@ void clienthandlespecialmessage::Handle(NetworkContext *netmessage)
     gGlobalStateInterfaceGraphics.worldx[specialmessage->layerid] = 100;
   }
 }
+
+#pragma region tests
+#include <doctest/doctest.h>
+
+namespace
+{
+
+class NetworkClientMessagesFixture
+{
+public:
+  NetworkClientMessagesFixture() = default;
+  ~NetworkClientMessagesFixture() = default;
+  NetworkClientMessagesFixture(const NetworkClientMessagesFixture&) = delete;
+protected:
+};
+
+TEST_SUITE("NetworkClientMessagesSuite")
+{
+
+TEST_CASE_FIXTURE(NetworkClientMessagesFixture, "wstring_convert being deprecated" * doctest::skip(false))
+{
+  auto text = utf8_to_utf16("Żółć!");
+  std::u16string result = u"Żółć!";
+  CHECK_EQ(text, result);
+}
+
+} // end of NetworkClientMessagesSuite
+} // end of unnamed namespace
+#pragma endregion tests
