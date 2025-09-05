@@ -122,44 +122,51 @@ void NetworkClientImpl::RegisterMsgHandler(msgid id, std::unique_ptr<INetMessage
 
 NetworkClientImpl::NetworkClientImpl(): mPeer(k_HSteamNetConnection_Invalid)
 {
-  RegisterMsgHandler(msgid_bulletsnapshot, clienthandlebulletsnapshot);
-  RegisterMsgHandler(msgid_chatmessage, clienthandlechatmessage);
-  RegisterMsgHandler(msgid_clientfreecam, clienthandleclientfreecam);
-  RegisterMsgHandler(msgid_clientspritesnapshot_dead, clienthandleclientspritesnapshot_dead);
-  RegisterMsgHandler(msgid_delta_helmet, clienthandledelta_helmet);
-  RegisterMsgHandler(msgid_delta_mouseaim, clienthandledelta_mouseaim);
-  RegisterMsgHandler(msgid_delta_movement, clienthandledelta_movement);
-  RegisterMsgHandler(msgid_delta_weapons, clienthandledelta_weapons);
-  RegisterMsgHandler(msgid_flaginfo, clienthandleflaginfo);
-  RegisterMsgHandler(msgid_forceposition, clienthandleforceposition);
-  RegisterMsgHandler(msgid_forcevelocity, clienthandleforcevelocity);
-  RegisterMsgHandler(msgid_forceweapon, clienthandleforceweapon);
+  RegisterMsgHandler(msgid_bulletsnapshot, std::make_unique<clienthandlebulletsnapshot>());
+  RegisterMsgHandler(msgid_chatmessage, std::make_unique<clienthandlechatmessage>());
+  RegisterMsgHandler(msgid_clientfreecam, std::make_unique<clienthandleclientfreecam>());
+  RegisterMsgHandler(msgid_clientspritesnapshot_dead,
+                     std::make_unique<clienthandleclientspritesnapshot_dead>());
+  RegisterMsgHandler(msgid_delta_helmet, std::make_unique<clienthandledelta_helmet>());
+  RegisterMsgHandler(msgid_delta_mouseaim, std::make_unique<clienthandledelta_mouseaim>());
+  RegisterMsgHandler(msgid_delta_movement, std::make_unique<clienthandledelta_movement>());
+  RegisterMsgHandler(msgid_delta_weapons, std::make_unique<clienthandledelta_weapons>());
+  RegisterMsgHandler(msgid_flaginfo, std::make_unique<clienthandleflaginfo>());
+  RegisterMsgHandler(msgid_forceposition, std::make_unique<clienthandleforceposition>());
+  RegisterMsgHandler(msgid_forcevelocity, std::make_unique<clienthandleforcevelocity>());
+  RegisterMsgHandler(msgid_forceweapon, std::make_unique<clienthandleforceweapon>());
   RegisterMsgHandler(msgid_heartbeat, std::make_unique<ClientHandleHeartbeat>());
-  RegisterMsgHandler(msgid_idleanimation, clienthandleidleanimation);
-  RegisterMsgHandler(msgid_joinserver, clienthandlejoinserver);
-  RegisterMsgHandler(msgid_mapchange, clienthandlemapchange);
-  RegisterMsgHandler(msgid_newplayer, clienthandlenewplayer);
-  RegisterMsgHandler(msgid_ping, clienthandleping);
-  RegisterMsgHandler(msgid_playerdisconnect, clienthandleplayerdisconnect);
-  RegisterMsgHandler(msgid_playerslist, clienthandleplayerslist);
-  RegisterMsgHandler(msgid_playsound, clienthandleplaysound);
-  RegisterMsgHandler(msgid_serverdisconnect, clienthandleserverdisconnect);
-  RegisterMsgHandler(msgid_serverskeletonsnapshot, clienthandleserverskeletonsnapshot);
-  RegisterMsgHandler(msgid_serverspritesnapshot, clienthandleserverspritesnapshot);
-  RegisterMsgHandler(msgid_serverspritesnapshot_major, clienthandleserverspritesnapshot_major);
-  RegisterMsgHandler(msgid_serversyncmsg, clienthandleserversyncmsg);
-  RegisterMsgHandler(msgid_serverthingmustsnapshot, clienthandleserverthingmustsnapshot);
-  RegisterMsgHandler(msgid_serverthingsnapshot, clienthandleserverthingsnapshot);
-  RegisterMsgHandler(msgid_servervars, clienthandleservervars);
-  RegisterMsgHandler(msgid_specialmessage, clienthandlespecialmessage);
-  RegisterMsgHandler(msgid_spritedeath, clienthandlespritedeath);
-  RegisterMsgHandler(msgid_synccvars, clienthandlesynccvars);
-  RegisterMsgHandler(msgid_thingtaken, clienthandlethingtaken);
-  RegisterMsgHandler(msgid_unaccepted, clienthandleunaccepted);
-  RegisterMsgHandler(msgid_votemapreply, clienthandlevoteresponse);
-  RegisterMsgHandler(msgid_voteoff, clienthandlevoteoff);
-  RegisterMsgHandler(msgid_voteon, clienthandlevoteon);
-  RegisterMsgHandler(msgid_weaponactivemessage, clienthandleweaponactivemessage);
+  RegisterMsgHandler(msgid_idleanimation, std::make_unique<clienthandleidleanimation>());
+  RegisterMsgHandler(msgid_joinserver, std::make_unique<clienthandlejoinserver>());
+  RegisterMsgHandler(msgid_mapchange, std::make_unique<clienthandlemapchange>());
+  RegisterMsgHandler(msgid_newplayer, std::make_unique<clienthandlenewplayer>());
+  RegisterMsgHandler(msgid_ping, std::make_unique<clienthandleping>());
+  RegisterMsgHandler(msgid_playerdisconnect, std::make_unique<clienthandleplayerdisconnect>());
+  RegisterMsgHandler(msgid_playerslist, std::make_unique<clienthandleplayerslist>());
+  RegisterMsgHandler(msgid_playsound, std::make_unique<clienthandleplaysound>());
+  RegisterMsgHandler(msgid_serverdisconnect, std::make_unique<clienthandleserverdisconnect>());
+  RegisterMsgHandler(msgid_serverskeletonsnapshot,
+                     std::make_unique<clienthandleserverskeletonsnapshot>());
+  RegisterMsgHandler(msgid_serverspritesnapshot,
+                     std::make_unique<clienthandleserverspritesnapshot>());
+  RegisterMsgHandler(msgid_serverspritesnapshot_major,
+                     std::make_unique<clienthandleserverspritesnapshot_major>());
+  RegisterMsgHandler(msgid_serversyncmsg, std::make_unique<clienthandleserversyncmsg>());
+  RegisterMsgHandler(msgid_serverthingmustsnapshot,
+                     std::make_unique<clienthandleserverthingmustsnapshot>());
+  RegisterMsgHandler(msgid_serverthingsnapshot,
+                     std::make_unique<clienthandleserverthingsnapshot>());
+  RegisterMsgHandler(msgid_servervars, std::make_unique<clienthandleservervars>());
+  RegisterMsgHandler(msgid_specialmessage, std::make_unique<clienthandlespecialmessage>());
+  RegisterMsgHandler(msgid_spritedeath, std::make_unique<clienthandlespritedeath>());
+  RegisterMsgHandler(msgid_synccvars, std::make_unique<clienthandlesynccvars>());
+  RegisterMsgHandler(msgid_thingtaken, std::make_unique<clienthandlethingtaken>());
+  RegisterMsgHandler(msgid_unaccepted, std::make_unique<clienthandleunaccepted>());
+  RegisterMsgHandler(msgid_votemapreply, std::make_unique<clienthandlevoteresponse>());
+  RegisterMsgHandler(msgid_voteoff, std::make_unique<clienthandlevoteoff>());
+  RegisterMsgHandler(msgid_voteon, std::make_unique<clienthandlevoteon>());
+  RegisterMsgHandler(msgid_weaponactivemessage,
+                     std::make_unique<clienthandleweaponactivemessage>());
 }
 
 auto NetworkClientImpl::Connect(const std::string_view host, std::uint32_t port) -> bool

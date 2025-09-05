@@ -3,6 +3,10 @@
 #include <cstdint>
 #include <string_view>
 
+#include "common/network/Net.hpp"
+
+#include "common/network/Net.hpp"
+
 struct NetworkContext;
 class INetwork;
 class NetworkMessageCreator;
@@ -24,9 +28,33 @@ private:
     INetwork& mNetwork;
 };
 void clientpong(INetwork& network, std::uint8_t pingnum);
-void clienthandleplayerslist(NetworkContext *netmessage);
-void clienthandleunaccepted(NetworkContext *netmessage);
-void clienthandleserverdisconnect(NetworkContext *netmessage);
-void clienthandleping(NetworkContext *netmessage);
-void clienthandleservervars(NetworkContext *netmessage);
-void clienthandlesynccvars(NetworkContext *netmessage);
+class clienthandleplayerslist : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};
+class clienthandleunaccepted : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};
+class clienthandleserverdisconnect : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};
+class clienthandleping : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};
+class clienthandleservervars : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};
+class clienthandlesynccvars : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};

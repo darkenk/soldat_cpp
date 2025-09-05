@@ -295,7 +295,7 @@ void clientpong(INetwork& network, const std::uint8_t pingnum)
   network.SendData(pongmsg);
 }
 
-void clienthandleplayerslist(NetworkContext *netmessage)
+void clienthandleplayerslist::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_playerslist *playerslistmsg;
@@ -574,7 +574,7 @@ void clienthandleplayerslist(NetworkContext *netmessage)
 #endif
 }
 
-void clienthandleunaccepted(NetworkContext *netmessage)
+void clienthandleunaccepted::Handle(NetworkContext *netmessage)
 {
   pmsg_unaccepted unacceptedmsg;
   std::string text;
@@ -638,7 +638,7 @@ void clienthandleunaccepted(NetworkContext *netmessage)
   gGlobalStateClient.exittomenu();
 }
 
-void clienthandleserverdisconnect(NetworkContext *netmessage)
+void clienthandleserverdisconnect::Handle(NetworkContext *netmessage)
 {
   if (!verifypacket(sizeof(tmsg_serverdisconnect), netmessage->size, msgid_serverdisconnect))
   {
@@ -657,7 +657,7 @@ void clienthandleserverdisconnect(NetworkContext *netmessage)
   }
 }
 
-void clienthandleping(NetworkContext *netmessage)
+void clienthandleping::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   if (!verifypacket(sizeof(tmsg_ping), netmessage->size, msgid_ping))
@@ -683,7 +683,7 @@ void clienthandleping(NetworkContext *netmessage)
   gGlobalStateNetworkClient.noheartbeattime = 0;
 }
 
-void clienthandleservervars(NetworkContext *netmessage)
+void clienthandleservervars::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   if (!verifypacket(sizeof(tmsg_servervars), netmessage->size, msgid_servervars))
@@ -776,7 +776,7 @@ auto ReadAndSetValue(BitStream &bs, std::uint8_t cvarid) -> bool
   return true;
 }
 
-void clienthandlesynccvars(NetworkContext *netmessage)
+void clienthandlesynccvars::Handle(NetworkContext *netmessage)
 {
   if (!verifypacketlargerorequal(sizeof(tmsg_serversynccvars), netmessage->size, msgid_synccvars))
   {

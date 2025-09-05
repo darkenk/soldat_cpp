@@ -54,7 +54,7 @@ void clientsendbullet(std::uint8_t i)
 #endif
 }
 
-void clienthandlebulletsnapshot(NetworkContext *netmessage)
+void clienthandlebulletsnapshot::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_bulletsnapshot *bulletsnap;

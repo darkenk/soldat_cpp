@@ -36,7 +36,7 @@
 #include "shared/mechanics/Things.hpp"
 #include "shared/network/Net.hpp"
 
-void clienthandleserverthingsnapshot(NetworkContext *netmessage)
+void clienthandleserverthingsnapshot::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   tvector2 a;
@@ -141,7 +141,7 @@ void clienthandleserverthingsnapshot(NetworkContext *netmessage)
   }
 }
 
-void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
+void clienthandleserverthingmustsnapshot::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_serverthingmustsnapshot *thingmustsnap;
@@ -305,7 +305,7 @@ void clienthandleserverthingmustsnapshot(NetworkContext *netmessage)
   }
 }
 
-void clienthandlethingtaken(NetworkContext *netmessage)
+void clienthandlethingtaken::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_serverthingtaken *thingtakensnap;

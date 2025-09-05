@@ -1,7 +1,21 @@
+#include "common/network/Net.hpp"
+
 #pragma once
 
 struct NetworkContext;
 
-void clienthandleserverthingsnapshot(NetworkContext *netmessage);
-void clienthandleserverthingmustsnapshot(NetworkContext *netmessage);
-void clienthandlethingtaken(NetworkContext *netmessage);
+class clienthandleserverthingsnapshot : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};
+class clienthandleserverthingmustsnapshot : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};
+class clienthandlethingtaken : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};

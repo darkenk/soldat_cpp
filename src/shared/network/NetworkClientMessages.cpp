@@ -70,7 +70,7 @@ void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
   freemem(pchatmessage);
 }
 
-void clienthandlechatmessage(NetworkContext *netmessage)
+void clienthandlechatmessage::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   std::string cs;
@@ -160,7 +160,7 @@ void clienthandlechatmessage(NetworkContext *netmessage)
   end;*/
 }
 
-void clienthandlespecialmessage(NetworkContext *netmessage)
+void clienthandlespecialmessage::Handle(NetworkContext *netmessage)
 {
   tmsg_serverspecialmessage *specialmessage;
   std::string cs;

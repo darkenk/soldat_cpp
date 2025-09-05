@@ -49,7 +49,7 @@ tmsg_clientspritesnapshot oldclientsnapshotmsg;
 tmsg_clientspritesnapshot_mov oldclientsnapshotmovmsg;
 } // namespace
 
-void clienthandleserverspritesnapshot(NetworkContext *netmessage)
+void clienthandleserverspritesnapshot::Handle(NetworkContext *netmessage)
 {
 
   auto &sprite_system = SpriteSystem::Get();
@@ -196,7 +196,7 @@ void clienthandleserverspritesnapshot(NetworkContext *netmessage)
   }
 }
 
-void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
+void clienthandleserverspritesnapshot_major::Handle(NetworkContext *netmessage)
 {
 
   auto &sprite_system = SpriteSystem::Get();
@@ -288,7 +288,7 @@ void clienthandleserverspritesnapshot_major(NetworkContext *netmessage)
   }
 }
 
-void clienthandleserverskeletonsnapshot(NetworkContext *netmessage)
+void clienthandleserverskeletonsnapshot::Handle(NetworkContext *netmessage)
 {
 
   auto &sprite_system = SpriteSystem::Get();
@@ -488,7 +488,7 @@ static void sFillPos(Sprite<M> &sprite, const tmsg_spritedeath *deathsnap)
   }
 }
 
-void clienthandlespritedeath(NetworkContext *netmessage)
+void clienthandlespritedeath::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t j;
@@ -738,7 +738,7 @@ void clienthandlespritedeath(NetworkContext *netmessage)
   }
 }
 
-void clienthandledelta_movement(NetworkContext *netmessage)
+void clienthandledelta_movement::Handle(NetworkContext *netmessage)
 {
   // a: TVector2;
 
@@ -781,7 +781,7 @@ void clienthandledelta_movement(NetworkContext *netmessage)
   decodekeys(sprite, deltamov->keys16);
 }
 
-void clienthandledelta_mouseaim(NetworkContext *netmessage)
+void clienthandledelta_mouseaim::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_serverspritedelta_mouseaim *deltamouse;
@@ -822,7 +822,7 @@ void clienthandledelta_mouseaim(NetworkContext *netmessage)
   sprite.weapon.fireintervalcount = 0;
 }
 
-void clienthandledelta_weapons(NetworkContext *netmessage)
+void clienthandledelta_weapons::Handle(NetworkContext *netmessage)
 {
 
   auto &sprite_system = SpriteSystem::Get();
@@ -856,7 +856,7 @@ void clienthandledelta_weapons(NetworkContext *netmessage)
   }
 }
 
-void clienthandledelta_helmet(NetworkContext *netmessage)
+void clienthandledelta_helmet::Handle(NetworkContext *netmessage)
 {
 
   auto &sprite_system = SpriteSystem::Get();
@@ -891,7 +891,7 @@ void clienthandledelta_helmet(NetworkContext *netmessage)
   sprite.wearhelmet = deltahelmet->wearhelmet;
 }
 
-void clienthandleclientspritesnapshot_dead(NetworkContext *netmessage)
+void clienthandleclientspritesnapshot_dead::Handle(NetworkContext *netmessage)
 {
   if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), netmessage->size,
                     msgid_clientspritesnapshot_dead))

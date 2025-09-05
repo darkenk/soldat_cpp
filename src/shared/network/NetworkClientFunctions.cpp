@@ -27,7 +27,7 @@
 #include "common/port_utils/Utilities.hpp"
 #include "shared/mechanics/Sprites.hpp"
 
-void clienthandlevoteon(NetworkContext *netmessage)
+void clienthandlevoteon::Handle(NetworkContext *netmessage)
 {
   tmsg_voteon *voteonmsg;
   std::int32_t i;
@@ -47,12 +47,9 @@ void clienthandlevoteon(NetworkContext *netmessage)
                           voteonmsg->reason.data());
 }
 
-void clienthandlevoteoff(NetworkContext *netmessage)
-{
-  GS::GetGame().stopvote();
-}
+void clienthandlevoteoff::Handle(NetworkContext *netmessage) { GS::GetGame().stopvote(); }
 
-void clienthandleserversyncmsg(NetworkContext *netmessage)
+void clienthandleserversyncmsg::Handle(NetworkContext *netmessage)
 {
   tmsg_serversyncmsg *syncmsg;
 
@@ -82,7 +79,7 @@ void clienthandleserversyncmsg(NetworkContext *netmessage)
   }
 }
 
-void clienthandleforceposition(NetworkContext *netmessage)
+void clienthandleforceposition::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_forceposition *forceposition;
@@ -100,7 +97,7 @@ void clienthandleforceposition(NetworkContext *netmessage)
   sprite_system.SetSpritePartsOldPos(forceposition->playerid, spritePartsPos);
 }
 
-void clienthandleforcevelocity(NetworkContext *netmessage)
+void clienthandleforcevelocity::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_forcevelocity *forcevelocity;
@@ -116,7 +113,7 @@ void clienthandleforcevelocity(NetworkContext *netmessage)
   spriteVelocity = forcevelocity->vel;
 }
 
-void clienthandleforceweapon(NetworkContext *netmessage)
+void clienthandleforceweapon::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_forceweapon *forceweapon;
@@ -137,7 +134,7 @@ void clienthandleforceweapon(NetworkContext *netmessage)
   }
 }
 
-void clienthandleweaponactivemessage(NetworkContext *netmessage)
+void clienthandleweaponactivemessage::Handle(NetworkContext *netmessage)
 {
   tmsg_weaponactivemessage *wactivemessage;
   std::int32_t i;
@@ -166,7 +163,7 @@ void clienthandleweaponactivemessage(NetworkContext *netmessage)
   }
 }
 
-void clienthandleclientfreecam(NetworkContext *netmessage)
+void clienthandleclientfreecam::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_clientfreecam *freecammsg;
@@ -200,7 +197,7 @@ void clienthandleclientfreecam(NetworkContext *netmessage)
 }
 
 // Server tells client to join another server
-void clienthandlejoinserver(NetworkContext *netmessage)
+void clienthandlejoinserver::Handle(NetworkContext *netmessage)
 {
   tmsg_joinserver *joinservermsg;
 
@@ -231,7 +228,7 @@ void clienthandlejoinserver(NetworkContext *netmessage)
   gGlobalStateClient.exittomenu();
 }
 
-void clienthandleplaysound(NetworkContext *netmessage)
+void clienthandleplaysound::Handle(NetworkContext *netmessage)
 {
   tmsg_playsound *playsoundmsg;
   auto& fs = GS::GetFileSystem();

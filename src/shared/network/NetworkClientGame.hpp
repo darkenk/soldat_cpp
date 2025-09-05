@@ -3,14 +3,44 @@
 #include <cstdint>
 #include <string>
 
+#include "common/network/Net.hpp"
+
+#include "common/network/Net.hpp"
+
+#include "common/network/Net.hpp"
+
 struct NetworkContext;
 
-void clienthandlenewplayer(NetworkContext *netmessage);
+class clienthandlenewplayer : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};
 void clientvotekick(std::uint8_t num, bool ban, std::string reason);
 void clientvotemap(uint32_t mapid);
-void clienthandlevoteresponse(NetworkContext *netmessage);
+class clienthandlevoteresponse : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};
 void clientfreecamtarget();
-void clienthandleplayerdisconnect(NetworkContext *netmessage);
-void clienthandlemapchange(NetworkContext *netmessage);
-void clienthandleflaginfo(NetworkContext *netmessage);
-void clienthandleidleanimation(NetworkContext *netmessage);
+class clienthandleplayerdisconnect : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};
+class clienthandlemapchange : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};
+class clienthandleflaginfo : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};
+class clienthandleidleanimation : public INetMessageHandler
+{
+public:
+  void Handle(NetworkContext *nc) override;
+};

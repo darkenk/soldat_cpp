@@ -39,7 +39,7 @@
 #include "shared/mechanics/Things.hpp"
 #include "shared/network/Net.hpp"
 
-void clienthandlenewplayer(NetworkContext *netmessage)
+void clienthandlenewplayer::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_newplayer *newplayermsg;
@@ -235,7 +235,7 @@ void clientvotemap(std::uint32_t mapid)
   gGlobalStateNetworkClient.GetNetwork()->SendData(&votemsg, sizeof(votemsg), true);
 }
 
-void clienthandlevoteresponse(NetworkContext *netmessage)
+void clienthandlevoteresponse::Handle(NetworkContext *netmessage)
 {
   tmsg_votemapreply *votemsgreply;
 
@@ -261,7 +261,7 @@ void clientfreecamtarget()
   gGlobalStateNetworkClient.GetNetwork()->SendData(&freecammsg, sizeof(freecammsg), true);
 }
 
-void clienthandleplayerdisconnect(NetworkContext *netmessage)
+void clienthandleplayerdisconnect::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_playerdisconnect *playermsg;
@@ -466,7 +466,7 @@ void clienthandleplayerdisconnect(NetworkContext *netmessage)
   }
 }
 
-void clienthandlemapchange(NetworkContext *netmessage)
+void clienthandlemapchange::Handle(NetworkContext *netmessage)
 {
   tmsg_mapchange *mapchange;
 
@@ -532,7 +532,7 @@ void clienthandlemapchange(NetworkContext *netmessage)
   }
 }
 
-void clienthandleflaginfo(NetworkContext *netmessage)
+void clienthandleflaginfo::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t j;
@@ -661,7 +661,7 @@ void clienthandleflaginfo(NetworkContext *netmessage)
   }
 }
 
-void clienthandleidleanimation(NetworkContext *netmessage)
+void clienthandleidleanimation::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
   std::int32_t i;
