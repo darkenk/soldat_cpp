@@ -5,7 +5,7 @@
       "name": "default",
       "hidden": true,
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/../build/out/${presetName}",
+      "binaryDir": "${sourceDir}/../../soldat_build/out/${presetName}",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       }

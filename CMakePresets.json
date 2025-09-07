@@ -5,7 +5,7 @@
       "name": "default",
       "displayName": "Default Config",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/out/soldat_${presetName}",
+      "binaryDir": "${sourceParentDir}/soldat_build/out/soldat_${presetName}",
       "hidden": true,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",

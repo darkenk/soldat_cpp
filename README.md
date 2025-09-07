@@ -19,6 +19,7 @@ This is rather a toy project, to test various ideas.
 * stb
 * SoLoud
 * OpenGL
+* Vulkan
 * SHA1
 * Tracy-0.7.8
 
@@ -34,3 +35,12 @@ To overcome it in gdb execute:
 source ${PROJECT}/build/gdb/release_mouse.py
 ```
 
+## Dev containers
+* execute those commands in main repo directory (it creates directories outside the repo)
+```bash
+mkdir -p ../soldat_container/ccache
+mkdir -p ../soldat_container/soldat_build
+```
+
+* rebuild devcontainer
+  - `ctrl + shift + p` and press `Dev Containers: Rebuild and Reopen in Container`

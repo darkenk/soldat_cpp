@@ -2,10 +2,17 @@ cmake_minimum_required(VERSION 4.0)
 project(SoldatCPP)
 set(CMAKE_CXX_STANDARD 23)
 
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+   set_property(GLOBAL PROPERTY CXX_COMPILER_LAUNCHER ccache)
+   set_property(GLOBAL PROPERTY C_COMPILER_LAUNCHER ccache)
+endif()
+
 set(third_party_dependencies_config "${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}_release")
 set(third_party_dependencies_path "${CMAKE_BINARY_DIR}/../${third_party_dependencies_config}")
 get_filename_component(third_party_dependencies_path ${third_party_dependencies_path} ABSOLUTE)
 message(STATUS "Using third party: ${third_party_dependencies_path}")
+
 if (NOT EXISTS ${third_party_dependencies_path}/install/third_party.cmake)
   message(STATUS "Building third party dependencies")
   

@@ -222,6 +222,7 @@ public:
     LogDebug(AUDIO, "InitSound");
     if (Engine.init(SoLoud::Soloud::CLIP_ROUNDOFF, SoLoud::Soloud::SDL3) != 0)
     {
+      SoldatAssert(false);
       return false;
     }
     for (auto i = 0U; i < ToUint32(SfxEffect::COUNT); i++)
@@ -251,6 +252,7 @@ public:
     if (filebuffer.empty())
     {
       LogWarn(AUDIO, "Empty audio {}", name);
+      SoldatAssert(false);
       return result;
     }
 
@@ -260,9 +262,9 @@ public:
     {
       delete wav;
       LogWarn(AUDIO, "Cannot create wav{}", wavError);
+      SoldatAssert(false);
       return result;
     }
-
     SoldatAssert(samp.loaded == false);
     Waves[samp.buffer] = wav;
 
@@ -538,7 +540,6 @@ void GlobalStateSound::loadsounds(const string &moddir)
 
   // Sound effects
   GS::GetMainConsole().console("Loading sound effects", debug_message_color);
-
   for (i = 1U; i < sample_files.size(); i++)
   {
     if (!sample_files[i].empty())
@@ -552,7 +553,11 @@ void GlobalStateSound::loadsounds(const string &moddir)
   }
 }
 
-void GlobalStateSound::closesound() { Engine->CloseSound(); }
+void GlobalStateSound::closesound()
+{
+  Engine->CloseSound();
+  Engine = nullptr;
+}
 
 void GlobalStateSound::fplaysound(SfxEffect samplenum, float listenerx, float listenery,
                                   float emitterx, float emittery, std::int32_t chan)
