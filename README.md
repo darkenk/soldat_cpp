@@ -26,6 +26,13 @@ This is rather a toy project, to test various ideas.
 # Build
 Currently only linux x64 is actively developed.
 
+## Targets
+
+Press `Shift + F7`:
+* SoldatGame - builds game binary
+* SoldatGame_full - builds game + assets
+* third_party_dependencies - builds dependencies in third_party directory
+
 
 ## Debugging
 ### Mouse locking while debugging on linux
