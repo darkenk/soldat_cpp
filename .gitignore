@@ -3,3 +3,4 @@ out/
 CMakeLists.txt.user
 CMakeUserPresets.json
 .idea
+compile_commands.json

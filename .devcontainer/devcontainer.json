@@ -17,7 +17,8 @@
 				"ms-vscode.cmake-tools",
 				"ms-vscode.cpptools-extension-pack",
 				"matepek.vscode-catch2-test-adapter",
-				"editorconfig.editorconfig"
+				"editorconfig.editorconfig",
+        "llvm-vs-code-extensions.vscode-clangd"
 			]
 		}
 	},

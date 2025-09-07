@@ -47,11 +47,14 @@
       "cwd": "${cwd}",
       "env": "${envObj}",
       "environment": "${envObjArray}",
-      "sourceFileMap": "${sourceFileMapObj}",
+      "sourceFileMap": "${sourceFileMapObj}"
     },
     "files.associations": {
       "*.vert": "glsl",
       "*.frag": "glsl"
     },
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "cmake.copyCompileCommands": "${workspaceFolder}/../soldat_build/clangd/compile_commands.json",
+    "clangd.arguments": ["--compile-commands-dir=${workspaceFolder}/../soldat_build/clangd/"]
+
 }
