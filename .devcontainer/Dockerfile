@@ -42,6 +42,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     vulkan-tools \
     mesa-vulkan-drivers \
     mesa-utils \
+    libfmt-dev \
     mold
 
 RUN apt-get autoremove -y && apt-get clean -y
