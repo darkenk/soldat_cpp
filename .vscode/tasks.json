@@ -1,0 +1,13 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "clang-tidy fix",
+      "type": "shell",
+      "command": "run-clang-tidy -format -config-file=${workspaceFolder}/.clang-tidy   -fix -p ${workspaceFolder}/../soldat_build/clangd ${file}",
+      "problemMatcher": []
+    }
+  ]
+}

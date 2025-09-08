@@ -48,6 +48,7 @@ function register_clang_version {
         --slave   /usr/bin/clang-rename          clang-rename          /usr/bin/clang-rename-${version} \
         --slave   /usr/bin/clang-reorder-fields  clang-reorder-fields  /usr/bin/clang-reorder-fields-${version} \
         --slave   /usr/bin/clang-tidy            clang-tidy            /usr/bin/clang-tidy-${version} \
+        --slave   /usr/bin/run-clang-tidy        run-clang-tidy        /usr/bin/run-clang-tidy-${version} \
         --slave   /usr/bin/clang-format          clang-format          /usr/bin/clang-format-${version} \
         --slave   /usr/bin/clangd                clangd                /usr/bin/clangd-${version} \
         --slave   /usr/bin/lldb                  lldb                  /usr/bin/lldb-${version} \

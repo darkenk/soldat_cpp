@@ -1,16 +1,16 @@
-#include <stb_image_write.h>
-#include <stb_image.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
-#include <thread>
-#include <filesystem>
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-#include <iterator>
+#include <filesystem>
 #include <memory>
+#include <stb_image.h>
+#include <stb_image_write.h>
 #include <string>
+#include <thread>
 
 #include "client/Client.hpp"
 #include "client/ControlGame.hpp"
@@ -21,18 +21,21 @@
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/SoldatConfig.hpp"
 
+// NOLINTBEGIN
 // clang-format off
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL_main.h>
-// clang-format on
 
-// clang-format off
 #define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest/doctest.h> // IWYU: pragma keep
 
 #define APPROVALS_DOCTEST_EXISTING_MAIN
 #include <ApprovalTests/ApprovalTests.hpp> // IWYU: pragma keep
 // clang-format on
+// NOLINTEND
+
+namespace
+{
 
 template<int DesiredPrecision>
 class PngFuzzyComparator : public ApprovalTests::ApprovalComparator
@@ -41,10 +44,14 @@ public:
   bool contentsAreEquivalent(std::string receivedPath, std::string approvedPath) const override
   {
     constexpr auto kDesiredChannels = 4;
-    int rw, rh, rchannels;
-    auto received = stbi_load(receivedPath.c_str(), &rw, &rh, &rchannels, kDesiredChannels);
-    int aw, ah, achannels;
-    auto approved = stbi_load(approvedPath.c_str(), &aw, &ah, &achannels, kDesiredChannels);
+    int rw = 0;
+    int rh = 0;
+    int rchannels = 0;
+    auto *received = stbi_load(receivedPath.c_str(), &rw, &rh, &rchannels, kDesiredChannels);
+    int aw = 0;
+    int ah = 0;
+    int achannels = 0;
+    auto *approved = stbi_load(approvedPath.c_str(), &aw, &ah, &achannels, kDesiredChannels);
     auto test_function = [&]() {
       if (!received || !approved)
       {
@@ -54,9 +61,9 @@ public:
       {
         return false;
       }
-      for (std::size_t i = 0; i < aw * ah * achannels; i++)
+      for (int i = 0; i < aw * ah * achannels; i++)
       {
-        if (((int)approved[i] - (int)received[i]) > DesiredPrecision)
+        if ((static_cast<int>(approved[i]) - static_cast<int>(received[i])) > DesiredPrecision)
         {
           return false;
         }
@@ -82,12 +89,12 @@ void RunTests(int argc, char **argv)
     root_path / "{ApprovalsSubdirectory}/{RelativeTestSourceDirectory}/{TestFileName}.{TestCaseName}.{ApprovedOrReceived}.{FileExtension}");
   });
 
-  ApprovalTests::EmptyFileCreatorByType::registerCreator(".png",  [](std::string path) {
+  ApprovalTests::EmptyFileCreatorByType::registerCreator(".png", [](const std::string &path) {
     constexpr auto kWidth = 1;
     constexpr auto kHeight = 1;
     constexpr auto kChannels = 4;
-    std::array<std::uint8_t, kWidth * kHeight * kChannels> data;
-    std::fill(std::begin(data), std::end(data), 0x0);
+    std::array<std::uint8_t, static_cast<std::size_t>(kWidth * kHeight * kChannels)> data{};
+    std::ranges::fill(data, 0x0);
 
     stbi_write_png(path.c_str(), kWidth, kHeight, kChannels, data.data(), kWidth * kChannels);
   });
@@ -97,7 +104,7 @@ void RunTests(int argc, char **argv)
   doctest::Context ctx;
   ctx.applyCommandLine(argc, argv);
 
-  int res = ctx.run();
+  int const res = ctx.run();
 
   if (ctx.shouldExit())
   {
@@ -110,6 +117,8 @@ struct AppState
 {
   std::thread serverThread;
 };
+
+} // namespace
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
@@ -126,22 +135,22 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
   return SDL_APP_CONTINUE;
 }
 
-SDL_AppResult SDL_AppIterate(void *appstate)
+SDL_AppResult SDL_AppIterate(void * /*appstate*/)
 {
   auto continue_run = gGlobalStateClient.mainloop();
   return continue_run ? SDL_APP_CONTINUE : SDL_APP_SUCCESS;
 }
 
-SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
+SDL_AppResult SDL_AppEvent(void * /*appstate*/, SDL_Event *event)
 {
   gGlobalStateControlGame.gameinput(*event);
   return SDL_APP_CONTINUE;
 }
 
-void SDL_AppQuit(void *appstate, SDL_AppResult result)
+void SDL_AppQuit(void *appstate, SDL_AppResult /*result*/)
 {
   gGlobalStateServer.ShutdownServer();
-  auto* state = reinterpret_cast<AppState*>(appstate);
+  auto* state = reinterpret_cast<AppState*>(appstate); // NOLINT
   state->serverThread.join();
   delete state;
   GlobalSystems<Config::SERVER_MODULE>::Deinit();
