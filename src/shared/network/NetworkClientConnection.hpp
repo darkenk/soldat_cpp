@@ -17,44 +17,44 @@ void clientsendplayerinfo();
 class ClientPongMsg final
 {
 public:
-    explicit ClientPongMsg(INetwork& network): mNetwork(network) {}
-    ClientPongMsg() = delete;
-    ClientPongMsg(ClientPongMsg&) = default;
-    ClientPongMsg(ClientPongMsg&&) = default;
-    ~ClientPongMsg() = default;
-    void send(const std::uint8_t pingnum);
+	explicit ClientPongMsg(INetwork& network) : mNetwork(network) { }
+	ClientPongMsg() = delete;
+	ClientPongMsg(ClientPongMsg&) = default;
+	ClientPongMsg(ClientPongMsg&&) = default;
+	~ClientPongMsg() = default;
+	void send(const std::uint8_t pingnum);
 
 private:
-    INetwork& mNetwork;
+	INetwork& mNetwork;
 };
 void clientpong(INetwork& network, std::uint8_t pingnum);
 class clienthandleplayerslist : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 class clienthandleunaccepted : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 class clienthandleserverdisconnect : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 class clienthandleping : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 class clienthandleservervars : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 class clienthandlesynccvars : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };

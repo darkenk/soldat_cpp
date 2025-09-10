@@ -5,9 +5,9 @@
 namespace Config
 {
 
-constexpr Module GetModule() noexcept
-{
-  return CLIENT_MODULE;
-}
+	constexpr Module GetModule() noexcept
+	{
+		return CLIENT_MODULE;
+	}
 
 } // namespace Config

@@ -6,28 +6,22 @@ template <class T>
 class GlobalSubsystem
 {
 public:
-  static void Init()
-  {
-    SoldatAssert(Subsystem == nullptr);
-    Subsystem = std::unique_ptr<T>(new T{});
-  }
+	static void Init()
+	{
+		SoldatAssert(Subsystem == nullptr);
+		Subsystem = std::unique_ptr<T>(new T{});
+	}
 
-  static void Deinit()
-  {
-    Subsystem.reset();
-  }
+	static void Deinit() { Subsystem.reset(); }
 
-  static T &Get()
-  {
-    return *Subsystem;
-  }
+	static T& Get() { return *Subsystem; }
 
 protected:
-  GlobalSubsystem(){};
-  GlobalSubsystem(const GlobalSubsystem &) = delete;
+	GlobalSubsystem() { };
+	GlobalSubsystem(const GlobalSubsystem&) = delete;
 
 private:
-  static std::unique_ptr<T> Subsystem;
+	static std::unique_ptr<T> Subsystem;
 };
 
 template <class T>

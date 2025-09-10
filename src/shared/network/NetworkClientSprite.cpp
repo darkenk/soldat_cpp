@@ -43,854 +43,848 @@
 
 namespace
 {
-tmsg_clientspritesnapshot oldclientsnapshotmsg;
-tmsg_clientspritesnapshot_mov oldclientsnapshotmovmsg;
+	tmsg_clientspritesnapshot oldclientsnapshotmsg;
+	tmsg_clientspritesnapshot_mov oldclientsnapshotmovmsg;
 } // namespace
 
-void clienthandleserverspritesnapshot::Handle(NetworkContext *netmessage)
+void clienthandleserverspritesnapshot::Handle(NetworkContext* netmessage)
 {
 
-  auto &sprite_system = SpriteSystem::Get();
-  if (!verifypacket(sizeof(tmsg_serverspritesnapshot), netmessage->size,
-                    msgid_serverspritesnapshot))
-  {
-    return;
-  }
+	auto& sprite_system = SpriteSystem::Get();
+	if (!verifypacket(sizeof(tmsg_serverspritesnapshot), netmessage->size, msgid_serverspritesnapshot))
+	{
+		return;
+	}
 
-  auto *spritesnap = reinterpret_cast<pmsg_serverspritesnapshot>(netmessage->packet);
-  auto &things = GS::GetThingSystem().GetThings();
+	auto* spritesnap = reinterpret_cast<pmsg_serverspritesnapshot>(netmessage->packet);
+	auto& things = GS::GetThingSystem().GetThings();
 
-  // assign received sprite info to sprite
-  const std::int32_t i = spritesnap->num;
+	// assign received sprite info to sprite
+	const std::int32_t i = spritesnap->num;
 
-  if ((i < 1) || (i > max_sprites))
-  {
-    return;
-  }
-  auto &sprite = sprite_system.GetSprite(i);
-  if (!sprite.active)
-  {
-    return;
-  }
+	if ((i < 1) || (i > max_sprites))
+	{
+		return;
+	}
+	auto& sprite = sprite_system.GetSprite(i);
+	if (!sprite.active)
+	{
+		return;
+	}
 
-  gGlobalStateNetworkClient.clienttickcount = spritesnap->serverticks;
-  gGlobalStateNetworkClient.lastheartbeatcounter = spritesnap->serverticks;
+	gGlobalStateNetworkClient.clienttickcount = spritesnap->serverticks;
+	gGlobalStateNetworkClient.lastheartbeatcounter = spritesnap->serverticks;
 
-  auto &spritePartsPos = sprite_system.GetSpritePartsPos(i);
-  auto &spriteVelocity = sprite_system.GetVelocity(i);
+	auto& spritePartsPos = sprite_system.GetSpritePartsPos(i);
+	auto& spriteVelocity = sprite_system.GetVelocity(i);
 
-  // CLIENT RESPAWN
-  if (sprite.deadmeat)
-  {
-    sprite_system.SetSpritePartsOldPos(i, spritePartsPos);
-    spritePartsPos = spritesnap->pos;
+	// CLIENT RESPAWN
+	if (sprite.deadmeat)
+	{
+		sprite_system.SetSpritePartsOldPos(i, spritePartsPos);
+		spritePartsPos = spritesnap->pos;
 
-    spriteVelocity = spritesnap->velocity;
-    sprite.respawn();
-    sprite.olddeadmeat = sprite.deadmeat;
-    spritePartsPos = spritesnap->pos;
-  }
+		spriteVelocity = spritesnap->velocity;
+		sprite.respawn();
+		sprite.olddeadmeat = sprite.deadmeat;
+		spritePartsPos = spritesnap->pos;
+	}
 
-  sprite.deadmeat = false;
+	sprite.deadmeat = false;
 
-  if (!sprite_system.IsPlayerSprite(i))
-  {
-    if (sprite.GetHealth() == spritesnap->health)
-    {
-      sprite_system.SetSpritePartsOldPos(i, spritePartsPos);
-      spritePartsPos = spritesnap->pos;
-      spriteVelocity = spritesnap->velocity;
-    }
+	if (!sprite_system.IsPlayerSprite(i))
+	{
+		if (sprite.GetHealth() == spritesnap->health)
+		{
+			sprite_system.SetSpritePartsOldPos(i, spritePartsPos);
+			spritePartsPos = spritesnap->pos;
+			spriteVelocity = spritesnap->velocity;
+		}
 
-    sprite.control.mouseaimy = spritesnap->mouseaimy;
-    sprite.control.mouseaimx = spritesnap->mouseaimx;
+		sprite.control.mouseaimy = spritesnap->mouseaimy;
+		sprite.control.mouseaimx = spritesnap->mouseaimx;
 
-    decodekeys(sprite, spritesnap->keys16);
+		decodekeys(sprite, spritesnap->keys16);
 
-    if (sprite.weapon.num != spritesnap->weaponnum)
-    {
-      sprite.applyweaponbynum(spritesnap->weaponnum, 1);
-    }
-    if (sprite.secondaryweapon.num != spritesnap->secondaryweaponnum)
-    {
-      sprite.applyweaponbynum(spritesnap->secondaryweaponnum, 2);
-    }
-    sprite.weapon.ammocount = spritesnap->ammocount;
+		if (sprite.weapon.num != spritesnap->weaponnum)
+		{
+			sprite.applyweaponbynum(spritesnap->weaponnum, 1);
+		}
+		if (sprite.secondaryweapon.num != spritesnap->secondaryweaponnum)
+		{
+			sprite.applyweaponbynum(spritesnap->secondaryweaponnum, 2);
+		}
+		sprite.weapon.ammocount = spritesnap->ammocount;
 
-    if (sprite.weapon.num == knife_num)
-    {
-      sprite.player->secwep = 1;
-    }
-    if (sprite.weapon.num == chainsaw_num)
-    {
-      sprite.player->secwep = 2;
-    }
-    if (sprite.weapon.num == law_num)
-    {
-      sprite.player->secwep = 3;
-    }
+		if (sprite.weapon.num == knife_num)
+		{
+			sprite.player->secwep = 1;
+		}
+		if (sprite.weapon.num == chainsaw_num)
+		{
+			sprite.player->secwep = 2;
+		}
+		if (sprite.weapon.num == law_num)
+		{
+			sprite.player->secwep = 3;
+		}
 
-    // Toggle prone if it was activated or deactivated
-    sprite.control.prone =
-      (spritesnap->position == pos_prone) ^
-      (sprite.position == pos_prone);
-  }
+		// Toggle prone if it was activated or deactivated
+		sprite.control.prone = (spritesnap->position == pos_prone) ^ (sprite.position == pos_prone);
+	}
 
-  // kill the bow
-  if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
-  {
-    for (std::int32_t j = 1; j <= max_things; j++)
-    {
-      if ((things[j].active) && (things[j].style == object_rambo_bow))
-      {
-        gGlobalStateClient.gamethingtarget = 0;
-        things[j].kill();
-      }
-    }
-  }
+	// kill the bow
+	if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
+	{
+		for (std::int32_t j = 1; j <= max_things; j++)
+		{
+			if ((things[j].active) && (things[j].style == object_rambo_bow))
+			{
+				gGlobalStateClient.gamethingtarget = 0;
+				things[j].kill();
+			}
+		}
+	}
 
-  sprite.wearhelmet = 1;
-  if ((spritesnap->look & B1) == B1)
-  {
-    sprite.wearhelmet = 0;
-  }
-  if ((spritesnap->look & B4) == B4)
-  {
-    sprite.wearhelmet = 2;
-  }
-  if ((sprite.bodyanimation.id != AnimationType::Cigar) &&
-      (sprite.bodyanimation.id != AnimationType::Smoke) &&
-      ((sprite.idlerandom != 1) || (sprite.bodyanimation.id != AnimationType::Stand)))
-  {
-    sprite.hascigar = 0;
-    if ((spritesnap->look & B2) == B2)
-    {
-      sprite.hascigar = 5;
-    }
-    if ((spritesnap->look & B3) == B3)
-    {
-      sprite.hascigar = 10;
-    }
-  }
+	sprite.wearhelmet = 1;
+	if ((spritesnap->look & B1) == B1)
+	{
+		sprite.wearhelmet = 0;
+	}
+	if ((spritesnap->look & B4) == B4)
+	{
+		sprite.wearhelmet = 2;
+	}
+	if ((sprite.bodyanimation.id != AnimationType::Cigar) && (sprite.bodyanimation.id != AnimationType::Smoke)
+		&& ((sprite.idlerandom != 1) || (sprite.bodyanimation.id != AnimationType::Stand)))
+	{
+		sprite.hascigar = 0;
+		if ((spritesnap->look & B2) == B2)
+		{
+			sprite.hascigar = 5;
+		}
+		if ((spritesnap->look & B3) == B3)
+		{
+			sprite.hascigar = 10;
+		}
+	}
 
-  sprite.tertiaryweapon.ammocount = spritesnap->grenadecount;
+	sprite.tertiaryweapon.ammocount = spritesnap->grenadecount;
 
-  // LogDebugG("sprite: {} grenade {}", i, spritesnap->grenadecount);
+	// LogDebugG("sprite: {} grenade {}", i, spritesnap->grenadecount);
 
-  sprite.SetHealth(spritesnap->health);
-  sprite.vest = spritesnap->vest;
-  sprite.vest = std::min<float>(sprite.vest, defaultvest);
+	sprite.SetHealth(spritesnap->health);
+	sprite.vest = spritesnap->vest;
+	sprite.vest = std::min<float>(sprite.vest, defaultvest);
 
-  if (sprite_system.IsPlayerSprite(i))
-  {
-    if (!gGlobalStateClient.targetmode)
-    {
-      gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
-      sprite.player->camera = gGlobalStateClient.mysprite;
-    }
-  }
+	if (sprite_system.IsPlayerSprite(i))
+	{
+		if (!gGlobalStateClient.targetmode)
+		{
+			gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
+			sprite.player->camera = gGlobalStateClient.mysprite;
+		}
+	}
 }
 
-void clienthandleserverspritesnapshot_major::Handle(NetworkContext *netmessage)
+void clienthandleserverspritesnapshot_major::Handle(NetworkContext* netmessage)
 {
 
-  auto &sprite_system = SpriteSystem::Get();
-  if (!verifypacket(sizeof(tmsg_serverspritesnapshot_major), netmessage->size,
-                    msgid_serverspritesnapshot_major))
-  {
-    return;
-  }
+	auto& sprite_system = SpriteSystem::Get();
+	if (!verifypacket(sizeof(tmsg_serverspritesnapshot_major), netmessage->size, msgid_serverspritesnapshot_major))
+	{
+		return;
+	}
 
-  auto *spritesnapmajor = reinterpret_cast<pmsg_serverspritesnapshot_major>(netmessage->packet);
+	auto* spritesnapmajor = reinterpret_cast<pmsg_serverspritesnapshot_major>(netmessage->packet);
 
-  // assign received sprite info to sprite
-  std::int32_t const i = spritesnapmajor->num;
+	// assign received sprite info to sprite
+	std::int32_t const i = spritesnapmajor->num;
 
-  if ((i < 1) || (i > max_sprites))
-  {
-    return;
-  }
+	if ((i < 1) || (i > max_sprites))
+	{
+		return;
+	}
 
-  auto &sprite = sprite_system.GetSprite(i);
-  if (!sprite.active)
-  {
-    LogWarn("network", "[ClientSprite] Warning: Received snapshot for inactive player {}", i);
-    return;
-  }
+	auto& sprite = sprite_system.GetSprite(i);
+	if (!sprite.active)
+	{
+		LogWarn("network", "[ClientSprite] Warning: Received snapshot for inactive player {}", i);
+		return;
+	}
 
-  gGlobalStateNetworkClient.clienttickcount = spritesnapmajor->serverticks;
-  gGlobalStateNetworkClient.lastheartbeatcounter = spritesnapmajor->serverticks;
+	gGlobalStateNetworkClient.clienttickcount = spritesnapmajor->serverticks;
+	gGlobalStateNetworkClient.lastheartbeatcounter = spritesnapmajor->serverticks;
 
-  auto &spritePartsPos = sprite_system.GetSpritePartsPos(i);
-  auto &spriteVelocity = sprite_system.GetVelocity(i);
+	auto& spritePartsPos = sprite_system.GetSpritePartsPos(i);
+	auto& spriteVelocity = sprite_system.GetVelocity(i);
 
-  // CLIENT RESPAWN
-  if (sprite.deadmeat)
-  {
-    sprite_system.SetSpritePartsOldPos(i, spritePartsPos);
-    spritePartsPos = spritesnapmajor->pos;
-    spriteVelocity = spritesnapmajor->velocity;
-    sprite.respawn();
-    sprite.olddeadmeat = sprite.deadmeat;
-    spritePartsPos = spritesnapmajor->pos;
-  }
+	// CLIENT RESPAWN
+	if (sprite.deadmeat)
+	{
+		sprite_system.SetSpritePartsOldPos(i, spritePartsPos);
+		spritePartsPos = spritesnapmajor->pos;
+		spriteVelocity = spritesnapmajor->velocity;
+		sprite.respawn();
+		sprite.olddeadmeat = sprite.deadmeat;
+		spritePartsPos = spritesnapmajor->pos;
+	}
 
-  sprite.deadmeat = false;
+	sprite.deadmeat = false;
 
-  if (!sprite_system.IsPlayerSprite(i))
-  {
-    if (sprite.GetHealth() == spritesnapmajor->health)
-    {
-      sprite_system.SetSpritePartsOldPos(i, spritePartsPos);
-      spritePartsPos = spritesnapmajor->pos;
-      spriteVelocity = spritesnapmajor->velocity;
-    }
+	if (!sprite_system.IsPlayerSprite(i))
+	{
+		if (sprite.GetHealth() == spritesnapmajor->health)
+		{
+			sprite_system.SetSpritePartsOldPos(i, spritePartsPos);
+			spritePartsPos = spritesnapmajor->pos;
+			spriteVelocity = spritesnapmajor->velocity;
+		}
 
-    sprite.control.mouseaimy = spritesnapmajor->mouseaimy;
-    sprite.control.mouseaimx = spritesnapmajor->mouseaimx;
+		sprite.control.mouseaimy = spritesnapmajor->mouseaimy;
+		sprite.control.mouseaimx = spritesnapmajor->mouseaimx;
 
-    decodekeys(sprite, spritesnapmajor->keys16);
+		decodekeys(sprite, spritesnapmajor->keys16);
 
-    // Toggle prone if it was activated or deactivated
-    sprite.control.prone =
-      (spritesnapmajor->position == pos_prone) ^
-      (sprite.position == pos_prone);
-  }
+		// Toggle prone if it was activated or deactivated
+		sprite.control.prone = (spritesnapmajor->position == pos_prone) ^ (sprite.position == pos_prone);
+	}
 
-  // kill the bow
-  auto &things = GS::GetThingSystem().GetThings();
-  if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
-  {
-    for (std::int32_t j = 1; j <= max_things; j++)
-    {
-      if ((things[j].active) && (things[j].style == object_rambo_bow))
-      {
-        gGlobalStateClient.gamethingtarget = 0;
-        things[j].kill();
-      }
-    }
-  }
+	// kill the bow
+	auto& things = GS::GetThingSystem().GetThings();
+	if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
+	{
+		for (std::int32_t j = 1; j <= max_things; j++)
+		{
+			if ((things[j].active) && (things[j].style == object_rambo_bow))
+			{
+				gGlobalStateClient.gamethingtarget = 0;
+				things[j].kill();
+			}
+		}
+	}
 
-  sprite.SetHealth(spritesnapmajor->health);
+	sprite.SetHealth(spritesnapmajor->health);
 
-  if (sprite_system.IsPlayerSprite(i))
-  {
-    if (!gGlobalStateClient.targetmode)
-    {
-      gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
-      sprite.player->camera = gGlobalStateClient.mysprite;
-    }
-  }
+	if (sprite_system.IsPlayerSprite(i))
+	{
+		if (!gGlobalStateClient.targetmode)
+		{
+			gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
+			sprite.player->camera = gGlobalStateClient.mysprite;
+		}
+	}
 }
 
-void clienthandleserverskeletonsnapshot::Handle(NetworkContext *netmessage)
+void clienthandleserverskeletonsnapshot::Handle(NetworkContext* netmessage)
 {
 
-  auto &sprite_system = SpriteSystem::Get();
-  if (!verifypacket(sizeof(tmsg_serverskeletonsnapshot), netmessage->size,
-                    msgid_serverskeletonsnapshot))
-  {
-    return;
-  }
+	auto& sprite_system = SpriteSystem::Get();
+	if (!verifypacket(sizeof(tmsg_serverskeletonsnapshot), netmessage->size, msgid_serverskeletonsnapshot))
+	{
+		return;
+	}
 
-  auto *skeletonsnap = reinterpret_cast<pmsg_serverskeletonsnapshot>(netmessage->packet);
+	auto* skeletonsnap = reinterpret_cast<pmsg_serverskeletonsnapshot>(netmessage->packet);
 
-  // assign received Skeleton info to skeleton
-  std::int32_t const i = skeletonsnap->num;
+	// assign received Skeleton info to skeleton
+	std::int32_t const i = skeletonsnap->num;
 
-  if ((i < 1) || (i > max_sprites))
-  {
-    return;
-  }
-  auto &sprite = sprite_system.GetSprite(i);
-  if (!sprite.active)
-  {
-    return;
-  }
+	if ((i < 1) || (i > max_sprites))
+	{
+		return;
+	}
+	auto& sprite = sprite_system.GetSprite(i);
+	if (!sprite.active)
+	{
+		return;
+	}
 
-  auto &guns = GS::GetWeaponSystem().GetGuns();
+	auto& guns = GS::GetWeaponSystem().GetGuns();
 
-  sprite.deadmeat = true;
-  sprite.respawncounter = skeletonsnap->respawncounter;
-  sprite.SetFirstWeapon(guns[noweapon]);
+	sprite.deadmeat = true;
+	sprite.respawncounter = skeletonsnap->respawncounter;
+	sprite.SetFirstWeapon(guns[noweapon]);
 }
 
 void clientspritesnapshot()
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_clientspritesnapshot clientmsg{};
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_clientspritesnapshot clientmsg{};
 
-  clientmsg.header.id = msgid_clientspritesnapshot;
+	clientmsg.header.id = msgid_clientspritesnapshot;
 
-  clientmsg.ammocount = sprite_system.GetPlayerSprite().weapon.ammocount;
-  clientmsg.secondaryammocount = sprite_system.GetPlayerSprite().secondaryweapon.ammocount;
-  clientmsg.weaponnum = sprite_system.GetPlayerSprite().weapon.num;
-  clientmsg.secondaryweaponnum = sprite_system.GetPlayerSprite().secondaryweapon.num;
-  clientmsg.position = sprite_system.GetPlayerSprite().position;
+	clientmsg.ammocount = sprite_system.GetPlayerSprite().weapon.ammocount;
+	clientmsg.secondaryammocount = sprite_system.GetPlayerSprite().secondaryweapon.ammocount;
+	clientmsg.weaponnum = sprite_system.GetPlayerSprite().weapon.num;
+	clientmsg.secondaryweaponnum = sprite_system.GetPlayerSprite().secondaryweapon.num;
+	clientmsg.position = sprite_system.GetPlayerSprite().position;
 
-  if ((clientmsg.ammocount == oldclientsnapshotmsg.ammocount) &&
-      (clientmsg.weaponnum == oldclientsnapshotmsg.weaponnum) &&
-      (clientmsg.secondaryweaponnum == oldclientsnapshotmsg.secondaryweaponnum) &&
-      (clientmsg.position == oldclientsnapshotmsg.position))
-  {
-    return;
-  }
+	if ((clientmsg.ammocount == oldclientsnapshotmsg.ammocount)
+		&& (clientmsg.weaponnum == oldclientsnapshotmsg.weaponnum)
+		&& (clientmsg.secondaryweaponnum == oldclientsnapshotmsg.secondaryweaponnum)
+		&& (clientmsg.position == oldclientsnapshotmsg.position))
+	{
+		return;
+	}
 
-  oldclientsnapshotmsg = clientmsg;
+	oldclientsnapshotmsg = clientmsg;
 
-  gGlobalStateNetworkClient.GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
+	gGlobalStateNetworkClient.GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
 }
 
 // CLIENT SPRITE SNAPSHOT MOV
 void clientspritesnapshotmov()
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_clientspritesnapshot_mov clientmsg;
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_clientspritesnapshot_mov clientmsg;
 
-  clientmsg.header.id = msgid_clientspritesnapshot_mov;
+	clientmsg.header.id = msgid_clientspritesnapshot_mov;
 
-  auto &spritePartsPos = sprite_system.GetSpritePartsPos(gGlobalStateClient.mysprite);
-  auto &spriteVelocity = sprite_system.GetVelocity(gGlobalStateClient.mysprite);
+	auto& spritePartsPos = sprite_system.GetSpritePartsPos(gGlobalStateClient.mysprite);
+	auto& spriteVelocity = sprite_system.GetVelocity(gGlobalStateClient.mysprite);
 
-  clientmsg.pos = spritePartsPos;
-  clientmsg.velocity = spriteVelocity;
-  clientmsg.mouseaimx = sprite_system.GetPlayerSprite().control.mouseaimx;
-  clientmsg.mouseaimy = sprite_system.GetPlayerSprite().control.mouseaimy;
+	clientmsg.pos = spritePartsPos;
+	clientmsg.velocity = spriteVelocity;
+	clientmsg.mouseaimx = sprite_system.GetPlayerSprite().control.mouseaimx;
+	clientmsg.mouseaimy = sprite_system.GetPlayerSprite().control.mouseaimy;
 
-  encodekeys(sprite_system.GetPlayerSprite(), clientmsg.keys16);
+	encodekeys(sprite_system.GetPlayerSprite(), clientmsg.keys16);
 
-  if (sprite_system.GetPlayerSprite().dontdrop)
-  {
-    clientmsg.keys16 = clientmsg.keys16 & ~B9;
-  }
+	if (sprite_system.GetPlayerSprite().dontdrop)
+	{
+		clientmsg.keys16 = clientmsg.keys16 & ~B9;
+	}
 
-  tvector2 const posdiff = vec2subtract(clientmsg.pos, oldclientsnapshotmovmsg.pos);
-  tvector2 const veldiff = vec2subtract(clientmsg.velocity, oldclientsnapshotmovmsg.velocity);
+	tvector2 const posdiff = vec2subtract(clientmsg.pos, oldclientsnapshotmovmsg.pos);
+	tvector2 const veldiff = vec2subtract(clientmsg.velocity, oldclientsnapshotmovmsg.velocity);
 
-  if ((vec2length(posdiff) > posdelta) || (vec2length(veldiff) > veldelta) || (clientmsg.keys16 != oldclientsnapshotmovmsg.keys16) || ((clientmsg.keys16 & B6) == B6) || (((sprite_system.GetPlayerSprite().weapon.fireinterval > fireinterval_net) || (sprite_system.GetPlayerSprite().weapon.ammocount <= 0) || (std::round(gGlobalStateClientGame.mx) != oldclientsnapshotmovmsg.mouseaimx) || (std::round(gGlobalStateClientGame.my) != oldclientsnapshotmovmsg.mouseaimy)) && ((std::fabs(gGlobalStateClientGame.mx - oldclientsnapshotmovmsg.mouseaimx) >= mouseaimdelta) || (std::fabs(gGlobalStateClientGame.my - oldclientsnapshotmovmsg.mouseaimy) >= mouseaimdelta))))
-  {
-    oldclientsnapshotmovmsg = clientmsg;
-	oldclientsnapshotmovmsg.mouseaimx = std::round(gGlobalStateClientGame.mx);
-	oldclientsnapshotmovmsg.mouseaimy = std::round(gGlobalStateClientGame.my);
+	if ((vec2length(posdiff) > posdelta) || (vec2length(veldiff) > veldelta)
+		|| (clientmsg.keys16 != oldclientsnapshotmovmsg.keys16) || ((clientmsg.keys16 & B6) == B6)
+		|| (((sprite_system.GetPlayerSprite().weapon.fireinterval > fireinterval_net)
+				|| (sprite_system.GetPlayerSprite().weapon.ammocount <= 0)
+				|| (std::round(gGlobalStateClientGame.mx) != oldclientsnapshotmovmsg.mouseaimx)
+				|| (std::round(gGlobalStateClientGame.my) != oldclientsnapshotmovmsg.mouseaimy))
+			&& ((std::fabs(gGlobalStateClientGame.mx - oldclientsnapshotmovmsg.mouseaimx) >= mouseaimdelta)
+				|| (std::fabs(gGlobalStateClientGame.my - oldclientsnapshotmovmsg.mouseaimy) >= mouseaimdelta))))
+	{
+		oldclientsnapshotmovmsg = clientmsg;
+		oldclientsnapshotmovmsg.mouseaimx = std::round(gGlobalStateClientGame.mx);
+		oldclientsnapshotmovmsg.mouseaimy = std::round(gGlobalStateClientGame.my);
 
-	gGlobalStateNetworkClient.GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
-  }
+		gGlobalStateNetworkClient.GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
+	}
 }
 
 // CLIENT SPRITE SNAPSHOT DEAD
 void clientspritesnapshotdead()
 {
-  tmsg_clientspritesnapshot_dead clientmsg{};
+	tmsg_clientspritesnapshot_dead clientmsg{};
 
-  clientmsg.header.id = msgid_clientspritesnapshot_dead;
-  clientmsg.camerafocus = gGlobalStateClient.camerafollowsprite;
+	clientmsg.header.id = msgid_clientspritesnapshot_dead;
+	clientmsg.camerafocus = gGlobalStateClient.camerafollowsprite;
 
-  gGlobalStateNetworkClient.GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
+	gGlobalStateNetworkClient.GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
 }
 
 static auto sConvertKillBulletToGFX(const std::uint8_t killbullet) -> std::int32_t
 {
-  switch (killbullet)
-  {
-  case 0:
-    return GFX::INTERFACE_GUNS_SOCOM;
-  case 1:
-    return GFX::INTERFACE_GUNS_DEAGLES;
-  case 2:
-    return GFX::INTERFACE_GUNS_MP5;
-  case 3:
-    return GFX::INTERFACE_GUNS_AK74;
-  case 4:
-    return GFX::INTERFACE_GUNS_STEYR;
-  case 5:
-    return GFX::INTERFACE_GUNS_SPAS;
-  case 6:
-    return GFX::INTERFACE_GUNS_RUGER;
-  case 7:
-    return GFX::INTERFACE_GUNS_M79;
-  case 8:
-    return GFX::INTERFACE_GUNS_BARRETT;
-  case 9:
-    return GFX::INTERFACE_GUNS_MINIMI;
-  case 10:
-    return GFX::INTERFACE_GUNS_MINIGUN;
-  case 205:
-    return GFX::INTERFACE_GUNS_FLAMER;
-  case 206:
-    return GFX::INTERFACE_GUNS_FIST;
-  case 207:
-    return GFX::INTERFACE_GUNS_BOW;
-  case 208:
-    return GFX::INTERFACE_GUNS_BOW;
-  case 210:
-    return GFX::INTERFACE_CLUSTER_NADE;
-  case 211:
-    return GFX::INTERFACE_GUNS_KNIFE;
-  case 212:
-    return GFX::INTERFACE_GUNS_CHAINSAW;
-  case 222:
-    return GFX::INTERFACE_NADE;
-  case 224:
-    return GFX::INTERFACE_GUNS_LAW;
-  case 225:
-    return GFX::INTERFACE_GUNS_M2;
-  default:
-    return -255;
-  }
+	switch (killbullet)
+	{
+		case 0:
+			return GFX::INTERFACE_GUNS_SOCOM;
+		case 1:
+			return GFX::INTERFACE_GUNS_DEAGLES;
+		case 2:
+			return GFX::INTERFACE_GUNS_MP5;
+		case 3:
+			return GFX::INTERFACE_GUNS_AK74;
+		case 4:
+			return GFX::INTERFACE_GUNS_STEYR;
+		case 5:
+			return GFX::INTERFACE_GUNS_SPAS;
+		case 6:
+			return GFX::INTERFACE_GUNS_RUGER;
+		case 7:
+			return GFX::INTERFACE_GUNS_M79;
+		case 8:
+			return GFX::INTERFACE_GUNS_BARRETT;
+		case 9:
+			return GFX::INTERFACE_GUNS_MINIMI;
+		case 10:
+			return GFX::INTERFACE_GUNS_MINIGUN;
+		case 205:
+			return GFX::INTERFACE_GUNS_FLAMER;
+		case 206:
+			return GFX::INTERFACE_GUNS_FIST;
+		case 207:
+			return GFX::INTERFACE_GUNS_BOW;
+		case 208:
+			return GFX::INTERFACE_GUNS_BOW;
+		case 210:
+			return GFX::INTERFACE_CLUSTER_NADE;
+		case 211:
+			return GFX::INTERFACE_GUNS_KNIFE;
+		case 212:
+			return GFX::INTERFACE_GUNS_CHAINSAW;
+		case 222:
+			return GFX::INTERFACE_NADE;
+		case 224:
+			return GFX::INTERFACE_GUNS_LAW;
+		case 225:
+			return GFX::INTERFACE_GUNS_M2;
+		default:
+			return -255;
+	}
 }
 
-template<Config::Module M>
-static void sFillPos(Sprite<M> &sprite, const tmsg_spritedeath *deathsnap)
+template <Config::Module M>
+static void sFillPos(Sprite<M>& sprite, const tmsg_spritedeath* deathsnap)
 {
-  for (std::int32_t d = 0; d < 16; d++)
-  {
-    const auto &pos = deathsnap->pos[d];
-    const auto &oldPos = deathsnap->oldpos[d];
-    if ((round(pos.x) != 0) && (round(pos.y) != 0) && (round(oldPos.x) != 0) &&
-        (round(oldPos.y) != 0))
-    {
-      sprite.skeleton.SetPos(d, pos);
-      sprite.skeleton.SetOldPos(d, oldPos);
+	for (std::int32_t d = 0; d < 16; d++)
+	{
+		const auto& pos = deathsnap->pos[d];
+		const auto& oldPos = deathsnap->oldpos[d];
+		if ((round(pos.x) != 0) && (round(pos.y) != 0) && (round(oldPos.x) != 0) && (round(oldPos.y) != 0))
+		{
+			sprite.skeleton.SetPos(d, pos);
+			sprite.skeleton.SetOldPos(d, oldPos);
 
-      if (d == 0)
-      {
-        sprite.skeleton.SetPos(16, pos);
-        sprite.skeleton.SetOldPos(16, oldPos);
-      }
-      if (d == 1)
-      {
-        sprite.skeleton.SetPos(17, pos);
-        sprite.skeleton.SetOldPos(17, oldPos);
-      }
-      if (d == 14)
-      {
-        sprite.skeleton.SetPos(18, pos);
-        sprite.skeleton.SetOldPos(18, oldPos);
-      }
-      if (d == 15)
-      {
-        sprite.skeleton.SetPos(19, pos);
-        sprite.skeleton.SetOldPos(19, oldPos);
-      }
-    }
-  }
+			if (d == 0)
+			{
+				sprite.skeleton.SetPos(16, pos);
+				sprite.skeleton.SetOldPos(16, oldPos);
+			}
+			if (d == 1)
+			{
+				sprite.skeleton.SetPos(17, pos);
+				sprite.skeleton.SetOldPos(17, oldPos);
+			}
+			if (d == 14)
+			{
+				sprite.skeleton.SetPos(18, pos);
+				sprite.skeleton.SetOldPos(18, oldPos);
+			}
+			if (d == 15)
+			{
+				sprite.skeleton.SetPos(19, pos);
+				sprite.skeleton.SetOldPos(19, oldPos);
+			}
+		}
+	}
 }
 
-void clienthandlespritedeath::Handle(NetworkContext *netmessage)
+void clienthandlespritedeath::Handle(NetworkContext* netmessage)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t j = 0;
-  tvector2 b;
+	auto& sprite_system = SpriteSystem::Get();
+	std::int32_t j = 0;
+	tvector2 b;
 
-  auto &map = GS::GetGame().GetMap();
+	auto& map = GS::GetGame().GetMap();
 
-  if (!verifypacket(sizeof(tmsg_spritedeath), netmessage->size, msgid_spritedeath))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_spritedeath), netmessage->size, msgid_spritedeath))
+	{
+		return;
+	}
 
-  auto *deathsnap = reinterpret_cast<pmsg_spritedeath>(netmessage->packet);
+	auto* deathsnap = reinterpret_cast<pmsg_spritedeath>(netmessage->packet);
 
-  const std::int32_t i = deathsnap->num;
+	const std::int32_t i = deathsnap->num;
 
-  if ((i < 1) || (i > max_sprites))
-  {
-    return;
-  }
-  auto &sprite = sprite_system.GetSprite(i);
-  if (!sprite.active)
-  {
-    return;
-  }
+	if ((i < 1) || (i > max_sprites))
+	{
+		return;
+	}
+	auto& sprite = sprite_system.GetSprite(i);
+	if (!sprite.active)
+	{
+		return;
+	}
 
-  sFillPos(sprite, deathsnap);
+	sFillPos(sprite, deathsnap);
 
-  b.x = 0;
-  b.y = 0;
-  sprite.SetHealth(deathsnap->health);
+	b.x = 0;
+	b.y = 0;
+	sprite.SetHealth(deathsnap->health);
 
-  // death!
-  if ((sprite.GetHealth() < 1) && (sprite.GetHealth() > headchopdeathhealth))
-  {
-    sprite.die(normal_death, deathsnap->killer, deathsnap->where, deathsnap->killbullet, b);
-  }
-  else if ((sprite.GetHealth() < (headchopdeathhealth + 1)) &&
-           (sprite.GetHealth() > brutaldeathhealth))
-  {
-    sprite.die(headchop_death, deathsnap->killer, deathsnap->where, deathsnap->killbullet, b);
-  }
-  else if (sprite.GetHealth() < (brutaldeathhealth + 1))
-  {
-    sprite.die(brutal_death, deathsnap->killer, deathsnap->where, deathsnap->killbullet, b);
-  }
+	// death!
+	if ((sprite.GetHealth() < 1) && (sprite.GetHealth() > headchopdeathhealth))
+	{
+		sprite.die(normal_death, deathsnap->killer, deathsnap->where, deathsnap->killbullet, b);
+	}
+	else if ((sprite.GetHealth() < (headchopdeathhealth + 1)) && (sprite.GetHealth() > brutaldeathhealth))
+	{
+		sprite.die(headchop_death, deathsnap->killer, deathsnap->where, deathsnap->killbullet, b);
+	}
+	else if (sprite.GetHealth() < (brutaldeathhealth + 1))
+	{
+		sprite.die(brutal_death, deathsnap->killer, deathsnap->where, deathsnap->killbullet, b);
+	}
 
-  sprite.skeleton.constraints[2].active = true;
-  sprite.skeleton.constraints[4].active = true;
-  sprite.skeleton.constraints[20].active = true;
-  sprite.skeleton.constraints[21].active = true;
-  sprite.skeleton.constraints[23].active = true;
-  if ((deathsnap->constraints & B1) == B1)
-  {
-    sprite.skeleton.constraints[2].active = false;
-  }
-  if ((deathsnap->constraints & B2) == B2)
-  {
-    sprite.skeleton.constraints[4].active = false;
-  }
-  if ((deathsnap->constraints & B3) == B3)
-  {
-    sprite.skeleton.constraints[20].active = false;
-  }
-  if ((deathsnap->constraints & B4) == B4)
-  {
-    sprite.skeleton.constraints[21].active = false;
-  }
-  if ((deathsnap->constraints & B5) == B5)
-  {
-    sprite.skeleton.constraints[23].active = false;
-  }
+	sprite.skeleton.constraints[2].active = true;
+	sprite.skeleton.constraints[4].active = true;
+	sprite.skeleton.constraints[20].active = true;
+	sprite.skeleton.constraints[21].active = true;
+	sprite.skeleton.constraints[23].active = true;
+	if ((deathsnap->constraints & B1) == B1)
+	{
+		sprite.skeleton.constraints[2].active = false;
+	}
+	if ((deathsnap->constraints & B2) == B2)
+	{
+		sprite.skeleton.constraints[4].active = false;
+	}
+	if ((deathsnap->constraints & B3) == B3)
+	{
+		sprite.skeleton.constraints[20].active = false;
+	}
+	if ((deathsnap->constraints & B4) == B4)
+	{
+		sprite.skeleton.constraints[21].active = false;
+	}
+	if ((deathsnap->constraints & B5) == B5)
+	{
+		sprite.skeleton.constraints[23].active = false;
+	}
 
-  auto &guns = GS::GetWeaponSystem().GetGuns();
+	auto& guns = GS::GetWeaponSystem().GetGuns();
 
-  sprite.SetFirstWeapon(guns[noweapon]);
-  sprite.respawncounter = deathsnap->respawncounter;
-  sprite.onfire = deathsnap->onfire;
+	sprite.SetFirstWeapon(guns[noweapon]);
+	sprite.respawncounter = deathsnap->respawncounter;
+	sprite.onfire = deathsnap->onfire;
 
-  // mulitkill count
-  if (std::cmp_not_equal(deathsnap->killer, i))
-  {
-    sprite_system.GetSprite(deathsnap->killer).multikilltime = multikillinterval;
-    sprite_system.GetSprite(deathsnap->killer).multikills += 1;
-  }
+	// mulitkill count
+	if (std::cmp_not_equal(deathsnap->killer, i))
+	{
+		sprite_system.GetSprite(deathsnap->killer).multikilltime = multikillinterval;
+		sprite_system.GetSprite(deathsnap->killer).multikills += 1;
+	}
 
-  if (sprite_system.IsPlayerSprite(i))
-  {
-    gGlobalStateClientGame.bigmessage(
-      wideformat(_("Killed by {}"), sprite_system.GetSprite(deathsnap->killer).player->name),
-      killmessagewait, die_message_color);
-    if (!gGlobalStateClient.limbolock)
-    {
-      gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu);
-    }
-    gGlobalStateClientGame.menutimer = menu_time;
-    gGlobalStateSound.playsound(SfxEffect::playerdeath);
-  }
+	if (sprite_system.IsPlayerSprite(i))
+	{
+		gGlobalStateClientGame.bigmessage(
+			wideformat(_("Killed by {}"), sprite_system.GetSprite(deathsnap->killer).player->name),
+			killmessagewait,
+			die_message_color);
+		if (!gGlobalStateClient.limbolock)
+		{
+			gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu);
+		}
+		gGlobalStateClientGame.menutimer = menu_time;
+		gGlobalStateSound.playsound(SfxEffect::playerdeath);
+	}
 
-  if (sprite_system.IsPlayerSprite(deathsnap->killer))
-  {
-    gGlobalStateClientGame.bigmessage(wideformat(_("You killed {}"), sprite.player->name),
-                                      killmessagewait, kill_message_color);
+	if (sprite_system.IsPlayerSprite(deathsnap->killer))
+	{
+		gGlobalStateClientGame.bigmessage(
+			wideformat(_("You killed {}"), sprite.player->name), killmessagewait, kill_message_color);
 
-    if ((sprite_system.GetSprite(deathsnap->killer).multikills > 1) &&
-        (sprite_system.GetSprite(deathsnap->killer).multikills < 18))
-    {
-      gGlobalStateClientGame.bigmessage(
-        multikillmessage[sprite_system.GetSprite(deathsnap->killer).multikills], killmessagewait,
-        kill_message_color);
-    }
-    if (sprite_system.GetSprite(deathsnap->killer).multikills > 17)
-    {
-      gGlobalStateClientGame.bigmessage(multikillmessage[9], killmessagewait, kill_message_color);
-    }
+		if ((sprite_system.GetSprite(deathsnap->killer).multikills > 1)
+			&& (sprite_system.GetSprite(deathsnap->killer).multikills < 18))
+		{
+			gGlobalStateClientGame.bigmessage(multikillmessage[sprite_system.GetSprite(deathsnap->killer).multikills],
+				killmessagewait,
+				kill_message_color);
+		}
+		if (sprite_system.GetSprite(deathsnap->killer).multikills > 17)
+		{
+			gGlobalStateClientGame.bigmessage(multikillmessage[9], killmessagewait, kill_message_color);
+		}
 
-    if ((gGlobalStateClient.shotdistance > -1) && (std::cmp_not_equal(deathsnap->killer, i)))
-    {
-      gGlobalStateClient.shotdistanceshow = killmessagewait - 30;
-      gGlobalStateClient.shotdistance = deathsnap->shotdistance;
-      gGlobalStateClient.shotricochet = deathsnap->shotricochet;
-      gGlobalStateClient.shotlife = deathsnap->shotlife;
-    }
-  }
+		if ((gGlobalStateClient.shotdistance > -1) && (std::cmp_not_equal(deathsnap->killer, i)))
+		{
+			gGlobalStateClient.shotdistanceshow = killmessagewait - 30;
+			gGlobalStateClient.shotdistance = deathsnap->shotdistance;
+			gGlobalStateClient.shotricochet = deathsnap->shotricochet;
+			gGlobalStateClient.shotlife = deathsnap->shotlife;
+		}
+	}
 
-  if ((sprite_system.IsPlayerSprite(deathsnap->killer)) && (sprite_system.IsPlayerSprite(i)))
-  {
-    gGlobalStateClientGame.bigmessage(_("You killed yourself"), killmessagewait, die_message_color);
-  }
+	if ((sprite_system.IsPlayerSprite(deathsnap->killer)) && (sprite_system.IsPlayerSprite(i)))
+	{
+		gGlobalStateClientGame.bigmessage(_("You killed yourself"), killmessagewait, die_message_color);
+	}
 
-  // This k seems to go to the rendering code through KillConsole.NumMessage,
-  // where it was used as IntTexture[11 + k] basically, so I'm replacing with
-  // texture constants instead, without that 11 offset.
-  // Similar code can be found in TSprite.Die (Sprites.pas)
+	// This k seems to go to the rendering code through KillConsole.NumMessage,
+	// where it was used as IntTexture[11 + k] basically, so I'm replacing with
+	// texture constants instead, without that 11 offset.
+	// Similar code can be found in TSprite.Die (Sprites.pas)
 
-  const std::int32_t k = sConvertKillBulletToGFX(deathsnap->killbullet);
+	const std::int32_t k = sConvertKillBulletToGFX(deathsnap->killbullet);
 
-  std::uint32_t col = 0;
-  std::uint32_t col2 = 0;
-  switch (sprite_system.GetSprite(deathsnap->killer).player->team)
-  {
-  case team_none:
-    col = killer_message_color;
-    break;
-  case team_alpha:
-    col = alpha_k_message_color;
-    break;
-  case team_bravo:
-    col = bravo_k_message_color;
-    break;
-  case team_charlie:
-    col = charlie_k_message_color;
-    break;
-  case team_delta:
-    col = delta_k_message_color;
-    break;
-  }
-  switch (sprite.player->team)
-  {
-  case team_none:
-    col2 = death_message_color;
-    break;
-  case team_alpha:
-    col2 = alpha_d_message_color;
-    break;
-  case team_bravo:
-    col2 = bravo_d_message_color;
-    break;
-  case team_charlie:
-    col2 = charlie_d_message_color;
-    break;
-  case team_delta:
-    col2 = delta_d_message_color;
-    break;
-  }
+	std::uint32_t col = 0;
+	std::uint32_t col2 = 0;
+	switch (sprite_system.GetSprite(deathsnap->killer).player->team)
+	{
+		case team_none:
+			col = killer_message_color;
+			break;
+		case team_alpha:
+			col = alpha_k_message_color;
+			break;
+		case team_bravo:
+			col = bravo_k_message_color;
+			break;
+		case team_charlie:
+			col = charlie_k_message_color;
+			break;
+		case team_delta:
+			col = delta_k_message_color;
+			break;
+	}
+	switch (sprite.player->team)
+	{
+		case team_none:
+			col2 = death_message_color;
+			break;
+		case team_alpha:
+			col2 = alpha_d_message_color;
+			break;
+		case team_bravo:
+			col2 = bravo_d_message_color;
+			break;
+		case team_charlie:
+			col2 = charlie_d_message_color;
+			break;
+		case team_delta:
+			col2 = delta_d_message_color;
+			break;
+	}
 
-  if (std::cmp_not_equal(deathsnap->killer, i))
-  {
-    gGlobalStateClient.GetKillConsole().ConsoleAdd(
-      (sprite_system.GetSprite(deathsnap->killer).player->name) + " (" +
-        (inttostr(sprite_system.GetSprite(deathsnap->killer).player->kills)) + ')',
-      col, k);
-    gGlobalStateClient.GetKillConsole().ConsoleAdd((sprite.player->name), col2, -255);
-  }
-  else
-  {
-    gGlobalStateClient.GetKillConsole().ConsoleAdd(
-      (sprite_system.GetSprite(deathsnap->killer).player->name) + " (" +
-        (inttostr(sprite_system.GetSprite(deathsnap->killer).player->kills)) + ')',
-      spectator_d_message_color, k);
-  }
-  auto &bullet = GS::GetBulletSystem().GetBullets();
+	if (std::cmp_not_equal(deathsnap->killer, i))
+	{
+		gGlobalStateClient.GetKillConsole().ConsoleAdd(
+			(sprite_system.GetSprite(deathsnap->killer).player->name) + " ("
+				+ (inttostr(sprite_system.GetSprite(deathsnap->killer).player->kills)) + ')',
+			col,
+			k);
+		gGlobalStateClient.GetKillConsole().ConsoleAdd((sprite.player->name), col2, -255);
+	}
+	else
+	{
+		gGlobalStateClient.GetKillConsole().ConsoleAdd(
+			(sprite_system.GetSprite(deathsnap->killer).player->name) + " ("
+				+ (inttostr(sprite_system.GetSprite(deathsnap->killer).player->kills)) + ')',
+			spectator_d_message_color,
+			k);
+	}
+	auto& bullet = GS::GetBulletSystem().GetBullets();
 
-  // Explode - lag compensate
-  if (deathsnap->killbullet == 7) // M79
-  {
-    for (j = max_bullets; j >= 1; j--)
-    {
-      auto &b = bullet[j];
-      if ((b.active) && (b.owner == deathsnap->killer) && (b.style == guns[m79].bulletstyle))
-      {
-        GetBulletParts().oldpos[j] = sprite.skeleton.pos[8];
-        GetBulletParts().pos[j] = sprite.skeleton.pos[8];
-        b.hit(3);
-        b.kill();
-        break;
-      }
-    }
-  }
+	// Explode - lag compensate
+	if (deathsnap->killbullet == 7) // M79
+	{
+		for (j = max_bullets; j >= 1; j--)
+		{
+			auto& b = bullet[j];
+			if ((b.active) && (b.owner == deathsnap->killer) && (b.style == guns[m79].bulletstyle))
+			{
+				GetBulletParts().oldpos[j] = sprite.skeleton.pos[8];
+				GetBulletParts().pos[j] = sprite.skeleton.pos[8];
+				b.hit(3);
+				b.kill();
+				break;
+			}
+		}
+	}
 
-  if (deathsnap->killbullet == 224) /*LAW*/
-  {
-    for (j = max_bullets; j >= 1; j--)
-    {
-      auto &b = bullet[j];
-      if ((b.active) && (b.owner == deathsnap->killer) && (b.style == guns[law].bulletstyle))
-      {
-        GetBulletParts().oldpos[j] = sprite.skeleton.pos[8];
-        GetBulletParts().pos[j] = sprite.skeleton.pos[8];
-        b.hit(3);
-        b.kill();
-        break;
-      }
-    }
-  }
+	if (deathsnap->killbullet == 224) /*LAW*/
+	{
+		for (j = max_bullets; j >= 1; j--)
+		{
+			auto& b = bullet[j];
+			if ((b.active) && (b.owner == deathsnap->killer) && (b.style == guns[law].bulletstyle))
+			{
+				GetBulletParts().oldpos[j] = sprite.skeleton.pos[8];
+				GetBulletParts().pos[j] = sprite.skeleton.pos[8];
+				b.hit(3);
+				b.kill();
+				break;
+			}
+		}
+	}
 
-  auto &spritePartsPos = sprite_system.GetSpritePartsPos(i);
-  if (deathsnap->killbullet == 222) /*grenade*/
-  {
-    float hm = 0.0;
-    for (j = max_bullets; j >= 1; j--)
-    {
-      auto &b = bullet[j];
-      if ((b.active) && (b.owner == deathsnap->killer) &&
-          (b.style == guns[fraggrenade].bulletstyle))
-      {
-        map.raycast(GetBulletParts().pos[j], sprite.skeleton.pos[8], hm, 351);
-        if (hm < after_explosion_radius)
-        {
-          GetBulletParts().oldpos[j] = spritePartsPos;
-          GetBulletParts().pos[j] = spritePartsPos;
-          b.hit(4);
-          b.kill();
-        }
-      }
-    }
-  }
+	auto& spritePartsPos = sprite_system.GetSpritePartsPos(i);
+	if (deathsnap->killbullet == 222) /*grenade*/
+	{
+		float hm = 0.0;
+		for (j = max_bullets; j >= 1; j--)
+		{
+			auto& b = bullet[j];
+			if ((b.active) && (b.owner == deathsnap->killer) && (b.style == guns[fraggrenade].bulletstyle))
+			{
+				map.raycast(GetBulletParts().pos[j], sprite.skeleton.pos[8], hm, 351);
+				if (hm < after_explosion_radius)
+				{
+					GetBulletParts().oldpos[j] = spritePartsPos;
+					GetBulletParts().pos[j] = spritePartsPos;
+					b.hit(4);
+					b.kill();
+				}
+			}
+		}
+	}
 }
 
-void clienthandledelta_movement::Handle(NetworkContext *netmessage)
+void clienthandledelta_movement::Handle(NetworkContext* netmessage)
 {
-  // a: TVector2;
+	// a: TVector2;
 
-  auto &sprite_system = SpriteSystem::Get();
-  if (!verifypacket(sizeof(tmsg_serverspritedelta_movement), netmessage->size,
-                    msgid_delta_movement))
-  {
-    return;
-  }
+	auto& sprite_system = SpriteSystem::Get();
+	if (!verifypacket(sizeof(tmsg_serverspritedelta_movement), netmessage->size, msgid_delta_movement))
+	{
+		return;
+	}
 
-  auto *deltamov = reinterpret_cast<pmsg_serverspritedelta_movement>(netmessage->packet);
+	auto* deltamov = reinterpret_cast<pmsg_serverspritedelta_movement>(netmessage->packet);
 
-  // Older than Heartbeat Drop the Packet
-  if (!gGlobalStateDemo.demoplayer.active() &&
-      (deltamov->servertick < gGlobalStateNetworkClient.lastheartbeatcounter))
-  {
-    return;
-  }
-  std::int32_t const i = deltamov->num;
+	// Older than Heartbeat Drop the Packet
+	if (!gGlobalStateDemo.demoplayer.active()
+		&& (deltamov->servertick < gGlobalStateNetworkClient.lastheartbeatcounter))
+	{
+		return;
+	}
+	std::int32_t const i = deltamov->num;
 
-  if ((i < 1) || (i > max_sprites))
-  {
-    return;
-  }
+	if ((i < 1) || (i > max_sprites))
+	{
+		return;
+	}
 
-  auto &sprite = sprite_system.GetSprite(i);
-  if (!sprite.active)
-  {
-    return;
-  }
+	auto& sprite = sprite_system.GetSprite(i);
+	if (!sprite.active)
+	{
+		return;
+	}
 
-  auto &spritePartsPos = sprite_system.GetSpritePartsPos(i);
-  auto &spriteVelocity = sprite_system.GetVelocity(i);
-  spritePartsPos = deltamov->pos;
-  spriteVelocity = deltamov->velocity;
+	auto& spritePartsPos = sprite_system.GetSpritePartsPos(i);
+	auto& spriteVelocity = sprite_system.GetVelocity(i);
+	spritePartsPos = deltamov->pos;
+	spriteVelocity = deltamov->velocity;
 
-  sprite.control.mouseaimy = deltamov->mouseaimy;
-  sprite.control.mouseaimx = deltamov->mouseaimx;
+	sprite.control.mouseaimy = deltamov->mouseaimy;
+	sprite.control.mouseaimx = deltamov->mouseaimx;
 
-  decodekeys(sprite, deltamov->keys16);
+	decodekeys(sprite, deltamov->keys16);
 }
 
-void clienthandledelta_mouseaim::Handle(NetworkContext *netmessage)
+void clienthandledelta_mouseaim::Handle(NetworkContext* netmessage)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_serverspritedelta_mouseaim *deltamouse = nullptr;
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_serverspritedelta_mouseaim* deltamouse = nullptr;
 
-  if (!verifypacket(sizeof(tmsg_serverspritedelta_mouseaim), netmessage->size,
-                    msgid_delta_mouseaim))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_serverspritedelta_mouseaim), netmessage->size, msgid_delta_mouseaim))
+	{
+		return;
+	}
 
-  deltamouse = reinterpret_cast<pmsg_serverspritedelta_mouseaim>(netmessage->packet);
+	deltamouse = reinterpret_cast<pmsg_serverspritedelta_mouseaim>(netmessage->packet);
 
-  std::int32_t const i = deltamouse->num;
-  if ((i < 1) || (i > max_sprites))
-  {
-    return;
-  }
+	std::int32_t const i = deltamouse->num;
+	if ((i < 1) || (i > max_sprites))
+	{
+		return;
+	}
 
-  auto &sprite = sprite_system.GetSprite(i);
-  if (!sprite.active)
-  {
-    return;
-  }
+	auto& sprite = sprite_system.GetSprite(i);
+	if (!sprite.active)
+	{
+		return;
+	}
 
-  sprite.control.mouseaimy = deltamouse->mouseaimy;
-  sprite.control.mouseaimx = deltamouse->mouseaimx;
+	sprite.control.mouseaimy = deltamouse->mouseaimy;
+	sprite.control.mouseaimx = deltamouse->mouseaimx;
 
-  if (sprite.position == pos_prone)
-  {
-    sprite.bodyapplyanimation(AnimationType::Prone, 1);
-  }
-  else
-  {
-    sprite.bodyapplyanimation(AnimationType::Aim, 1);
-  }
+	if (sprite.position == pos_prone)
+	{
+		sprite.bodyapplyanimation(AnimationType::Prone, 1);
+	}
+	else
+	{
+		sprite.bodyapplyanimation(AnimationType::Aim, 1);
+	}
 
-  sprite.weapon.fireintervalprev = 0;
-  sprite.weapon.fireintervalcount = 0;
+	sprite.weapon.fireintervalprev = 0;
+	sprite.weapon.fireintervalcount = 0;
 }
 
-void clienthandledelta_weapons::Handle(NetworkContext *netmessage)
+void clienthandledelta_weapons::Handle(NetworkContext* netmessage)
 {
 
-  auto &sprite_system = SpriteSystem::Get();
-  if (!verifypacket(sizeof(tmsg_serverspritedelta_weapons), netmessage->size, msgid_delta_weapons))
-  {
-    return;
-  }
+	auto& sprite_system = SpriteSystem::Get();
+	if (!verifypacket(sizeof(tmsg_serverspritedelta_weapons), netmessage->size, msgid_delta_weapons))
+	{
+		return;
+	}
 
-  std::int32_t const i = reinterpret_cast<pmsg_serverspritedelta_weapons>(netmessage->packet)->num;
+	std::int32_t const i = reinterpret_cast<pmsg_serverspritedelta_weapons>(netmessage->packet)->num;
 
-  if ((i < 1) || (i > max_sprites))
-  {
-    return;
-  }
-  auto &sprite = sprite_system.GetSprite(i);
-  if (!sprite.active)
-  {
-    return;
-  }
+	if ((i < 1) || (i > max_sprites))
+	{
+		return;
+	}
+	auto& sprite = sprite_system.GetSprite(i);
+	if (!sprite.active)
+	{
+		return;
+	}
 
-  sprite.applyweaponbynum(
-    reinterpret_cast<pmsg_serverspritedelta_weapons>(netmessage->packet)->weaponnum, 1);
-  sprite.applyweaponbynum(
-    reinterpret_cast<pmsg_serverspritedelta_weapons>(netmessage->packet)->secondaryweaponnum, 2);
-  sprite.weapon.ammocount =
-    reinterpret_cast<pmsg_serverspritedelta_weapons>(netmessage->packet)->ammocount;
+	sprite.applyweaponbynum(reinterpret_cast<pmsg_serverspritedelta_weapons>(netmessage->packet)->weaponnum, 1);
+	sprite.applyweaponbynum(
+		reinterpret_cast<pmsg_serverspritedelta_weapons>(netmessage->packet)->secondaryweaponnum, 2);
+	sprite.weapon.ammocount = reinterpret_cast<pmsg_serverspritedelta_weapons>(netmessage->packet)->ammocount;
 
-  if ((sprite_system.IsPlayerSprite(i)) && !sprite_system.GetPlayerSprite().deadmeat)
-  {
-    clientspritesnapshot();
-  }
+	if ((sprite_system.IsPlayerSprite(i)) && !sprite_system.GetPlayerSprite().deadmeat)
+	{
+		clientspritesnapshot();
+	}
 }
 
-void clienthandledelta_helmet::Handle(NetworkContext *netmessage)
+void clienthandledelta_helmet::Handle(NetworkContext* netmessage)
 {
 
-  auto &sprite_system = SpriteSystem::Get();
-  if (!verifypacket(sizeof(tmsg_serverspritedelta_helmet), netmessage->size, msgid_delta_helmet))
-  {
-    return;
-  }
+	auto& sprite_system = SpriteSystem::Get();
+	if (!verifypacket(sizeof(tmsg_serverspritedelta_helmet), netmessage->size, msgid_delta_helmet))
+	{
+		return;
+	}
 
-  auto *deltahelmet = reinterpret_cast<pmsg_serverspritedelta_helmet>(netmessage->packet);
+	auto* deltahelmet = reinterpret_cast<pmsg_serverspritedelta_helmet>(netmessage->packet);
 
-  std::int32_t const i = deltahelmet->num;
+	std::int32_t const i = deltahelmet->num;
 
-  if ((i < 1) || (i > max_sprites))
-  {
-    return;
-  }
-  auto &sprite = sprite_system.GetSprite(i);
-  if (!sprite.active)
-  {
-    return;
-  }
+	if ((i < 1) || (i > max_sprites))
+	{
+		return;
+	}
+	auto& sprite = sprite_system.GetSprite(i);
+	if (!sprite.active)
+	{
+		return;
+	}
 
-  auto &spriteVelocity = sprite_system.GetVelocity(i);
+	auto& spriteVelocity = sprite_system.GetVelocity(i);
 
-  // helmet chop
-  if (deltahelmet->wearhelmet == 0)
-  {
-    gGlobalStateSparks.createspark(sprite.skeleton.pos[12], spriteVelocity, 6, i, 198);
-    gGlobalStateSound.playsound(SfxEffect::headchop, sprite.skeleton.pos[12]);
-  }
+	// helmet chop
+	if (deltahelmet->wearhelmet == 0)
+	{
+		gGlobalStateSparks.createspark(sprite.skeleton.pos[12], spriteVelocity, 6, i, 198);
+		gGlobalStateSound.playsound(SfxEffect::headchop, sprite.skeleton.pos[12]);
+	}
 
-  sprite.wearhelmet = deltahelmet->wearhelmet;
+	sprite.wearhelmet = deltahelmet->wearhelmet;
 }
 
-void clienthandleclientspritesnapshot_dead::Handle(NetworkContext *netmessage)
+void clienthandleclientspritesnapshot_dead::Handle(NetworkContext* netmessage)
 {
-  if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), netmessage->size,
-                    msgid_clientspritesnapshot_dead))
-  {
-    return;
-  }
-  if (gGlobalStateClient.freecam == 0)
-  {
-    gGlobalStateClient.camerafollowsprite =
-      reinterpret_cast<pmsg_clientspritesnapshot_dead>(netmessage->packet)->camerafocus;
-  }
+	if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), netmessage->size, msgid_clientspritesnapshot_dead))
+	{
+		return;
+	}
+	if (gGlobalStateClient.freecam == 0)
+	{
+		gGlobalStateClient.camerafollowsprite =
+			reinterpret_cast<pmsg_clientspritesnapshot_dead>(netmessage->packet)->camerafocus;
+	}
 }
 
 // TESTS
@@ -898,213 +892,213 @@ void clienthandleclientspritesnapshot_dead::Handle(NetworkContext *netmessage)
 
 TEST_SUITE("NetworkClientSprite")
 {
-  TEST_CASE("Convert kill bullet to SOCOM")
-  {
-    tmsg_spritedeath deathsnap;
-    deathsnap.killbullet = 0;
-    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
-    CHECK(k == GFX::INTERFACE_GUNS_SOCOM);
-  }
+	TEST_CASE("Convert kill bullet to SOCOM")
+	{
+		tmsg_spritedeath deathsnap;
+		deathsnap.killbullet = 0;
+		const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+		CHECK(k == GFX::INTERFACE_GUNS_SOCOM);
+	}
 
-  TEST_CASE("Convert kill bullet to DEAGLES")
-  {
-    tmsg_spritedeath deathsnap;
-    deathsnap.killbullet = 5;
-    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
-    CHECK(k == GFX::INTERFACE_GUNS_DEAGLES + 4);
-  }
+	TEST_CASE("Convert kill bullet to DEAGLES")
+	{
+		tmsg_spritedeath deathsnap;
+		deathsnap.killbullet = 5;
+		const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+		CHECK(k == GFX::INTERFACE_GUNS_DEAGLES + 4);
+	}
 
-  TEST_CASE("Convert kill bullet to FLAMER")
-  {
-    tmsg_spritedeath deathsnap;
-    deathsnap.killbullet = 205;
-    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
-    CHECK(k == GFX::INTERFACE_GUNS_FLAMER);
-  }
+	TEST_CASE("Convert kill bullet to FLAMER")
+	{
+		tmsg_spritedeath deathsnap;
+		deathsnap.killbullet = 205;
+		const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+		CHECK(k == GFX::INTERFACE_GUNS_FLAMER);
+	}
 
-  TEST_CASE("Convert kill bullet to FIST")
-  {
-    tmsg_spritedeath deathsnap;
-    deathsnap.killbullet = 206;
-    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
-    CHECK(k == GFX::INTERFACE_GUNS_FIST);
-  }
+	TEST_CASE("Convert kill bullet to FIST")
+	{
+		tmsg_spritedeath deathsnap;
+		deathsnap.killbullet = 206;
+		const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+		CHECK(k == GFX::INTERFACE_GUNS_FIST);
+	}
 
-  TEST_CASE("Convert kill bullet to BOW")
-  {
-    tmsg_spritedeath deathsnap;
-    deathsnap.killbullet = 207;
-    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
-    CHECK(k == GFX::INTERFACE_GUNS_BOW);
-  }
+	TEST_CASE("Convert kill bullet to BOW")
+	{
+		tmsg_spritedeath deathsnap;
+		deathsnap.killbullet = 207;
+		const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+		CHECK(k == GFX::INTERFACE_GUNS_BOW);
+	}
 
-  TEST_CASE("Convert kill bullet to CLUSTER_NADE")
-  {
-    tmsg_spritedeath deathsnap;
-    deathsnap.killbullet = 210;
-    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
-    CHECK(k == GFX::INTERFACE_CLUSTER_NADE);
-  }
+	TEST_CASE("Convert kill bullet to CLUSTER_NADE")
+	{
+		tmsg_spritedeath deathsnap;
+		deathsnap.killbullet = 210;
+		const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+		CHECK(k == GFX::INTERFACE_CLUSTER_NADE);
+	}
 
-  TEST_CASE("Convert kill bullet to KNIFE")
-  {
-    tmsg_spritedeath deathsnap;
-    deathsnap.killbullet = 211;
-    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
-    CHECK(k == GFX::INTERFACE_GUNS_KNIFE);
-  }
+	TEST_CASE("Convert kill bullet to KNIFE")
+	{
+		tmsg_spritedeath deathsnap;
+		deathsnap.killbullet = 211;
+		const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+		CHECK(k == GFX::INTERFACE_GUNS_KNIFE);
+	}
 
-  TEST_CASE("Convert kill bullet to CHAINSAW")
-  {
-    tmsg_spritedeath deathsnap;
-    deathsnap.killbullet = 212;
-    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
-    CHECK(k == GFX::INTERFACE_GUNS_CHAINSAW);
-  }
+	TEST_CASE("Convert kill bullet to CHAINSAW")
+	{
+		tmsg_spritedeath deathsnap;
+		deathsnap.killbullet = 212;
+		const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+		CHECK(k == GFX::INTERFACE_GUNS_CHAINSAW);
+	}
 
-  TEST_CASE("Convert kill bullet to NADE")
-  {
-    tmsg_spritedeath deathsnap;
-    deathsnap.killbullet = 222;
-    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
-    CHECK(k == GFX::INTERFACE_NADE);
-  }
+	TEST_CASE("Convert kill bullet to NADE")
+	{
+		tmsg_spritedeath deathsnap;
+		deathsnap.killbullet = 222;
+		const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+		CHECK(k == GFX::INTERFACE_NADE);
+	}
 
-  TEST_CASE("Convert kill bullet to LAW")
-  {
-    tmsg_spritedeath deathsnap;
-    deathsnap.killbullet = 224;
-    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
-    CHECK(k == GFX::INTERFACE_GUNS_LAW);
-  }
+	TEST_CASE("Convert kill bullet to LAW")
+	{
+		tmsg_spritedeath deathsnap;
+		deathsnap.killbullet = 224;
+		const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+		CHECK(k == GFX::INTERFACE_GUNS_LAW);
+	}
 
-  TEST_CASE("Convert kill bullet to M2")
-  {
-    tmsg_spritedeath deathsnap;
-    deathsnap.killbullet = 225;
-    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
-    CHECK(k == GFX::INTERFACE_GUNS_M2);
-  }
+	TEST_CASE("Convert kill bullet to M2")
+	{
+		tmsg_spritedeath deathsnap;
+		deathsnap.killbullet = 225;
+		const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+		CHECK(k == GFX::INTERFACE_GUNS_M2);
+	}
 
-  TEST_CASE("Convert kill bullet to unknown")
-  {
-    tmsg_spritedeath deathsnap;
-    deathsnap.killbullet = 255;
-    const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
-    CHECK(k == -255);
-  }
+	TEST_CASE("Convert kill bullet to unknown")
+	{
+		tmsg_spritedeath deathsnap;
+		deathsnap.killbullet = 255;
+		const auto k = sConvertKillBulletToGFX(deathsnap.killbullet);
+		CHECK(k == -255);
+	}
 
-  TEST_CASE("Fill sprite positions with valid data")
-  {
-    Sprite<Config::Module::CLIENT_MODULE> sprite{1};
-    tmsg_spritedeath deathsnap;
-    for (std::int32_t d = 0; d < 16; d++)
-    {
-      deathsnap.pos[d] = tvector2{static_cast<float>(d + 1), static_cast<float>(d + 1)};
-      deathsnap.oldpos[d] = tvector2{static_cast<float>(d + 2), static_cast<float>(d + 2)};
-    }
+	TEST_CASE("Fill sprite positions with valid data")
+	{
+		Sprite<Config::Module::CLIENT_MODULE> sprite{ 1 };
+		tmsg_spritedeath deathsnap;
+		for (std::int32_t d = 0; d < 16; d++)
+		{
+			deathsnap.pos[d] = tvector2{ static_cast<float>(d + 1), static_cast<float>(d + 1) };
+			deathsnap.oldpos[d] = tvector2{ static_cast<float>(d + 2), static_cast<float>(d + 2) };
+		}
 
-    sFillPos(sprite, &deathsnap);
+		sFillPos(sprite, &deathsnap);
 
-    for (std::int32_t d = 1; d <= 16; d++)
-    {
-      CHECK(sprite.skeleton.pos[d].x == deathsnap.pos[d - 1].x);
-      CHECK(sprite.skeleton.pos[d].y == deathsnap.pos[d - 1].y);
-      CHECK(sprite.skeleton.oldpos[d].x == deathsnap.oldpos[d - 1].x);
-      CHECK(sprite.skeleton.oldpos[d].y == deathsnap.oldpos[d - 1].y);
-    }
-  }
+		for (std::int32_t d = 1; d <= 16; d++)
+		{
+			CHECK(sprite.skeleton.pos[d].x == deathsnap.pos[d - 1].x);
+			CHECK(sprite.skeleton.pos[d].y == deathsnap.pos[d - 1].y);
+			CHECK(sprite.skeleton.oldpos[d].x == deathsnap.oldpos[d - 1].x);
+			CHECK(sprite.skeleton.oldpos[d].y == deathsnap.oldpos[d - 1].y);
+		}
+	}
 
-  TEST_CASE("Fill sprite positions with zero data")
-  {
-    Sprite<Config::Module::CLIENT_MODULE> sprite{1};
-    tmsg_spritedeath deathsnap;
-    for (std::int32_t d = 0; d < 16; d++)
-    {
-      deathsnap.pos[d] = tvector2{0.0F, 0.0F};
-      deathsnap.oldpos[d] = tvector2{0.0F, 0.0F};
-    }
+	TEST_CASE("Fill sprite positions with zero data")
+	{
+		Sprite<Config::Module::CLIENT_MODULE> sprite{ 1 };
+		tmsg_spritedeath deathsnap;
+		for (std::int32_t d = 0; d < 16; d++)
+		{
+			deathsnap.pos[d] = tvector2{ 0.0F, 0.0F };
+			deathsnap.oldpos[d] = tvector2{ 0.0F, 0.0F };
+		}
 
-    sFillPos(sprite, &deathsnap);
+		sFillPos(sprite, &deathsnap);
 
-    for (std::int32_t d = 1; d <= 16; d++)
-    {
-      CHECK(sprite.skeleton.pos[d].x == 0.0F);
-      CHECK(sprite.skeleton.pos[d].y == 0.0F);
-      CHECK(sprite.skeleton.oldpos[d].x == 0.0F);
-      CHECK(sprite.skeleton.oldpos[d].y == 0.0F);
-    }
-  }
+		for (std::int32_t d = 1; d <= 16; d++)
+		{
+			CHECK(sprite.skeleton.pos[d].x == 0.0F);
+			CHECK(sprite.skeleton.pos[d].y == 0.0F);
+			CHECK(sprite.skeleton.oldpos[d].x == 0.0F);
+			CHECK(sprite.skeleton.oldpos[d].y == 0.0F);
+		}
+	}
 
-  TEST_CASE("Fill sprite positions with mixed data")
-  {
-    Sprite<Config::Module::CLIENT_MODULE> sprite{1};
-    tmsg_spritedeath deathsnap;
-    for (std::int32_t d = 0; d < 16; d++)
-    {
-      deathsnap.pos[d] = tvector2{static_cast<float>((d % 2) + 2), static_cast<float>((d % 2) + 2)};
-      deathsnap.oldpos[d] =
-        tvector2{static_cast<float>(((d + 1) % 2) + 2), static_cast<float>(((d + 1) % 2) + 2)};
-    }
+	TEST_CASE("Fill sprite positions with mixed data")
+	{
+		Sprite<Config::Module::CLIENT_MODULE> sprite{ 1 };
+		tmsg_spritedeath deathsnap;
+		for (std::int32_t d = 0; d < 16; d++)
+		{
+			deathsnap.pos[d] = tvector2{ static_cast<float>((d % 2) + 2), static_cast<float>((d % 2) + 2) };
+			deathsnap.oldpos[d] =
+				tvector2{ static_cast<float>(((d + 1) % 2) + 2), static_cast<float>(((d + 1) % 2) + 2) };
+		}
 
-    sFillPos(sprite, &deathsnap);
+		sFillPos(sprite, &deathsnap);
 
-    for (std::int32_t d = 1; d <= 16; d++)
-    {
-      if (d % 2 == 1)
-      {
-        CHECK(sprite.skeleton.pos[d].x == 2.0F);
-        CHECK(sprite.skeleton.pos[d].y == 2.0F);
-        CHECK(sprite.skeleton.oldpos[d].x == 3.0F);
-        CHECK(sprite.skeleton.oldpos[d].y == 3.0F);
-      }
-      else
-      {
-        CHECK(sprite.skeleton.pos[d].x == 3.0F);
-        CHECK(sprite.skeleton.pos[d].y == 3.0F);
-        CHECK(sprite.skeleton.oldpos[d].x == 2.0F);
-        CHECK(sprite.skeleton.oldpos[d].y == 2.0F);
-      }
-    }
-  }
-  TEST_CASE("Fill sprite positions with valid data including special cases")
-  {
-    Sprite<Config::Module::CLIENT_MODULE> sprite{1};
-    tmsg_spritedeath deathsnap;
-    for (std::int32_t d = 0; d < 16; d++)
-    {
-      deathsnap.pos[d] = tvector2{static_cast<float>(d + 1), static_cast<float>(d + 1)};
-      deathsnap.oldpos[d] = tvector2{static_cast<float>(d + 2), static_cast<float>(d + 2)};
-    }
+		for (std::int32_t d = 1; d <= 16; d++)
+		{
+			if (d % 2 == 1)
+			{
+				CHECK(sprite.skeleton.pos[d].x == 2.0F);
+				CHECK(sprite.skeleton.pos[d].y == 2.0F);
+				CHECK(sprite.skeleton.oldpos[d].x == 3.0F);
+				CHECK(sprite.skeleton.oldpos[d].y == 3.0F);
+			}
+			else
+			{
+				CHECK(sprite.skeleton.pos[d].x == 3.0F);
+				CHECK(sprite.skeleton.pos[d].y == 3.0F);
+				CHECK(sprite.skeleton.oldpos[d].x == 2.0F);
+				CHECK(sprite.skeleton.oldpos[d].y == 2.0F);
+			}
+		}
+	}
+	TEST_CASE("Fill sprite positions with valid data including special cases")
+	{
+		Sprite<Config::Module::CLIENT_MODULE> sprite{ 1 };
+		tmsg_spritedeath deathsnap;
+		for (std::int32_t d = 0; d < 16; d++)
+		{
+			deathsnap.pos[d] = tvector2{ static_cast<float>(d + 1), static_cast<float>(d + 1) };
+			deathsnap.oldpos[d] = tvector2{ static_cast<float>(d + 2), static_cast<float>(d + 2) };
+		}
 
-    sFillPos(sprite, &deathsnap);
+		sFillPos(sprite, &deathsnap);
 
-    for (std::int32_t d = 1; d <= 16; d++)
-    {
-      CHECK(sprite.skeleton.pos[d].x == deathsnap.pos[d - 1].x);
-      CHECK(sprite.skeleton.pos[d].y == deathsnap.pos[d - 1].y);
-      CHECK(sprite.skeleton.oldpos[d].x == deathsnap.oldpos[d - 1].x);
-      CHECK(sprite.skeleton.oldpos[d].y == deathsnap.oldpos[d - 1].y);
-    }
+		for (std::int32_t d = 1; d <= 16; d++)
+		{
+			CHECK(sprite.skeleton.pos[d].x == deathsnap.pos[d - 1].x);
+			CHECK(sprite.skeleton.pos[d].y == deathsnap.pos[d - 1].y);
+			CHECK(sprite.skeleton.oldpos[d].x == deathsnap.oldpos[d - 1].x);
+			CHECK(sprite.skeleton.oldpos[d].y == deathsnap.oldpos[d - 1].y);
+		}
 
-    CHECK(sprite.skeleton.pos[17].x == deathsnap.pos[0].x);
-    CHECK(sprite.skeleton.pos[17].y == deathsnap.pos[0].y);
-    CHECK(sprite.skeleton.oldpos[17].x == deathsnap.oldpos[0].x);
-    CHECK(sprite.skeleton.oldpos[17].y == deathsnap.oldpos[0].y);
+		CHECK(sprite.skeleton.pos[17].x == deathsnap.pos[0].x);
+		CHECK(sprite.skeleton.pos[17].y == deathsnap.pos[0].y);
+		CHECK(sprite.skeleton.oldpos[17].x == deathsnap.oldpos[0].x);
+		CHECK(sprite.skeleton.oldpos[17].y == deathsnap.oldpos[0].y);
 
-    CHECK(sprite.skeleton.pos[18].x == deathsnap.pos[1].x);
-    CHECK(sprite.skeleton.pos[18].y == deathsnap.pos[1].y);
-    CHECK(sprite.skeleton.oldpos[18].x == deathsnap.oldpos[1].x);
-    CHECK(sprite.skeleton.oldpos[18].y == deathsnap.oldpos[1].y);
+		CHECK(sprite.skeleton.pos[18].x == deathsnap.pos[1].x);
+		CHECK(sprite.skeleton.pos[18].y == deathsnap.pos[1].y);
+		CHECK(sprite.skeleton.oldpos[18].x == deathsnap.oldpos[1].x);
+		CHECK(sprite.skeleton.oldpos[18].y == deathsnap.oldpos[1].y);
 
-    CHECK(sprite.skeleton.pos[19].x == deathsnap.pos[14].x);
-    CHECK(sprite.skeleton.pos[19].y == deathsnap.pos[14].y);
-    CHECK(sprite.skeleton.oldpos[19].x == deathsnap.oldpos[14].x);
-    CHECK(sprite.skeleton.oldpos[19].y == deathsnap.oldpos[14].y);
+		CHECK(sprite.skeleton.pos[19].x == deathsnap.pos[14].x);
+		CHECK(sprite.skeleton.pos[19].y == deathsnap.pos[14].y);
+		CHECK(sprite.skeleton.oldpos[19].x == deathsnap.oldpos[14].x);
+		CHECK(sprite.skeleton.oldpos[19].y == deathsnap.oldpos[14].y);
 
-    CHECK(sprite.skeleton.pos[20].x == deathsnap.pos[15].x);
-    CHECK(sprite.skeleton.pos[20].y == deathsnap.pos[15].y);
-    CHECK(sprite.skeleton.oldpos[20].x == deathsnap.oldpos[15].x);
-    CHECK(sprite.skeleton.oldpos[20].y == deathsnap.oldpos[15].y);
-  }
+		CHECK(sprite.skeleton.pos[20].x == deathsnap.pos[15].x);
+		CHECK(sprite.skeleton.pos[20].y == deathsnap.pos[15].y);
+		CHECK(sprite.skeleton.oldpos[20].x == deathsnap.oldpos[15].x);
+		CHECK(sprite.skeleton.oldpos[20].y == deathsnap.oldpos[15].y);
+	}
 }

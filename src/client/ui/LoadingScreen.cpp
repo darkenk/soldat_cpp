@@ -1,8 +1,6 @@
 #include "Nuklear.hpp"
 #include "client/ui/nuklear_sdl3_gpu.hpp"
 
-
-
 #pragma region tests
 #include <doctest/doctest.h>
 #include <SDL3/SDL_events.h>
@@ -12,163 +10,192 @@
 
 #include "../SdlApp.hpp"
 
-
 extern unsigned char sDefaultFont[];
 extern unsigned int sDefaultFont_len;
 
 namespace
 {
 
-class LoadingScreenFixture
-{
-public:
-  LoadingScreenFixture() = default;
-  ~LoadingScreenFixture() = default;
-  LoadingScreenFixture(const LoadingScreenFixture&) = delete;
-protected:
-};
+	class LoadingScreenFixture
+	{
+	public:
+		LoadingScreenFixture() = default;
+		~LoadingScreenFixture() = default;
+		LoadingScreenFixture(const LoadingScreenFixture&) = delete;
 
-TEST_SUITE("LoadingScreenSuite")
-{
+	protected:
+	};
 
-TEST_CASE_FIXTURE(LoadingScreenFixture, "Nuklear sdl3 gpu test")
-{
-  SdlApp app("Nuklear");
-  app.RegisterEventInterception([](SDL_Event &evt) { nk_sdl_handle_event(&evt); });
+	TEST_SUITE("LoadingScreenSuite")
+	{
 
-  nk_context* ctx = nk_sdl_init(app.GetWindow(), app.GetDevice());
-  struct nk_font_atlas *atlas = nullptr;
-  nk_sdl_font_stash_begin(&atlas);
-  nk_sdl_font_stash_end();
+		TEST_CASE_FIXTURE(LoadingScreenFixture, "Nuklear sdl3 gpu test")
+		{
+			SdlApp app("Nuklear");
+			app.RegisterEventInterception(
+				[](SDL_Event& evt)
+				{
+					nk_sdl_handle_event(&evt);
+				});
 
-  enum {EASY, HARD};
-  int op = EASY;
-  float value = 0.6F;
+			nk_context* ctx = nk_sdl_init(app.GetWindow(), app.GetDevice());
+			struct nk_font_atlas* atlas = nullptr;
+			nk_sdl_font_stash_begin(&atlas);
+			nk_sdl_font_stash_end();
 
-  auto i = 1;
-  while ((i--) != 0)
-  {
-    nk_input_begin(ctx);
-    app.ProcessEvents();
-    nk_input_end(ctx);
-    SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(app.GetDevice()); // Acquire a GPU command buffer
+			enum
+			{
+				EASY,
+				HARD
+			};
+			int op = EASY;
+			float value = 0.6F;
 
-    SDL_GPUTexture *swapchain_texture = nullptr;
-    Uint32 swapchain_texture_width = 0;
-    Uint32 swapchain_texture_height = 0;
-    SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, app.GetWindow(), &swapchain_texture, &swapchain_texture_width, &swapchain_texture_height); // Acquire a swapchain texture
+			auto i = 1;
+			while ((i--) != 0)
+			{
+				nk_input_begin(ctx);
+				app.ProcessEvents();
+				nk_input_end(ctx);
+				SDL_GPUCommandBuffer* command_buffer =
+					SDL_AcquireGPUCommandBuffer(app.GetDevice()); // Acquire a GPU command buffer
 
-    
-    if (nk_begin(ctx, "Show", nk_rect(50, 50, 220, 220),
-      NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_CLOSABLE)) {
-      /* fixed widget pixel width */
-      nk_layout_row_static(ctx, 30, 80, 1);
-      if (nk_button_label(ctx, "button")) {
-          /* event handling */
-      }
+				SDL_GPUTexture* swapchain_texture = nullptr;
+				Uint32 swapchain_texture_width = 0;
+				Uint32 swapchain_texture_height = 0;
+				SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer,
+					app.GetWindow(),
+					&swapchain_texture,
+					&swapchain_texture_width,
+					&swapchain_texture_height); // Acquire a swapchain texture
 
-      /* fixed widget window ratio width */
-      nk_layout_row_dynamic(ctx, 30, 2);
-      if (nk_option_label(ctx, "easy", op == EASY))
-      {
-        op = EASY;
-      }
-      if (nk_option_label(ctx, "hard", op == HARD))
-      {
-        op = HARD;
-      }
+				if (nk_begin(ctx,
+						"Show",
+						nk_rect(50, 50, 220, 220),
+						NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_CLOSABLE))
+				{
+					/* fixed widget pixel width */
+					nk_layout_row_static(ctx, 30, 80, 1);
+					if (nk_button_label(ctx, "button"))
+					{
+						/* event handling */
+					}
 
-      /* custom widget pixel width */
-      nk_layout_row_begin(ctx, NK_STATIC, 30, 2);
-      {
-          nk_layout_row_push(ctx, 50);
-          nk_label(ctx, "Volume:", NK_TEXT_LEFT);
-          nk_layout_row_push(ctx, 110);
-          nk_slider_float(ctx, 0, &value, 1.0F, 0.1F);
-      }
-      nk_layout_row_end(ctx);
-    }
-    nk_end(ctx);
-    
-    nk_sdl_prepare_render_data(NK_ANTI_ALIASING_ON, command_buffer, swapchain_texture_width, swapchain_texture_height);
+					/* fixed widget window ratio width */
+					nk_layout_row_dynamic(ctx, 30, 2);
+					if (nk_option_label(ctx, "easy", op == EASY))
+					{
+						op = EASY;
+					}
+					if (nk_option_label(ctx, "hard", op == HARD))
+					{
+						op = HARD;
+					}
 
-    // Setup and start a render pass
-    SDL_GPUColorTargetInfo target_info = {};
-    target_info.texture = swapchain_texture;
-    target_info.clear_color = SDL_FColor{0.10F, 0.18F, 0.24F, 1.00F};
-    target_info.load_op = SDL_GPU_LOADOP_CLEAR;
-    target_info.store_op = SDL_GPU_STOREOP_STORE;
-    target_info.mip_level = 0;
-    target_info.layer_or_depth_plane = 0;
-    target_info.cycle = false;
-    SDL_GPURenderPass* render_pass = SDL_BeginGPURenderPass(command_buffer, &target_info, 1, nullptr);
+					/* custom widget pixel width */
+					nk_layout_row_begin(ctx, NK_STATIC, 30, 2);
+					{
+						nk_layout_row_push(ctx, 50);
+						nk_label(ctx, "Volume:", NK_TEXT_LEFT);
+						nk_layout_row_push(ctx, 110);
+						nk_slider_float(ctx, 0, &value, 1.0F, 0.1F);
+					}
+					nk_layout_row_end(ctx);
+				}
+				nk_end(ctx);
 
-    nk_sdl_render(NK_ANTI_ALIASING_ON, command_buffer, render_pass);
+				nk_sdl_prepare_render_data(
+					NK_ANTI_ALIASING_ON, command_buffer, swapchain_texture_width, swapchain_texture_height);
 
-    SDL_EndGPURenderPass(render_pass);
+				// Setup and start a render pass
+				SDL_GPUColorTargetInfo target_info = {};
+				target_info.texture = swapchain_texture;
+				target_info.clear_color = SDL_FColor{ 0.10F, 0.18F, 0.24F, 1.00F };
+				target_info.load_op = SDL_GPU_LOADOP_CLEAR;
+				target_info.store_op = SDL_GPU_STOREOP_STORE;
+				target_info.mip_level = 0;
+				target_info.layer_or_depth_plane = 0;
+				target_info.cycle = false;
+				SDL_GPURenderPass* render_pass = SDL_BeginGPURenderPass(command_buffer, &target_info, 1, nullptr);
 
-    SDL_SubmitGPUCommandBuffer(command_buffer);
-  }
-  nk_sdl_shutdown();
-}
+				nk_sdl_render(NK_ANTI_ALIASING_ON, command_buffer, render_pass);
 
-TEST_CASE_FIXTURE(LoadingScreenFixture, "Loading screen")
-{
-  SdlApp app("Nuklear");
-  app.RegisterEventInterception([](SDL_Event &evt) { nk_sdl_handle_event(&evt); });
+				SDL_EndGPURenderPass(render_pass);
 
-  nk_context* ctx = nk_sdl_init(app.GetWindow(), app.GetDevice());
-  struct nk_font_atlas *atlas = nullptr;
-  nk_sdl_font_stash_begin(&atlas);
-  nk_font *default_font =
-    nk_font_atlas_add_from_memory(atlas, sDefaultFont, sDefaultFont_len, 28, nullptr);
-  nk_sdl_font_stash_end();
-  nk_style_set_font(ctx, &default_font->handle);
+				SDL_SubmitGPUCommandBuffer(command_buffer);
+			}
+			nk_sdl_shutdown();
+		}
 
-  auto i = 1;
-  while ((i--) != 0)
-  {
-    nk_input_begin(ctx);
-    app.ProcessEvents();
-    nk_input_end(ctx);
-    SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(app.GetDevice()); // Acquire a GPU command buffer
+		TEST_CASE_FIXTURE(LoadingScreenFixture, "Loading screen")
+		{
+			SdlApp app("Nuklear");
+			app.RegisterEventInterception(
+				[](SDL_Event& evt)
+				{
+					nk_sdl_handle_event(&evt);
+				});
 
-    SDL_GPUTexture *swapchain_texture = nullptr;
-    Uint32 swapchain_texture_width = 0;
-    Uint32 swapchain_texture_height = 0;
-    SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, app.GetWindow(), &swapchain_texture, &swapchain_texture_width, &swapchain_texture_height); // Acquire a swapchain texture
+			nk_context* ctx = nk_sdl_init(app.GetWindow(), app.GetDevice());
+			struct nk_font_atlas* atlas = nullptr;
+			nk_sdl_font_stash_begin(&atlas);
+			nk_font* default_font = nk_font_atlas_add_from_memory(atlas, sDefaultFont, sDefaultFont_len, 28, nullptr);
+			nk_sdl_font_stash_end();
+			nk_style_set_font(ctx, &default_font->handle);
 
-    if (nk_begin(ctx, "Loading screen", nk_rect(0, 0, swapchain_texture_width, swapchain_texture_height), NK_WINDOW_NO_INPUT | NK_WINDOW_NO_SCROLLBAR))
-    {
-      nk_layout_row_dynamic(ctx, swapchain_texture_height/2, 1);
-      nk_label(ctx, "Loading...", NK_TEXT_ALIGN_CENTERED | NK_TEXT_ALIGN_BOTTOM);
-      nk_layout_row_dynamic(ctx, swapchain_texture_height/2, 1);
-      nk_label(ctx, "Please wait", NK_TEXT_ALIGN_CENTERED | NK_TEXT_ALIGN_TOP);     
-    }
-    nk_end(ctx);
-    
-    nk_sdl_prepare_render_data(NK_ANTI_ALIASING_ON, command_buffer, swapchain_texture_width, swapchain_texture_height);
+			auto i = 1;
+			while ((i--) != 0)
+			{
+				nk_input_begin(ctx);
+				app.ProcessEvents();
+				nk_input_end(ctx);
+				SDL_GPUCommandBuffer* command_buffer =
+					SDL_AcquireGPUCommandBuffer(app.GetDevice()); // Acquire a GPU command buffer
 
-    // Setup and start a render pass
-    SDL_GPUColorTargetInfo target_info = {};
-    target_info.texture = swapchain_texture;
-    target_info.clear_color = SDL_FColor{0.10F, 0.18F, 0.24F, 1.00F};
-    target_info.load_op = SDL_GPU_LOADOP_CLEAR;
-    target_info.store_op = SDL_GPU_STOREOP_STORE;
-    target_info.mip_level = 0;
-    target_info.layer_or_depth_plane = 0;
-    target_info.cycle = false;
-    SDL_GPURenderPass* render_pass = SDL_BeginGPURenderPass(command_buffer, &target_info, 1, nullptr);
+				SDL_GPUTexture* swapchain_texture = nullptr;
+				Uint32 swapchain_texture_width = 0;
+				Uint32 swapchain_texture_height = 0;
+				SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer,
+					app.GetWindow(),
+					&swapchain_texture,
+					&swapchain_texture_width,
+					&swapchain_texture_height); // Acquire a swapchain texture
 
-    nk_sdl_render(NK_ANTI_ALIASING_ON, command_buffer, render_pass);
+				if (nk_begin(ctx,
+						"Loading screen",
+						nk_rect(0, 0, swapchain_texture_width, swapchain_texture_height),
+						NK_WINDOW_NO_INPUT | NK_WINDOW_NO_SCROLLBAR))
+				{
+					nk_layout_row_dynamic(ctx, swapchain_texture_height / 2, 1);
+					nk_label(ctx, "Loading...", NK_TEXT_ALIGN_CENTERED | NK_TEXT_ALIGN_BOTTOM);
+					nk_layout_row_dynamic(ctx, swapchain_texture_height / 2, 1);
+					nk_label(ctx, "Please wait", NK_TEXT_ALIGN_CENTERED | NK_TEXT_ALIGN_TOP);
+				}
+				nk_end(ctx);
 
-    SDL_EndGPURenderPass(render_pass);
+				nk_sdl_prepare_render_data(
+					NK_ANTI_ALIASING_ON, command_buffer, swapchain_texture_width, swapchain_texture_height);
 
-    SDL_SubmitGPUCommandBuffer(command_buffer);
-  }
-  nk_sdl_shutdown();
-}
+				// Setup and start a render pass
+				SDL_GPUColorTargetInfo target_info = {};
+				target_info.texture = swapchain_texture;
+				target_info.clear_color = SDL_FColor{ 0.10F, 0.18F, 0.24F, 1.00F };
+				target_info.load_op = SDL_GPU_LOADOP_CLEAR;
+				target_info.store_op = SDL_GPU_STOREOP_STORE;
+				target_info.mip_level = 0;
+				target_info.layer_or_depth_plane = 0;
+				target_info.cycle = false;
+				SDL_GPURenderPass* render_pass = SDL_BeginGPURenderPass(command_buffer, &target_info, 1, nullptr);
 
-} // end of LoadingScreenSuite
+				nk_sdl_render(NK_ANTI_ALIASING_ON, command_buffer, render_pass);
+
+				SDL_EndGPURenderPass(render_pass);
+
+				SDL_SubmitGPUCommandBuffer(command_buffer);
+			}
+			nk_sdl_shutdown();
+		}
+
+	} // end of LoadingScreenSuite
 } // end of unnamed namespace
 #pragma endregion tests

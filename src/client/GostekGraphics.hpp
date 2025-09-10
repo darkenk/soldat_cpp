@@ -8,8 +8,8 @@
 template <Config::Module M>
 class Sprite;
 
-void rendergostek(Sprite<Config::GetModule()> &soldier);
-void loadgostekdata(const TIniFile::Entries &data);
+void rendergostek(Sprite<Config::GetModule()>& soldier);
+void loadgostekdata(const TIniFile::Entries& data);
 void applygostekconstraints(tgfxspritearray textures);
 
 constexpr std::int32_t GOSTEK_SECONDARY_DEAGLES = 0;

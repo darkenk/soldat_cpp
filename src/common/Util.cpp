@@ -12,46 +12,48 @@
 #include "misc/PortUtilsSoldat.hpp"
 #include "misc/SHA1Helper.hpp"
 
-auto charcount(const char character, const std::string &str1) -> std::int32_t
+auto charcount(const char character, const std::string& str1) -> std::int32_t
 {
-  std::int32_t result = 0;
-  for (std::size_t i = 0; i < str1.length(); i++)
-  {
-    if (character == str1[i])
-    {
-      result += 1;
-    }
-  }
-  return result;
+	std::int32_t result = 0;
+	for (std::size_t i = 0; i < str1.length(); i++)
+	{
+		if (character == str1[i])
+		{
+			result += 1;
+		}
+	}
+	return result;
 }
 
-auto splitstr(const std::string &source, const char delimiter, std::int32_t limit) -> tstringarray
+auto splitstr(const std::string& source, const char delimiter, std::int32_t limit) -> tstringarray
 {
 
-  size_t last = 0;
-  size_t next = 0;
-  tstringarray ret;
-  while (((next = source.find(delimiter, last)) != std::string::npos) && ((limit--) != 0))
-  {
-    ret.push_back(source.substr(last, next - last));
-    last = next + 1;
-  }
-  ret.push_back(source.substr(last));
-  return ret;
+	size_t last = 0;
+	size_t next = 0;
+	tstringarray ret;
+	while (((next = source.find(delimiter, last)) != std::string::npos) && ((limit--) != 0))
+	{
+		ret.push_back(source.substr(last, next - last));
+		last = next + 1;
+	}
+	ret.push_back(source.substr(last));
+	return ret;
 }
 
-auto getpiece(const std::string &source, const char delimiter, const std::int32_t piece)
-  -> std::string
+auto getpiece(const std::string& source, const char delimiter, const std::int32_t piece) -> std::string
 {
-  return splitstr(source, delimiter, piece)[piece - 1];
+	return splitstr(source, delimiter, piece)[piece - 1];
 }
 
-auto posex(const std::string &substr, const std::string &s, std::uint32_t offset) -> std::int32_t
+auto posex(const std::string& substr, const std::string& s, std::uint32_t offset) -> std::int32_t
 {
-  return s.find(substr, offset);
+	return s.find(substr, offset);
 }
 
-auto colortohex(tcolor color) -> std::uint32_t { return color; }
+auto colortohex(tcolor color) -> std::uint32_t
+{
+	return color;
+}
 
 #if 0 // not used
 tcolor std::stringtocolor(const std::string s)
@@ -62,26 +64,28 @@ tcolor std::stringtocolor(const std::string s)
 }
 #endif
 
-auto numberformat(std::uint32_t num) -> std::string { return std::to_string(num); }
-
-auto overridefileext(FileUtility &fs, const std::string &filename,
-                     const std::string &ext) -> std::string
+auto numberformat(std::uint32_t num) -> std::string
 {
-  auto result = filename;
-  auto dotPos = filename.find_last_of('.');
-  if (dotPos == std::string::npos)
-  {
-    return result;
-  }
-  if (filename.substr(dotPos) != ext)
-  {
-    result.replace(dotPos, result.length(), ext);
-    if (not fs.Exists(result))
-    {
-      result = filename;
-    }
-  }
-  return result;
+	return std::to_string(num);
+}
+
+auto overridefileext(FileUtility& fs, const std::string& filename, const std::string& ext) -> std::string
+{
+	auto result = filename;
+	auto dotPos = filename.find_last_of('.');
+	if (dotPos == std::string::npos)
+	{
+		return result;
+	}
+	if (filename.substr(dotPos) != ext)
+	{
+		result.replace(dotPos, result.length(), ext);
+		if (not fs.Exists(result))
+		{
+			result = filename;
+		}
+	}
+	return result;
 }
 
 // function MapExists(MapName: std::string; RootDirectory: std::string{$IFNDEF SERVER}; Checksum:
@@ -89,10 +93,10 @@ auto overridefileext(FileUtility &fs, const std::string &filename,
 /*begin
   Result := False;
   if PHYSFS_exists(PChar('maps/' + MapName + '.pms')) then
-    Result := True
+	Result := True
   else if FileExists(RootDirectory + 'maps/' + MapName + '.smap') then
-    if Sha1Match(GetMapChecksum(MapName, RootDirectory), Checksum) then
-      Result := True;
+	if Sha1Match(GetMapChecksum(MapName, RootDirectory), Checksum) then
+	  Result := True;
 end;*/
 
 #if 0
@@ -106,147 +110,148 @@ std::string md5stringhelper(std::string text)
 
 // makes sure the directory exists
 // returns false on error and true if everything is allright
-auto createdirifmissing(const std::string &dir) -> bool
+auto createdirifmissing(const std::string& dir) -> bool
 {
-  std::filesystem::path const p(dir);
-  if (std::filesystem::is_directory(p))
-  {
-    return true;
-  }
-  return std::filesystem::create_directory(p);
+	std::filesystem::path const p(dir);
+	if (std::filesystem::is_directory(p))
+	{
+		return true;
+	}
+	return std::filesystem::create_directory(p);
 }
 
-auto createfileifmissing(const std::string &filename) -> bool
+auto createfileifmissing(const std::string& filename) -> bool
 {
-  std::filesystem::path const p(filename);
-  if (std::filesystem::is_regular_file(p))
-  {
-    return true;
-  }
-  std::ofstream const d(filename);
-  return true;
+	std::filesystem::path const p(filename);
+	if (std::filesystem::is_regular_file(p))
+	{
+		return true;
+	}
+	std::ofstream const d(filename);
+	return true;
 }
 
 auto getsize(std::int64_t bytes) -> std::string
 {
-  std::int64_t filesize = 0;
+	std::int64_t filesize = 0;
 
-  if (bytes < 1024)
-  {
-    return std::to_string(bytes) + " B";
-  }
-  filesize = bytes / 1024;
-  if (filesize > 1024)
-  {
-    filesize = filesize / 1024;
+	if (bytes < 1024)
+	{
+		return std::to_string(bytes) + " B";
+	}
+	filesize = bytes / 1024;
+	if (filesize > 1024)
+	{
+		filesize = filesize / 1024;
 
-    if (filesize > 1024)
-    {
-      return std::to_string(filesize / 1024) + " Gb";
-    }
+		if (filesize > 1024)
+		{
+			return std::to_string(filesize / 1024) + " Gb";
+		}
 
-    return std::to_string(filesize) + " Mb";
-  }
-  return std::to_string(filesize) + " Kb";
+		return std::to_string(filesize) + " Mb";
+	}
+	return std::to_string(filesize) + " Kb";
 }
 
-auto verifymapchecksum(FileUtility &fs, const tmapinfo &map, const tsha1digest &checksum,
-                       const tsha1digest &defaultgamemodchecksum) -> bool
+auto verifymapchecksum(
+	FileUtility& fs, const tmapinfo& map, const tsha1digest& checksum, const tsha1digest& defaultgamemodchecksum)
+	-> bool
 {
-  return getmapchecksum(fs, map, defaultgamemodchecksum) == checksum;
+	return getmapchecksum(fs, map, defaultgamemodchecksum) == checksum;
 }
 
-auto getmapchecksum(FileUtility &fs, const tmapinfo &map,
-                    const tsha1digest &defaultgamemodchecksum) -> tsha1digest
+auto getmapchecksum(FileUtility& fs, const tmapinfo& map, const tsha1digest& defaultgamemodchecksum) -> tsha1digest
 {
-  if (fs.Exists(std::string("maps/") + map.mapname + ".pms"))
-  {
-    return defaultgamemodchecksum;
-  }
-  if (fileexists(map.path))
-  {
-    return sha1file(map.path);
-  }
-  return tsha1digest{};
+	if (fs.Exists(std::string("maps/") + map.mapname + ".pms"))
+	{
+		return defaultgamemodchecksum;
+	}
+	if (fileexists(map.path))
+	{
+		return sha1file(map.path);
+	}
+	return tsha1digest{};
 }
 
 // for string delimiter
-static auto split_string(const std::string &s, const std::string &delimiter)
-  -> std::vector<std::string>
+static auto split_string(const std::string& s, const std::string& delimiter) -> std::vector<std::string>
 {
-  size_t pos_start = 0;
-  size_t pos_end = 0;
-  size_t const delim_len = delimiter.length();
-  std::string token;
-  std::vector<std::string> res;
+	size_t pos_start = 0;
+	size_t pos_end = 0;
+	size_t const delim_len = delimiter.length();
+	std::string token;
+	std::vector<std::string> res;
 
-  while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos)
-  {
-    token = s.substr(pos_start, pos_end - pos_start);
-    pos_start = pos_end + delim_len;
-    res.push_back(token);
-  }
+	while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos)
+	{
+		token = s.substr(pos_start, pos_end - pos_start);
+		pos_start = pos_end + delim_len;
+		res.push_back(token);
+	}
 
-  res.push_back(s.substr(pos_start));
-  return res;
+	res.push_back(s.substr(pos_start));
+	return res;
 }
 
-auto getmapinfo(FileUtility &fs, const std::string &mapname, const std::string &directory,
-                tmapinfo &mapinfo) -> bool // dk out MapInfo
+auto getmapinfo(FileUtility& fs,
+	const std::string& mapname,
+	const std::string& directory,
+	tmapinfo& mapinfo) -> bool // dk out MapInfo
 {
-  tstringarray split;
-  std::uint64_t itemid = 0;
+	tstringarray split;
+	std::uint64_t itemid = 0;
 
-  bool result = false;
-  result = false;
+	bool result = false;
+	result = false;
 
-  if (mapname.rfind("workshop/") == 0)
-  {
-    split = split_string(mapname, "/");
-    if (length(split) >= 2)
-    {
-      itemid = strtointdef(split[1], 0);
-      if (itemid > 0)
-      {
-        mapinfo.workshopid = itemid;
-        mapinfo.mapname = split[2];
-        if (fileexists(directory + "maps/" + mapname + ".smap"))
-        {
-          mapinfo.path = directory + "maps/" + mapname + ".smap";
-          mapinfo.name = mapname;
-          result = true;
-        }
-      }
-    }
-  }
-  else
-  {
-    if (fs.Exists(std::string("maps/") + mapname + ".pms"))
-    {
-      mapinfo.name = mapname;
-      mapinfo.mapname = mapname;
-      mapinfo.workshopid = 0;
-      mapinfo.path = "smod";
-      result = true;
-    }
-    else
-    {
-      if (fileexists(directory + "maps/" + mapname + ".smap"))
-      {
-        mapinfo.name = mapname;
-        mapinfo.mapname = mapname;
-        mapinfo.workshopid = 0;
-        mapinfo.path = directory + "maps/" + mapname + ".smap";
-        result = true;
-      }
-    }
-  }
-  return result;
+	if (mapname.rfind("workshop/") == 0)
+	{
+		split = split_string(mapname, "/");
+		if (length(split) >= 2)
+		{
+			itemid = strtointdef(split[1], 0);
+			if (itemid > 0)
+			{
+				mapinfo.workshopid = itemid;
+				mapinfo.mapname = split[2];
+				if (fileexists(directory + "maps/" + mapname + ".smap"))
+				{
+					mapinfo.path = directory + "maps/" + mapname + ".smap";
+					mapinfo.name = mapname;
+					result = true;
+				}
+			}
+		}
+	}
+	else
+	{
+		if (fs.Exists(std::string("maps/") + mapname + ".pms"))
+		{
+			mapinfo.name = mapname;
+			mapinfo.mapname = mapname;
+			mapinfo.workshopid = 0;
+			mapinfo.path = "smod";
+			result = true;
+		}
+		else
+		{
+			if (fileexists(directory + "maps/" + mapname + ".smap"))
+			{
+				mapinfo.name = mapname;
+				mapinfo.mapname = mapname;
+				mapinfo.workshopid = 0;
+				mapinfo.path = directory + "maps/" + mapname + ".smap";
+				result = true;
+			}
+		}
+	}
+	return result;
 }
 
 #if 0
 
-#ifdef DEVELOPMENT
+	#ifdef DEVELOPMENT
 // Source: https://github.com/correaelias/TypeUtils
 
 typedef array of std::uint8_t tarray;
@@ -356,14 +361,14 @@ void tostr(const void *avalue, ptypeinfo atypeinfo)
         {
             void &with = gettypedata(atypeinfo);
 
-#ifndef VER3_0 // ifdef needed because of a field rename in trunk (ManagedFldCount to
+		#ifndef VER3_0 // ifdef needed because of a field rename in trunk (ManagedFldCount to
     // TotalFieldCount)
             firstfield = pmanagedfield(std::uint8_t*(&totalfieldcount) + sizeof(totalfieldcount));
             for (i = 0; i <= totalfieldcount - 1; i++)
-#else
+		#else
             firstfield = pmanagedfield(std::uint8_t*(&managedfldcount) + sizeof(managedfldcount));
             for (i = 0; i <= managedfldcount - 1; i++)
-#endif
+		#endif
             {
                 if (i > 0)
                     result += ", ";
@@ -413,6 +418,6 @@ void tostr(const void *avalue, ptypeinfo atypeinfo)
     }
     return tostr_result;
 }
-#endif
+	#endif
 
 #endif

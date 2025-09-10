@@ -12,5 +12,5 @@ void clientsendbullet(std::uint8_t i);
 class clienthandlebulletsnapshot : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };

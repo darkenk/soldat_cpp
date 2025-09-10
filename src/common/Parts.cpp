@@ -18,297 +18,296 @@
 
 void particlesystem::doverlettimestep()
 {
-  ZoneScopedN("DoVerletTimeStep");
-  std::int32_t i = 0;
+	ZoneScopedN("DoVerletTimeStep");
+	std::int32_t i = 0;
 
-  for (i = 1; i <= num_particles; i++)
-  {
-    if (active[i])
-    {
-      verlet(i);
-    }
-  }
-  satisfyconstraints();
+	for (i = 1; i <= num_particles; i++)
+	{
+		if (active[i])
+		{
+			verlet(i);
+		}
+	}
+	satisfyconstraints();
 }
 
 void particlesystem::doverlettimestepfor(std::int32_t i, std::int32_t j)
 {
-  verlet(i);
-  satisfyconstraintsfor(j);
+	verlet(i);
+	satisfyconstraintsfor(j);
 }
 
 void particlesystem::doeulertimestepfor(std::int32_t i)
 {
-  euler(i);
+	euler(i);
 }
 
 void particlesystem::doeulertimestep()
 {
-  ZoneScopedN("DoEulerTimeStep");
-  std::int32_t i = 0;
+	ZoneScopedN("DoEulerTimeStep");
+	std::int32_t i = 0;
 
-  for (i = 1; i <= num_particles; i++)
-  {
-    if (active[i])
-    {
-      euler(i);
-    }
-  }
+	for (i = 1; i <= num_particles; i++)
+	{
+		if (active[i])
+		{
+			euler(i);
+		}
+	}
 }
 
 void particlesystem::euler(std::int32_t i)
 {
-  tvector2 temppos;
-  tvector2 s;
+	tvector2 temppos;
+	tvector2 s;
 
-  // Accumulate Forces
-  forces[i].y = forces[i].y + gravity;
-  temppos = pos[i];
+	// Accumulate Forces
+	forces[i].y = forces[i].y + gravity;
+	temppos = pos[i];
 
-  vec2scale(s, forces[i], oneovermass[i]);
-  vec2scale(s, s, sqr(timestep));
+	vec2scale(s, forces[i], oneovermass[i]);
+	vec2scale(s, s, sqr(timestep));
 
-  velocity[i] = vec2add(velocity[i], s);
-  pos[i] = vec2add(pos[i], velocity[i]);
-  vec2scale(velocity[i], velocity[i], edamping);
-  oldpos[i] = temppos;
+	velocity[i] = vec2add(velocity[i], s);
+	pos[i] = vec2add(pos[i], velocity[i]);
+	vec2scale(velocity[i], velocity[i], edamping);
+	oldpos[i] = temppos;
 
-  forces[i].x = 0;
-  forces[i].y = 0;
+	forces[i].x = 0;
+	forces[i].y = 0;
 }
 
 void particlesystem::verlet(std::int32_t i)
 {
-  tvector2 s1;
-  tvector2 s2;
+	tvector2 s1;
+	tvector2 s2;
 
-  // Accumulate Forces
-  forces[i].y = forces[i].y + gravity;
-  tvector2 const temppos = pos[i];
+	// Accumulate Forces
+	forces[i].y = forces[i].y + gravity;
+	tvector2 const temppos = pos[i];
 
-  // Pos[I]:= 2 * Pos[I] - OldPos[I] + Forces[I]{ / Mass} * TimeStep * TimeStep;  {Verlet
-  // integration}
-  vec2scale(s1, pos[i], 1.0 + vdamping);
-  vec2scale(s2, oldpos[i], vdamping);
+	// Pos[I]:= 2 * Pos[I] - OldPos[I] + Forces[I]{ / Mass} * TimeStep * TimeStep;  {Verlet
+	// integration}
+	vec2scale(s1, pos[i], 1.0 + vdamping);
+	vec2scale(s2, oldpos[i], vdamping);
 
-  tvector2 const d = vec2subtract(s1, s2);
-  vec2scale(s1, forces[i], oneovermass[i]);
-  vec2scale(s2, s1, sqr(timestep));
+	tvector2 const d = vec2subtract(s1, s2);
+	vec2scale(s1, forces[i], oneovermass[i]);
+	vec2scale(s2, s1, sqr(timestep));
 
-  pos[i] = vec2add(d, s2);
-  oldpos[i] = temppos;
+	pos[i] = vec2add(d, s2);
+	oldpos[i] = temppos;
 
-  forces[i].x = 0;
-  forces[i].y = 0;
+	forces[i].x = 0;
+	forces[i].y = 0;
 }
 
 void particlesystem::satisfyconstraints()
 {
-  std::int32_t i = 0;
-  tvector2 delta;
-  tvector2 d;
-  float deltalength = NAN;
-  float diff = NAN;
+	std::int32_t i = 0;
+	tvector2 delta;
+	tvector2 d;
+	float deltalength = NAN;
+	float diff = NAN;
 
-  if (constraintcount > 0)
-  {
-    for (i = 1; i <= constraintcount; i++)
-    {
-      constraint const &with = constraints[i];
-      if (with.active)
-      {
-        diff = 0;
-        delta = vec2subtract(pos[with.partb], pos[with.parta]);
-        deltalength = sqrt(vec2dot(delta, delta));
-        if (deltalength != 0)
-        {
-          diff = (deltalength - with.restlength) / deltalength;
-        }
-        if (oneovermass[with.parta] > 0)
-        {
-          vec2scale(d, delta, 0.5 * diff);
-          pos[with.parta] = vec2add(pos[with.parta], d);
-        }
-        if (oneovermass[with.partb] > 0)
-        {
-          vec2scale(d, delta, 0.5 * diff);
-          pos[with.partb] = vec2subtract(pos[with.partb], d);
-        }
-      }
-    }
-  }
+	if (constraintcount > 0)
+	{
+		for (i = 1; i <= constraintcount; i++)
+		{
+			constraint const& with = constraints[i];
+			if (with.active)
+			{
+				diff = 0;
+				delta = vec2subtract(pos[with.partb], pos[with.parta]);
+				deltalength = sqrt(vec2dot(delta, delta));
+				if (deltalength != 0)
+				{
+					diff = (deltalength - with.restlength) / deltalength;
+				}
+				if (oneovermass[with.parta] > 0)
+				{
+					vec2scale(d, delta, 0.5 * diff);
+					pos[with.parta] = vec2add(pos[with.parta], d);
+				}
+				if (oneovermass[with.partb] > 0)
+				{
+					vec2scale(d, delta, 0.5 * diff);
+					pos[with.partb] = vec2subtract(pos[with.partb], d);
+				}
+			}
+		}
+	}
 }
 
 void particlesystem::satisfyconstraintsfor(std::int32_t i)
 {
-  tvector2 delta;
-  tvector2 d;
-  float deltalength = NAN;
-  float diff = NAN;
+	tvector2 delta;
+	tvector2 d;
+	float deltalength = NAN;
+	float diff = NAN;
 
-  {
-    constraint const &with = constraints[i];
+	{
+		constraint const& with = constraints[i];
 
-    diff = 0;
-    delta = vec2subtract(pos[with.partb], pos[with.parta]);
-    deltalength = sqrt(vec2dot(delta, delta));
-    if (deltalength != 0)
-    {
-      diff = (deltalength - with.restlength) / deltalength;
-    }
-    if (oneovermass[with.parta] > 0)
-    {
-      vec2scale(d, delta, 0.5 * diff);
-      pos[with.parta] = vec2add(pos[with.parta], d);
-    }
-    if (oneovermass[with.partb] > 0)
-    {
-      vec2scale(d, delta, 0.5 * diff);
-      pos[with.partb] = vec2subtract(pos[with.partb], d);
-    }
-  }
+		diff = 0;
+		delta = vec2subtract(pos[with.partb], pos[with.parta]);
+		deltalength = sqrt(vec2dot(delta, delta));
+		if (deltalength != 0)
+		{
+			diff = (deltalength - with.restlength) / deltalength;
+		}
+		if (oneovermass[with.parta] > 0)
+		{
+			vec2scale(d, delta, 0.5 * diff);
+			pos[with.parta] = vec2add(pos[with.parta], d);
+		}
+		if (oneovermass[with.partb] > 0)
+		{
+			vec2scale(d, delta, 0.5 * diff);
+			pos[with.partb] = vec2subtract(pos[with.partb], d);
+		}
+	}
 }
 
-void particlesystem::createpart(const tvector2 &start, const tvector2 &vel, const float mass,
-                                const std::int32_t num)
+void particlesystem::createpart(const tvector2& start, const tvector2& vel, const float mass, const std::int32_t num)
 {
-  // Num is now the active Part
-  active[num] = true;
-  pos[num] = start;
-  velocity[num] = vel;
+	// Num is now the active Part
+	active[num] = true;
+	pos[num] = start;
+	velocity[num] = vel;
 
-  oldpos[num] = start;
-  oneovermass[num] = static_cast<float>(1) / mass;
+	oldpos[num] = start;
+	oneovermass[num] = static_cast<float>(1) / mass;
 }
 
 void particlesystem::makeconstraint(std::int32_t pa, std::int32_t pb, float rest)
 {
-  constraintcount += 1;
-  {
-    constraint &with = constraints[constraintcount];
+	constraintcount += 1;
+	{
+		constraint& with = constraints[constraintcount];
 
-    with.active = true;
-    with.parta = pa;
-    with.partb = pb;
-    with.restlength = rest;
-  }
+		with.active = true;
+		with.parta = pa;
+		with.partb = pb;
+		with.restlength = rest;
+	}
 }
 
-void particlesystem::clone(const particlesystem &other)
+void particlesystem::clone(const particlesystem& other)
 {
-  std::int32_t i = 0;
+	std::int32_t i = 0;
 
-  constraintcount = other.constraintcount;
-  partcount = other.partcount;
+	constraintcount = other.constraintcount;
+	partcount = other.partcount;
 
-  std::memcpy(&active, &other.active, partcount * sizeof(active[1]));
-  std::memcpy(&pos, &other.pos, partcount * sizeof(pos[1]));
-  std::memcpy(&velocity, &other.velocity, partcount * sizeof(velocity[1]));
-  std::memcpy(&oldpos, &other.oldpos, partcount * sizeof(oldpos[1]));
-  std::memcpy(&oneovermass, &other.oneovermass, partcount * sizeof(oneovermass[1]));
+	std::memcpy(&active, &other.active, partcount * sizeof(active[1]));
+	std::memcpy(&pos, &other.pos, partcount * sizeof(pos[1]));
+	std::memcpy(&velocity, &other.velocity, partcount * sizeof(velocity[1]));
+	std::memcpy(&oldpos, &other.oldpos, partcount * sizeof(oldpos[1]));
+	std::memcpy(&oneovermass, &other.oneovermass, partcount * sizeof(oneovermass[1]));
 
-  for (i = 1; i <= constraintcount; i++)
-  {
-    const auto *otherconstraint = &other.constraints[i];
-    {
-      constraint &with = constraints[i];
+	for (i = 1; i <= constraintcount; i++)
+	{
+		const auto* otherconstraint = &other.constraints[i];
+		{
+			constraint& with = constraints[i];
 
-      with.active = otherconstraint->active;
-      with.parta = otherconstraint->parta;
-      with.partb = otherconstraint->partb;
-      with.restlength = otherconstraint->restlength;
-    }
-  }
+			with.active = otherconstraint->active;
+			with.parta = otherconstraint->parta;
+			with.partb = otherconstraint->partb;
+			with.restlength = otherconstraint->restlength;
+		}
+	}
 }
 
-void particlesystem::loadpoobject(FileUtility &fs, const std::string &filename, float scale)
+void particlesystem::loadpoobject(FileUtility& fs, const std::string& filename, float scale)
 {
-  if (!fs.Exists(filename))
-  {
-    return;
-  }
-  std::string nm;
-  std::string x;
-  std::string y;
-  std::string z;
-  std::string a;
-  std::string b;
-  tvector2 p;
+	if (!fs.Exists(filename))
+	{
+		return;
+	}
+	std::string nm;
+	std::string x;
+	std::string y;
+	std::string z;
+	std::string a;
+	std::string b;
+	tvector2 p;
 
-  std::int32_t i = 0;
-  constraintcount = 0;
+	std::int32_t i = 0;
+	constraintcount = 0;
 
-  auto stream = ReadAsFileStream(fs, filename);
+	auto stream = ReadAsFileStream(fs, filename);
 
-  do
-  {
-    stream->ReadLine(nm); // name
-    if (nm != "CONSTRAINTS")
-    {
-      tvector2 const v;
-      stream->ReadLine(x); // X
-      stream->ReadLine(y); // Y
-      stream->ReadLine(z); // Z
+	do
+	{
+		stream->ReadLine(nm); // name
+		if (nm != "CONSTRAINTS")
+		{
+			tvector2 const v;
+			stream->ReadLine(x); // X
+			stream->ReadLine(y); // Y
+			stream->ReadLine(z); // Z
 
-      // make object
-      p.x = -strtofloat(x) * scale / 1.2;
-      p.y = -strtofloat(z) * scale;
+			// make object
+			p.x = -strtofloat(x) * scale / 1.2;
+			p.y = -strtofloat(z) * scale;
 
-      i += 1;
-      createpart(p, v, 1, i);
-    }
-  } while (nm != "CONSTRAINTS");
+			i += 1;
+			createpart(p, v, 1, i);
+		}
+	} while (nm != "CONSTRAINTS");
 
-  partcount = i;
+	partcount = i;
 
-  do
-  {                      // CONSTRAINTS
-    stream->ReadLine(a); // Part A
-    if (a == "ENDFILE")
-    {
-      break;
-    }
+	do
+	{						 // CONSTRAINTS
+		stream->ReadLine(a); // Part A
+		if (a == "ENDFILE")
+		{
+			break;
+		}
 
-    stream->ReadLine(b); // Part B
-    a.erase(0, 1);
-    b.erase(0, 1);
-    std::int32_t const pa = strtoint(a);
-    std::int32_t const pb = strtoint(b);
+		stream->ReadLine(b); // Part B
+		a.erase(0, 1);
+		b.erase(0, 1);
+		std::int32_t const pa = strtoint(a);
+		std::int32_t const pb = strtoint(b);
 
-    tvector2 const delta = vec2subtract(pos[pa], pos[pb]);
-    makeconstraint(pa, pb, sqrt(vec2dot(delta, delta)));
-  } while (a != "ENDFILE");
+		tvector2 const delta = vec2subtract(pos[pa], pos[pb]);
+		makeconstraint(pa, pb, sqrt(vec2dot(delta, delta)));
+	} while (a != "ENDFILE");
 }
 
 void particlesystem::stopallparts()
 {
-  std::int32_t i = 0;
+	std::int32_t i = 0;
 
-  for (i = 1; i <= num_particles; i++)
-  {
-    if (active[i])
-    {
-      velocity[i].x = 0;
-      velocity[i].y = 0;
-      oldpos[i] = pos[i];
-    }
-  }
+	for (i = 1; i <= num_particles; i++)
+	{
+		if (active[i])
+		{
+			velocity[i].x = 0;
+			velocity[i].y = 0;
+			oldpos[i] = pos[i];
+		}
+	}
 }
 
 void particlesystem::destroy()
 {
-  std::int32_t i = 0;
+	std::int32_t i = 0;
 
-  for (i = 1; i <= num_particles; i++)
-  {
-    active[i] = false;
-    pos[i].x = 0;
-    pos[i].y = 0;
-    oldpos[i] = pos[i];
-    velocity[i].x = 0;
-    velocity[i].y = 0;
-    forces[i].x = 0;
-    forces[i].y = 0;
-  }
-  constraintcount = 0;
+	for (i = 1; i <= num_particles; i++)
+	{
+		active[i] = false;
+		pos[i].x = 0;
+		pos[i].y = 0;
+		oldpos[i] = pos[i];
+		velocity[i].x = 0;
+		velocity[i].y = 0;
+		forces[i].x = 0;
+		forces[i].y = 0;
+	}
+	constraintcount = 0;
 }

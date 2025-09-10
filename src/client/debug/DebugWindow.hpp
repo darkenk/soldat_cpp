@@ -10,18 +10,21 @@ struct SDL_GPUTexture;
 class DebugWindow
 {
 public:
-  using ImGuiDrawFunction = std::function<void()>;
+	using ImGuiDrawFunction = std::function<void()>;
 
-  DebugWindow(SdlApp &app);
-  ~DebugWindow();
+	DebugWindow(SdlApp& app);
+	~DebugWindow();
 
-  template<typename ServiceLocator>
-  static void DrawStatic(ImGuiDrawFunction func) {ServiceLocator::Get().DebugWindow().Draw(func);}
+	template <typename ServiceLocator>
+	static void DrawStatic(ImGuiDrawFunction func)
+	{
+		ServiceLocator::Get().DebugWindow().Draw(func);
+	}
 
-  void Draw(const ImGuiDrawFunction &func);
-  void DrawEverything(SDL_GPUCommandBuffer* _command_buffer,  SDL_GPUTexture* _texture);
+	void Draw(const ImGuiDrawFunction& func);
+	void DrawEverything(SDL_GPUCommandBuffer* _command_buffer, SDL_GPUTexture* _texture);
 
 private:
-  std::vector<ImGuiDrawFunction> PendingDrawCalls;
-  SdlApp &mApp;
+	std::vector<ImGuiDrawFunction> PendingDrawCalls;
+	SdlApp& mApp;
 };

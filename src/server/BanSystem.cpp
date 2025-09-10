@@ -14,105 +14,104 @@ GlobalStateBanSystem gGlobalStateBanSystem{
 
 };
 
-auto GlobalStateBanSystem::matchesmask([[maybe_unused]] const std::string &v,
-                                              [[maybe_unused]] const std::string &mask) -> bool
+auto GlobalStateBanSystem::matchesmask([[maybe_unused]] const std::string& v, [[maybe_unused]] const std::string& mask)
+	-> bool
 {
-  NotImplemented();
-  return false;
+	NotImplemented();
+	return false;
 }
 
-void GlobalStateBanSystem::addbannedip(const std::string &ip, const std::string &reason,
-                                       std::int32_t duration)
+void GlobalStateBanSystem::addbannedip(const std::string& ip, const std::string& reason, std::int32_t duration)
 {
-  std::int32_t i = 0;
-  std::int32_t findex = 0;
+	std::int32_t i = 0;
+	std::int32_t findex = 0;
 
-  findex = 0;
-  if (checkbannedip(ip))
-  {
-    return;
-  }
-  for (i = 1; i <= high(bannediplist); i++)
-  {
-    if (bannediplist[i].ip.empty())
-    {
-      findex = i;
-      break;
-    }
-  }
+	findex = 0;
+	if (checkbannedip(ip))
+	{
+		return;
+	}
+	for (i = 1; i <= high(bannediplist); i++)
+	{
+		if (bannediplist[i].ip.empty())
+		{
+			findex = i;
+			break;
+		}
+	}
 
-  if (findex == 0)
-  {
-    setlength(bannediplist, high(bannediplist) + 2);
-    bannediplist[high(bannediplist)].ip = ip;
-    bannediplist[high(bannediplist)].time = duration;
-    bannediplist[high(bannediplist)].reason = reason;
-  }
-  else
-  {
-    bannediplist[findex].ip = ip;
-    bannediplist[findex].time = duration;
-    bannediplist[findex].reason = reason;
-  }
-  lastban = ip;
+	if (findex == 0)
+	{
+		setlength(bannediplist, high(bannediplist) + 2);
+		bannediplist[high(bannediplist)].ip = ip;
+		bannediplist[high(bannediplist)].time = duration;
+		bannediplist[high(bannediplist)].reason = reason;
+	}
+	else
+	{
+		bannediplist[findex].ip = ip;
+		bannediplist[findex].time = duration;
+		bannediplist[findex].reason = reason;
+	}
+	lastban = ip;
 }
 
-auto GlobalStateBanSystem::delbannedip(const std::string &ip) -> bool
+auto GlobalStateBanSystem::delbannedip(const std::string& ip) -> bool
 {
-  std::int32_t i = 0;
+	std::int32_t i = 0;
 
-  bool result = false;
-  result = false;
-  for (i = 1; i <= high(bannediplist); i++)
-  {
-    if ((bannediplist[i].ip == ip) && (!ip.empty()))
-    {
-      bannediplist[i].ip = "";
-      bannediplist[i].time = permanent;
-      bannediplist[i].reason = "";
-      result = true;
-    }
-  }
-  return result;
+	bool result = false;
+	result = false;
+	for (i = 1; i <= high(bannediplist); i++)
+	{
+		if ((bannediplist[i].ip == ip) && (!ip.empty()))
+		{
+			bannediplist[i].ip = "";
+			bannediplist[i].time = permanent;
+			bannediplist[i].reason = "";
+			result = true;
+		}
+	}
+	return result;
 }
 
-auto GlobalStateBanSystem::checkbannedip(const std::string &ip) -> bool
+auto GlobalStateBanSystem::checkbannedip(const std::string& ip) -> bool
 {
-  std::int32_t i = 0;
+	std::int32_t i = 0;
 
-  bool result = false;
-  result = false;
-  for (i = 1; i <= high(bannediplist); i++)
-  {
-    if (matchesmask(ip, bannediplist[i].ip))
-    {
-      result = true;
-      break;
-    }
-  }
-  return result;
+	bool result = false;
+	result = false;
+	for (i = 1; i <= high(bannediplist); i++)
+	{
+		if (matchesmask(ip, bannediplist[i].ip))
+		{
+			result = true;
+			break;
+		}
+	}
+	return result;
 }
 
-auto GlobalStateBanSystem::findban(const std::string &ip) -> std::int32_t
+auto GlobalStateBanSystem::findban(const std::string& ip) -> std::int32_t
 {
-  std::int32_t i = 0;
+	std::int32_t i = 0;
 
-  std::int32_t result = 0;
-  result = -1;
-  for (i = 1; i <= high(bannediplist); i++)
-  {
-    if (matchesmask(ip, bannediplist[i].ip))
-    {
-      result = i;
-      break;
-    }
-  }
-  return result;
+	std::int32_t result = 0;
+	result = -1;
+	for (i = 1; i <= high(bannediplist); i++)
+	{
+		if (matchesmask(ip, bannediplist[i].ip))
+		{
+			result = i;
+			break;
+		}
+	}
+	return result;
 }
 
-void GlobalStateBanSystem::loadbannedlist(const std::string & /*filename*/)
+void GlobalStateBanSystem::loadbannedlist(const std::string& /*filename*/)
 {
-  NotImplemented();
+	NotImplemented();
 #if 0
     std::int32_t i, j;
     tstringlist temparray;
@@ -145,9 +144,9 @@ void GlobalStateBanSystem::loadbannedlist(const std::string & /*filename*/)
 #endif
 }
 
-void GlobalStateBanSystem::savebannedlist(const std::string & /*filename*/)
+void GlobalStateBanSystem::savebannedlist(const std::string& /*filename*/)
 {
-  NotImplemented();
+	NotImplemented();
 #if 0
     std::int32_t i;
     std::string buff;
@@ -169,123 +168,122 @@ void GlobalStateBanSystem::savebannedlist(const std::string & /*filename*/)
 
 void GlobalStateBanSystem::updateipbanlist()
 {
-  for (auto j = 1; j <= high(bannediplist); j++)
-  {
-    if (!bannediplist[j].ip.empty())
-    {
-      if (bannediplist[j].time > 0)
-      {
-        bannediplist[j].time -= 3600;
-        if ((bannediplist[j].time < 0) && !(bannediplist[j].time == permanent))
-        {
-          bannediplist[j].time = 0;
-        }
-      }
-      if ((bannediplist[j].time == 0) && !(bannediplist[j].time == permanent))
-      {
-        GS::GetMainConsole().console(std::string("IP number ") + bannediplist[j].ip + " (" +
-                                       bannediplist[j].reason + ") unbanned",
-                                     client_message_color);
-        delbannedip(bannediplist[j].ip);
-        savetxtlists();
-      }
-    }
-  }
+	for (auto j = 1; j <= high(bannediplist); j++)
+	{
+		if (!bannediplist[j].ip.empty())
+		{
+			if (bannediplist[j].time > 0)
+			{
+				bannediplist[j].time -= 3600;
+				if ((bannediplist[j].time < 0) && !(bannediplist[j].time == permanent))
+				{
+					bannediplist[j].time = 0;
+				}
+			}
+			if ((bannediplist[j].time == 0) && !(bannediplist[j].time == permanent))
+			{
+				GS::GetMainConsole().console(
+					std::string("IP number ") + bannediplist[j].ip + " (" + bannediplist[j].reason + ") unbanned",
+					client_message_color);
+				delbannedip(bannediplist[j].ip);
+				savetxtlists();
+			}
+		}
+	}
 }
 
 // hardware id bans
-void GlobalStateBanSystem::addbannedhw(const std::string &hw, const std::string &reason,
-                                       std::int32_t duration)
+void GlobalStateBanSystem::addbannedhw(const std::string& hw, const std::string& reason, std::int32_t duration)
 {
-  std::int32_t i = 0;
-  std::int32_t findex = 0;
+	std::int32_t i = 0;
+	std::int32_t findex = 0;
 
-  findex = 0;
-  if (checkbannedhw(hw))
-  {
-    return;
-  }
-  for (i = 1; i <= high(bannedhwlist); i++)
-  {
-    if (bannedhwlist[i].hw.empty())
-    {
-      findex = i;
-      break;
-    }
-  }
+	findex = 0;
+	if (checkbannedhw(hw))
+	{
+		return;
+	}
+	for (i = 1; i <= high(bannedhwlist); i++)
+	{
+		if (bannedhwlist[i].hw.empty())
+		{
+			findex = i;
+			break;
+		}
+	}
 
-  if (findex == 0)
-  {
-    setlength(bannedhwlist, high(bannedhwlist) + 2);
-    bannedhwlist[high(bannedhwlist)].hw = hw;
-    bannedhwlist[high(bannedhwlist)].time = duration;
-    bannedhwlist[high(bannedhwlist)].reason = reason;
-  }
-  else
-  {
-    bannedhwlist[findex].hw = hw;
-    bannedhwlist[findex].time = duration;
-    bannedhwlist[findex].reason = reason;
-  }
-  lastbanhw = hw;
+	if (findex == 0)
+	{
+		setlength(bannedhwlist, high(bannedhwlist) + 2);
+		bannedhwlist[high(bannedhwlist)].hw = hw;
+		bannedhwlist[high(bannedhwlist)].time = duration;
+		bannedhwlist[high(bannedhwlist)].reason = reason;
+	}
+	else
+	{
+		bannedhwlist[findex].hw = hw;
+		bannedhwlist[findex].time = duration;
+		bannedhwlist[findex].reason = reason;
+	}
+	lastbanhw = hw;
 }
 
-auto GlobalStateBanSystem::delbannedhw(const std::string &hw) -> bool
+auto GlobalStateBanSystem::delbannedhw(const std::string& hw) -> bool
 {
-  std::int32_t i = 0;
+	std::int32_t i = 0;
 
-  bool result = false;
-  result = false;
-  for (i = 1; i <= high(bannedhwlist); i++)
-  {
-    if ((bannedhwlist[i].hw == hw) && (!hw.empty()))
-    {
-      bannedhwlist[i].hw = "";
-      bannedhwlist[i].time = permanent;
-      bannedhwlist[i].reason = "";
-      result = true;
-    }
-  }
-  return result;
+	bool result = false;
+	result = false;
+	for (i = 1; i <= high(bannedhwlist); i++)
+	{
+		if ((bannedhwlist[i].hw == hw) && (!hw.empty()))
+		{
+			bannedhwlist[i].hw = "";
+			bannedhwlist[i].time = permanent;
+			bannedhwlist[i].reason = "";
+			result = true;
+		}
+	}
+	return result;
 }
 
-auto GlobalStateBanSystem::checkbannedhw(const std::string &hw) -> bool
+auto GlobalStateBanSystem::checkbannedhw(const std::string& hw) -> bool
 {
-  std::int32_t i = 0;
+	std::int32_t i = 0;
 
-  bool result = false;
-  result = false;
-  for (i = 1; i <= high(bannedhwlist); i++)
-  {
-    if (matchesmask(hw, bannedhwlist[i].hw))
-    {
-      result = true;
-      break;
-    }
-  }
-  return result;
+	bool result = false;
+	result = false;
+	for (i = 1; i <= high(bannedhwlist); i++)
+	{
+		if (matchesmask(hw, bannedhwlist[i].hw))
+		{
+			result = true;
+			break;
+		}
+	}
+	return result;
 }
 
-auto GlobalStateBanSystem::findbanhw(const std::string &hw) -> std::int32_t
+auto GlobalStateBanSystem::findbanhw(const std::string& hw) -> std::int32_t
 {
-  std::int32_t i = 0;
+	std::int32_t i = 0;
 
-  std::int32_t result = 0;
-  result = -1;
-  for (i = 1; i <= high(bannedhwlist); i++)
-  {
-    if (matchesmask(hw, bannedhwlist[i].hw))
-    {
-      result = i;
-      break;
-    }
-  }
-  return result;
+	std::int32_t result = 0;
+	result = -1;
+	for (i = 1; i <= high(bannedhwlist); i++)
+	{
+		if (matchesmask(hw, bannedhwlist[i].hw))
+		{
+			result = i;
+			break;
+		}
+	}
+	return result;
 }
 
-void GlobalStateBanSystem::loadbannedlisthw(const std::string & /*filename*/)
+void GlobalStateBanSystem::loadbannedlisthw(const std::string& /*filename*/)
 {
-  NotImplemented();
+	NotImplemented();
 #if 0
     std::int32_t i, j;
     tstringlist temparray;
@@ -318,9 +316,9 @@ void GlobalStateBanSystem::loadbannedlisthw(const std::string & /*filename*/)
 #endif
 }
 
-void GlobalStateBanSystem::savebannedlisthw(const std::string & /*filename*/)
+void GlobalStateBanSystem::savebannedlisthw(const std::string& /*filename*/)
 {
-  NotImplemented();
+	NotImplemented();
 #if 0
     std::int32_t i;
     std::string buff;
@@ -342,26 +340,26 @@ void GlobalStateBanSystem::savebannedlisthw(const std::string & /*filename*/)
 
 void GlobalStateBanSystem::updatehwbanlist()
 {
-  for (auto j = 1; j <= high(bannedhwlist); j++)
-  {
-    if (!bannedhwlist[j].hw.empty())
-    {
-      if (bannedhwlist[j].time > 0)
-      {
-        bannedhwlist[j].time -= 3600;
-        if ((bannedhwlist[j].time < 0) && !(bannedhwlist[j].time == permanent))
-        {
-          bannedhwlist[j].time = 0;
-        }
-      }
-      if ((bannedhwlist[j].time == 0) && !(bannedhwlist[j].time == permanent))
-      {
-        GS::GetMainConsole().console(std::string("Hardware ID ") + bannedhwlist[j].hw + " (" +
-                                       bannedhwlist[j].reason + ") unbanned",
-                                     client_message_color);
-        delbannedhw(bannedhwlist[j].hw);
-        savetxtlists();
-      }
-    }
-  }
+	for (auto j = 1; j <= high(bannedhwlist); j++)
+	{
+		if (!bannedhwlist[j].hw.empty())
+		{
+			if (bannedhwlist[j].time > 0)
+			{
+				bannedhwlist[j].time -= 3600;
+				if ((bannedhwlist[j].time < 0) && !(bannedhwlist[j].time == permanent))
+				{
+					bannedhwlist[j].time = 0;
+				}
+			}
+			if ((bannedhwlist[j].time == 0) && !(bannedhwlist[j].time == permanent))
+			{
+				GS::GetMainConsole().console(
+					std::string("Hardware ID ") + bannedhwlist[j].hw + " (" + bannedhwlist[j].reason + ") unbanned",
+					client_message_color);
+				delbannedhw(bannedhwlist[j].hw);
+				savetxtlists();
+			}
+		}
+	}
 }

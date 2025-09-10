@@ -3,7 +3,7 @@
 #include <array>
 #include <cstdint>
 
-//#define GFXID
+// #define GFXID
 /*$INCLUDE gfx.inc*/
 /*$UNDEF GFXID*/
 
@@ -133,7 +133,7 @@ constexpr std::int32_t spawnrandomvelocity = 25;
 
 constexpr std::int32_t flag_timeout = second * 25;
 constexpr std::int32_t waypointtimeout = second * 5 + 20; // = 320
-constexpr std::int32_t waypoint_timeout = 480;            // TODO: why the duplication?
+constexpr std::int32_t waypoint_timeout = 480;			  // TODO: why the duplication?
 
 constexpr std::int32_t waypointseekradius = 21;
 
@@ -225,11 +225,17 @@ constexpr std::int32_t thing_collision_cooldown = 60;
 constexpr std::int32_t fireinterval_net = 5;
 constexpr std::int32_t melee_dist = 12;
 
-constexpr std::array<const char *, 16> multikillmessage = {
-    {"DOUBLE KILL", "TRIPLE KILL", "MULTI KILL", "MULTI KILL X2", "SERIAL KILL", "INSANE KILLS",
-     "GIMME MORE!", "MASTA KILLA!", "MASTA KILLA!", "MASTA KILLA!", "STOP IT!!!!",
-     "MERCY!!!!!!!!!!", "CHEATER!!!!!!!!", "Phased-plasma rifle in the forty watt range",
-     "Hey, just what you see, pal", "just what you see, pal..."}};
+constexpr std::array<const char*, 16> multikillmessage = {
+	{ "DOUBLE KILL",
+		"TRIPLE KILL", "MULTI KILL",
+		"MULTI KILL X2", "SERIAL KILL",
+		"INSANE KILLS", "GIMME MORE!",
+		"MASTA KILLA!", "MASTA KILLA!",
+		"MASTA KILLA!", "STOP IT!!!!",
+		"MERCY!!!!!!!!!!", "CHEATER!!!!!!!!",
+		"Phased-plasma rifle in the forty watt range", "Hey, just what you see, pal",
+		"just what you see, pal..." }
+};
 
 constexpr std::int32_t menu_time = second;
 constexpr std::int32_t lessbleed_time = second * 2;

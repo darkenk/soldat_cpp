@@ -60,24 +60,31 @@
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 
-auto GlobalStateClient::InitBigConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
-                                       const std::int32_t countMax,
-                                       const std::int32_t scrollTickMax) -> Console &
+auto GlobalStateClient::InitBigConsole(FileUtility* filesystem,
+	const std::int32_t newMessageWait,
+	const std::int32_t countMax,
+	const std::int32_t scrollTickMax) -> Console&
 {
-  return *new (&sBigConsole) Console(filesystem, newMessageWait, countMax, scrollTickMax);
+	return *new (&sBigConsole) Console(filesystem, newMessageWait, countMax, scrollTickMax);
 }
 
-auto GlobalStateClient::InitKillConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
-                                        const std::int32_t countMax,
-                                        const std::int32_t scrollTickMax) -> ConsoleMain &
+auto GlobalStateClient::InitKillConsole(FileUtility* filesystem,
+	const std::int32_t newMessageWait,
+	const std::int32_t countMax,
+	const std::int32_t scrollTickMax) -> ConsoleMain&
 {
-  return *new (&sKillConsole) ConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax);
+	return *new (&sKillConsole) ConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax);
 }
 
+auto GlobalStateClient::GetBigConsole() -> Console&
+{
+	return sBigConsole;
+}
 
-auto GlobalStateClient::GetBigConsole() -> Console & { return sBigConsole; }
-
-auto GlobalStateClient::GetKillConsole() -> ConsoleMain & { return sKillConsole; }
+auto GlobalStateClient::GetKillConsole() -> ConsoleMain&
+{
+	return sKillConsole;
+}
 
 // Client.cpp variables
 
@@ -87,715 +94,712 @@ GlobalStateClient gGlobalStateClient{
 
 void GlobalStateClient::restartgraph()
 {
-  gGlobalStateGameRendering.dotextureloading(true);
+	gGlobalStateGameRendering.dotextureloading(true);
 
-  auto &map = GS::GetGame().GetMap();
+	auto& map = GS::GetGame().GetMap();
 
-  // Load Map
-  map.loadmap(GS::GetFileSystem(), GS::GetGame().GetMapchange(), CVar::r_forcebg, CVar::r_forcebg_color1,
-              CVar::r_forcebg_color2);
+	// Load Map
+	map.loadmap(GS::GetFileSystem(),
+		GS::GetGame().GetMapchange(),
+		CVar::r_forcebg,
+		CVar::r_forcebg_color1,
+		CVar::r_forcebg_color2);
 
-  if (!gGlobalStateGameMenus.escmenu->active)
-  {
-    gGlobalStateClientGame.mx = gGlobalStateGame.gamewidthhalf;
-    gGlobalStateClientGame.my = gGlobalStateGame.gameheighthalf;
-    gGlobalStateClientGame.mouseprev.x = gGlobalStateClientGame.mx;
-    gGlobalStateClientGame.mouseprev.y = gGlobalStateClientGame.my;
-  }
+	if (!gGlobalStateGameMenus.escmenu->active)
+	{
+		gGlobalStateClientGame.mx = gGlobalStateGame.gamewidthhalf;
+		gGlobalStateClientGame.my = gGlobalStateGame.gameheighthalf;
+		gGlobalStateClientGame.mouseprev.x = gGlobalStateClientGame.mx;
+		gGlobalStateClientGame.mouseprev.y = gGlobalStateClientGame.my;
+	}
 
-  GS::GetMainConsole().console(("Graphics restart"), debug_message_color);
+	GS::GetMainConsole().console(("Graphics restart"), debug_message_color);
 }
 
 void GlobalStateClient::loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
 {
-  SoldatAssert(gunDisplayName.size() == double_weapons);
-  std::int32_t i = 0;
+	SoldatAssert(gunDisplayName.size() == double_weapons);
+	std::int32_t i = 0;
 
-  const std::string weaponNamesFile = modDir + "txt/weaponnames.txt";
+	const std::string weaponNamesFile = modDir + "txt/weaponnames.txt";
 
-  //GS::GetMainConsole().console(std::string("Loading Weapon Names from ") + weaponNamesFile, debug_message_color);
-  NotImplemented("console");
-  if (!fs.Exists((weaponNamesFile)))
-  {
-    return;
-  }
-  std::unique_ptr<std::byte[]> buff;
-  std::size_t fileSize = 0;
-  {
-    auto *f = fs.Open(weaponNamesFile, FileUtility::FileMode::Read);
-    fileSize = FileUtility::Size(f);
-    buff = std::make_unique<std::byte[]>(fileSize);
-    FileUtility::Read(f, buff.get(), fileSize);
-    FileUtility::Close(f);
-  }
+	// GS::GetMainConsole().console(std::string("Loading Weapon Names from ") + weaponNamesFile, debug_message_color);
+	NotImplemented("console");
+	if (!fs.Exists((weaponNamesFile)))
+	{
+		return;
+	}
+	std::unique_ptr<std::byte[]> buff;
+	std::size_t fileSize = 0;
+	{
+		auto* f = fs.Open(weaponNamesFile, FileUtility::FileMode::Read);
+		fileSize = FileUtility::Size(f);
+		buff = std::make_unique<std::byte[]>(fileSize);
+		FileUtility::Read(f, buff.get(), fileSize);
+		FileUtility::Close(f);
+	}
 #if __EMSCRIPTEN__
-  std::istringstream sd(std::string(reinterpret_cast<char*>(buff.get()), fileSize));
+	std::istringstream sd(std::string(reinterpret_cast<char*>(buff.get()), fileSize));
 #else
-  std::istringstream sd;
-  sd.rdbuf()->pubsetbuf(reinterpret_cast<char*>(buff.get()), fileSize);
+	std::istringstream sd;
+	sd.rdbuf()->pubsetbuf(reinterpret_cast<char*>(buff.get()), fileSize);
 #endif
-  for (i = 0; i < double_weapons; i++)
-  {
-    SoldatAssert(sd.good());
-    std::getline(sd, gunDisplayName[weaponnumexternaltointernal(i)]);
-  }
+	for (i = 0; i < double_weapons; i++)
+	{
+		SoldatAssert(sd.good());
+		std::getline(sd, gunDisplayName[weaponnumexternaltointernal(i)]);
+	}
 }
 
 void GlobalStateClient::redirectdialog()
 {
-  std::array<SDL_MessageBoxButtonData, 2> buttons{};
-  SDL_MessageBoxData data;
-  std::int32_t response = 0;
+	std::array<SDL_MessageBoxButtonData, 2> buttons{};
+	SDL_MessageBoxData data;
+	std::int32_t response = 0;
 
-  gGlobalStateGameRendering.rendergameinfo("Server Redirect");
-  buttons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
-  buttons[0].buttonID = 0;
-  buttons[0].text = "Yes";
-  buttons[1].flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
-  buttons[1].buttonID = 1;
-  buttons[1].text = "No";
+	gGlobalStateGameRendering.rendergameinfo("Server Redirect");
+	buttons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
+	buttons[0].buttonID = 0;
+	buttons[0].text = "Yes";
+	buttons[1].flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
+	buttons[1].buttonID = 1;
+	buttons[1].text = "No";
 
-  data.flags = 0;
-  data.window = gGlobalStateInput.gamewindow;
-  data.title = "Server Redirect";
-  auto msg =
-    (gGlobalStateClient.redirectmsg + "\r\n\r\nRedirect to server " +
-     gGlobalStateClient.redirectip + ":" + inttostr(gGlobalStateClient.redirectport) + "?");
-  data.message = msg.c_str();
-  data.numbuttons = 2;
-  data.buttons = &buttons.at(0);
-  data.colorScheme = nullptr;
+	data.flags = 0;
+	data.window = gGlobalStateInput.gamewindow;
+	data.title = "Server Redirect";
+	auto msg = (gGlobalStateClient.redirectmsg + "\r\n\r\nRedirect to server " + gGlobalStateClient.redirectip + ":"
+				+ inttostr(gGlobalStateClient.redirectport) + "?");
+	data.message = msg.c_str();
+	data.numbuttons = 2;
+	data.buttons = &buttons.at(0);
+	data.colorScheme = nullptr;
 
-  if (static_cast<int>(SDL_ShowMessageBox(&data, &response)) != 0)
-  {
-    return;
-  }
+	if (static_cast<int>(SDL_ShowMessageBox(&data, &response)) != 0)
+	{
+		return;
+	}
 
-  gGlobalStateClient.redirecttoserver = false;
+	gGlobalStateClient.redirecttoserver = false;
 
-  if (response == 0)
-  {
-    gGlobalStateClient.joinip = gGlobalStateClient.redirectip;
-    gGlobalStateClient.joinport = inttostr(gGlobalStateClient.redirectport);
-    joinserver();
-  }
-  else
-  {
-    gGlobalStateClient.redirectip = "";
-    gGlobalStateClient.redirectport = 0;
-    gGlobalStateClient.redirectmsg = "";
-    exittomenu();
-  }
+	if (response == 0)
+	{
+		gGlobalStateClient.joinip = gGlobalStateClient.redirectip;
+		gGlobalStateClient.joinport = inttostr(gGlobalStateClient.redirectport);
+		joinserver();
+	}
+	else
+	{
+		gGlobalStateClient.redirectip = "";
+		gGlobalStateClient.redirectport = 0;
+		gGlobalStateClient.redirectmsg = "";
+		exittomenu();
+	}
 }
 
 void GlobalStateClient::exittomenu()
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i = 0;
+	auto& sprite_system = SpriteSystem::Get();
+	std::int32_t i = 0;
 
-  GS::GetGame().ResetGoalTicks();
+	GS::GetGame().ResetGoalTicks();
 
-  // Reset network state and show the status std::string (if any)
-  // ShouldRenderFrames := False;
-  // NetEncActive := False;
+	// Reset network state and show the status std::string (if any)
+	// ShouldRenderFrames := False;
+	// NetEncActive := False;
 
-  // resetsynccvars;
+	// resetsynccvars;
 
-  if (GS::GetDemoRecorder().active())
-  {
-    GS::GetDemoRecorder().stoprecord();
-  }
+	if (GS::GetDemoRecorder().active())
+	{
+		GS::GetDemoRecorder().stoprecord();
+	}
 
-  if (gGlobalStateDemo.demoplayer.active())
-  {
-    gGlobalStateDemo.demoplayer.stopdemo();
-  }
+	if (gGlobalStateDemo.demoplayer.active())
+	{
+		gGlobalStateDemo.demoplayer.stopdemo();
+	}
 
-  if (sprite_system.IsPlayerSpriteValid())
-  {
-    clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
-  }
-  if (gGlobalStateNetworkClient.GetNetwork() != nullptr)
-  {
-    gGlobalStateNetworkClient.GetNetwork()->Disconnect(true);
-  }
+	if (sprite_system.IsPlayerSpriteValid())
+	{
+		clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
+	}
+	if (gGlobalStateNetworkClient.GetNetwork() != nullptr)
+	{
+		gGlobalStateNetworkClient.GetNetwork()->Disconnect(true);
+	}
 
-  gGlobalStateSound.stopsound(channel_weather);
+	gGlobalStateSound.stopsound(channel_weather);
 
-  auto &map = GS::GetGame().GetMap();
+	auto& map = GS::GetGame().GetMap();
 
-  map.name = "";
+	map.name = "";
 
-  if (gGlobalStateGameMenus.escmenu != nullptr)
-  {
-    gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.escmenu, false);
-  }
+	if (gGlobalStateGameMenus.escmenu != nullptr)
+	{
+		gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.escmenu, false);
+	}
 
-  map.filename = ""; // force reloading next time
-  GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
-  // WindowReady := False;
+	map.filename = ""; // force reloading next time
+	GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
+	// WindowReady := False;
 
-  auto &activeSprites = sprite_system.GetActiveSprites();
+	auto& activeSprites = sprite_system.GetActiveSprites();
 
-  std::ranges::for_each(activeSprites,
-                [](auto &sprite) { sprite.kill(); });
-  GS::GetBulletSystem().KillAll();
-  for (i = 1; i <= max_sparks; i++)
-  {
-    gGlobalStateGame.spark[i].kill();
-  }
-  GS::GetThingSystem().KillAll();
+	std::ranges::for_each(activeSprites,
+		[](auto& sprite)
+		{
+			sprite.kill();
+		});
+	GS::GetBulletSystem().KillAll();
+	for (i = 1; i <= max_sparks; i++)
+	{
+		gGlobalStateGame.spark[i].kill();
+	}
+	GS::GetThingSystem().KillAll();
 
-  // Reset World and Big Texts
-  for (i = 0; i < max_big_messages; i++)
-  {
-    // Big Text
-    gGlobalStateInterfaceGraphics.bigtext[i] = "";
-    gGlobalStateInterfaceGraphics.bigdelay[i] = 0;
-    gGlobalStateInterfaceGraphics.bigscale[i] = 0;
-    gGlobalStateInterfaceGraphics.bigcolor[i] = 0;
-    gGlobalStateInterfaceGraphics.bigposx[i] = 0;
-    gGlobalStateInterfaceGraphics.bigposy[i] = 0;
-    gGlobalStateInterfaceGraphics.bigx[i] = 0;
-    // World Text
-    gGlobalStateInterfaceGraphics.worldtext[i] = "";
-    gGlobalStateInterfaceGraphics.worlddelay[i] = 0;
-    gGlobalStateInterfaceGraphics.worldscale[i] = 0;
-    gGlobalStateInterfaceGraphics.worldcolor[i] = 0;
-    gGlobalStateInterfaceGraphics.worldposx[i] = 0;
-    gGlobalStateInterfaceGraphics.worldposy[i] = 0;
-    gGlobalStateInterfaceGraphics.worldx[i] = 0;
-  }
+	// Reset World and Big Texts
+	for (i = 0; i < max_big_messages; i++)
+	{
+		// Big Text
+		gGlobalStateInterfaceGraphics.bigtext[i] = "";
+		gGlobalStateInterfaceGraphics.bigdelay[i] = 0;
+		gGlobalStateInterfaceGraphics.bigscale[i] = 0;
+		gGlobalStateInterfaceGraphics.bigcolor[i] = 0;
+		gGlobalStateInterfaceGraphics.bigposx[i] = 0;
+		gGlobalStateInterfaceGraphics.bigposy[i] = 0;
+		gGlobalStateInterfaceGraphics.bigx[i] = 0;
+		// World Text
+		gGlobalStateInterfaceGraphics.worldtext[i] = "";
+		gGlobalStateInterfaceGraphics.worlddelay[i] = 0;
+		gGlobalStateInterfaceGraphics.worldscale[i] = 0;
+		gGlobalStateInterfaceGraphics.worldcolor[i] = 0;
+		gGlobalStateInterfaceGraphics.worldposx[i] = 0;
+		gGlobalStateInterfaceGraphics.worldposy[i] = 0;
+		gGlobalStateInterfaceGraphics.worldx[i] = 0;
+	}
 
-  // Reset ABOVE CHAT MESSAGE
-  for (i = 1; i < max_sprites; i++)
-  {
-    gGlobalStateInterfaceGraphics.chatdelay[i] = 0;
-    gGlobalStateInterfaceGraphics.chatmessage[i] = "";
-    gGlobalStateInterfaceGraphics.chatteam[i] = false;
-  }
+	// Reset ABOVE CHAT MESSAGE
+	for (i = 1; i < max_sprites; i++)
+	{
+		gGlobalStateInterfaceGraphics.chatdelay[i] = 0;
+		gGlobalStateInterfaceGraphics.chatmessage[i] = "";
+		gGlobalStateInterfaceGraphics.chatteam[i] = false;
+	}
 
-  mysprite = 0;
-  camerafollowsprite = 0;
-  gamethingtarget = 0;
+	mysprite = 0;
+	camerafollowsprite = 0;
+	gamethingtarget = 0;
 
-  if (redirecttoserver)
-  {
-    redirectdialog();
-  }
+	if (redirecttoserver)
+	{
+		redirectdialog();
+	}
 }
 
-void GlobalStateClient::CreateDirectoryStructure(FileUtility &fs)
+void GlobalStateClient::CreateDirectoryStructure(FileUtility& fs)
 {
-  SoldatEnsure(fs.MkDir("/user/configs"));
-  SoldatEnsure(fs.MkDir("/user/screens"));
-  SoldatEnsure(fs.MkDir("/user/demos"));
-  SoldatEnsure(fs.MkDir("/user/logs"));
-  SoldatEnsure(fs.MkDir("/user/logs/kills"));
-  SoldatEnsure(fs.MkDir("/user/maps"));
-  SoldatEnsure(fs.MkDir("/user/mods"));
+	SoldatEnsure(fs.MkDir("/user/configs"));
+	SoldatEnsure(fs.MkDir("/user/screens"));
+	SoldatEnsure(fs.MkDir("/user/demos"));
+	SoldatEnsure(fs.MkDir("/user/logs"));
+	SoldatEnsure(fs.MkDir("/user/logs/kills"));
+	SoldatEnsure(fs.MkDir("/user/maps"));
+	SoldatEnsure(fs.MkDir("/user/mods"));
 }
 
-auto GlobalStateClient::MountAssets(FileUtility &fu, const std::string &userdirectory,
-                                           const std::string &basedirectory,
-                                           tsha1digest &outGameModChecksum,
-                                           tsha1digest &outCustomModChecksum) -> bool
+auto GlobalStateClient::MountAssets(FileUtility& fu,
+	const std::string& userdirectory,
+	const std::string& basedirectory,
+	tsha1digest& outGameModChecksum,
+	tsha1digest& outCustomModChecksum) -> bool
 {
-  LogDebugG("[FS] Mounting game archive");
-  if (CVar::fs_localmount)
-  {
-    if (!fu.Mount(userdirectory, "/"))
-    {
-      showmessage(("Could not load base game archive (game directory)."));
-      return false;
-    }
-  }
-  else
-  {
-    if (!fu.Mount(basedirectory + "/soldat.smod", "/"))
-    {
-      showmessage(("Could not load base game archive (soldat.smod). Try to reinstall the game."));
-      return false;
-    }
+	LogDebugG("[FS] Mounting game archive");
+	if (CVar::fs_localmount)
+	{
+		if (!fu.Mount(userdirectory, "/"))
+		{
+			showmessage(("Could not load base game archive (game directory)."));
+			return false;
+		}
+	}
+	else
+	{
+		if (!fu.Mount(basedirectory + "/soldat.smod", "/"))
+		{
+			showmessage(("Could not load base game archive (soldat.smod). Try to reinstall the game."));
+			return false;
+		}
 
-    outGameModChecksum = sha1file(basedirectory + "/soldat.smod");
-  }
-  gGlobalStateClient.moddir = "";
-  if (CVar::fs_mod != "")
-  {
-    LogDebugG("[FS] Mounting mods/{}.smod", lowercase(CVar::fs_mod));
-    if (!fu.Mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
-                  (std::string("mods/") + lowercase(CVar::fs_mod) + "/")))
-    {
-      showmessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
-      return false;
-    }
-    gGlobalStateClient.moddir = std::string("/mods/") + lowercase(CVar::fs_mod) + '/';
-    outCustomModChecksum = sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod");
-  }
-  return true;
+		outGameModChecksum = sha1file(basedirectory + "/soldat.smod");
+	}
+	gGlobalStateClient.moddir = "";
+	if (CVar::fs_mod != "")
+	{
+		LogDebugG("[FS] Mounting mods/{}.smod", lowercase(CVar::fs_mod));
+		if (!fu.Mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
+				(std::string("mods/") + lowercase(CVar::fs_mod) + "/")))
+		{
+			showmessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
+			return false;
+		}
+		gGlobalStateClient.moddir = std::string("/mods/") + lowercase(CVar::fs_mod) + '/';
+		outCustomModChecksum = sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod");
+	}
+	return true;
 }
 
 // TODO(vscode): throw away test variable
 void GlobalStateClient::InitConsoles(bool test)
 {
-  // Create Consoles
-  auto console = std::make_unique<ConsoleMain>(
-    &GS::GetFileSystem(), 150,
-    round(CVar::ui_console_length * gGlobalStateInterfaceGraphics._rscala.y), 150);
-  GS::SetMainConsole(std::move(console));
+	// Create Consoles
+	auto console = std::make_unique<ConsoleMain>(
+		&GS::GetFileSystem(), 150, round(CVar::ui_console_length * gGlobalStateInterfaceGraphics._rscala.y), 150);
+	GS::SetMainConsole(std::move(console));
 
-  auto countMax =
-    floor((0.85 * gGlobalStateClientGame.renderheight) /
-          (CVar::font_consolelineheight * gGlobalStateGameRendering.fontstylesize(font_small)));
-  if (test)
-  {
-    countMax = 20;
-  }
+	auto countMax = floor((0.85 * gGlobalStateClientGame.renderheight)
+						  / (CVar::font_consolelineheight * gGlobalStateGameRendering.fontstylesize(font_small)));
+	if (test)
+	{
+		countMax = 20;
+	}
 
-  InitBigConsole(&GS::GetFileSystem(),0, countMax, 1500000);
-  GS::GetMainConsole().SetBigConsole(&GetBigConsole());
+	InitBigConsole(&GS::GetFileSystem(), 0, countMax, 1500000);
+	GS::GetMainConsole().SetBigConsole(&GetBigConsole());
 
-  InitKillConsole(&GS::GetFileSystem(), 70,
-                  round(CVar::ui_killconsole_length * gGlobalStateInterfaceGraphics._rscala.y),
-                  240);
+	InitKillConsole(
+		&GS::GetFileSystem(), 70, round(CVar::ui_killconsole_length * gGlobalStateInterfaceGraphics._rscala.y), 240);
 }
 
-void GlobalStateClient::startgame(int argc, char *argv[])
+void GlobalStateClient::startgame(int argc, char* argv[])
 {
-  initclientcommands();
-  commandinit();
+	initclientcommands();
+	commandinit();
 
-  parsecommandline(argc, argv);
-  if (argc == 1)
-  {
-    parseinput("join 127.0.0.1 23073");
-  }
+	parsecommandline(argc, argv);
+	if (argc == 1)
+	{
+		parseinput("join 127.0.0.1 23073");
+	}
 
-  auto &fs = GS::GetFileSystem();
-  const auto userDirectory = FileUtility::GetPrefPath("client");
-  const auto baseDirectory = FileUtility::GetBasePath();
+	auto& fs = GS::GetFileSystem();
+	const auto userDirectory = FileUtility::GetPrefPath("client");
+	const auto baseDirectory = FileUtility::GetBasePath();
 
-  LogDebugG("[FS] userDirectory: {}", userDirectory);
-  LogDebugG("[FS] baseDirectory: {}", baseDirectory);
+	LogDebugG("[FS] userDirectory: {}", userDirectory);
+	LogDebugG("[FS] baseDirectory: {}", baseDirectory);
 
-  fs.Mount(userDirectory, "/user");
+	fs.Mount(userDirectory, "/user");
 
-  // Create the basic folder structure
-  CreateDirectoryStructure(fs);
+	// Create the basic folder structure
+	CreateDirectoryStructure(fs);
 
-  {
-    tsha1digest gameSha1;
-    tsha1digest modSha1;
+	{
+		tsha1digest gameSha1;
+		tsha1digest modSha1;
 
-    if (!MountAssets(fs, userDirectory, baseDirectory, gameSha1, modSha1))
-    {
-      SoldatAssert(false);
-      return;
-    }
-    GS::GetGame().SetCustomModChecksum(modSha1);
-    GS::GetGame().SetGameModChecksum(gameSha1);
-  }
+		if (!MountAssets(fs, userDirectory, baseDirectory, gameSha1, modSha1))
+		{
+			SoldatAssert(false);
+			return;
+		}
+		GS::GetGame().SetCustomModChecksum(modSha1);
+		GS::GetGame().SetGameModChecksum(gameSha1);
+	}
 
-  GS::GetConsoleLogFile().Enable(CVar::log_enable);
-  GS::GetConsoleLogFile().SetLogLevel(CVar::log_level);
-  GS::GetConsoleLogFile().Init("/user/logs/consolelog");
+	GS::GetConsoleLogFile().Enable(CVar::log_enable);
+	GS::GetConsoleLogFile().SetLogLevel(CVar::log_level);
+	GS::GetConsoleLogFile().Init("/user/logs/consolelog");
 
-  std::string systemlang = "en_US";
-  // todo this variable is needed when code is refactored
-  const std::string systemfallbacklang = "en_US"; // NOLINT
+	std::string systemlang = "en_US";
+	// todo this variable is needed when code is refactored
+	const std::string systemfallbacklang = "en_US"; // NOLINT
 
-  // TODO(vscode): remove HWIDs, replace by Fae auth tickets
-  hwid = "00000000000";
+	// TODO(vscode): remove HWIDs, replace by Fae auth tickets
+	hwid = "00000000000";
 
-  LogDebugG("[FS] Initializing system");
+	LogDebugG("[FS] Initializing system");
 
-  gGlobalStateInterfaceGraphics.loadinterfacearchives(userDirectory + "/custom-interfaces/");
+	gGlobalStateInterfaceGraphics.loadinterfacearchives(userDirectory + "/custom-interfaces/");
 
-  fs.Copy("/configs/bindings.cfg", "/user/configs/bindings.cfg");
-  fs.Copy("/configs/client.cfg", "/user/configs/client.cfg");
-  fs.Copy("/configs/controls.cfg", "/user/configs/controls.cfg");
-  fs.Copy("/configs/game.cfg", "/user/configs/game.cfg");
-  fs.Copy("/configs/graphics.cfg", "/user/configs/graphics.cfg");
-  fs.Copy("/configs/player.cfg", "/user/configs/player.cfg");
-  fs.Copy("/configs/sound.cfg", "/user/configs/sound.cfg");
+	fs.Copy("/configs/bindings.cfg", "/user/configs/bindings.cfg");
+	fs.Copy("/configs/client.cfg", "/user/configs/client.cfg");
+	fs.Copy("/configs/controls.cfg", "/user/configs/controls.cfg");
+	fs.Copy("/configs/game.cfg", "/user/configs/game.cfg");
+	fs.Copy("/configs/graphics.cfg", "/user/configs/graphics.cfg");
+	fs.Copy("/configs/player.cfg", "/user/configs/player.cfg");
+	fs.Copy("/configs/sound.cfg", "/user/configs/sound.cfg");
 
-  loadconfig("client.cfg", fs);
+	loadconfig("client.cfg", fs);
 
-  // these might change so keep a backup to avoid changing the settings file
-  gGlobalStateClientGame.screenwidth = CVar::r_screenwidth;
-  gGlobalStateClientGame.screenheight = CVar::r_screenheight;
-  gGlobalStateClientGame.renderheight = CVar::r_renderheight;
-  gGlobalStateClientGame.renderwidth = CVar::r_renderwidth;
+	// these might change so keep a backup to avoid changing the settings file
+	gGlobalStateClientGame.screenwidth = CVar::r_screenwidth;
+	gGlobalStateClientGame.screenheight = CVar::r_screenheight;
+	gGlobalStateClientGame.renderheight = CVar::r_renderheight;
+	gGlobalStateClientGame.renderwidth = CVar::r_renderwidth;
 
-  SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-  SDL_DisplayID const display = SDL_GetPrimaryDisplay();
-  const SDL_DisplayMode* currentdisplay = SDL_GetCurrentDisplayMode(display);
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+	SDL_DisplayID const display = SDL_GetPrimaryDisplay();
+	const SDL_DisplayMode* currentdisplay = SDL_GetCurrentDisplayMode(display);
 
-  if ((gGlobalStateClientGame.screenwidth == 0) || (gGlobalStateClientGame.screenheight == 0))
-  {
-    gGlobalStateClientGame.screenwidth = currentdisplay->w;
-    gGlobalStateClientGame.screenheight = currentdisplay->h;
-  }
+	if ((gGlobalStateClientGame.screenwidth == 0) || (gGlobalStateClientGame.screenheight == 0))
+	{
+		gGlobalStateClientGame.screenwidth = currentdisplay->w;
+		gGlobalStateClientGame.screenheight = currentdisplay->h;
+	}
 
-  if ((gGlobalStateClientGame.renderwidth == 0) || (gGlobalStateClientGame.renderheight == 0))
-  {
-    gGlobalStateClientGame.renderwidth = gGlobalStateClientGame.screenwidth;
-    gGlobalStateClientGame.renderheight = gGlobalStateClientGame.screenheight;
-  }
+	if ((gGlobalStateClientGame.renderwidth == 0) || (gGlobalStateClientGame.renderheight == 0))
+	{
+		gGlobalStateClientGame.renderwidth = gGlobalStateClientGame.screenwidth;
+		gGlobalStateClientGame.renderheight = gGlobalStateClientGame.screenheight;
+	}
 
-  // Calculcate FOV to check for too high/low vision
-  float fov =
-    static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight;
-  if (fov > max_fov)
-  {
-    gGlobalStateClientGame.renderwidth = std::ceil(gGlobalStateClientGame.renderheight * max_fov);
-    fov = max_fov;
-  }
-  else if (fov < min_fov)
-  {
-    gGlobalStateClientGame.renderheight =
-      std::ceil(static_cast<float>(gGlobalStateClientGame.renderwidth) / min_fov);
-    fov = min_fov;
-  }
+	// Calculcate FOV to check for too high/low vision
+	float fov = static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight;
+	if (fov > max_fov)
+	{
+		gGlobalStateClientGame.renderwidth = std::ceil(gGlobalStateClientGame.renderheight * max_fov);
+		fov = max_fov;
+	}
+	else if (fov < min_fov)
+	{
+		gGlobalStateClientGame.renderheight =
+			std::ceil(static_cast<float>(gGlobalStateClientGame.renderwidth) / min_fov);
+		fov = min_fov;
+	}
 
-  // Calulcate internal game width based on the fov and internal height
-  gGlobalStateGame.gamewidth = std::round(fov * gGlobalStateGame.gameheight);
-  gGlobalStateGame.gamewidthhalf = static_cast<float>(gGlobalStateGame.gamewidth) / 2;
-  gGlobalStateGame.gameheighthalf = static_cast<float>(gGlobalStateGame.gameheight) / 2;
+	// Calulcate internal game width based on the fov and internal height
+	gGlobalStateGame.gamewidth = std::round(fov * gGlobalStateGame.gameheight);
+	gGlobalStateGame.gamewidthhalf = static_cast<float>(gGlobalStateGame.gamewidth) / 2;
+	gGlobalStateGame.gameheighthalf = static_cast<float>(gGlobalStateGame.gameheight) / 2;
 
-  if (CVar::r_fullscreen == 0)
-  {
-    // avoid black bars in windowed mode
-    if ((static_cast<float>(gGlobalStateClientGame.screenwidth) /
-         gGlobalStateClientGame.screenheight) >=
-        (static_cast<float>(gGlobalStateClientGame.renderwidth) /
-         gGlobalStateClientGame.renderheight))
-    {
-      gGlobalStateClientGame.screenwidth =
-        std::round(gGlobalStateClientGame.screenheight *
-                   (static_cast<float>(gGlobalStateClientGame.renderwidth) /
-                    gGlobalStateClientGame.renderheight));
-    }
-    else
-    {
-      gGlobalStateClientGame.screenheight =
-        std::round(gGlobalStateClientGame.screenwidth *
-                   (static_cast<float>(gGlobalStateClientGame.renderheight) /
-                    gGlobalStateClientGame.renderwidth));
-    }
-  }
+	if (CVar::r_fullscreen == 0)
+	{
+		// avoid black bars in windowed mode
+		if ((static_cast<float>(gGlobalStateClientGame.screenwidth) / gGlobalStateClientGame.screenheight)
+			>= (static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight))
+		{
+			gGlobalStateClientGame.screenwidth = std::round(
+				gGlobalStateClientGame.screenheight
+				* (static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight));
+		}
+		else
+		{
+			gGlobalStateClientGame.screenheight = std::round(
+				gGlobalStateClientGame.screenwidth
+				* (static_cast<float>(gGlobalStateClientGame.renderheight) / gGlobalStateClientGame.renderwidth));
+		}
+	}
 
-  // window size equals "screen" size except in windowed fullscreen
-  gGlobalStateClientGame.windowwidth = gGlobalStateClientGame.screenwidth;
-  gGlobalStateClientGame.windowheight = gGlobalStateClientGame.screenheight;
+	// window size equals "screen" size except in windowed fullscreen
+	gGlobalStateClientGame.windowwidth = gGlobalStateClientGame.screenwidth;
+	gGlobalStateClientGame.windowheight = gGlobalStateClientGame.screenheight;
 
-  LogInfo("gfx", "Window size: {}x{}", gGlobalStateClientGame.windowwidth,
-          gGlobalStateClientGame.windowheight);
-  LogInfo("gfx", "Target resolution: {}x{}", gGlobalStateClientGame.screenwidth,
-          gGlobalStateClientGame.screenheight);
-  LogInfo("gfx", "Internal resolution: {}x{}", gGlobalStateClientGame.renderwidth,
-          gGlobalStateClientGame.renderheight);
+	LogInfo("gfx", "Window size: {}x{}", gGlobalStateClientGame.windowwidth, gGlobalStateClientGame.windowheight);
+	LogInfo("gfx", "Target resolution: {}x{}", gGlobalStateClientGame.screenwidth, gGlobalStateClientGame.screenheight);
+	LogInfo(
+		"gfx", "Internal resolution: {}x{}", gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight);
 
-  // even windowed mode can behave as fullscreen with the right size
-  // IsFullscreen := (WindowWidth = Screen.Width) and (WindowHeight = Screen.Height);
+	// even windowed mode can behave as fullscreen with the right size
+	// IsFullscreen := (WindowWidth = Screen.Width) and (WindowHeight = Screen.Height);
 
-  // interface is hard-coded to work on 4:3 aspect ratio,
-  // but luckily for us the interface rendering code
-  // translates the points using _RScala scale factor
-  // above, so all we floatly need to do to make interace
-  // work for widescreens is translate those points to a wider
-  // area, which we can do by using the 640/480 as scale factors
-  // even in widescreen resolutions. The interface code does NOT
-  // use the _RScala to scale the interface, so this won't make
-  // it look distorted.
-  if (CVar::r_scaleinterface)
-  {
-    gGlobalStateInterfaceGraphics._rscala.x = 1;
-    gGlobalStateInterfaceGraphics._rscala.y = 1;
+	// interface is hard-coded to work on 4:3 aspect ratio,
+	// but luckily for us the interface rendering code
+	// translates the points using _RScala scale factor
+	// above, so all we floatly need to do to make interace
+	// work for widescreens is translate those points to a wider
+	// area, which we can do by using the 640/480 as scale factors
+	// even in widescreen resolutions. The interface code does NOT
+	// use the _RScala to scale the interface, so this won't make
+	// it look distorted.
+	if (CVar::r_scaleinterface)
+	{
+		gGlobalStateInterfaceGraphics._rscala.x = 1;
+		gGlobalStateInterfaceGraphics._rscala.y = 1;
 
-    gGlobalStateInterfaceGraphics._iscala.x =
-      static_cast<float>(gGlobalStateGame.gamewidth) / default_width;
-    gGlobalStateInterfaceGraphics._iscala.y = 1;
+		gGlobalStateInterfaceGraphics._iscala.x = static_cast<float>(gGlobalStateGame.gamewidth) / default_width;
+		gGlobalStateInterfaceGraphics._iscala.y = 1;
 
-    gGlobalStateInterfaceGraphics.fragx = std::floor(gGlobalStateGame.gamewidthhalf - 300) - 25;
-  }
-  else
-  {
-    gGlobalStateInterfaceGraphics._rscala.x =
-      static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateGame.gamewidth;
-    gGlobalStateInterfaceGraphics._rscala.y =
-      static_cast<float>(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight;
+		gGlobalStateInterfaceGraphics.fragx = std::floor(gGlobalStateGame.gamewidthhalf - 300) - 25;
+	}
+	else
+	{
+		gGlobalStateInterfaceGraphics._rscala.x =
+			static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateGame.gamewidth;
+		gGlobalStateInterfaceGraphics._rscala.y =
+			static_cast<float>(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight;
 
-    gGlobalStateInterfaceGraphics._iscala.x =
-      static_cast<float>(gGlobalStateClientGame.renderwidth) / 640;
-    gGlobalStateInterfaceGraphics._iscala.y =
-      static_cast<float>(gGlobalStateClientGame.renderheight) / 480;
+		gGlobalStateInterfaceGraphics._iscala.x = static_cast<float>(gGlobalStateClientGame.renderwidth) / 640;
+		gGlobalStateInterfaceGraphics._iscala.y = static_cast<float>(gGlobalStateClientGame.renderheight) / 480;
 
-    gGlobalStateInterfaceGraphics.fragx =
-      std::floor((static_cast<float>(gGlobalStateClientGame.renderwidth) / 2) - 300) - 25;
+		gGlobalStateInterfaceGraphics.fragx =
+			std::floor((static_cast<float>(gGlobalStateClientGame.renderwidth) / 2) - 300) - 25;
 
-    if (gGlobalStateClientGame.renderheight > gGlobalStateGame.gameheight)
-    {
-      gGlobalStateInterfaceGraphics.fragy = round(10 * gGlobalStateInterfaceGraphics._rscala.y);
-    }
-  }
+		if (gGlobalStateClientGame.renderheight > gGlobalStateGame.gameheight)
+		{
+			gGlobalStateInterfaceGraphics.fragy = round(10 * gGlobalStateInterfaceGraphics._rscala.y);
+		}
+	}
 
-  gGlobalStateGameRendering.gamerenderingparams.interfacename = CVar::ui_style;
+	gGlobalStateGameRendering.gamerenderingparams.interfacename = CVar::ui_style;
 
-  gGlobalStateClientGame.resetframetiming();
+	gGlobalStateClientGame.resetframetiming();
 
-  gfxlog("Loading game graphics");
+	gfxlog("Loading game graphics");
 
-  if (!gGlobalStateGameRendering.initgamegraphics())
-  {
-    showmessage(std::string("The required OpenGL functionality isn't supported. ") +
-                "Please, update your video drivers and try again.");
-    // ExitButtonClick(nullptr);
-    SoldatAssert(false);
-    return;
-  }
+	if (!gGlobalStateGameRendering.initgamegraphics())
+	{
+		showmessage(std::string("The required OpenGL functionality isn't supported. ")
+					+ "Please, update your video drivers and try again.");
+		// ExitButtonClick(nullptr);
+		SoldatAssert(false);
+		return;
+	}
 
-  if (CVar::cl_lang != "")
-  {
-    systemlang = CVar::cl_lang;
-  }
-  else
-  {
-    NotImplemented("localization");
+	if (CVar::cl_lang != "")
+	{
+		systemlang = CVar::cl_lang;
+	}
+	else
+	{
+		NotImplemented("localization");
 #if 0
         getlanguageids(systemlang, systemfallbacklang);
 #endif
-  }
+	}
 
-  if (inittranslation(ReadAsFileStream(fs, moddir + "/txt/" + systemlang + ".mo").get()))
-  {
-    LogDebugG("Game captions loaded from {}/txt/{}", moddir, systemlang);
-  }
-  else
-  {
-    LogDebugG("Game captions not found");
-  }
+	if (inittranslation(ReadAsFileStream(fs, moddir + "/txt/" + systemlang + ".mo").get()))
+	{
+		LogDebugG("Game captions loaded from {}/txt/{}", moddir, systemlang);
+	}
+	else
+	{
+		LogDebugG("Game captions not found");
+	}
 
-  GS::GetConsoleLogFile().Log("Initializing Sound Library.");
-  // Init Sound Library
-  if (!gGlobalStateSound.initsound())
-  {
-    GS::GetConsoleLogFile().Log("Failed to initialize Sound Library.");
-    // Let the player know that he has no sound (no popup window)
-  }
+	GS::GetConsoleLogFile().Log("Initializing Sound Library.");
+	// Init Sound Library
+	if (!gGlobalStateSound.initsound())
+	{
+		GS::GetConsoleLogFile().Log("Failed to initialize Sound Library.");
+		// Let the player know that he has no sound (no popup window)
+	}
 
-  gGlobalStateSound.loadsounds("");
-  if (length(moddir) > 0)
-  {
-    gGlobalStateSound.loadsounds(moddir);
-  }
+	gGlobalStateSound.loadsounds("");
+	if (length(moddir) > 0)
+	{
+		gGlobalStateSound.loadsounds(moddir);
+	}
 
-  GS::GetConsoleLogFile().Log("Creating network interface.");
+	GS::GetConsoleLogFile().Log("Creating network interface.");
 
-  InitConsoles();
-  // Create static player objects
-  for (auto &s : SpriteSystem::Get().GetSprites())
-  {
-    s.player = std::make_shared<tplayer>();
-  }
+	InitConsoles();
+	// Create static player objects
+	for (auto& s : SpriteSystem::Get().GetSprites())
+	{
+		s.player = std::make_shared<tplayer>();
+	}
 
-  AnimationSystem::Get().LoadAnimObjects("");
-  if (length(moddir) > 0)
-  {
-    AnimationSystem::Get().LoadAnimObjects(moddir);
-  }
+	AnimationSystem::Get().LoadAnimObjects("");
+	if (length(moddir) > 0)
+	{
+		AnimationSystem::Get().LoadAnimObjects(moddir);
+	}
 
-  // greet!
-  // GS::GetMainConsole().console(("Welcome to Soldat ") + soldat_version, default_message_color);
-  GS::GetMainConsole().console(("Welcome to Soldat "), default_message_color);
+	// greet!
+	// GS::GetMainConsole().console(("Welcome to Soldat ") + soldat_version, default_message_color);
+	GS::GetMainConsole().console(("Welcome to Soldat "), default_message_color);
 
-  // Load weapon display names
-  loadweaponnames(fs, gundisplayname, moddir);
-  createweaponsbase(GS::GetWeaponSystem().GetGuns());
+	// Load weapon display names
+	loadweaponnames(fs, gundisplayname, moddir);
+	createweaponsbase(GS::GetWeaponSystem().GetGuns());
 
-  GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
+	GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 
-  gGlobalStateInterfaceGraphics.playernamesshow = true;
+	gGlobalStateInterfaceGraphics.playernamesshow = true;
 
-  gGlobalStateInterfaceGraphics.cursortext = "";
+	gGlobalStateInterfaceGraphics.cursortext = "";
 
-  gGlobalStateGameMenus.initgamemenus();
+	gGlobalStateGameMenus.initgamemenus();
 
-  {
-    TIniFile ini{ReadAsFileStream(fs, "txt/radiomenu-default.ini")};
-    ini.ReadSectionValues("OPTIONS", radiomenu);
-  }
+	{
+		TIniFile ini{ ReadAsFileStream(fs, "txt/radiomenu-default.ini") };
+		ini.ReadSectionValues("OPTIONS", radiomenu);
+	}
 
-  // Play demo
-  freecam = 1;
-  notexts = 0;
-  shotdistanceshow = -1;
+	// Play demo
+	freecam = 1;
+	notexts = 0;
+	shotdistanceshow = -1;
 
-  if (CVar::r_compatibility)
-  {
-    CVar::cl_actionsnap = false;
-  }
+	if (CVar::r_compatibility)
+	{
+		CVar::cl_actionsnap = false;
+	}
 
-  GS::GetConsoleLogFile().WriteToFile();
+	GS::GetConsoleLogFile().WriteToFile();
 
-  gGlobalStateClientGame.resetframetiming();
-  gGlobalStateGameRendering.initgamegraphics();
-  gGlobalStateGameRendering.dotextureloading(true);
+	gGlobalStateClientGame.resetframetiming();
+	gGlobalStateGameRendering.initgamegraphics();
+	gGlobalStateGameRendering.dotextureloading(true);
 
-  gGlobalStateNetworkClient.InitClientNetwork();
-  gGlobalStateNetworkClient.GetNetwork()->SetDisconnectionCallback([](const char *msg) {
-    gGlobalStateGameRendering.rendergameinfo(std::string("Network  error ") + msg);
-  });
-  gGlobalStateNetworkClient.GetNetwork()->SetConnectionCallback(
-    [this](NetworkClientImpl &nc) { clientrequestgame(nc, joinpassword); });
+	gGlobalStateNetworkClient.InitClientNetwork();
+	gGlobalStateNetworkClient.GetNetwork()->SetDisconnectionCallback(
+		[](const char* msg)
+		{
+			gGlobalStateGameRendering.rendergameinfo(std::string("Network  error ") + msg);
+		});
+	gGlobalStateNetworkClient.GetNetwork()->SetConnectionCallback(
+		[this](NetworkClientImpl& nc)
+		{
+			clientrequestgame(nc, joinpassword);
+		});
 
-  gamelooprun = true;
-  rundeferredcommands();
-  // void startgameloop();
-  // startgameloop();
+	gamelooprun = true;
+	rundeferredcommands();
+	// void startgameloop();
+	// startgameloop();
 }
 
 void GlobalStateClient::shutdown()
 {
-  exittomenu();
+	exittomenu();
 
-  if (abnormalterminate)
-  {
-    return;
-  }
+	if (abnormalterminate)
+	{
+		return;
+	}
 
-  GS::GetConsoleLogFile().Log("Freeing sprites.");
+	GS::GetConsoleLogFile().Log("Freeing sprites.");
 
-  // Free GFX
-  gGlobalStateGameRendering.destroygamegraphics();
+	// Free GFX
+	gGlobalStateGameRendering.destroygamegraphics();
 
-  for (auto &s : SpriteSystem::Get().GetSprites())
-  {
-    s.player = nullptr;
-  }
+	for (auto& s : SpriteSystem::Get().GetSprites())
+	{
+		s.player = nullptr;
+	}
 
-  deinittranslation();
+	deinittranslation();
 
-  GS::GetConsoleLogFile().Log("UDP closing.");
+	GS::GetConsoleLogFile().Log("UDP closing.");
 
-  gGlobalStateNetworkClient.DeinitClientNetwork();
+	gGlobalStateNetworkClient.DeinitClientNetwork();
 
-  GS::GetConsoleLogFile().Log("Sound closing.");
+	GS::GetConsoleLogFile().Log("Sound closing.");
 
-  gGlobalStateSound.closesound();
-  SDL_Quit();
+	gGlobalStateSound.closesound();
+	SDL_Quit();
 
-  GS::GetConsoleLogFile().Log("FS closing.");
+	GS::GetConsoleLogFile().Log("FS closing.");
 
-  commanddeinit();
+	commanddeinit();
 
-  GS::GetConsoleLogFile().Log("   End of Log.");
+	GS::GetConsoleLogFile().Log("   End of Log.");
 
-  GS::GetConsoleLogFile().WriteToFile();
+	GS::GetConsoleLogFile().WriteToFile();
 
-  gamelooprun = false;
+	gamelooprun = false;
 }
 
 bool GlobalStateClient::mainloop()
 {
-  if (!gamelooprun)
-  {
-    return gamelooprun;
-  }
-  auto begin = std::chrono::system_clock::now();
-  gGlobalStateNetworkClient.GetNetwork()->ProcessLoop();
-  //gameinput();
-  switch (gGameState)
-  {
-    case GameState::Loading:
-      gGlobalStateGameRendering.rendergameinfo(("Loading"));
-      break;
-    case GameState::Game:
-      if (progready)
-      {
-        gGlobalStateClientGame.gameloop();
-      }
-      break;
-    case GameState::ConnectionTimedOut:
-      gGlobalStateGameRendering.rendergameinfo(("Connection timed out."));
-      break;
-  }
-  auto end = std::chrono::system_clock::now();
-  constexpr auto frameTime = std::chrono::seconds(1) / 60.F;
-  {
-    ZoneScopedN("WaitingForNextFrame");
-    std::this_thread::sleep_for(frameTime - (end - begin));
-  }
-  FrameMarkNamed("ClientFrame");
-  return gamelooprun;
+	if (!gamelooprun)
+	{
+		return gamelooprun;
+	}
+	auto begin = std::chrono::system_clock::now();
+	gGlobalStateNetworkClient.GetNetwork()->ProcessLoop();
+	// gameinput();
+	switch (gGameState)
+	{
+		case GameState::Loading:
+			gGlobalStateGameRendering.rendergameinfo(("Loading"));
+			break;
+		case GameState::Game:
+			if (progready)
+			{
+				gGlobalStateClientGame.gameloop();
+			}
+			break;
+		case GameState::ConnectionTimedOut:
+			gGlobalStateGameRendering.rendergameinfo(("Connection timed out."));
+			break;
+	}
+	auto end = std::chrono::system_clock::now();
+	constexpr auto frameTime = std::chrono::seconds(1) / 60.F;
+	{
+		ZoneScopedN("WaitingForNextFrame");
+		std::this_thread::sleep_for(frameTime - (end - begin));
+	}
+	FrameMarkNamed("ClientFrame");
+	return gamelooprun;
 }
 
 #if __EMSCRIPTEN__
-#include <emscripten.h>
+	#include <emscripten.h>
 #endif
 
 void GlobalStateClient::startgameloop()
 {
 #if __EMSCRIPTEN__
-  emscripten_set_main_loop(loop, 30, 1);
+	emscripten_set_main_loop(loop, 30, 1);
 #else
-  while (gamelooprun)
-  {
-    mainloop();
-  }
+	while (gamelooprun)
+	{
+		mainloop();
+	}
 #endif
 }
 
 void GlobalStateClient::joinserver()
 {
-  gGlobalStateClientGame.resetframetiming();
+	gGlobalStateClientGame.resetframetiming();
 
-  gClientServerIP = trim(joinip);
+	gClientServerIP = trim(joinip);
 
-  NotImplemented("No error checking");
+	NotImplemented("No error checking");
 #if 0
     if (!trystrtoint(trim(joinport), serverport))
         return;
 #endif
 
-  // DEMO
-  if (joinport == "0")
-  {
-    gGlobalStateDemo.demoplayer.opendemo(GS::GetGame().GetUserDirectory() + "demos/" + joinip +
-                                         ".sdm");
-    tdemoplayer::processdemo();
-    progready = true;
-    gamelooprun = true;
-    gGlobalStateGameRendering.rendergameinfo(("Loading"));
-    startgameloop();
-  }
-  else
-  {
-    gGlobalStateGameRendering.rendergameinfo(
-      ("Connecting to " + gClientServerIP + ":" + std::to_string(gClientServerPort)));
+	// DEMO
+	if (joinport == "0")
+	{
+		gGlobalStateDemo.demoplayer.opendemo(GS::GetGame().GetUserDirectory() + "demos/" + joinip + ".sdm");
+		tdemoplayer::processdemo();
+		progready = true;
+		gamelooprun = true;
+		gGlobalStateGameRendering.rendergameinfo(("Loading"));
+		startgameloop();
+	}
+	else
+	{
+		gGlobalStateGameRendering.rendergameinfo(
+			("Connecting to " + gClientServerIP + ":" + std::to_string(gClientServerPort)));
 
-    if (gGlobalStateNetworkClient.GetNetwork()->Connect(gClientServerIP, gClientServerPort))
-    {
-      progready = true;
-      gamelooprun = true;
-      gGlobalStateGameRendering.rendergameinfo(("Loading"));
-      clientrequestgame(*gGlobalStateNetworkClient.GetNetwork(), joinpassword);
-      gGameState = GameState::Game;
-    }
-    else
-    {
-      GS::GetMainConsole().console("[NET] Failed to connect to  server" +
-                                     gGlobalStateNetworkClient.GetNetwork()->GetStringAddress(true),
-                                   warning_message_color);
-      return;
-    }
-  }
+		if (gGlobalStateNetworkClient.GetNetwork()->Connect(gClientServerIP, gClientServerPort))
+		{
+			progready = true;
+			gamelooprun = true;
+			gGlobalStateGameRendering.rendergameinfo(("Loading"));
+			clientrequestgame(*gGlobalStateNetworkClient.GetNetwork(), joinpassword);
+			gGameState = GameState::Game;
+		}
+		else
+		{
+			GS::GetMainConsole().console(
+				"[NET] Failed to connect to  server" + gGlobalStateNetworkClient.GetNetwork()->GetStringAddress(true),
+				warning_message_color);
+			return;
+		}
+	}
 }
 
-void GlobalStateClient::showmessage(const std::string &message)
+void GlobalStateClient::showmessage(const std::string& message)
 {
-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message.c_str(), nullptr);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message.c_str(), nullptr);
 };
 
 // tests
@@ -806,157 +810,515 @@ void GlobalStateClient::showmessage(const std::string &message)
 namespace
 {
 
-class ClientFixture
-{
-public:
-  ClientFixture() = default;
-  ~ClientFixture() = default;
-  ClientFixture(const ClientFixture &) = delete;
+	class ClientFixture
+	{
+	public:
+		ClientFixture() = default;
+		~ClientFixture() = default;
+		ClientFixture(const ClientFixture&) = delete;
 
-protected:
-  void t() {
-    FileUtility fu;
-    fu.Mount("tmpfs.memory", "/user");
-    GlobalStateClient gsc;
-    gsc.CreateDirectoryStructure(fu);
-  }
-};
+	protected:
+		void t()
+		{
+			FileUtility fu;
+			fu.Mount("tmpfs.memory", "/user");
+			GlobalStateClient gsc;
+			gsc.CreateDirectoryStructure(fu);
+		}
+	};
 
-TEST_SUITE("Client")
-{
+	TEST_SUITE("Client")
+	{
 
-  TEST_CASE_FIXTURE(ClientFixture, "Mount memory and write file and later read it")
-  {
-    FileUtility fu;
-    fu.Mount("tmpfs.memory", "/user");
-    GlobalStateClient gsc;
-    gsc.CreateDirectoryStructure(fu);
-    auto *f = fu.Open("/user/logs/nice_log.txt", FileUtility::FileMode::Write);
-    CHECK_NE(nullptr, f);
-    FileUtility::Close(f);
-  }
+		TEST_CASE_FIXTURE(ClientFixture, "Mount memory and write file and later read it")
+		{
+			FileUtility fu;
+			fu.Mount("tmpfs.memory", "/user");
+			GlobalStateClient gsc;
+			gsc.CreateDirectoryStructure(fu);
+			auto* f = fu.Open("/user/logs/nice_log.txt", FileUtility::FileMode::Write);
+			CHECK_NE(nullptr, f);
+			FileUtility::Close(f);
+		}
 
-  TEST_CASE_FIXTURE(ClientFixture, "Mount soldat.smod test")
-  {
-    // test soldat.smod, generated with xxd --include soldat.smod
-    // contains:
-    // client_test.txt
-    // server_test.txt
-    // shared_test.txt
-    // NOLINTBEGIN
-    unsigned char soldat_smod[] = {
-      0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0x24, 0x33,
-      0x50, 0xf5, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x63, 0x6c,
-      0x69, 0x65, 0x6e, 0x74, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x2b, 0x49, 0x2d,
-      0x2e, 0x89, 0x4f, 0xce, 0xc9, 0x4c, 0xcd, 0x2b, 0xe1, 0x02, 0x00, 0x50, 0x4b, 0x03, 0x04, 0x14,
-      0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xa7, 0xe8, 0x12, 0xba, 0x0e, 0x00, 0x00,
-      0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f,
-      0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x2b, 0x49, 0x2d, 0x2e, 0x89, 0x2f, 0x4e, 0x2d,
-      0x2a, 0x4b, 0x2d, 0xe2, 0x02, 0x00, 0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00,
-      0x00, 0x00, 0x21, 0x00, 0xab, 0x34, 0x36, 0xb2, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00,
-      0x0f, 0x00, 0x00, 0x00, 0x73, 0x68, 0x61, 0x72, 0x65, 0x64, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e,
-      0x74, 0x78, 0x74, 0x2b, 0x49, 0x2d, 0x2e, 0x89, 0x2f, 0xce, 0x48, 0x2c, 0x4a, 0x4d, 0xe1, 0x02,
-      0x00, 0x50, 0x4b, 0x01, 0x02, 0x14, 0x0a, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21,
-      0x00, 0x24, 0x33, 0x50, 0xf5, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63,
-      0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b,
-      0x01, 0x02, 0x14, 0x0a, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xa7, 0xe8,
-      0x12, 0xba, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x00, 0x00, 0x73, 0x65, 0x72, 0x76,
-      0x65, 0x72, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b, 0x01, 0x02, 0x14,
-      0x0a, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xab, 0x34, 0x36, 0xb2, 0x0e,
-      0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x76, 0x00, 0x00, 0x00, 0x73, 0x68, 0x61, 0x72, 0x65, 0x64, 0x5f,
-      0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00,
-      0x03, 0x00, 0x03, 0x00, 0xb7, 0x00, 0x00, 0x00, 0xb1, 0x00, 0x00, 0x00, 0x00, 0x00};
-    unsigned int soldat_smod_len = 382;
-    // NOLINTEND
+		TEST_CASE_FIXTURE(ClientFixture, "Mount soldat.smod test")
+		{
+			// test soldat.smod, generated with xxd --include soldat.smod
+			// contains:
+			// client_test.txt
+			// server_test.txt
+			// shared_test.txt
+			// NOLINTBEGIN
+			unsigned char soldat_smod[] = { 0x50,
+				0x4b,
+				0x03,
+				0x04,
+				0x14,
+				0x00,
+				0x00,
+				0x00,
+				0x08,
+				0x00,
+				0x00,
+				0x00,
+				0x21,
+				0x00,
+				0x24,
+				0x33,
+				0x50,
+				0xf5,
+				0x0e,
+				0x00,
+				0x00,
+				0x00,
+				0x0c,
+				0x00,
+				0x00,
+				0x00,
+				0x0f,
+				0x00,
+				0x00,
+				0x00,
+				0x63,
+				0x6c,
+				0x69,
+				0x65,
+				0x6e,
+				0x74,
+				0x5f,
+				0x74,
+				0x65,
+				0x73,
+				0x74,
+				0x2e,
+				0x74,
+				0x78,
+				0x74,
+				0x2b,
+				0x49,
+				0x2d,
+				0x2e,
+				0x89,
+				0x4f,
+				0xce,
+				0xc9,
+				0x4c,
+				0xcd,
+				0x2b,
+				0xe1,
+				0x02,
+				0x00,
+				0x50,
+				0x4b,
+				0x03,
+				0x04,
+				0x14,
+				0x00,
+				0x00,
+				0x00,
+				0x08,
+				0x00,
+				0x00,
+				0x00,
+				0x21,
+				0x00,
+				0xa7,
+				0xe8,
+				0x12,
+				0xba,
+				0x0e,
+				0x00,
+				0x00,
+				0x00,
+				0x0c,
+				0x00,
+				0x00,
+				0x00,
+				0x0f,
+				0x00,
+				0x00,
+				0x00,
+				0x73,
+				0x65,
+				0x72,
+				0x76,
+				0x65,
+				0x72,
+				0x5f,
+				0x74,
+				0x65,
+				0x73,
+				0x74,
+				0x2e,
+				0x74,
+				0x78,
+				0x74,
+				0x2b,
+				0x49,
+				0x2d,
+				0x2e,
+				0x89,
+				0x2f,
+				0x4e,
+				0x2d,
+				0x2a,
+				0x4b,
+				0x2d,
+				0xe2,
+				0x02,
+				0x00,
+				0x50,
+				0x4b,
+				0x03,
+				0x04,
+				0x14,
+				0x00,
+				0x00,
+				0x00,
+				0x08,
+				0x00,
+				0x00,
+				0x00,
+				0x21,
+				0x00,
+				0xab,
+				0x34,
+				0x36,
+				0xb2,
+				0x0e,
+				0x00,
+				0x00,
+				0x00,
+				0x0c,
+				0x00,
+				0x00,
+				0x00,
+				0x0f,
+				0x00,
+				0x00,
+				0x00,
+				0x73,
+				0x68,
+				0x61,
+				0x72,
+				0x65,
+				0x64,
+				0x5f,
+				0x74,
+				0x65,
+				0x73,
+				0x74,
+				0x2e,
+				0x74,
+				0x78,
+				0x74,
+				0x2b,
+				0x49,
+				0x2d,
+				0x2e,
+				0x89,
+				0x2f,
+				0xce,
+				0x48,
+				0x2c,
+				0x4a,
+				0x4d,
+				0xe1,
+				0x02,
+				0x00,
+				0x50,
+				0x4b,
+				0x01,
+				0x02,
+				0x14,
+				0x0a,
+				0x14,
+				0x00,
+				0x00,
+				0x00,
+				0x08,
+				0x00,
+				0x00,
+				0x00,
+				0x21,
+				0x00,
+				0x24,
+				0x33,
+				0x50,
+				0xf5,
+				0x0e,
+				0x00,
+				0x00,
+				0x00,
+				0x0c,
+				0x00,
+				0x00,
+				0x00,
+				0x0f,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x63,
+				0x6c,
+				0x69,
+				0x65,
+				0x6e,
+				0x74,
+				0x5f,
+				0x74,
+				0x65,
+				0x73,
+				0x74,
+				0x2e,
+				0x74,
+				0x78,
+				0x74,
+				0x50,
+				0x4b,
+				0x01,
+				0x02,
+				0x14,
+				0x0a,
+				0x14,
+				0x00,
+				0x00,
+				0x00,
+				0x08,
+				0x00,
+				0x00,
+				0x00,
+				0x21,
+				0x00,
+				0xa7,
+				0xe8,
+				0x12,
+				0xba,
+				0x0e,
+				0x00,
+				0x00,
+				0x00,
+				0x0c,
+				0x00,
+				0x00,
+				0x00,
+				0x0f,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x3b,
+				0x00,
+				0x00,
+				0x00,
+				0x73,
+				0x65,
+				0x72,
+				0x76,
+				0x65,
+				0x72,
+				0x5f,
+				0x74,
+				0x65,
+				0x73,
+				0x74,
+				0x2e,
+				0x74,
+				0x78,
+				0x74,
+				0x50,
+				0x4b,
+				0x01,
+				0x02,
+				0x14,
+				0x0a,
+				0x14,
+				0x00,
+				0x00,
+				0x00,
+				0x08,
+				0x00,
+				0x00,
+				0x00,
+				0x21,
+				0x00,
+				0xab,
+				0x34,
+				0x36,
+				0xb2,
+				0x0e,
+				0x00,
+				0x00,
+				0x00,
+				0x0c,
+				0x00,
+				0x00,
+				0x00,
+				0x0f,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x76,
+				0x00,
+				0x00,
+				0x00,
+				0x73,
+				0x68,
+				0x61,
+				0x72,
+				0x65,
+				0x64,
+				0x5f,
+				0x74,
+				0x65,
+				0x73,
+				0x74,
+				0x2e,
+				0x74,
+				0x78,
+				0x74,
+				0x50,
+				0x4b,
+				0x05,
+				0x06,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x03,
+				0x00,
+				0x03,
+				0x00,
+				0xb7,
+				0x00,
+				0x00,
+				0x00,
+				0xb1,
+				0x00,
+				0x00,
+				0x00,
+				0x00,
+				0x00 };
+			unsigned int soldat_smod_len = 382;
+			// NOLINTEND
 
-    FileUtility fu;
-    auto testDir = FileUtility::GetPrefPath("mount_test", true);
-    std::filesystem::remove_all(testDir);
-    // recreate directory
-    testDir = FileUtility::GetPrefPath("mount_test", true);
-    {
-      std::ofstream s(testDir + "/soldat.smod", std::ios_base::binary | std::ios_base::trunc);
-      s.write(reinterpret_cast<char *>(soldat_smod), soldat_smod_len);
-    }
-    tsha1digest customMod;
-    tsha1digest mod;
-    GlobalStateClient gsc;
-    CHECK_EQ(true, gsc.MountAssets(fu, "", testDir, mod, customMod));
-    //std::filesystem::remove_all(testDir);
-  }
+			FileUtility fu;
+			auto testDir = FileUtility::GetPrefPath("mount_test", true);
+			std::filesystem::remove_all(testDir);
+			// recreate directory
+			testDir = FileUtility::GetPrefPath("mount_test", true);
+			{
+				std::ofstream s(testDir + "/soldat.smod", std::ios_base::binary | std::ios_base::trunc);
+				s.write(reinterpret_cast<char*>(soldat_smod), soldat_smod_len);
+			}
+			tsha1digest customMod;
+			tsha1digest mod;
+			GlobalStateClient gsc;
+			CHECK_EQ(true, gsc.MountAssets(fu, "", testDir, mod, customMod));
+			// std::filesystem::remove_all(testDir);
+		}
 
-  TEST_CASE_FIXTURE(ClientFixture, "loadweaponnamesRefactorToUseVirtualFileSystem")
-  {
-    FileUtility fs;
-    GunArray ga;
-    const auto userDirectory = FileUtility::GetPrefPath("client");
-    const auto baseDirectory = FileUtility::GetBasePath();
-    tsha1digest checksum1;
-    tsha1digest checksum2;
-    GlobalStateClient gsc;
-    auto ret = gsc.MountAssets(fs, userDirectory, baseDirectory, checksum1, checksum2);
-    CHECK_EQ(true, ret);
-    gsc.loadweaponnames(fs, ga, gsc.moddir);
-    CHECK_EQ("USSOCOM", ga[0]);
-    CHECK_EQ("Desert Eagles", ga[1]);
-    CHECK_EQ("HK MP5", ga[2]);
-    CHECK_EQ("Ak-74", ga[3]);
-    CHECK_EQ("Steyr AUG", ga[4]);
-    CHECK_EQ("Spas-12", ga[5]);
-    CHECK_EQ("Ruger 77", ga[6]);
-    CHECK_EQ("M79", ga[7]);
-    CHECK_EQ("Barrett M82A1", ga[8]);
-    CHECK_EQ("FN Minimi", ga[9]);
-    CHECK_EQ("XM214 Minigun", ga[10]);
-    CHECK_EQ("Combat Knife", ga[11]);
-    CHECK_EQ("Chainsaw", ga[12]);
-    CHECK_EQ("M72 LAW", ga[13]);
-    CHECK_EQ("Flamer", ga[14]);
-    CHECK_EQ("Rambo Bow", ga[15]);
-    CHECK_EQ("Flamed Arrows", ga[16]);
-  }
+		TEST_CASE_FIXTURE(ClientFixture, "loadweaponnamesRefactorToUseVirtualFileSystem")
+		{
+			FileUtility fs;
+			GunArray ga;
+			const auto userDirectory = FileUtility::GetPrefPath("client");
+			const auto baseDirectory = FileUtility::GetBasePath();
+			tsha1digest checksum1;
+			tsha1digest checksum2;
+			GlobalStateClient gsc;
+			auto ret = gsc.MountAssets(fs, userDirectory, baseDirectory, checksum1, checksum2);
+			CHECK_EQ(true, ret);
+			gsc.loadweaponnames(fs, ga, gsc.moddir);
+			CHECK_EQ("USSOCOM", ga[0]);
+			CHECK_EQ("Desert Eagles", ga[1]);
+			CHECK_EQ("HK MP5", ga[2]);
+			CHECK_EQ("Ak-74", ga[3]);
+			CHECK_EQ("Steyr AUG", ga[4]);
+			CHECK_EQ("Spas-12", ga[5]);
+			CHECK_EQ("Ruger 77", ga[6]);
+			CHECK_EQ("M79", ga[7]);
+			CHECK_EQ("Barrett M82A1", ga[8]);
+			CHECK_EQ("FN Minimi", ga[9]);
+			CHECK_EQ("XM214 Minigun", ga[10]);
+			CHECK_EQ("Combat Knife", ga[11]);
+			CHECK_EQ("Chainsaw", ga[12]);
+			CHECK_EQ("M72 LAW", ga[13]);
+			CHECK_EQ("Flamer", ga[14]);
+			CHECK_EQ("Rambo Bow", ga[15]);
+			CHECK_EQ("Flamed Arrows", ga[16]);
+		}
 
-  TEST_CASE_FIXTURE(ClientFixture, "Test console initialization")
-  {
-    GlobalSystems<Config::CLIENT_MODULE>::Init();
-    auto prev_y = gGlobalStateInterfaceGraphics._rscala.y;
-    gGlobalStateInterfaceGraphics._rscala.y = 1;
-    GlobalStateClient gsc;
-    gsc.InitConsoles(true);
-    gGlobalStateInterfaceGraphics._rscala.y = prev_y;
-    const auto& console = GS::GetMainConsole();
-    //CHECK_EQ(0, console.countmax);
-    //CHECK_EQ(150, console.scrolltickmax);
-    CHECK_EQ(150, console.GetNewMessageWait());
-    CHECK_EQ(0, console.GetCount());
+		TEST_CASE_FIXTURE(ClientFixture, "Test console initialization")
+		{
+			GlobalSystems<Config::CLIENT_MODULE>::Init();
+			auto prev_y = gGlobalStateInterfaceGraphics._rscala.y;
+			gGlobalStateInterfaceGraphics._rscala.y = 1;
+			GlobalStateClient gsc;
+			gsc.InitConsoles(true);
+			gGlobalStateInterfaceGraphics._rscala.y = prev_y;
+			const auto& console = GS::GetMainConsole();
+			// CHECK_EQ(0, console.countmax);
+			// CHECK_EQ(150, console.scrolltickmax);
+			CHECK_EQ(150, console.GetNewMessageWait());
+			CHECK_EQ(0, console.GetCount());
 
-    const auto &big = gsc.GetBigConsole();
-    //CHECK_EQ(0, big.countmax); todo countmax in tests
-    //CHECK_EQ(1500000, big.scrolltickmax);
-    CHECK_EQ(0, big.GetNewMessageWait());
-    CHECK_EQ(0, big.GetCount());
+			const auto& big = gsc.GetBigConsole();
+			// CHECK_EQ(0, big.countmax); todo countmax in tests
+			// CHECK_EQ(1500000, big.scrolltickmax);
+			CHECK_EQ(0, big.GetNewMessageWait());
+			CHECK_EQ(0, big.GetCount());
 
-    const auto &kill = gsc.GetKillConsole();
-    //CHECK_EQ(0, kill.countmax);
-    //CHECK_EQ(240, kill.scrolltickmax);
-    CHECK_EQ(70, kill.GetNewMessageWait());
-    GlobalSystems<Config::CLIENT_MODULE>::Deinit();
-  }
+			const auto& kill = gsc.GetKillConsole();
+			// CHECK_EQ(0, kill.countmax);
+			// CHECK_EQ(240, kill.scrolltickmax);
+			CHECK_EQ(70, kill.GetNewMessageWait());
+			GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+		}
 
-  TEST_CASE_FIXTURE(ClientFixture, "Start and shutdown" * doctest::skip(false))
-  {
-      GlobalSystems<Config::CLIENT_MODULE>::Init();
-      std::string game = {"SoldatGame"};
-      std::array<char*, 1> argv = { game.data() };
-      GlobalStateClient gsc;
-      gsc.startgame(argv.size(), argv.data());
-      gsc.shutdown();
-      GlobalSystems<Config::CLIENT_MODULE>::Deinit();
-  }
+		TEST_CASE_FIXTURE(ClientFixture, "Start and shutdown" * doctest::skip(false))
+		{
+			GlobalSystems<Config::CLIENT_MODULE>::Init();
+			std::string game = { "SoldatGame" };
+			std::array<char*, 1> argv = { game.data() };
+			GlobalStateClient gsc;
+			gsc.startgame(argv.size(), argv.data());
+			gsc.shutdown();
+			GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+		}
 
-} // TEST_SUITE("Client")
+	} // TEST_SUITE("Client")
 
 } // namespace

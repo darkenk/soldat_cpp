@@ -19,9 +19,8 @@ void serversendplaylist(HSoldatNetConnection peer);
 void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype);
 #ifdef SERVER
 std::string getbanstrforindex(std::int32_t banindex,
-                              bool banhw = false); // TODO move?
-void serversendunaccepted(HSoldatNetConnection peer, std::uint8_t state,
-                          const std::string &message = "");
+	bool banhw = false); // TODO move?
+void serversendunaccepted(HSoldatNetConnection peer, std::uint8_t state, const std::string& message = "");
 void serverdisconnect();
 #endif
 void serverplayerdisconnect(std::uint8_t num, std::uint8_t why);

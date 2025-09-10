@@ -5,88 +5,67 @@
 #include <cmath>
 #include <cstdint>
 
-template <typename T, void (*FASSERT)(const T &)>
+template <typename T, void (*FASSERT)(const T&)>
 struct SafeType
 {
-  constexpr SafeType()
-  {
-    FASSERT(Value);
-  }
+	constexpr SafeType() { FASSERT(Value); }
 
-  constexpr SafeType(const T value) : Value{value}
-  {
-    FASSERT(Value);
-  }
+	constexpr SafeType(const T value) : Value{ value } { FASSERT(Value); }
 
-  constexpr operator T() const
-  {
-    return Value;
-  }
+	constexpr operator T() const { return Value; }
 
-  SafeType operator++()
-  {
-    return ++Value;
-  }
+	SafeType operator++() { return ++Value; }
 
-  SafeType operator++(int)
-  {
-    return Value++;
-  }
+	SafeType operator++(int) { return Value++; }
 
-  SafeType operator--()
-  {
-    return --Value;
-  }
+	SafeType operator--() { return --Value; }
 
-  SafeType operator--(int)
-  {
-    return Value--;
-  }
+	SafeType operator--(int) { return Value--; }
 
-  SafeType &operator+=(const SafeType &b)
-  {
-    Value += b.Value;
-    FASSERT(Value);
-    return *this;
-  }
+	SafeType& operator+=(const SafeType& b)
+	{
+		Value += b.Value;
+		FASSERT(Value);
+		return *this;
+	}
 
-  SafeType &operator-=(const SafeType &b)
-  {
-    Value -= b.Value;
-    FASSERT(Value);
-    return *this;
-  }
+	SafeType& operator-=(const SafeType& b)
+	{
+		Value -= b.Value;
+		FASSERT(Value);
+		return *this;
+	}
 
-  SafeType &operator*=(const SafeType &b)
-  {
-    Value *= b.Value;
-    FASSERT(Value);
-    return *this;
-  }
+	SafeType& operator*=(const SafeType& b)
+	{
+		Value *= b.Value;
+		FASSERT(Value);
+		return *this;
+	}
 
-  SafeType &operator/=(const SafeType &b)
-  {
-    Value /= b.Value;
-    FASSERT(Value);
-    return *this;
-  }
+	SafeType& operator/=(const SafeType& b)
+	{
+		Value /= b.Value;
+		FASSERT(Value);
+		return *this;
+	}
 
 private:
-  T Value;
+	T Value;
 };
 
 template <typename T>
-void EnsureNotNan(const T &v)
+void EnsureNotNan(const T& v)
 {
-  SoldatAssert(not std::isnan(v));
-  SoldatAssert(not std::isinf(v));
+	SoldatAssert(not std::isnan(v));
+	SoldatAssert(not std::isinf(v));
 }
 
 template <typename T, T Start, T End>
-void EnsureInt(const T &v)
+void EnsureInt(const T& v)
 {
-  SoldatAssert(v >= Start);
-  SoldatAssert(v <= End);
+	SoldatAssert(v >= Start);
+	SoldatAssert(v <= End);
 }
 
 using MyFloat = SafeType<float, EnsureNotNan<float>>;

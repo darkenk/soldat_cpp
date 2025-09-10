@@ -9,7 +9,7 @@
 #include <string>
 
 #ifdef SERVER
-#include "../server/Server.hpp" // NOLINT
+	#include "../server/Server.hpp" // NOLINT
 #else
 	#include "../client/Client.hpp"
 	#include "../client/ClientGame.hpp"
@@ -49,157 +49,155 @@ GlobalStateDemo gGlobalStateDemo{
 namespace
 {
 
-auto extractfilename(const std::string &filepath) -> std::string
-{
-  return std::filesystem::path(filepath).stem();
-}
+	auto extractfilename(const std::string& filepath) -> std::string
+	{
+		return std::filesystem::path(filepath).stem();
+	}
 
 } // namespace
 
 template <std::size_t N>
-static void stringtoarray(std::array<char, N> &arr, const std::string &str)
+static void stringtoarray(std::array<char, N>& arr, const std::string& str)
 {
-  int i = 0;
-  for (const auto &c : str)
-  {
-    arr[i++] = c;
-  }
+	int i = 0;
+	for (const auto& c : str)
+	{
+		arr[i++] = c;
+	}
 }
 template <Config::Module M>
-auto tdemorecorder<M>::startrecord(const string &filename) -> bool
+auto tdemorecorder<M>::startrecord(const string& filename) -> bool
 {
-  std::int32_t spriteid = 0;
+	std::int32_t spriteid = 0;
 
-  bool result = false;
-  result = false;
+	bool result = false;
+	result = false;
 #ifndef SERVER
-  if (gGlobalStateDemo.demoplayer.active())
-  {
-    return result;
-  }
+	if (gGlobalStateDemo.demoplayer.active())
+	{
+		return result;
+	}
 #endif
 
-  GS::GetMainConsole().console(("Recording demo: ") + (extractfilename(filename)),
-                               info_message_color);
+	GS::GetMainConsole().console(("Recording demo: ") + (extractfilename(filename)), info_message_color);
 
-  fname = extractfilename(filename);
-  factive = true;
-  foldcam = 255;
-  fticksnum = 0;
+	fname = extractfilename(filename);
+	factive = true;
+	foldcam = 255;
+	fticksnum = 0;
 
-  fdemoheader.header = {'S', 'O', 'L', 'D', 'E', 'M'};
-  fdemoheader.ticksnum = 0;
-  NotImplemented("No time for demo");
+	fdemoheader.header = { 'S', 'O', 'L', 'D', 'E', 'M' };
+	fdemoheader.ticksnum = 0;
+	NotImplemented("No time for demo");
 #if 0
     fdemoheader.startdate = datetimetounix(now);
 #endif
-  fdemoheader.version = demo_version;
+	fdemoheader.version = demo_version;
 
-  fillchar(fdemoheader.mapname.data(), sizeof(fdemoheader.mapname), '\0');
-  stringtoarray(fdemoheader.mapname, GS::GetGame().GetMap().name);
+	fillchar(fdemoheader.mapname.data(), sizeof(fdemoheader.mapname), '\0');
+	stringtoarray(fdemoheader.mapname, GS::GetGame().GetMap().name);
 
-  fdemofile.writebuffer(&fdemoheader, sizeof(fdemoheader));
+	fdemofile.writebuffer(&fdemoheader, sizeof(fdemoheader));
 
-  spriteid = createdemoplayer();
+	spriteid = createdemoplayer();
 
-  if (spriteid == max_sprites)
-  {
-    result = true;
-  }
-  return result;
+	if (spriteid == max_sprites)
+	{
+		result = true;
+	}
+	return result;
 }
 
 template <Config::Module M>
 void tdemorecorder<M>::stoprecord()
 {
-  auto &sprite_system = SpriteSystem::Get();
-  if (!active())
-  {
-    return;
-  }
+	auto& sprite_system = SpriteSystem::Get();
+	if (!active())
+	{
+		return;
+	}
 
-  GS::GetMainConsole().console(
+	GS::GetMainConsole().console(
 #ifdef SERVER
-    string("Demo stopped") +
+		string("Demo stopped") +
 #else
-    _("Demo stopped") +
+		_("Demo stopped") +
 #endif
-      " (" + (fname) + ')',
-    info_message_color);
+			" (" + (fname) + ')',
+		info_message_color);
 
-  sprite_system.GetSprite(max_sprites).kill();
+	sprite_system.GetSprite(max_sprites).kill();
 
-  fdemofile.position = 0;
+	fdemofile.position = 0;
 
-  fdemoheader.version = demo_version;
-  fdemoheader.ticksnum = ticksnum();
+	fdemoheader.version = demo_version;
+	fdemoheader.ticksnum = ticksnum();
 
-  fillchar(fdemoheader.mapname.data(), sizeof(fdemoheader.mapname), '\0');
-  stringtoarray(fdemoheader.mapname, GS::GetGame().GetMap().name);
+	fillchar(fdemoheader.mapname.data(), sizeof(fdemoheader.mapname), '\0');
+	stringtoarray(fdemoheader.mapname, GS::GetGame().GetMap().name);
 
-  fdemofile.writebuffer(&fdemoheader, sizeof(fdemoheader));
+	fdemofile.writebuffer(&fdemoheader, sizeof(fdemoheader));
 
-  //  try
-  fdemofile.savetofile(GS::GetGame().GetUserDirectory() + "demos/" + fname);
-  //  except
-  //    on e: Exception do
-  //      GS::GetMainConsole().Console('Failed to save demo file: ' + WideString(E.Message),
-  //      INFO_MESSAGE_COLOR);
-  //  end;
+	//  try
+	fdemofile.savetofile(GS::GetGame().GetUserDirectory() + "demos/" + fname);
+	//  except
+	//    on e: Exception do
+	//      GS::GetMainConsole().Console('Failed to save demo file: ' + WideString(E.Message),
+	//      INFO_MESSAGE_COLOR);
+	//  end;
 
-  factive = false;
-  fname = "";
-  fdemofile.free();
+	factive = false;
+	fname = "";
+	fdemofile.free();
 }
 
 template <Config::Module M>
 auto tdemorecorder<M>::createdemoplayer() -> std::int32_t
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t p = 0;
+	auto& sprite_system = SpriteSystem::Get();
+	std::int32_t p = 0;
 #if SERVER
-  auto player = std::make_shared<TServerPlayer>();
+	auto player = std::make_shared<TServerPlayer>();
 #else
-  auto player = std::make_shared<tplayer>();
+	auto player = std::make_shared<tplayer>();
 #endif
-  tvector2 a;
+	tvector2 a;
 
-  std::int32_t const createdemoplayer_result = -1;
+	std::int32_t const createdemoplayer_result = -1;
 
-  if (sprite_system.GetSprite(max_sprites).IsActive())
-  {
-    GS::GetMainConsole().console(
-      "Failed to create Demo Recorder player. Demos can be recorded with up to 31 players",
-      info_message_color);
-    stoprecord();
-    return createdemoplayer_result;
-  }
+	if (sprite_system.GetSprite(max_sprites).IsActive())
+	{
+		GS::GetMainConsole().console(
+			"Failed to create Demo Recorder player. Demos can be recorded with up to 31 players", info_message_color);
+		stoprecord();
+		return createdemoplayer_result;
+	}
 
-  player->demoplayer = true;
-  player->name = "Demo Recorder";
-  player->team = team_spectator;
-  player->controlmethod = human;
+	player->demoplayer = true;
+	player->name = "Demo Recorder";
+	player->team = team_spectator;
+	player->controlmethod = human;
 
 #ifdef SERVER
-  player->peer = std::numeric_limits<std::uint32_t>::max();
+	player->peer = std::numeric_limits<std::uint32_t>::max();
 #endif
-  auto &map = GS::GetGame().GetMap();
+	auto& map = GS::GetGame().GetMap();
 
-  a.x = min_sectorz * map.GetSectorsDivision() * 0.7;
-  a.y = min_sectorz * map.GetSectorsDivision() * 0.7;
+	a.x = min_sectorz * map.GetSectorsDivision() * 0.7;
+	a.y = min_sectorz * map.GetSectorsDivision() * 0.7;
 
-  p = createsprite(a, max_sprites, player);
-  if ((p > 0) && (p < max_sprites + 1))
-  {
-    NotImplemented("network");
+	p = createsprite(a, max_sprites, player);
+	if ((p > 0) && (p < max_sprites + 1))
+	{
+		NotImplemented("network");
 #if 0
-#ifdef SERVER
+	#ifdef SERVER
         serversynccvars(p, player.peer, true);
         serversendplaylist(player.peer);
-#else
+	#else
         serversynccvars(p, 0, true);
         serversendplaylist();
-#endif
+	#endif
         servervars(p);
         serversendnewplayerinfo(p, join_normal);
         serverthingmustsnapshotonconnect(p);
@@ -208,46 +206,46 @@ auto tdemorecorder<M>::createdemoplayer() -> std::int32_t
         spritePartsPos = vector2(0, 0);
         createdemoplayer_result = p;
 #endif
-  }
+	}
 
-  return createdemoplayer_result;
+	return createdemoplayer_result;
 }
 
 template <Config::Module M>
-void tdemorecorder<M>::saverecord(const void *r, std::int32_t size)
+void tdemorecorder<M>::saverecord(const void* r, std::int32_t size)
 {
-  if (size == 0)
-  {
-    return;
-  }
+	if (size == 0)
+	{
+		return;
+	}
 
-  if (!active())
-  {
-    return;
-  }
-  fdemofile.write1(&size, sizeof(rsize));
-  fdemofile.write1(&r, size);
+	if (!active())
+	{
+		return;
+	}
+	fdemofile.write1(&size, sizeof(rsize));
+	fdemofile.write1(&r, size);
 }
 
 #ifndef SERVER
 template <Config::Module M>
 void tdemorecorder<M>::savecamera()
 {
-  NotImplemented("network");
-#if 0
+	NotImplemented("network");
+	#if 0
     tmsg_clientspritesnapshot_dead msg;
 
     msg.header.id = msgid_clientspritesnapshot_dead;
     msg.camerafocus = camerafollowsprite;
     saverecord(&msg, sizeof(msg));
-#endif
+	#endif
 }
 
 template <Config::Module M>
 void tdemorecorder<M>::saveposition()
 {
-  NotImplemented("network");
-#if 0
+	NotImplemented("network");
+	#if 0
     tmsg_serverspritedelta_movement movementmsg;
 
     movementmsg.header.id = msgid_delta_movement;
@@ -265,93 +263,91 @@ void tdemorecorder<M>::saveposition()
     movementmsg.mouseaimy = SpriteSystem::Get().GetPlayerSprite().control.mouseaimy;
 
     saverecord(&movementmsg, sizeof(movementmsg));
-#endif
+	#endif
 }
 #endif
 
 template <Config::Module M>
 void tdemorecorder<M>::savenextframe()
 {
-  if (!factive)
-  {
-    return;
-  }
+	if (!factive)
+	{
+		return;
+	}
 
-  // save record type
-  rsize = 1;
+	// save record type
+	rsize = 1;
 
-  fdemofile.write1(&rsize, sizeof(rsize));
+	fdemofile.write1(&rsize, sizeof(rsize));
 
-  // save camera change
+	// save camera change
 #ifndef SERVER
-  if (foldcam != gGlobalStateClient.camerafollowsprite)
-  {
-    savecamera();
-    foldcam = gGlobalStateClient.camerafollowsprite;
-  }
+	if (foldcam != gGlobalStateClient.camerafollowsprite)
+	{
+		savecamera();
+		foldcam = gGlobalStateClient.camerafollowsprite;
+	}
 #endif
 
-  fticksnum += 1;
+	fticksnum += 1;
 }
 
 #ifndef SERVER
-auto tdemoplayer::opendemo(const string &filename) -> bool
+auto tdemoplayer::opendemo(const string& filename) -> bool
 {
-  bool opendemo_result = false;
+	bool opendemo_result = false;
 
-  //  try
-  fdemofile.loadfromfile(filename);
-  //  except
-  //    on e: Exception do
-  //    begin
-  //      GS::GetMainConsole().Console(_('Failed to load demo file: ') + WideString(E.Message),
-  //      INFO_MESSAGE_COLOR); Exit;
-  //    end;
-  //  end;
+	//  try
+	fdemofile.loadfromfile(filename);
+	//  except
+	//    on e: Exception do
+	//    begin
+	//      GS::GetMainConsole().Console(_('Failed to load demo file: ') + WideString(E.Message),
+	//      INFO_MESSAGE_COLOR); Exit;
+	//    end;
+	//  end;
 
-  fdemofile.readbuffer(&fdemoheader, sizeof(fdemoheader));
-  if (fdemoheader.header != demo_magic)
-  {
-    GS::GetMainConsole().console(_("The provided file is not valid: ") + ' ' + (fname),
-                                 info_message_color);
-    fdemofile.free();
-  }
-  else if (fdemoheader.version != demo_version)
-  {
-    GS::GetMainConsole().console(
-      _(wideformat("Wrong demo version: %d - %d", demo_version, fdemoheader.version)),
-      info_message_color);
-    fdemofile.free();
-  }
-  else
-  {
-    fname = extractfilename(filename);
-    GS::GetMainConsole().console(_("Playing demo") + ' ' + (fname), info_message_color);
-    gGlobalStateClient.spectator = 1;
-    factive = true;
-    opendemo_result = true;
-  }
-  return opendemo_result;
+	fdemofile.readbuffer(&fdemoheader, sizeof(fdemoheader));
+	if (fdemoheader.header != demo_magic)
+	{
+		GS::GetMainConsole().console(_("The provided file is not valid: ") + ' ' + (fname), info_message_color);
+		fdemofile.free();
+	}
+	else if (fdemoheader.version != demo_version)
+	{
+		GS::GetMainConsole().console(
+			_(wideformat("Wrong demo version: %d - %d", demo_version, fdemoheader.version)), info_message_color);
+		fdemofile.free();
+	}
+	else
+	{
+		fname = extractfilename(filename);
+		GS::GetMainConsole().console(_("Playing demo") + ' ' + (fname), info_message_color);
+		gGlobalStateClient.spectator = 1;
+		factive = true;
+		opendemo_result = true;
+	}
+	return opendemo_result;
 }
 
 void tdemoplayer::stopdemo()
 {
-  if (!factive)
-  {
-    return;
-  }
+	if (!factive)
+	{
+		return;
+	}
 
-  GS::GetMainConsole().console("Demo stopped", info_message_color);
+	GS::GetMainConsole().console("Demo stopped", info_message_color);
 
-  fdemofile.free();
+	fdemofile.free();
 
-  factive = false;
+	factive = false;
 }
 
 void tdemoplayer::processdemo()
 {
-  NotImplemented("network");
-#if 0
+	NotImplemented("network");
+	#if 0
     std::array<char, 16384> readbuf;
     SteamNetworkingMessage_t* packet;
 
@@ -402,68 +398,68 @@ void tdemoplayer::processdemo()
         packet.m_pfnrelease(packet);
 
     } while (!(rsize == 1));
-#endif
+	#endif
 }
 
 void tdemoplayer::position(std::int32_t ticks)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i = 0;
+	auto& sprite_system = SpriteSystem::Get();
+	std::int32_t i = 0;
 
-  fskipto = ticks;
-  gGlobalStateClientGame.shouldrenderframes = false;
+	fskipto = ticks;
+	gGlobalStateClientGame.shouldrenderframes = false;
 
-  if (fskipto < GS::GetGame().GetMainTickCounter())
-  {
-    fdemofile.seek(sizeof(fdemoheader), tmemorystream<>::sofrombeginning);
+	if (fskipto < GS::GetGame().GetMainTickCounter())
+	{
+		fdemofile.seek(sizeof(fdemoheader), tmemorystream<>::sofrombeginning);
 
-    GS::GetGame().ResetMainTickCounter();
+		GS::GetGame().ResetMainTickCounter();
 
-    for (i = 1; i <= max_sprites; i++)
-    {
-      sprite_system.GetSprite(i).kill();
-    }
-    GS::GetBulletSystem().KillAll();
-    for (i = 1; i <= max_sparks; i++)
-    {
-      gGlobalStateGame.spark[i].kill();
-    }
-    GS::GetThingSystem().KillAll();
+		for (i = 1; i <= max_sprites; i++)
+		{
+			sprite_system.GetSprite(i).kill();
+		}
+		GS::GetBulletSystem().KillAll();
+		for (i = 1; i <= max_sparks; i++)
+		{
+			gGlobalStateGame.spark[i].kill();
+		}
+		GS::GetThingSystem().KillAll();
 
-    // Reset World and Big Texts
-    for (i = 0; i < max_big_messages; i++)
-    {
-      // Big Text
-      gGlobalStateInterfaceGraphics.bigtext[i] = "";
-      gGlobalStateInterfaceGraphics.bigdelay[i] = 0;
-      gGlobalStateInterfaceGraphics.bigscale[i] = 0;
-      gGlobalStateInterfaceGraphics.bigcolor[i] = 0;
-      gGlobalStateInterfaceGraphics.bigposx[i] = 0;
-      gGlobalStateInterfaceGraphics.bigposy[i] = 0;
-      gGlobalStateInterfaceGraphics.bigx[i] = 0;
-      // World Text
-      gGlobalStateInterfaceGraphics.worldtext[i] = "";
-      gGlobalStateInterfaceGraphics.worlddelay[i] = 0;
-      gGlobalStateInterfaceGraphics.worldscale[i] = 0;
-      gGlobalStateInterfaceGraphics.worldcolor[i] = 0;
-      gGlobalStateInterfaceGraphics.worldposx[i] = 0;
-      gGlobalStateInterfaceGraphics.worldposy[i] = 0;
-      gGlobalStateInterfaceGraphics.worldx[i] = 0;
-    }
+		// Reset World and Big Texts
+		for (i = 0; i < max_big_messages; i++)
+		{
+			// Big Text
+			gGlobalStateInterfaceGraphics.bigtext[i] = "";
+			gGlobalStateInterfaceGraphics.bigdelay[i] = 0;
+			gGlobalStateInterfaceGraphics.bigscale[i] = 0;
+			gGlobalStateInterfaceGraphics.bigcolor[i] = 0;
+			gGlobalStateInterfaceGraphics.bigposx[i] = 0;
+			gGlobalStateInterfaceGraphics.bigposy[i] = 0;
+			gGlobalStateInterfaceGraphics.bigx[i] = 0;
+			// World Text
+			gGlobalStateInterfaceGraphics.worldtext[i] = "";
+			gGlobalStateInterfaceGraphics.worlddelay[i] = 0;
+			gGlobalStateInterfaceGraphics.worldscale[i] = 0;
+			gGlobalStateInterfaceGraphics.worldcolor[i] = 0;
+			gGlobalStateInterfaceGraphics.worldposx[i] = 0;
+			gGlobalStateInterfaceGraphics.worldposy[i] = 0;
+			gGlobalStateInterfaceGraphics.worldx[i] = 0;
+		}
 
-    // Reset ABOVE CHAT MESSAGE
-    for (i = 1; i <= max_sprites; i++)
-    {
-      gGlobalStateInterfaceGraphics.chatdelay[i] = 0;
-      gGlobalStateInterfaceGraphics.chatmessage[i] = "";
-      gGlobalStateInterfaceGraphics.chatteam[i] = false;
-    }
+		// Reset ABOVE CHAT MESSAGE
+		for (i = 1; i <= max_sprites; i++)
+		{
+			gGlobalStateInterfaceGraphics.chatdelay[i] = 0;
+			gGlobalStateInterfaceGraphics.chatmessage[i] = "";
+			gGlobalStateInterfaceGraphics.chatteam[i] = false;
+		}
 
-    GS::GetMainConsole().ResetCount();
-    gGlobalStateClient.GetBigConsole().ResetCount();
-  }
+		GS::GetMainConsole().ResetCount();
+		gGlobalStateClient.GetBigConsole().ResetCount();
+	}
 
-  GS::GetGame().SetGoalTicks(default_goalticks * 20);
+	GS::GetGame().SetGoalTicks(default_goalticks * 20);
 }
 #endif
 
@@ -476,53 +472,53 @@ void tdemoplayer::position(std::int32_t ticks)
 // end;
 
 template <Config::Module M>
-auto tmemorystream<M>::writebuffer(const void * /*buff*/, int32_t /*size*/) -> bool
+auto tmemorystream<M>::writebuffer(const void* /*buff*/, int32_t /*size*/) -> bool
 {
-  NotImplemented("filesystem");
-  return false;
+	NotImplemented("filesystem");
+	return false;
 }
 
 template <Config::Module M>
-auto tmemorystream<M>::savetofile(const std::string & /*filename*/) -> bool
+auto tmemorystream<M>::savetofile(const std::string& /*filename*/) -> bool
 {
-  NotImplemented("filesystem");
-  return false;
+	NotImplemented("filesystem");
+	return false;
 }
 
 template <Config::Module M>
-void tmemorystream<M>::write1(const void * /*buff*/, int32_t /*size*/)
+void tmemorystream<M>::write1(const void* /*buff*/, int32_t /*size*/)
 {
-  NotImplemented("filesystem");
+	NotImplemented("filesystem");
 }
 
 template <Config::Module M>
-void tmemorystream<M>::read1(void * /*buff*/, int32_t /*size*/)
+void tmemorystream<M>::read1(void* /*buff*/, int32_t /*size*/)
 {
-  NotImplemented("filesystem");
+	NotImplemented("filesystem");
 }
 
 template <Config::Module M>
-void tmemorystream<M>::readbuffer(void * /*buff*/, int32_t /*size*/)
+void tmemorystream<M>::readbuffer(void* /*buff*/, int32_t /*size*/)
 {
-  NotImplemented("filesystem");
+	NotImplemented("filesystem");
 }
 
 template <Config::Module M>
-void tmemorystream<M>::loadfromfile(const std::string & /*filename*/)
+void tmemorystream<M>::loadfromfile(const std::string& /*filename*/)
 {
-  NotImplemented("filesystem");
+	NotImplemented("filesystem");
 }
 
 template <Config::Module M>
 void tmemorystream<M>::seek(int32_t /*bytes*/, tmemorystream::pos /*position*/)
 {
-  NotImplemented("filesystem");
+	NotImplemented("filesystem");
 }
 
 template <Config::Module M>
 void tmemorystream<M>::free()
 {
-  NotImplemented("filesystem");
+	NotImplemented("filesystem");
 }
 
 template struct tmemorystream<>;

@@ -19,6 +19,6 @@ constexpr std::int32_t dist_collide = 20;
 constexpr std::int32_t dist_stop_prone = 25;
 
 std::int32_t checkdistance(float posa, float posb);
-void simpledecision(std::uint8_t snum, const twaypoints &botpath);
+void simpledecision(std::uint8_t snum, const twaypoints& botpath);
 void gotothing(std::uint8_t snum, std::uint8_t tnum);
-void controlbot(Sprite<Config::GetModule()> &spritec, const twaypoints &botpath);
+void controlbot(Sprite<Config::GetModule()>& spritec, const twaypoints& botpath);

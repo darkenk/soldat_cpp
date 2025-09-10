@@ -8,4 +8,4 @@
 
 class FileUtility;
 
-std::unique_ptr<TStream> ReadAsFileStream(FileUtility &fs, const std::string_view &file);
+std::unique_ptr<TStream> ReadAsFileStream(FileUtility& fs, const std::string_view& file);

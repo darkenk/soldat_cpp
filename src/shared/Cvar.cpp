@@ -11,50 +11,60 @@
 #include "shared/misc/FlagSet.hpp"
 
 template <>
-auto FromString<std::int32_t>(const std::string_view &value,
-                              std::int32_t &outValue) noexcept -> bool
+auto FromString<std::int32_t>(const std::string_view& value, std::int32_t& outValue) noexcept -> bool
 {
-  const auto *ret = std::ranges::find_if(value, [](auto const &c) { return !std::isdigit(c); });
-  if (ret != std::end(value))
-  {
-    return false;
-  }
-  outValue = std::atoi(value.data());
-  return true;
+	const auto* ret = std::ranges::find_if(value,
+		[](auto const& c)
+		{
+			return !std::isdigit(c);
+		});
+	if (ret != std::end(value))
+	{
+		return false;
+	}
+	outValue = std::atoi(value.data());
+	return true;
 }
 
 template <>
-auto FromString<bool>(const std::string_view &value, bool &outValue) noexcept -> bool
+auto FromString<bool>(const std::string_view& value, bool& outValue) noexcept -> bool
 {
-  const std::map<const std::string_view, bool> conversionTable = {
-    {"true", true}, {"True", true}, {"false", false}, {"False", false}};
-  auto v = conversionTable.find(value);
-  if (v == std::end(conversionTable))
-  {
-    return false;
-  }
-  outValue = v->second;
-  return true;
+	const std::map<const std::string_view, bool> conversionTable = {
+		{  "true",  true },
+		  {	"True",	true },
+		{ "false", false },
+		{ "False", false }
+	};
+	auto v = conversionTable.find(value);
+	if (v == std::end(conversionTable))
+	{
+		return false;
+	}
+	outValue = v->second;
+	return true;
 }
 
 template <>
-auto FromString<std::string>(const std::string_view &value, std::string &outValue) noexcept -> bool
+auto FromString<std::string>(const std::string_view& value, std::string& outValue) noexcept -> bool
 {
-  outValue = value;
-  return true;
+	outValue = value;
+	return true;
 }
 
 template <>
-auto FromString<float>(const std::string_view &value, float &outValue) noexcept -> bool
+auto FromString<float>(const std::string_view& value, float& outValue) noexcept -> bool
 {
-  const auto *ret = std::ranges::find_if(
-    value, [](auto const &c) { return !(std::isdigit(c) || c == '.' || c == 'f'); });
-  if (ret != std::end(value))
-  {
-    return false;
-  }
-  outValue = std::atof(value.data());
-  return true;
+	const auto* ret = std::ranges::find_if(value,
+		[](auto const& c)
+		{
+			return !(std::isdigit(c) || c == '.' || c == 'f');
+		});
+	if (ret != std::end(value))
+	{
+		return false;
+	}
+	outValue = std::atof(value.data());
+	return true;
 }
 
 #if 0 // __EMSCRIPTEN__?
@@ -99,7 +109,7 @@ namespace CVarClient
 #endif
 {
 
-// clang-format off
+	// clang-format off
 CVarInt log_level{"log_level", "Sets log level", CVarFlags::NONE, 1};
 CVarBool log_enable{"log_enable", "Enables logging to file", CVarFlags::NONE, true};
 CVarInt log_filesupdate{"log_filesupdate", "How often the log files should be updated", CVarFlags::NONE, 3600};

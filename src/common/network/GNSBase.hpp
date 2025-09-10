@@ -6,19 +6,20 @@ struct SteamNetworkingIPAddr;
 struct SteamNetworkingMessage_t;
 class ISteamNetworkingSockets;
 
-class GNSBase {
+class GNSBase
+{
 protected:
-  GNSBase();
-  virtual ~GNSBase();
+	GNSBase();
+	virtual ~GNSBase();
 
-  void RunCallbacks();
-  virtual void ProcessEvents(const SteamNetConnectionStatusChangedCallback_t* pInfo) = 0;
+	void RunCallbacks();
+	virtual void ProcessEvents(const SteamNetConnectionStatusChangedCallback_t* pInfo) = 0;
 
-  friend void NetworksGlobalCallback(SteamNetConnectionStatusChangedCallback_t * pInfo);
-  ISteamNetworkingSockets *mNetworkingSockets;
+	friend void NetworksGlobalCallback(SteamNetConnectionStatusChangedCallback_t* pInfo);
+	ISteamNetworkingSockets* mNetworkingSockets;
+
 private:
-  void EmplaceSteamNetConnectionStatusChangeMessage(
-    const SteamNetConnectionStatusChangedCallback_t *pInfo);
-  std::mutex mQueueMutex;
-  std::queue<SteamNetConnectionStatusChangedCallback_t*> mQueuedCallbacks;
+	void EmplaceSteamNetConnectionStatusChangeMessage(const SteamNetConnectionStatusChangedCallback_t* pInfo);
+	std::mutex mQueueMutex;
+	std::queue<SteamNetConnectionStatusChangedCallback_t*> mQueuedCallbacks;
 };

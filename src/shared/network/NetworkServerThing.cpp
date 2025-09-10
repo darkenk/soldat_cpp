@@ -22,227 +22,225 @@
 #ifdef SERVER
 void serverthingsnapshot(std::uint8_t tonum)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_serverthingsnapshot thingmsg;
-  auto &things = GS::GetThingSystem().GetThings();
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_serverthingsnapshot thingmsg;
+	auto& things = GS::GetThingSystem().GetThings();
 
-  for (std::int32_t i = 1; i <= max_things; i++)
-  {
-    auto &thing = things[i];
-    if ((thing.active) && (thing.style != object_parachute) &&
-        ((!thing.statictype) or
-         ((thing.style < object_ussocom) || (thing.style == object_stationary_gun))) &&
-        ((GS::GetGame().pointvisible(thing.skeleton.pos[1].x, thing.skeleton.pos[1].y, tonum)) or
-         (thing.style < object_ussocom)))
-    {
-      thingmsg.header.id = msgid_serverthingsnapshot;
-      // assign thing values to ThingMsg
-      thingmsg.num = i;
-      for (std::int32_t j = 1; j <= 4; j++)
-      {
-        [[deprecated("indexing")]] auto jminus1 = j - 1;
-        thingmsg.pos[jminus1].x = thing.skeleton.pos[j].x;
-        thingmsg.pos[jminus1].y = thing.skeleton.pos[j].y;
-        thingmsg.oldpos[jminus1].x = thing.skeleton.oldpos[j].x;
-        thingmsg.oldpos[jminus1].y = thing.skeleton.oldpos[j].y;
-      }
+	for (std::int32_t i = 1; i <= max_things; i++)
+	{
+		auto& thing = things[i];
+		if ((thing.active) && (thing.style != object_parachute)
+			&& ((!thing.statictype) or ((thing.style < object_ussocom) || (thing.style == object_stationary_gun)))
+			&& ((GS::GetGame().pointvisible(thing.skeleton.pos[1].x, thing.skeleton.pos[1].y, tonum))
+				or (thing.style < object_ussocom)))
+		{
+			thingmsg.header.id = msgid_serverthingsnapshot;
+			// assign thing values to ThingMsg
+			thingmsg.num = i;
+			for (std::int32_t j = 1; j <= 4; j++)
+			{
+				[[deprecated("indexing")]] auto jminus1 = j - 1;
+				thingmsg.pos[jminus1].x = thing.skeleton.pos[j].x;
+				thingmsg.pos[jminus1].y = thing.skeleton.pos[j].y;
+				thingmsg.oldpos[jminus1].x = thing.skeleton.oldpos[j].x;
+				thingmsg.oldpos[jminus1].y = thing.skeleton.oldpos[j].y;
+			}
 
-      thingmsg.owner = thing.owner;
-      thingmsg.style = thing.style;
-      thingmsg.holdingsprite = thing.holdingsprite;
+			thingmsg.owner = thing.owner;
+			thingmsg.style = thing.style;
+			thingmsg.holdingsprite = thing.holdingsprite;
 
-      // send only if moving
-      bool send = false;
-      if ((distance(thingmsg.pos[0].x, thingmsg.pos[0].y, thingmsg.oldpos[0].x,
-                    thingmsg.oldpos[0].y) > minmovedelta) ||
-          (distance(thingmsg.pos[1].x, thingmsg.pos[1].y, thingmsg.oldpos[1].x,
-                    thingmsg.oldpos[1].y) > minmovedelta))
-      {
-        send = true;
-      }
+			// send only if moving
+			bool send = false;
+			if ((distance(thingmsg.pos[0].x, thingmsg.pos[0].y, thingmsg.oldpos[0].x, thingmsg.oldpos[0].y)
+					> minmovedelta)
+				|| (distance(thingmsg.pos[1].x, thingmsg.pos[1].y, thingmsg.oldpos[1].x, thingmsg.oldpos[1].y)
+					> minmovedelta))
+			{
+				send = true;
+			}
 
-      if (GS::GetGame().GetMainTickCounter() % 2 == 0)
-      {
-        if (thing.style < object_ussocom)
-        {
-          send = true;
-        }
-        if (thing.style == object_rambo_bow)
-        {
-          send = true;
-        }
-      }
+			if (GS::GetGame().GetMainTickCounter() % 2 == 0)
+			{
+				if (thing.style < object_ussocom)
+				{
+					send = true;
+				}
+				if (thing.style == object_rambo_bow)
+				{
+					send = true;
+				}
+			}
 
-      if (send)
-      {
-        gGlobalStateNetworkServer.GetServerNetwork()->SendData(
-          &thingmsg, sizeof(thingmsg), sprite_system.GetSprite(tonum).player->peer, false);
-      }
-    }
-  }
+			if (send)
+			{
+				gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+					&thingmsg, sizeof(thingmsg), sprite_system.GetSprite(tonum).player->peer, false);
+			}
+		}
+	}
 }
 
 void serverthingmustsnapshot(const std::uint8_t i)
 {
-  tmsg_serverthingmustsnapshot thingmsg;
-  std::int32_t j = 0;
+	tmsg_serverthingmustsnapshot thingmsg;
+	std::int32_t j = 0;
 
-  auto &things = GS::GetThingSystem().GetThings();
-  auto &thing = things[i];
+	auto& things = GS::GetThingSystem().GetThings();
+	auto& thing = things[i];
 
-  if (thing.style == object_parachute)
-  {
-    return;
-  }
+	if (thing.style == object_parachute)
+	{
+		return;
+	}
 
-  thingmsg.header.id = msgid_serverthingmustsnapshot;
-  // assign thing values to ThingMsg
-  thingmsg.num = i;
-  for (j = 1; j <= 4; j++)
-  {
-    thingmsg.pos[j - 1].x = thing.skeleton.pos[j].x;
-    thingmsg.pos[j - 1].y = thing.skeleton.pos[j].y;
-    thingmsg.oldpos[j - 1].x = thing.skeleton.oldpos[j].x;
-    thingmsg.oldpos[j - 1].y = thing.skeleton.oldpos[j].y;
-  }
-  thingmsg.timeout = thing.timeout;
-  if (thing.timeout < 1)
-  {
-    thingmsg.timeout = 1;
-  }
-  thingmsg.owner = thing.owner;
-  thingmsg.style = thing.style;
-  thingmsg.holdingsprite = thing.holdingsprite;
+	thingmsg.header.id = msgid_serverthingmustsnapshot;
+	// assign thing values to ThingMsg
+	thingmsg.num = i;
+	for (j = 1; j <= 4; j++)
+	{
+		thingmsg.pos[j - 1].x = thing.skeleton.pos[j].x;
+		thingmsg.pos[j - 1].y = thing.skeleton.pos[j].y;
+		thingmsg.oldpos[j - 1].x = thing.skeleton.oldpos[j].x;
+		thingmsg.oldpos[j - 1].y = thing.skeleton.oldpos[j].y;
+	}
+	thingmsg.timeout = thing.timeout;
+	if (thing.timeout < 1)
+	{
+		thingmsg.timeout = 1;
+	}
+	thingmsg.owner = thing.owner;
+	thingmsg.style = thing.style;
+	thingmsg.holdingsprite = thing.holdingsprite;
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-  {
-    if (sprite.player->controlmethod == human)
-    {
-      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
-                                                             sprite.player->peer, false);
-    }
-  }
+	for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
+	{
+		if (sprite.player->controlmethod == human)
+		{
+			gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+				&thingmsg, sizeof(thingmsg), sprite.player->peer, false);
+		}
+	}
 }
 #endif
 
 void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_serverthingmustsnapshot thingmsg;
-  std::int32_t i = 0;
-  std::int32_t j = 0;
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_serverthingmustsnapshot thingmsg;
+	std::int32_t i = 0;
+	std::int32_t j = 0;
 
-  auto &things = GS::GetThingSystem().GetThings();
-  for (i = 1; i <= max_things; i++)
-  {
-    auto &thing = things[i];
-    if (thing.active)
-    {
-      if (((thing.style < object_ussocom) || (thing.style > object_minigun)) &&
-          (thing.style != object_parachute))
-      {
-        thingmsg.header.id = msgid_serverthingmustsnapshot;
-        // assign thing values to ThingMsg
-        thingmsg.num = i;
-        for (j = 1; j <= 4; j++)
-        {
-          thingmsg.pos[j - 1].x = thing.skeleton.pos[j].x;
-          thingmsg.pos[j - 1].y = thing.skeleton.pos[j].y;
-          thingmsg.oldpos[j - 1].x = thing.skeleton.oldpos[j].x;
-          thingmsg.oldpos[j - 1].y = thing.skeleton.oldpos[j].y;
-        }
-        thingmsg.timeout = static_cast<std::int16_t>(thing.timeout);
-        if (thing.timeout < 1)
-        {
-          thingmsg.timeout = 1;
-        }
-        thingmsg.owner = thing.owner;
-        thingmsg.style = thing.style;
-        thingmsg.holdingsprite = thing.holdingsprite;
+	auto& things = GS::GetThingSystem().GetThings();
+	for (i = 1; i <= max_things; i++)
+	{
+		auto& thing = things[i];
+		if (thing.active)
+		{
+			if (((thing.style < object_ussocom) || (thing.style > object_minigun)) && (thing.style != object_parachute))
+			{
+				thingmsg.header.id = msgid_serverthingmustsnapshot;
+				// assign thing values to ThingMsg
+				thingmsg.num = i;
+				for (j = 1; j <= 4; j++)
+				{
+					thingmsg.pos[j - 1].x = thing.skeleton.pos[j].x;
+					thingmsg.pos[j - 1].y = thing.skeleton.pos[j].y;
+					thingmsg.oldpos[j - 1].x = thing.skeleton.oldpos[j].x;
+					thingmsg.oldpos[j - 1].y = thing.skeleton.oldpos[j].y;
+				}
+				thingmsg.timeout = static_cast<std::int16_t>(thing.timeout);
+				if (thing.timeout < 1)
+				{
+					thingmsg.timeout = 1;
+				}
+				thingmsg.owner = thing.owner;
+				thingmsg.style = thing.style;
+				thingmsg.holdingsprite = thing.holdingsprite;
 
 #ifdef SERVER
-        gGlobalStateNetworkServer.GetServerNetwork()->SendData(
-          &thingmsg, sizeof(thingmsg), sprite_system.GetSprite(tonum).player->peer, false);
+				gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+					&thingmsg, sizeof(thingmsg), sprite_system.GetSprite(tonum).player->peer, false);
 #else
-        GS::GetDemoRecorder().saverecord(thingmsg, sizeof(thingmsg));
+				GS::GetDemoRecorder().saverecord(thingmsg, sizeof(thingmsg));
 #endif
-      }
-    }
-  }
+			}
+		}
+	}
 }
 
 #ifdef SERVER
 void serverthingmustsnapshotonconnectto(const std::uint8_t i, const std::uint8_t tonum)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_serverthingmustsnapshot thingmsg;
-  std::int32_t j = 0;
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_serverthingmustsnapshot thingmsg;
+	std::int32_t j = 0;
 
-  auto &things = GS::GetThingSystem().GetThings();
-  auto &thing = things[i];
+	auto& things = GS::GetThingSystem().GetThings();
+	auto& thing = things[i];
 
-  if (thing.style == object_parachute)
-  {
-    return;
-  }
+	if (thing.style == object_parachute)
+	{
+		return;
+	}
 
-  thingmsg.header.id = msgid_serverthingmustsnapshot;
-  // assign thing values to ThingMsg
-  thingmsg.num = i;
-  for (j = 1; j <= 4; j++)
-  {
-    thingmsg.pos[j].x = thing.skeleton.pos[j].x;
-    thingmsg.pos[j].y = thing.skeleton.pos[j].y;
-    thingmsg.oldpos[j].x = thing.skeleton.oldpos[j].x;
-    thingmsg.oldpos[j].y = thing.skeleton.oldpos[j].y;
-  }
-  thingmsg.timeout = thing.timeout;
-  if (thing.timeout < 1)
-  {
-    thingmsg.timeout = 1;
-  }
-  thingmsg.owner = thing.owner;
-  thingmsg.style = thing.style;
-  thingmsg.holdingsprite = thing.holdingsprite;
+	thingmsg.header.id = msgid_serverthingmustsnapshot;
+	// assign thing values to ThingMsg
+	thingmsg.num = i;
+	for (j = 1; j <= 4; j++)
+	{
+		thingmsg.pos[j].x = thing.skeleton.pos[j].x;
+		thingmsg.pos[j].y = thing.skeleton.pos[j].y;
+		thingmsg.oldpos[j].x = thing.skeleton.oldpos[j].x;
+		thingmsg.oldpos[j].y = thing.skeleton.oldpos[j].y;
+	}
+	thingmsg.timeout = thing.timeout;
+	if (thing.timeout < 1)
+	{
+		thingmsg.timeout = 1;
+	}
+	thingmsg.owner = thing.owner;
+	thingmsg.style = thing.style;
+	thingmsg.holdingsprite = thing.holdingsprite;
 
-  gGlobalStateNetworkServer.GetServerNetwork()->SendData(
-    &thingmsg, sizeof(thingmsg), sprite_system.GetSprite(tonum).player->peer, false);
+	gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+		&thingmsg, sizeof(thingmsg), sprite_system.GetSprite(tonum).player->peer, false);
 }
 
 void serverthingtaken(const std::uint8_t i, const std::uint8_t w)
 {
-  tmsg_serverthingtaken thingmsg{};
+	tmsg_serverthingtaken thingmsg{};
 
-  auto &things = GS::GetThingSystem().GetThings();
-  auto &thing = things[i];
+	auto& things = GS::GetThingSystem().GetThings();
+	auto& thing = things[i];
 
-  thingmsg.header.id = msgid_thingtaken;
-  thingmsg.num = thing.num;
-  thingmsg.who = w;
+	thingmsg.header.id = msgid_thingtaken;
+	thingmsg.num = thing.num;
+	thingmsg.who = w;
 
-  thingmsg.style = thing.style;
-  thingmsg.ammocount = thing.ammocount;
+	thingmsg.style = thing.style;
+	thingmsg.ammocount = thing.ammocount;
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-  {
-    if (sprite.player->controlmethod == human)
-    {
-      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&thingmsg, sizeof(thingmsg),
-                                                             sprite.player->peer, false);
-    }
-  }
+	for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
+	{
+		if (sprite.player->controlmethod == human)
+		{
+			gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+				&thingmsg, sizeof(thingmsg), sprite.player->peer, false);
+		}
+	}
 }
 
-void serverhandlerequestthing(tmsgheader *netmessage, std::int32_t size,
-                              NetworkServer & /*network*/, TServerPlayer *player)
+void serverhandlerequestthing(
+	tmsgheader* netmessage, std::int32_t size, NetworkServer& /*network*/, TServerPlayer* player)
 {
-  pmsg_requestthing msg = nullptr;
+	pmsg_requestthing msg = nullptr;
 
-  if (!verifypacket(sizeof(tmsg_requestthing), size, msgid_requestthing))
-  {
-    return;
-  }
-  msg = reinterpret_cast<pmsg_requestthing>(netmessage);
-  serverthingmustsnapshotonconnectto(msg->thingid, player->spritenum);
+	if (!verifypacket(sizeof(tmsg_requestthing), size, msgid_requestthing))
+	{
+		return;
+	}
+	msg = reinterpret_cast<pmsg_requestthing>(netmessage);
+	serverthingmustsnapshotonconnectto(msg->thingid, player->spritenum);
 }
 #endif

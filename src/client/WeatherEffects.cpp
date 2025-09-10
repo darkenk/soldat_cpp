@@ -18,107 +18,107 @@
 // Backgorund animation and sound for rain
 void makerain()
 {
-  std::int32_t i = 0;
-  tvector2 a;
-  tvector2 b;
-  std::int32_t modder = 0;
+	std::int32_t i = 0;
+	tvector2 a;
+	tvector2 b;
+	std::int32_t modder = 0;
 
-  if (CVar::r_maxsparks < (max_sparks - 10))
-  {
-    modder = 34;
-  }
-  else
-  {
-    modder = 17;
-  }
+	if (CVar::r_maxsparks < (max_sparks - 10))
+	{
+		modder = 34;
+	}
+	else
+	{
+		modder = 17;
+	}
 
-  if (GS::GetGame().GetMainTickCounter() % modder == 0)
-  {
-    a.x = gGlobalStateClient.camerax - gGlobalStateGame.gamewidthhalf - 128;
+	if (GS::GetGame().GetMainTickCounter() % modder == 0)
+	{
+		a.x = gGlobalStateClient.camerax - gGlobalStateGame.gamewidthhalf - 128;
 
-    b.x = 0;
-    b.y = 12;
+		b.x = 0;
+		b.y = 12;
 
-    for (i = 1; i <= 8; i++)
-    {
-      a.x = a.x + 128 - 50 + Random(90);
-      a.y = gGlobalStateClient.cameray - gGlobalStateGame.gameheighthalf - 128 - 60 + Random(150);
+		for (i = 1; i <= 8; i++)
+		{
+			a.x = a.x + 128 - 50 + Random(90);
+			a.y = gGlobalStateClient.cameray - gGlobalStateGame.gameheighthalf - 128 - 60 + Random(150);
 
-      gGlobalStateSparks.createspark(a, b, 38, 255, 60);
-    }
-  }
+			gGlobalStateSparks.createspark(a, b, 38, 255, 60);
+		}
+	}
 
-  gGlobalStateSound.playsound(SfxEffect::wind, channel_weather);
+	gGlobalStateSound.playsound(SfxEffect::wind, channel_weather);
 }
 
 // Backgorund animation and sound for sandstorm
 void makesandstorm()
 {
-  std::int32_t i = 0;
-  tvector2 a;
-  tvector2 b;
-  std::int32_t modder = 0;
+	std::int32_t i = 0;
+	tvector2 a;
+	tvector2 b;
+	std::int32_t modder = 0;
 
-  if (CVar::r_maxsparks < (max_sparks - 10))
-  {
-    modder = 34;
-  }
-  else
-  {
-    modder = 17;
-  }
+	if (CVar::r_maxsparks < (max_sparks - 10))
+	{
+		modder = 34;
+	}
+	else
+	{
+		modder = 17;
+	}
 
-  if (GS::GetGame().GetMainTickCounter() % modder == 0)
-  {
-    a.x = gGlobalStateClient.camerax - gGlobalStateGame.gamewidthhalf - (1.5 * 512);
+	if (GS::GetGame().GetMainTickCounter() % modder == 0)
+	{
+		a.x = gGlobalStateClient.camerax - gGlobalStateGame.gamewidthhalf - (1.5 * 512);
 
-    b.x = 10;
-    b.y = 7;
+		b.x = 10;
+		b.y = 7;
 
-    for (i = 1; i <= 8; i++)
-    {
-      a.x = a.x + 128 - 50 + Random(90);
-      a.y = gGlobalStateClient.cameray - gGlobalStateGame.gameheighthalf - 256 - 60 + Random(150);
+		for (i = 1; i <= 8; i++)
+		{
+			a.x = a.x + 128 - 50 + Random(90);
+			a.y = gGlobalStateClient.cameray - gGlobalStateGame.gameheighthalf - 256 - 60 + Random(150);
 
-      gGlobalStateSparks.createspark(a, b, 39, 255, 80);
-    }
-  }
+			gGlobalStateSparks.createspark(a, b, 39, 255, 80);
+		}
+	}
 
-  gGlobalStateSound.playsound(SfxEffect::wind, channel_weather);
+	gGlobalStateSound.playsound(SfxEffect::wind, channel_weather);
 }
 
 // Backgorund animation and sound for snow
 void makesnow()
 {
-  std::int32_t i = 0;
-  tvector2 a;
-  tvector2 b;
-  std::int32_t modder = 0;
+	std::int32_t i = 0;
+	tvector2 a;
+	tvector2 b;
+	std::int32_t modder = 0;
 
-  if (CVar::r_maxsparks < (max_sparks - 10))
-  {
-    modder = 34;
-  }
-  else
-  {
-    modder = 17;
-  }
+	if (CVar::r_maxsparks < (max_sparks - 10))
+	{
+		modder = 34;
+	}
+	else
+	{
+		modder = 17;
+	}
 
-  if (GS::GetGame().GetMainTickCounter() % modder == 0)
-  {
-    a.x = gGlobalStateClient.camerax - gGlobalStateGame.gamewidthhalf - 256;
+	if (GS::GetGame().GetMainTickCounter() % modder == 0)
+	{
+		a.x = gGlobalStateClient.camerax - gGlobalStateGame.gamewidthhalf - 256;
 
-    b.x = 1;
-    b.y = 2;
+		b.x = 1;
+		b.y = 2;
 
-    for (i = 1; i <= 8; i++)
-    {
-      a.x = a.x + 128 - 50 + Random(90);
-      a.y = gGlobalStateClient.cameray - gGlobalStateGame.gameheighthalf - 60 + Random(150);
+		for (i = 1; i <= 8; i++)
+		{
+			a.x = a.x + 128 - 50 + Random(90);
+			a.y = gGlobalStateClient.cameray - gGlobalStateGame.gameheighthalf - 60 + Random(150);
 
-      gGlobalStateSparks.createspark(a, b, 53, 255, 80);
-    }
-  }
+			gGlobalStateSparks.createspark(a, b, 53, 255, 80);
+		}
+	}
 
-  gGlobalStateSound.playsound(SfxEffect::wind, channel_weather);
+	gGlobalStateSound.playsound(SfxEffect::wind, channel_weather);
 }

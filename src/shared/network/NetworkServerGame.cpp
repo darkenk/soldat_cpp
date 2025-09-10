@@ -29,370 +29,367 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
 
-void serverhandleplayerdisconnect(tmsgheader *netmessage, std::int32_t size,
-                                  NetworkServer & /*network*/, TServerPlayer *player)
+void serverhandleplayerdisconnect(
+	tmsgheader* netmessage, std::int32_t size, NetworkServer& /*network*/, TServerPlayer* player)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_playerdisconnect *playermsg = nullptr;
-  std::int32_t i = 0;
-  std::int32_t j = 0;
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_playerdisconnect* playermsg = nullptr;
+	std::int32_t i = 0;
+	std::int32_t j = 0;
 
-  if (!verifypacket(sizeof(tmsg_playerdisconnect), size, msgid_playerdisconnect))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_playerdisconnect), size, msgid_playerdisconnect))
+	{
+		return;
+	}
 
-  playermsg = reinterpret_cast<pmsg_playerdisconnect>(netmessage);
-  i = player->spritenum;
+	playermsg = reinterpret_cast<pmsg_playerdisconnect>(netmessage);
+	i = player->spritenum;
 
-  for (j = 0; j <= sprite_system.GetSprite(i).bulletcheckamount; j++)
-  {
-    sprite_system.GetSprite(i).bulletcheck[j] = 0;
-  }
+	for (j = 0; j <= sprite_system.GetSprite(i).bulletcheckamount; j++)
+	{
+		sprite_system.GetSprite(i).bulletcheck[j] = 0;
+	}
 
-  sprite_system.GetSprite(i).bulletcheckindex = 0;
-  sprite_system.GetSprite(i).bulletcheckamount = 0;
+	sprite_system.GetSprite(i).bulletcheckindex = 0;
+	sprite_system.GetSprite(i).bulletcheckamount = 0;
 
-  gGlobalStateNetworkServer.messagesasecnum[playermsg->num] += 1;
+	gGlobalStateNetworkServer.messagesasecnum[playermsg->num] += 1;
 
-  if ((GS::GetGame().IsVoteActive()) && (GS::GetGame().GetVoteType() == vote_kick))
-  {
-    if (strtoint(GS::GetGame().GetVoteTarget()) == i)
-    {
-      gGlobalStateServer.kickplayer(i, true, kick_voted, five_minutes, "Vote Kicked (Left game)");
-      GS::GetGame().stopvote();
-      return;
-    }
-  }
+	if ((GS::GetGame().IsVoteActive()) && (GS::GetGame().GetVoteType() == vote_kick))
+	{
+		if (strtoint(GS::GetGame().GetVoteTarget()) == i)
+		{
+			gGlobalStateServer.kickplayer(i, true, kick_voted, five_minutes, "Vote Kicked (Left game)");
+			GS::GetGame().stopvote();
+			return;
+		}
+	}
 
-  switch (sprite_system.GetSprite(i).player->team)
-  {
-  case team_none:
-    GS::GetMainConsole().console(sprite_system.GetSprite(i).player->name + " has left the game.",
-                                 enter_message_color);
-    break;
-  case team_alpha:
-    GS::GetMainConsole().console(sprite_system.GetSprite(i).player->name + " has left alpha team.",
-                                 alphaj_message_color);
-    break;
-  case team_bravo:
-    GS::GetMainConsole().console(sprite_system.GetSprite(i).player->name + " has left bravo team.",
-                                 bravoj_message_color);
-    break;
-  case team_charlie:
-    GS::GetMainConsole().console(
-      sprite_system.GetSprite(i).player->name + " has left charlie team.", charliej_message_color);
-    break;
-  case team_delta:
-    GS::GetMainConsole().console(sprite_system.GetSprite(i).player->name + " has left delta team.",
-                                 deltaj_message_color);
-    break;
-  case team_spectator:
-    GS::GetMainConsole().console(sprite_system.GetSprite(i).player->name + " has left spectators",
-                                 deltaj_message_color);
-    break;
-  }
+	switch (sprite_system.GetSprite(i).player->team)
+	{
+		case team_none:
+			GS::GetMainConsole().console(
+				sprite_system.GetSprite(i).player->name + " has left the game.", enter_message_color);
+			break;
+		case team_alpha:
+			GS::GetMainConsole().console(
+				sprite_system.GetSprite(i).player->name + " has left alpha team.", alphaj_message_color);
+			break;
+		case team_bravo:
+			GS::GetMainConsole().console(
+				sprite_system.GetSprite(i).player->name + " has left bravo team.", bravoj_message_color);
+			break;
+		case team_charlie:
+			GS::GetMainConsole().console(
+				sprite_system.GetSprite(i).player->name + " has left charlie team.", charliej_message_color);
+			break;
+		case team_delta:
+			GS::GetMainConsole().console(
+				sprite_system.GetSprite(i).player->name + " has left delta team.", deltaj_message_color);
+			break;
+		case team_spectator:
+			GS::GetMainConsole().console(
+				sprite_system.GetSprite(i).player->name + " has left spectators", deltaj_message_color);
+			break;
+	}
 
-  for (j = 1; j <= max_players; j++)
-  {
-    if ((trim(gGlobalStateServer.tklist[j]).empty()) ||
-        (gGlobalStateServer.tklist[j] == sprite_system.GetSprite(i).player->ip))
-    {
-      gGlobalStateServer.tklistkills[j] = sprite_system.GetSprite(i).player->tkwarnings;
-      gGlobalStateServer.tklist[j] = sprite_system.GetSprite(i).player->ip;
-      break;
-    }
-  }
+	for (j = 1; j <= max_players; j++)
+	{
+		if ((trim(gGlobalStateServer.tklist[j]).empty())
+			|| (gGlobalStateServer.tklist[j] == sprite_system.GetSprite(i).player->ip))
+		{
+			gGlobalStateServer.tklistkills[j] = sprite_system.GetSprite(i).player->tkwarnings;
+			gGlobalStateServer.tklist[j] = sprite_system.GetSprite(i).player->ip;
+			break;
+		}
+	}
 
-  serverplayerdisconnect(i, kick_leftgame);
+	serverplayerdisconnect(i, kick_leftgame);
 
-  if (sprite_system.GetSprite(i).isnotspectator())
-  {
-    sprite_system.GetSprite(i).dropweapon();
-  }
-  sprite_system.GetSprite(i).player->muted = 0;
-  sprite_system.GetSprite(i).player->tkwarnings = 0;
+	if (sprite_system.GetSprite(i).isnotspectator())
+	{
+		sprite_system.GetSprite(i).dropweapon();
+	}
+	sprite_system.GetSprite(i).player->muted = 0;
+	sprite_system.GetSprite(i).player->tkwarnings = 0;
 
 #ifdef SCRIPT
-  scrptdispatcher.onleavegame(SpriteSystem::Get().GetSprite(i).num, false);
+	scrptdispatcher.onleavegame(SpriteSystem::Get().GetSprite(i).num, false);
 #endif
 
-  // NOTE: no disconnect event is generated by disconnect_now, hence we destroy Player here
-  sprite_system.GetSprite(i).kill();
-  sprite_system.GetSprite(i).player = std::make_shared<TServerPlayer>();
-  NotImplemented("Check if &player is used properly to remove player");
-  auto players = gGlobalStateNetworkServer.GetServerNetwork()->GetPlayers();
-  auto peer = player->peer;
-  auto [begin, end] = std::ranges::remove_if(players, [&player](const auto &v) { return v.get() == player; });
-  players.erase(begin, end);
+	// NOTE: no disconnect event is generated by disconnect_now, hence we destroy Player here
+	sprite_system.GetSprite(i).kill();
+	sprite_system.GetSprite(i).player = std::make_shared<TServerPlayer>();
+	NotImplemented("Check if &player is used properly to remove player");
+	auto players = gGlobalStateNetworkServer.GetServerNetwork()->GetPlayers();
+	auto peer = player->peer;
+	auto [begin, end] = std::ranges::remove_if(players,
+		[&player](const auto& v)
+		{
+			return v.get() == player;
+		});
+	players.erase(begin, end);
 
-  gGlobalStateNetworkServer.GetServerNetwork()->CloseConnection(peer, true);
+	gGlobalStateNetworkServer.GetServerNetwork()->CloseConnection(peer, true);
 
-  dobalancebots(1, sprite_system.GetSprite(i).player->team);
+	dobalancebots(1, sprite_system.GetSprite(i).player->team);
 }
 
 void servermapchange(std::uint8_t id)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_mapchange mapchangemsg;
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_mapchange mapchangemsg;
 
-  mapchangemsg.header.id = msgid_mapchange;
-  mapchangemsg.counter = GS::GetGame().GetMapchangecounter();
-  strcpy(mapchangemsg.mapname.data(), GS::GetGame().GetMapchange().name.data());
-  auto mapchecksum =
-    getmapchecksum(GS::GetFileSystem(), GS::GetGame().GetMapchange(), GS::GetGame().GetGameModChecksum());
-  mapchangemsg.mapchecksum = mapchecksum;
-  GS::GetGame().SetMapChecksum(mapchecksum);
+	mapchangemsg.header.id = msgid_mapchange;
+	mapchangemsg.counter = GS::GetGame().GetMapchangecounter();
+	strcpy(mapchangemsg.mapname.data(), GS::GetGame().GetMapchange().name.data());
+	auto mapchecksum =
+		getmapchecksum(GS::GetFileSystem(), GS::GetGame().GetMapchange(), GS::GetGame().GetGameModChecksum());
+	mapchangemsg.mapchecksum = mapchecksum;
+	GS::GetGame().SetMapChecksum(mapchecksum);
 
-  for (auto &sprite : sprite_system.GetActiveSprites())
-  {
-    sprite.player->tkwarnings = 0;
-    gGlobalStateServer.tklist[sprite.num] = "";
-    gGlobalStateServer.tklistkills[sprite.num] = 0;
-  }
+	for (auto& sprite : sprite_system.GetActiveSprites())
+	{
+		sprite.player->tkwarnings = 0;
+		gGlobalStateServer.tklist[sprite.num] = "";
+		gGlobalStateServer.tklistkills[sprite.num] = 0;
+	}
 
-  if (id == 0)
-  {
-    ;
-    // NOTE we send to pending players too, otherwise there is a small window where they miss
-    // the map change NOTE also that we're using the CONNECTION channel, which is required for
-    // all packets that can be sent before a sprite is assigned to the player for proper
-    // sequencing with encryption commands.
-    //    for DstPlayer in Players do
-    //      udp->senddata(&MapChangeMsg, sizeof(MapChangeMsg), DstPlayer.peer,
-    //      k_nSteamNetworkingSend_Reliable);
-  }
-  else if ((sprite_system.GetSprite(id).active) &&
-           (sprite_system.GetSprite(id).player->controlmethod == human))
-  {
-    gGlobalStateNetworkServer.GetServerNetwork()->SendData(
-      &mapchangemsg, sizeof(mapchangemsg), sprite_system.GetSprite(id).player->peer, true);
-  }
+	if (id == 0)
+	{
+		;
+		// NOTE we send to pending players too, otherwise there is a small window where they miss
+		// the map change NOTE also that we're using the CONNECTION channel, which is required for
+		// all packets that can be sent before a sprite is assigned to the player for proper
+		// sequencing with encryption commands.
+		//    for DstPlayer in Players do
+		//      udp->senddata(&MapChangeMsg, sizeof(MapChangeMsg), DstPlayer.peer,
+		//      k_nSteamNetworkingSend_Reliable);
+	}
+	else if ((sprite_system.GetSprite(id).active) && (sprite_system.GetSprite(id).player->controlmethod == human))
+	{
+		gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+			&mapchangemsg, sizeof(mapchangemsg), sprite_system.GetSprite(id).player->peer, true);
+	}
 }
 
 void serverflaginfo(std::uint8_t style, std::uint8_t who)
 {
-  tmsg_serverflaginfo flagmsg{};
+	tmsg_serverflaginfo flagmsg{};
 
-  flagmsg.header.id = msgid_flaginfo;
-  flagmsg.style = style;
-  flagmsg.who = who;
+	flagmsg.header.id = msgid_flaginfo;
+	flagmsg.style = style;
+	flagmsg.who = who;
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-  {
-    if (sprite.player->controlmethod == human)
-    {
-      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&flagmsg, sizeof(flagmsg),
-                                                             sprite.player->peer, true);
-    }
-  }
+	for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
+	{
+		if (sprite.player->controlmethod == human)
+		{
+			gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+				&flagmsg, sizeof(flagmsg), sprite.player->peer, true);
+		}
+	}
 }
 
 void serveridleanimation(std::uint8_t num, std::int16_t style)
 {
-  tmsg_idleanimation idlemsg{};
+	tmsg_idleanimation idlemsg{};
 
-  idlemsg.header.id = msgid_idleanimation;
-  idlemsg.num = num;
-  idlemsg.idlerandom = style;
+	idlemsg.header.id = msgid_idleanimation;
+	idlemsg.num = num;
+	idlemsg.idlerandom = style;
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-  {
-    if (sprite.player->controlmethod == human)
-    {
-      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&idlemsg, sizeof(idlemsg),
-                                                             sprite.player->peer, true);
-    }
-  }
+	for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
+	{
+		if (sprite.player->controlmethod == human)
+		{
+			gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+				&idlemsg, sizeof(idlemsg), sprite.player->peer, true);
+		}
+	}
 }
 
-void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string targetname,
-                      std::string reason)
+void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string targetname, std::string reason)
 {
-  tmsg_voteon votemsg{};
+	tmsg_voteon votemsg{};
 
-  votemsg.header.id = msgid_voteon;
-  votemsg.votetype = votestyle;
-  votemsg.timer = GS::GetGame().GetVoteTimeRemaining();
-  votemsg.who = voter;
-  stringtoarray(votemsg.targetname.data(), std::move(targetname));
-  stringtoarray(votemsg.reason.data(), std::move(reason));
+	votemsg.header.id = msgid_voteon;
+	votemsg.votetype = votestyle;
+	votemsg.timer = GS::GetGame().GetVoteTimeRemaining();
+	votemsg.who = voter;
+	stringtoarray(votemsg.targetname.data(), std::move(targetname));
+	stringtoarray(votemsg.reason.data(), std::move(reason));
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-  {
-    if (sprite.player->controlmethod == human)
-    {
-      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&votemsg, sizeof(votemsg),
-                                                             sprite.player->peer, true);
-    }
-  }
+	for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
+	{
+		if (sprite.player->controlmethod == human)
+		{
+			gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+				&votemsg, sizeof(votemsg), sprite.player->peer, true);
+		}
+	}
 }
 
 void serversendvoteoff()
 {
-  tmsg_voteoff votemsg{};
+	tmsg_voteoff votemsg{};
 
-  votemsg.header.id = msgid_voteoff;
+	votemsg.header.id = msgid_voteoff;
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-  {
-    if (sprite.player->controlmethod == human)
-    {
-      gGlobalStateNetworkServer.GetServerNetwork()->SendData(&votemsg, sizeof(votemsg),
-                                                             sprite.player->peer, true);
-    }
-  }
+	for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
+	{
+		if (sprite.player->controlmethod == human)
+		{
+			gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+				&votemsg, sizeof(votemsg), sprite.player->peer, true);
+		}
+	}
 }
 
-void serverhandlevotekick(tmsgheader *netmessage, std::int32_t size, NetworkServer & /*network*/,
-                          TServerPlayer *player)
+void serverhandlevotekick(tmsgheader* netmessage, std::int32_t size, NetworkServer& /*network*/, TServerPlayer* player)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_votekick *votekickmsg = nullptr;
-  std::int32_t i = 0;
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_votekick* votekickmsg = nullptr;
+	std::int32_t i = 0;
 
-  if (!verifypacket(sizeof(tmsg_votekick), size, msgid_votekick))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_votekick), size, msgid_votekick))
+	{
+		return;
+	}
 
-  votekickmsg = reinterpret_cast<pmsg_votekick>(netmessage);
-  i = player->spritenum;
+	votekickmsg = reinterpret_cast<pmsg_votekick>(netmessage);
+	i = player->spritenum;
 
-  if (GS::GetGame().IsVoteActive())
-  {
-    // if a vote against a player is in progress,
-    // don't allow that player to vote against himself.
-    if (GS::GetGame().GetVoteType() != vote_kick)
-    {
-      return;
-    }
-    if (strtoint(GS::GetGame().GetVoteTarget()) == i)
-    {
-      serversendstringmessage("A vote has been cast against you. You can not vote.", i, 255,
-                              msgtype_pub);
-      return;
-    }
+	if (GS::GetGame().IsVoteActive())
+	{
+		// if a vote against a player is in progress,
+		// don't allow that player to vote against himself.
+		if (GS::GetGame().GetVoteType() != vote_kick)
+		{
+			return;
+		}
+		if (strtoint(GS::GetGame().GetVoteTarget()) == i)
+		{
+			serversendstringmessage("A vote has been cast against you. You can not vote.", i, 255, msgtype_pub);
+			return;
+		}
 
-    // check if he already voted
-    if (GS::GetGame().HasVoted(i))
-    {
-      return;
-    }
+		// check if he already voted
+		if (GS::GetGame().HasVoted(i))
+		{
+			return;
+		}
 
-    // check if the vote target is actually the target
-    if (GS::GetGame().GetVoteTarget() != inttostr(votekickmsg->num))
-    {
-      return;
-    }
+		// check if the vote target is actually the target
+		if (GS::GetGame().GetVoteTarget() != inttostr(votekickmsg->num))
+		{
+			return;
+		}
 
 #ifdef SCRIPT
-    scrptdispatcher.onvotekick(i, votekickmsg.num);
+		scrptdispatcher.onvotekick(i, votekickmsg.num);
 #endif
-    GS::GetGame().countvote(i);
-  }
-  else
-  {
-    if (GS::GetGame().IsVoteActive())
-    {
-      // only allow valid votes
-      if ((votekickmsg->num < 1) || (votekickmsg->num > max_players))
-      {
-        return;
-      }
-      if (sprite_system.GetSprite(i).player->muted == 1)
-      {
-        writeconsole(i, "You are muted. You can't cast a vote kick.", server_message_color);
-        return;
-      }
+		GS::GetGame().countvote(i);
+	}
+	else
+	{
+		if (GS::GetGame().IsVoteActive())
+		{
+			// only allow valid votes
+			if ((votekickmsg->num < 1) || (votekickmsg->num > max_players))
+			{
+				return;
+			}
+			if (sprite_system.GetSprite(i).player->muted == 1)
+			{
+				writeconsole(i, "You are muted. You can't cast a vote kick.", server_message_color);
+				return;
+			}
 
 #ifdef SCRIPT
-      if (scrptdispatcher.onvotekickstart(i, votekickmsg.num, string(votekickmsg.reason)))
-        return;
+			if (scrptdispatcher.onvotekickstart(i, votekickmsg.num, string(votekickmsg.reason)))
+				return;
 #endif
 
-      GS::GetGame().startvote(i, vote_kick, inttostr(votekickmsg->num), votekickmsg->reason.data());
-      serversendvoteon(GS::GetGame().GetVoteType(), i, inttostr(votekickmsg->num),
-                       votekickmsg->reason.data());
-      // Show started votekick in admin console
-      GS::GetMainConsole().console(sprite_system.GetSprite(i).player->name +
-                                     " started votekick against " +
-                                     sprite_system.GetSprite(votekickmsg->num).player->name +
-                                     " - Reason:" + std::string(votekickmsg->reason.data()),
-                                   vote_message_color);
-    }
-  }
+			GS::GetGame().startvote(i, vote_kick, inttostr(votekickmsg->num), votekickmsg->reason.data());
+			serversendvoteon(GS::GetGame().GetVoteType(), i, inttostr(votekickmsg->num), votekickmsg->reason.data());
+			// Show started votekick in admin console
+			GS::GetMainConsole().console(sprite_system.GetSprite(i).player->name + " started votekick against "
+											 + sprite_system.GetSprite(votekickmsg->num).player->name
+											 + " - Reason:" + std::string(votekickmsg->reason.data()),
+				vote_message_color);
+		}
+	}
 }
 
-void serverhandlevotemap(tmsgheader *netmessage, std::int32_t size, NetworkServer & /*network*/,
-                         TServerPlayer *player)
+void serverhandlevotemap(tmsgheader* netmessage, std::int32_t size, NetworkServer& /*network*/, TServerPlayer* player)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_votemap *votemapmsg = nullptr;
-  tmsg_votemapreply votemapreplymsg{};
-  std::int32_t i = 0;
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_votemap* votemapmsg = nullptr;
+	tmsg_votemapreply votemapreplymsg{};
+	std::int32_t i = 0;
 
-  if (!verifypacket(sizeof(tmsg_votemap), size, msgid_votemap))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_votemap), size, msgid_votemap))
+	{
+		return;
+	}
 
-  votemapmsg = reinterpret_cast<pmsg_votemap>(netmessage);
-  i = player->spritenum;
+	votemapmsg = reinterpret_cast<pmsg_votemap>(netmessage);
+	i = player->spritenum;
 
-  if (votemapmsg->mapid > gGlobalStateServer.mapslist.size() - 1)
-  {
-    return;
-  }
+	if (votemapmsg->mapid > gGlobalStateServer.mapslist.size() - 1)
+	{
+		return;
+	}
 
-  votemapreplymsg.header.id = msgid_votemapreply;
-  votemapreplymsg.count = gGlobalStateServer.mapslist.size();
-  strcpy(votemapreplymsg.mapname.data(), gGlobalStateServer.mapslist[votemapmsg->mapid].data());
+	votemapreplymsg.header.id = msgid_votemapreply;
+	votemapreplymsg.count = gGlobalStateServer.mapslist.size();
+	strcpy(votemapreplymsg.mapname.data(), gGlobalStateServer.mapslist[votemapmsg->mapid].data());
 
-  gGlobalStateNetworkServer.GetServerNetwork()->SendData(
-    &votemapreplymsg, sizeof(votemapreplymsg), sprite_system.GetSprite(i).player->peer, true);
+	gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+		&votemapreplymsg, sizeof(votemapreplymsg), sprite_system.GetSprite(i).player->peer, true);
 }
 
-void serverhandlechangeteam(tmsgheader *netmessage, std::int32_t size, NetworkServer & /*network*/,
-                            TServerPlayer *player)
+void serverhandlechangeteam(
+	tmsgheader* netmessage, std::int32_t size, NetworkServer& /*network*/, TServerPlayer* player)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_changeteam *changeteammsg = nullptr;
-  std::int32_t i = 0;
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_changeteam* changeteammsg = nullptr;
+	std::int32_t i = 0;
 
-  if (!verifypacket(sizeof(tmsg_changeteam), size, msgid_changeteam))
-  {
-    return;
-  }
-  changeteammsg = reinterpret_cast<pmsg_changeteam>(netmessage);
-  i = player->spritenum;
-  sprite_system.GetSprite(i).changeteam_ServerVariant(changeteammsg->team);
+	if (!verifypacket(sizeof(tmsg_changeteam), size, msgid_changeteam))
+	{
+		return;
+	}
+	changeteammsg = reinterpret_cast<pmsg_changeteam>(netmessage);
+	i = player->spritenum;
+	sprite_system.GetSprite(i).changeteam_ServerVariant(changeteammsg->team);
 }
 
 void serversyncmsg(std::int32_t tonum)
 {
-  tmsg_serversyncmsg syncmsg{};
+	tmsg_serversyncmsg syncmsg{};
 
-  syncmsg.header.id = msgid_serversyncmsg;
-  syncmsg.time = GS::GetGame().GetTimelimitcounter();
-  if (GS::GetGame().GetMapchangecounter() == 999999999)
-  {
-    syncmsg.pause = 1;
-  }
-  else
-  {
-    syncmsg.pause = 0;
-  }
+	syncmsg.header.id = msgid_serversyncmsg;
+	syncmsg.time = GS::GetGame().GetTimelimitcounter();
+	if (GS::GetGame().GetMapchangecounter() == 999999999)
+	{
+		syncmsg.pause = 1;
+	}
+	else
+	{
+		syncmsg.pause = 0;
+	}
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-  {
-    if ((tonum == 0) || (std::cmp_equal(sprite.num, tonum)))
-    {
-      if (sprite.player->controlmethod == human)
-      {
-        gGlobalStateNetworkServer.GetServerNetwork()->SendData(&syncmsg, sizeof(syncmsg),
-                                                               sprite.player->peer, true);
-      }
-    }
-  }
+	for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
+	{
+		if ((tonum == 0) || (std::cmp_equal(sprite.num, tonum)))
+		{
+			if (sprite.player->controlmethod == human)
+			{
+				gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+					&syncmsg, sizeof(syncmsg), sprite.player->peer, true);
+			}
+		}
+	}
 }

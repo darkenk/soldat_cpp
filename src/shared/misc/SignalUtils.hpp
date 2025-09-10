@@ -7,17 +7,17 @@
 
 inline void Abort()
 {
-  std::fflush(stdout);
-  std::abort();
+	std::fflush(stdout);
+	std::abort();
 }
 
 template <typename... Args>
-PU_ALWAYS_INLINE void AbortIf(bool v, fmt::format_string<Args...> fmt, Args &&...args)
+PU_ALWAYS_INLINE void AbortIf(bool v, fmt::format_string<Args...> fmt, Args&&... args)
 {
-  if (!v) [[likely]]
-  {
-    return;
-  }
-  LogCriticalG(fmt, std::forward<Args>(args)...);
-  Abort();
+	if (!v) [[likely]]
+	{
+		return;
+	}
+	LogCriticalG(fmt, std::forward<Args>(args)...);
+	Abort();
 }

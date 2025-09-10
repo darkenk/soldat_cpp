@@ -38,114 +38,117 @@
 
 auto idtoname(std::int32_t id) -> std::string
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::string result;
-  result = "";
-  if (id > max_players)
-  {
-    result = "Server Admin";
-    return result;
-  }
+	auto& sprite_system = SpriteSystem::Get();
+	std::string result;
+	result = "";
+	if (id > max_players)
+	{
+		result = "Server Admin";
+		return result;
+	}
 
-  if (sprite_system.GetSprite(id).IsActive())
-  {
-    result = sprite_system.GetSprite(id).player->name;
-  }
-  return result;
+	if (sprite_system.GetSprite(id).IsActive())
+	{
+		result = sprite_system.GetSprite(id).player->name;
+	}
+	return result;
 }
 
 auto teamtoname(std::int32_t id) -> std::string
 {
-  std::string result;
-  result = "UNKNOWN";
-  if (id > 5)
-  {
-    return result;
-  }
+	std::string result;
+	result = "UNKNOWN";
+	if (id > 5)
+	{
+		return result;
+	}
 
-  switch (id)
-  {
-  case 0:
-    result = "NA";
-    break;
-  case 1:
-    result = 'A';
-    break;
-  case 2:
-    result = 'B';
-    break;
-  case 3:
-    result = 'C';
-    break;
-  case 4:
-    result = 'D';
-    break;
-  case 5:
-    result = "Spectator";
-    break;
-  }
-  return result;
+	switch (id)
+	{
+		case 0:
+			result = "NA";
+			break;
+		case 1:
+			result = 'A';
+			break;
+		case 2:
+			result = 'B';
+			break;
+		case 3:
+			result = 'C';
+			break;
+		case 4:
+			result = 'D';
+			break;
+		case 5:
+			result = "Spectator";
+			break;
+	}
+	return result;
 }
 
 auto rgb(std::uint8_t r, std::uint8_t g, std::uint8_t b) -> std::uint32_t
 {
-  return (r | (g << 8) | (b << 16));
+	return (r | (g << 8) | (b << 16));
 }
 
-auto findlowestteam(const std::vector<std::int32_t> &arr) -> std::int32_t
+auto findlowestteam(const std::vector<std::int32_t>& arr) -> std::int32_t
 {
-  std::int32_t i = 0;
-  std::int32_t tmp = 0;
+	std::int32_t i = 0;
+	std::int32_t tmp = 0;
 
-  std::int32_t result = 0;
-  tmp = 1;
-  for (i = 1; i <= iif(CVar::sv_gamemode == gamestyle_teammatch, 4, 2); i++)
-  {
-    if (arr[tmp] > arr[i])
-    {
-      tmp = i;
-    }
-  }
-  result = tmp;
-  return result;
+	std::int32_t result = 0;
+	tmp = 1;
+	for (i = 1; i <= iif(CVar::sv_gamemode == gamestyle_teammatch, 4, 2); i++)
+	{
+		if (arr[tmp] > arr[i])
+		{
+			tmp = i;
+		}
+	}
+	result = tmp;
+	return result;
 }
 
 auto fixteam(std::uint8_t team) -> std::uint8_t
 {
-  std::uint8_t result = 0;
-  result = team_spectator;
+	std::uint8_t result = 0;
+	result = team_spectator;
 
-  switch (CVar::sv_gamemode)
-  {
-  case gamestyle_deathmatch:
-  case gamestyle_pointmatch:
-  case gamestyle_rambo: {
-    // Choose to team 0 or leave at team spectator
-    if ((team != team_none) && (team != team_spectator))
-    {
-      result = team_none;
-    }
-  }
-  break;
-  case gamestyle_teammatch: {
-    if ((team != team_alpha) && (team != team_bravo) && (team != team_charlie) &&
-        (team != team_delta) && (team != team_spectator))
-    {
-      result = Random(4) + 1; // team 1..4
-    }
-  }
-  break;
-  case gamestyle_ctf:
-  case gamestyle_inf:
-  case gamestyle_htf: {
-    if ((team != team_alpha) && (team != team_bravo) && (team != team_spectator))
-    {
-      result = Random(2) + 1; // team 1..2
-    }
-  }
-  break;
-  }
-  return result;
+	switch (CVar::sv_gamemode)
+	{
+		case gamestyle_deathmatch:
+		case gamestyle_pointmatch:
+		case gamestyle_rambo:
+		{
+			// Choose to team 0 or leave at team spectator
+			if ((team != team_none) && (team != team_spectator))
+			{
+				result = team_none;
+			}
+		}
+		break;
+		case gamestyle_teammatch:
+		{
+			if ((team != team_alpha) && (team != team_bravo) && (team != team_charlie) && (team != team_delta)
+				&& (team != team_spectator))
+			{
+				result = Random(4) + 1; // team 1..4
+			}
+		}
+		break;
+		case gamestyle_ctf:
+		case gamestyle_inf:
+		case gamestyle_htf:
+		{
+			if ((team != team_alpha) && (team != team_bravo) && (team != team_spectator))
+			{
+				result = Random(2) + 1; // team 1..2
+			}
+		}
+		break;
+	}
+	return result;
 }
 #if 0
 
@@ -177,49 +180,49 @@ std::string weaponnamebynum(std::int32_t num)
 
 auto checknextmap() -> std::string
 {
-  std::int32_t m = 0;
+	std::int32_t m = 0;
 
-  std::string result;
-  LogTraceG("CheckNextMap");
-  result = "NOMAP";
-  if (gGlobalStateServer.mapslist.empty())
-  {
-    result = "NOMAP";
-  }
-  else
-  {
-    m = gGlobalStateServer.mapindex + 1;
+	std::string result;
+	LogTraceG("CheckNextMap");
+	result = "NOMAP";
+	if (gGlobalStateServer.mapslist.empty())
+	{
+		result = "NOMAP";
+	}
+	else
+	{
+		m = gGlobalStateServer.mapindex + 1;
 
-    if (m >= gGlobalStateServer.mapslist.size())
-    {
-      m = 0;
-    }
+		if (m >= gGlobalStateServer.mapslist.size())
+		{
+			m = 0;
+		}
 
-    result = gGlobalStateServer.mapslist[m];
-  }
-  return result;
+		result = gGlobalStateServer.mapslist[m];
+	}
+	return result;
 }
 
 void savetxtlists()
 {
-  LogTraceG("SaveTxtLists");
+	LogTraceG("SaveTxtLists");
 
-  // save ban files
-  gGlobalStateBanSystem.savebannedlist(GS::GetGame().GetUserDirectory() + "configs/banned.txt");
-  gGlobalStateBanSystem.savebannedlisthw(GS::GetGame().GetUserDirectory() + "configs/bannedhw.txt");
+	// save ban files
+	gGlobalStateBanSystem.savebannedlist(GS::GetGame().GetUserDirectory() + "configs/banned.txt");
+	gGlobalStateBanSystem.savebannedlisthw(GS::GetGame().GetUserDirectory() + "configs/bannedhw.txt");
 
-  gGlobalStateServer.remoteips.savetofile(GS::GetGame().GetUserDirectory() + "configs/remote.txt");
+	gGlobalStateServer.remoteips.savetofile(GS::GetGame().GetUserDirectory() + "configs/remote.txt");
 }
 
 void savemaplist()
 {
-  gGlobalStateServer.mapslist.savetofile(GS::GetGame().GetUserDirectory() + "configs/" +
-                                         std::string(CVar::sv_maplist));
+	gGlobalStateServer.mapslist.savetofile(
+		GS::GetGame().GetUserDirectory() + "configs/" + std::string(CVar::sv_maplist));
 }
 
 void writepid()
 {
-  NotImplemented();
+	NotImplemented();
 #if 0
     std::uint32_t pid;
     textfile pidfile;
@@ -240,8 +243,8 @@ void writepid()
 
 auto soldat_getpid() -> std::int32_t
 {
-  NotImplemented();
-  return 0;
+	NotImplemented();
+	return 0;
 #if 0
     std::int32_t getpid_result;
     result = system.getprocessid;
@@ -251,27 +254,25 @@ auto soldat_getpid() -> std::int32_t
 
 void writeconsole(std::uint8_t id, const std::string& text, std::uint32_t colour)
 {
-  // Write text to the console of ALL Players
-  serversendspecialmessage(text, 0, 0, 0, 0, colour, 0, 0, id);
+	// Write text to the console of ALL Players
+	serversendspecialmessage(text, 0, 0, 0, 0, colour, 0, 0, id);
 }
 
 void updatewaverespawntime()
 {
-  gGlobalStateServer.waverespawntime =
-    round(GS::GetGame().GetPlayersNum() * waverespawn_time_mulitplier) * 60;
-  if (gGlobalStateServer.waverespawntime > CVar::sv_respawntime_minwave)
-  {
-    gGlobalStateServer.waverespawntime = CVar::sv_respawntime_maxwave;
-  }
-  gGlobalStateServer.waverespawntime =
-    gGlobalStateServer.waverespawntime - CVar::sv_respawntime_minwave;
-  gGlobalStateServer.waverespawntime = std::max(gGlobalStateServer.waverespawntime, 1);
+	gGlobalStateServer.waverespawntime = round(GS::GetGame().GetPlayersNum() * waverespawn_time_mulitplier) * 60;
+	if (gGlobalStateServer.waverespawntime > CVar::sv_respawntime_minwave)
+	{
+		gGlobalStateServer.waverespawntime = CVar::sv_respawntime_maxwave;
+	}
+	gGlobalStateServer.waverespawntime = gGlobalStateServer.waverespawntime - CVar::sv_respawntime_minwave;
+	gGlobalStateServer.waverespawntime = std::max(gGlobalStateServer.waverespawntime, 1);
 }
 
 auto randombot() -> std::string
 {
-  NotImplemented();
-  return {};
+	NotImplemented();
+	return {};
 #if 0
     tstringlist botlist;
     std::string selectedbot;
@@ -309,95 +310,95 @@ auto randombot() -> std::string
 
 void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::array<std::int32_t, 4> teams{};
-  std::string thebot;
+	auto& sprite_system = SpriteSystem::Get();
+	std::array<std::int32_t, 4> teams{};
+	std::string thebot;
 
-  if (!CVar::sv_botbalance)
-  {
-    return;
-  }
-  if ((CVar::sv_gamemode != gamestyle_ctf) && (CVar::sv_gamemode != gamestyle_htf) &&
-      (CVar::sv_gamemode != gamestyle_inf))
-  {
-    return;
-  }
+	if (!CVar::sv_botbalance)
+	{
+		return;
+	}
+	if ((CVar::sv_gamemode != gamestyle_ctf) && (CVar::sv_gamemode != gamestyle_htf)
+		&& (CVar::sv_gamemode != gamestyle_inf))
+	{
+		return;
+	}
 
-  teams[1] = 0;
-  teams[2] = 0;
-  teams[3] = 0;
-  teams[4] = 0;
+	teams[1] = 0;
+	teams[2] = 0;
+	teams[3] = 0;
+	teams[4] = 0;
 
-  auto &activeSprites = sprite_system.GetActiveSprites();
-  std::ranges::for_each(activeSprites, [&teams](auto &sprite) {
-    if (sprite.isnotspectator())
-    {
-      teams[sprite.player->team] += 1;
-    }
-  });
+	auto& activeSprites = sprite_system.GetActiveSprites();
+	std::ranges::for_each(activeSprites,
+		[&teams](auto& sprite)
+		{
+			if (sprite.isnotspectator())
+			{
+				teams[sprite.player->team] += 1;
+			}
+		});
 
-  if (leftgame == 1)
-  {
-    // Player Left Game
-    for (auto &sprite : sprite_system.GetActiveSprites())
-    {
-      if (sprite.player->controlmethod == bot)
-      {
-        if ((teams[1] > teams[2]) && (sprite.player->team == team_alpha))
-        {
-          gGlobalStateServer.kickplayer(sprite.num, false, kick_leftgame, 0);
-          return;
-        }
-        if ((teams[2] > teams[1]) && (sprite.player->team == team_bravo))
-        {
-          gGlobalStateServer.kickplayer(sprite.num, false, kick_leftgame, 0);
-          return;
-        }
-      }
-    }
-  }
-  else
-  {
-    // Player Joined Game}
-    for (auto &sprite : sprite_system.GetActiveSprites())
-    {
-      if ((sprite.player->controlmethod == bot) && (sprite.player->team == newteam))
-      {
-        if (teams[1] > teams[2])
-        {
-          gGlobalStateServer.kickplayer(sprite.num, false, kick_leftgame, 0);
-          if (sprite.player->team == newteam)
-          {
-            dobalancebots(1, 2);
-          }
-          return;
-        }
-        if (teams[2] > teams[1])
-        {
-          gGlobalStateServer.kickplayer(sprite.num, false, kick_leftgame, 0);
-          if (sprite.player->team == newteam)
-          {
-            dobalancebots(1, 1);
-          }
-          return;
-        }
-      }
-    }
-  }
-  if (teams[1] > teams[2])
-  {
-    thebot = randombot();
-    parseinput(std::string("addbot2 ") + thebot, 1);
-    GS::GetMainConsole().console(thebot + " has joined bravo team. (Bot Balance)",
-                                 enter_message_color);
-    return;
-  }
-  if (teams[2] > teams[1])
-  {
-    thebot = randombot();
-    parseinput(std::string("addbot1 ") + thebot, 1);
-    GS::GetMainConsole().console(thebot + " has joined alpha team. (Bot Balance)",
-                                 enter_message_color);
-    return;
-  }
+	if (leftgame == 1)
+	{
+		// Player Left Game
+		for (auto& sprite : sprite_system.GetActiveSprites())
+		{
+			if (sprite.player->controlmethod == bot)
+			{
+				if ((teams[1] > teams[2]) && (sprite.player->team == team_alpha))
+				{
+					gGlobalStateServer.kickplayer(sprite.num, false, kick_leftgame, 0);
+					return;
+				}
+				if ((teams[2] > teams[1]) && (sprite.player->team == team_bravo))
+				{
+					gGlobalStateServer.kickplayer(sprite.num, false, kick_leftgame, 0);
+					return;
+				}
+			}
+		}
+	}
+	else
+	{
+		// Player Joined Game}
+		for (auto& sprite : sprite_system.GetActiveSprites())
+		{
+			if ((sprite.player->controlmethod == bot) && (sprite.player->team == newteam))
+			{
+				if (teams[1] > teams[2])
+				{
+					gGlobalStateServer.kickplayer(sprite.num, false, kick_leftgame, 0);
+					if (sprite.player->team == newteam)
+					{
+						dobalancebots(1, 2);
+					}
+					return;
+				}
+				if (teams[2] > teams[1])
+				{
+					gGlobalStateServer.kickplayer(sprite.num, false, kick_leftgame, 0);
+					if (sprite.player->team == newteam)
+					{
+						dobalancebots(1, 1);
+					}
+					return;
+				}
+			}
+		}
+	}
+	if (teams[1] > teams[2])
+	{
+		thebot = randombot();
+		parseinput(std::string("addbot2 ") + thebot, 1);
+		GS::GetMainConsole().console(thebot + " has joined bravo team. (Bot Balance)", enter_message_color);
+		return;
+	}
+	if (teams[2] > teams[1])
+	{
+		thebot = randombot();
+		parseinput(std::string("addbot1 ") + thebot, 1);
+		GS::GetMainConsole().console(thebot + " has joined alpha team. (Bot Balance)", enter_message_color);
+		return;
+	}
 }

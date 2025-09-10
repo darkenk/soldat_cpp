@@ -7,24 +7,21 @@ template <class Bullet = tbullet>
 class TBulletSystem
 {
 public:
-  TBulletSystem();
+	TBulletSystem();
 
-  PascalArray<Bullet, 1, Constants::MAX_BULLETS> &GetBullets()
-  {
-    return Bullets;
-  }
+	PascalArray<Bullet, 1, Constants::MAX_BULLETS>& GetBullets() { return Bullets; }
 
-  void KillAll()
-  {
-    for (auto i = 1; i <= Constants::MAX_BULLETS; i++)
-    {
-      Bullets[i].kill();
-    }
-  }
+	void KillAll()
+	{
+		for (auto i = 1; i <= Constants::MAX_BULLETS; i++)
+		{
+			Bullets[i].kill();
+		}
+	}
 
 private:
-  TBulletSystem(const TBulletSystem &) = delete;
-  PascalArray<Bullet, 1, Constants::MAX_BULLETS> Bullets;
+	TBulletSystem(const TBulletSystem&) = delete;
+	PascalArray<Bullet, 1, Constants::MAX_BULLETS> Bullets;
 };
 
 using BulletSystem = TBulletSystem<>;

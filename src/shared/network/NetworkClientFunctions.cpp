@@ -25,187 +25,189 @@
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-void clienthandlevoteon::Handle(NetworkContext *netmessage)
+void clienthandlevoteon::Handle(NetworkContext* netmessage)
 {
-  tmsg_voteon *voteonmsg = nullptr;
-  std::int32_t i = 0;
+	tmsg_voteon* voteonmsg = nullptr;
+	std::int32_t i = 0;
 
-  if (!verifypacket(sizeof(tmsg_voteon), netmessage->size, msgid_voteon))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_voteon), netmessage->size, msgid_voteon))
+	{
+		return;
+	}
 
-  voteonmsg = reinterpret_cast<pmsg_voteon>(netmessage->packet);
+	voteonmsg = reinterpret_cast<pmsg_voteon>(netmessage->packet);
 
-  i = voteonmsg->who;
+	i = voteonmsg->who;
 
-  gGlobalStateInterfaceGraphics.statsmenushow = false;
+	gGlobalStateInterfaceGraphics.statsmenushow = false;
 
-  GS::GetGame().startvote(i, voteonmsg->votetype, voteonmsg->targetname.data(),
-                          voteonmsg->reason.data());
+	GS::GetGame().startvote(i, voteonmsg->votetype, voteonmsg->targetname.data(), voteonmsg->reason.data());
 }
 
-void clienthandlevoteoff::Handle(NetworkContext * /*netmessage*/) { GS::GetGame().stopvote(); }
-
-void clienthandleserversyncmsg::Handle(NetworkContext *netmessage)
+void clienthandlevoteoff::Handle(NetworkContext* /*netmessage*/)
 {
-  tmsg_serversyncmsg *syncmsg = nullptr;
-
-  if (!verifypacket(sizeof(tmsg_serversyncmsg), netmessage->size, msgid_serversyncmsg))
-  {
-    return;
-  }
-
-  syncmsg = reinterpret_cast<pmsg_serversyncmsg>(netmessage->packet);
-
-  GS::GetGame().SetTimelimitcounter(syncmsg->time);
-  if (syncmsg->pause == 1)
-  {
-    GS::GetGame().SetMapchangecounter(999999999);
-    GS::GetGame().SetMapchangename("PAUSE*!*");
-    for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-    {
-      gGlobalStateSound.stopsound(sprite.reloadsoundchannel);
-      gGlobalStateSound.stopsound(sprite.jetssoundchannel);
-      gGlobalStateSound.stopsound(sprite.gattlingsoundchannel);
-      gGlobalStateSound.stopsound(sprite.gattlingsoundchannel2);
-    }
-  }
-  else if (GS::GetGame().GetMapchangecounter() == 999999999)
-  {
-    GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
-  }
+	GS::GetGame().stopvote();
 }
 
-void clienthandleforceposition::Handle(NetworkContext *netmessage)
+void clienthandleserversyncmsg::Handle(NetworkContext* netmessage)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_forceposition *forceposition = nullptr;
+	tmsg_serversyncmsg* syncmsg = nullptr;
 
-  if (!verifypacket(sizeof(tmsg_forceposition), netmessage->size, msgid_forceposition))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_serversyncmsg), netmessage->size, msgid_serversyncmsg))
+	{
+		return;
+	}
 
-  forceposition = reinterpret_cast<pmsg_forceposition>(netmessage->packet);
+	syncmsg = reinterpret_cast<pmsg_serversyncmsg>(netmessage->packet);
 
-  auto &spritePartsPos = sprite_system.GetSpritePartsPos(forceposition->playerid);
-
-  spritePartsPos = forceposition->pos;
-  sprite_system.SetSpritePartsOldPos(forceposition->playerid, spritePartsPos);
+	GS::GetGame().SetTimelimitcounter(syncmsg->time);
+	if (syncmsg->pause == 1)
+	{
+		GS::GetGame().SetMapchangecounter(999999999);
+		GS::GetGame().SetMapchangename("PAUSE*!*");
+		for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
+		{
+			gGlobalStateSound.stopsound(sprite.reloadsoundchannel);
+			gGlobalStateSound.stopsound(sprite.jetssoundchannel);
+			gGlobalStateSound.stopsound(sprite.gattlingsoundchannel);
+			gGlobalStateSound.stopsound(sprite.gattlingsoundchannel2);
+		}
+	}
+	else if (GS::GetGame().GetMapchangecounter() == 999999999)
+	{
+		GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
+	}
 }
 
-void clienthandleforcevelocity::Handle(NetworkContext *netmessage)
+void clienthandleforceposition::Handle(NetworkContext* netmessage)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_forcevelocity *forcevelocity = nullptr;
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_forceposition* forceposition = nullptr;
 
-  if (!verifypacket(sizeof(tmsg_forcevelocity), netmessage->size, msgid_forcevelocity))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_forceposition), netmessage->size, msgid_forceposition))
+	{
+		return;
+	}
 
-  forcevelocity = reinterpret_cast<pmsg_forcevelocity>(netmessage->packet);
+	forceposition = reinterpret_cast<pmsg_forceposition>(netmessage->packet);
 
-  auto &spriteVelocity = sprite_system.GetVelocity(forcevelocity->playerid);
-  spriteVelocity = forcevelocity->vel;
+	auto& spritePartsPos = sprite_system.GetSpritePartsPos(forceposition->playerid);
+
+	spritePartsPos = forceposition->pos;
+	sprite_system.SetSpritePartsOldPos(forceposition->playerid, spritePartsPos);
 }
 
-void clienthandleforceweapon::Handle(NetworkContext *netmessage)
+void clienthandleforcevelocity::Handle(NetworkContext* netmessage)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_forceweapon *forceweapon = nullptr;
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_forcevelocity* forcevelocity = nullptr;
 
-  if (!verifypacket(sizeof(tmsg_forceweapon), netmessage->size, msgid_forceweapon))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_forcevelocity), netmessage->size, msgid_forcevelocity))
+	{
+		return;
+	}
 
-  forceweapon = reinterpret_cast<pmsg_forceweapon>(netmessage->packet);
+	forcevelocity = reinterpret_cast<pmsg_forcevelocity>(netmessage->packet);
 
-  if (sprite_system.IsPlayerSpriteValid())
-  {
-    sprite_system.GetPlayerSprite().applyweaponbynum(forceweapon->weaponnum, 1);
-    sprite_system.GetPlayerSprite().applyweaponbynum(forceweapon->secondaryweaponnum, 2);
-    sprite_system.GetPlayerSprite().weapon.ammocount = forceweapon->ammocount;
-    sprite_system.GetPlayerSprite().secondaryweapon.ammocount = forceweapon->secammocount;
-  }
+	auto& spriteVelocity = sprite_system.GetVelocity(forcevelocity->playerid);
+	spriteVelocity = forcevelocity->vel;
 }
 
-void clienthandleweaponactivemessage::Handle(NetworkContext *netmessage)
+void clienthandleforceweapon::Handle(NetworkContext* netmessage)
 {
-  tmsg_weaponactivemessage *wactivemessage = nullptr;
-  std::int32_t i = 0;
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_forceweapon* forceweapon = nullptr;
 
-  if (!verifypacket(sizeof(tmsg_weaponactivemessage), netmessage->size, msgid_weaponactivemessage))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_forceweapon), netmessage->size, msgid_forceweapon))
+	{
+		return;
+	}
 
-  wactivemessage = reinterpret_cast<pmsg_weaponactivemessage>(netmessage->packet);
-  auto &weaponSystem = GS::GetWeaponSystem();
-  auto &weaponsel = GS::GetGame().GetWeaponsel();
+	forceweapon = reinterpret_cast<pmsg_forceweapon>(netmessage->packet);
 
-  if ((wactivemessage->weapon > 0) && (wactivemessage->weapon <= main_weapons))
-  {
-    weaponsel[gGlobalStateClient.mysprite][wactivemessage->weapon] = wactivemessage->active;
-
-    for (i = 1; i <= main_weapons; i++)
-    {
-      if (weaponSystem.IsEnabled(i))
-      {
-        gGlobalStateGameMenus.limbomenu->button[i - 1].active =
-          static_cast<bool>(weaponsel[gGlobalStateClient.mysprite][i]);
-      }
-    }
-  }
+	if (sprite_system.IsPlayerSpriteValid())
+	{
+		sprite_system.GetPlayerSprite().applyweaponbynum(forceweapon->weaponnum, 1);
+		sprite_system.GetPlayerSprite().applyweaponbynum(forceweapon->secondaryweaponnum, 2);
+		sprite_system.GetPlayerSprite().weapon.ammocount = forceweapon->ammocount;
+		sprite_system.GetPlayerSprite().secondaryweapon.ammocount = forceweapon->secammocount;
+	}
 }
 
-void clienthandleclientfreecam::Handle(NetworkContext *netmessage)
+void clienthandleweaponactivemessage::Handle(NetworkContext* netmessage)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tmsg_clientfreecam *freecammsg = nullptr;
+	tmsg_weaponactivemessage* wactivemessage = nullptr;
+	std::int32_t i = 0;
 
-  if (!verifypacket(sizeof(tmsg_clientfreecam), netmessage->size, msgid_clientfreecam))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_weaponactivemessage), netmessage->size, msgid_weaponactivemessage))
+	{
+		return;
+	}
 
-  freecammsg = reinterpret_cast<pmsg_clientfreecam>(netmessage->packet);
+	wactivemessage = reinterpret_cast<pmsg_weaponactivemessage>(netmessage->packet);
+	auto& weaponSystem = GS::GetWeaponSystem();
+	auto& weaponsel = GS::GetGame().GetWeaponsel();
 
-  if (sprite_system.IsPlayerSpriteValid())
-  {
-    if (freecammsg->freecamon == 1)
-    {
-      gGlobalStateClient.camerafollowsprite = 0;
-      gGlobalStateClient.targetmode = true;
-    }
-    else
-    {
-      gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
-      gGlobalStateClient.targetmode = false;
-    }
+	if ((wactivemessage->weapon > 0) && (wactivemessage->weapon <= main_weapons))
+	{
+		weaponsel[gGlobalStateClient.mysprite][wactivemessage->weapon] = wactivemessage->active;
 
-    if ((freecammsg->targetpos.x != 0.0) && (freecammsg->targetpos.y != 0.0))
-    {
-      gGlobalStateClient.camerax = freecammsg->targetpos.x;
-      gGlobalStateClient.cameray = freecammsg->targetpos.y;
-    }
-  }
+		for (i = 1; i <= main_weapons; i++)
+		{
+			if (weaponSystem.IsEnabled(i))
+			{
+				gGlobalStateGameMenus.limbomenu->button[i - 1].active =
+					static_cast<bool>(weaponsel[gGlobalStateClient.mysprite][i]);
+			}
+		}
+	}
+}
+
+void clienthandleclientfreecam::Handle(NetworkContext* netmessage)
+{
+	auto& sprite_system = SpriteSystem::Get();
+	tmsg_clientfreecam* freecammsg = nullptr;
+
+	if (!verifypacket(sizeof(tmsg_clientfreecam), netmessage->size, msgid_clientfreecam))
+	{
+		return;
+	}
+
+	freecammsg = reinterpret_cast<pmsg_clientfreecam>(netmessage->packet);
+
+	if (sprite_system.IsPlayerSpriteValid())
+	{
+		if (freecammsg->freecamon == 1)
+		{
+			gGlobalStateClient.camerafollowsprite = 0;
+			gGlobalStateClient.targetmode = true;
+		}
+		else
+		{
+			gGlobalStateClient.camerafollowsprite = gGlobalStateClient.mysprite;
+			gGlobalStateClient.targetmode = false;
+		}
+
+		if ((freecammsg->targetpos.x != 0.0) && (freecammsg->targetpos.y != 0.0))
+		{
+			gGlobalStateClient.camerax = freecammsg->targetpos.x;
+			gGlobalStateClient.cameray = freecammsg->targetpos.y;
+		}
+	}
 }
 
 // Server tells client to join another server
-void clienthandlejoinserver::Handle(NetworkContext *netmessage)
+void clienthandlejoinserver::Handle(NetworkContext* netmessage)
 {
-  tmsg_joinserver *joinservermsg = nullptr;
+	tmsg_joinserver* joinservermsg = nullptr;
 
-  if (!verifypacket(sizeof(tmsg_joinserver), netmessage->size, msgid_joinserver))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_joinserver), netmessage->size, msgid_joinserver))
+	{
+		return;
+	}
 
-  joinservermsg = reinterpret_cast<pmsg_joinserver>(netmessage->packet);
-  NotImplemented("network");
+	joinservermsg = reinterpret_cast<pmsg_joinserver>(netmessage->packet);
+	NotImplemented("network");
 #if 0
     GS::GetMainConsole().console(std::string("Redirecting to... ") +
                             netaddrtostr(in_addr(joinservermsg->ip)) + ':' +
@@ -213,39 +215,36 @@ void clienthandlejoinserver::Handle(NetworkContext *netmessage)
                         server_message_color);
 #endif
 
-  clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
+	clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
 
-  gGlobalStateClient.redirecttoserver = true;
-  NotImplemented("network");
+	gGlobalStateClient.redirecttoserver = true;
+	NotImplemented("network");
 #if 0
     redirectip = netaddrtostr(in_addr(joinservermsg->ip));
 #endif
-  gGlobalStateClient.redirectport = joinservermsg->port;
-  gGlobalStateClient.redirectmsg =
-    trim((reinterpret_cast<pmsg_joinserver>(netmessage->packet)->showmsg.data()));
+	gGlobalStateClient.redirectport = joinservermsg->port;
+	gGlobalStateClient.redirectmsg = trim((reinterpret_cast<pmsg_joinserver>(netmessage->packet)->showmsg.data()));
 
-  gGlobalStateClient.exittomenu();
+	gGlobalStateClient.exittomenu();
 }
 
-void clienthandleplaysound::Handle(NetworkContext *netmessage)
+void clienthandleplaysound::Handle(NetworkContext* netmessage)
 {
-  tmsg_playsound *playsoundmsg = nullptr;
-  auto& fs = GS::GetFileSystem();
+	tmsg_playsound* playsoundmsg = nullptr;
+	auto& fs = GS::GetFileSystem();
 
-  if (!verifypacket(sizeof(tmsg_playsound), netmessage->size, msgid_playsound))
-  {
-    return;
-  }
+	if (!verifypacket(sizeof(tmsg_playsound), netmessage->size, msgid_playsound))
+	{
+		return;
+	}
 
-  playsoundmsg = reinterpret_cast<pmsg_playsound>(netmessage->packet);
+	playsoundmsg = reinterpret_cast<pmsg_playsound>(netmessage->packet);
 
-  if (fs.Exists(std::string(gGlobalStateClient.moddir) + std::string("sfx/") +
-                playsoundmsg->name.data()))
-  {
-    // Name to ID, for easy use for scripters
-    [[maybe_unused]] std::int32_t const i =
-      gGlobalStateSound.soundnametoid(playsoundmsg->name.data());
-    NotImplemented("network");
+	if (fs.Exists(std::string(gGlobalStateClient.moddir) + std::string("sfx/") + playsoundmsg->name.data()))
+	{
+		// Name to ID, for easy use for scripters
+		[[maybe_unused]] std::int32_t const i = gGlobalStateSound.soundnametoid(playsoundmsg->name.data());
+		NotImplemented("network");
 #if 0
         // Sound downloaded, but not initialized. So intialize it
         if (i == -1)
@@ -264,5 +263,5 @@ void clienthandleplaysound::Handle(NetworkContext *netmessage)
             playsoundmsg->emitter.y = spritePartsPos.y;
         playsound(i, playsoundmsg->emitter);
 #endif
-  }
+	}
 }

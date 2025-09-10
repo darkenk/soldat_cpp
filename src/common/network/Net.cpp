@@ -22,17 +22,17 @@ auto constexpr LOG_MSG = "net_msg";
 
 void NetworksGlobalCallback(SteamNetConnectionStatusChangedCallback_t* pInfo)
 {
-  auto *network = reinterpret_cast<TNetwork *>(pInfo->m_info.m_nUserData);
-  if (network == nullptr)
-  {
-    return;
-  }
-  network->EmplaceSteamNetConnectionStatusChangeMessage(pInfo);
+	auto* network = reinterpret_cast<TNetwork*>(pInfo->m_info.m_nUserData);
+	if (network == nullptr)
+	{
+		return;
+	}
+	network->EmplaceSteamNetConnectionStatusChangeMessage(pInfo);
 }
 
-static void sDebugNet(ESteamNetworkingSocketsDebugOutputType /*nType*/, const char *pszMsg)
+static void sDebugNet(ESteamNetworkingSocketsDebugOutputType /*nType*/, const char* pszMsg)
 {
-  LogDebug("network", "{}", pszMsg);
+	LogDebug("network", "{}", pszMsg);
 }
 
 static std::atomic<std::int64_t> sNetworkCount = 0;
@@ -40,73 +40,77 @@ static std::mutex sNetworkGNSInit;
 
 TNetwork::TNetwork()
 {
-  if (std::lock_guard const m(sNetworkGNSInit); ++sNetworkCount == 1)
-  {
-    SteamNetworkingErrMsg error; // NOLINT
-    if (not GameNetworkingSockets_Init(nullptr, error))
-    {
-      LogCritical("network", "Game networking sockets failed {}", error);
-    }
-  }
+	if (std::lock_guard const m(sNetworkGNSInit); ++sNetworkCount == 1)
+	{
+		SteamNetworkingErrMsg error; // NOLINT
+		if (not GameNetworkingSockets_Init(nullptr, error))
+		{
+			LogCritical("network", "Game networking sockets failed {}", error);
+		}
+	}
 
-  mNetworkingSockets = SteamNetworkingSockets();
-  SteamNetworkingUtils()->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg, &sDebugNet);
-  SteamNetworkingUtils()->SetGlobalCallback_SteamNetConnectionStatusChanged(NetworksGlobalCallback);
+	mNetworkingSockets = SteamNetworkingSockets();
+	SteamNetworkingUtils()->SetDebugOutputFunction(k_ESteamNetworkingSocketsDebugOutputType_Msg, &sDebugNet);
+	SteamNetworkingUtils()->SetGlobalCallback_SteamNetConnectionStatusChanged(NetworksGlobalCallback);
 }
 
 TNetwork::~TNetwork()
 {
-  if (std::lock_guard const m(sNetworkGNSInit); --sNetworkCount == 0)
-  {
-    GameNetworkingSockets_Kill();
-  }
+	if (std::lock_guard const m(sNetworkGNSInit); --sNetworkCount == 0)
+	{
+		GameNetworkingSockets_Kill();
+	}
 }
 
 auto TNetwork::GetStringAddress(bool withPort) -> std::string
 {
-  if (!withPort)
-  {
-    return mIpAddress;
-  }
-  return mIpAddress + ":" + std::to_string(mPort);
+	if (!withPort)
+	{
+		return mIpAddress;
+	}
+	return mIpAddress + ":" + std::to_string(mPort);
 }
 
 void TNetwork::RunCallbacks()
 {
-  mNetworkingSockets->RunCallbacks();
-  std::lock_guard const m(mQueueMutex);
-  while (!mQueuedCallbacks.empty())
-  {
-    ProcessEvents(&mQueuedCallbacks.front());
-    mQueuedCallbacks.pop();
-  }
+	mNetworkingSockets->RunCallbacks();
+	std::lock_guard const m(mQueueMutex);
+	while (!mQueuedCallbacks.empty())
+	{
+		ProcessEvents(&mQueuedCallbacks.front());
+		mQueuedCallbacks.pop();
+	}
 }
-void TNetwork::EmplaceSteamNetConnectionStatusChangeMessage(
-  SteamNetConnectionStatusChangedCallback_t *pInfo)
+void TNetwork::EmplaceSteamNetConnectionStatusChangeMessage(SteamNetConnectionStatusChangedCallback_t* pInfo)
 {
-  std::lock_guard const m(mQueueMutex);
-  mQueuedCallbacks.emplace(*pInfo);
+	std::lock_guard const m(mQueueMutex);
+	mQueuedCallbacks.emplace(*pInfo);
 }
 
 template <>
 struct fmt::formatter<tvector2> : fmt::formatter<std::string_view>
 {
-  template <typename FormatContext>
-  auto format(tvector2 c, FormatContext &ctx)
-  {
-    return fmt::formatter<std::string_view>::format(fmt::format("({:3},{:3})", c.x, c.y), ctx);
-  }
+	template <typename FormatContext>
+	auto format(tvector2 c, FormatContext& ctx)
+	{
+		return fmt::formatter<std::string_view>::format(fmt::format("({:3},{:3})", c.x, c.y), ctx);
+	}
 };
 
 void tmsg_bulletsnapshot::Dump()
 {
-  LogDebug(LOG_MSG,
-           "Bulletsnapstot: \n"
-           "  owner: {}\n"
-           "  weaponnum: {}\n"
-           "  pos: {}..\n"
-           "  velocity: {}\n"
-           "  seed: {}\n"
-           "  forced: {}",
-           owner, weaponnum, pos, velocity, seed, forced);
+	LogDebug(LOG_MSG,
+		"Bulletsnapstot: \n"
+		"  owner: {}\n"
+		"  weaponnum: {}\n"
+		"  pos: {}..\n"
+		"  velocity: {}\n"
+		"  seed: {}\n"
+		"  forced: {}",
+		owner,
+		weaponnum,
+		pos,
+		velocity,
+		seed,
+		forced);
 }

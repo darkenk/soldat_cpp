@@ -23,205 +23,207 @@
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
 
-void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
-                             std::uint8_t msgtype)
+void serversendstringmessage(const std::string& text, std::uint8_t tonum, std::uint8_t from, std::uint8_t msgtype)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  pmsg_stringmessage pchatmessage = nullptr;
-  std::int32_t size = 0;
+	auto& sprite_system = SpriteSystem::Get();
+	pmsg_stringmessage pchatmessage = nullptr;
+	std::int32_t size = 0;
 
-  if (length(text) == 0)
-  {
-    return;
-  }
+	if (length(text) == 0)
+	{
+		return;
+	}
 
-  size = sizeof(tmsg_stringmessage) + length(text) + 1;
+	size = sizeof(tmsg_stringmessage) + length(text) + 1;
 
-  getmem(pchatmessage, size);
+	getmem(pchatmessage, size);
 
-  pchatmessage->header.id = msgid_chatmessage;
-  pchatmessage->num = from;
-  pchatmessage->msgtype = msgtype;
+	pchatmessage->header.id = msgid_chatmessage;
+	pchatmessage->num = from;
+	pchatmessage->msgtype = msgtype;
 
-  memcpy(&pchatmessage->text, text.data(), length(text));
-  //*(pchatmessage->text + length(text)) = '\0';
+	memcpy(&pchatmessage->text, text.data(), length(text));
+	//*(pchatmessage->text + length(text)) = '\0';
 
-  if (((from > 0) && (from < max_players + 1)) || (from == 255))
-  {
-    for (auto &sprite : sprite_system.GetActiveSprites())
-    {
-      if (sprite.player->controlmethod == human)
-      {
-        if ((tonum == 0) || (sprite.num == tonum))
-        {
-          if ((from != 255) || (tonum != 0))
-          { // TODO(vscode): Simplify it.
-            if ((((msgtype != msgtype_team) && (msgtype != msgtype_radio)) || (from == 255)) or
-                (((msgtype == msgtype_team) || (msgtype == msgtype_radio)) and
-                 sprite_system.GetSprite(from).isinsameteam(sprite)))
-            {
-              gGlobalStateNetworkServer.GetServerNetwork()->SendData(pchatmessage, size,
-                                                                     sprite.player->peer, true);
-            }
-          }
-        }
-      }
-    }
-  }
-  freemem(pchatmessage);
+	if (((from > 0) && (from < max_players + 1)) || (from == 255))
+	{
+		for (auto& sprite : sprite_system.GetActiveSprites())
+		{
+			if (sprite.player->controlmethod == human)
+			{
+				if ((tonum == 0) || (sprite.num == tonum))
+				{
+					if ((from != 255) || (tonum != 0))
+					{ // TODO(vscode): Simplify it.
+						if ((((msgtype != msgtype_team) && (msgtype != msgtype_radio)) || (from == 255))
+							or (((msgtype == msgtype_team) || (msgtype == msgtype_radio))
+								and sprite_system.GetSprite(from).isinsameteam(sprite)))
+						{
+							gGlobalStateNetworkServer.GetServerNetwork()->SendData(
+								pchatmessage, size, sprite.player->peer, true);
+						}
+					}
+				}
+			}
+		}
+	}
+	freemem(pchatmessage);
 
-  if ((from < 1) || (from > max_players))
-  {
-    return;
-  }
+	if ((from < 1) || (from > max_players))
+	{
+		return;
+	}
 
-  // show text on servers side
-  if (sprite_system.GetSprite(from).player->controlmethod == bot)
-  {
-    auto msg = iif(msgtype == msgtype_team, std::string("(TEAM)"), std::string(""));
-    GS::GetMainConsole().console(
-      msg + "[" + sprite_system.GetSprite(from).player->name + "] " + text, teamchat_message_color);
-  }
+	// show text on servers side
+	if (sprite_system.GetSprite(from).player->controlmethod == bot)
+	{
+		auto msg = iif(msgtype == msgtype_team, std::string("(TEAM)"), std::string(""));
+		GS::GetMainConsole().console(
+			msg + "[" + sprite_system.GetSprite(from).player->name + "] " + text, teamchat_message_color);
+	}
 }
 
-static inline auto U16toString(const std::u16string &wstr) -> std::string
+static inline auto U16toString(const std::u16string& wstr) -> std::string
 {
-  std::string str;
-  char cstr[4] = "\0";
-  mbstate_t mbs;
-  for (const auto &it : wstr)
-  {
-    std::memset(&mbs, 0, sizeof(mbs)); // set shift state to the initial state
-    std::memmove(cstr, "\0\0\0", 4);
-    std::c16rtomb(cstr, it, &mbs);
-    str.append(std::string(cstr));
-  } // for
-  return str;
+	std::string str;
+	char cstr[4] = "\0";
+	mbstate_t mbs;
+	for (const auto& it : wstr)
+	{
+		std::memset(&mbs, 0, sizeof(mbs)); // set shift state to the initial state
+		std::memmove(cstr, "\0\0\0", 4);
+		std::c16rtomb(cstr, it, &mbs);
+		str.append(std::string(cstr));
+	} // for
+	return str;
 }
 
-void serverhandlechatmessage(tmsgheader *netmessage, std::int32_t /*size*/,
-                             NetworkServer & /*network*/, TServerPlayer *player)
+void serverhandlechatmessage(
+	tmsgheader* netmessage, std::int32_t /*size*/, NetworkServer& /*network*/, TServerPlayer* player)
 {
-  std::string cs;
-  std::string cschat;
-  std::uint8_t msgtype = 0;
+	std::string cs;
+	std::string cschat;
+	std::uint8_t msgtype = 0;
 
-  if (player->spritenum == 0)
-  {
-    return;
-  }
+	if (player->spritenum == 0)
+	{
+		return;
+	}
 
-  gGlobalStateNetworkServer.messagesasecnum[player->spritenum] += 1;
+	gGlobalStateNetworkServer.messagesasecnum[player->spritenum] += 1;
 
-  auto *v = reinterpret_cast<char16_t *>(&(reinterpret_cast<pmsg_stringmessage>(netmessage)->text));
-  cs = U16toString(v);
-  msgtype = reinterpret_cast<pmsg_stringmessage>(netmessage)->msgtype;
+	auto* v = reinterpret_cast<char16_t*>(&(reinterpret_cast<pmsg_stringmessage>(netmessage)->text));
+	cs = U16toString(v);
+	msgtype = reinterpret_cast<pmsg_stringmessage>(netmessage)->msgtype;
 
-  LogDebug("net_msg", "Message {}", cs);
+	LogDebug("net_msg", "Message {}", cs);
 
-  if (msgtype > msgtype_radio)
-  {
-    return;
-  }
+	if (msgtype > msgtype_radio)
+	{
+		return;
+	}
 
-  if (length(cs) > 100)
-  {
-    // Fixed DoS Exploit that causes crash on clients.
-    gGlobalStateServer.kickplayer(player->spritenum, true, kick_flooding, twenty_minutes,
-                                  "DoS Exploit");
-    return;
-  }
+	if (length(cs) > 100)
+	{
+		// Fixed DoS Exploit that causes crash on clients.
+		gGlobalStateServer.kickplayer(player->spritenum, true, kick_flooding, twenty_minutes, "DoS Exploit");
+		return;
+	}
 
-  player->chatwarnings += 1;
+	player->chatwarnings += 1;
 
-  cschat = cs;
+	cschat = cs;
 
-  // command
-  if (msgtype == msgtype_cmd)
-  {
+	// command
+	if (msgtype == msgtype_cmd)
+	{
 #ifdef SCRIPT
-    if (scrptdispatcher.onplayercommand(player.spritenum, std::string(cs)))
-      return;
+		if (scrptdispatcher.onplayercommand(player.spritenum, std::string(cs)))
+			return;
 #endif
-    GS::GetMainConsole().console(cs + "(" + (player->ip) + "[" + (player->name) + "]" + ")",
-                                 default_message_color);
-    parseinput(std::string(cs), player->spritenum);
-    return;
-  }
+		GS::GetMainConsole().console(cs + "(" + (player->ip) + "[" + (player->name) + "]" + ")", default_message_color);
+		parseinput(std::string(cs), player->spritenum);
+		return;
+	}
 
-  cschat = std::string("[") + (player->name) + "] " + cs;
+	cschat = std::string("[") + (player->name) + "] " + cs;
 
-  if (msgtype == msgtype_team)
-  {
-    cschat = std::string("(TEAM) ") + cschat;
-  }
-  if (msgtype == msgtype_radio)
-  {
-    cschat = std::string("(RADIO) ") + cschat;
-  }
-  if (player->muted == 1)
-  {
-    cschat = std::string("(MUTED) ") + cschat;
-  }
+	if (msgtype == msgtype_team)
+	{
+		cschat = std::string("(TEAM) ") + cschat;
+	}
+	if (msgtype == msgtype_radio)
+	{
+		cschat = std::string("(RADIO) ") + cschat;
+	}
+	if (player->muted == 1)
+	{
+		cschat = std::string("(MUTED) ") + cschat;
+	}
 
-  GS::GetMainConsole().console(cschat, chat_message_color);
+	GS::GetMainConsole().console(cschat, chat_message_color);
 
-  if (player->muted == 1)
-  {
-    serversendstringmessage("(Muted)", all_players, player->spritenum, msgtype_pub);
-  }
-  else
-  {
-    serversendstringmessage(cs, all_players, player->spritenum, msgtype);
-  }
+	if (player->muted == 1)
+	{
+		serversendstringmessage("(Muted)", all_players, player->spritenum, msgtype_pub);
+	}
+	else
+	{
+		serversendstringmessage(cs, all_players, player->spritenum, msgtype);
+	}
 
-  if (player->muted == 1)
-  {
-    return; // cs := "(Muted)";
-  }
+	if (player->muted == 1)
+	{
+		return; // cs := "(Muted)";
+	}
 
-  if (msgtype == msgtype_team)
-  {
-    cs = iif(msgtype == msgtype_radio, "*", "^") + cs;
-  }
+	if (msgtype == msgtype_team)
+	{
+		cs = iif(msgtype == msgtype_radio, "*", "^") + cs;
+	}
 
 #ifdef SCRIPT
-  scrptdispatcher.onplayerspeak(player.spritenum, std::string(cs));
+	scrptdispatcher.onplayerspeak(player.spritenum, std::string(cs));
 #endif
 }
 
-void serversendspecialmessage(const std::string &text, std::uint8_t msgtype, std::uint8_t layerid,
-                              std::int32_t delay, float scale, std::uint32_t color, float x,
-                              float y, std::uint8_t tonum)
+void serversendspecialmessage(const std::string& text,
+	std::uint8_t msgtype,
+	std::uint8_t layerid,
+	std::int32_t delay,
+	float scale,
+	std::uint32_t color,
+	float x,
+	float y,
+	std::uint8_t tonum)
 {
-  pmsg_serverspecialmessage pchatmessage = nullptr;
-  std::int32_t size = 0;
+	pmsg_serverspecialmessage pchatmessage = nullptr;
+	std::int32_t size = 0;
 
-  size = sizeof(tmsg_serverspecialmessage) + length(text) + 1;
-  getmem(pchatmessage, size);
+	size = sizeof(tmsg_serverspecialmessage) + length(text) + 1;
+	getmem(pchatmessage, size);
 
-  pchatmessage->header.id = msgid_specialmessage;
-  pchatmessage->msgtype = msgtype;
-  pchatmessage->layerid = layerid;
-  pchatmessage->delay = delay;
-  pchatmessage->scale = scale;
-  pchatmessage->color = color;
-  pchatmessage->x = x;
-  pchatmessage->y = y;
+	pchatmessage->header.id = msgid_specialmessage;
+	pchatmessage->msgtype = msgtype;
+	pchatmessage->layerid = layerid;
+	pchatmessage->delay = delay;
+	pchatmessage->scale = scale;
+	pchatmessage->color = color;
+	pchatmessage->x = x;
+	pchatmessage->y = y;
 
-  strcpy(pchatmessage->text.data(), pchar(text));
+	strcpy(pchatmessage->text.data(), pchar(text));
 
-  for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
-  {
-    if (sprite.player->controlmethod == human)
-    {
-      if ((tonum == 0) || (sprite.num == tonum))
-      {
-        gGlobalStateNetworkServer.GetServerNetwork()->SendData(pchatmessage, size,
-                                                               sprite.player->peer, true);
-      }
-    }
-  }
+	for (auto& sprite : SpriteSystem::Get().GetActiveSprites())
+	{
+		if (sprite.player->controlmethod == human)
+		{
+			if ((tonum == 0) || (sprite.num == tonum))
+			{
+				gGlobalStateNetworkServer.GetServerNetwork()->SendData(pchatmessage, size, sprite.player->peer, true);
+			}
+		}
+	}
 
-  freemem(pchatmessage);
+	freemem(pchatmessage);
 }

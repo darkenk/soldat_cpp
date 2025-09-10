@@ -16,46 +16,46 @@ void clientspritesnapshotdead();
 class clienthandleserverspritesnapshot : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 class clienthandleserverspritesnapshot_major : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 class clienthandleserverskeletonsnapshot : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 
 class clienthandlespritedeath : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 class clienthandledelta_movement : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 class clienthandledelta_mouseaim : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 class clienthandledelta_weapons : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 class clienthandledelta_helmet : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };
 class clienthandleclientspritesnapshot_dead : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *netmessage) override;
+	void Handle(NetworkContext* netmessage) override;
 };

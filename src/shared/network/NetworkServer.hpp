@@ -19,51 +19,50 @@ using HSoldatMessageId = std::uint32_t;
 class NetworkServer : public TNetwork
 {
 public:
-  using DisconnectionCallback = std::function<void(std::shared_ptr<TServerPlayer>)>;
+	using DisconnectionCallback = std::function<void(std::shared_ptr<TServerPlayer>)>;
 
-  NetworkServer(const std::string_view host, std::uint32_t port);
-  ~NetworkServer() override;
-  void ProcessLoop();
-  template <typename T>
-  inline bool SendData(const T *data, std::int32_t size, HSoldatNetConnection peer,
-                       bool reliable)
-  {
-    return SendData(reinterpret_cast<const std::byte *>(data), size, peer, reliable);
-  }
+	NetworkServer(const std::string_view host, std::uint32_t port);
+	~NetworkServer() override;
+	void ProcessLoop();
+	template <typename T>
+	inline bool SendData(const T* data, std::int32_t size, HSoldatNetConnection peer, bool reliable)
+	{
+		return SendData(reinterpret_cast<const std::byte*>(data), size, peer, reliable);
+	}
 
-  template<typename T>
-  inline bool SendData(const T& data, HSoldatNetConnection peer)
-  {
-    return SendData(reinterpret_cast<const std::byte *>(&data), data.GetSize(), peer, T::sIsReliableMessage());
-  }
-  void UpdateNetworkStats(std::shared_ptr<TServerPlayer>& player) const;
+	template <typename T>
+	inline bool SendData(const T& data, HSoldatNetConnection peer)
+	{
+		return SendData(reinterpret_cast<const std::byte*>(&data), data.GetSize(), peer, T::sIsReliableMessage());
+	}
+	void UpdateNetworkStats(std::shared_ptr<TServerPlayer>& player) const;
 
-  void SetDisconnectionCallback(const DisconnectionCallback& callback) { mDisconnectionCallback = callback; }
-  bool Disconnect(bool now);
-  // darkenk: should be changed to Disconnect?
-  void CloseConnection(HSoldatNetConnection peer, bool now);
-  void FlushMsg();
+	void SetDisconnectionCallback(const DisconnectionCallback& callback) { mDisconnectionCallback = callback; }
+	bool Disconnect(bool now);
+	// darkenk: should be changed to Disconnect?
+	void CloseConnection(HSoldatNetConnection peer, bool now);
+	void FlushMsg();
 
-  [[nodiscard]] std::string GetDetailedConnectionStatus(HSoldatNetConnection hConn) const;
-  void SetConnectionName(const HSoldatNetConnection hConn, const std::string_view name);
+	[[nodiscard]] std::string GetDetailedConnectionStatus(HSoldatNetConnection hConn) const;
+	void SetConnectionName(const HSoldatNetConnection hConn, const std::string_view name);
 
-  TServerPlayer *GetPlayer(const SteamNetworkingMessage_t *msg);
-  inline TPlayers& GetPlayers() { return mPlayers; }
+	TServerPlayer* GetPlayer(const SteamNetworkingMessage_t* msg);
+	inline TPlayers& GetPlayers() { return mPlayers; }
 
 protected:
-  void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
+	void ProcessEvents(PSteamNetConnectionStatusChangedCallback_t pInfo) override;
 
 private:
-  using HSoldatListenSocket = std::uint32_t;
-  using HSoldatNetPollGroup = std::uint32_t;
-  HSoldatListenSocket mHost;
-  HSoldatNetPollGroup FPollGroup;
-  std::map<HSoldatNetConnection, std::shared_ptr<TServerPlayer>> mConnectionMap;
-  TPlayers mPlayers;
-  DisconnectionCallback mDisconnectionCallback;
+	using HSoldatListenSocket = std::uint32_t;
+	using HSoldatNetPollGroup = std::uint32_t;
+	HSoldatListenSocket mHost;
+	HSoldatNetPollGroup FPollGroup;
+	std::map<HSoldatNetConnection, std::shared_ptr<TServerPlayer>> mConnectionMap;
+	TPlayers mPlayers;
+	DisconnectionCallback mDisconnectionCallback;
 
-  void HandleMessages(SteamNetworkingMessage_t *msg);
-  bool SendData(const std::byte *data, std::int32_t size, HSoldatNetConnection peer, bool reliable);
+	void HandleMessages(SteamNetworkingMessage_t* msg);
+	bool SendData(const std::byte* data, std::int32_t size, HSoldatNetConnection peer, bool reliable);
 };
 
 // We're assigning a dummy player class to all sprites that are currently not being controlled
@@ -74,20 +73,20 @@ private:
 // checks (if any) later. Alternatively we could move a good bit if info from Player to Sprite.
 struct GlobalStateNetworkServer
 {
-  NetworkServer *GetServerNetwork();
-  bool DeinitServerNetwork();
-  bool InitNetworkServer(const std::string_view &host, std::uint32_t port);
-  std::int32_t servertickcounter = {};
-  PascalArray<std::int32_t, 1, max_players> noclientupdatetime = {};
-  PascalArray<std::int32_t, 1, max_players> messagesasecnum = {};
-  PascalArray<std::uint8_t, 1, max_players> floodwarnings = {};
-  PascalArray<std::uint8_t, 1, max_players> pingwarnings = {};
-  PascalArray<std::int32_t, 1, max_players> bullettime = {};
-  PascalArray<std::int32_t, 1, max_players> grenadetime = {};
-  PascalArray<bool, 1, max_players> knifecan = {};
+	NetworkServer* GetServerNetwork();
+	bool DeinitServerNetwork();
+	bool InitNetworkServer(const std::string_view& host, std::uint32_t port);
+	std::int32_t servertickcounter = {};
+	PascalArray<std::int32_t, 1, max_players> noclientupdatetime = {};
+	PascalArray<std::int32_t, 1, max_players> messagesasecnum = {};
+	PascalArray<std::uint8_t, 1, max_players> floodwarnings = {};
+	PascalArray<std::uint8_t, 1, max_players> pingwarnings = {};
+	PascalArray<std::int32_t, 1, max_players> bullettime = {};
+	PascalArray<std::int32_t, 1, max_players> grenadetime = {};
+	PascalArray<bool, 1, max_players> knifecan = {};
 
 private:
-  std::unique_ptr<NetworkServer> mUdp;
+	std::unique_ptr<NetworkServer> mUdp;
 };
 
 extern GlobalStateNetworkServer gGlobalStateNetworkServer;

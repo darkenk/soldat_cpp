@@ -34,171 +34,168 @@ constexpr auto TAG = "network"sv;
 
 static std::u16string utf8_to_utf16(const std::string_view utf8)
 {
-  char* converted = SDL_iconv_string("UTF-16LE", "UTF-8", utf8.data(), utf8.size());
-  if (converted == nullptr)
-  {
-    LogWarn(TAG, "Cannot convert from utf8_to_utf16 {}. Error {}", utf8.data(), SDL_GetError());
-    return {};
-  }
+	char* converted = SDL_iconv_string("UTF-16LE", "UTF-8", utf8.data(), utf8.size());
+	if (converted == nullptr)
+	{
+		LogWarn(TAG, "Cannot convert from utf8_to_utf16 {}. Error {}", utf8.data(), SDL_GetError());
+		return {};
+	}
 
-  size_t const len = SDL_utf8strlen(utf8.data());
-  std::u16string result(reinterpret_cast<char16_t*>(converted), len);
+	size_t const len = SDL_utf8strlen(utf8.data());
+	std::u16string result(reinterpret_cast<char16_t*>(converted), len);
 
-  SDL_free(converted);
-  return result;
+	SDL_free(converted);
+	return result;
 }
 
-void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
+void clientsendstringmessage(const std::string& text, std::uint8_t msgtype)
 {
-  pmsg_stringmessage pchatmessage = nullptr;
-  std::int32_t size = 0;
+	pmsg_stringmessage pchatmessage = nullptr;
+	std::int32_t size = 0;
 
-  if (length(text) == 0)
-  {
-    return;
-  }
+	if (length(text) == 0)
+	{
+		return;
+	}
 
-  size = sizeof(pchatmessage->header) + sizeof(pchatmessage->num) + sizeof(pchatmessage->msgtype) +
-         2 * length(text) + 2;
-  getmem(pchatmessage, size);
-  fillchar(pchatmessage, size, 0);
-  pchatmessage->header.id = msgid_chatmessage;
-  pchatmessage->num = gGlobalStateClient.mysprite;
-  pchatmessage->msgtype = msgtype;
+	size =
+		sizeof(pchatmessage->header) + sizeof(pchatmessage->num) + sizeof(pchatmessage->msgtype) + 2 * length(text) + 2;
+	getmem(pchatmessage, size);
+	fillchar(pchatmessage, size, 0);
+	pchatmessage->header.id = msgid_chatmessage;
+	pchatmessage->num = gGlobalStateClient.mysprite;
+	pchatmessage->msgtype = msgtype;
 
-  std::u16string text16 = utf8_to_utf16(text);
+	std::u16string text16 = utf8_to_utf16(text);
 
-  memcpy(&pchatmessage->text, text16.data(), text16.size() * 2);
-  memset(&pchatmessage->text + (text16.size() * 2), 0, 2);
+	memcpy(&pchatmessage->text, text16.data(), text16.size() * 2);
+	memset(&pchatmessage->text + (text16.size() * 2), 0, 2);
 
-  gGlobalStateNetworkClient.GetNetwork()->SendData(pchatmessage, size, true);
-  freemem(pchatmessage);
+	gGlobalStateNetworkClient.GetNetwork()->SendData(pchatmessage, size, true);
+	freemem(pchatmessage);
 }
 
-void clienthandlechatmessage::Handle(NetworkContext *netmessage)
+void clienthandlechatmessage::Handle(NetworkContext* netmessage)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::string cs;
-  std::string prefix;
-  std::int32_t i = 0;
-  std::int32_t d = 0;
-  std::uint8_t msgtype = 0;
-  std::uint32_t col = 0;
+	auto& sprite_system = SpriteSystem::Get();
+	std::string cs;
+	std::string prefix;
+	std::int32_t i = 0;
+	std::int32_t d = 0;
+	std::uint8_t msgtype = 0;
+	std::uint32_t col = 0;
 
-  NotImplemented("network");
+	NotImplemented("network");
 #if 0
     cs = pmsg_stringmessage(netmessage->m_pData)->text.data();
 #endif
-  i = reinterpret_cast<pmsg_stringmessage>(netmessage->packet)->num;
-  msgtype = reinterpret_cast<pmsg_stringmessage>(netmessage->packet)->msgtype;
+	i = reinterpret_cast<pmsg_stringmessage>(netmessage->packet)->num;
+	msgtype = reinterpret_cast<pmsg_stringmessage>(netmessage->packet)->msgtype;
 
-  if (msgtype > msgtype_radio)
-  {
-    return;
-  }
-  // chat from server
-  if (i == 255)
-  {
-    GS::GetMainConsole().console(_("*SERVER*: ") + cs, server_message_color);
-    return;
-  }
+	if (msgtype > msgtype_radio)
+	{
+		return;
+	}
+	// chat from server
+	if (i == 255)
+	{
+		GS::GetMainConsole().console(_("*SERVER*: ") + cs, server_message_color);
+		return;
+	}
 
-  if ((i > 0) && (i < max_players))
-  {
-    if (!sprite_system.GetSprite(i).active)
-    {
-      return;
-    }
-  }
+	if ((i > 0) && (i < max_players))
+	{
+		if (!sprite_system.GetSprite(i).active)
+		{
+			return;
+		}
+	}
 
-  if ((sprite_system.GetSprite(i).muted) or gGlobalStateClient.muteall)
-  {
-    return;
-  }
+	if ((sprite_system.GetSprite(i).muted) or gGlobalStateClient.muteall)
+	{
+		return;
+	}
 
-  gGlobalStateInterfaceGraphics.chatmessage[i] = cs;
-  gGlobalStateInterfaceGraphics.chatteam[i] = (msgtype == msgtype_team);
-  d = std::count(cs.begin(), cs.end(), ' ');
+	gGlobalStateInterfaceGraphics.chatmessage[i] = cs;
+	gGlobalStateInterfaceGraphics.chatteam[i] = (msgtype == msgtype_team);
+	d = std::count(cs.begin(), cs.end(), ' ');
 
-  if (d == 0)
-  {
-    gGlobalStateInterfaceGraphics.chatdelay[i] = length(cs) * chardelay;
-  }
-  else
-  {
-    gGlobalStateInterfaceGraphics.chatdelay[i] = d * spacechardelay;
-  }
+	if (d == 0)
+	{
+		gGlobalStateInterfaceGraphics.chatdelay[i] = length(cs) * chardelay;
+	}
+	else
+	{
+		gGlobalStateInterfaceGraphics.chatdelay[i] = d * spacechardelay;
+	}
 
-  gGlobalStateInterfaceGraphics.chatdelay[i] =
-    std::min(gGlobalStateInterfaceGraphics.chatdelay[i], max_chatdelay);
+	gGlobalStateInterfaceGraphics.chatdelay[i] = std::min(gGlobalStateInterfaceGraphics.chatdelay[i], max_chatdelay);
 
-  col = chat_message_color;
+	col = chat_message_color;
 
-  if (sprite_system.GetSprite(i).player->team == team_spectator)
-  {
-    col = spectator_c_message_color;
-  }
-  if ((msgtype == msgtype_team) || (msgtype == msgtype_radio))
-  {
-    col = teamchat_message_color;
-    prefix = iif(msgtype == msgtype_radio, _("(RADIO)"), _("(TEAM)")) + " ";
-  }
+	if (sprite_system.GetSprite(i).player->team == team_spectator)
+	{
+		col = spectator_c_message_color;
+	}
+	if ((msgtype == msgtype_team) || (msgtype == msgtype_radio))
+	{
+		col = teamchat_message_color;
+		prefix = iif(msgtype == msgtype_radio, _("(RADIO)"), _("(TEAM)")) + " ";
+	}
 
-  if (length(cs) < morechattext)
-  {
-    GS::GetMainConsole().console(
-      prefix + "[" + (sprite_system.GetSprite(i).player->name) + "] " + cs, col);
-  }
-  else
-  {
-    GS::GetMainConsole().console(prefix + "[" + (sprite_system.GetSprite(i).player->name) + "] ",
-                                 col);
-    GS::GetMainConsole().console(std::string(" ") + cs, col);
-  }
+	if (length(cs) < morechattext)
+	{
+		GS::GetMainConsole().console(prefix + "[" + (sprite_system.GetSprite(i).player->name) + "] " + cs, col);
+	}
+	else
+	{
+		GS::GetMainConsole().console(prefix + "[" + (sprite_system.GetSprite(i).player->name) + "] ", col);
+		GS::GetMainConsole().console(std::string(" ") + cs, col);
+	}
 
-  /*if Radio and
-  SpriteSystem::Get().GetSprite(i).IsInSameTeam(SpriteSystem::Get().GetSprite(MySprite)) then
-  begin
-    PlayRadioSound(RadioID)
-  end;*/
+	/*if Radio and
+	SpriteSystem::Get().GetSprite(i).IsInSameTeam(SpriteSystem::Get().GetSprite(MySprite)) then
+	begin
+	  PlayRadioSound(RadioID)
+	end;*/
 }
 
-void clienthandlespecialmessage::Handle(NetworkContext *netmessage)
+void clienthandlespecialmessage::Handle(NetworkContext* netmessage)
 {
-  tmsg_serverspecialmessage *specialmessage = nullptr;
-  std::string cs;
+	tmsg_serverspecialmessage* specialmessage = nullptr;
+	std::string cs;
 
-  specialmessage = reinterpret_cast<pmsg_serverspecialmessage>(netmessage->packet);
-  cs = reinterpret_cast<pmsg_serverspecialmessage>(netmessage->packet)->text.data();
+	specialmessage = reinterpret_cast<pmsg_serverspecialmessage>(netmessage->packet);
+	cs = reinterpret_cast<pmsg_serverspecialmessage>(netmessage->packet)->text.data();
 
-  if (specialmessage->msgtype == 0) // console
-  {
-    GS::GetMainConsole().console(cs, specialmessage->color);
-  }
-  else if (specialmessage->msgtype == 1) // big text
-  {
-    gGlobalStateInterfaceGraphics.bigtext[specialmessage->layerid] = cs;
-    gGlobalStateInterfaceGraphics.bigdelay[specialmessage->layerid] = specialmessage->delay;
-    gGlobalStateInterfaceGraphics.bigscale[specialmessage->layerid] = specialmessage->scale;
-    gGlobalStateInterfaceGraphics.bigcolor[specialmessage->layerid] = specialmessage->color;
-    gGlobalStateInterfaceGraphics.bigposx[specialmessage->layerid] =
-      specialmessage->x * gGlobalStateInterfaceGraphics._rscala.x;
-    gGlobalStateInterfaceGraphics.bigposy[specialmessage->layerid] =
-      specialmessage->y * gGlobalStateInterfaceGraphics._rscala.y;
-    gGlobalStateInterfaceGraphics.bigx[specialmessage->layerid] = 100;
-  }
-  else // world text
-  {
-    gGlobalStateInterfaceGraphics.worldtext[specialmessage->layerid] = cs;
-    gGlobalStateInterfaceGraphics.worlddelay[specialmessage->layerid] = specialmessage->delay;
-    gGlobalStateInterfaceGraphics.worldscale[specialmessage->layerid] = specialmessage->scale;
-    gGlobalStateInterfaceGraphics.worldcolor[specialmessage->layerid] = specialmessage->color;
-    gGlobalStateInterfaceGraphics.worldposx[specialmessage->layerid] =
-      specialmessage->x * gGlobalStateInterfaceGraphics._rscala.x;
-    gGlobalStateInterfaceGraphics.worldposy[specialmessage->layerid] =
-      specialmessage->y * gGlobalStateInterfaceGraphics._rscala.y;
-    gGlobalStateInterfaceGraphics.worldx[specialmessage->layerid] = 100;
-  }
+	if (specialmessage->msgtype == 0) // console
+	{
+		GS::GetMainConsole().console(cs, specialmessage->color);
+	}
+	else if (specialmessage->msgtype == 1) // big text
+	{
+		gGlobalStateInterfaceGraphics.bigtext[specialmessage->layerid] = cs;
+		gGlobalStateInterfaceGraphics.bigdelay[specialmessage->layerid] = specialmessage->delay;
+		gGlobalStateInterfaceGraphics.bigscale[specialmessage->layerid] = specialmessage->scale;
+		gGlobalStateInterfaceGraphics.bigcolor[specialmessage->layerid] = specialmessage->color;
+		gGlobalStateInterfaceGraphics.bigposx[specialmessage->layerid] =
+			specialmessage->x * gGlobalStateInterfaceGraphics._rscala.x;
+		gGlobalStateInterfaceGraphics.bigposy[specialmessage->layerid] =
+			specialmessage->y * gGlobalStateInterfaceGraphics._rscala.y;
+		gGlobalStateInterfaceGraphics.bigx[specialmessage->layerid] = 100;
+	}
+	else // world text
+	{
+		gGlobalStateInterfaceGraphics.worldtext[specialmessage->layerid] = cs;
+		gGlobalStateInterfaceGraphics.worlddelay[specialmessage->layerid] = specialmessage->delay;
+		gGlobalStateInterfaceGraphics.worldscale[specialmessage->layerid] = specialmessage->scale;
+		gGlobalStateInterfaceGraphics.worldcolor[specialmessage->layerid] = specialmessage->color;
+		gGlobalStateInterfaceGraphics.worldposx[specialmessage->layerid] =
+			specialmessage->x * gGlobalStateInterfaceGraphics._rscala.x;
+		gGlobalStateInterfaceGraphics.worldposy[specialmessage->layerid] =
+			specialmessage->y * gGlobalStateInterfaceGraphics._rscala.y;
+		gGlobalStateInterfaceGraphics.worldx[specialmessage->layerid] = 100;
+	}
 }
 
 #pragma region tests
@@ -207,25 +204,26 @@ void clienthandlespecialmessage::Handle(NetworkContext *netmessage)
 namespace
 {
 
-class NetworkClientMessagesFixture
-{
-public:
-  NetworkClientMessagesFixture() = default;
-  ~NetworkClientMessagesFixture() = default;
-  NetworkClientMessagesFixture(const NetworkClientMessagesFixture&) = delete;
-protected:
-};
+	class NetworkClientMessagesFixture
+	{
+	public:
+		NetworkClientMessagesFixture() = default;
+		~NetworkClientMessagesFixture() = default;
+		NetworkClientMessagesFixture(const NetworkClientMessagesFixture&) = delete;
 
-TEST_SUITE("NetworkClientMessagesSuite")
-{
+	protected:
+	};
 
-TEST_CASE_FIXTURE(NetworkClientMessagesFixture, "wstring_convert being deprecated" * doctest::skip(false))
-{
-  auto text = utf8_to_utf16("Żółć!");
-  std::u16string const result = u"Żółć!";
-  CHECK_EQ(text, result);
-}
+	TEST_SUITE("NetworkClientMessagesSuite")
+	{
 
-} // end of NetworkClientMessagesSuite
+		TEST_CASE_FIXTURE(NetworkClientMessagesFixture, "wstring_convert being deprecated" * doctest::skip(false))
+		{
+			auto text = utf8_to_utf16("Żółć!");
+			std::u16string const result = u"Żółć!";
+			CHECK_EQ(text, result);
+		}
+
+	} // end of NetworkClientMessagesSuite
 } // end of unnamed namespace
 #pragma endregion tests

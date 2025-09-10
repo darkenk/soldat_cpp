@@ -4,66 +4,66 @@
 namespace Config
 {
 
-enum BuildConfiguration
-{
-  DEBUG,
-  RELEASE,
-  MASTER
-};
+	enum BuildConfiguration
+	{
+		DEBUG,
+		RELEASE,
+		MASTER
+	};
 
-namespace defaults
-{
+	namespace defaults
+	{
 
-// DK_TODO: write implementation in CMAKE
-// CMake should generate Config.tweakme.hpp wit proper configuration
-constexpr BuildConfiguration GetConfiguration() noexcept
-{
-  return DEBUG;
-}
+		// DK_TODO: write implementation in CMAKE
+		// CMake should generate Config.tweakme.hpp wit proper configuration
+		constexpr BuildConfiguration GetConfiguration() noexcept
+		{
+			return DEBUG;
+		}
 
-} // namespace defaults
+	} // namespace defaults
 
-using namespace defaults;
+	using namespace defaults;
 
-constexpr bool IsDebug() noexcept
-{
-  return GetConfiguration() == DEBUG;
-}
+	constexpr bool IsDebug() noexcept
+	{
+		return GetConfiguration() == DEBUG;
+	}
 
-constexpr bool IsRelease() noexcept
-{
-  return GetConfiguration() == RELEASE;
-}
+	constexpr bool IsRelease() noexcept
+	{
+		return GetConfiguration() == RELEASE;
+	}
 
-constexpr bool IsMaster() noexcept
-{
-  return GetConfiguration() == MASTER;
-}
+	constexpr bool IsMaster() noexcept
+	{
+		return GetConfiguration() == MASTER;
+	}
 
-namespace impl
-{
-template <auto T, auto U>
-struct is_same : public std::false_type
-{
-};
+	namespace impl
+	{
+		template <auto T, auto U>
+		struct is_same : public std::false_type
+		{
+		};
 
-template <auto T>
-struct is_same<T, T> : public std::true_type
-{
-};
+		template <auto T>
+		struct is_same<T, T> : public std::true_type
+		{
+		};
 
-} // namespace impl
+	} // namespace impl
 
-template <auto T, auto V>
-using Enable = std::enable_if_t<impl::is_same<T, V>::value, bool>;
+	template <auto T, auto V>
+	using Enable = std::enable_if_t<impl::is_same<T, V>::value, bool>;
 
-template <Config::BuildConfiguration T>
-using EnableInDebug = Enable<T, Config::DEBUG>;
+	template <Config::BuildConfiguration T>
+	using EnableInDebug = Enable<T, Config::DEBUG>;
 
-template <Config::BuildConfiguration T>
-using EnableInRelease = Enable<T, Config::RELEASE>;
+	template <Config::BuildConfiguration T>
+	using EnableInRelease = Enable<T, Config::RELEASE>;
 
-template <Config::BuildConfiguration T>
-using EnableInMaster = Enable<T, Config::MASTER>;
+	template <Config::BuildConfiguration T>
+	using EnableInMaster = Enable<T, Config::MASTER>;
 
 } // namespace Config

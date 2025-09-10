@@ -15,168 +15,131 @@
 #include "common/misc/SoldatConfig.hpp"
 
 #ifndef SERVER
-#include "../../client/Client.hpp"
+	#include "../../client/Client.hpp"
 #endif // SERVER
 
 template <class TSprite>
 class TSpriteSystem : public GlobalSubsystem<TSpriteSystem<TSprite>>
 {
 public:
-  using ActiveSpritesStorage = std::vector<TSprite>;
-  class TActiveSprites
-  {
-    using InternalIterator = typename ActiveSpritesStorage::iterator;
+	using ActiveSpritesStorage = std::vector<TSprite>;
+	class TActiveSprites
+	{
+		using InternalIterator = typename ActiveSpritesStorage::iterator;
 
-  public:
-    class Iterator;
+	public:
+		class Iterator;
 
-    using value_type = TSprite;
-    using const_iterator = Iterator;
+		using value_type = TSprite;
+		using const_iterator = Iterator;
 
-    class Iterator
-    {
-    public:
-      using iterator_category = std::input_iterator_tag;
-      using difference_type = std::ptrdiff_t;
-      using value_type = TSprite;
-      using pointer = TSprite *;
-      using reference = TSprite &;
+		class Iterator
+		{
+		public:
+			using iterator_category = std::input_iterator_tag;
+			using difference_type = std::ptrdiff_t;
+			using value_type = TSprite;
+			using pointer = TSprite*;
+			using reference = TSprite&;
 
-      Iterator(): Iter{}, End{}
-      {
-        // Default constructor for ranges compatibility
-      }
+			Iterator() : Iter{}, End{}
+			{
+				// Default constructor for ranges compatibility
+			}
 
-      Iterator &operator++()
-      {
-        do
-        {
-          Iter++;
-        } while (Iter != End && !(*Iter).IsActive());
-        return *this;
-      }
-      Iterator operator++(int)
-      {
-        Iterator tmp = *this;
-        ++(*this);
-        return tmp;
-      }
-      friend bool operator==(const Iterator &a, const Iterator &b)
-      {
-        return a.Iter == b.Iter;
-      };
-      friend bool operator!=(const Iterator &a, const Iterator &b)
-      {
-        return a.Iter != b.Iter;
-      };
-      reference operator*() const
-      {
-        return *Iter;
-      }
+			Iterator& operator++()
+			{
+				do
+				{
+					Iter++;
+				} while (Iter != End && !(*Iter).IsActive());
+				return *this;
+			}
+			Iterator operator++(int)
+			{
+				Iterator tmp = *this;
+				++(*this);
+				return tmp;
+			}
+			friend bool operator==(const Iterator& a, const Iterator& b) { return a.Iter == b.Iter; };
+			friend bool operator!=(const Iterator& a, const Iterator& b) { return a.Iter != b.Iter; };
+			reference operator*() const { return *Iter; }
 
-    private:
-      friend class TActiveSprites;
-      explicit Iterator(InternalIterator currIter, InternalIterator end) : Iter{currIter}, End{end}
-      {
+		private:
+			friend class TActiveSprites;
+			explicit Iterator(InternalIterator currIter, InternalIterator end) : Iter{ currIter }, End{ end }
+			{
 
-        while (Iter != End && !(*Iter).IsActive())
-        {
-          Iter++;
-        }
-      }
-      InternalIterator Iter;
-      InternalIterator End;
-    };
+				while (Iter != End && !(*Iter).IsActive())
+				{
+					Iter++;
+				}
+			}
+			InternalIterator Iter;
+			InternalIterator End;
+		};
 
-    explicit TActiveSprites(ActiveSpritesStorage &container) : Sprites{container}
-    {
-    }
+		explicit TActiveSprites(ActiveSpritesStorage& container) : Sprites{ container } { }
 
-    constexpr Iterator begin() const noexcept
-    {
-      return Iterator(Sprites.begin(), Sprites.end());
-    };
-    constexpr Iterator end() const noexcept
-    {
-      return Iterator(Sprites.end(), Sprites.end());
-    };
+		constexpr Iterator begin() const noexcept { return Iterator(Sprites.begin(), Sprites.end()); };
+		constexpr Iterator end() const noexcept { return Iterator(Sprites.end(), Sprites.end()); };
 
-  private:
-    ActiveSpritesStorage &Sprites;
-  };
+	private:
+		ActiveSpritesStorage& Sprites;
+	};
 
-  auto CreateSprite(const SpriteId reuseSpriteId = SpriteId::Invalid()) -> TSprite &;
+	auto CreateSprite(const SpriteId reuseSpriteId = SpriteId::Invalid()) -> TSprite&;
 
-  auto GetSprite(const SpriteId &id) -> TSprite &;
+	auto GetSprite(const SpriteId& id) -> TSprite&;
 
-  std::vector<TSprite> &GetSprites()
-  {
-    return Sprites;
-  }
+	std::vector<TSprite>& GetSprites() { return Sprites; }
 
-  auto GetActiveSprites() -> TActiveSprites &;
+	auto GetActiveSprites() -> TActiveSprites&;
 
-  tvector2 &GetSpritePartsPos(std::int32_t spriteId)
-  {
-    return spriteparts.pos[spriteId];
-  }
-  tvector2 &GetSpritePartsOldPos(std::int32_t spriteId)
-  {
-    return spriteparts.pos[spriteId];
-  }
-  void SetSpritePartsOldPos(std::int32_t spriteId, const tvector2 &pos)
-  {
-    spriteparts.oldpos[spriteId] = pos;
-  }
-  tvector2 &GetVelocity(std::int32_t spriteId)
-  {
-    return spriteparts.velocity[spriteId];
-  }
-  tvector2 &GetForces(std::int32_t spriteId)
-  {
-    return spriteparts.forces[spriteId];
-  }
-  void CreateSpritePart(const tvector2 &start, const tvector2 &vel, const float mass,
-                        const std::int32_t num);
-  void DestroySpritePart(const std::int32_t spriteId)
-  {
-    spriteparts.active[spriteId] = false;
-  }
+	tvector2& GetSpritePartsPos(std::int32_t spriteId) { return spriteparts.pos[spriteId]; }
+	tvector2& GetSpritePartsOldPos(std::int32_t spriteId) { return spriteparts.pos[spriteId]; }
+	void SetSpritePartsOldPos(std::int32_t spriteId, const tvector2& pos) { spriteparts.oldpos[spriteId] = pos; }
+	tvector2& GetVelocity(std::int32_t spriteId) { return spriteparts.velocity[spriteId]; }
+	tvector2& GetForces(std::int32_t spriteId) { return spriteparts.forces[spriteId]; }
+	void CreateSpritePart(const tvector2& start, const tvector2& vel, const float mass, const std::int32_t num);
+	void DestroySpritePart(const std::int32_t spriteId) { spriteparts.active[spriteId] = false; }
 
-  void ResetSpriteParts();
+	void ResetSpriteParts();
 
-  void UpdateSpriteParts();
+	void UpdateSpriteParts();
 
+// NOLINTBEGIN(soldat-*)
+#ifndef SERVER
+	TSprite& GetPlayerSprite()
+		requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
+	{
+		return GetSprite(gGlobalStateClient.mysprite);
+	}
 
-  // NOLINTBEGIN(soldat-*)
-  #ifndef SERVER
-  TSprite& GetPlayerSprite() requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
-  {
-    return GetSprite(gGlobalStateClient.mysprite);
-  }
+	bool IsPlayerSpriteValid()
+		requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
+	{
+		return gGlobalStateClient.mysprite > 0;
+	}
 
-  bool IsPlayerSpriteValid() requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
-  {
-    return gGlobalStateClient.mysprite > 0;
-  }
-
-  bool IsPlayerSprite(std::uint8_t spriteId) requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
-  {
-    return spriteId == gGlobalStateClient.mysprite;
-  }
-  #endif // SERVER
-  // NOLINTEND(soldat-*)
+	bool IsPlayerSprite(std::uint8_t spriteId)
+		requires std::is_same_v<TSprite, Sprite<Config::CLIENT_MODULE>>
+	{
+		return spriteId == gGlobalStateClient.mysprite;
+	}
+#endif // SERVER
+	   // NOLINTEND(soldat-*)
 
 protected:
-  TSpriteSystem();
+	TSpriteSystem();
 
 private:
-  std::vector<TSprite> Sprites;
-  TActiveSprites ActiveSprites;
-  particlesystem spriteparts;
-  std::uint8_t mysprite{};
+	std::vector<TSprite> Sprites;
+	TActiveSprites ActiveSprites;
+	particlesystem spriteparts;
+	std::uint8_t mysprite{};
 
-  friend GlobalSubsystem<TSpriteSystem>;
+	friend GlobalSubsystem<TSpriteSystem>;
 };
 
 using SpriteSystem = TSpriteSystem<>;

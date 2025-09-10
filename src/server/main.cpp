@@ -3,11 +3,11 @@
 #include "common/misc/SoldatConfig.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
-auto main(int argc, char *argv[]) -> int
+auto main(int argc, char* argv[]) -> int
 {
-  InitLogging();
-  GlobalSystems<Config::SERVER_MODULE>::Init();
-  gGlobalStateServer.RunServer(argc, argv);
-  GlobalSystems<Config::SERVER_MODULE>::Deinit();
-  return 0;
+	InitLogging();
+	GlobalSystems<Config::SERVER_MODULE>::Init();
+	gGlobalStateServer.RunServer(argc, argv);
+	GlobalSystems<Config::SERVER_MODULE>::Deinit();
+	return 0;
 }

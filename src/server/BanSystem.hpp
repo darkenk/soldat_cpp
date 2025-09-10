@@ -11,44 +11,41 @@
 
 struct tbanip
 {
-  std::string ip;
-  std::int32_t time;
-  std::string reason;
+	std::string ip;
+	std::int32_t time;
+	std::string reason;
 };
 
 struct tbanhw
 {
-  std::string hw;
-  std::int32_t time;
-  std::string reason;
+	std::string hw;
+	std::int32_t time;
+	std::string reason;
 };
 
 struct GlobalStateBanSystem
 {
-  bool checkbannedhw(const std::string &hw);
-  bool checkbannedip(const std::string &ip);
-  bool delbannedhw(const std::string &hw);
-  bool delbannedip(const std::string &ip);
-  std::int32_t findban(const std::string &ip);
-  std::int32_t findbanhw(const std::string &hw);
-  void addbannedhw(const std::string &hw, const std::string &reason,
-                   std::int32_t duration = Constants::PERMAMENT);
-  void addbannedip(const std::string &ip, const std::string &reason,
-                   std::int32_t duration = Constants::PERMAMENT);
-  void loadbannedlist(const std::string &filename);
-  void loadbannedlisthw(const std::string &filename);
-  void savebannedlist(const std::string &filename);
-  void savebannedlisthw(const std::string &filename);
-  void updatehwbanlist();
-  void updateipbanlist();
-  std::vector<tbanip> bannediplist = {};
-  std::vector<tbanhw> bannedhwlist = {};
-  std::string lastban = {};
-  std::string lastbanhw = {};
+	bool checkbannedhw(const std::string& hw);
+	bool checkbannedip(const std::string& ip);
+	bool delbannedhw(const std::string& hw);
+	bool delbannedip(const std::string& ip);
+	std::int32_t findban(const std::string& ip);
+	std::int32_t findbanhw(const std::string& hw);
+	void addbannedhw(const std::string& hw, const std::string& reason, std::int32_t duration = Constants::PERMAMENT);
+	void addbannedip(const std::string& ip, const std::string& reason, std::int32_t duration = Constants::PERMAMENT);
+	void loadbannedlist(const std::string& filename);
+	void loadbannedlisthw(const std::string& filename);
+	void savebannedlist(const std::string& filename);
+	void savebannedlisthw(const std::string& filename);
+	void updatehwbanlist();
+	void updateipbanlist();
+	std::vector<tbanip> bannediplist = {};
+	std::vector<tbanhw> bannedhwlist = {};
+	std::string lastban = {};
+	std::string lastbanhw = {};
 
 private:
-  static auto matchesmask([[maybe_unused]] const std::string &v,
-                          [[maybe_unused]] const std::string &mask) -> bool;
+	static auto matchesmask([[maybe_unused]] const std::string& v, [[maybe_unused]] const std::string& mask) -> bool;
 };
 
 extern GlobalStateBanSystem gGlobalStateBanSystem;

@@ -60,3316 +60,3359 @@ GlobalStateInterfaceGraphics gGlobalStateInterfaceGraphics{
 
 };
 
-void GlobalStateInterfaceGraphics::loadinterfacearchives(const std::string &path, bool firstonly)
+void GlobalStateInterfaceGraphics::loadinterfacearchives(const std::string& path, bool firstonly)
 {
-  if (!std::filesystem::exists(path))
-  {
-    return;
-  }
+	if (!std::filesystem::exists(path))
+	{
+		return;
+	}
 
-  for (const auto &f : std::filesystem::directory_iterator(path))
-  {
-    if (f.path().extension() != ".sint")
-    {
-      continue;
-    }
-    std::string const name = f.path().stem();
-    if (PHYSFS_mount(pchar(path + f.path().filename().c_str()),
-                     pchar(string("custom-interfaces/") + name + '/'), 0) != 0)
-    {
-      LogDebugG("Mounted interface: {}", f.path().c_str());
-      if (firstonly)
-      {
-        CVar::ui_style = name;
-        break;
-      }
-    }
-    else
-    {
-      LogDebugG("Failed to mount interface: {}", f.path().c_str());
-    }
-  }
+	for (const auto& f : std::filesystem::directory_iterator(path))
+	{
+		if (f.path().extension() != ".sint")
+		{
+			continue;
+		}
+		std::string const name = f.path().stem();
+		if (PHYSFS_mount(pchar(path + f.path().filename().c_str()), pchar(string("custom-interfaces/") + name + '/'), 0)
+			!= 0)
+		{
+			LogDebugG("Mounted interface: {}", f.path().c_str());
+			if (firstonly)
+			{
+				CVar::ui_style = name;
+				break;
+			}
+		}
+		else
+		{
+			LogDebugG("Failed to mount interface: {}", f.path().c_str());
+		}
+	}
 }
 
-auto GlobalStateInterfaceGraphics::isdefaultinterface(const std::string &interfacename) -> bool
+auto GlobalStateInterfaceGraphics::isdefaultinterface(const std::string& interfacename) -> bool
 {
-  return (interfacename.empty()) || (interfacename == "Default");
+	return (interfacename.empty()) || (interfacename == "Default");
 }
 
 void GlobalStateInterfaceGraphics::loaddefaultinterfacedata()
 {
-  // Create default INTERFACE
-  intalign.weapon = 1;
-  intalign.bullets = 1;
-  intalign.healthbar = 0;
-  intalign.ammobar = 0;
-  intalign.reloadbar = 0;
-  intalign.firebar = 1;
-  intalign.jetbar = 0;
-  intalign.vestbar = 0;
+	// Create default INTERFACE
+	intalign.weapon = 1;
+	intalign.bullets = 1;
+	intalign.healthbar = 0;
+	intalign.ammobar = 0;
+	intalign.reloadbar = 0;
+	intalign.firebar = 1;
+	intalign.jetbar = 0;
+	intalign.vestbar = 0;
 
-  int_.alpha = 255;
-  int_.health = true;
-  int_.ammo = true;
-  int_.vest = true;
-  int_.jet = true;
-  int_.nades = true;
-  int_.bullets = true;
-  int_.weapon = true;
-  int_.fire = true;
-  int_.team = true;
-  int_.ping = true;
-  int_.status = true;
-  int_.healthbar_width = 115;
-  int_.healthbar_height = 9;
-  int_.healthbar_pos = horizontal;
-  int_.healthbar_rotate = 0;
-  int_.ammobar_width = 120;
-  int_.ammobar_height = 9;
-  int_.ammobar_pos = horizontal;
-  int_.ammobar_rotate = 0;
-  int_.jetbar_width = 115;
-  int_.jetbar_height = 9;
-  int_.jetbar_pos = horizontal;
-  int_.jetbar_rotate = 0;
-  int_.vestbar_width = 115;
-  int_.vestbar_height = 9;
-  int_.vestbar_pos = horizontal;
-  int_.vestbar_rotate = 0;
-  int_.firebar_width = 57;
-  int_.firebar_height = 4;
-  int_.firebar_pos = horizontal;
-  int_.firebar_rotate = 0;
-  int_.healthico_x = 5;
-  int_.healthico_y = 445 - 6;
-  int_.healthico_rotate = 0;
-  int_.ammoico_x = 285 - 10;
-  int_.ammoico_y = 445 - 6;
-  int_.ammoico_rotate = 0;
-  int_.jetico_x = 480;
-  int_.jetico_y = 445 - 6;
-  int_.jetico_rotate = 0;
-  int_.healthbar_x = 45;
-  int_.healthbar_y = 455 - 6;
-  int_.ammobar_x = 352;
-  int_.ammobar_y = 455 - 6;
-  int_.bullets_x = 348;
-  int_.bullets_y = 451;
-  int_.jetbar_x = 520;
-  int_.jetbar_y = 455 - 6;
-  int_.firebar_x = 402;
-  int_.firebar_y = 464;
-  int_.firebar_rotate = 0;
-  int_.fireico_x = 409;
-  int_.fireico_y = 464;
-  int_.fireico_rotate = 0;
-  int_.nades_x = 305 - 7 + 10;
-  int_.nades_y = 468 - 6;
-  int_.nades_height = 10;
-  int_.nades_width = 10;
-  int_.nades_pos = horizontal;
-  int_.vestbar_x = 45;
-  int_.vestbar_y = 465 - 6;
-  int_.teambox_x = 575;
-  int_.teambox_y = 330;
-  int_.status_x = 575;
-  int_.status_y = 421;
-  int_.ping_x = 600;
-  int_.ping_y = 18;
-  int_.weapon_x = 285;
-  int_.weapon_y = 454;
+	int_.alpha = 255;
+	int_.health = true;
+	int_.ammo = true;
+	int_.vest = true;
+	int_.jet = true;
+	int_.nades = true;
+	int_.bullets = true;
+	int_.weapon = true;
+	int_.fire = true;
+	int_.team = true;
+	int_.ping = true;
+	int_.status = true;
+	int_.healthbar_width = 115;
+	int_.healthbar_height = 9;
+	int_.healthbar_pos = horizontal;
+	int_.healthbar_rotate = 0;
+	int_.ammobar_width = 120;
+	int_.ammobar_height = 9;
+	int_.ammobar_pos = horizontal;
+	int_.ammobar_rotate = 0;
+	int_.jetbar_width = 115;
+	int_.jetbar_height = 9;
+	int_.jetbar_pos = horizontal;
+	int_.jetbar_rotate = 0;
+	int_.vestbar_width = 115;
+	int_.vestbar_height = 9;
+	int_.vestbar_pos = horizontal;
+	int_.vestbar_rotate = 0;
+	int_.firebar_width = 57;
+	int_.firebar_height = 4;
+	int_.firebar_pos = horizontal;
+	int_.firebar_rotate = 0;
+	int_.healthico_x = 5;
+	int_.healthico_y = 445 - 6;
+	int_.healthico_rotate = 0;
+	int_.ammoico_x = 285 - 10;
+	int_.ammoico_y = 445 - 6;
+	int_.ammoico_rotate = 0;
+	int_.jetico_x = 480;
+	int_.jetico_y = 445 - 6;
+	int_.jetico_rotate = 0;
+	int_.healthbar_x = 45;
+	int_.healthbar_y = 455 - 6;
+	int_.ammobar_x = 352;
+	int_.ammobar_y = 455 - 6;
+	int_.bullets_x = 348;
+	int_.bullets_y = 451;
+	int_.jetbar_x = 520;
+	int_.jetbar_y = 455 - 6;
+	int_.firebar_x = 402;
+	int_.firebar_y = 464;
+	int_.firebar_rotate = 0;
+	int_.fireico_x = 409;
+	int_.fireico_y = 464;
+	int_.fireico_rotate = 0;
+	int_.nades_x = 305 - 7 + 10;
+	int_.nades_y = 468 - 6;
+	int_.nades_height = 10;
+	int_.nades_width = 10;
+	int_.nades_pos = horizontal;
+	int_.vestbar_x = 45;
+	int_.vestbar_y = 465 - 6;
+	int_.teambox_x = 575;
+	int_.teambox_y = 330;
+	int_.status_x = 575;
+	int_.status_y = 421;
+	int_.ping_x = 600;
+	int_.ping_y = 18;
+	int_.weapon_x = 285;
+	int_.weapon_y = 454;
 
-  relinfo.healthbar_rel_x = int_.healthico_x;
-  relinfo.healthbar_rel_y = int_.healthico_y;
-  relinfo.jetbar_rel_x = int_.jetico_x;
-  relinfo.jetbar_rel_y = int_.jetico_y;
-  relinfo.ammobar_rel_x = int_.ammoico_x;
-  relinfo.ammobar_rel_y = int_.ammoico_y;
-  relinfo.firebar_rel_x = int_.ammoico_x;
-  relinfo.firebar_rel_y = int_.ammoico_y;
-  relinfo.nadesbar_rel_x = int_.ammoico_x;
-  relinfo.nadesbar_rel_y = int_.ammoico_y;
+	relinfo.healthbar_rel_x = int_.healthico_x;
+	relinfo.healthbar_rel_y = int_.healthico_y;
+	relinfo.jetbar_rel_x = int_.jetico_x;
+	relinfo.jetbar_rel_y = int_.jetico_y;
+	relinfo.ammobar_rel_x = int_.ammoico_x;
+	relinfo.ammobar_rel_y = int_.ammoico_y;
+	relinfo.firebar_rel_x = int_.ammoico_x;
+	relinfo.firebar_rel_y = int_.ammoico_y;
+	relinfo.nadesbar_rel_x = int_.ammoico_x;
+	relinfo.nadesbar_rel_y = int_.ammoico_y;
 }
 
 // result is true if it loaded a custom interface
-auto GlobalStateInterfaceGraphics::loadinterfacedata(const std::string &interfacename) -> bool
+auto GlobalStateInterfaceGraphics::loadinterfacedata(const std::string& interfacename) -> bool
 {
-  std::vector<std::uint8_t> addrfile;
-  tinterface addrrec{};
-  const char custom_interface_dir[] = "custom-intercases/";
+	std::vector<std::uint8_t> addrfile;
+	tinterface addrrec{};
+	const char custom_interface_dir[] = "custom-intercases/";
 
-  auto& fs = GS::GetFileSystem();
+	auto& fs = GS::GetFileSystem();
 
-  bool loadinterfacedata_result = false;
-  intalign.weapon = 0;
-  intalign.bullets = 0;
-  intalign.healthbar = 1;
-  intalign.ammobar = 1;
-  intalign.reloadbar = 0;
-  intalign.firebar = 1;
-  intalign.jetbar = 1;
-  intalign.vestbar = 1;
+	bool loadinterfacedata_result = false;
+	intalign.weapon = 0;
+	intalign.bullets = 0;
+	intalign.healthbar = 1;
+	intalign.ammobar = 1;
+	intalign.reloadbar = 0;
+	intalign.firebar = 1;
+	intalign.jetbar = 1;
+	intalign.vestbar = 1;
 
-  // not registered / default interface
-  if (isdefaultinterface(interfacename))
-  {
-    loaddefaultinterfacedata();
-    return loadinterfacedata_result;
-  }
+	// not registered / default interface
+	if (isdefaultinterface(interfacename))
+	{
+		loaddefaultinterfacedata();
+		return loadinterfacedata_result;
+	}
 
-  if (!fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/setup.sif"))
-  {
-    gGlobalStateClient.showmessage(
-      ("Could not find setup.sif. Loading default interface instead."));
-    loaddefaultinterfacedata();
-    return loadinterfacedata_result;
-  }
+	if (!fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/setup.sif"))
+	{
+		gGlobalStateClient.showmessage(("Could not find setup.sif. Loading default interface instead."));
+		loaddefaultinterfacedata();
+		return loadinterfacedata_result;
+	}
 
-  loadinterfacedata_result = true;
+	loadinterfacedata_result = true;
 
-  addrfile =
-    fs.ReadFile(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/setup.sif");
+	addrfile = fs.ReadFile(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/setup.sif");
 
-  addrrec = *reinterpret_cast<pinterface>(addrfile.data());
-  int_ = addrrec;
+	addrrec = *reinterpret_cast<pinterface>(addrfile.data());
+	int_ = addrrec;
 
-  if (fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/health.bmp"))
-  {
-    relinfo.healthbar_rel_x = int_.healthico_x;
-    relinfo.healthbar_rel_y = int_.healthico_y;
-    relinfo.jetbar_rel_x = int_.healthico_x;
-    relinfo.jetbar_rel_y = int_.healthico_y;
-    relinfo.ammobar_rel_x = int_.healthico_x;
-    relinfo.ammobar_rel_y = int_.healthico_y;
-    relinfo.firebar_rel_x = int_.healthico_x;
-    relinfo.firebar_rel_y = int_.healthico_y;
-    relinfo.nadesbar_rel_x = int_.healthico_x;
-    relinfo.nadesbar_rel_y = int_.healthico_y;
-  }
+	if (fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/health.bmp"))
+	{
+		relinfo.healthbar_rel_x = int_.healthico_x;
+		relinfo.healthbar_rel_y = int_.healthico_y;
+		relinfo.jetbar_rel_x = int_.healthico_x;
+		relinfo.jetbar_rel_y = int_.healthico_y;
+		relinfo.ammobar_rel_x = int_.healthico_x;
+		relinfo.ammobar_rel_y = int_.healthico_y;
+		relinfo.firebar_rel_x = int_.healthico_x;
+		relinfo.firebar_rel_y = int_.healthico_y;
+		relinfo.nadesbar_rel_x = int_.healthico_x;
+		relinfo.nadesbar_rel_y = int_.healthico_y;
+	}
 
-  if (fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/jet.bmp"))
-  {
-    relinfo.healthbar_rel_x = int_.jetico_x;
-    relinfo.healthbar_rel_y = int_.jetico_y;
-    relinfo.jetbar_rel_x = int_.jetico_x;
-    relinfo.jetbar_rel_y = int_.jetico_y;
-    relinfo.ammobar_rel_x = int_.jetico_x;
-    relinfo.ammobar_rel_y = int_.jetico_y;
-    relinfo.firebar_rel_x = int_.jetico_x;
-    relinfo.firebar_rel_y = int_.jetico_y;
-    relinfo.nadesbar_rel_x = int_.jetico_x;
-    relinfo.nadesbar_rel_y = int_.jetico_y;
-  }
+	if (fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/jet.bmp"))
+	{
+		relinfo.healthbar_rel_x = int_.jetico_x;
+		relinfo.healthbar_rel_y = int_.jetico_y;
+		relinfo.jetbar_rel_x = int_.jetico_x;
+		relinfo.jetbar_rel_y = int_.jetico_y;
+		relinfo.ammobar_rel_x = int_.jetico_x;
+		relinfo.ammobar_rel_y = int_.jetico_y;
+		relinfo.firebar_rel_x = int_.jetico_x;
+		relinfo.firebar_rel_y = int_.jetico_y;
+		relinfo.nadesbar_rel_x = int_.jetico_x;
+		relinfo.nadesbar_rel_y = int_.jetico_y;
+	}
 
-  if (fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/ammo.bmp"))
-  {
-    relinfo.healthbar_rel_x = int_.ammoico_x;
-    relinfo.healthbar_rel_y = int_.ammoico_y;
-    relinfo.jetbar_rel_x = int_.ammoico_x;
-    relinfo.jetbar_rel_y = int_.ammoico_y;
-    relinfo.ammobar_rel_x = int_.ammoico_x;
-    relinfo.ammobar_rel_y = int_.ammoico_y;
-    relinfo.firebar_rel_x = int_.ammoico_x;
-    relinfo.firebar_rel_y = int_.ammoico_y;
-    relinfo.nadesbar_rel_x = int_.ammoico_x;
-    relinfo.nadesbar_rel_y = int_.ammoico_y;
-  }
+	if (fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/ammo.bmp"))
+	{
+		relinfo.healthbar_rel_x = int_.ammoico_x;
+		relinfo.healthbar_rel_y = int_.ammoico_y;
+		relinfo.jetbar_rel_x = int_.ammoico_x;
+		relinfo.jetbar_rel_y = int_.ammoico_y;
+		relinfo.ammobar_rel_x = int_.ammoico_x;
+		relinfo.ammobar_rel_y = int_.ammoico_y;
+		relinfo.firebar_rel_x = int_.ammoico_x;
+		relinfo.firebar_rel_y = int_.ammoico_y;
+		relinfo.nadesbar_rel_x = int_.ammoico_x;
+		relinfo.nadesbar_rel_y = int_.ammoico_y;
+	}
 
-  if (fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/health.bmp"))
-  {
-    relinfo.healthbar_rel_x = int_.healthico_x;
-    relinfo.healthbar_rel_y = int_.healthico_y;
-  }
+	if (fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/health.bmp"))
+	{
+		relinfo.healthbar_rel_x = int_.healthico_x;
+		relinfo.healthbar_rel_y = int_.healthico_y;
+	}
 
-  if (fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/jet.bmp"))
-  {
-    relinfo.jetbar_rel_x = int_.jetico_x;
-    relinfo.jetbar_rel_y = int_.jetico_y;
-  }
+	if (fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/jet.bmp"))
+	{
+		relinfo.jetbar_rel_x = int_.jetico_x;
+		relinfo.jetbar_rel_y = int_.jetico_y;
+	}
 
-  if (fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/ammo.bmp"))
-  {
-    relinfo.ammobar_rel_x = int_.ammoico_x;
-    relinfo.ammobar_rel_y = int_.ammoico_y;
-  }
-  return loadinterfacedata_result;
+	if (fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/ammo.bmp"))
+	{
+		relinfo.ammobar_rel_x = int_.ammoico_x;
+		relinfo.ammobar_rel_y = int_.ammoico_y;
+	}
+	return loadinterfacedata_result;
 }
 
 // Does the HUD overlay belong to the player?
 auto GlobalStateInterfaceGraphics::isinteractiveinterface() -> bool
 {
-  auto &sprite_system = SpriteSystem::Get();
-  return sprite_system.GetPlayerSprite().isnotspectator() or
-         ((gGlobalStateClient.camerafollowsprite > 0) && (CVar::sv_advancedspectator));
+	auto& sprite_system = SpriteSystem::Get();
+	return sprite_system.GetPlayerSprite().isnotspectator()
+		or ((gGlobalStateClient.camerafollowsprite > 0) && (CVar::sv_advancedspectator));
 }
 
 auto GlobalStateInterfaceGraphics::pixelalignx(float x) const -> float
 {
-  return pixelsize.x * floor(x / pixelsize.x);
+	return pixelsize.x * floor(x / pixelsize.x);
 }
 
 auto GlobalStateInterfaceGraphics::pixelaligny(float y) const -> float
 {
-  return pixelsize.y * floor(y / pixelsize.y);
+	return pixelsize.y * floor(y / pixelsize.y);
 }
 
 void GlobalStateInterfaceGraphics::drawline(float x, float y, float w, tgfxcolor color)
 {
-  float x0 = NAN;
-  float y0 = NAN;
-  float x1 = NAN;
-  float y1 = NAN;
+	float x0 = NAN;
+	float y0 = NAN;
+	float x1 = NAN;
+	float y1 = NAN;
 
-  x0 = pixelalignx(x);
-  y0 = pixelaligny(y);
-  x1 = pixelalignx(x0 + w);
-  y1 = y0 + pixelsize.y;
+	x0 = pixelalignx(x);
+	y0 = pixelaligny(y);
+	x1 = pixelalignx(x0 + w);
+	y1 = y0 + pixelsize.y;
 
-  gfxdrawquad(nullptr, gfxvertex(x0, y0, 0, 0, color), gfxvertex(x1, y0, 0, 0, color),
-              gfxvertex(x1, y1, 0, 0, color), gfxvertex(x0, y1, 0, 0, color));
+	gfxdrawquad(nullptr,
+		gfxvertex(x0, y0, 0, 0, color),
+		gfxvertex(x1, y0, 0, 0, color),
+		gfxvertex(x1, y1, 0, 0, color),
+		gfxvertex(x0, y1, 0, 0, color));
 }
 
 auto GlobalStateInterfaceGraphics::tominimap(const tvector2 pos, float scale) -> tvector2
 {
-  tvector2 result;
-  gGlobalStateMapGraphics.worldtominimap(pos.x, pos.y, result.x, result.y);
+	tvector2 result;
+	gGlobalStateMapGraphics.worldtominimap(pos.x, pos.y, result.x, result.y);
 
-  scale = scale * gGlobalStateGameRendering.textures[GFX::INTERFACE_SMALLDOT]->scale;
+	scale = scale * gGlobalStateGameRendering.textures[GFX::INTERFACE_SMALLDOT]->scale;
 
-  result.x =
-    pixelalignx((CVar::ui_minimap_posx * gGlobalStateInterfaceGraphics._rscala.x) + result.x -
-                ((scale * gGlobalStateGameRendering.textures[GFX::INTERFACE_SMALLDOT]->width) / 2));
+	result.x = pixelalignx((CVar::ui_minimap_posx * gGlobalStateInterfaceGraphics._rscala.x) + result.x
+						   - ((scale * gGlobalStateGameRendering.textures[GFX::INTERFACE_SMALLDOT]->width) / 2));
 
-  result.y = pixelaligny(
-    CVar::ui_minimap_posy + result.y -
-    ((scale * gGlobalStateGameRendering.textures[GFX::INTERFACE_SMALLDOT]->height) / 2));
-  return result;
+	result.y = pixelaligny(CVar::ui_minimap_posy + result.y
+						   - ((scale * gGlobalStateGameRendering.textures[GFX::INTERFACE_SMALLDOT]->height) / 2));
+	return result;
 }
 
-void GlobalStateInterfaceGraphics::renderbar(std::int32_t t, std::uint8_t postype, std::int32_t x,
-                                             std::int32_t rx, std::int32_t y, std::int32_t ry,
-                                             std::int32_t w, std::int32_t h, std::int32_t r,
-                                             float p, bool leftalign)
+void GlobalStateInterfaceGraphics::renderbar(std::int32_t t,
+	std::uint8_t postype,
+	std::int32_t x,
+	std::int32_t rx,
+	std::int32_t y,
+	std::int32_t ry,
+	std::int32_t w,
+	std::int32_t h,
+	std::int32_t r,
+	float p,
+	bool leftalign)
 
 {
-  float px = NAN;
-  float py = NAN;
-  tgfxrect rc;
+	float px = NAN;
+	float py = NAN;
+	tgfxrect rc;
 
-  if (postype == textstyle)
-  {
-    return;
-  }
+	if (postype == textstyle)
+	{
+		return;
+	}
 
-  p = max(0.F, min(1.F, p));
-  w = gGlobalStateGameRendering.textures[t]->width;
-  h = gGlobalStateGameRendering.textures[t]->height;
+	p = max(0.F, min(1.F, p));
+	w = gGlobalStateGameRendering.textures[t]->width;
+	h = gGlobalStateGameRendering.textures[t]->height;
 
-  px = pixelalignx(rx * gGlobalStateInterfaceGraphics._iscala.x) + (x - rx);
-  py = pixelaligny(ry * gGlobalStateInterfaceGraphics._iscala.y) + (y - ry);
-  rc.top = 0;
-  rc.bottom = h;
+	px = pixelalignx(rx * gGlobalStateInterfaceGraphics._iscala.x) + (x - rx);
+	py = pixelaligny(ry * gGlobalStateInterfaceGraphics._iscala.y) + (y - ry);
+	rc.top = 0;
+	rc.bottom = h;
 
-  if (leftalign)
-  {
-    rc.left = 0;
-    rc.right = w * p;
+	if (leftalign)
+	{
+		rc.left = 0;
+		rc.right = w * p;
 
-    if (postype == vertical)
-    {
-      rc.right = w;
-      rc.top = h * (1 - p);
-      py = py + rc.top * gGlobalStateGameRendering.textures[t]->scale;
-    }
-  }
-  else
-  {
-    rc.left = w * (1 - p);
-    rc.right = w;
+		if (postype == vertical)
+		{
+			rc.right = w;
+			rc.top = h * (1 - p);
+			py = py + rc.top * gGlobalStateGameRendering.textures[t]->scale;
+		}
+	}
+	else
+	{
+		rc.left = w * (1 - p);
+		rc.right = w;
 
-    if (postype == vertical)
-    {
-      rc.left = 0;
-      rc.bottom = h * p;
-      py = py + (h * (1 - p)) * gGlobalStateGameRendering.textures[t]->scale;
-    }
-  }
+		if (postype == vertical)
+		{
+			rc.left = 0;
+			rc.bottom = h * p;
+			py = py + (h * (1 - p)) * gGlobalStateGameRendering.textures[t]->scale;
+		}
+	}
 
-  gfxdrawsprite(gGlobalStateGameRendering.textures[t], px, py, 0, 0, degtorad(r),
-                rgba(0xffffff, int_.alpha), rc);
+	gfxdrawsprite(gGlobalStateGameRendering.textures[t], px, py, 0, 0, degtorad(r), rgba(0xffffff, int_.alpha), rc);
 }
 
-void GlobalStateInterfaceGraphics::getweaponattribs(std::int32_t i, std::vector<tattr> &attrs)
+void GlobalStateInterfaceGraphics::getweaponattribs(std::int32_t i, std::vector<tattr>& attrs)
 {
-  auto &curgun = GS::GetWeaponSystem().GetGuns()[i];
-  auto &defgun = GS::GetWeaponSystem().GetDefaultGuns()[i];
+	auto& curgun = GS::GetWeaponSystem().GetGuns()[i];
+	auto& defgun = GS::GetWeaponSystem().GetDefaultGuns()[i];
 
-  attrs[0].cur =
-    (curgun.hitmultiply * (curgun.modifierlegs + curgun.modifierchest + curgun.modifierhead)) / 3;
-  attrs[0].def =
-    (defgun.hitmultiply * (defgun.modifierlegs + defgun.modifierchest + defgun.modifierhead)) / 3;
-  attrs[0].des = ("Damage");
+	attrs[0].cur = (curgun.hitmultiply * (curgun.modifierlegs + curgun.modifierchest + curgun.modifierhead)) / 3;
+	attrs[0].def = (defgun.hitmultiply * (defgun.modifierlegs + defgun.modifierchest + defgun.modifierhead)) / 3;
+	attrs[0].des = ("Damage");
 
-  attrs[1].cur = curgun.ammo;
-  attrs[1].def = defgun.ammo;
-  attrs[1].des = ("Ammo");
+	attrs[1].cur = curgun.ammo;
+	attrs[1].def = defgun.ammo;
+	attrs[1].des = ("Ammo");
 
-  attrs[2].cur = curgun.reloadtime;
-  attrs[2].def = defgun.reloadtime;
-  attrs[2].des = ("Reload");
+	attrs[2].cur = curgun.reloadtime;
+	attrs[2].def = defgun.reloadtime;
+	attrs[2].des = ("Reload");
 
-  attrs[3].cur = curgun.speed;
-  attrs[3].def = defgun.speed;
-  attrs[3].des = ("Speed");
+	attrs[3].cur = curgun.speed;
+	attrs[3].def = defgun.speed;
+	attrs[3].des = ("Speed");
 
-  attrs[4].cur = curgun.fireinterval;
-  attrs[4].def = defgun.fireinterval;
-  attrs[4].des = ("Rate");
+	attrs[4].cur = curgun.fireinterval;
+	attrs[4].def = defgun.fireinterval;
+	attrs[4].des = ("Rate");
 
-  attrs[5].cur = curgun.movementacc;
-  attrs[5].def = defgun.movementacc;
-  attrs[5].des = ("Acc.");
+	attrs[5].cur = curgun.movementacc;
+	attrs[5].def = defgun.movementacc;
+	attrs[5].des = ("Acc.");
 
-  attrs[6].cur = curgun.bink;
-  attrs[6].def = defgun.bink;
-  attrs[6].des = ("Bink");
+	attrs[6].cur = curgun.bink;
+	attrs[6].def = defgun.bink;
+	attrs[6].des = ("Bink");
 
-  attrs[7].cur = curgun.startuptime;
-  attrs[7].def = defgun.startuptime;
-  attrs[7].des = ("Delay");
+	attrs[7].cur = curgun.startuptime;
+	attrs[7].def = defgun.startuptime;
+	attrs[7].des = ("Delay");
 
-  attrs[8].cur = curgun.bulletspread;
-  attrs[8].def = defgun.bulletspread;
-  attrs[8].des = ("Spread");
+	attrs[8].cur = curgun.bulletspread;
+	attrs[8].def = defgun.bulletspread;
+	attrs[8].des = ("Spread");
 
-  attrs[9].cur = curgun.recoil;
-  attrs[9].def = defgun.recoil;
-  attrs[9].des = ("Recoil");
+	attrs[9].cur = curgun.recoil;
+	attrs[9].def = defgun.recoil;
+	attrs[9].des = ("Recoil");
 
-  attrs[10].cur = curgun.push;
-  attrs[10].def = defgun.push;
-  attrs[10].des = ("Push");
+	attrs[10].cur = curgun.push;
+	attrs[10].def = defgun.push;
+	attrs[10].des = ("Push");
 
-  attrs[11].cur = curgun.bulletstyle;
-  attrs[11].def = defgun.bulletstyle;
-  attrs[11].des = ("Style");
+	attrs[11].cur = curgun.bulletstyle;
+	attrs[11].def = defgun.bulletstyle;
+	attrs[11].des = ("Style");
 
-  attrs[12].cur = curgun.inheritedvelocity;
-  attrs[12].def = defgun.inheritedvelocity;
-  attrs[12].des = ("Inh. Speed");
+	attrs[12].cur = curgun.inheritedvelocity;
+	attrs[12].def = defgun.inheritedvelocity;
+	attrs[12].des = ("Inh. Speed");
 }
 
-auto GlobalStateInterfaceGraphics::getweaponattribdesc(tattr &attr) -> std::string
+auto GlobalStateInterfaceGraphics::getweaponattribdesc(tattr& attr) -> std::string
 {
-  return string("    |-") + attr.des + " : " +
-         (attr.def != 0 ? inttostr(round(attr.cur / attr.def * 100)) + "%" : "NEW") + " (" +
-         formatfloat("0.####", attr.cur) + '/' + formatfloat("0.####", attr.def) + ')';
+	return string("    |-") + attr.des + " : "
+		 + (attr.def != 0 ? inttostr(round(attr.cur / attr.def * 100)) + "%" : "NEW") + " ("
+		 + formatfloat("0.####", attr.cur) + '/' + formatfloat("0.####", attr.def) + ')';
 }
 
 void GlobalStateInterfaceGraphics::renderweaponmenutext()
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i = 0;
-  std::int32_t cursoronindex = 0;
-  float x = NAN;
-  float y = NAN;
-  float tipy = NAN;
-  struct tgamebutton *btn = nullptr;
-  std::vector<tattr> attrs{13};
-  std::string str1;
+	auto& sprite_system = SpriteSystem::Get();
+	std::int32_t i = 0;
+	std::int32_t cursoronindex = 0;
+	float x = NAN;
+	float y = NAN;
+	float tipy = NAN;
+	struct tgamebutton* btn = nullptr;
+	std::vector<tattr> attrs{ 13 };
+	std::string str1;
 
-  cursoronindex = 0;
+	cursoronindex = 0;
 
-  gGlobalStateGameRendering.setfontstyle(font_small);
-  gfxtextshadow(1, 1, rgba(0));
+	gGlobalStateGameRendering.setfontstyle(font_small);
+	gfxtextshadow(1, 1, rgba(0));
 
-  gfxtextcolor(rgba(234, 234, 234, 255));
-  gfxdrawtext(("Primary Weapon:"), 65, 142);
+	gfxtextcolor(rgba(234, 234, 234, 255));
+	gfxdrawtext(("Primary Weapon:"), 65, 142);
 
-  gfxtextverticalalign(gfx_baseline);
-  gfxtextcolor(rgba(214, 214, 214, 255));
-  gfxdrawtext(("Secondary Weapon:"), 65, 349);
+	gfxtextverticalalign(gfx_baseline);
+	gfxtextcolor(rgba(214, 214, 214, 255));
+	gfxdrawtext(("Secondary Weapon:"), 65, 349);
 
-  if (GS::GetWeaponSystem().GetLoadedWMChecksum() != GS::GetWeaponSystem().GetDefaultWMChecksum())
-  {
-    gfxtextcolor(rgba(204, 94, 94, 205));
-    gfxdrawtext(45 + 252 - rectwidth(gfxtextmetrics(("Weapons Mod"))), 139);
-  }
+	if (GS::GetWeaponSystem().GetLoadedWMChecksum() != GS::GetWeaponSystem().GetDefaultWMChecksum())
+	{
+		gfxtextcolor(rgba(204, 94, 94, 205));
+		gfxdrawtext(45 + 252 - rectwidth(gfxtextmetrics(("Weapons Mod"))), 139);
+	}
 
-  gfxtextverticalalign(gfx_top);
+	gfxtextverticalalign(gfx_top);
 
-  for (i = low(gGlobalStateGameMenus.limbomenu->button);
-       i <= high(gGlobalStateGameMenus.limbomenu->button); i++)
-  {
-    btn = &gGlobalStateGameMenus.limbomenu->button[i];
+	for (i = low(gGlobalStateGameMenus.limbomenu->button); i <= high(gGlobalStateGameMenus.limbomenu->button); i++)
+	{
+		btn = &gGlobalStateGameMenus.limbomenu->button[i];
 
-    if (btn->active)
-    {
-      if (btn == gGlobalStateGameMenus.hoveredbutton)
-      {
-        cursoronindex = i;
-      }
+		if (btn->active)
+		{
+			if (btn == gGlobalStateGameMenus.hoveredbutton)
+			{
+				cursoronindex = i;
+			}
 
-      x = btn->x1 + 85;
-      y = btn->y1 + static_cast<float>((btn->y2 - btn->y1)) / 2 - 2;
+			x = btn->x1 + 85;
+			y = btn->y1 + static_cast<float>((btn->y2 - btn->y1)) / 2 - 2;
 
-      gfxtextcolor(rgba(0xffffff, 230));
+			gfxtextcolor(rgba(0xffffff, 230));
 
-      if (((i + 1) == sprite_system.GetPlayerSprite().selweapon) ||
-          ((i + 1) == 11 + CVar::cl_player_secwep))
-      {
-        if (btn == gGlobalStateGameMenus.hoveredbutton)
-        {
-          gfxtextcolor(rgba(85, 105, 55, 230));
-        }
-        else
-        {
-          gfxtextcolor(rgba(55, 165, 55, 230));
-        }
-      }
-      else if (btn == gGlobalStateGameMenus.hoveredbutton)
-      {
-        x = x + 1;
-        y = y - 1;
-      }
+			if (((i + 1) == sprite_system.GetPlayerSprite().selweapon) || ((i + 1) == 11 + CVar::cl_player_secwep))
+			{
+				if (btn == gGlobalStateGameMenus.hoveredbutton)
+				{
+					gfxtextcolor(rgba(85, 105, 55, 230));
+				}
+				else
+				{
+					gfxtextcolor(rgba(55, 165, 55, 230));
+				}
+			}
+			else if (btn == gGlobalStateGameMenus.hoveredbutton)
+			{
+				x = x + 1;
+				y = y - 1;
+			}
 
-      gfxdrawtext(btn->caption, x, y);
-    }
-  }
+			gfxdrawtext(btn->caption, x, y);
+		}
+	}
 
-  gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
+	gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
 
-  if (cursoronindex >= 0)
-  {
-    btn = &gGlobalStateGameMenus.limbomenu->button[cursoronindex];
-    x = btn->x1;
-    tipy = btn->y1 + static_cast<float>((btn->y2 - btn->y1)) / 2;
+	if (cursoronindex >= 0)
+	{
+		btn = &gGlobalStateGameMenus.limbomenu->button[cursoronindex];
+		x = btn->x1;
+		tipy = btn->y1 + static_cast<float>((btn->y2 - btn->y1)) / 2;
 
-    btn = &gGlobalStateGameMenus.limbomenu->button[min(9, cursoronindex)];
-    y = btn->y1 + static_cast<float>((btn->y2 - btn->y1)) / 2;
+		btn = &gGlobalStateGameMenus.limbomenu->button[min(9, cursoronindex)];
+		y = btn->y1 + static_cast<float>((btn->y2 - btn->y1)) / 2;
 
-    if (GS::GetWeaponSystem().GetLoadedWMChecksum() != GS::GetWeaponSystem().GetDefaultWMChecksum())
-    {
-      tipy = y - 26;
+		if (GS::GetWeaponSystem().GetLoadedWMChecksum() != GS::GetWeaponSystem().GetDefaultWMChecksum())
+		{
+			tipy = y - 26;
 
-      getweaponattribs(cursoronindex + 1, attrs);
-      gfxtextcolor(rgba(215, 215, 155, 230));
+			getweaponattribs(cursoronindex + 1, attrs);
+			gfxtextcolor(rgba(215, 215, 155, 230));
 
-      str1 = gGlobalStateGameMenus.limbomenu->button[cursoronindex].caption + '\12' +
-             ("   Settings      : change% (present/default)") + '\12';
+			str1 = gGlobalStateGameMenus.limbomenu->button[cursoronindex].caption + '\12'
+				 + ("   Settings      : change% (present/default)") + '\12';
 
-      for (i = low(attrs); i <= high(attrs); i++)
-      {
-        if (attrs[i].cur != attrs[i].def)
-        {
-          str1 = str1 + getweaponattribdesc(attrs[i]);
-        }
+			for (i = low(attrs); i <= high(attrs); i++)
+			{
+				if (attrs[i].cur != attrs[i].def)
+				{
+					str1 = str1 + getweaponattribdesc(attrs[i]);
+				}
 
-        str1 = str1 + '\12';
-      }
+				str1 = str1 + '\12';
+			}
 
-      gfxdrawtext(str1, x + 245, y - 16);
-    }
+			gfxdrawtext(str1, x + 245, y - 16);
+		}
 
-    if (CVar::cl_runs < 4)
-    {
-      switch (cursoronindex + 1)
-      {
-      case 8:
-        str1 = ("Hold fire to shoot, inaccurate while moving");
-        break;
-      case 12:
-        str1 = ("Can be thrown by holding throw weapon button");
-        break;
-      case 14:
-        str1 = ("Hold fire to shoot, while crouching or prone");
-        break;
-      default:
-        i = -1;
-      }
+		if (CVar::cl_runs < 4)
+		{
+			switch (cursoronindex + 1)
+			{
+				case 8:
+					str1 = ("Hold fire to shoot, inaccurate while moving");
+					break;
+				case 12:
+					str1 = ("Can be thrown by holding throw weapon button");
+					break;
+				case 14:
+					str1 = ("Hold fire to shoot, while crouching or prone");
+					break;
+				default:
+					i = -1;
+			}
 
-      if (i != -1)
-      {
-        gfxtextcolor(rgba(225, 195, 195, 250));
-        gfxdrawtext(str1, x + 245, tipy - 2);
-      }
-    }
-  }
+			if (i != -1)
+			{
+				gfxtextcolor(rgba(225, 195, 195, 250));
+				gfxdrawtext(str1, x + 245, tipy - 2);
+			}
+		}
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderescmenutext(float w, float h)
 {
-  std::int32_t i = 0;
-  float x = NAN;
-  float y = NAN;
-  float sx = NAN;
-  float sy = NAN;
-  float dx = NAN;
-  float dy = NAN;
-  struct tgamebutton *btn = nullptr;
+	std::int32_t i = 0;
+	float x = NAN;
+	float y = NAN;
+	float sx = NAN;
+	float sy = NAN;
+	float dx = NAN;
+	float dy = NAN;
+	struct tgamebutton* btn = nullptr;
 
-  sx = static_cast<float>(gGlobalStateGameMenus.escmenu->w) / background_width;
-  sy = static_cast<float>(gGlobalStateGameMenus.escmenu->h) / background_width;
+	sx = static_cast<float>(gGlobalStateGameMenus.escmenu->w) / background_width;
+	sy = static_cast<float>(gGlobalStateGameMenus.escmenu->h) / background_width;
 
-  dx = (w / 2 - (static_cast<float>(gGlobalStateGameMenus.escmenu->w) / 2)) -
-       gGlobalStateGameMenus.escmenu->x;
-  dy = (h / 2 - (static_cast<float>(gGlobalStateGameMenus.escmenu->h) / 2)) -
-       gGlobalStateGameMenus.escmenu->y;
+	dx = (w / 2 - (static_cast<float>(gGlobalStateGameMenus.escmenu->w) / 2)) - gGlobalStateGameMenus.escmenu->x;
+	dy = (h / 2 - (static_cast<float>(gGlobalStateGameMenus.escmenu->h) / 2)) - gGlobalStateGameMenus.escmenu->y;
 
-  gfxdrawsprite(gGlobalStateGameRendering.textures[GFX::INTERFACE_BACK],
-                gGlobalStateGameMenus.escmenu->x + dx, gGlobalStateGameMenus.escmenu->y + dy, sx,
-                sy, rgba(0xffffff, CVar::ui_status_transparency * 0.56));
+	gfxdrawsprite(gGlobalStateGameRendering.textures[GFX::INTERFACE_BACK],
+		gGlobalStateGameMenus.escmenu->x + dx,
+		gGlobalStateGameMenus.escmenu->y + dy,
+		sx,
+		sy,
+		rgba(0xffffff, CVar::ui_status_transparency * 0.56));
 
-  gGlobalStateGameRendering.setfontstyle(font_small);
-  gfxtextshadow(1, 1, rgba(0));
+	gGlobalStateGameRendering.setfontstyle(font_small);
+	gfxtextshadow(1, 1, rgba(0));
 
-  gfxtextcolor(rgba(250, 245, 255, 240));
-  gfxdrawtext(("ESC - return to game"), gGlobalStateGameMenus.escmenu->x + dx + 20,
-              gGlobalStateGameMenus.escmenu->y + gGlobalStateGameMenus.escmenu->h + dy - 45);
+	gfxtextcolor(rgba(250, 245, 255, 240));
+	gfxdrawtext(("ESC - return to game"),
+		gGlobalStateGameMenus.escmenu->x + dx + 20,
+		gGlobalStateGameMenus.escmenu->y + gGlobalStateGameMenus.escmenu->h + dy - 45);
 
-  gfxtextcolor(rgba(230, 235, 255, 190));
-  gfxtextverticalalign(gfx_bottom);
-  NotImplemented("rendering", "No soldat version");
+	gfxtextcolor(rgba(230, 235, 255, 190));
+	gfxtextverticalalign(gfx_bottom);
+	NotImplemented("rendering", "No soldat version");
 #if 0
     gfxdrawtext(escmenu->x + escmenu->w + dx - 2 -
                     rectwidth(gfxtextmetrics(string("Soldat ") + soldat_version)),
                 escmenu->y + escmenu->h + dy);
 #endif
-  gfxtextverticalalign(gfx_top);
+	gfxtextverticalalign(gfx_top);
 
-  gGlobalStateGameRendering.setfontstyle(font_menu);
-  gfxtextcolor(rgba(0xffffff, 250));
-  for (i = low(gGlobalStateGameMenus.escmenu->button);
-       i <= high(gGlobalStateGameMenus.escmenu->button); i++)
-  {
-    btn = &gGlobalStateGameMenus.escmenu->button[i];
+	gGlobalStateGameRendering.setfontstyle(font_menu);
+	gfxtextcolor(rgba(0xffffff, 250));
+	for (i = low(gGlobalStateGameMenus.escmenu->button); i <= high(gGlobalStateGameMenus.escmenu->button); i++)
+	{
+		btn = &gGlobalStateGameMenus.escmenu->button[i];
 
-    if (btn->active)
-    {
-      x = btn->x1 + dx + ord(btn == gGlobalStateGameMenus.hoveredbutton) + 10;
-      y = btn->y1 + dy - ord(btn == gGlobalStateGameMenus.hoveredbutton) +
-          static_cast<float>((btn->y2 - btn->y1)) / 2 -
-          rectheight(gfxtextmetrics(btn->caption)) / 2;
+		if (btn->active)
+		{
+			x = btn->x1 + dx + ord(btn == gGlobalStateGameMenus.hoveredbutton) + 10;
+			y = btn->y1 + dy - ord(btn == gGlobalStateGameMenus.hoveredbutton)
+			  + static_cast<float>((btn->y2 - btn->y1)) / 2 - rectheight(gfxtextmetrics(btn->caption)) / 2;
 
-      gfxdrawtext(x, y);
-    }
-  }
+			gfxdrawtext(x, y);
+		}
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderteammenutext()
 {
-  std::int32_t i = 0;
-  std::uint8_t alpha = 0;
-  float x = NAN;
-  float y = NAN;
-  struct tgamebutton *btn = nullptr;
-  std::array<std::array<tgfxcolor, 2>, 6> colors{};
+	std::int32_t i = 0;
+	std::uint8_t alpha = 0;
+	float x = NAN;
+	float y = NAN;
+	struct tgamebutton* btn = nullptr;
+	std::array<std::array<tgfxcolor, 2>, 6> colors{};
 
-  if (gGlobalStateInterfaceGraphics.fragsmenushow || gGlobalStateInterfaceGraphics.statsmenushow)
-  {
-    alpha = 80;
-  }
-  else
-  {
-    alpha = 255;
-  }
+	if (gGlobalStateInterfaceGraphics.fragsmenushow || gGlobalStateInterfaceGraphics.statsmenushow)
+	{
+		alpha = 80;
+	}
+	else
+	{
+		alpha = 255;
+	}
 
-  colors[0][0] = rgba(255, 255, 255, alpha); // DM, etc.
-  colors[0][1] = rgba(255, 255, 255, 250);
-  colors[1][0] = rgba(210, 15, 5, alpha); // Alpha
-  colors[1][1] = rgba(210, 15, 5, 250);
-  colors[2][0] = rgba(5, 15, 205, alpha); // Bravo
-  colors[2][1] = rgba(5, 15, 205, 250);
-  colors[3][0] = rgba(210, 210, 5, alpha); // Charlie
-  colors[3][1] = rgba(210, 210, 5, 250);
-  colors[4][0] = rgba(5, 210, 5, alpha); // Delta
-  colors[4][1] = rgba(5, 210, 5, 250);
-  colors[5][0] = rgba(210, 210, 105, alpha); // Spectator
-  colors[5][1] = rgba(210, 210, 105, 250);
+	colors[0][0] = rgba(255, 255, 255, alpha); // DM, etc.
+	colors[0][1] = rgba(255, 255, 255, 250);
+	colors[1][0] = rgba(210, 15, 5, alpha); // Alpha
+	colors[1][1] = rgba(210, 15, 5, 250);
+	colors[2][0] = rgba(5, 15, 205, alpha); // Bravo
+	colors[2][1] = rgba(5, 15, 205, 250);
+	colors[3][0] = rgba(210, 210, 5, alpha); // Charlie
+	colors[3][1] = rgba(210, 210, 5, 250);
+	colors[4][0] = rgba(5, 210, 5, alpha); // Delta
+	colors[4][1] = rgba(5, 210, 5, 250);
+	colors[5][0] = rgba(210, 210, 105, alpha); // Spectator
+	colors[5][1] = rgba(210, 210, 105, 250);
 
-  gGlobalStateGameRendering.setfontstyle(font_menu);
-  gfxtextshadow(1, 1, rgba(0));
-  gfxtextcolor(rgba(234, 234, 234, alpha));
-  gfxdrawtext(("Select Team:"), 55, 165);
+	gGlobalStateGameRendering.setfontstyle(font_menu);
+	gfxtextshadow(1, 1, rgba(0));
+	gfxtextcolor(rgba(234, 234, 234, alpha));
+	gfxdrawtext(("Select Team:"), 55, 165);
 
-  for (i = low(gGlobalStateGameMenus.teammenu->button);
-       i <= high(gGlobalStateGameMenus.teammenu->button); i++)
-  {
-    btn = &gGlobalStateGameMenus.teammenu->button[i];
+	for (i = low(gGlobalStateGameMenus.teammenu->button); i <= high(gGlobalStateGameMenus.teammenu->button); i++)
+	{
+		btn = &gGlobalStateGameMenus.teammenu->button[i];
 
-    if (btn->active)
-    {
-      if (i == 2)
-      {
-        gfxtextshadow(1, 1, rgba(0x333333));
-      }
-      else
-      {
-        gfxtextshadow(1, 1, rgba(0));
-      }
+		if (btn->active)
+		{
+			if (i == 2)
+			{
+				gfxtextshadow(1, 1, rgba(0x333333));
+			}
+			else
+			{
+				gfxtextshadow(1, 1, rgba(0));
+			}
 
-      gfxtextcolor(colors[i][ord(btn == gGlobalStateGameMenus.hoveredbutton)]);
+			gfxtextcolor(colors[i][ord(btn == gGlobalStateGameMenus.hoveredbutton)]);
 
-      x = btn->x1 + 10 + ord(btn == gGlobalStateGameMenus.hoveredbutton);
-      y = btn->y1 - ord(btn == gGlobalStateGameMenus.hoveredbutton) +
-          static_cast<float>((btn->y2 - btn->y1)) / 2 -
-          rectheight(gfxtextmetrics(btn->caption)) / 2;
+			x = btn->x1 + 10 + ord(btn == gGlobalStateGameMenus.hoveredbutton);
+			y = btn->y1 - ord(btn == gGlobalStateGameMenus.hoveredbutton) + static_cast<float>((btn->y2 - btn->y1)) / 2
+			  - rectheight(gfxtextmetrics(btn->caption)) / 2;
 
-      gfxdrawtext(x, y);
+			gfxdrawtext(x, y);
 
-      x = 269 + ord(btn == gGlobalStateGameMenus.hoveredbutton);
+			x = 269 + ord(btn == gGlobalStateGameMenus.hoveredbutton);
 
-      if ((i > 0) && (i < 5))
-      {
-        gfxdrawtext(string("(") + inttostr(GS::GetGame().GetPlayersTeamNum(i)) + ')', x, y);
-      }
-    }
-  }
+			if ((i > 0) && (i < 5))
+			{
+				gfxdrawtext(string("(") + inttostr(GS::GetGame().GetPlayersTeamNum(i)) + ')', x, y);
+			}
+		}
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderkickwindowtext()
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i = 0;
-  float x = NAN;
-  float y = NAN;
-  struct tgamebutton *btn = nullptr;
+	auto& sprite_system = SpriteSystem::Get();
+	std::int32_t i = 0;
+	float x = NAN;
+	float y = NAN;
+	struct tgamebutton* btn = nullptr;
 
-  gfxdrawsprite(gGlobalStateGameRendering.textures[GFX::INTERFACE_BACK],
-                gGlobalStateGameMenus.kickmenu->x, gGlobalStateGameMenus.kickmenu->y,
-                static_cast<float>(gGlobalStateGameMenus.kickmenu->w) / background_width,
-                static_cast<float>(gGlobalStateGameMenus.kickmenu->h) / background_width,
-                rgba(0xffffff, CVar::ui_status_transparency * 0.56));
+	gfxdrawsprite(gGlobalStateGameRendering.textures[GFX::INTERFACE_BACK],
+		gGlobalStateGameMenus.kickmenu->x,
+		gGlobalStateGameMenus.kickmenu->y,
+		static_cast<float>(gGlobalStateGameMenus.kickmenu->w) / background_width,
+		static_cast<float>(gGlobalStateGameMenus.kickmenu->h) / background_width,
+		rgba(0xffffff, CVar::ui_status_transparency * 0.56));
 
-  gGlobalStateGameRendering.setfontstyle(font_menu);
-  gfxtextshadow(1, 1, rgba(0));
+	gGlobalStateGameRendering.setfontstyle(font_menu);
+	gfxtextshadow(1, 1, rgba(0));
 
-  if ((gGlobalStateGameMenus.kickmenuindex > 0) &&
-      (gGlobalStateGameMenus.kickmenuindex < max_sprites + 1))
-  {
-    auto &sprite = sprite_system.GetSprite(gGlobalStateGameMenus.kickmenuindex);
-    if (sprite.IsActive())
-    {
-      btn = gGlobalStateGameMenus.kickmenu->button.data();
-      gfxtextcolor(argb(sprite.player->shirtcolor));
-      gfxdrawtext(sprite.player->name, btn->x1, btn->y1 - 15);
-    }
-  }
+	if ((gGlobalStateGameMenus.kickmenuindex > 0) && (gGlobalStateGameMenus.kickmenuindex < max_sprites + 1))
+	{
+		auto& sprite = sprite_system.GetSprite(gGlobalStateGameMenus.kickmenuindex);
+		if (sprite.IsActive())
+		{
+			btn = gGlobalStateGameMenus.kickmenu->button.data();
+			gfxtextcolor(argb(sprite.player->shirtcolor));
+			gfxdrawtext(sprite.player->name, btn->x1, btn->y1 - 15);
+		}
+	}
 
-  gfxtextcolor(rgba(0xffffff, 250));
+	gfxtextcolor(rgba(0xffffff, 250));
 
-  for (i = low(gGlobalStateGameMenus.kickmenu->button);
-       i <= high(gGlobalStateGameMenus.kickmenu->button); i++)
-  {
-    btn = &gGlobalStateGameMenus.kickmenu->button[i];
+	for (i = low(gGlobalStateGameMenus.kickmenu->button); i <= high(gGlobalStateGameMenus.kickmenu->button); i++)
+	{
+		btn = &gGlobalStateGameMenus.kickmenu->button[i];
 
-    if (btn->active)
-    {
-      x = btn->x1 + 10 + static_cast<std::int32_t>(btn == gGlobalStateGameMenus.hoveredbutton);
-      y = btn->y1 + static_cast<float>((btn->y2 - btn->y1)) / 2 -
-          static_cast<std::int32_t>(btn == gGlobalStateGameMenus.hoveredbutton) -
-          rectheight(gfxtextmetrics(btn->caption)) / 2;
+		if (btn->active)
+		{
+			x = btn->x1 + 10 + static_cast<std::int32_t>(btn == gGlobalStateGameMenus.hoveredbutton);
+			y = btn->y1 + static_cast<float>((btn->y2 - btn->y1)) / 2
+			  - static_cast<std::int32_t>(btn == gGlobalStateGameMenus.hoveredbutton)
+			  - rectheight(gfxtextmetrics(btn->caption)) / 2;
 
-      gfxdrawtext(x, y);
-    }
-  }
+			gfxdrawtext(x, y);
+		}
+	}
 }
 
 void GlobalStateInterfaceGraphics::rendermapwindowtext()
 {
-  std::int32_t i = 0;
-  float x = NAN;
-  float y = NAN;
-  std::string str1;
-  struct tgamebutton *btn = nullptr;
+	std::int32_t i = 0;
+	float x = NAN;
+	float y = NAN;
+	std::string str1;
+	struct tgamebutton* btn = nullptr;
 
-  gfxdrawsprite(gGlobalStateGameRendering.textures[GFX::INTERFACE_BACK],
-                gGlobalStateGameMenus.mapmenu->x, gGlobalStateGameMenus.mapmenu->y,
-                static_cast<float>(gGlobalStateGameMenus.mapmenu->w) / background_width,
-                static_cast<float>(gGlobalStateGameMenus.mapmenu->h) / background_width,
-                rgba(0xffffff, CVar::ui_status_transparency * 0.56));
+	gfxdrawsprite(gGlobalStateGameRendering.textures[GFX::INTERFACE_BACK],
+		gGlobalStateGameMenus.mapmenu->x,
+		gGlobalStateGameMenus.mapmenu->y,
+		static_cast<float>(gGlobalStateGameMenus.mapmenu->w) / background_width,
+		static_cast<float>(gGlobalStateGameMenus.mapmenu->h) / background_width,
+		rgba(0xffffff, CVar::ui_status_transparency * 0.56));
 
-  str1 = gGlobalStateNetworkClient.votemapname;
+	str1 = gGlobalStateNetworkClient.votemapname;
 
-  gGlobalStateGameRendering.setfontstyle(font_menu);
-  gfxtextshadow(1, 1, rgba(0));
+	gGlobalStateGameRendering.setfontstyle(font_menu);
+	gfxtextshadow(1, 1, rgba(0));
 
-  if (gGlobalStateGameMenus.mapmenuindex > -1)
-  {
-    btn = gGlobalStateGameMenus.mapmenu->button.data();
-    gfxtextcolor(rgba(135, 235, 135, 230));
-    gfxdrawtext(str1, btn->x1, btn->y1 - 15);
-  }
+	if (gGlobalStateGameMenus.mapmenuindex > -1)
+	{
+		btn = gGlobalStateGameMenus.mapmenu->button.data();
+		gfxtextcolor(rgba(135, 235, 135, 230));
+		gfxdrawtext(str1, btn->x1, btn->y1 - 15);
+	}
 
-  gfxtextcolor(rgba(0xffffff, 250));
+	gfxtextcolor(rgba(0xffffff, 250));
 
-  for (i = low(gGlobalStateGameMenus.mapmenu->button);
-       i <= high(gGlobalStateGameMenus.mapmenu->button); i++)
-  {
-    btn = &gGlobalStateGameMenus.mapmenu->button[i];
+	for (i = low(gGlobalStateGameMenus.mapmenu->button); i <= high(gGlobalStateGameMenus.mapmenu->button); i++)
+	{
+		btn = &gGlobalStateGameMenus.mapmenu->button[i];
 
-    if (btn->active)
-    {
-      x = btn->x1 + 10 + static_cast<std::int32_t>(btn == gGlobalStateGameMenus.hoveredbutton);
-      y = btn->y1 + static_cast<float>((btn->y2 - btn->y1)) / 2 -
-          static_cast<std::int32_t>(btn == gGlobalStateGameMenus.hoveredbutton) -
-          rectheight(gfxtextmetrics(btn->caption)) / 2;
+		if (btn->active)
+		{
+			x = btn->x1 + 10 + static_cast<std::int32_t>(btn == gGlobalStateGameMenus.hoveredbutton);
+			y = btn->y1 + static_cast<float>((btn->y2 - btn->y1)) / 2
+			  - static_cast<std::int32_t>(btn == gGlobalStateGameMenus.hoveredbutton)
+			  - rectheight(gfxtextmetrics(btn->caption)) / 2;
 
-      gfxdrawtext(x, y);
-    }
-  }
+			gfxdrawtext(x, y);
+		}
+	}
 }
 
 void GlobalStateInterfaceGraphics::rendergamemenutexts(float w, float h)
 {
-  if (gGlobalStateGameMenus.limbomenu->active)
-  {
-    renderweaponmenutext();
-  }
+	if (gGlobalStateGameMenus.limbomenu->active)
+	{
+		renderweaponmenutext();
+	}
 
-  if (gGlobalStateGameMenus.escmenu->active)
-  {
-    renderescmenutext(w, h);
-  }
+	if (gGlobalStateGameMenus.escmenu->active)
+	{
+		renderescmenutext(w, h);
+	}
 
-  if (gGlobalStateGameMenus.teammenu->active)
-  {
-    renderteammenutext();
-  }
+	if (gGlobalStateGameMenus.teammenu->active)
+	{
+		renderteammenutext();
+	}
 
-  if (gGlobalStateGameMenus.kickmenu->active)
-  {
-    renderkickwindowtext();
-  }
+	if (gGlobalStateGameMenus.kickmenu->active)
+	{
+		renderkickwindowtext();
+	}
 
-  if (gGlobalStateGameMenus.mapmenu->active)
-  {
-    rendermapwindowtext();
-  }
+	if (gGlobalStateGameMenus.mapmenu->active)
+	{
+		rendermapwindowtext();
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderplayerinterfacetexts(std::int32_t playerindex) const
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tsprite *me = nullptr;
-  std::int32_t i = 0;
-  std::int32_t pos = 0;
-  float x = NAN;
-  float y = NAN;
-  float t = NAN;
-  std::string str1;
+	auto& sprite_system = SpriteSystem::Get();
+	tsprite* me = nullptr;
+	std::int32_t i = 0;
+	std::int32_t pos = 0;
+	float x = NAN;
+	float y = NAN;
+	float t = NAN;
+	std::string str1;
 
-  me = &sprite_system.GetSprite(playerindex);
+	me = &sprite_system.GetSprite(playerindex);
 
-  auto &map = GS::GetGame().GetMap();
+	auto& map = GS::GetGame().GetMap();
 
-  if (!me->deadmeat)
-  {
-    gGlobalStateGameRendering.setfontstyle(font_menu);
-    gfxtextcolor(rgba(0xffffff, int_.alpha));
+	if (!me->deadmeat)
+	{
+		gGlobalStateGameRendering.setfontstyle(font_menu);
+		gfxtextcolor(rgba(0xffffff, int_.alpha));
 
-    // health
-    if (int_.health && (int_.healthbar_pos == textstyle))
-    {
-      x = relinfo.healthbar_rel_x * gGlobalStateInterfaceGraphics._iscala.x +
-          (int_.healthbar_x - relinfo.healthbar_rel_x);
-      y = relinfo.healthbar_rel_y * gGlobalStateInterfaceGraphics._iscala.y +
-          (int_.healthbar_y - relinfo.healthbar_rel_y);
+		// health
+		if (int_.health && (int_.healthbar_pos == textstyle))
+		{
+			x = relinfo.healthbar_rel_x * gGlobalStateInterfaceGraphics._iscala.x
+			  + (int_.healthbar_x - relinfo.healthbar_rel_x);
+			y = relinfo.healthbar_rel_y * gGlobalStateInterfaceGraphics._iscala.y
+			  + (int_.healthbar_y - relinfo.healthbar_rel_y);
 
-      t = me->GetHealth() / GS::GetGame().GetStarthealth();
-      gfxdrawtext(inttostr(trunc(t * 100)) + '%', x, y);
-    }
+			t = me->GetHealth() / GS::GetGame().GetStarthealth();
+			gfxdrawtext(inttostr(trunc(t * 100)) + '%', x, y);
+		}
 
-    // weapon reload
-    if (int_.ammo && (int_.ammobar_pos == textstyle) && (me->weapon.ammocount == 0) &&
-        (me->weapon.num != spas12_num))
-    {
-      x = relinfo.ammobar_rel_x * gGlobalStateInterfaceGraphics._iscala.x +
-          (int_.ammobar_x - relinfo.ammobar_rel_x);
-      y = relinfo.ammobar_rel_y * gGlobalStateInterfaceGraphics._iscala.y +
-          (int_.ammobar_y - relinfo.ammobar_rel_y);
+		// weapon reload
+		if (int_.ammo && (int_.ammobar_pos == textstyle) && (me->weapon.ammocount == 0)
+			&& (me->weapon.num != spas12_num))
+		{
+			x = relinfo.ammobar_rel_x * gGlobalStateInterfaceGraphics._iscala.x
+			  + (int_.ammobar_x - relinfo.ammobar_rel_x);
+			y = relinfo.ammobar_rel_y * gGlobalStateInterfaceGraphics._iscala.y
+			  + (int_.ammobar_y - relinfo.ammobar_rel_y);
 
-      t = static_cast<float>(me->weapon.reloadtimecount) / me->weapon.reloadtime;
-      gfxdrawtext(inttostr(trunc(100 - (t * 100))) + '%', x, y);
-    }
+			t = static_cast<float>(me->weapon.reloadtimecount) / me->weapon.reloadtime;
+			gfxdrawtext(inttostr(trunc(100 - (t * 100))) + '%', x, y);
+		}
 
-    // jet
-    if (int_.jet && (int_.jetbar_pos == textstyle) && (map.startjet > 0))
-    {
-      x = relinfo.jetbar_rel_x * gGlobalStateInterfaceGraphics._iscala.x +
-          (int_.jetbar_x - relinfo.jetbar_rel_x);
-      y = relinfo.jetbar_rel_y * gGlobalStateInterfaceGraphics._iscala.y +
-          (int_.jetbar_y - relinfo.jetbar_rel_y);
+		// jet
+		if (int_.jet && (int_.jetbar_pos == textstyle) && (map.startjet > 0))
+		{
+			x = relinfo.jetbar_rel_x * gGlobalStateInterfaceGraphics._iscala.x + (int_.jetbar_x - relinfo.jetbar_rel_x);
+			y = relinfo.jetbar_rel_y * gGlobalStateInterfaceGraphics._iscala.y + (int_.jetbar_y - relinfo.jetbar_rel_y);
 
-      t = static_cast<float>(me->jetscount) / map.startjet;
-      gfxdrawtext(inttostr(trunc(t * 100)) + '%', x, y);
-    }
+			t = static_cast<float>(me->jetscount) / map.startjet;
+			gfxdrawtext(inttostr(trunc(t * 100)) + '%', x, y);
+		}
 
-    // vest
-    if (int_.vest && (int_.vestbar_pos == textstyle) && (me->vest > 0))
-    {
-      x = relinfo.healthbar_rel_x * gGlobalStateInterfaceGraphics._iscala.x +
-          (int_.vestbar_x - relinfo.healthbar_rel_x);
-      y = relinfo.healthbar_rel_y * gGlobalStateInterfaceGraphics._iscala.y +
-          (int_.vestbar_y - relinfo.healthbar_rel_y);
+		// vest
+		if (int_.vest && (int_.vestbar_pos == textstyle) && (me->vest > 0))
+		{
+			x = relinfo.healthbar_rel_x * gGlobalStateInterfaceGraphics._iscala.x
+			  + (int_.vestbar_x - relinfo.healthbar_rel_x);
+			y = relinfo.healthbar_rel_y * gGlobalStateInterfaceGraphics._iscala.y
+			  + (int_.vestbar_y - relinfo.healthbar_rel_y);
 
-      t = me->vest / defaultvest;
-      gfxdrawtext(inttostr(trunc(t * 100)) + '%', x, y);
-    }
+			t = me->vest / defaultvest;
+			gfxdrawtext(inttostr(trunc(t * 100)) + '%', x, y);
+		}
 
-    // nades
-    if (int_.nades && (int_.nades_pos == textstyle))
-    {
-      x = relinfo.nadesbar_rel_x * gGlobalStateInterfaceGraphics._iscala.x +
-          (int_.nades_x - relinfo.nadesbar_rel_x);
-      y = relinfo.nadesbar_rel_y * gGlobalStateInterfaceGraphics._iscala.y +
-          (int_.nades_y - relinfo.nadesbar_rel_y);
+		// nades
+		if (int_.nades && (int_.nades_pos == textstyle))
+		{
+			x = relinfo.nadesbar_rel_x * gGlobalStateInterfaceGraphics._iscala.x
+			  + (int_.nades_x - relinfo.nadesbar_rel_x);
+			y = relinfo.nadesbar_rel_y * gGlobalStateInterfaceGraphics._iscala.y
+			  + (int_.nades_y - relinfo.nadesbar_rel_y);
 
-      gfxdrawtext(inttostr(me->tertiaryweapon.ammocount), x, y);
-    }
+			gfxdrawtext(inttostr(me->tertiaryweapon.ammocount), x, y);
+		}
 
-    // bullets
-    if (int_.bullets)
-    {
-      x = relinfo.ammobar_rel_x * gGlobalStateInterfaceGraphics._iscala.x +
-          (int_.bullets_x - relinfo.ammobar_rel_x);
-      y = relinfo.ammobar_rel_y * gGlobalStateInterfaceGraphics._iscala.y +
-          (int_.bullets_y - relinfo.ammobar_rel_y);
+		// bullets
+		if (int_.bullets)
+		{
+			x = relinfo.ammobar_rel_x * gGlobalStateInterfaceGraphics._iscala.x
+			  + (int_.bullets_x - relinfo.ammobar_rel_x);
+			y = relinfo.ammobar_rel_y * gGlobalStateInterfaceGraphics._iscala.y
+			  + (int_.bullets_y - relinfo.ammobar_rel_y);
 
-      gfxtextcolor(rgba(242, 244, 40, int_.alpha));
+			gfxtextcolor(rgba(242, 244, 40, int_.alpha));
 
-      if (intalign.bullets == 1)
-      {
-        gfxdrawtext(x - rectwidth(gfxtextmetrics((inttostr(me->weapon.ammocount)))), y);
-      }
-      else
-      {
-        gfxdrawtext(inttostr(me->weapon.ammocount), x, y);
-      }
-    }
+			if (intalign.bullets == 1)
+			{
+				gfxdrawtext(x - rectwidth(gfxtextmetrics((inttostr(me->weapon.ammocount)))), y);
+			}
+			else
+			{
+				gfxdrawtext(inttostr(me->weapon.ammocount), x, y);
+			}
+		}
 
-    // weapon
-    if (int_.weapon &&
-        isdoubleweaponindex(weaponnumtoindex(me->weapon.num, GS::GetWeaponSystem().GetGuns())))
-    {
-      x = relinfo.ammobar_rel_x * gGlobalStateInterfaceGraphics._iscala.x +
-          (int_.weapon_x - relinfo.ammobar_rel_x);
-      y = relinfo.ammobar_rel_y * gGlobalStateInterfaceGraphics._iscala.y +
-          (int_.weapon_y - relinfo.ammobar_rel_y);
+		// weapon
+		if (int_.weapon && isdoubleweaponindex(weaponnumtoindex(me->weapon.num, GS::GetWeaponSystem().GetGuns())))
+		{
+			x = relinfo.ammobar_rel_x * gGlobalStateInterfaceGraphics._iscala.x
+			  + (int_.weapon_x - relinfo.ammobar_rel_x);
+			y = relinfo.ammobar_rel_y * gGlobalStateInterfaceGraphics._iscala.y
+			  + (int_.weapon_y - relinfo.ammobar_rel_y);
 
-      gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
-      gfxtextcolor(rgba(255, 245, 177, int_.alpha));
+			gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
+			gfxtextcolor(rgba(255, 245, 177, int_.alpha));
 
-      if (intalign.weapon == 1)
-      {
-        gfxdrawtext(
-          x - rectwidth(gfxtextmetrics((gGlobalStateClient.gundisplayname[me->weapon.num]))), y);
-      }
-      else
-      {
-        gfxdrawtext(gGlobalStateClient.gundisplayname[me->weapon.num], x, y);
-      }
-    }
-  } // not DeadMeat
+			if (intalign.weapon == 1)
+			{
+				gfxdrawtext(x - rectwidth(gfxtextmetrics((gGlobalStateClient.gundisplayname[me->weapon.num]))), y);
+			}
+			else
+			{
+				gfxdrawtext(gGlobalStateClient.gundisplayname[me->weapon.num], x, y);
+			}
+		}
+	} // not DeadMeat
 
-  // kills
-  if (int_.status)
-  {
-    gGlobalStateGameRendering.setfontstyle(font_small);
+	// kills
+	if (int_.status)
+	{
+		gGlobalStateGameRendering.setfontstyle(font_small);
 
-    x = int_.status_x * gGlobalStateInterfaceGraphics._iscala.x;
-    y = int_.status_y * gGlobalStateInterfaceGraphics._iscala.y;
+		x = int_.status_x * gGlobalStateInterfaceGraphics._iscala.x;
+		y = int_.status_y * gGlobalStateInterfaceGraphics._iscala.y;
 
-    pos = 0;
+		pos = 0;
 
-    for (i = 1; i <= GS::GetGame().GetPlayersNum(); i++)
-    {
-      if (GS::GetGame().GetSortedPlayers(i).playernum == playerindex)
-      {
-        pos = i;
-        break;
-      }
-    }
+		for (i = 1; i <= GS::GetGame().GetPlayersNum(); i++)
+		{
+			if (GS::GetGame().GetSortedPlayers(i).playernum == playerindex)
+			{
+				pos = i;
+				break;
+			}
+		}
 
-    if ((pos > 0) && (pos <= (GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum())))
-    {
-      str1 = (inttostr(pos)) + '/' +
-             (inttostr(GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum()));
-      gfxtextcolor(rgba(88, 255, 90, int_.alpha));
-      gfxdrawtext(str1, x, y);
-    }
+		if ((pos > 0) && (pos <= (GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum())))
+		{
+			str1 = (inttostr(pos)) + '/' + (inttostr(GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum()));
+			gfxtextcolor(rgba(88, 255, 90, int_.alpha));
+			gfxdrawtext(str1, x, y);
+		}
 
-    gfxtextcolor(rgba(255, 55, 50, int_.alpha));
+		gfxtextcolor(rgba(255, 55, 50, int_.alpha));
 
-    if ((pos == 1) && ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum()) > 1))
-    {
-      i = me->player->kills - GS::GetGame().GetSortedPlayers(2).kills;
-      str1 = (iif(i > 0, "+", ""));
-      str1 = wideformat("{} ({}{})", me->player->kills, str1, i);
-      gfxdrawtext(str1, x, y + 10);
-    }
-    else
-    {
-      i = me->player->kills - GS::GetGame().GetSortedPlayers(1).kills;
-      str1 = (inttostr(me->player->kills)) + " (" + (inttostr(i)) + ')';
-      gfxdrawtext(str1, x, y + 10);
-    }
+		if ((pos == 1) && ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum()) > 1))
+		{
+			i = me->player->kills - GS::GetGame().GetSortedPlayers(2).kills;
+			str1 = (iif(i > 0, "+", ""));
+			str1 = wideformat("{} ({}{})", me->player->kills, str1, i);
+			gfxdrawtext(str1, x, y + 10);
+		}
+		else
+		{
+			i = me->player->kills - GS::GetGame().GetSortedPlayers(1).kills;
+			str1 = (inttostr(me->player->kills)) + " (" + (inttostr(i)) + ')';
+			gfxdrawtext(str1, x, y + 10);
+		}
 
-    gfxtextcolor(rgba(114, 120, 255, int_.alpha));
-    gfxdrawtext(inttostr(CVar::sv_killlimit), x, y + 20);
-  }
+		gfxtextcolor(rgba(114, 120, 255, int_.alpha));
+		gfxdrawtext(inttostr(CVar::sv_killlimit), x, y + 20);
+	}
 
-  // bonus
-  str1 = "";
+	// bonus
+	str1 = "";
 
-  switch (me->bonusstyle)
-  {
-  case bonus_flamegod:
-    str1 = ("Flame God");
-    break;
-  case bonus_predator:
-    str1 = ("Predator");
-    break;
-  case bonus_berserker:
-    str1 = ("Berserker");
-    break;
-  }
+	switch (me->bonusstyle)
+	{
+		case bonus_flamegod:
+			str1 = ("Flame God");
+			break;
+		case bonus_predator:
+			str1 = ("Predator");
+			break;
+		case bonus_berserker:
+			str1 = ("Berserker");
+			break;
+	}
 
-  if (!str1.empty())
-  {
-    str1 = str1 + " - " + (floattostrf(static_cast<float>(me->bonustime) / 60, fffixed, 7, 1));
+	if (!str1.empty())
+	{
+		str1 = str1 + " - " + (floattostrf(static_cast<float>(me->bonustime) / 60, fffixed, 7, 1));
 
-    gGlobalStateGameRendering.setfontstyle(font_menu);
-    gfxtextcolor(rgba(245, 40, 50));
-    gfxdrawtext(str1, 190 * gGlobalStateInterfaceGraphics._iscala.x,
-                435 * gGlobalStateInterfaceGraphics._iscala.y);
-  }
+		gGlobalStateGameRendering.setfontstyle(font_menu);
+		gfxtextcolor(rgba(245, 40, 50));
+		gfxdrawtext(str1, 190 * gGlobalStateInterfaceGraphics._iscala.x, 435 * gGlobalStateInterfaceGraphics._iscala.y);
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderteamscoretexts() const
 {
-  std::int32_t i = 0;
-  std::int32_t teamcount = 0;
-  std::int32_t spacing = 0;
-  float x = NAN;
-  float y = NAN;
+	std::int32_t i = 0;
+	std::int32_t teamcount = 0;
+	std::int32_t spacing = 0;
+	float x = NAN;
+	float y = NAN;
 
-  gGlobalStateGameRendering.setfontstyle(font_menu);
+	gGlobalStateGameRendering.setfontstyle(font_menu);
 
-  x = int_.teambox_x * gGlobalStateInterfaceGraphics._iscala.x + 2;
-  y = int_.teambox_y * gGlobalStateInterfaceGraphics._iscala.y + 25;
+	x = int_.teambox_x * gGlobalStateInterfaceGraphics._iscala.x + 2;
+	y = int_.teambox_y * gGlobalStateInterfaceGraphics._iscala.y + 25;
 
-  teamcount = 2;
-  spacing = 40;
+	teamcount = 2;
+	spacing = 40;
 
-  if (CVar::sv_gamemode == gamestyle_teammatch)
-  {
-    teamcount = 4;
-    spacing = 24;
-    y = y - 25;
-  }
+	if (CVar::sv_gamemode == gamestyle_teammatch)
+	{
+		teamcount = 4;
+		spacing = 24;
+		y = y - 25;
+	}
 
-  if ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf) ||
-      (CVar::sv_gamemode == gamestyle_htf) || (CVar::sv_gamemode == gamestyle_teammatch))
-  {
-    for (i = 1; i <= teamcount; i++)
-    {
-      gfxtextcolor(argb(gGlobalStateGame.sortedteamscore[i].color));
-      gfxdrawtext(inttostr(gGlobalStateGame.sortedteamscore[i].kills), x, y + (spacing * (i - 1)));
-    }
-  }
+	if ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf)
+		|| (CVar::sv_gamemode == gamestyle_htf) || (CVar::sv_gamemode == gamestyle_teammatch))
+	{
+		for (i = 1; i <= teamcount; i++)
+		{
+			gfxtextcolor(argb(gGlobalStateGame.sortedteamscore[i].color));
+			gfxdrawtext(inttostr(gGlobalStateGame.sortedteamscore[i].kills), x, y + (spacing * (i - 1)));
+		}
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderendgametexts(float fragmenubottom)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i = 0;
-  float y = NAN;
+	auto& sprite_system = SpriteSystem::Get();
+	std::int32_t i = 0;
+	float y = NAN;
 
-  i = GS::GetGame().GetSortedPlayers(1).playernum;
+	i = GS::GetGame().GetSortedPlayers(1).playernum;
 
-  if (GS::GetGame().isteamgame())
-  {
-    gfxtextverticalalign(gfx_bottom);
+	if (GS::GetGame().isteamgame())
+	{
+		gfxtextverticalalign(gfx_bottom);
 
-    y = fragmenubottom + gGlobalStateInterfaceGraphics.fragy -
-        (gGlobalStateInterfaceGraphics.fragsscrolllev * 20);
+		y = fragmenubottom + gGlobalStateInterfaceGraphics.fragy - (gGlobalStateInterfaceGraphics.fragsscrolllev * 20);
 
-    if (gGlobalStateGame.sortedteamscore[1].kills == gGlobalStateGame.sortedteamscore[2].kills)
-    {
-      // tie
-      gfxtextcolor(rgba(245, 245, 245));
-      gfxdrawtext(("It's a tie"), gGlobalStateInterfaceGraphics.fragx + 137, y);
-    }
-    else
-    {
-      // team wins
-      i = gGlobalStateGame.sortedteamscore[1].playernum;
+		if (gGlobalStateGame.sortedteamscore[1].kills == gGlobalStateGame.sortedteamscore[2].kills)
+		{
+			// tie
+			gfxtextcolor(rgba(245, 245, 245));
+			gfxdrawtext(("It's a tie"), gGlobalStateInterfaceGraphics.fragx + 137, y);
+		}
+		else
+		{
+			// team wins
+			i = gGlobalStateGame.sortedteamscore[1].playernum;
 
-      switch (i)
-      {
-      case 1:
-        gfxtextcolor(rgba(210, 15, 5));
-        break;
-      case 2:
-        gfxtextcolor(rgba(5, 15, 205));
-        break;
-      case 3:
-        gfxtextcolor(rgba(210, 210, 5));
-        break;
-      case 4:
-        gfxtextcolor(rgba(5, 210, 5));
-        break;
-      }
+			switch (i)
+			{
+				case 1:
+					gfxtextcolor(rgba(210, 15, 5));
+					break;
+				case 2:
+					gfxtextcolor(rgba(5, 15, 205));
+					break;
+				case 3:
+					gfxtextcolor(rgba(210, 210, 5));
+					break;
+				case 4:
+					gfxtextcolor(rgba(5, 210, 5));
+					break;
+			}
 
-      switch (i)
-      {
-      case 1:
-        gfxdrawtext(("Alpha team wins"), gGlobalStateInterfaceGraphics.fragx + 50, y);
-        break;
-      case 2:
-        gfxdrawtext(("Bravo team wins"), gGlobalStateInterfaceGraphics.fragx + 50, y);
-        break;
-      case 3:
-        gfxdrawtext(("Charlie team wins"), gGlobalStateInterfaceGraphics.fragx + 50, y);
-        break;
-      case 4:
-        gfxdrawtext(("Delta team wins"), gGlobalStateInterfaceGraphics.fragx + 50, y);
-        break;
-      }
-    }
+			switch (i)
+			{
+				case 1:
+					gfxdrawtext(("Alpha team wins"), gGlobalStateInterfaceGraphics.fragx + 50, y);
+					break;
+				case 2:
+					gfxdrawtext(("Bravo team wins"), gGlobalStateInterfaceGraphics.fragx + 50, y);
+					break;
+				case 3:
+					gfxdrawtext(("Charlie team wins"), gGlobalStateInterfaceGraphics.fragx + 50, y);
+					break;
+				case 4:
+					gfxdrawtext(("Delta team wins"), gGlobalStateInterfaceGraphics.fragx + 50, y);
+					break;
+			}
+		}
 
-    gfxtextverticalalign(gfx_top);
-  }
-  else if (sprite_system.GetSprite(i).player->kills > 0)
-  {
-    // player wins
-    gfxtextcolor(rgba(185, 250, 138));
-    gfxdrawtext(wideformat(("{} wins"), sprite_system.GetSprite(i).player->name),
-                gGlobalStateInterfaceGraphics.fragx + 107,
-                gGlobalStateInterfaceGraphics.fragy + 24);
-  }
+		gfxtextverticalalign(gfx_top);
+	}
+	else if (sprite_system.GetSprite(i).player->kills > 0)
+	{
+		// player wins
+		gfxtextcolor(rgba(185, 250, 138));
+		gfxdrawtext(wideformat(("{} wins"), sprite_system.GetSprite(i).player->name),
+			gGlobalStateInterfaceGraphics.fragx + 107,
+			gGlobalStateInterfaceGraphics.fragy + 24);
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderweaponstatstexts()
 {
-  std::int32_t i = 0;
-  std::int32_t j = 0;
-  struct tweaponstat *stat = nullptr;
+	std::int32_t i = 0;
+	std::int32_t j = 0;
+	struct tweaponstat* stat = nullptr;
 
-  gGlobalStateGameRendering.setfontstyle(font_small);
-  gfxtextcolor(rgba(170, 160, 200, 230));
-  gfxdrawtext(("% = Accuracy"), gGlobalStateInterfaceGraphics.fragx + 465,
-              gGlobalStateInterfaceGraphics.fragy + 15); // % = Accuracy
-  gfxdrawtext(("HS = Headshots"), gGlobalStateInterfaceGraphics.fragx + 465,
-              gGlobalStateInterfaceGraphics.fragy + 25); // HS = Headshots
+	gGlobalStateGameRendering.setfontstyle(font_small);
+	gfxtextcolor(rgba(170, 160, 200, 230));
+	gfxdrawtext(("% = Accuracy"),
+		gGlobalStateInterfaceGraphics.fragx + 465,
+		gGlobalStateInterfaceGraphics.fragy + 15); // % = Accuracy
+	gfxdrawtext(("HS = Headshots"),
+		gGlobalStateInterfaceGraphics.fragx + 465,
+		gGlobalStateInterfaceGraphics.fragy + 25); // HS = Headshots
 
-  gGlobalStateGameRendering.setfontstyle(font_menu);
-  gfxtextcolor(rgba(255, 255, 230));
-  gfxdrawtext(("Weapon:"), gGlobalStateInterfaceGraphics.fragx + 70,
-              gGlobalStateInterfaceGraphics.fragy + 40); // Weapon:
-  gfxdrawtext((" %"), gGlobalStateInterfaceGraphics.fragx + 240,
-              gGlobalStateInterfaceGraphics.fragy + 40); // %
-  gfxdrawtext(("Shots:"), gGlobalStateInterfaceGraphics.fragx + 290,
-              gGlobalStateInterfaceGraphics.fragy + 40); // Shots:
-  gfxdrawtext(("Hits:"), gGlobalStateInterfaceGraphics.fragx + 390,
-              gGlobalStateInterfaceGraphics.fragy + 40); // Hits:
-  gfxdrawtext(("Kills (HS):"), gGlobalStateInterfaceGraphics.fragx + 470,
-              gGlobalStateInterfaceGraphics.fragy + 40); // Kills (HS):
+	gGlobalStateGameRendering.setfontstyle(font_menu);
+	gfxtextcolor(rgba(255, 255, 230));
+	gfxdrawtext(("Weapon:"),
+		gGlobalStateInterfaceGraphics.fragx + 70,
+		gGlobalStateInterfaceGraphics.fragy + 40); // Weapon:
+	gfxdrawtext((" %"), gGlobalStateInterfaceGraphics.fragx + 240,
+		gGlobalStateInterfaceGraphics.fragy + 40); // %
+	gfxdrawtext(("Shots:"),
+		gGlobalStateInterfaceGraphics.fragx + 290,
+		gGlobalStateInterfaceGraphics.fragy + 40); // Shots:
+	gfxdrawtext(("Hits:"),
+		gGlobalStateInterfaceGraphics.fragx + 390,
+		gGlobalStateInterfaceGraphics.fragy + 40); // Hits:
+	gfxdrawtext(("Kills (HS):"),
+		gGlobalStateInterfaceGraphics.fragx + 470,
+		gGlobalStateInterfaceGraphics.fragy + 40); // Kills (HS):
 
-  gGlobalStateGameRendering.setfontstyle(font_small);
+	gGlobalStateGameRendering.setfontstyle(font_small);
 
-  j = 0;
-  gfxtextcolor(rgba(0xffffff));
+	j = 0;
+	gfxtextcolor(rgba(0xffffff));
 
-  for (i = 1; i <= 20; i++)
-  {
-    stat = &gGlobalStateClient.wepstats[i];
+	for (i = 1; i <= 20; i++)
+	{
+		stat = &gGlobalStateClient.wepstats[i];
 
-    if (stat->shots > 0)
-    {
-      j += 1;
+		if (stat->shots > 0)
+		{
+			j += 1;
 
-      gfxdrawtext(stat->name, gGlobalStateInterfaceGraphics.fragx + 90,
-                  gGlobalStateInterfaceGraphics.fragy + (j * 20) + 50);
-      gfxdrawtext(inttostr(round(static_cast<float>((stat->hits * 100)) / stat->shots)) + '%',
-                  gGlobalStateInterfaceGraphics.fragx + 245,
-                  gGlobalStateInterfaceGraphics.fragy + (j * 20) + 50);
-      gfxdrawtext(numberformat(stat->shots), gGlobalStateInterfaceGraphics.fragx + 295,
-                  gGlobalStateInterfaceGraphics.fragy + (j * 20) + 50);
-      gfxdrawtext(numberformat(stat->hits), gGlobalStateInterfaceGraphics.fragx + 395,
-                  gGlobalStateInterfaceGraphics.fragy + (j * 20) + 50);
-      gfxdrawtext(inttostr(stat->kills) + " (" + inttostr(stat->headshots) + ')',
-                  gGlobalStateInterfaceGraphics.fragx + 475,
-                  gGlobalStateInterfaceGraphics.fragy + (j * 20) + 50);
-    }
-  }
+			gfxdrawtext(stat->name,
+				gGlobalStateInterfaceGraphics.fragx + 90,
+				gGlobalStateInterfaceGraphics.fragy + (j * 20) + 50);
+			gfxdrawtext(inttostr(round(static_cast<float>((stat->hits * 100)) / stat->shots)) + '%',
+				gGlobalStateInterfaceGraphics.fragx + 245,
+				gGlobalStateInterfaceGraphics.fragy + (j * 20) + 50);
+			gfxdrawtext(numberformat(stat->shots),
+				gGlobalStateInterfaceGraphics.fragx + 295,
+				gGlobalStateInterfaceGraphics.fragy + (j * 20) + 50);
+			gfxdrawtext(numberformat(stat->hits),
+				gGlobalStateInterfaceGraphics.fragx + 395,
+				gGlobalStateInterfaceGraphics.fragy + (j * 20) + 50);
+			gfxdrawtext(inttostr(stat->kills) + " (" + inttostr(stat->headshots) + ')',
+				gGlobalStateInterfaceGraphics.fragx + 475,
+				gGlobalStateInterfaceGraphics.fragy + (j * 20) + 50);
+		}
+	}
 
-  gfxtextcolor(rgba(255, 255, 230, 100));
-  gfxdrawtext(("(Updated every 10 seconds)"), gGlobalStateInterfaceGraphics.fragx + 230,
-              gGlobalStateInterfaceGraphics.fragy + ((j + 1) * 20) + 50);
+	gfxtextcolor(rgba(255, 255, 230, 100));
+	gfxdrawtext(("(Updated every 10 seconds)"),
+		gGlobalStateInterfaceGraphics.fragx + 230,
+		gGlobalStateInterfaceGraphics.fragy + ((j + 1) * 20) + 50);
 }
 
 void GlobalStateInterfaceGraphics::renderfragsmenutexts(float fragmenubottom)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tgfxcolor color{};
-  float x = NAN;
-  float y = NAN;
-  float py = NAN;
-  std::int32_t i = 0;
-  std::int32_t j = 0;
-  std::int32_t k = 0;
-  std::int32_t z = 0;
-  std::int32_t nextitemstep = 0;
-  std::array<std::int32_t, 6> ids{};
-  std::array<std::int32_t, 6> totalteamkills{};
-  std::array<tvector2, 6> lines;
-  std::string str1;
+	auto& sprite_system = SpriteSystem::Get();
+	tgfxcolor color{};
+	float x = NAN;
+	float y = NAN;
+	float py = NAN;
+	std::int32_t i = 0;
+	std::int32_t j = 0;
+	std::int32_t k = 0;
+	std::int32_t z = 0;
+	std::int32_t nextitemstep = 0;
+	std::array<std::int32_t, 6> ids{};
+	std::array<std::int32_t, 6> totalteamkills{};
+	std::array<tvector2, 6> lines;
+	std::string str1;
 
-  x = gGlobalStateInterfaceGraphics.fragx;
-  y = gGlobalStateInterfaceGraphics.fragy - (gGlobalStateInterfaceGraphics.fragsscrolllev * 20);
+	x = gGlobalStateInterfaceGraphics.fragx;
+	y = gGlobalStateInterfaceGraphics.fragy - (gGlobalStateInterfaceGraphics.fragsscrolllev * 20);
 
-  // team lines
-  if (GS::GetGame().isteamgame())
-  {
-    nextitemstep = 0;
-    k = 0;
+	// team lines
+	if (GS::GetGame().isteamgame())
+	{
+		nextitemstep = 0;
+		k = 0;
 
-    for (j = 1; j <= 6; j++)
-    {
-      // iteration order for i: 1,2,3,4,0,5
-      // i=5 means spectators
-      // i=0 means TEAM_NONE but goes after float teams
+		for (j = 1; j <= 6; j++)
+		{
+			// iteration order for i: 1,2,3,4,0,5
+			// i=5 means spectators
+			// i=0 means TEAM_NONE but goes after float teams
 
-      i = iif(j < 6, j % 5, 5);
-      if ((CVar::ui_hidespectators) && (i == 5))
-      {
-        z = 0;
-      }
-      else if (i == 5)
-      {
-        z = GS::GetGame().GetSpectatorsNum();
-      }
-      else
-      {
-        z = GS::GetGame().GetTeamplayersnum(i);
-      }
+			i = iif(j < 6, j % 5, 5);
+			if ((CVar::ui_hidespectators) && (i == 5))
+			{
+				z = 0;
+			}
+			else if (i == 5)
+			{
+				z = GS::GetGame().GetSpectatorsNum();
+			}
+			else
+			{
+				z = GS::GetGame().GetTeamplayersnum(i);
+			}
 
-      if (z > 0)
-      {
-        lines[i].x = x + 35;
-        lines[i].y = y + 50 + nextitemstep + (k * fragsmenu_player_height);
-        nextitemstep += 20;
-        k += z;
+			if (z > 0)
+			{
+				lines[i].x = x + 35;
+				lines[i].y = y + 50 + nextitemstep + (k * fragsmenu_player_height);
+				nextitemstep += 20;
+				k += z;
 
-        switch (i)
-        {
-        case 0:
-          color = argb(enter_message_color);
-          break;
-        case 1:
-          color = rgba(255, 0, 0);
-          break;
-        case 2:
-          color = rgba(0, 0, 255);
-          break;
-        case 3:
-          color = argb(charliej_message_color);
-          break;
-        case 4:
-          color = argb(deltaj_message_color);
-          break;
-        case 5:
-          color = rgba(129, 52, 118);
-          break;
-        }
+				switch (i)
+				{
+					case 0:
+						color = argb(enter_message_color);
+						break;
+					case 1:
+						color = rgba(255, 0, 0);
+						break;
+					case 2:
+						color = rgba(0, 0, 255);
+						break;
+					case 3:
+						color = argb(charliej_message_color);
+						break;
+					case 4:
+						color = argb(deltaj_message_color);
+						break;
+					case 5:
+						color = rgba(129, 52, 118);
+						break;
+				}
 
-        drawline(lines[i].x, lines[i].y + 15, 565, color);
-      }
-    }
-  }
-  else
-  {
-    lines[0].y = y + 40 + fragsmenu_player_height;
-    lines[5].y = y + 40 +
-                 ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum() + 1) *
-                  fragsmenu_player_height);
-  }
+				drawline(lines[i].x, lines[i].y + 15, 565, color);
+			}
+		}
+	}
+	else
+	{
+		lines[0].y = y + 40 + fragsmenu_player_height;
+		lines[5].y =
+			y + 40 + ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum() + 1) * fragsmenu_player_height);
+	}
 
-  // columns
-  if ((CVar::sv_gamemode == gamestyle_deathmatch) || (CVar::sv_gamemode == gamestyle_teammatch))
-  {
-    str1 = ("Kills:");
-  }
-  else
-  {
-    str1 = ("Points:");
-  }
+	// columns
+	if ((CVar::sv_gamemode == gamestyle_deathmatch) || (CVar::sv_gamemode == gamestyle_teammatch))
+	{
+		str1 = ("Kills:");
+	}
+	else
+	{
+		str1 = ("Points:");
+	}
 
-  j = iif(length(str1) > 7, 80, 0);
+	j = iif(length(str1) > 7, 80, 0);
 
-  gGlobalStateGameRendering.setfontstyle(font_menu);
-  gfxtextcolor(rgba(255, 255, 230));
-  gfxdrawtext(str1, x + 280 - j, y + 40);
-  gfxdrawtext(("Deaths:"), x + 390, y + 40);
-  gfxdrawtext(("Ping:"), x + 530, y + 40);
+	gGlobalStateGameRendering.setfontstyle(font_menu);
+	gfxtextcolor(rgba(255, 255, 230));
+	gfxdrawtext(str1, x + 280 - j, y + 40);
+	gfxdrawtext(("Deaths:"), x + 390, y + 40);
+	gfxdrawtext(("Ping:"), x + 530, y + 40);
 
-  // server name
-  gGlobalStateGameRendering.setfontstyle(font_small_bold);
-  gfxtextcolor(rgba(233, 180, 12));
-  gfxdrawtext(CVar::sv_hostname, x + 30, y + 15);
+	// server name
+	gGlobalStateGameRendering.setfontstyle(font_small_bold);
+	gfxtextcolor(rgba(233, 180, 12));
+	gfxdrawtext(CVar::sv_hostname, x + 30, y + 15);
 
-  // time left && computer time
-  str1 = wideformat("{} {}:{}", ("Time"), GS::GetGame().GetTimeleftmin(),
-                    GS::GetGame().GetTimeleftsec());
-  gGlobalStateGameRendering.setfontstyle(font_small);
-  gfxtextcolor(rgba(170, 160, 200, 230));
-  gfxdrawtext(str1, x + 485, y + 15);
-  NotImplemented("rendering", "No time");
+	// time left && computer time
+	str1 = wideformat("{} {}:{}", ("Time"), GS::GetGame().GetTimeleftmin(), GS::GetGame().GetTimeleftsec());
+	gGlobalStateGameRendering.setfontstyle(font_small);
+	gfxtextcolor(rgba(170, 160, 200, 230));
+	gfxdrawtext(str1, x + 485, y + 15);
+	NotImplemented("rendering", "No time");
 #if 0
     gfxdrawtext(formatdatetime("h:nn:ss ampm", get_time()), x + 485, y + 30);
 #endif
 
-  // server info message
-  gfxtextcolor(rgba(200, 150, 0));
-  gfxdrawtext(CVar::sv_info, x + 30, y + 30);
+	// server info message
+	gfxtextcolor(rgba(200, 150, 0));
+	gfxdrawtext(CVar::sv_info, x + 30, y + 30);
 
-  // demo name
-  if (GS::GetDemoRecorder().active())
-  {
-    gfxtextcolor(rgba(0, 128, 0, fabs(round(sin(GS::GetGame().GetSinusCounter() / 2) * 255))));
-    gfxdrawtext(GS::GetDemoRecorder().name(), x + 280, y + fragmenubottom - 10);
-  }
+	// demo name
+	if (GS::GetDemoRecorder().active())
+	{
+		gfxtextcolor(rgba(0, 128, 0, fabs(round(sin(GS::GetGame().GetSinusCounter() / 2) * 255))));
+		gfxdrawtext(GS::GetDemoRecorder().name(), x + 280, y + fragmenubottom - 10);
+	}
 
-  // players count
-  gfxtextcolor(rgba(200, 190, 180, 240));
-  gfxdrawtext(("Players"), x + 330, y + 15);
+	// players count
+	gfxtextcolor(rgba(200, 190, 180, 240));
+	gfxdrawtext(("Players"), x + 330, y + 15);
 
-  if (GS::GetGame().isteamgame())
-  {
-    j = iif(CVar::sv_gamemode == gamestyle_teammatch, 4, 2);
+	if (GS::GetGame().isteamgame())
+	{
+		j = iif(CVar::sv_gamemode == gamestyle_teammatch, 4, 2);
 
-    for (i = 1; i <= j; i++)
-    {
-      switch (i)
-      {
-      case 1:
-        gfxtextcolor(rgba(233, 0, 0, 240));
-        break;
-      case 2:
-        gfxtextcolor(rgba(0, 0, 233, 240));
-        break;
-      case 3:
-        gfxtextcolor(rgba(233, 233, 0, 240));
-        break;
-      case 4:
-        gfxtextcolor(rgba(0, 233, 0, 240));
-        break;
-      }
+		for (i = 1; i <= j; i++)
+		{
+			switch (i)
+			{
+				case 1:
+					gfxtextcolor(rgba(233, 0, 0, 240));
+					break;
+				case 2:
+					gfxtextcolor(rgba(0, 0, 233, 240));
+					break;
+				case 3:
+					gfxtextcolor(rgba(233, 233, 0, 240));
+					break;
+				case 4:
+					gfxtextcolor(rgba(0, 233, 0, 240));
+					break;
+			}
 
-      gfxdrawtext(inttostr(GS::GetGame().GetTeamplayersnum(i)), x + 440 + (20 * ((i - 1) / 2)),
-                  y + 10 + (10 * ((i - 1) % 2)));
-    }
-  }
-  else
-  {
-    gfxdrawtext(inttostr(GS::GetGame().GetPlayersNum()), x + 450, y + 15);
-  }
+			gfxdrawtext(inttostr(GS::GetGame().GetTeamplayersnum(i)),
+				x + 440 + (20 * ((i - 1) / 2)),
+				y + 10 + (10 * ((i - 1) % 2)));
+		}
+	}
+	else
+	{
+		gfxdrawtext(inttostr(GS::GetGame().GetPlayersNum()), x + 450, y + 15);
+	}
 
-  // players
-  fillchar(ids.data(), sizeof(ids), 0);
-  fillchar(totalteamkills.data(), sizeof(totalteamkills), 0);
+	// players
+	fillchar(ids.data(), sizeof(ids), 0);
+	fillchar(totalteamkills.data(), sizeof(totalteamkills), 0);
 
-  for (j = 1; j <= GS::GetGame().GetPlayersNum(); j++)
-  {
-    k = 0;
-    i = GS::GetGame().GetSortedPlayers(j).playernum;
+	for (j = 1; j <= GS::GetGame().GetPlayersNum(); j++)
+	{
+		k = 0;
+		i = GS::GetGame().GetSortedPlayers(j).playernum;
 
-    if (i <= 0)
-    {
-      continue;
-    }
+		if (i <= 0)
+		{
+			continue;
+		}
 
-    if (CVar::ui_hidespectators && sprite_system.GetSprite(i).isspectator())
-    {
-      continue;
-    }
+		if (CVar::ui_hidespectators && sprite_system.GetSprite(i).isspectator())
+		{
+			continue;
+		}
 
-    if (sprite_system.GetSprite(i).isspectator())
-    {
-      k = 5;
-    }
-    else if (GS::GetGame().isteamgame())
-    {
-      k = sprite_system.GetSprite(i).player->team;
-    }
+		if (sprite_system.GetSprite(i).isspectator())
+		{
+			k = 5;
+		}
+		else if (GS::GetGame().isteamgame())
+		{
+			k = sprite_system.GetSprite(i).player->team;
+		}
 
-    if (k == 5)
-    {
-      gfxtextcolor(rgba(220, 50, 200, 113));
-    }
-    else
-    {
-      gfxtextcolor(rgba(sprite_system.GetSprite(i).player->shirtcolor, 255));
-    }
+		if (k == 5)
+		{
+			gfxtextcolor(rgba(220, 50, 200, 113));
+		}
+		else
+		{
+			gfxtextcolor(rgba(sprite_system.GetSprite(i).player->shirtcolor, 255));
+		}
 
-    py = lines[k].y + 20 + fragsmenu_player_height * ids[k];
+		py = lines[k].y + 20 + fragsmenu_player_height * ids[k];
 
-    gfxdrawtext(sprite_system.GetSprite(i).player->name, x + 44, py);
-    gfxdrawtext(inttostr(sprite_system.GetSprite(i).player->kills), x + 284, py);
-    gfxdrawtext(inttostr(sprite_system.GetSprite(i).player->deaths), x + 394, py);
+		gfxdrawtext(sprite_system.GetSprite(i).player->name, x + 44, py);
+		gfxdrawtext(inttostr(sprite_system.GetSprite(i).player->kills), x + 284, py);
+		gfxdrawtext(inttostr(sprite_system.GetSprite(i).player->deaths), x + 394, py);
 
-    if (sprite_system.GetSprite(i).player->flags > 0)
-    {
-      gfxdrawtext(string("x") + inttostr(sprite_system.GetSprite(i).player->flags), x + 348, py);
-    }
+		if (sprite_system.GetSprite(i).player->flags > 0)
+		{
+			gfxdrawtext(string("x") + inttostr(sprite_system.GetSprite(i).player->flags), x + 348, py);
+		}
 
-    if ((sprite_system.GetSprite(i).player->jetcolor & 0xff000000) != color_transparency_bot)
-    {
-      gfxdrawtext(inttostr(sprite_system.GetSprite(i).player->realping), x + 534, py);
-    }
+		if ((sprite_system.GetSprite(i).player->jetcolor & 0xff000000) != color_transparency_bot)
+		{
+			gfxdrawtext(inttostr(sprite_system.GetSprite(i).player->realping), x + 534, py);
+		}
 
-    if ((!gGlobalStateClientGame.chattext.empty()) && (gGlobalStateClientGame.chattext[1] == '/'))
-    {
-      gfxtextcolor(rgba(245, 255, 230, 155));
-      gfxdrawtext(x + 20 - rectwidth(gfxtextmetrics((inttostr(sprite_system.GetSprite(i).num)))),
-                  py);
-    }
+		if ((!gGlobalStateClientGame.chattext.empty()) && (gGlobalStateClientGame.chattext[1] == '/'))
+		{
+			gfxtextcolor(rgba(245, 255, 230, 155));
+			gfxdrawtext(x + 20 - rectwidth(gfxtextmetrics((inttostr(sprite_system.GetSprite(i).num)))), py);
+		}
 
-    ids[k] += 1;
-    totalteamkills[k] += sprite_system.GetSprite(i).player->kills;
-  }
+		ids[k] += 1;
+		totalteamkills[k] += sprite_system.GetSprite(i).player->kills;
+	}
 
-  // team captions
-  if (GS::GetGame().isteamgame())
-  {
-    for (j = 1; j <= 6; j++)
-    {
-      // see above ("team lines") to know what's up with this
-      i = iif(j < 6, j % 5, 5);
-      if (i == 5)
-      {
-        z = GS::GetGame().GetSpectatorsNum();
-      }
-      else
-      {
-        z = GS::GetGame().GetTeamplayersnum(i);
-      }
+	// team captions
+	if (GS::GetGame().isteamgame())
+	{
+		for (j = 1; j <= 6; j++)
+		{
+			// see above ("team lines") to know what's up with this
+			i = iif(j < 6, j % 5, 5);
+			if (i == 5)
+			{
+				z = GS::GetGame().GetSpectatorsNum();
+			}
+			else
+			{
+				z = GS::GetGame().GetTeamplayersnum(i);
+			}
 
-      if (z > 0)
-      {
-        switch (i)
-        {
-        case 0:
-          gfxtextcolor(argb(enter_message_color));
-          break;
-        case 1:
-          gfxtextcolor(rgba(255, 0, 0));
-          break;
-        case 2:
-          gfxtextcolor(rgba(0, 0, 255));
-          break;
-        case 3:
-          gfxtextcolor(argb(charliej_message_color));
-          break;
-        case 4:
-          gfxtextcolor(argb(deltaj_message_color));
-          break;
-        case 5:
-          gfxtextcolor(rgba(129, 52, 118));
-          break;
-        }
+			if (z > 0)
+			{
+				switch (i)
+				{
+					case 0:
+						gfxtextcolor(argb(enter_message_color));
+						break;
+					case 1:
+						gfxtextcolor(rgba(255, 0, 0));
+						break;
+					case 2:
+						gfxtextcolor(rgba(0, 0, 255));
+						break;
+					case 3:
+						gfxtextcolor(argb(charliej_message_color));
+						break;
+					case 4:
+						gfxtextcolor(argb(deltaj_message_color));
+						break;
+					case 5:
+						gfxtextcolor(rgba(129, 52, 118));
+						break;
+				}
 
-        gGlobalStateGameRendering.setfontstyle(font_small_bold);
+				gGlobalStateGameRendering.setfontstyle(font_small_bold);
 
-        switch (i)
-        {
-        case 0:
-          gfxdrawtext(("Player"), lines[i].x, lines[i].y);
-          break;
-        case 1:
-          gfxdrawtext(("Alpha"), lines[i].x, lines[i].y);
-          break;
-        case 2:
-          gfxdrawtext(("Bravo"), lines[i].x, lines[i].y);
-          break;
-        case 3:
-          gfxdrawtext(("Charlie"), lines[i].x, lines[i].y);
-          break;
-        case 4:
-          gfxdrawtext(("Delta"), lines[i].x, lines[i].y);
-          break;
-        case 5:
-          gfxdrawtext(("Spectator"), lines[i].x, lines[i].y);
-          break;
-        }
+				switch (i)
+				{
+					case 0:
+						gfxdrawtext(("Player"), lines[i].x, lines[i].y);
+						break;
+					case 1:
+						gfxdrawtext(("Alpha"), lines[i].x, lines[i].y);
+						break;
+					case 2:
+						gfxdrawtext(("Bravo"), lines[i].x, lines[i].y);
+						break;
+					case 3:
+						gfxdrawtext(("Charlie"), lines[i].x, lines[i].y);
+						break;
+					case 4:
+						gfxdrawtext(("Delta"), lines[i].x, lines[i].y);
+						break;
+					case 5:
+						gfxdrawtext(("Spectator"), lines[i].x, lines[i].y);
+						break;
+				}
 
-        if (j < 5)
-        {
-          switch (i)
-          {
-          case 1:
-            gfxtextcolor(rgba(0xd20f05, 0xdd));
-            break;
-          case 2:
-            gfxtextcolor(rgba(0x151fd9, 0xdd));
-            break;
-          case 3:
-            gfxtextcolor(rgba(0xd2d205, 0xdd));
-            break;
-          case 4:
-            gfxtextcolor(rgba(0x5d205, 0xdd));
-            break;
-          }
+				if (j < 5)
+				{
+					switch (i)
+					{
+						case 1:
+							gfxtextcolor(rgba(0xd20f05, 0xdd));
+							break;
+						case 2:
+							gfxtextcolor(rgba(0x151fd9, 0xdd));
+							break;
+						case 3:
+							gfxtextcolor(rgba(0xd2d205, 0xdd));
+							break;
+						case 4:
+							gfxtextcolor(rgba(0x5d205, 0xdd));
+							break;
+					}
 
-          gGlobalStateGameRendering.setfontstyle(font_small);
-          gfxdrawtext(inttostr(totalteamkills[i]), x + 284, lines[i].y + 3);
-        }
-      }
-    }
-  }
+					gGlobalStateGameRendering.setfontstyle(font_small);
+					gfxdrawtext(inttostr(totalteamkills[i]), x + 284, lines[i].y + 3);
+				}
+			}
+		}
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderconsoletexts(float w) const
 {
-  auto *console = !gGlobalStateClientGame.chattext.empty() ? &gGlobalStateClient.GetBigConsole()
-                                                           : &GS::GetMainConsole();
+	auto* console =
+		!gGlobalStateClientGame.chattext.empty() ? &gGlobalStateClient.GetBigConsole() : &GS::GetMainConsole();
 
-  gGlobalStateGameRendering.setfontstyle(font_small);
+	gGlobalStateGameRendering.setfontstyle(font_small);
 
-  float const l = CVar::font_consolelineheight * pixelsize.y *
-                  gGlobalStateGameRendering.fontstylesize(font_small);
-  std::uint8_t alpha = 255;
-  bool tiny = false;
+	float const l = CVar::font_consolelineheight * pixelsize.y * gGlobalStateGameRendering.fontstylesize(font_small);
+	std::uint8_t alpha = 255;
+	bool tiny = false;
 
-  if (gGlobalStateInterfaceGraphics.fragsmenushow || gGlobalStateInterfaceGraphics.statsmenushow or
-      gGlobalStateGameMenus.teammenu->active or
-      ((console == &gGlobalStateClient.GetBigConsole()) &&
-       gGlobalStateGameMenus.limbomenu->active) or
-      ((console == &GS::GetMainConsole()) && gGlobalStateGameMenus.escmenu->active &&
-       gGlobalStateInterfaceGraphics.noobshow))
-  {
-    alpha = 60;
-  }
+	if (gGlobalStateInterfaceGraphics.fragsmenushow || gGlobalStateInterfaceGraphics.statsmenushow
+		or gGlobalStateGameMenus.teammenu->active
+		or ((console == &gGlobalStateClient.GetBigConsole()) && gGlobalStateGameMenus.limbomenu->active)
+		or ((console == &GS::GetMainConsole()) && gGlobalStateGameMenus.escmenu->active
+			&& gGlobalStateInterfaceGraphics.noobshow))
+	{
+		alpha = 60;
+	}
 
-  for (std::int32_t i = 1; i <= console->GetCount(); i++)
-  {
-    if (console->GetTextMessage(i).empty())
-    {
-      continue;
-    }
+	for (std::int32_t i = 1; i <= console->GetCount(); i++)
+	{
+		if (console->GetTextMessage(i).empty())
+		{
+			continue;
+		}
 
-    gfxtextcolor(rgba(console->GetTextMessageColor(i), alpha));
+		gfxtextcolor(rgba(console->GetTextMessageColor(i), alpha));
 
-    if ((rectwidth(gfxtextmetrics(console->GetTextMessage(i))) > (w - 10)) != tiny)
-    {
-      tiny = !tiny;
+		if ((rectwidth(gfxtextmetrics(console->GetTextMessage(i))) > (w - 10)) != tiny)
+		{
+			tiny = !tiny;
 
-      if (tiny)
-      {
-        gGlobalStateGameRendering.setfontstyle(font_smallest);
-      }
-      else
-      {
-        gGlobalStateGameRendering.setfontstyle(font_small);
-      }
+			if (tiny)
+			{
+				gGlobalStateGameRendering.setfontstyle(font_smallest);
+			}
+			else
+			{
+				gGlobalStateGameRendering.setfontstyle(font_small);
+			}
 
-      gfxdrawtext(console->GetTextMessage(i), 5, 1 + ((i - 1) * l));
-    }
-    else
-    {
-      gfxdrawtext(5, 1 + ((i - 1) * l));
-    }
-  }
+			gfxdrawtext(console->GetTextMessage(i), 5, 1 + ((i - 1) * l));
+		}
+		else
+		{
+			gfxdrawtext(5, 1 + ((i - 1) * l));
+		}
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderkillconsoletexts(float w)
 {
-  std::uint8_t alpha = 245;
-  bool tiny = false;
-  float dy = 0;
+	std::uint8_t alpha = 245;
+	bool tiny = false;
+	float dy = 0;
 
-  gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
+	gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
 
-  if (w < 1024)
-  {
-    if (gGlobalStateInterfaceGraphics.fragsmenushow || gGlobalStateInterfaceGraphics.statsmenushow)
-    {
-      alpha = 80;
-    }
+	if (w < 1024)
+	{
+		if (gGlobalStateInterfaceGraphics.fragsmenushow || gGlobalStateInterfaceGraphics.statsmenushow)
+		{
+			alpha = 80;
+		}
 
-    if (length(gGlobalStateClientGame.chattext) > 0)
-    {
-      alpha = 180;
-    }
-  }
+		if (length(gGlobalStateClientGame.chattext) > 0)
+		{
+			alpha = 180;
+		}
+	}
 
-  for (std::int32_t i = 1; i <= gGlobalStateClient.GetKillConsole().GetCount(); i++)
-  {
-    if (gGlobalStateClient.GetKillConsole().GetTextMessage(i).empty())
-    {
-      continue;
-    }
+	for (std::int32_t i = 1; i <= gGlobalStateClient.GetKillConsole().GetCount(); i++)
+	{
+		if (gGlobalStateClient.GetKillConsole().GetTextMessage(i).empty())
+		{
+			continue;
+		}
 
-    if (gGlobalStateClient.GetKillConsole().GetNumMessage(i) > -255)
-    {
-      dy = dy + killconsole_separate_height;
-    }
+		if (gGlobalStateClient.GetKillConsole().GetNumMessage(i) > -255)
+		{
+			dy = dy + killconsole_separate_height;
+		}
 
-    if ((length(gGlobalStateClient.GetKillConsole().GetTextMessage(i)) > 14) != tiny)
-    {
-      tiny = !tiny;
+		if ((length(gGlobalStateClient.GetKillConsole().GetTextMessage(i)) > 14) != tiny)
+		{
+			tiny = !tiny;
 
-      if (tiny)
-      {
-        gGlobalStateGameRendering.setfontstyle(font_smallest);
-      }
-      else
-      {
-        gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
-      }
-    }
+			if (tiny)
+			{
+				gGlobalStateGameRendering.setfontstyle(font_smallest);
+			}
+			else
+			{
+				gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
+			}
+		}
 
-    float const x =
-      (595 * gGlobalStateInterfaceGraphics._iscala.x) -
-      rectwidth(gfxtextmetrics(gGlobalStateClient.GetKillConsole().GetTextMessage(i)));
-    float const y = 60 + ((i - 1) * (CVar::font_weaponmenusize + 2)) + dy;
+		float const x = (595 * gGlobalStateInterfaceGraphics._iscala.x)
+					  - rectwidth(gfxtextmetrics(gGlobalStateClient.GetKillConsole().GetTextMessage(i)));
+		float const y = 60 + ((i - 1) * (CVar::font_weaponmenusize + 2)) + dy;
 
-    gfxtextcolor(rgba(gGlobalStateClient.GetKillConsole().GetTextMessageColor(i), alpha));
-    gfxdrawtext(x, y);
-  }
+		gfxtextcolor(rgba(gGlobalStateClient.GetKillConsole().GetTextMessageColor(i), alpha));
+		gfxdrawtext(x, y);
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderchattexts()
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i = 0;
-  float x = NAN;
-  float y = NAN;
-  float dx = NAN;
-  float dy = NAN;
-  bool hide = false;
-  std::string const str1;
+	auto& sprite_system = SpriteSystem::Get();
+	std::int32_t i = 0;
+	float x = NAN;
+	float y = NAN;
+	float dx = NAN;
+	float dy = NAN;
+	bool hide = false;
+	std::string const str1;
 
-  gGlobalStateGameRendering.setfontstyle(font_small);
-  gfxtextverticalalign(gfx_bottom);
+	gGlobalStateGameRendering.setfontstyle(font_small);
+	gfxtextverticalalign(gfx_bottom);
 
-  for (i = 1; i <= max_sprites; i++)
-  {
-    if ((!sprite_system.GetSprite(i).typing) && (gGlobalStateInterfaceGraphics.chatdelay[i] <= 0))
-    {
-      continue;
-    }
+	for (i = 1; i <= max_sprites; i++)
+	{
+		if ((!sprite_system.GetSprite(i).typing) && (gGlobalStateInterfaceGraphics.chatdelay[i] <= 0))
+		{
+			continue;
+		}
 
-    hide = (CVar::sv_realisticmode) && (sprite_system.GetSprite(i).visible == 0) and
-           sprite_system.GetPlayerSprite().isnotinsameteam(sprite_system.GetSprite(i)) &&
-           sprite_system.GetPlayerSprite().isnotspectator();
+		hide = (CVar::sv_realisticmode) && (sprite_system.GetSprite(i).visible == 0)
+		   and sprite_system.GetPlayerSprite().isnotinsameteam(sprite_system.GetSprite(i))
+			&& sprite_system.GetPlayerSprite().isnotspectator();
 
-    x = (sprite_system.GetSprite(i).skeleton.pos[12].x - gGlobalStateClient.camerax +
-         0.5 * gGlobalStateGame.gamewidth) *
-        gGlobalStateInterfaceGraphics._rscala.x;
-    y = (sprite_system.GetSprite(i).skeleton.pos[12].y - gGlobalStateClient.cameray +
-         0.5 * gGlobalStateGame.gameheight) *
-        gGlobalStateInterfaceGraphics._rscala.y;
-    dy = -25 * gGlobalStateInterfaceGraphics._rscala.y;
+		x = (sprite_system.GetSprite(i).skeleton.pos[12].x - gGlobalStateClient.camerax
+				+ 0.5 * gGlobalStateGame.gamewidth)
+		  * gGlobalStateInterfaceGraphics._rscala.x;
+		y = (sprite_system.GetSprite(i).skeleton.pos[12].y - gGlobalStateClient.cameray
+				+ 0.5 * gGlobalStateGame.gameheight)
+		  * gGlobalStateInterfaceGraphics._rscala.y;
+		dy = -25 * gGlobalStateInterfaceGraphics._rscala.y;
 
-    if (sprite_system.GetSprite(i).typing && !hide)
-    {
-      dx = (-rectwidth(gfxtextmetrics("..."))) / 2;
-      NotImplemented("rendering");
+		if (sprite_system.GetSprite(i).typing && !hide)
+		{
+			dx = (-rectwidth(gfxtextmetrics("..."))) / 2;
+			NotImplemented("rendering");
 #if 0
             str1 =  (copy("...", 1, GS::GetGame().GetMainTickCounter() / 30 % 3 + 1));
 #endif
 
-      gfxtextcolor(rgba(abovechat_message_color));
-      gfxdrawtext(str1, x + dx, y + dy);
+			gfxtextcolor(rgba(abovechat_message_color));
+			gfxdrawtext(str1, x + dx, y + dy);
 
-      dy = dy - 15 * gGlobalStateInterfaceGraphics._rscala.y;
-    }
+			dy = dy - 15 * gGlobalStateInterfaceGraphics._rscala.y;
+		}
 
-    if ((gGlobalStateInterfaceGraphics.chatdelay[i] > 0) &&
-        (length(gGlobalStateInterfaceGraphics.chatmessage[i]) < morechattext) &&
-        !(hide && gGlobalStateInterfaceGraphics.chatteam[i]))
-    {
-      dx = (-rectwidth(gfxtextmetrics(gGlobalStateInterfaceGraphics.chatmessage[i]))) / 2;
+		if ((gGlobalStateInterfaceGraphics.chatdelay[i] > 0)
+			&& (length(gGlobalStateInterfaceGraphics.chatmessage[i]) < morechattext)
+			&& !(hide && gGlobalStateInterfaceGraphics.chatteam[i]))
+		{
+			dx = (-rectwidth(gfxtextmetrics(gGlobalStateInterfaceGraphics.chatmessage[i]))) / 2;
 
-      gfxtextcolor(rgba(abovechat_message_color,
-                        max(0, min(255, 9 * gGlobalStateInterfaceGraphics.chatdelay[i]))));
-      gfxdrawtext(x + dx, y + dy);
-    }
-  }
+			gfxtextcolor(
+				rgba(abovechat_message_color, max(0, min(255, 9 * gGlobalStateInterfaceGraphics.chatdelay[i]))));
+			gfxdrawtext(x + dx, y + dy);
+		}
+	}
 
-  gfxtextverticalalign(gfx_top);
+	gfxtextverticalalign(gfx_top);
 }
 
 void GlobalStateInterfaceGraphics::renderchatinput(float w, float h, double t)
 {
-  std::string str1;
-  tgfxrect rc;
-  std::string strhalf;
-  float x = NAN;
-  float y = NAN;
+	std::string str1;
+	tgfxrect rc;
+	std::string strhalf;
+	float x = NAN;
+	float y = NAN;
 
-  if (gGlobalStateClientGame.chattype == msgtype_pub)
-  {
-    str1 = "Say:";
-  }
-  else if (gGlobalStateClientGame.chattype == msgtype_team)
-  {
-    str1 = "Team Say:";
-  }
-  else if (gGlobalStateClientGame.chattype == msgtype_cmd)
-  {
-    str1 = "Cmd:";
-  }
+	if (gGlobalStateClientGame.chattype == msgtype_pub)
+	{
+		str1 = "Say:";
+	}
+	else if (gGlobalStateClientGame.chattype == msgtype_team)
+	{
+		str1 = "Team Say:";
+	}
+	else if (gGlobalStateClientGame.chattype == msgtype_cmd)
+	{
+		str1 = "Cmd:";
+	}
 
-  if (!str1.empty())
-  {
-    gGlobalStateGameRendering.setfontstyle(font_small);
+	if (!str1.empty())
+	{
+		gGlobalStateGameRendering.setfontstyle(font_small);
 
-    if (gGlobalStateClientGame.chattype == msgtype_pub)
-    {
-      gfxtextcolor(rgba(chat_message_color));
-    }
-    else if (gGlobalStateClientGame.chattype == msgtype_team)
-    {
-      gfxtextcolor(rgba(teamchat_message_color));
-    }
-    else if (gGlobalStateClientGame.chattype == msgtype_cmd)
-    {
-      gfxtextcolor(rgba(enter_message_color));
-    }
+		if (gGlobalStateClientGame.chattype == msgtype_pub)
+		{
+			gfxtextcolor(rgba(chat_message_color));
+		}
+		else if (gGlobalStateClientGame.chattype == msgtype_team)
+		{
+			gfxtextcolor(rgba(teamchat_message_color));
+		}
+		else if (gGlobalStateClientGame.chattype == msgtype_cmd)
+		{
+			gfxtextcolor(rgba(enter_message_color));
+		}
 
-    if (gGlobalStateClientGame.chatchanged)
-    {
-      chatinputtime = t;
-      gGlobalStateClientGame.chatchanged = false;
-    }
+		if (gGlobalStateClientGame.chatchanged)
+		{
+			chatinputtime = t;
+			gGlobalStateClientGame.chatchanged = false;
+		}
 
-    t = t - chatinputtime;
+		t = t - chatinputtime;
 
-    str1 =
-      str1 + iif(gGlobalStateClientGame.chattext[length(gGlobalStateClientGame.chattext)] == ' ',
-                 gGlobalStateClientGame.chattext + ' ', gGlobalStateClientGame.chattext);
-    rc = gfxtextmetrics(str1);
+		str1 = str1
+			 + iif(gGlobalStateClientGame.chattext[length(gGlobalStateClientGame.chattext)] == ' ',
+				 gGlobalStateClientGame.chattext + ' ',
+				 gGlobalStateClientGame.chattext);
+		rc = gfxtextmetrics(str1);
 
-    if (rectwidth(rc) >= (w - 80))
-    {
-      gGlobalStateGameRendering.setfontstyle(font_smallest);
-    }
+		if (rectwidth(rc) >= (w - 80))
+		{
+			gGlobalStateGameRendering.setfontstyle(font_smallest);
+		}
 
-    gfxtextverticalalign(gfx_baseline);
-    gfxdrawtext(str1, 5, 420 * gGlobalStateInterfaceGraphics._iscala.y);
-    strhalf = str1;
+		gfxtextverticalalign(gfx_baseline);
+		gfxdrawtext(str1, 5, 420 * gGlobalStateInterfaceGraphics._iscala.y);
+		strhalf = str1;
 
-    if (gGlobalStateClientGame.cursorposition < length(gGlobalStateClientGame.chattext))
-    {
-      strhalf.resize(gGlobalStateClientGame.cursorposition + 4 +
-                     ord(gGlobalStateClientGame.chattext[1] == '/'));
-    }
+		if (gGlobalStateClientGame.cursorposition < length(gGlobalStateClientGame.chattext))
+		{
+			strhalf.resize(gGlobalStateClientGame.cursorposition + 4 + ord(gGlobalStateClientGame.chattext[1] == '/'));
+		}
 
-    x = rectwidth(gfxtextmetrics(strhalf));
+		x = rectwidth(gfxtextmetrics(strhalf));
 
-    if ((t - floor(t)) <= 0.5)
-    {
-      x = pixelalignx(5 + x) + 2 * pixelsize.x;
-      y = pixelaligny((420 * gGlobalStateInterfaceGraphics._iscala.y) - (1.2 * rectheight(rc)));
-      w = pixelsize.x;
-      h = pixelaligny(1.2 * 1.2 * rectheight(rc));
+		if ((t - floor(t)) <= 0.5)
+		{
+			x = pixelalignx(5 + x) + 2 * pixelsize.x;
+			y = pixelaligny((420 * gGlobalStateInterfaceGraphics._iscala.y) - (1.2 * rectheight(rc)));
+			w = pixelsize.x;
+			h = pixelaligny(1.2 * 1.2 * rectheight(rc));
 
-      gfxdrawquad(nullptr, gfxvertex(x + 0, y + 0, 0, 0, rgba(255, 230, 170)),
-                  gfxvertex(x + w, y + 0, 0, 0, rgba(255, 230, 170)),
-                  gfxvertex(x + w, y + h, 0, 0, rgba(255, 230, 170)),
-                  gfxvertex(x + 0, y + h, 0, 0, rgba(255, 230, 170)));
-    }
+			gfxdrawquad(nullptr,
+				gfxvertex(x + 0, y + 0, 0, 0, rgba(255, 230, 170)),
+				gfxvertex(x + w, y + 0, 0, 0, rgba(255, 230, 170)),
+				gfxvertex(x + w, y + h, 0, 0, rgba(255, 230, 170)),
+				gfxvertex(x + 0, y + h, 0, 0, rgba(255, 230, 170)));
+		}
 
-    gfxtextverticalalign(gfx_top);
-  }
+		gfxtextverticalalign(gfx_top);
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderrespawnandsurvivaltexts()
 {
-  auto &sprite_system = SpriteSystem::Get();
-  tsprite *me = nullptr;
-  float p = NAN;
-  std::string str1;
+	auto& sprite_system = SpriteSystem::Get();
+	tsprite* me = nullptr;
+	float p = NAN;
+	std::string str1;
 
-  me = &sprite_system.GetPlayerSprite();
+	me = &sprite_system.GetPlayerSprite();
 
-  auto &game = GS::GetGame();
+	auto& game = GS::GetGame();
 
-  if (me->isnotspectator())
-  {
-    if (me->deadmeat || game.GetSurvivalEndRound())
-    {
-      gfxdrawsprite(
-        gGlobalStateGameRendering.textures[GFX::INTERFACE_BACK],
-        180 * gGlobalStateInterfaceGraphics._iscala.x, gGlobalStateInterfaceGraphics._iscala.y,
-        static_cast<float>(300) / background_width, static_cast<float>(22) / background_width,
-        rgba(0xffffff, CVar::ui_status_transparency * 0.56));
-    }
+	if (me->isnotspectator())
+	{
+		if (me->deadmeat || game.GetSurvivalEndRound())
+		{
+			gfxdrawsprite(gGlobalStateGameRendering.textures[GFX::INTERFACE_BACK],
+				180 * gGlobalStateInterfaceGraphics._iscala.x,
+				gGlobalStateInterfaceGraphics._iscala.y,
+				static_cast<float>(300) / background_width,
+				static_cast<float>(22) / background_width,
+				rgba(0xffffff, CVar::ui_status_transparency * 0.56));
+		}
 
-    if ((!CVar::sv_survivalmode) && (me->respawncounter > 0))
-    {
-      p = static_cast<float>(me->respawncounter) / 60;
-      str1 = wideformat(("Respawn in... {}"), floattostrf(p, fffixed, 7, 1));
-      gfxtextcolor(rgba(255, 65, 55));
-    }
-    else if ((CVar::sv_survivalmode) && me->deadmeat && !game.GetSurvivalEndRound())
-    {
-      gfxtextcolor(rgba(115, 255, 100));
+		if ((!CVar::sv_survivalmode) && (me->respawncounter > 0))
+		{
+			p = static_cast<float>(me->respawncounter) / 60;
+			str1 = wideformat(("Respawn in... {}"), floattostrf(p, fffixed, 7, 1));
+			gfxtextcolor(rgba(255, 65, 55));
+		}
+		else if ((CVar::sv_survivalmode) && me->deadmeat && !game.GetSurvivalEndRound())
+		{
+			gfxtextcolor(rgba(115, 255, 100));
 
-      if (!GS::GetGame().isteamgame())
-      {
-        str1 = (inttostr(game.GetAlivenum())) + ' ' + ("players left");
-      }
-      else
-      {
-        str1 = (inttostr(game.GetTeamAliveNum(me->player->team))) + ' ' + ("team players left");
-      }
-    }
-    else if (game.GetSurvivalEndRound())
-    {
-      if (me->deadmeat)
-      {
-        p = static_cast<float>(me->respawncounter) / 60;
-        str1 = ("End of round...") + (floattostrf(p, fffixed, 7, 1));
-        gfxtextcolor(rgba(115, 255, 100));
-      }
-      else
-      {
-        str1 = ("You have survived");
-        gfxtextcolor(rgba(155, 245, 100));
-      }
-    }
+			if (!GS::GetGame().isteamgame())
+			{
+				str1 = (inttostr(game.GetAlivenum())) + ' ' + ("players left");
+			}
+			else
+			{
+				str1 = (inttostr(game.GetTeamAliveNum(me->player->team))) + ' ' + ("team players left");
+			}
+		}
+		else if (game.GetSurvivalEndRound())
+		{
+			if (me->deadmeat)
+			{
+				p = static_cast<float>(me->respawncounter) / 60;
+				str1 = ("End of round...") + (floattostrf(p, fffixed, 7, 1));
+				gfxtextcolor(rgba(115, 255, 100));
+			}
+			else
+			{
+				str1 = ("You have survived");
+				gfxtextcolor(rgba(155, 245, 100));
+			}
+		}
 
-    gGlobalStateGameRendering.setfontstyle(font_menu);
-    gfxdrawtext(str1, 200 * gGlobalStateInterfaceGraphics._iscala.x,
-                4 * gGlobalStateInterfaceGraphics._iscala.y);
-  }
-  else if (game.GetSurvivalEndRound())
-  {
-    gGlobalStateGameRendering.setfontstyle(font_menu);
-    gfxtextcolor(rgba(115, 255, 100));
-    gfxdrawtext(("End of round..."), 240 * gGlobalStateInterfaceGraphics._iscala.x,
-                400 * gGlobalStateInterfaceGraphics._iscala.y);
-  }
+		gGlobalStateGameRendering.setfontstyle(font_menu);
+		gfxdrawtext(str1, 200 * gGlobalStateInterfaceGraphics._iscala.x, 4 * gGlobalStateInterfaceGraphics._iscala.y);
+	}
+	else if (game.GetSurvivalEndRound())
+	{
+		gGlobalStateGameRendering.setfontstyle(font_menu);
+		gfxtextcolor(rgba(115, 255, 100));
+		gfxdrawtext(("End of round..."),
+			240 * gGlobalStateInterfaceGraphics._iscala.x,
+			400 * gGlobalStateInterfaceGraphics._iscala.y);
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderradiomenutexts()
 {
-  std::set<std::int32_t> const radio_gamestyles = {gamestyle_ctf, gamestyle_inf, gamestyle_htf};
-  std::string const s;
-  std::uint8_t alpha = 0;
-  float sx = NAN;
-  float sy = NAN;
-  std::array<tgfxcolor, 2> color{};
+	std::set<std::int32_t> const radio_gamestyles = { gamestyle_ctf, gamestyle_inf, gamestyle_htf };
+	std::string const s;
+	std::uint8_t alpha = 0;
+	float sx = NAN;
+	float sy = NAN;
+	std::array<tgfxcolor, 2> color{};
 
-  if (!(radio_gamestyles.contains(CVar::sv_gamemode)))
-  {
-    return;
-  }
+	if (!(radio_gamestyles.contains(CVar::sv_gamemode)))
+	{
+		return;
+	}
 
-  color[0] = rgba(0xffffff, CVar::ui_status_transparency * 0.56);
-  sx = static_cast<float>(180) / background_width;
-  sy = static_cast<float>(80) / background_width;
+	color[0] = rgba(0xffffff, CVar::ui_status_transparency * 0.56);
+	sx = static_cast<float>(180) / background_width;
+	sy = static_cast<float>(80) / background_width;
 
-  gfxdrawsprite(gGlobalStateGameRendering.textures[GFX::INTERFACE_BACK], 5, 250, sx, sy, color[0]);
+	gfxdrawsprite(gGlobalStateGameRendering.textures[GFX::INTERFACE_BACK], 5, 250, sx, sy, color[0]);
 
-  if (gGlobalStateClient.rmenustate[0] != ' ')
-  {
-    gfxdrawsprite(gGlobalStateGameRendering.textures[GFX::INTERFACE_BACK], 185, 250, sx, sy,
-                  color[0]);
-  }
+	if (gGlobalStateClient.rmenustate[0] != ' ')
+	{
+		gfxdrawsprite(gGlobalStateGameRendering.textures[GFX::INTERFACE_BACK], 185, 250, sx, sy, color[0]);
+	}
 
-  alpha =
-    iif(gGlobalStateInterfaceGraphics.fragsmenushow || gGlobalStateInterfaceGraphics.statsmenushow,
-        80, 230);
+	alpha = iif(gGlobalStateInterfaceGraphics.fragsmenushow || gGlobalStateInterfaceGraphics.statsmenushow, 80, 230);
 
-  gGlobalStateGameRendering.setfontstyle(font_menu);
-  gfxtextcolor(rgba(0xffffff, alpha));
-  gfxdrawtext("Radio:", 10, 252);
+	gGlobalStateGameRendering.setfontstyle(font_menu);
+	gfxtextcolor(rgba(0xffffff, alpha));
+	gfxdrawtext("Radio:", 10, 252);
 
-  gGlobalStateGameRendering.setfontstyle(font_small);
-  color[0] = rgba(200, 200, 200, alpha);
-  color[1] = rgba(210, 210, 5, alpha);
+	gGlobalStateGameRendering.setfontstyle(font_small);
+	color[0] = rgba(200, 200, 200, alpha);
+	color[1] = rgba(210, 210, 5, alpha);
 
-  gfxtextcolor(color[static_cast<std::int32_t>(gGlobalStateClient.rmenustate[0] == '1')]);
-  gfxdrawtext(string("1: ") + gGlobalStateClient.radiomenu["Menu1EFC"], 10, 270);
-  gfxtextcolor(color[static_cast<std::int32_t>(gGlobalStateClient.rmenustate[0] == '2')]);
-  gfxdrawtext(string("2: ") + gGlobalStateClient.radiomenu["Menu1FFC"], 10, 282);
-  gfxtextcolor(color[static_cast<std::int32_t>(gGlobalStateClient.rmenustate[0] == '3')]);
-  gfxdrawtext(string("3: ") + gGlobalStateClient.radiomenu["Menu1ES"], 10, 294);
+	gfxtextcolor(color[static_cast<std::int32_t>(gGlobalStateClient.rmenustate[0] == '1')]);
+	gfxdrawtext(string("1: ") + gGlobalStateClient.radiomenu["Menu1EFC"], 10, 270);
+	gfxtextcolor(color[static_cast<std::int32_t>(gGlobalStateClient.rmenustate[0] == '2')]);
+	gfxdrawtext(string("2: ") + gGlobalStateClient.radiomenu["Menu1FFC"], 10, 282);
+	gfxtextcolor(color[static_cast<std::int32_t>(gGlobalStateClient.rmenustate[0] == '3')]);
+	gfxdrawtext(string("3: ") + gGlobalStateClient.radiomenu["Menu1ES"], 10, 294);
 
-  if (gGlobalStateClient.rmenustate[0] != ' ')
-  {
-    NotImplemented("rendering", "rmenustate to int?");
+	if (gGlobalStateClient.rmenustate[0] != ' ')
+	{
+		NotImplemented("rendering", "rmenustate to int?");
 #if 0
         s = choose(strtoint(rmenustate[0]) - 1, {"EFC", "FFC", "ES"});
 #endif
-    gfxtextcolor(color[0]);
-    gfxdrawtext(string("1: ") + gGlobalStateClient.radiomenu[string("Menu2") + s + "U"], 190, 270);
-    gfxdrawtext(string("2: ") + gGlobalStateClient.radiomenu[string("Menu2") + s + 'M'], 190, 282);
-    gfxdrawtext(string("3: ") + gGlobalStateClient.radiomenu[string("Menu2") + s + 'D'], 190, 294);
-  }
+		gfxtextcolor(color[0]);
+		gfxdrawtext(string("1: ") + gGlobalStateClient.radiomenu[string("Menu2") + s + "U"], 190, 270);
+		gfxdrawtext(string("2: ") + gGlobalStateClient.radiomenu[string("Menu2") + s + 'M'], 190, 282);
+		gfxdrawtext(string("3: ") + gGlobalStateClient.radiomenu[string("Menu2") + s + 'D'], 190, 294);
+	}
 }
 
 void GlobalStateInterfaceGraphics::rendervotemenutexts()
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i = 0;
-  float x = NAN;
-  float y = NAN;
-  std::array<std::string, 2> str1;
+	auto& sprite_system = SpriteSystem::Get();
+	std::int32_t i = 0;
+	float x = NAN;
+	float y = NAN;
+	std::array<std::string, 2> str1;
 
-  if (GS::GetGame().IsVoteActive())
-  {
-    gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
+	if (GS::GetGame().IsVoteActive())
+	{
+		gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
 
-    x = 45 * gGlobalStateInterfaceGraphics._iscala.x;
-    y = 400 * gGlobalStateInterfaceGraphics._iscala.y;
-    if (GS::GetGame().GetVoteType() == vote_kick)
-    {
-      str1[0] = ("Kick");
-    }
-    else
-    {
-      str1[0] = ("Map");
-    }
+		x = 45 * gGlobalStateInterfaceGraphics._iscala.x;
+		y = 400 * gGlobalStateInterfaceGraphics._iscala.y;
+		if (GS::GetGame().GetVoteType() == vote_kick)
+		{
+			str1[0] = ("Kick");
+		}
+		else
+		{
+			str1[0] = ("Map");
+		}
 
-    str1[1] = (GS::GetGame().GetVoteTarget());
+		str1[1] = (GS::GetGame().GetVoteTarget());
 
-    if (GS::GetGame().GetVoteType() == vote_kick)
-    {
-      i = strtoint(GS::GetGame().GetVoteTarget());
+		if (GS::GetGame().GetVoteType() == vote_kick)
+		{
+			i = strtoint(GS::GetGame().GetVoteTarget());
 
-      if ((i > 0) && (i <= max_sprites))
-      {
-        str1[1] = (sprite_system.GetSprite(i).player->name);
-      }
-    }
+			if ((i > 0) && (i <= max_sprites))
+			{
+				str1[1] = (sprite_system.GetSprite(i).player->name);
+			}
+		}
 
-    gfxtextcolor(rgba(254, 104, 104, 225));
-    gfxdrawtext(str1[0], x + 30, y);
+		gfxtextcolor(rgba(254, 104, 104, 225));
+		gfxdrawtext(str1[0], x + 30, y);
 
-    gfxtextcolor(rgba(244, 244, 244, 225));
-    gfxdrawtext(str1[1], x + 65, y);
+		gfxtextcolor(rgba(244, 244, 244, 225));
+		gfxdrawtext(str1[1], x + 65, y);
 
-    gfxtextcolor(rgba(224, 218, 244, 205));
-    gfxdrawtext(("Voter: ") + (GS::GetGame().GetVoteStarter()), x + 10, y + 11);
-    gfxdrawtext(("Reason: ") + (GS::GetGame().GetVoteReason()), x + 10, y + 20);
+		gfxtextcolor(rgba(224, 218, 244, 205));
+		gfxdrawtext(("Voter: ") + (GS::GetGame().GetVoteStarter()), x + 10, y + 11);
+		gfxdrawtext(("Reason: ") + (GS::GetGame().GetVoteReason()), x + 10, y + 20);
 
-    gfxtextcolor(rgba(234, 234, 114, 205));
-    gfxdrawtext(("F12 - Yes   F11 - No"), x + 50, y + 31);
-  }
+		gfxtextcolor(rgba(234, 234, 114, 205));
+		gfxdrawtext(("F12 - Yes   F11 - No"), x + 50, y + 31);
+	}
 
-  if (gGlobalStateControlGame.votekickreasontype)
-  {
-    gGlobalStateGameRendering.setfontstyle(font_small);
-    gfxtextcolor(rgba(254, 124, 124));
-    gfxdrawtext(("Type reason for vote:"), 5, 390 * gGlobalStateInterfaceGraphics._iscala.y);
-  }
+	if (gGlobalStateControlGame.votekickreasontype)
+	{
+		gGlobalStateGameRendering.setfontstyle(font_small);
+		gfxtextcolor(rgba(254, 124, 124));
+		gfxdrawtext(("Type reason for vote:"), 5, 390 * gGlobalStateInterfaceGraphics._iscala.y);
+	}
 }
 
-void GlobalStateInterfaceGraphics::renderplayername(float width, float height, std::int32_t i,
-                                                    bool onlyoffscreen)
+void GlobalStateInterfaceGraphics::renderplayername(float width, float height, std::int32_t i, bool onlyoffscreen)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::uint8_t alpha = 0;
-  tgfxrect rc;
-  float x = NAN;
-  float y = NAN;
-  float w = NAN;
-  float h = NAN;
-  float dx = NAN;
-  float dy = NAN;
-  auto &things = GS::GetThingSystem().GetThings();
+	auto& sprite_system = SpriteSystem::Get();
+	std::uint8_t alpha = 0;
+	tgfxrect rc;
+	float x = NAN;
+	float y = NAN;
+	float w = NAN;
+	float h = NAN;
+	float dx = NAN;
+	float dy = NAN;
+	auto& things = GS::GetThingSystem().GetThings();
 
-  dy = iif(onlyoffscreen, -10, 5) + 15;
-  rc = gfxtextmetrics((sprite_system.GetSprite(i).player->name));
-  w = rectwidth(rc);
-  h = rectheight(rc);
-  x = (sprite_system.GetSprite(i).skeleton.pos[7].x - gGlobalStateClient.camerax +
-       0.5 * gGlobalStateGame.gamewidth) *
-      gGlobalStateInterfaceGraphics._rscala.x;
-  y = (sprite_system.GetSprite(i).skeleton.pos[7].y - gGlobalStateClient.cameray +
-       0.5 * gGlobalStateGame.gameheight + dy) *
-      gGlobalStateInterfaceGraphics._rscala.y;
+	dy = iif(onlyoffscreen, -10, 5) + 15;
+	rc = gfxtextmetrics((sprite_system.GetSprite(i).player->name));
+	w = rectwidth(rc);
+	h = rectheight(rc);
+	x = (sprite_system.GetSprite(i).skeleton.pos[7].x - gGlobalStateClient.camerax + 0.5 * gGlobalStateGame.gamewidth)
+	  * gGlobalStateInterfaceGraphics._rscala.x;
+	y = (sprite_system.GetSprite(i).skeleton.pos[7].y - gGlobalStateClient.cameray + 0.5 * gGlobalStateGame.gameheight
+			+ dy)
+	  * gGlobalStateInterfaceGraphics._rscala.y;
 
-  if (!onlyoffscreen || (x < 0) || (x > width) || (y < 0) || (y > height))
-  {
-    x = max(0.F, min(width - w, x - (w / 2)));
-    y = max(0.F, min(height - h, y - ((static_cast<std::int32_t>(!onlyoffscreen) * h) / 2)));
+	if (!onlyoffscreen || (x < 0) || (x > width) || (y < 0) || (y > height))
+	{
+		x = max(0.F, min(width - w, x - (w / 2)));
+		y = max(0.F, min(height - h, y - ((static_cast<std::int32_t>(!onlyoffscreen) * h) / 2)));
 
-    dx = fabs(sprite_system.GetPlayerSprite().skeleton.pos[7].x -
-              sprite_system.GetSprite(i).skeleton.pos[7].x);
-    dy = fabs(sprite_system.GetPlayerSprite().skeleton.pos[7].y -
-              sprite_system.GetSprite(i).skeleton.pos[7].y);
+		dx = fabs(sprite_system.GetPlayerSprite().skeleton.pos[7].x - sprite_system.GetSprite(i).skeleton.pos[7].x);
+		dy = fabs(sprite_system.GetPlayerSprite().skeleton.pos[7].y - sprite_system.GetSprite(i).skeleton.pos[7].y);
 
-    alpha = min(255.0, 50.0 + round(100000 / (dx + dy / 2)));
+		alpha = min(255.0, 50.0 + round(100000 / (dx + dy / 2)));
 
-    if ((sprite_system.GetSprite(i).holdedthing > 0) &&
-        (things[sprite_system.GetSprite(i).holdedthing].style < 4))
-    {
-      gfxtextcolor(rgba(outofscreenflag_message_color, alpha));
-    }
-    else if (sprite_system.GetSprite(i).deadmeat)
-    {
-      gfxtextcolor(rgba(outofscreendead_message_color, alpha));
-    }
-    else
-    {
-      gfxtextcolor(rgba(outofscreen_message_color, alpha));
-    }
+		if ((sprite_system.GetSprite(i).holdedthing > 0) && (things[sprite_system.GetSprite(i).holdedthing].style < 4))
+		{
+			gfxtextcolor(rgba(outofscreenflag_message_color, alpha));
+		}
+		else if (sprite_system.GetSprite(i).deadmeat)
+		{
+			gfxtextcolor(rgba(outofscreendead_message_color, alpha));
+		}
+		else
+		{
+			gfxtextcolor(rgba(outofscreen_message_color, alpha));
+		}
 
-    gfxdrawtext(x, y);
-  }
+		gfxdrawtext(x, y);
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderplayernames(float width, float height)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
+	auto& sprite_system = SpriteSystem::Get();
+	gGlobalStateGameRendering.setfontstyle(font_weapons_menu);
 
-  if (sprite_system.GetPlayerSprite().isspectator())
-  {
-    if (!gGlobalStateDemo.demoplayer.active())
-    {
-      for (auto &sprite : sprite_system.GetActiveSprites())
-      {
-        if (sprite.isinteam() and (!(CVar::sv_realisticmode) || (sprite.visible != 0)))
-        {
-          renderplayername(width, height, sprite.num, false);
-        }
-      }
-    }
-  }
-  else if (sprite_system.GetPlayerSprite().isinteam())
-  {
-    for (auto &sprite : sprite_system.GetActiveSprites())
-    {
-      if ((!sprite_system.IsPlayerSprite(sprite.num)) &&
-          sprite.isinsameteam(sprite_system.GetPlayerSprite()))
-      {
-        renderplayername(width, height, sprite.num, true);
-      }
-    }
-  }
+	if (sprite_system.GetPlayerSprite().isspectator())
+	{
+		if (!gGlobalStateDemo.demoplayer.active())
+		{
+			for (auto& sprite : sprite_system.GetActiveSprites())
+			{
+				if (sprite.isinteam() and (!(CVar::sv_realisticmode) || (sprite.visible != 0)))
+				{
+					renderplayername(width, height, sprite.num, false);
+				}
+			}
+		}
+	}
+	else if (sprite_system.GetPlayerSprite().isinteam())
+	{
+		for (auto& sprite : sprite_system.GetActiveSprites())
+		{
+			if ((!sprite_system.IsPlayerSprite(sprite.num)) && sprite.isinsameteam(sprite_system.GetPlayerSprite()))
+			{
+				renderplayername(width, height, sprite.num, true);
+			}
+		}
+	}
 }
 
 void GlobalStateInterfaceGraphics::renderceasefirecounter()
 {
-  auto &sprite_system = SpriteSystem::Get();
-  float x = NAN;
-  float y = NAN;
+	auto& sprite_system = SpriteSystem::Get();
+	float x = NAN;
+	float y = NAN;
 
-  auto &sprite = sprite_system.GetPlayerSprite();
-  x = sprite.skeleton.pos[9].x - 2;
-  y = sprite.skeleton.pos[9].y - 15;
-  x = (x - gGlobalStateClient.camerax + 0.5 * gGlobalStateGame.gamewidth) *
-      gGlobalStateInterfaceGraphics._rscala.x;
-  y = (y - gGlobalStateClient.cameray + 0.5 * gGlobalStateGame.gameheight) *
-      gGlobalStateInterfaceGraphics._rscala.y;
+	auto& sprite = sprite_system.GetPlayerSprite();
+	x = sprite.skeleton.pos[9].x - 2;
+	y = sprite.skeleton.pos[9].y - 15;
+	x = (x - gGlobalStateClient.camerax + 0.5 * gGlobalStateGame.gamewidth) * gGlobalStateInterfaceGraphics._rscala.x;
+	y = (y - gGlobalStateClient.cameray + 0.5 * gGlobalStateGame.gameheight) * gGlobalStateInterfaceGraphics._rscala.y;
 
-  gGlobalStateGameRendering.setfontstyle(font_small);
-  gfxtextcolor(rgba(game_message_color));
-  gfxdrawtext(inttostr((sprite.ceasefirecounter / 60) + 1), x, y);
+	gGlobalStateGameRendering.setfontstyle(font_small);
+	gfxtextcolor(rgba(game_message_color));
+	gfxdrawtext(inttostr((sprite.ceasefirecounter / 60) + 1), x, y);
 }
 
 void GlobalStateInterfaceGraphics::renderactionsnaptext(double t) const
 {
-  std::string str1;
+	std::string str1;
 
-  str1 = string("[[ ") + ("Press F4 to Save Screen Cap") + " ]]     [[ " + ("Press F5 to Cancel") +
-         " ]]";
+	str1 = string("[[ ") + ("Press F4 to Save Screen Cap") + " ]]     [[ " + ("Press F5 to Cancel") + " ]]";
 
-  gGlobalStateGameRendering.setfontstyle(font_small);
-  gfxtextcolor(rgba(230, 65, 60, 150 + fabs(round(sin(5.1 * t) * 100))));
-  gfxdrawtext(str1, 30 * _iscala.x, 412 * _iscala.y);
+	gGlobalStateGameRendering.setfontstyle(font_small);
+	gfxtextcolor(rgba(230, 65, 60, 150 + fabs(round(sin(5.1 * t) * 100))));
+	gfxdrawtext(str1, 30 * _iscala.x, 412 * _iscala.y);
 }
 
 void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float width, float height)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i = 0;
-  std::int32_t j = 0;
-  std::int32_t k = 0;
-  std::int32_t z = 0;
-  std::int32_t l = 0;
-  std::int32_t l2 = 0;
-  std::int32_t spectnumber = 0;
-  tvector2 p;
-  tvector2 _scala;
-  float scale = NAN;
-  float maxsize = NAN;
-  float roto = NAN;
-  float dx = NAN;
-  float dy = NAN;
-  float x = NAN;
-  float y = NAN;
-  float fragmenubottom = NAN;
-  float inaccuracy = NAN;
-  tvector2 cursorsize;
-  float cursorscale = NAN;
-  tvector2 cursorscaledoffset;
-  float cursorbinkscale = NAN;
-  // CursorBinkOffset: TVector2;
-  std::int32_t cursorcolor = 0;
-  std::int32_t alfa = 0;
-  tvector2 characteroffset;
-  tvector2 indicatoroffset;
-  std::uint64_t dotcolor = 0;
-  std::int32_t f1 = 0;
-  std::int32_t f2 = 0;
-  std::array<std::int32_t, 6> ids{};
-  std::uint64_t nextitemstep = 0;
-  std::array<std::uint64_t, 6> teamposstep{}; // = (0,0,0,0,0,0);
-  float moveacc = NAN;
-  tsprite *spriteme = nullptr;
-  tgfxcolor color{};
-  tgun *weapon = nullptr;
-  pgfxsprite spr = nullptr;
-  bool widescreencut = false;
-  std::string str1;
-  NotImplemented("network");
+	auto& sprite_system = SpriteSystem::Get();
+	std::int32_t i = 0;
+	std::int32_t j = 0;
+	std::int32_t k = 0;
+	std::int32_t z = 0;
+	std::int32_t l = 0;
+	std::int32_t l2 = 0;
+	std::int32_t spectnumber = 0;
+	tvector2 p;
+	tvector2 _scala;
+	float scale = NAN;
+	float maxsize = NAN;
+	float roto = NAN;
+	float dx = NAN;
+	float dy = NAN;
+	float x = NAN;
+	float y = NAN;
+	float fragmenubottom = NAN;
+	float inaccuracy = NAN;
+	tvector2 cursorsize;
+	float cursorscale = NAN;
+	tvector2 cursorscaledoffset;
+	float cursorbinkscale = NAN;
+	// CursorBinkOffset: TVector2;
+	std::int32_t cursorcolor = 0;
+	std::int32_t alfa = 0;
+	tvector2 characteroffset;
+	tvector2 indicatoroffset;
+	std::uint64_t dotcolor = 0;
+	std::int32_t f1 = 0;
+	std::int32_t f2 = 0;
+	std::array<std::int32_t, 6> ids{};
+	std::uint64_t nextitemstep = 0;
+	std::array<std::uint64_t, 6> teamposstep{}; // = (0,0,0,0,0,0);
+	float moveacc = NAN;
+	tsprite* spriteme = nullptr;
+	tgfxcolor color{};
+	tgun* weapon = nullptr;
+	pgfxsprite spr = nullptr;
+	bool widescreencut = false;
+	std::string str1;
+	NotImplemented("network");
 #if 0
     steamnetworkingquickconnectionstatus networkstats;
 #endif
-  auto &things = GS::GetThingSystem().GetThings();
+	auto& things = GS::GetThingSystem().GetThings();
 
-  spriteme = nullptr;
-  tgfxspritearray &t = gGlobalStateGameRendering.textures;
+	spriteme = nullptr;
+	tgfxspritearray& t = gGlobalStateGameRendering.textures;
 
-  pixelsize.x = width / gGlobalStateClientGame.renderwidth;
-  pixelsize.y = height / gGlobalStateClientGame.renderheight;
+	pixelsize.x = width / gGlobalStateClientGame.renderwidth;
+	pixelsize.y = height / gGlobalStateClientGame.renderheight;
 
-  gfxtextpixelratio(pixelsize);
+	gfxtextpixelratio(pixelsize);
 
-  /*$IF DEFINED(TESTING) or DEFINED(RELEASE_CANDIDATE)*/
-  gGlobalStateGameRendering.setfontstyle(font_small);
-  gfxtextcolor(rgba(250, 245, 255, 150));
-  NotImplemented("rendering", "soldat_version_long");
+	/*$IF DEFINED(TESTING) or DEFINED(RELEASE_CANDIDATE)*/
+	gGlobalStateGameRendering.setfontstyle(font_small);
+	gfxtextcolor(rgba(250, 245, 255, 150));
+	NotImplemented("rendering", "soldat_version_long");
 #if 0
     gfxdrawtext(soldat_version_long, 565 * _iscala.x, 465 * _iscala.y);
 #endif
-  /*#include "fend.pas"*/
+	/*#include "fend.pas"*/
 
-  auto &map = GS::GetGame().GetMap();
+	auto& map = GS::GetGame().GetMap();
 
-  if (sprite_system.IsPlayerSpriteValid())
-  {
-    spriteme = &sprite_system.GetPlayerSprite();
-  }
+	if (sprite_system.IsPlayerSpriteValid())
+	{
+		spriteme = &sprite_system.GetPlayerSprite();
+	}
 
-  widescreencut = (CVar::sv_bullettime) && (gGlobalStateClient.notexts == 0) &&
-                  (GS::GetGame().GetGoalTicks() < default_goalticks) &&
-                  (GS::GetGame().GetMapchangecounter() < 0);
+	widescreencut = (CVar::sv_bullettime) && (gGlobalStateClient.notexts == 0)
+				 && (GS::GetGame().GetGoalTicks() < default_goalticks) && (GS::GetGame().GetMapchangecounter() < 0);
 
-  // Big messages
-  if (gGlobalStateClient.notexts == 0)
-  {
-    maxsize = 0.8 * npot(gGlobalStateClientGame.renderheight / 2);
+	// Big messages
+	if (gGlobalStateClient.notexts == 0)
+	{
+		maxsize = 0.8 * npot(gGlobalStateClientGame.renderheight / 2);
 
-    for (i = 0; i < max_big_messages; i++)
-    {
-      if (bigdelay[i] > 0)
-      {
-        dy = 0;
-        alfa = static_cast<std::uint32_t>(bigcolor[i]) >> 24;
-        // somebody might have defined color as $RRGGBB not $AARRGGBB
-        // effectively leaving AA component 0
-        if (alfa == 0)
-        {
-          alfa = 255;
-        }
-        alfa = max(min((3 * bigdelay[i]) + 25, alfa), 0);
-        scale = bigscale[i] * (static_cast<float>(gGlobalStateClientGame.renderheight) / 480) * 4.8;
+		for (i = 0; i < max_big_messages; i++)
+		{
+			if (bigdelay[i] > 0)
+			{
+				dy = 0;
+				alfa = static_cast<std::uint32_t>(bigcolor[i]) >> 24;
+				// somebody might have defined color as $RRGGBB not $AARRGGBB
+				// effectively leaving AA component 0
+				if (alfa == 0)
+				{
+					alfa = 255;
+				}
+				alfa = max(min((3 * bigdelay[i]) + 25, alfa), 0);
+				scale = bigscale[i] * (static_cast<float>(gGlobalStateClientGame.renderheight) / 480) * 4.8;
 
-        if (scale * gGlobalStateGameRendering.fontstylesize(font_big) > maxsize)
-        {
-          y = scale;
-          scale = maxsize / gGlobalStateGameRendering.fontstylesize(font_big);
-          gfxtextscale(y / scale);
-        }
+				if (scale * gGlobalStateGameRendering.fontstylesize(font_big) > maxsize)
+				{
+					y = scale;
+					scale = maxsize / gGlobalStateGameRendering.fontstylesize(font_big);
+					gfxtextscale(y / scale);
+				}
 
-        if (i == 1)
-        {
-          gfxtextverticalalign(gfx_baseline);
+				if (i == 1)
+				{
+					gfxtextverticalalign(gfx_baseline);
 
-          if (widescreencut)
-          {
-            dy = -30 * _iscala.y;
-          }
-        }
+					if (widescreencut)
+					{
+						dy = -30 * _iscala.y;
+					}
+				}
 
-        gGlobalStateGameRendering.setfontstyle(font_big, scale);
-        gfxtextcolor(rgba(bigcolor[i], alfa));
-        gfxtextshadow(1, 1, rgba(0, power(static_cast<float>(alfa) / 255, 4) * alfa));
-        gfxdrawtext(bigtext[i], bigposx[i], bigposy[i] + dy);
-        gfxtextverticalalign(gfx_top);
-        gfxtextscale(1);
-      }
+				gGlobalStateGameRendering.setfontstyle(font_big, scale);
+				gfxtextcolor(rgba(bigcolor[i], alfa));
+				gfxtextshadow(1, 1, rgba(0, power(static_cast<float>(alfa) / 255, 4) * alfa));
+				gfxdrawtext(bigtext[i], bigposx[i], bigposy[i] + dy);
+				gfxtextverticalalign(gfx_top);
+				gfxtextscale(1);
+			}
 
-      if (worlddelay[i] > 0)
-      {
-        alfa = static_cast<unsigned long>(worldcolor[i]) >> 24;
-        // somebody might have defined color as $RRGGBB not $AARRGGBB
-        // effectively leaving AA component 0
-        if (alfa == 0)
-        {
-          alfa = 255;
-        }
-        alfa = max(min((3 * worlddelay[i]) + 25, alfa), 0);
-        x = worldposx[i] +
-            (0.5 * gGlobalStateGame.gamewidth - gGlobalStateClient.camerax) * _rscala.x;
-        y = worldposy[i] +
-            (0.5 * gGlobalStateGame.gameheight - gGlobalStateClient.cameray) * _rscala.y;
+			if (worlddelay[i] > 0)
+			{
+				alfa = static_cast<unsigned long>(worldcolor[i]) >> 24;
+				// somebody might have defined color as $RRGGBB not $AARRGGBB
+				// effectively leaving AA component 0
+				if (alfa == 0)
+				{
+					alfa = 255;
+				}
+				alfa = max(min((3 * worlddelay[i]) + 25, alfa), 0);
+				x = worldposx[i] + (0.5 * gGlobalStateGame.gamewidth - gGlobalStateClient.camerax) * _rscala.x;
+				y = worldposy[i] + (0.5 * gGlobalStateGame.gameheight - gGlobalStateClient.cameray) * _rscala.y;
 
-        scale = worldscale[i];
+				scale = worldscale[i];
 
-        if (worldscale[i] * gGlobalStateGameRendering.fontstylesize(font_world) > maxsize)
-        {
-          scale = maxsize / gGlobalStateGameRendering.fontstylesize(font_world);
-        }
+				if (worldscale[i] * gGlobalStateGameRendering.fontstylesize(font_world) > maxsize)
+				{
+					scale = maxsize / gGlobalStateGameRendering.fontstylesize(font_world);
+				}
 
-        if (scale != worldscale[i])
-        {
-          gfxtextscale(static_cast<float>(worldscale[i]) / scale);
-        }
+				if (scale != worldscale[i])
+				{
+					gfxtextscale(static_cast<float>(worldscale[i]) / scale);
+				}
 
-        gGlobalStateGameRendering.setfontstyle(font_world, scale);
-        gfxtextcolor(rgba(worldcolor[i], alfa));
-        gfxtextshadow(1, 1, rgba(0, power(static_cast<float>(alfa) / 255, 4) * alfa));
-        gfxdrawtext(worldtext[i], x, y);
-        gfxtextscale(1);
-      }
-    }
-  }
+				gGlobalStateGameRendering.setfontstyle(font_world, scale);
+				gfxtextcolor(rgba(worldcolor[i], alfa));
+				gfxtextshadow(1, 1, rgba(0, power(static_cast<float>(alfa) / 255, 4) * alfa));
+				gfxdrawtext(worldtext[i], x, y);
+				gfxtextscale(1);
+			}
+		}
+	}
 
-  if ((sprite_system.IsPlayerSpriteValid()) && (gGlobalStateClient.notexts == 0))
-  {
-    if (sprite_system.GetPlayerSprite().isspectator() &&
-        (gGlobalStateClient.camerafollowsprite > 0) and (CVar::sv_advancedspectator))
-    {
-      spectnumber = gGlobalStateClient.mysprite;
-      gGlobalStateClient.mysprite = gGlobalStateClient.camerafollowsprite;
-      spriteme = &sprite_system.GetPlayerSprite();
-    }
+	if ((sprite_system.IsPlayerSpriteValid()) && (gGlobalStateClient.notexts == 0))
+	{
+		if (sprite_system.GetPlayerSprite().isspectator() && (gGlobalStateClient.camerafollowsprite > 0)
+			and (CVar::sv_advancedspectator))
+		{
+			spectnumber = gGlobalStateClient.mysprite;
+			gGlobalStateClient.mysprite = gGlobalStateClient.camerafollowsprite;
+			spriteme = &sprite_system.GetPlayerSprite();
+		}
 
-    // Bonus all colored
-    if (CVar::ui_bonuscolors)
-    {
-      color.color.a = 0;
+		// Bonus all colored
+		if (CVar::ui_bonuscolors)
+		{
+			color.color.a = 0;
 
-      switch (spriteme->bonusstyle)
-      {
-      case bonus_flamegod:
-        color = rgba(0xffff00, 62);
-        break;
-      case bonus_predator:
-        color = rgba(0xfe00dc, 82);
-        break;
-      case bonus_berserker:
-        color = rgba(0xfe0000, 82);
-        break;
-      }
+			switch (spriteme->bonusstyle)
+			{
+				case bonus_flamegod:
+					color = rgba(0xffff00, 62);
+					break;
+				case bonus_predator:
+					color = rgba(0xfe00dc, 82);
+					break;
+				case bonus_berserker:
+					color = rgba(0xfe0000, 82);
+					break;
+			}
 
-      if (color.color.a > 0)
-      {
-        _scala.x = t[GFX::INTERFACE_OVERLAY]->scale;
-        _scala.y = t[GFX::INTERFACE_OVERLAY]->scale;
-        _scala.x = width / (t[GFX::INTERFACE_OVERLAY]->width * _scala.x);
-        _scala.y = height / (t[GFX::INTERFACE_OVERLAY]->height * _scala.y);
-        gfxdrawsprite(t[GFX::INTERFACE_OVERLAY], 0, 0, _scala.x, _scala.y, color);
-      }
-    }
+			if (color.color.a > 0)
+			{
+				_scala.x = t[GFX::INTERFACE_OVERLAY]->scale;
+				_scala.y = t[GFX::INTERFACE_OVERLAY]->scale;
+				_scala.x = width / (t[GFX::INTERFACE_OVERLAY]->width * _scala.x);
+				_scala.y = height / (t[GFX::INTERFACE_OVERLAY]->height * _scala.y);
+				gfxdrawsprite(t[GFX::INTERFACE_OVERLAY], 0, 0, _scala.x, _scala.y, color);
+			}
+		}
 
-    color = rgba(0xffffff, int_.alpha);
-    weapon = &spriteme->weapon;
+		color = rgba(0xffffff, int_.alpha);
+		weapon = &spriteme->weapon;
 
-    if (isinteractiveinterface())
-    {
-      if (int_.health)
-      {
-        x = pixelalignx(int_.healthico_x * _iscala.x);
-        y = pixelaligny(int_.healthico_y * _iscala.y);
+		if (isinteractiveinterface())
+		{
+			if (int_.health)
+			{
+				x = pixelalignx(int_.healthico_x * _iscala.x);
+				y = pixelaligny(int_.healthico_y * _iscala.y);
 
-        gfxdrawsprite(t[GFX::INTERFACE_HEALTH], x, y, 0, 0, degtorad(int_.healthico_rotate), color);
+				gfxdrawsprite(t[GFX::INTERFACE_HEALTH], x, y, 0, 0, degtorad(int_.healthico_rotate), color);
 
-        renderbar(GFX::INTERFACE_HEALTH_BAR, int_.healthbar_pos, int_.healthbar_x,
-                  relinfo.healthbar_rel_x, int_.healthbar_y, relinfo.healthbar_rel_y,
-                  int_.healthbar_width, int_.healthbar_height, int_.healthbar_rotate,
-                  spriteme->GetHealth() / GS::GetGame().GetStarthealth(), intalign.healthbar == 0);
-      }
+				renderbar(GFX::INTERFACE_HEALTH_BAR,
+					int_.healthbar_pos,
+					int_.healthbar_x,
+					relinfo.healthbar_rel_x,
+					int_.healthbar_y,
+					relinfo.healthbar_rel_y,
+					int_.healthbar_width,
+					int_.healthbar_height,
+					int_.healthbar_rotate,
+					spriteme->GetHealth() / GS::GetGame().GetStarthealth(),
+					intalign.healthbar == 0);
+			}
 
-      if (int_.vest && (spriteme->vest > 0))
-      {
-        renderbar(GFX::INTERFACE_VEST_BAR, int_.vestbar_pos, int_.vestbar_x,
-                  relinfo.healthbar_rel_x, int_.vestbar_y, relinfo.healthbar_rel_y,
-                  int_.vestbar_width, int_.vestbar_height, int_.vestbar_rotate,
-                  spriteme->vest / defaultvest, intalign.vestbar == 0);
-      }
+			if (int_.vest && (spriteme->vest > 0))
+			{
+				renderbar(GFX::INTERFACE_VEST_BAR,
+					int_.vestbar_pos,
+					int_.vestbar_x,
+					relinfo.healthbar_rel_x,
+					int_.vestbar_y,
+					relinfo.healthbar_rel_y,
+					int_.vestbar_width,
+					int_.vestbar_height,
+					int_.vestbar_rotate,
+					spriteme->vest / defaultvest,
+					intalign.vestbar == 0);
+			}
 
-      if (int_.ammo)
-      {
-        x = pixelalignx(int_.ammoico_x * _iscala.x);
-        y = pixelaligny(int_.ammoico_y * _iscala.y);
+			if (int_.ammo)
+			{
+				x = pixelalignx(int_.ammoico_x * _iscala.x);
+				y = pixelaligny(int_.ammoico_y * _iscala.y);
 
-        gfxdrawsprite(t[GFX::INTERFACE_AMMO], x, y, 0, 0, degtorad(int_.ammoico_rotate), color);
+				gfxdrawsprite(t[GFX::INTERFACE_AMMO], x, y, 0, 0, degtorad(int_.ammoico_rotate), color);
 
-        if ((weapon->ammocount == 0) && (weapon->num != spas12_num))
-        {
-          renderbar(GFX::INTERFACE_RELOAD_BAR, int_.ammobar_pos, int_.ammobar_x,
-                    relinfo.ammobar_rel_x, int_.ammobar_y, relinfo.ammobar_rel_y,
-                    int_.ammobar_width, int_.ammobar_height, int_.ammobar_rotate,
-                    1 - (weapon->reloadtimefloat / weapon->reloadtime), intalign.reloadbar == 0);
-        }
-        else if (weapon->ammocount > 0)
-        {
-          renderbar(GFX::INTERFACE_RELOAD_BAR, int_.ammobar_pos, int_.ammobar_x,
-                    relinfo.ammobar_rel_x, int_.ammobar_y, relinfo.ammobar_rel_y,
-                    int_.ammobar_width, int_.ammobar_height, int_.ammobar_rotate,
-                    static_cast<float>(weapon->ammocount) / weapon->ammo, intalign.ammobar == 0);
-        }
-      }
+				if ((weapon->ammocount == 0) && (weapon->num != spas12_num))
+				{
+					renderbar(GFX::INTERFACE_RELOAD_BAR,
+						int_.ammobar_pos,
+						int_.ammobar_x,
+						relinfo.ammobar_rel_x,
+						int_.ammobar_y,
+						relinfo.ammobar_rel_y,
+						int_.ammobar_width,
+						int_.ammobar_height,
+						int_.ammobar_rotate,
+						1 - (weapon->reloadtimefloat / weapon->reloadtime),
+						intalign.reloadbar == 0);
+				}
+				else if (weapon->ammocount > 0)
+				{
+					renderbar(GFX::INTERFACE_RELOAD_BAR,
+						int_.ammobar_pos,
+						int_.ammobar_x,
+						relinfo.ammobar_rel_x,
+						int_.ammobar_y,
+						relinfo.ammobar_rel_y,
+						int_.ammobar_width,
+						int_.ammobar_height,
+						int_.ammobar_rotate,
+						static_cast<float>(weapon->ammocount) / weapon->ammo,
+						intalign.ammobar == 0);
+				}
+			}
 
-      if (int_.fire)
-      {
-        x = pixelalignx((relinfo.firebar_rel_x * _iscala.x) +
-                        (int_.firebar_x - relinfo.firebar_rel_x));
+			if (int_.fire)
+			{
+				x = pixelalignx((relinfo.firebar_rel_x * _iscala.x) + (int_.firebar_x - relinfo.firebar_rel_x));
 
-        y = pixelaligny((relinfo.firebar_rel_y * _iscala.y) +
-                        (int_.firebar_y - relinfo.firebar_rel_y));
+				y = pixelaligny((relinfo.firebar_rel_y * _iscala.y) + (int_.firebar_y - relinfo.firebar_rel_y));
 
-        gfxdrawsprite(t[GFX::INTERFACE_FIRE_BAR_R], x, y, 0, 0, degtorad(int_.firebar_rotate),
-                      color);
+				gfxdrawsprite(t[GFX::INTERFACE_FIRE_BAR_R], x, y, 0, 0, degtorad(int_.firebar_rotate), color);
 
-        renderbar(GFX::INTERFACE_FIRE_BAR, int_.firebar_pos, int_.fireico_x, relinfo.firebar_rel_x,
-                  int_.fireico_y, relinfo.firebar_rel_y, int_.firebar_width, int_.firebar_height,
-                  int_.fireico_rotate, weapon->fireintervalfloat / weapon->fireinterval,
-                  intalign.firebar == 0);
-      }
+				renderbar(GFX::INTERFACE_FIRE_BAR,
+					int_.firebar_pos,
+					int_.fireico_x,
+					relinfo.firebar_rel_x,
+					int_.fireico_y,
+					relinfo.firebar_rel_y,
+					int_.firebar_width,
+					int_.firebar_height,
+					int_.fireico_rotate,
+					weapon->fireintervalfloat / weapon->fireinterval,
+					intalign.firebar == 0);
+			}
 
-      if (int_.jet)
-      {
-        x = pixelalignx(int_.jetico_x * _iscala.x);
-        y = pixelaligny(int_.jetico_y * _iscala.y);
+			if (int_.jet)
+			{
+				x = pixelalignx(int_.jetico_x * _iscala.x);
+				y = pixelaligny(int_.jetico_y * _iscala.y);
 
-        gfxdrawsprite(t[GFX::INTERFACE_JET], x, y, 0, 0, degtorad(int_.jetico_rotate), color);
+				gfxdrawsprite(t[GFX::INTERFACE_JET], x, y, 0, 0, degtorad(int_.jetico_rotate), color);
 
-        if (map.startjet > 0)
-        {
-          renderbar(GFX::INTERFACE_JET_BAR, int_.jetbar_pos, int_.jetbar_x, relinfo.jetbar_rel_x,
-                    int_.jetbar_y, relinfo.jetbar_rel_y, int_.jetbar_width, int_.jetbar_height,
-                    int_.jetbar_rotate, spriteme->jetscountfloat / map.startjet,
-                    intalign.jetbar == 0);
-        }
-      }
+				if (map.startjet > 0)
+				{
+					renderbar(GFX::INTERFACE_JET_BAR,
+						int_.jetbar_pos,
+						int_.jetbar_x,
+						relinfo.jetbar_rel_x,
+						int_.jetbar_y,
+						relinfo.jetbar_rel_y,
+						int_.jetbar_width,
+						int_.jetbar_height,
+						int_.jetbar_rotate,
+						spriteme->jetscountfloat / map.startjet,
+						intalign.jetbar == 0);
+				}
+			}
 
-      if (int_.nades && (int_.nades_pos != textstyle))
-      {
-        i = 0;
+			if (int_.nades && (int_.nades_pos != textstyle))
+			{
+				i = 0;
 
-        if (spriteme->tertiaryweapon.num == fraggrenade_num)
-        {
-          i = GFX::INTERFACE_NADE;
-        }
-        else if (spriteme->tertiaryweapon.num == clustergrenade_num)
-        {
-          i = GFX::INTERFACE_CLUSTER_NADE;
-        }
+				if (spriteme->tertiaryweapon.num == fraggrenade_num)
+				{
+					i = GFX::INTERFACE_NADE;
+				}
+				else if (spriteme->tertiaryweapon.num == clustergrenade_num)
+				{
+					i = GFX::INTERFACE_CLUSTER_NADE;
+				}
 
-        if (i != 0)
-        {
-          dx = t[i]->width * t[i]->scale;
-          dy = t[i]->height * t[i]->scale;
+				if (i != 0)
+				{
+					dx = t[i]->width * t[i]->scale;
+					dy = t[i]->height * t[i]->scale;
 
-          for (j = 1; std::cmp_less_equal(j, spriteme->tertiaryweapon.ammocount); j++)
-          {
-            if (int_.nades_pos == horizontal)
-            {
-              x = pixelalignx((relinfo.nadesbar_rel_x * _iscala.x) + (dx * j) +
-                              (int_.nades_x - relinfo.nadesbar_rel_x));
-              y = pixelaligny((relinfo.nadesbar_rel_y * _iscala.y) +
-                              (int_.nades_y - relinfo.nadesbar_rel_y));
-            }
-            else if (int_.nades_pos == vertical)
-            {
-              x = pixelalignx((relinfo.nadesbar_rel_x * _iscala.x) +
-                              (int_.nades_x - relinfo.nadesbar_rel_x));
-              y = pixelaligny((relinfo.nadesbar_rel_y * _iscala.y) +
-                              (int_.nades_y - relinfo.nadesbar_rel_y) - (dy * j) + (dy * 6));
-            }
+					for (j = 1; std::cmp_less_equal(j, spriteme->tertiaryweapon.ammocount); j++)
+					{
+						if (int_.nades_pos == horizontal)
+						{
+							x = pixelalignx((relinfo.nadesbar_rel_x * _iscala.x) + (dx * j)
+											+ (int_.nades_x - relinfo.nadesbar_rel_x));
+							y = pixelaligny(
+								(relinfo.nadesbar_rel_y * _iscala.y) + (int_.nades_y - relinfo.nadesbar_rel_y));
+						}
+						else if (int_.nades_pos == vertical)
+						{
+							x = pixelalignx(
+								(relinfo.nadesbar_rel_x * _iscala.x) + (int_.nades_x - relinfo.nadesbar_rel_x));
+							y = pixelaligny((relinfo.nadesbar_rel_y * _iscala.y)
+											+ (int_.nades_y - relinfo.nadesbar_rel_y) - (dy * j) + (dy * 6));
+						}
 
-            gfxdrawsprite(t[i], x, y, color);
-          }
-        }
-      }
-    }
+						gfxdrawsprite(t[i], x, y, color);
+					}
+				}
+			}
+		}
 
-    // Aim cursor
-    if (!(gGlobalStateGameMenus.limbomenu->active || gGlobalStateGameMenus.teammenu->active ||
-          gGlobalStateGameMenus.escmenu->active) &&
-        !spriteme->deadmeat &&
-        ((GS::GetGame().GetMapchangecounter() < 0) ||
-         (GS::GetGame().GetMapchangecounter() == 999999999)) &&
-        !(gGlobalStateDemo.demoplayer.active() && (!CVar::demo_showcrosshair)) &&
-        ((spectnumber <= 0) || (spectnumber > 32) ||
-         !(!sprite_system.GetSprite(spectnumber).player->demoplayer)))
-    {
-      // Set base scale for the crosshair
-      if (gGlobalStateClient.sniperline_client_hpp == 1)
-      {
-        cursorscale = 0.5;
-      }
-      else
-      {
-        cursorscale = 1;
-      }
+		// Aim cursor
+		if (!(gGlobalStateGameMenus.limbomenu->active || gGlobalStateGameMenus.teammenu->active
+				|| gGlobalStateGameMenus.escmenu->active)
+			&& !spriteme->deadmeat
+			&& ((GS::GetGame().GetMapchangecounter() < 0) || (GS::GetGame().GetMapchangecounter() == 999999999))
+			&& !(gGlobalStateDemo.demoplayer.active() && (!CVar::demo_showcrosshair))
+			&& ((spectnumber <= 0) || (spectnumber > 32)
+				|| !(!sprite_system.GetSprite(spectnumber).player->demoplayer)))
+		{
+			// Set base scale for the crosshair
+			if (gGlobalStateClient.sniperline_client_hpp == 1)
+			{
+				cursorscale = 0.5;
+			}
+			else
+			{
+				cursorscale = 1;
+			}
 
-      cursorsize.x = t[GFX::INTERFACE_CURSOR]->width * t[GFX::INTERFACE_CURSOR]->scale;
-      cursorsize.y = t[GFX::INTERFACE_CURSOR]->height * t[GFX::INTERFACE_CURSOR]->scale;
+			cursorsize.x = t[GFX::INTERFACE_CURSOR]->width * t[GFX::INTERFACE_CURSOR]->scale;
+			cursorsize.y = t[GFX::INTERFACE_CURSOR]->height * t[GFX::INTERFACE_CURSOR]->scale;
 
-      // Base crosshair offset. Larger offset if interface scaling is enabled
-      cursorscaledoffset.x = (float)(cursorsize.x) / 2 * cursorscale / _rscala.x;
-      cursorscaledoffset.y = (float)(cursorsize.y) / 2 * cursorscale / _rscala.y;
+			// Base crosshair offset. Larger offset if interface scaling is enabled
+			cursorscaledoffset.x = (float)(cursorsize.x) / 2 * cursorscale / _rscala.x;
+			cursorscaledoffset.y = (float)(cursorsize.y) / 2 * cursorscale / _rscala.y;
 
-      moveacc = spriteme->getmoveacc();
-      inaccuracy = gGlobalStateClient.hitspraycounter + moveacc * 100;
+			moveacc = spriteme->getmoveacc();
+			inaccuracy = gGlobalStateClient.hitspraycounter + moveacc * 100;
 
-      // Embiggen the crosshair when binked, keeping it centered
-      if (inaccuracy > 0)
-      {
-        cursorbinkscale = power(inaccuracy, 0.6) / 20 * cursorscale;
-        // CursorBinkOffset.x := CursorSize.x / 2 * CursorBinkScale / _rscala.x;
-        // CursorBinkOffset.y := CursorSize.y / 2 * CursorBinkScale / _rscala.y;
-        // TODO(vscode): Finish
-        cursorscale = cursorscale + cursorbinkscale;
-      }
+			// Embiggen the crosshair when binked, keeping it centered
+			if (inaccuracy > 0)
+			{
+				cursorbinkscale = power(inaccuracy, 0.6) / 20 * cursorscale;
+				// CursorBinkOffset.x := CursorSize.x / 2 * CursorBinkScale / _rscala.x;
+				// CursorBinkOffset.y := CursorSize.y / 2 * CursorBinkScale / _rscala.y;
+				// TODO(vscode): Finish
+				cursorscale = cursorscale + cursorbinkscale;
+			}
 
-      // Color and alpha for crosshair
-      if (cursortextlength > 0)
-      {
-        alfa = CVar::ui_status_transparency - 50;
+			// Color and alpha for crosshair
+			if (cursortextlength > 0)
+			{
+				alfa = CVar::ui_status_transparency - 50;
 
-        if (cursorfriendly)
-        {
-          cursorcolor = 0x33ff33;
-        }
-        else
-        {
-          cursorcolor = 0xff3333;
-        }
-      }
-      else
-      {
-        if (gGlobalStateClient.sniperline_client_hpp == 1)
-        {
-          alfa = CVar::ui_status_transparency / 2;
-        }
-        else
-        {
-          alfa = CVar::ui_status_transparency;
-        }
+				if (cursorfriendly)
+				{
+					cursorcolor = 0x33ff33;
+				}
+				else
+				{
+					cursorcolor = 0xff3333;
+				}
+			}
+			else
+			{
+				if (gGlobalStateClient.sniperline_client_hpp == 1)
+				{
+					alfa = CVar::ui_status_transparency / 2;
+				}
+				else
+				{
+					alfa = CVar::ui_status_transparency;
+				}
 
-        cursorcolor = 0xffffff;
-      }
+				cursorcolor = 0xffffff;
+			}
 
-      if (gGlobalStateClient.sniperline_client_hpp == 1)
-      {
-        characteroffset.x = gGlobalStateGame.gamewidthhalf - gGlobalStateClient.camerax +
-                            spriteme->skeleton.pos[15].x;
-        characteroffset.y = gGlobalStateGame.gameheighthalf - gGlobalStateClient.cameray +
-                            spriteme->skeleton.pos[15].y;
+			if (gGlobalStateClient.sniperline_client_hpp == 1)
+			{
+				characteroffset.x =
+					gGlobalStateGame.gamewidthhalf - gGlobalStateClient.camerax + spriteme->skeleton.pos[15].x;
+				characteroffset.y =
+					gGlobalStateGame.gameheighthalf - gGlobalStateClient.cameray + spriteme->skeleton.pos[15].y;
 
-        roto = vec2length(vec2subtract(
-          vector2(gGlobalStateClientGame.mx, gGlobalStateClientGame.my), characteroffset));
+				roto = vec2length(
+					vec2subtract(vector2(gGlobalStateClientGame.mx, gGlobalStateClientGame.my), characteroffset));
 
-        if (roto < 1200)
-        {
-          x = pixelalignx(characteroffset.x * _rscala.x);
-          y = pixelaligny(characteroffset.y * _rscala.y);
+				if (roto < 1200)
+				{
+					x = pixelalignx(characteroffset.x * _rscala.x);
+					y = pixelaligny(characteroffset.y * _rscala.y);
 
-          gfxdrawsprite(
-            t[GFX::INTERFACE_SIGHT], x - 1, y - 1, (roto / 240) * _rscala.x,
-            (roto / 480) * _rscala.y, 1, 1,
-            -angle2points(vector2(x, y), vector2(gGlobalStateClientGame.mx * _rscala.x,
-                                                 gGlobalStateClientGame.my * _rscala.y)),
-            rgba(0xffffff, round((roto / 240) * _rscala.x * 32)));
-        }
-      }
+					gfxdrawsprite(t[GFX::INTERFACE_SIGHT],
+						x - 1,
+						y - 1,
+						(roto / 240) * _rscala.x,
+						(roto / 480) * _rscala.y,
+						1,
+						1,
+						-angle2points(vector2(x, y),
+							vector2(gGlobalStateClientGame.mx * _rscala.x, gGlobalStateClientGame.my * _rscala.y)),
+						rgba(0xffffff, round((roto / 240) * _rscala.x * 32)));
+				}
+			}
 
-      if (!gGlobalStateDemo.demoplayer.active())
-      {
-        x = pixelalignx((gGlobalStateClientGame.mx - cursorscaledoffset.x) * _rscala.x);
-        y = pixelaligny((gGlobalStateClientGame.my - cursorscaledoffset.y) * _rscala.y);
-      }
-      else
-      {
-        x =
-          pixelalignx(((gGlobalStateGame.gamewidthhalf - gGlobalStateClient.camerax) * _rscala.x) +
-                      spriteme->control.mouseaimx);
-        y =
-          pixelaligny(((gGlobalStateGame.gameheighthalf - gGlobalStateClient.cameray) * _rscala.y) +
-                      spriteme->control.mouseaimy);
-      }
+			if (!gGlobalStateDemo.demoplayer.active())
+			{
+				x = pixelalignx((gGlobalStateClientGame.mx - cursorscaledoffset.x) * _rscala.x);
+				y = pixelaligny((gGlobalStateClientGame.my - cursorscaledoffset.y) * _rscala.y);
+			}
+			else
+			{
+				x = pixelalignx(((gGlobalStateGame.gamewidthhalf - gGlobalStateClient.camerax) * _rscala.x)
+								+ spriteme->control.mouseaimx);
+				y = pixelaligny(((gGlobalStateGame.gameheighthalf - gGlobalStateClient.cameray) * _rscala.y)
+								+ spriteme->control.mouseaimy);
+			}
 
-      gfxdrawsprite(t[GFX::INTERFACE_CURSOR], x, y, cursorscale, rgba(cursorcolor, alfa));
+			gfxdrawsprite(t[GFX::INTERFACE_CURSOR], x, y, cursorscale, rgba(cursorcolor, alfa));
 
 #ifdef DEBUGCURSORS
-      for (auto &sprite : SpriteSystem::Get().GetActiveSprites)
-      {
-        if (!(sprite.deadmeat))
-        {
-          x = (gamewidthhalf - camerax) * _rscala.x + sprite.control.mouseaimx;
-          y = (gameheighthalf - cameray) * _rscala.y + sprite.control.mouseaimy;
+			for (auto& sprite : SpriteSystem::Get().GetActiveSprites)
+			{
+				if (!(sprite.deadmeat))
+				{
+					x = (gamewidthhalf - camerax) * _rscala.x + sprite.control.mouseaimx;
+					y = (gameheighthalf - cameray) * _rscala.y + sprite.control.mouseaimy;
 
-          gfxdrawsprite(t[GFX::INTERFACE_CURSOR], x, y, _rscala.x, _rscala.y, rgba(0xff00ff, alfa));
-        }
-      }
+					gfxdrawsprite(t[GFX::INTERFACE_CURSOR], x, y, _rscala.x, _rscala.y, rgba(0xff00ff, alfa));
+				}
+			}
 #endif
-    }
-
-    // Player indicator
-    if (CVar::ui_playerindicator && spriteme->isnotspectator())
-    {
-      characteroffset.x =
-        gGlobalStateGame.gamewidthhalf - gGlobalStateClient.camerax + spriteme->skeleton.pos[12].x;
-      characteroffset.y =
-        gGlobalStateGame.gameheighthalf - gGlobalStateClient.cameray + spriteme->skeleton.pos[12].y;
-
-      x = t[GFX::INTERFACE_ARROW]->width * t[GFX::INTERFACE_ARROW]->scale;
-      y = t[GFX::INTERFACE_ARROW]->height * t[GFX::INTERFACE_ARROW]->scale;
-
-      indicatoroffset.x = x / 2 / _rscala.x;
-      indicatoroffset.y = y / 2 / _rscala.y;
-
-      x = characteroffset.x - indicatoroffset.x;
-      y = characteroffset.y - indicatoroffset.y - 15;
-
-      if ((spriteme->alpha < 255) && (!CVar::sv_survivalmode))
-      {
-        alfa = spriteme->ceasefirecounter * 2 + 75;
-      }
-      else
-      {
-        alfa = 100;
-        y = y + 2 * sin(5.1 * timeelapsed);
-      }
-
-      x = x * _rscala.x;
-      y = y * _rscala.y;
-
-      gfxdrawsprite(t[GFX::INTERFACE_ARROW], x, y, rgba(0xffffff, alfa));
-    }
-
-    if ((spectnumber > 0) && (spectnumber <= 32) &&
-        sprite_system.GetSprite(spectnumber).isspectator() && (CVar::sv_advancedspectator))
-    {
-      gGlobalStateClient.mysprite = spectnumber;
-      spriteme = &sprite_system.GetPlayerSprite();
-    }
-
-    // Ping dot
-    if (int_.ping && playernamesshow)
-    {
-      x = int_.ping_x * _iscala.x;
-      y = int_.ping_y * _iscala.y;
-      _scala.x = 0.5 + (static_cast<float>(spriteme->player->realping) / 600);
-      _scala.y = 0.45 + (static_cast<float>(spriteme->player->realping) / 600);
-
-      if (spriteme->player->realping <= 50)
-      {
-        dotcolor = 0xff00;
-      }
-      else if (spriteme->player->realping <= 100)
-      {
-        dotcolor = 0x22ff00;
-      }
-      else if (spriteme->player->realping <= 150)
-      {
-        dotcolor = 0x54c700;
-      }
-      else if (spriteme->player->realping <= 200)
-      {
-        dotcolor = 0x76a700;
-      }
-      else if (spriteme->player->realping <= 250)
-      {
-        dotcolor = 0x938800;
-      }
-      else if (spriteme->player->realping <= 300)
-      {
-        dotcolor = 0xa17700;
-      }
-      else if (spriteme->player->realping <= 350)
-      {
-        dotcolor = 0xcc4800;
-      }
-      else
-      {
-        dotcolor = 0xff0000;
-      }
-
-      if (spriteme->player->realping > 255)
-      {
-        alfa = 255;
-      }
-      else
-      {
-        alfa = spriteme->player->realping;
-      }
-
-      gfxdrawsprite(t[GFX::INTERFACE_DOT], x, y, _scala.x, _scala.y, rgba(dotcolor, alfa));
-    }
-  } // (MySprite > 0) and (NoTexts = 0)
-
-  // Kill console weapons
-  if (CVar::ui_killconsole)
-  {
-    if (gGlobalStateClient.notexts == 0)
-    {
-      alfa = 255;
-      if (gGlobalStateClientGame.renderwidth < 1024)
-      {
-        if (fragsmenushow || statsmenushow)
-        {
-          alfa = 50;
-        }
-        if (length(gGlobalStateClientGame.chattext) > 0)
-        {
-          alfa = 150;
-        }
-      }
-
-      l2 = 0;
-      for (j = 1; j <= gGlobalStateClient.GetKillConsole().GetCount(); j++)
-      {
-        if (gGlobalStateClient.GetKillConsole().GetTextMessage(j) > "")
-        {
-          if (gGlobalStateClient.GetKillConsole().GetNumMessage(j) > -255)
-          {
-            x = 605;
-            y = (j - 1) * (CVar::font_weaponmenusize + 2) + 59;
-
-            l2 = l2 + killconsole_separate_height;
-
-            x = x * _iscala.x;
-            y = y + l2;
-            _scala.x = 0.8;
-            _scala.y = 0.8;
-
-            gfxdrawsprite(t[gGlobalStateClient.GetKillConsole().GetNumMessage(j)], x, y, _scala.x,
-                          _scala.y, rgba(0xffffff, alfa));
-          }
-        }
-      }
-    }
-  }
-
-  // Minimap
-
-  if (minimapshow)
-  {
-    gGlobalStateMapGraphics.renderminimap(pixelalignx(CVar::ui_minimap_posx * _rscala.x),
-                                          pixelaligny(CVar::ui_minimap_posy),
-                                          round(CVar::ui_status_transparency * 0.85));
-  }
-
-  if (minimapshow && (!CVar::sv_minimap))
-  {
-    alfa = CVar::ui_minimap_transparency;
-
-    f1 = GS::GetGame().GetTeamFlag(1);
-    f2 = GS::GetGame().GetTeamFlag(2);
-
-    if ((f1 > 0) && (f2 > 0) &&
-        ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf)))
-    {
-      if ((things[f1].inbase) && (things[f1].holdingsprite == 0))
-      {
-        p = tominimap(things[f1].skeleton.pos[1]);
-        gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xff0000, alfa));
-      }
-
-      if ((things[f2].inbase) && (things[f2].holdingsprite == 0))
-      {
-        p = tominimap(things[f2].skeleton.pos[1]);
-        gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0x1313ff, alfa));
-      }
-    }
-
-    if ((f1 > 0) && (CVar::sv_gamemode == gamestyle_htf) && (things[f1].holdingsprite == 0))
-    {
-      p = tominimap(things[f1].skeleton.pos[1]);
-      gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xffff00, alfa));
-    }
-
-    if ((gGlobalStateClient.gamethingtarget > 0) && (CVar::sv_gamemode == gamestyle_rambo) &&
-        (things[gGlobalStateClient.gamethingtarget].holdingsprite == 0))
-    {
-      p = tominimap(things[gGlobalStateClient.gamethingtarget].skeleton.pos[1]);
-      gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xffffff, alfa));
-    }
-
-    if (sprite_system.IsPlayerSpriteValid())
-    {
-      for (auto &sprite : sprite_system.GetActiveSprites())
-      {
-        if (sprite.isspectator() || (spriteme->isnotspectator() && !spriteme->isinsameteam(sprite)))
-        {
-          continue;
-        }
-
-        if ((sprite.holdedthing > 0) && (things[sprite.holdedthing].style < 4))
-        {
-          p = tominimap(sprite.skeleton.pos[7]);
-          gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xffff00, alfa));
-        }
-        else if (((sprite.num == gGlobalStateClient.camerafollowsprite) &&
-                  spriteme->isspectator()) or
-                 (sprite_system.IsPlayerSprite(sprite.num)))
-        {
-          p = tominimap(sprite.skeleton.pos[7], 0.8);
-          gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, 0.8, rgba(0xffffff, alfa));
-        }
-        else if (!sprite.issolo() && (!sprite_system.IsPlayerSprite(sprite.num)))
-        {
-          color = rgba(0);
-          p = tominimap(sprite.skeleton.pos[7], 0.65);
-
-          if (!sprite.deadmeat)
-          {
-            switch (sprite.player->team)
-            {
-            case team_alpha:
-              color = rgba(0xff0000, alfa);
-              break;
-            case team_bravo:
-              color = rgba(0x1313ff, alfa);
-              break;
-            case team_charlie:
-              color = rgba(0xffff00, alfa);
-              break;
-            case team_delta:
-              color = rgba(0xff00, alfa);
-              break;
-            }
-          }
-
-          gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, 0.65, color);
-
-          // Chat indicator
-          if (chatdelay[sprite.num] > 0)
-          {
-            p.x = sprite.skeleton.pos[7].x;
-            p.y = sprite.skeleton.pos[7].y - 40;
-            p = tominimap(p, 0.5);
-            gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, 0.5, rgba(0xffffff, alfa));
-          }
-        }
-      }
-    }
-  }
-
-  // Background for self Weapon Stats
-  if (statsmenushow && !fragsmenushow)
-  {
-    _scala.x = static_cast<float>(590) / background_width;
-    _scala.y = static_cast<float>(((gGlobalStateClient.wepstatsnum * 20) + 85)) / background_width;
-    x = 25 + fragx;
-    y = 5 + fragy;
-
-    gfxdrawsprite(t[GFX::INTERFACE_BACK], x, y, _scala.x, _scala.y,
-                  rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
-
-    z = 0;
-
-    for (j = 1; j <= original_weapons; j++)
-    {
-      if (gGlobalStateClient.wepstats[j].shots > 0)
-      {
-        // Draw the weapons image
-        z += 1;
-        x = 30 + fragx;
-        y = ((z * 20) + 50) + fragy;
-
-        gfxdrawsprite(t[gGlobalStateClient.wepstats[j].textureid], x, y);
-      }
-    }
-
-    gGlobalStateClient.wepstatsnum = z;
-  }
-
-  auto &game = GS::GetGame();
-
-  // Background For Frags Stats
-  if (fragsmenushow)
-  {
-    if (gGlobalStateClient.notexts == 0)
-    {
-      x = 25 + fragx;
-      y = 5 + fragy;
-      i = 0;
-
-      if (game.GetTeamplayersnum(1) > 0)
-      {
-        i = i + 15;
-      }
-      if (game.GetTeamplayersnum(2) > 0)
-      {
-        i = i + 15;
-      }
-      if (game.GetTeamplayersnum(3) > 0)
-      {
-        i = i + 15;
-      }
-      if (game.GetTeamplayersnum(4) > 0)
-      {
-        i = i + 15;
-      }
-      if (game.GetTeamplayersnum(0) > 0)
-      {
-        i = i + 15;
-      }
-      if (GS::GetGame().GetSpectatorsNum() > 0)
-      {
-        i = i + 15;
-      }
-
-      if (CVar::ui_hidespectators)
-      {
-        fragmenubottom = 70 +
-                         ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum() + 1) *
-                          fragsmenu_player_height) +
-                         i;
-      }
-      else
-      {
-        fragmenubottom = 70 + ((GS::GetGame().GetPlayersNum() + 1) * fragsmenu_player_height) + i;
-      }
-
-      _scala.x = static_cast<float>(590) / background_width;
-      _scala.y = fragmenubottom / background_width;
-      y = y - (fragsscrolllev * 20);
-
-      gfxdrawsprite(t[GFX::INTERFACE_BACK], x, y, _scala.x, _scala.y,
-                    rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
-
-      if ((_scala.y * background_width) > height - 80)
-      {
-        fragsscrollmax = round((((_scala.y * background_width) - height + 80)) / 20);
-      }
-      else
-      {
-        fragsscrollmax = 0;
-      }
-
-      if (fragsscrollmax != 0)
-      {
-        x = 580 + fragx;
-        y = height / 2;
-        gfxdrawsprite(t[GFX::INTERFACE_SCROLL], x, y,
-                      rgba(0xffffff, fabs(round(sin(5.1 * timeelapsed) * 255))));
-      }
-
-      nextitemstep = 0;
-      ids[0] = 0;
-      ids[1] = 0;
-      ids[2] = 0;
-      ids[3] = 0;
-      ids[4] = 0;
-      ids[5] = 0;
-
-      if (game.GetTeamplayersnum(1) > 0)
-      {
-        teamposstep[1] = nextitemstep;
-        nextitemstep = nextitemstep + 20;
-      }
-      if (game.GetTeamplayersnum(2) > 0)
-      {
-        teamposstep[2] = nextitemstep;
-        nextitemstep = nextitemstep + 20;
-      }
-      if (game.GetTeamplayersnum(3) > 0)
-      {
-        teamposstep[3] = nextitemstep;
-        nextitemstep = nextitemstep + 20;
-      }
-      if (game.GetTeamplayersnum(4) > 0)
-      {
-        teamposstep[4] = nextitemstep;
-        nextitemstep = nextitemstep + 20;
-      }
-      if (game.GetTeamplayersnum(0) > 0)
-      {
-        teamposstep[0] = nextitemstep;
-        nextitemstep = nextitemstep + 20;
-      }
-      if (GS::GetGame().GetSpectatorsNum() > 0)
-      {
-        teamposstep[5] = nextitemstep;
-      }
-
-      for (j = 1; j <= GS::GetGame().GetPlayersNum(); j++)
-      {
-        if (GS::GetGame().GetSortedPlayers(j).playernum > 0)
-        {
-          if (!sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                 .player->demoplayer)
-          {
-            x = 32 + fragx;
-            y = 61 + j * fragsmenu_player_height + fragy;
-
-            if (CVar::ui_hidespectators and
-                sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).isspectator())
-            {
-              continue;
-            }
-
-            if (GS::GetGame().isteamgame())
-            {
-              // New team based score board
-              if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                    .player->team == team_alpha)
-              {
-                y = 70 + (ids[1] * 15) + teamposstep[1] + fragy;
-                ids[1] = ids[1] + 1;
-              }
-              else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                         .player->team == team_bravo)
-              {
-                y = 70 + game.GetTeamplayersnum(1) * fragsmenu_player_height + teamposstep[2] +
-                    fragy + (static_cast<std::int32_t>(ids[2] * 15));
-                ids[2] = ids[2] + 1;
-              }
-              // if sv_gamemode.IntValue = GAMESTYLE_TEAMMATCH then
-              // begin
-              else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                         .player->team == team_charlie)
-              {
-                y = 70 +
-                    (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2)) *
-                      fragsmenu_player_height +
-                    teamposstep[3] + fragy + (static_cast<std::int32_t>(ids[3] * 15));
-                ids[3] = ids[3] + 1;
-              }
-              else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                         .player->team == team_delta)
-              {
-                y = 70 +
-                    (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2) +
-                     game.GetTeamplayersnum(3)) *
-                      fragsmenu_player_height +
-                    teamposstep[4] + fragy + (static_cast<std::int32_t>(ids[4] * 15));
-                ids[4] = ids[4] + 1;
-              }
-              // end;
-              else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                         .player->team == team_none)
-              {
-                y = 70 +
-                    (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2) +
-                     game.GetTeamplayersnum(3) + game.GetTeamplayersnum(4)) *
-                      fragsmenu_player_height +
-                    teamposstep[0] + fragy + (static_cast<std::int32_t>(ids[0] * 15));
-                ids[0] = ids[0] + 1;
-              }
-              else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                         .player->team == team_spectator)
-              {
-                y = 70 +
-                    (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2) +
-                     game.GetTeamplayersnum(3) + game.GetTeamplayersnum(4) +
-                     game.GetTeamplayersnum(0)) *
-                      fragsmenu_player_height +
-                    teamposstep[5] + fragy + (static_cast<std::int32_t>(ids[5] * 15));
-                ids[5] = ids[5] + 1;
-              }
-            }
-            y = y - (fragsscrolllev * 20);
-
-            if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).deadmeat and
-                sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                  .isnotspectator())
-            {
-              gfxdrawsprite(t[GFX::INTERFACE_DEADDOT], pixelalignx(x), pixelaligny(y + 1),
-                            rgba(0xffffff, CVar::ui_status_transparency));
-            }
-
-            x = 31 + fragx;
-
-            if (sprite_system.IsPlayerSprite(GS::GetGame().GetSortedPlayers(j).playernum))
-            {
-              gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], pixelalignx(x), pixelaligny(y + 1),
-                            rgba(0xffffff, CVar::ui_status_transparency));
-            }
-
-            x = 30 + fragx;
-
-            // reg star
-            l = 0;
-            if ((sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                   .player->jetcolor &
-                 0xff000000) == color_transparency_registered)
-            {
-              l = GFX::INTERFACE_STAR;
-            }
-            else if ((sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                        .player->jetcolor &
-                      0xff000000) == color_transparency_special)
-            {
-              l = GFX::INTERFACE_PROT;
-            }
-
-            color = rgba(0xffffff, CVar::ui_status_transparency);
-
-            if (l != 0)
-            {
-              gfxdrawsprite(t[l], pixelalignx(fragx + 259), pixelaligny(y - 1), color);
-            }
-
-            // flag icon
-            if ((sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                   .player->flags > 0) and
-                sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                  .isnotspectator())
-            {
-              gfxdrawsprite(t[GFX::INTERFACE_FLAG], pixelalignx(fragx + 337), pixelaligny(y - 1),
-                            color);
-            }
-
-            // mute sign
-            if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).muted or
-                gGlobalStateClient.muteall)
-            {
-              gfxdrawsprite(t[GFX::INTERFACE_MUTE], pixelalignx(fragx + 246), pixelaligny(y - 1),
-                            color);
-            }
-
-            // bot icon
-            if ((sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                   .player->jetcolor &
-                 0xff000000) == color_transparency_bot)
-            {
-              gfxdrawsprite(t[GFX::INTERFACE_BOT], pixelalignx(fragx + 534), pixelaligny(y), color);
-            }
-
-            gfxdrawsprite(
-              t[GFX::INTERFACE_CONNECTION], pixelalignx(fragx + 520), pixelaligny(y + 2),
-              rgba(
-                static_cast<std::uint8_t>((
-                  (255 * (100 - sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                                  .player->connectionquality)) /
-                  100)),
-                static_cast<std::uint8_t>(
-                  (255 * sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
-                           .player->connectionquality) /
-                  100),
-                0, CVar::ui_status_transparency));
-          }
-        }
-      }
-    }
-  }
-
-  if (gGlobalStateGameMenus.teammenu->active)
-  {
-    gfxdrawsprite(t[GFX::INTERFACE_BACK], 45, 140, static_cast<float>(262) / background_width,
-                  static_cast<float>(250) / background_width,
-                  rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
-  }
-
-  if (gGlobalStateGameMenus.limbomenu->active)
-  {
-    // draw weapon sprites in weapons menu
-    _scala.x = static_cast<float>(252) / background_width;
-
-    gfxdrawsprite(t[GFX::INTERFACE_BACK], 45, 140, _scala.x,
-                  static_cast<float>(210) / background_width,
-                  rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
-
-    gfxdrawsprite(t[GFX::INTERFACE_BACK], 45, 350, _scala.x,
-                  static_cast<float>(80) / background_width,
-                  rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
-
-    // draw guns on limbo menu
-    x = pixelalignx(55);
-    y = 157;
-
-    auto &weaponSystem = GS::GetWeaponSystem();
-
-    for (k = 1; k <= primary_weapons; k++)
-    {
-      if (weaponSystem.IsEnabled(k))
-      {
-        spr = t[GFX::INTERFACE_GUNS_DEAGLES + k - 1];
-        dy = static_cast<float>(max(0.F, 18 - (spr->height * spr->scale))) / 2;
-        gfxdrawsprite(spr, x, pixelaligny(y + (18 * (k - 1)) + dy),
-                      rgba(0xffffff, CVar::ui_status_transparency));
-      }
-    }
-
-    for (k = primary_weapons + 1; k <= main_weapons; k++)
-    {
-      if (weaponSystem.IsEnabled(k))
-      {
-        i = k - primary_weapons - 1;
-        spr = t[GFX::INTERFACE_GUNS_SOCOM + i];
-        dy = static_cast<float>(max(0.F, 18 - (spr->height * spr->scale))) / 2;
-
-        if (CVar::cl_player_secwep == i)
-        {
-          gfxdrawsprite(spr, x, pixelaligny(y + (k * 18) + dy),
-                        rgba(0xffffff, CVar::ui_status_transparency));
-        }
-        else
-        {
-          gfxdrawsprite(spr, x, pixelaligny(y + (k * 18) + dy),
-                        rgba(0xffffff, round(CVar::ui_status_transparency * 0.5)));
-        }
-      }
-    }
-  }
-
-  // vote on
-  if (GS::GetGame().IsVoteActive())
-  {
-    gfxdrawsprite(t[GFX::INTERFACE_BACK], 45 * _iscala.x, 400 * _iscala.y,
-                  static_cast<float>(252) / background_width,
-                  static_cast<float>(40) / background_width,
-                  rgba(0xffffff, round(CVar::ui_status_transparency * 0.36)));
-  }
-
-  // Team Box
-  if (int_.team && !gGlobalStateDemo.demoplayer.active() && GS::GetGame().isteamgame())
-  {
-    x = int_.teambox_x * _iscala.x;
-    y = int_.teambox_y * _iscala.y;
-
-    gfxdrawsprite(t[GFX::INTERFACE_BACK], x, y, static_cast<float>(57) / background_width,
-                  static_cast<float>(88) / background_width,
-                  rgba(0xffffff, round(int_.alpha * 0.56)));
-
-    // Draw captured flags in Team Box
-    if ((GS::GetGame().GetTeamFlag(1) > 0) && (GS::GetGame().GetTeamFlag(2) > 0))
-    {
-      if (CVar::sv_gamemode == gamestyle_ctf)
-      {
-        x = pixelalignx((int_.teambox_x + 4) * _iscala.x);
-        y = pixelaligny((int_.teambox_y + 5) * _iscala.y);
-
-        if (!things[GS::GetGame().GetTeamFlag(1)].inbase)
-        {
-          gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff0000, round(int_.alpha)));
-        }
-
-        x = pixelalignx(x + 31);
-
-        if (!things[GS::GetGame().GetTeamFlag(2)].inbase)
-        {
-          gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff, round(int_.alpha)));
-        }
-      }
-      else if (CVar::sv_gamemode == gamestyle_inf)
-      {
-        if (!things[GS::GetGame().GetTeamFlag(2)].inbase)
-        {
-          x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
-          y = pixelaligny((int_.teambox_y + 3) * _iscala.y);
-
-          gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff, round(int_.alpha)));
-        }
-      }
-    }
-    else if ((GS::GetGame().GetTeamFlag(1) > 0) && (CVar::sv_gamemode == gamestyle_htf))
-    {
-      if (things[GS::GetGame().GetTeamFlag(1)].holdingsprite > 0)
-      {
-        if (sprite_system.GetSprite(things[GS::GetGame().GetTeamFlag(1)].holdingsprite)
-              .player->team == team_alpha)
-        {
-          x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
-          y = pixelaligny((int_.teambox_y + 3) * _iscala.y);
-
-          gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff0000, round(int_.alpha)));
-        }
-        else
-        {
-          x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
-          y = pixelaligny((int_.teambox_y + 3) * _iscala.y);
-
-          gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff, round(int_.alpha)));
-        }
-      }
-    }
-  }
-
-  // text
-  gfxtextshadow(1, 1, rgba(0));
-
-  if (gGlobalStateClient.notexts == 0)
-  {
-    if (sprite_system.IsPlayerSpriteValid())
-    {
-      if (sprite_system.GetPlayerSprite().isspectator() &&
-          (gGlobalStateClient.camerafollowsprite > 0) && (CVar::sv_advancedspectator))
-      {
-        renderplayerinterfacetexts(gGlobalStateClient.camerafollowsprite);
-      }
-      else
-      {
-        renderplayerinterfacetexts(gGlobalStateClient.mysprite);
-      }
-    }
-
-    if (int_.team)
-    {
-      renderteamscoretexts();
-    }
-
-    if (GS::GetGame().GetMapchangecounter() > 0)
-    {
-      if (fragsmenushow && (GS::GetGame().GetPlayersNum() > 1) &&
-          (GS::GetGame().GetMapchangecounter() < 999999999))
-      {
-        renderendgametexts(fragmenubottom);
-      }
-
-      if (GS::GetGame().GetMapchangecounter() > 99999999)
-      {
-        // game paused
-        gfxtextcolor(rgba(185, 250, 138));
-        gfxdrawtext(("Game paused"), 197 + fragx, 24 + fragy);
-      }
-    }
-
-    if (statsmenushow)
-    {
-      renderweaponstatstexts();
-    }
-
-    if (fragsmenushow)
-    {
-      renderfragsmenutexts(fragmenubottom);
-    }
-
-    if (CVar::ui_console)
-    {
-      renderconsoletexts(width);
-    }
-
-    if (sprite_system.IsPlayerSpriteValid())
-    {
-      renderrespawnandsurvivaltexts();
-    }
-
-    rendervotemenutexts();
-
-    if (gGlobalStateClient.showradiomenu && (CVar::sv_radio) &&
-        !gGlobalStateGameMenus.escmenu->active)
-    {
-      renderradiomenutexts();
-    }
-
-    if (!gGlobalStateClientGame.chattext.empty())
-    {
-      renderchatinput(width, height, timeelapsed);
-    }
-
-    if (CVar::ui_killconsole)
-    {
-      renderkillconsoletexts(width);
-    }
-
-  }
-
-  if (sprite_system.IsPlayerSpriteValid())
-  {
-    renderchattexts();
-
-    if (playernamesshow)
-    {
-      renderplayernames(width, height);
-    }
-
-    if ((CVar::sv_survivalmode) && sprite_system.GetPlayerSprite().active and
-        (sprite_system.GetPlayerSprite().ceasefirecounter > 0))
-    {
-      renderceasefirecounter();
-    }
-  }
-
-  if (gGlobalStateClient.notexts == 0)
-  {
-    gGlobalStateGameRendering.setfontstyle(font_small);
-
-    // cursor text
-    if ((cursortextlength > 0) && (GS::GetGame().GetMapchangecounter() < 0) &&
-        !gGlobalStateGameMenus.teammenu->active && !gGlobalStateGameMenus.escmenu->active &&
-        !gGlobalStateDemo.demoplayer.active())
-    {
-      x = gGlobalStateClientGame.mx * _rscala.x - 0.5 * rectwidth(gfxtextmetrics((cursortext)));
-      y = (gGlobalStateClientGame.my + 10) * _rscala.y;
-
-      gfxtextcolor(rgba(0xffffff, 0x77));
-      gfxdrawtext(x, y);
-    }
-
-    // free camera / following player
-    if (gGlobalStateClient.camerafollowsprite == 0)
-    {
-      x = (width - rectwidth(gfxtextmetrics(("Free Camera")))) / 2;
-      gfxtextcolor(rgba(205, 205, 205));
-      gfxdrawtext(x, 430 * _iscala.y);
-    }
-    else if ((gGlobalStateClient.camerafollowsprite > 0) &&
-             (gGlobalStateClient.camerafollowsprite <= max_sprites) &&
-             (!sprite_system.IsPlayerSprite(gGlobalStateClient.camerafollowsprite)))
-    {
-      i = static_cast<std::int32_t>(
-        sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).deadmeat);
-      x = (width -
-           rectwidth(gfxtextmetrics(
-             ("Following " +
-              (sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).player->name))))) /
-          2;
-
-      gfxtextcolor(rgba(205, 205 - (i * 105), 205 - (i * 105)));
-      gfxdrawtext(x, 430 * _iscala.y);
-    }
-
-    // FPS && connection info
-    if (coninfoshow)
-    {
-      gfxtextcolor(rgba(239, 170, 200));
-
-      x = _iscala.x;
-      y = _iscala.y;
-
-      gfxdrawtext(string("FPS: ") + inttostr(gGlobalStateClientGame.getgamefps()), 460 * x, 10 * y);
-
-      if (sprite_system.IsPlayerSpriteValid())
-      {
-        gfxdrawtext(string("Ping: ") + inttostr(sprite_system.GetPlayerSprite().player->realping),
-                    550 * x, 10 * y);
-      }
-
-      if (gGlobalStateDemo.demoplayer.active())
-      {
-        gfxdrawtext(wideformat("Demo: %.2d:%.2d / %.2d:%.2d (%d / %d)",
-                               round((GS::GetGame().GetMainTickCounter() / 60) / 60),
-                               round((GS::GetGame().GetMainTickCounter() / 60) % 60),
-                               round((gGlobalStateDemo.demoplayer.header().ticksnum / 60) / 60),
-                               round((gGlobalStateDemo.demoplayer.header().ticksnum / 60) % 60),
-                               GS::GetGame().GetMainTickCounter(),
-                               gGlobalStateDemo.demoplayer.header().ticksnum),
-                    460 * x, 80 * y);
-      }
-      else
-      {
-        NotImplemented("network");
+		}
+
+		// Player indicator
+		if (CVar::ui_playerindicator && spriteme->isnotspectator())
+		{
+			characteroffset.x =
+				gGlobalStateGame.gamewidthhalf - gGlobalStateClient.camerax + spriteme->skeleton.pos[12].x;
+			characteroffset.y =
+				gGlobalStateGame.gameheighthalf - gGlobalStateClient.cameray + spriteme->skeleton.pos[12].y;
+
+			x = t[GFX::INTERFACE_ARROW]->width * t[GFX::INTERFACE_ARROW]->scale;
+			y = t[GFX::INTERFACE_ARROW]->height * t[GFX::INTERFACE_ARROW]->scale;
+
+			indicatoroffset.x = x / 2 / _rscala.x;
+			indicatoroffset.y = y / 2 / _rscala.y;
+
+			x = characteroffset.x - indicatoroffset.x;
+			y = characteroffset.y - indicatoroffset.y - 15;
+
+			if ((spriteme->alpha < 255) && (!CVar::sv_survivalmode))
+			{
+				alfa = spriteme->ceasefirecounter * 2 + 75;
+			}
+			else
+			{
+				alfa = 100;
+				y = y + 2 * sin(5.1 * timeelapsed);
+			}
+
+			x = x * _rscala.x;
+			y = y * _rscala.y;
+
+			gfxdrawsprite(t[GFX::INTERFACE_ARROW], x, y, rgba(0xffffff, alfa));
+		}
+
+		if ((spectnumber > 0) && (spectnumber <= 32) && sprite_system.GetSprite(spectnumber).isspectator()
+			&& (CVar::sv_advancedspectator))
+		{
+			gGlobalStateClient.mysprite = spectnumber;
+			spriteme = &sprite_system.GetPlayerSprite();
+		}
+
+		// Ping dot
+		if (int_.ping && playernamesshow)
+		{
+			x = int_.ping_x * _iscala.x;
+			y = int_.ping_y * _iscala.y;
+			_scala.x = 0.5 + (static_cast<float>(spriteme->player->realping) / 600);
+			_scala.y = 0.45 + (static_cast<float>(spriteme->player->realping) / 600);
+
+			if (spriteme->player->realping <= 50)
+			{
+				dotcolor = 0xff00;
+			}
+			else if (spriteme->player->realping <= 100)
+			{
+				dotcolor = 0x22ff00;
+			}
+			else if (spriteme->player->realping <= 150)
+			{
+				dotcolor = 0x54c700;
+			}
+			else if (spriteme->player->realping <= 200)
+			{
+				dotcolor = 0x76a700;
+			}
+			else if (spriteme->player->realping <= 250)
+			{
+				dotcolor = 0x938800;
+			}
+			else if (spriteme->player->realping <= 300)
+			{
+				dotcolor = 0xa17700;
+			}
+			else if (spriteme->player->realping <= 350)
+			{
+				dotcolor = 0xcc4800;
+			}
+			else
+			{
+				dotcolor = 0xff0000;
+			}
+
+			if (spriteme->player->realping > 255)
+			{
+				alfa = 255;
+			}
+			else
+			{
+				alfa = spriteme->player->realping;
+			}
+
+			gfxdrawsprite(t[GFX::INTERFACE_DOT], x, y, _scala.x, _scala.y, rgba(dotcolor, alfa));
+		}
+	} // (MySprite > 0) and (NoTexts = 0)
+
+	// Kill console weapons
+	if (CVar::ui_killconsole)
+	{
+		if (gGlobalStateClient.notexts == 0)
+		{
+			alfa = 255;
+			if (gGlobalStateClientGame.renderwidth < 1024)
+			{
+				if (fragsmenushow || statsmenushow)
+				{
+					alfa = 50;
+				}
+				if (length(gGlobalStateClientGame.chattext) > 0)
+				{
+					alfa = 150;
+				}
+			}
+
+			l2 = 0;
+			for (j = 1; j <= gGlobalStateClient.GetKillConsole().GetCount(); j++)
+			{
+				if (gGlobalStateClient.GetKillConsole().GetTextMessage(j) > "")
+				{
+					if (gGlobalStateClient.GetKillConsole().GetNumMessage(j) > -255)
+					{
+						x = 605;
+						y = (j - 1) * (CVar::font_weaponmenusize + 2) + 59;
+
+						l2 = l2 + killconsole_separate_height;
+
+						x = x * _iscala.x;
+						y = y + l2;
+						_scala.x = 0.8;
+						_scala.y = 0.8;
+
+						gfxdrawsprite(t[gGlobalStateClient.GetKillConsole().GetNumMessage(j)],
+							x,
+							y,
+							_scala.x,
+							_scala.y,
+							rgba(0xffffff, alfa));
+					}
+				}
+			}
+		}
+	}
+
+	// Minimap
+
+	if (minimapshow)
+	{
+		gGlobalStateMapGraphics.renderminimap(pixelalignx(CVar::ui_minimap_posx * _rscala.x),
+			pixelaligny(CVar::ui_minimap_posy),
+			round(CVar::ui_status_transparency * 0.85));
+	}
+
+	if (minimapshow && (!CVar::sv_minimap))
+	{
+		alfa = CVar::ui_minimap_transparency;
+
+		f1 = GS::GetGame().GetTeamFlag(1);
+		f2 = GS::GetGame().GetTeamFlag(2);
+
+		if ((f1 > 0) && (f2 > 0) && ((CVar::sv_gamemode == gamestyle_ctf) || (CVar::sv_gamemode == gamestyle_inf)))
+		{
+			if ((things[f1].inbase) && (things[f1].holdingsprite == 0))
+			{
+				p = tominimap(things[f1].skeleton.pos[1]);
+				gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xff0000, alfa));
+			}
+
+			if ((things[f2].inbase) && (things[f2].holdingsprite == 0))
+			{
+				p = tominimap(things[f2].skeleton.pos[1]);
+				gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0x1313ff, alfa));
+			}
+		}
+
+		if ((f1 > 0) && (CVar::sv_gamemode == gamestyle_htf) && (things[f1].holdingsprite == 0))
+		{
+			p = tominimap(things[f1].skeleton.pos[1]);
+			gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xffff00, alfa));
+		}
+
+		if ((gGlobalStateClient.gamethingtarget > 0) && (CVar::sv_gamemode == gamestyle_rambo)
+			&& (things[gGlobalStateClient.gamethingtarget].holdingsprite == 0))
+		{
+			p = tominimap(things[gGlobalStateClient.gamethingtarget].skeleton.pos[1]);
+			gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xffffff, alfa));
+		}
+
+		if (sprite_system.IsPlayerSpriteValid())
+		{
+			for (auto& sprite : sprite_system.GetActiveSprites())
+			{
+				if (sprite.isspectator() || (spriteme->isnotspectator() && !spriteme->isinsameteam(sprite)))
+				{
+					continue;
+				}
+
+				if ((sprite.holdedthing > 0) && (things[sprite.holdedthing].style < 4))
+				{
+					p = tominimap(sprite.skeleton.pos[7]);
+					gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, rgba(0xffff00, alfa));
+				}
+				else if (((sprite.num == gGlobalStateClient.camerafollowsprite) && spriteme->isspectator())
+						 or (sprite_system.IsPlayerSprite(sprite.num)))
+				{
+					p = tominimap(sprite.skeleton.pos[7], 0.8);
+					gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, 0.8, rgba(0xffffff, alfa));
+				}
+				else if (!sprite.issolo() && (!sprite_system.IsPlayerSprite(sprite.num)))
+				{
+					color = rgba(0);
+					p = tominimap(sprite.skeleton.pos[7], 0.65);
+
+					if (!sprite.deadmeat)
+					{
+						switch (sprite.player->team)
+						{
+							case team_alpha:
+								color = rgba(0xff0000, alfa);
+								break;
+							case team_bravo:
+								color = rgba(0x1313ff, alfa);
+								break;
+							case team_charlie:
+								color = rgba(0xffff00, alfa);
+								break;
+							case team_delta:
+								color = rgba(0xff00, alfa);
+								break;
+						}
+					}
+
+					gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, 0.65, color);
+
+					// Chat indicator
+					if (chatdelay[sprite.num] > 0)
+					{
+						p.x = sprite.skeleton.pos[7].x;
+						p.y = sprite.skeleton.pos[7].y - 40;
+						p = tominimap(p, 0.5);
+						gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT], p.x, p.y, 0.5, rgba(0xffffff, alfa));
+					}
+				}
+			}
+		}
+	}
+
+	// Background for self Weapon Stats
+	if (statsmenushow && !fragsmenushow)
+	{
+		_scala.x = static_cast<float>(590) / background_width;
+		_scala.y = static_cast<float>(((gGlobalStateClient.wepstatsnum * 20) + 85)) / background_width;
+		x = 25 + fragx;
+		y = 5 + fragy;
+
+		gfxdrawsprite(t[GFX::INTERFACE_BACK],
+			x,
+			y,
+			_scala.x,
+			_scala.y,
+			rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
+
+		z = 0;
+
+		for (j = 1; j <= original_weapons; j++)
+		{
+			if (gGlobalStateClient.wepstats[j].shots > 0)
+			{
+				// Draw the weapons image
+				z += 1;
+				x = 30 + fragx;
+				y = ((z * 20) + 50) + fragy;
+
+				gfxdrawsprite(t[gGlobalStateClient.wepstats[j].textureid], x, y);
+			}
+		}
+
+		gGlobalStateClient.wepstatsnum = z;
+	}
+
+	auto& game = GS::GetGame();
+
+	// Background For Frags Stats
+	if (fragsmenushow)
+	{
+		if (gGlobalStateClient.notexts == 0)
+		{
+			x = 25 + fragx;
+			y = 5 + fragy;
+			i = 0;
+
+			if (game.GetTeamplayersnum(1) > 0)
+			{
+				i = i + 15;
+			}
+			if (game.GetTeamplayersnum(2) > 0)
+			{
+				i = i + 15;
+			}
+			if (game.GetTeamplayersnum(3) > 0)
+			{
+				i = i + 15;
+			}
+			if (game.GetTeamplayersnum(4) > 0)
+			{
+				i = i + 15;
+			}
+			if (game.GetTeamplayersnum(0) > 0)
+			{
+				i = i + 15;
+			}
+			if (GS::GetGame().GetSpectatorsNum() > 0)
+			{
+				i = i + 15;
+			}
+
+			if (CVar::ui_hidespectators)
+			{
+				fragmenubottom =
+					70
+					+ ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetSpectatorsNum() + 1) * fragsmenu_player_height)
+					+ i;
+			}
+			else
+			{
+				fragmenubottom = 70 + ((GS::GetGame().GetPlayersNum() + 1) * fragsmenu_player_height) + i;
+			}
+
+			_scala.x = static_cast<float>(590) / background_width;
+			_scala.y = fragmenubottom / background_width;
+			y = y - (fragsscrolllev * 20);
+
+			gfxdrawsprite(t[GFX::INTERFACE_BACK],
+				x,
+				y,
+				_scala.x,
+				_scala.y,
+				rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
+
+			if ((_scala.y * background_width) > height - 80)
+			{
+				fragsscrollmax = round((((_scala.y * background_width) - height + 80)) / 20);
+			}
+			else
+			{
+				fragsscrollmax = 0;
+			}
+
+			if (fragsscrollmax != 0)
+			{
+				x = 580 + fragx;
+				y = height / 2;
+				gfxdrawsprite(
+					t[GFX::INTERFACE_SCROLL], x, y, rgba(0xffffff, fabs(round(sin(5.1 * timeelapsed) * 255))));
+			}
+
+			nextitemstep = 0;
+			ids[0] = 0;
+			ids[1] = 0;
+			ids[2] = 0;
+			ids[3] = 0;
+			ids[4] = 0;
+			ids[5] = 0;
+
+			if (game.GetTeamplayersnum(1) > 0)
+			{
+				teamposstep[1] = nextitemstep;
+				nextitemstep = nextitemstep + 20;
+			}
+			if (game.GetTeamplayersnum(2) > 0)
+			{
+				teamposstep[2] = nextitemstep;
+				nextitemstep = nextitemstep + 20;
+			}
+			if (game.GetTeamplayersnum(3) > 0)
+			{
+				teamposstep[3] = nextitemstep;
+				nextitemstep = nextitemstep + 20;
+			}
+			if (game.GetTeamplayersnum(4) > 0)
+			{
+				teamposstep[4] = nextitemstep;
+				nextitemstep = nextitemstep + 20;
+			}
+			if (game.GetTeamplayersnum(0) > 0)
+			{
+				teamposstep[0] = nextitemstep;
+				nextitemstep = nextitemstep + 20;
+			}
+			if (GS::GetGame().GetSpectatorsNum() > 0)
+			{
+				teamposstep[5] = nextitemstep;
+			}
+
+			for (j = 1; j <= GS::GetGame().GetPlayersNum(); j++)
+			{
+				if (GS::GetGame().GetSortedPlayers(j).playernum > 0)
+				{
+					if (!sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).player->demoplayer)
+					{
+						x = 32 + fragx;
+						y = 61 + j * fragsmenu_player_height + fragy;
+
+						if (CVar::ui_hidespectators
+							and sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).isspectator())
+						{
+							continue;
+						}
+
+						if (GS::GetGame().isteamgame())
+						{
+							// New team based score board
+							if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).player->team
+								== team_alpha)
+							{
+								y = 70 + (ids[1] * 15) + teamposstep[1] + fragy;
+								ids[1] = ids[1] + 1;
+							}
+							else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).player->team
+									 == team_bravo)
+							{
+								y = 70 + game.GetTeamplayersnum(1) * fragsmenu_player_height + teamposstep[2] + fragy
+								  + (static_cast<std::int32_t>(ids[2] * 15));
+								ids[2] = ids[2] + 1;
+							}
+							// if sv_gamemode.IntValue = GAMESTYLE_TEAMMATCH then
+							// begin
+							else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).player->team
+									 == team_charlie)
+							{
+								y = 70
+								  + (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2)) * fragsmenu_player_height
+								  + teamposstep[3] + fragy + (static_cast<std::int32_t>(ids[3] * 15));
+								ids[3] = ids[3] + 1;
+							}
+							else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).player->team
+									 == team_delta)
+							{
+								y = 70
+								  + (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2) + game.GetTeamplayersnum(3))
+										* fragsmenu_player_height
+								  + teamposstep[4] + fragy + (static_cast<std::int32_t>(ids[4] * 15));
+								ids[4] = ids[4] + 1;
+							}
+							// end;
+							else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).player->team
+									 == team_none)
+							{
+								y = 70
+								  + (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2) + game.GetTeamplayersnum(3)
+										+ game.GetTeamplayersnum(4))
+										* fragsmenu_player_height
+								  + teamposstep[0] + fragy + (static_cast<std::int32_t>(ids[0] * 15));
+								ids[0] = ids[0] + 1;
+							}
+							else if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).player->team
+									 == team_spectator)
+							{
+								y = 70
+								  + (game.GetTeamplayersnum(1) + game.GetTeamplayersnum(2) + game.GetTeamplayersnum(3)
+										+ game.GetTeamplayersnum(4) + game.GetTeamplayersnum(0))
+										* fragsmenu_player_height
+								  + teamposstep[5] + fragy + (static_cast<std::int32_t>(ids[5] * 15));
+								ids[5] = ids[5] + 1;
+							}
+						}
+						y = y - (fragsscrolllev * 20);
+
+						if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).deadmeat
+							and sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).isnotspectator())
+						{
+							gfxdrawsprite(t[GFX::INTERFACE_DEADDOT],
+								pixelalignx(x),
+								pixelaligny(y + 1),
+								rgba(0xffffff, CVar::ui_status_transparency));
+						}
+
+						x = 31 + fragx;
+
+						if (sprite_system.IsPlayerSprite(GS::GetGame().GetSortedPlayers(j).playernum))
+						{
+							gfxdrawsprite(t[GFX::INTERFACE_SMALLDOT],
+								pixelalignx(x),
+								pixelaligny(y + 1),
+								rgba(0xffffff, CVar::ui_status_transparency));
+						}
+
+						x = 30 + fragx;
+
+						// reg star
+						l = 0;
+						if ((sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).player->jetcolor
+								& 0xff000000)
+							== color_transparency_registered)
+						{
+							l = GFX::INTERFACE_STAR;
+						}
+						else if ((sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).player->jetcolor
+									 & 0xff000000)
+								 == color_transparency_special)
+						{
+							l = GFX::INTERFACE_PROT;
+						}
+
+						color = rgba(0xffffff, CVar::ui_status_transparency);
+
+						if (l != 0)
+						{
+							gfxdrawsprite(t[l], pixelalignx(fragx + 259), pixelaligny(y - 1), color);
+						}
+
+						// flag icon
+						if ((sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).player->flags > 0)
+							and sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).isnotspectator())
+						{
+							gfxdrawsprite(t[GFX::INTERFACE_FLAG], pixelalignx(fragx + 337), pixelaligny(y - 1), color);
+						}
+
+						// mute sign
+						if (sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).muted
+							or gGlobalStateClient.muteall)
+						{
+							gfxdrawsprite(t[GFX::INTERFACE_MUTE], pixelalignx(fragx + 246), pixelaligny(y - 1), color);
+						}
+
+						// bot icon
+						if ((sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum).player->jetcolor
+								& 0xff000000)
+							== color_transparency_bot)
+						{
+							gfxdrawsprite(t[GFX::INTERFACE_BOT], pixelalignx(fragx + 534), pixelaligny(y), color);
+						}
+
+						gfxdrawsprite(t[GFX::INTERFACE_CONNECTION],
+							pixelalignx(fragx + 520),
+							pixelaligny(y + 2),
+							rgba(static_cast<std::uint8_t>(
+									 ((255
+										  * (100
+											  - sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
+												  .player->connectionquality))
+										 / 100)),
+								static_cast<std::uint8_t>(
+									(255
+										* sprite_system.GetSprite(GS::GetGame().GetSortedPlayers(j).playernum)
+											.player->connectionquality)
+									/ 100),
+								0,
+								CVar::ui_status_transparency));
+					}
+				}
+			}
+		}
+	}
+
+	if (gGlobalStateGameMenus.teammenu->active)
+	{
+		gfxdrawsprite(t[GFX::INTERFACE_BACK],
+			45,
+			140,
+			static_cast<float>(262) / background_width,
+			static_cast<float>(250) / background_width,
+			rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
+	}
+
+	if (gGlobalStateGameMenus.limbomenu->active)
+	{
+		// draw weapon sprites in weapons menu
+		_scala.x = static_cast<float>(252) / background_width;
+
+		gfxdrawsprite(t[GFX::INTERFACE_BACK],
+			45,
+			140,
+			_scala.x,
+			static_cast<float>(210) / background_width,
+			rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
+
+		gfxdrawsprite(t[GFX::INTERFACE_BACK],
+			45,
+			350,
+			_scala.x,
+			static_cast<float>(80) / background_width,
+			rgba(0xffffff, round(CVar::ui_status_transparency * 0.56)));
+
+		// draw guns on limbo menu
+		x = pixelalignx(55);
+		y = 157;
+
+		auto& weaponSystem = GS::GetWeaponSystem();
+
+		for (k = 1; k <= primary_weapons; k++)
+		{
+			if (weaponSystem.IsEnabled(k))
+			{
+				spr = t[GFX::INTERFACE_GUNS_DEAGLES + k - 1];
+				dy = static_cast<float>(max(0.F, 18 - (spr->height * spr->scale))) / 2;
+				gfxdrawsprite(
+					spr, x, pixelaligny(y + (18 * (k - 1)) + dy), rgba(0xffffff, CVar::ui_status_transparency));
+			}
+		}
+
+		for (k = primary_weapons + 1; k <= main_weapons; k++)
+		{
+			if (weaponSystem.IsEnabled(k))
+			{
+				i = k - primary_weapons - 1;
+				spr = t[GFX::INTERFACE_GUNS_SOCOM + i];
+				dy = static_cast<float>(max(0.F, 18 - (spr->height * spr->scale))) / 2;
+
+				if (CVar::cl_player_secwep == i)
+				{
+					gfxdrawsprite(spr, x, pixelaligny(y + (k * 18) + dy), rgba(0xffffff, CVar::ui_status_transparency));
+				}
+				else
+				{
+					gfxdrawsprite(spr,
+						x,
+						pixelaligny(y + (k * 18) + dy),
+						rgba(0xffffff, round(CVar::ui_status_transparency * 0.5)));
+				}
+			}
+		}
+	}
+
+	// vote on
+	if (GS::GetGame().IsVoteActive())
+	{
+		gfxdrawsprite(t[GFX::INTERFACE_BACK],
+			45 * _iscala.x,
+			400 * _iscala.y,
+			static_cast<float>(252) / background_width,
+			static_cast<float>(40) / background_width,
+			rgba(0xffffff, round(CVar::ui_status_transparency * 0.36)));
+	}
+
+	// Team Box
+	if (int_.team && !gGlobalStateDemo.demoplayer.active() && GS::GetGame().isteamgame())
+	{
+		x = int_.teambox_x * _iscala.x;
+		y = int_.teambox_y * _iscala.y;
+
+		gfxdrawsprite(t[GFX::INTERFACE_BACK],
+			x,
+			y,
+			static_cast<float>(57) / background_width,
+			static_cast<float>(88) / background_width,
+			rgba(0xffffff, round(int_.alpha * 0.56)));
+
+		// Draw captured flags in Team Box
+		if ((GS::GetGame().GetTeamFlag(1) > 0) && (GS::GetGame().GetTeamFlag(2) > 0))
+		{
+			if (CVar::sv_gamemode == gamestyle_ctf)
+			{
+				x = pixelalignx((int_.teambox_x + 4) * _iscala.x);
+				y = pixelaligny((int_.teambox_y + 5) * _iscala.y);
+
+				if (!things[GS::GetGame().GetTeamFlag(1)].inbase)
+				{
+					gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff0000, round(int_.alpha)));
+				}
+
+				x = pixelalignx(x + 31);
+
+				if (!things[GS::GetGame().GetTeamFlag(2)].inbase)
+				{
+					gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff, round(int_.alpha)));
+				}
+			}
+			else if (CVar::sv_gamemode == gamestyle_inf)
+			{
+				if (!things[GS::GetGame().GetTeamFlag(2)].inbase)
+				{
+					x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
+					y = pixelaligny((int_.teambox_y + 3) * _iscala.y);
+
+					gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff, round(int_.alpha)));
+				}
+			}
+		}
+		else if ((GS::GetGame().GetTeamFlag(1) > 0) && (CVar::sv_gamemode == gamestyle_htf))
+		{
+			if (things[GS::GetGame().GetTeamFlag(1)].holdingsprite > 0)
+			{
+				if (sprite_system.GetSprite(things[GS::GetGame().GetTeamFlag(1)].holdingsprite).player->team
+					== team_alpha)
+				{
+					x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
+					y = pixelaligny((int_.teambox_y + 3) * _iscala.y);
+
+					gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff0000, round(int_.alpha)));
+				}
+				else
+				{
+					x = pixelalignx((int_.teambox_x + 19) * _iscala.x);
+					y = pixelaligny((int_.teambox_y + 3) * _iscala.y);
+
+					gfxdrawsprite(t[GFX::INTERFACE_NOFLAG], x, y, rgba(0xff, round(int_.alpha)));
+				}
+			}
+		}
+	}
+
+	// text
+	gfxtextshadow(1, 1, rgba(0));
+
+	if (gGlobalStateClient.notexts == 0)
+	{
+		if (sprite_system.IsPlayerSpriteValid())
+		{
+			if (sprite_system.GetPlayerSprite().isspectator() && (gGlobalStateClient.camerafollowsprite > 0)
+				&& (CVar::sv_advancedspectator))
+			{
+				renderplayerinterfacetexts(gGlobalStateClient.camerafollowsprite);
+			}
+			else
+			{
+				renderplayerinterfacetexts(gGlobalStateClient.mysprite);
+			}
+		}
+
+		if (int_.team)
+		{
+			renderteamscoretexts();
+		}
+
+		if (GS::GetGame().GetMapchangecounter() > 0)
+		{
+			if (fragsmenushow && (GS::GetGame().GetPlayersNum() > 1)
+				&& (GS::GetGame().GetMapchangecounter() < 999999999))
+			{
+				renderendgametexts(fragmenubottom);
+			}
+
+			if (GS::GetGame().GetMapchangecounter() > 99999999)
+			{
+				// game paused
+				gfxtextcolor(rgba(185, 250, 138));
+				gfxdrawtext(("Game paused"), 197 + fragx, 24 + fragy);
+			}
+		}
+
+		if (statsmenushow)
+		{
+			renderweaponstatstexts();
+		}
+
+		if (fragsmenushow)
+		{
+			renderfragsmenutexts(fragmenubottom);
+		}
+
+		if (CVar::ui_console)
+		{
+			renderconsoletexts(width);
+		}
+
+		if (sprite_system.IsPlayerSpriteValid())
+		{
+			renderrespawnandsurvivaltexts();
+		}
+
+		rendervotemenutexts();
+
+		if (gGlobalStateClient.showradiomenu && (CVar::sv_radio) && !gGlobalStateGameMenus.escmenu->active)
+		{
+			renderradiomenutexts();
+		}
+
+		if (!gGlobalStateClientGame.chattext.empty())
+		{
+			renderchatinput(width, height, timeelapsed);
+		}
+
+		if (CVar::ui_killconsole)
+		{
+			renderkillconsoletexts(width);
+		}
+	}
+
+	if (sprite_system.IsPlayerSpriteValid())
+	{
+		renderchattexts();
+
+		if (playernamesshow)
+		{
+			renderplayernames(width, height);
+		}
+
+		if ((CVar::sv_survivalmode) && sprite_system.GetPlayerSprite().active
+			and (sprite_system.GetPlayerSprite().ceasefirecounter > 0))
+		{
+			renderceasefirecounter();
+		}
+	}
+
+	if (gGlobalStateClient.notexts == 0)
+	{
+		gGlobalStateGameRendering.setfontstyle(font_small);
+
+		// cursor text
+		if ((cursortextlength > 0) && (GS::GetGame().GetMapchangecounter() < 0)
+			&& !gGlobalStateGameMenus.teammenu->active && !gGlobalStateGameMenus.escmenu->active
+			&& !gGlobalStateDemo.demoplayer.active())
+		{
+			x = gGlobalStateClientGame.mx * _rscala.x - 0.5 * rectwidth(gfxtextmetrics((cursortext)));
+			y = (gGlobalStateClientGame.my + 10) * _rscala.y;
+
+			gfxtextcolor(rgba(0xffffff, 0x77));
+			gfxdrawtext(x, y);
+		}
+
+		// free camera / following player
+		if (gGlobalStateClient.camerafollowsprite == 0)
+		{
+			x = (width - rectwidth(gfxtextmetrics(("Free Camera")))) / 2;
+			gfxtextcolor(rgba(205, 205, 205));
+			gfxdrawtext(x, 430 * _iscala.y);
+		}
+		else if ((gGlobalStateClient.camerafollowsprite > 0) && (gGlobalStateClient.camerafollowsprite <= max_sprites)
+				 && (!sprite_system.IsPlayerSprite(gGlobalStateClient.camerafollowsprite)))
+		{
+			i = static_cast<std::int32_t>(sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).deadmeat);
+			x = (width
+					- rectwidth(gfxtextmetrics((
+						"Following " + (sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).player->name)))))
+			  / 2;
+
+			gfxtextcolor(rgba(205, 205 - (i * 105), 205 - (i * 105)));
+			gfxdrawtext(x, 430 * _iscala.y);
+		}
+
+		// FPS && connection info
+		if (coninfoshow)
+		{
+			gfxtextcolor(rgba(239, 170, 200));
+
+			x = _iscala.x;
+			y = _iscala.y;
+
+			gfxdrawtext(string("FPS: ") + inttostr(gGlobalStateClientGame.getgamefps()), 460 * x, 10 * y);
+
+			if (sprite_system.IsPlayerSpriteValid())
+			{
+				gfxdrawtext(
+					string("Ping: ") + inttostr(sprite_system.GetPlayerSprite().player->realping), 550 * x, 10 * y);
+			}
+
+			if (gGlobalStateDemo.demoplayer.active())
+			{
+				gfxdrawtext(wideformat("Demo: %.2d:%.2d / %.2d:%.2d (%d / %d)",
+								round((GS::GetGame().GetMainTickCounter() / 60) / 60),
+								round((GS::GetGame().GetMainTickCounter() / 60) % 60),
+								round((gGlobalStateDemo.demoplayer.header().ticksnum / 60) / 60),
+								round((gGlobalStateDemo.demoplayer.header().ticksnum / 60) % 60),
+								GS::GetGame().GetMainTickCounter(),
+								gGlobalStateDemo.demoplayer.header().ticksnum),
+					460 * x,
+					80 * y);
+			}
+			else
+			{
+				NotImplemented("network");
 #if 0
                 networkstats = udp.getquickconnectionstatus(udp.peer);
                 setfontstyle(font_smallest);
@@ -3406,120 +3449,120 @@ void GlobalStateInterfaceGraphics::renderinterface(float timeelapsed, float widt
                 gfxdrawtext(udp.getdetailedconnectionstatus(udp.peer), 100 * x, 10 * y);
                 setfontstyle(font_small);
 #endif
-      }
-    }
+			}
+		}
 
-    // REC
-    if (GS::GetDemoRecorder().active())
-    {
-      gfxtextcolor(rgba(195, 0, 0, fabs(sin(5.1 * timeelapsed / 2) * 255)));
-      gfxdrawtext("REC", 612 * _iscala.x, 1 * _iscala.y);
-    }
+		// REC
+		if (GS::GetDemoRecorder().active())
+		{
+			gfxtextcolor(rgba(195, 0, 0, fabs(sin(5.1 * timeelapsed / 2) * 255)));
+			gfxdrawtext("REC", 612 * _iscala.x, 1 * _iscala.y);
+		}
 
-    // default keys help
-    if (noobshow && gGlobalStateGameMenus.escmenu->active &&
-        (gGlobalStateClientGame.chattext.empty()))
-    {
-      gGlobalStateGameRendering.setfontstyle(font_smallest);
-      gfxtextcolor(rgba(250, 90, 95));
-      gfxdrawtext(("Default keys (shown for first 3 game runs)"), 30 * _rscala.x, 28 * _rscala.y);
-      gGlobalStateGameRendering.setfontstyle(font_small);
+		// default keys help
+		if (noobshow && gGlobalStateGameMenus.escmenu->active && (gGlobalStateClientGame.chattext.empty()))
+		{
+			gGlobalStateGameRendering.setfontstyle(font_smallest);
+			gfxtextcolor(rgba(250, 90, 95));
+			gfxdrawtext(("Default keys (shown for first 3 game runs)"), 30 * _rscala.x, 28 * _rscala.y);
+			gGlobalStateGameRendering.setfontstyle(font_small);
 
-      for (i = 1; i <= 8; i++)
-      {
-        gfxtextcolor(rgba(230, 232 - (2 * i), 255));
-        switch (i)
-        {
-        case 1:
-          gfxdrawtext(("[A]/[D] move left/right"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
-          break;
-        case 2:
-          gfxdrawtext(("[W]/[S]/[X] jump / crouch / lie down"), 30 * _rscala.x,
-                      (28 + 12 * i) * _rscala.y);
-          break;
-        case 3:
-          gfxdrawtext(("[Left Mouse] fire!"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
-          break;
-        case 4:
-          gfxdrawtext(("[Right Mouse] jet boots"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
-          break;
-        case 5:
-          gfxdrawtext(("hold [E] to toss grenade"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
-          break;
-        case 6:
-          gfxdrawtext(("[R] reloads weapon"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
-          break;
-        case 7:
-          gfxdrawtext(("[Q] change weapon / [F] throw weapon"), 30 * _rscala.x,
-                      (28 + 12 * i) * _rscala.y);
-          break;
-        case 8:
-          gfxdrawtext(("[T] chat / [Y] team chat"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
-          break;
-        }
-      }
-    }
+			for (i = 1; i <= 8; i++)
+			{
+				gfxtextcolor(rgba(230, 232 - (2 * i), 255));
+				switch (i)
+				{
+					case 1:
+						gfxdrawtext(("[A]/[D] move left/right"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
+						break;
+					case 2:
+						gfxdrawtext(
+							("[W]/[S]/[X] jump / crouch / lie down"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
+						break;
+					case 3:
+						gfxdrawtext(("[Left Mouse] fire!"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
+						break;
+					case 4:
+						gfxdrawtext(("[Right Mouse] jet boots"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
+						break;
+					case 5:
+						gfxdrawtext(("hold [E] to toss grenade"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
+						break;
+					case 6:
+						gfxdrawtext(("[R] reloads weapon"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
+						break;
+					case 7:
+						gfxdrawtext(
+							("[Q] change weapon / [F] throw weapon"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
+						break;
+					case 8:
+						gfxdrawtext(("[T] chat / [Y] team chat"), 30 * _rscala.x, (28 + 12 * i) * _rscala.y);
+						break;
+				}
+			}
+		}
 
-    // action snap
-    if ((gGlobalStateClientGame.screencounter < 255) &&
-        (!static_cast<bool>(gGlobalStateClientGame.showscreen)) && (CVar::cl_actionsnap))
-    {
-      gfxtextcolor(rgba(230, 65, 60, 150 + fabs(round(sin(5.1 * timeelapsed) * 100))));
-      gfxdrawtext(string("[[ ") + ("Press F5 to View Screen Cap") + " ]]", 30 * _iscala.x,
-                  412 * _iscala.y);
-    }
+		// action snap
+		if ((gGlobalStateClientGame.screencounter < 255) && (!static_cast<bool>(gGlobalStateClientGame.showscreen))
+			&& (CVar::cl_actionsnap))
+		{
+			gfxtextcolor(rgba(230, 65, 60, 150 + fabs(round(sin(5.1 * timeelapsed) * 100))));
+			gfxdrawtext(string("[[ ") + ("Press F5 to View Screen Cap") + " ]]", 30 * _iscala.x, 412 * _iscala.y);
+		}
 
-    // shot distance
-    if (gGlobalStateClient.shotdistanceshow > 0)
-    {
-      gfxtextcolor(rgba(230, 65, 60, 150 + fabs(round(sin(5.1 * timeelapsed) * 100))));
+		// shot distance
+		if (gGlobalStateClient.shotdistanceshow > 0)
+		{
+			gfxtextcolor(rgba(230, 65, 60, 150 + fabs(round(sin(5.1 * timeelapsed) * 100))));
 
-      str1 =
-        string("DISTANCE: ") + (floattostrf(gGlobalStateClient.shotdistance, fffixed, 12, 2)) + 'm';
-      gfxdrawtext(str1, 390 * _iscala.x, 431 * _iscala.y);
+			str1 = string("DISTANCE: ") + (floattostrf(gGlobalStateClient.shotdistance, fffixed, 12, 2)) + 'm';
+			gfxdrawtext(str1, 390 * _iscala.x, 431 * _iscala.y);
 
-      str1 = string("AIRTIME: ") + (floattostrf(gGlobalStateClient.shotlife, fffixed, 12, 2)) + 's';
-      gfxdrawtext(str1, 228 * _iscala.x, 431 * _iscala.y);
+			str1 = string("AIRTIME: ") + (floattostrf(gGlobalStateClient.shotlife, fffixed, 12, 2)) + 's';
+			gfxdrawtext(str1, 228 * _iscala.x, 431 * _iscala.y);
 
-      if (gGlobalStateClient.shotricochet > 0)
-      {
-        str1 = string("RICOCHETS: ") + (inttostr(gGlobalStateClient.shotricochet));
-        gfxdrawtext(str1, 62 * _iscala.x, 431 * _iscala.y);
-      }
-    }
-  }
+			if (gGlobalStateClient.shotricochet > 0)
+			{
+				str1 = string("RICOCHETS: ") + (inttostr(gGlobalStateClient.shotricochet));
+				gfxdrawtext(str1, 62 * _iscala.x, 431 * _iscala.y);
+			}
+		}
+	}
 
-  // Bullet time cut to wide screen
-  if (widescreencut)
-  {
-    gfxdrawquad(nullptr, gfxvertex(0, 0, 0, 0, rgba(0)), gfxvertex(width, 0, 0, 0, rgba(0)),
-                gfxvertex(width, 80 * _rscala.y, 0, 0, rgba(0)),
-                gfxvertex(0, 80 * _rscala.y, 0, 0, rgba(0)));
+	// Bullet time cut to wide screen
+	if (widescreencut)
+	{
+		gfxdrawquad(nullptr,
+			gfxvertex(0, 0, 0, 0, rgba(0)),
+			gfxvertex(width, 0, 0, 0, rgba(0)),
+			gfxvertex(width, 80 * _rscala.y, 0, 0, rgba(0)),
+			gfxvertex(0, 80 * _rscala.y, 0, 0, rgba(0)));
 
-    gfxdrawquad(nullptr, gfxvertex(0, height - (80 * _rscala.y), 0, 0, rgba(0)),
-                gfxvertex(width, height - (80 * _rscala.y), 0, 0, rgba(0)),
-                gfxvertex(width, height, 0, 0, rgba(0)), gfxvertex(0, height, 0, 0, rgba(0)));
-  }
+		gfxdrawquad(nullptr,
+			gfxvertex(0, height - (80 * _rscala.y), 0, 0, rgba(0)),
+			gfxvertex(width, height - (80 * _rscala.y), 0, 0, rgba(0)),
+			gfxvertex(width, height, 0, 0, rgba(0)),
+			gfxvertex(0, height, 0, 0, rgba(0)));
+	}
 
-  rendergamemenutexts(width, height);
+	rendergamemenutexts(width, height);
 
-  // Menu cursor
-  alfa = gGlobalStateClient.mysprite;
-  if (alfa < 1)
-  {
-    alfa = max_players;
-  }
-  if (gGlobalStateGameMenus.escmenu->active or gGlobalStateGameMenus.limbomenu->active or
-      gGlobalStateGameMenus.teammenu->active or sprite_system.GetSprite(alfa).deadmeat)
-  {
-    if (!gGlobalStateDemo.demoplayer.active() or gGlobalStateGameMenus.escmenu->active)
-    {
-      x = pixelalignx(gGlobalStateClientGame.mx * _rscala.x);
-      y = pixelaligny(gGlobalStateClientGame.my * _rscala.y);
+	// Menu cursor
+	alfa = gGlobalStateClient.mysprite;
+	if (alfa < 1)
+	{
+		alfa = max_players;
+	}
+	if (gGlobalStateGameMenus.escmenu->active or gGlobalStateGameMenus.limbomenu->active
+		or gGlobalStateGameMenus.teammenu->active or sprite_system.GetSprite(alfa).deadmeat)
+	{
+		if (!gGlobalStateDemo.demoplayer.active() or gGlobalStateGameMenus.escmenu->active)
+		{
+			x = pixelalignx(gGlobalStateClientGame.mx * _rscala.x);
+			y = pixelaligny(gGlobalStateClientGame.my * _rscala.y);
 
-      gfxdrawsprite(t[GFX::INTERFACE_MENUCURSOR], x, y,
-                    rgba(0xffffff, CVar::ui_status_transparency));
-    }
-  }
+			gfxdrawsprite(t[GFX::INTERFACE_MENUCURSOR], x, y, rgba(0xffffff, CVar::ui_status_transparency));
+		}
+	}
 }
 // NOLINTEND(readability-magic-numbers)

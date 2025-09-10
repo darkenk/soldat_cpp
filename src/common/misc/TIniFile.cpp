@@ -9,46 +9,43 @@
 #include "PortUtilsSoldat.hpp"
 #include "TStream.hpp"
 
-TIniFile::TIniFile(std::unique_ptr<TStream> stream) : Stream(std::move(stream))
+TIniFile::TIniFile(std::unique_ptr<TStream> stream) : Stream(std::move(stream)) { }
+
+auto TIniFile::ReadSectionValues(const std::string_view section, Entries& out) -> bool
 {
-}
+	std::string line;
+	std::regex const sectionRegex{ R"(^\[(.*)\])" };
+	std::regex const desiredSectionRegex{ std::string("^\\[") + std::string(section.data()) + std::string("\\]") };
+	std::regex const entryRegex{ R"((.*)=(.*))" };
+	bool sectionFound = false;
 
-auto TIniFile::ReadSectionValues(const std::string_view section, Entries &out) -> bool
-{
-  std::string line;
-  std::regex const sectionRegex{R"(^\[(.*)\])"};
-  std::regex const desiredSectionRegex{std::string("^\\[") + std::string(section.data()) +
-                                       std::string("\\]")};
-  std::regex const entryRegex{R"((.*)=(.*))"};
-  bool sectionFound = false;
+	if (Stream == nullptr)
+	{
+		return false;
+	}
 
-  if (Stream == nullptr)
-  {
-    return false;
-  }
-
-  Stream->Reset();
-  while (Stream->ReadLine(line))
-  {
-    line = trim(line);
-    if (!(sectionFound || std::regex_match(line, desiredSectionRegex)))
-    {
-      continue;
-    }
-    if (!sectionFound)
-    {
-      sectionFound = true;
-      continue;
-    }
-    if (std::regex_match(line, sectionRegex))
-    {
-      break;
-    }
-    std::smatch match;
-    if (std::regex_search(line, match, entryRegex))
-    {
-      out[match[1]] = match[2];
-    }
-  }
-  return sectionFound;
+	Stream->Reset();
+	while (Stream->ReadLine(line))
+	{
+		line = trim(line);
+		if (!(sectionFound || std::regex_match(line, desiredSectionRegex)))
+		{
+			continue;
+		}
+		if (!sectionFound)
+		{
+			sectionFound = true;
+			continue;
+		}
+		if (std::regex_match(line, sectionRegex))
+		{
+			break;
+		}
+		std::smatch match;
+		if (std::regex_search(line, match, entryRegex))
+		{
+			out[match[1]] = match[2];
+		}
+	}
+	return sectionFound;
 }

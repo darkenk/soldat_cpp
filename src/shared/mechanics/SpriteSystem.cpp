@@ -5,72 +5,76 @@
 template <class TSprite>
 TSpriteSystem<TSprite>::TSpriteSystem() : ActiveSprites(Sprites)
 {
-  Sprites.reserve(max_sprites);
-  for (auto i = 0; i < max_sprites; i++)
-  {
-    Sprites.emplace_back(i + 1);
-  }
+	Sprites.reserve(max_sprites);
+	for (auto i = 0; i < max_sprites; i++)
+	{
+		Sprites.emplace_back(i + 1);
+	}
 }
 
 template <class TSprite>
-auto TSpriteSystem<TSprite>::CreateSprite(const SpriteId reuseSpriteId) -> TSprite &
+auto TSpriteSystem<TSprite>::CreateSprite(const SpriteId reuseSpriteId) -> TSprite&
 {
-  if (reuseSpriteId != SpriteId::Invalid())
-  {
-    auto &s = GetSprite(reuseSpriteId);
-    new (&s) TSprite(reuseSpriteId.GetId(), true);
-    return GetSprite(reuseSpriteId);
-  }
+	if (reuseSpriteId != SpriteId::Invalid())
+	{
+		auto& s = GetSprite(reuseSpriteId);
+		new (&s) TSprite(reuseSpriteId.GetId(), true);
+		return GetSprite(reuseSpriteId);
+	}
 
-  auto it =
-    std::find_if(std::begin(Sprites), std::end(Sprites), [](const auto &s) { return !s.IsActive(); });
-  if (it != std::end(Sprites))
-  {
-    new(&*it) TSprite(it->num, true);
-    return *it;
-  }
-  NotImplemented("Sprites");
-  std::abort();
+	auto it = std::find_if(std::begin(Sprites),
+		std::end(Sprites),
+		[](const auto& s)
+		{
+			return !s.IsActive();
+		});
+	if (it != std::end(Sprites))
+	{
+		new (&*it) TSprite(it->num, true);
+		return *it;
+	}
+	NotImplemented("Sprites");
+	std::abort();
 }
 
 template <class TSprite>
-auto TSpriteSystem<TSprite>::GetSprite(const SpriteId &id) -> TSprite &
+auto TSpriteSystem<TSprite>::GetSprite(const SpriteId& id) -> TSprite&
 {
-  return Sprites[id.GetId() - 1];
+	return Sprites[id.GetId() - 1];
 }
 
 template <class TSprite>
-auto TSpriteSystem<TSprite>::GetActiveSprites() -> typename TSpriteSystem<TSprite>::TActiveSprites &
+auto TSpriteSystem<TSprite>::GetActiveSprites() -> typename TSpriteSystem<TSprite>::TActiveSprites&
 {
-  return ActiveSprites;
+	return ActiveSprites;
 }
 
 template <class TSprite>
-void TSpriteSystem<TSprite>::CreateSpritePart(const tvector2 &start, const tvector2 &vel,
-                                              const float mass, const int32_t num)
+void TSpriteSystem<TSprite>::CreateSpritePart(
+	const tvector2& start, const tvector2& vel, const float mass, const int32_t num)
 {
-  spriteparts.createpart(start, vel, mass, num);
+	spriteparts.createpart(start, vel, mass, num);
 }
 
 template <class TSprite>
 void TSpriteSystem<TSprite>::ResetSpriteParts()
 {
-  spriteparts.destroy();
-  spriteparts.timestep = 1;
-  spriteparts.gravity = grav;
-  spriteparts.edamping = 0.99;
+	spriteparts.destroy();
+	spriteparts.timestep = 1;
+	spriteparts.gravity = grav;
+	spriteparts.edamping = 0.99;
 }
 
 template <class TSprite>
 void TSpriteSystem<TSprite>::UpdateSpriteParts()
 {
-  for (auto &sprite : GetActiveSprites())
-  {
-    if (sprite.isnotspectator())
-    {
-      spriteparts.doeulertimestepfor(sprite.num); // integrate sprite particles
-    }
-  }
+	for (auto& sprite : GetActiveSprites())
+	{
+		if (sprite.isnotspectator())
+		{
+			spriteparts.doeulertimestepfor(sprite.num); // integrate sprite particles
+		}
+	}
 }
 
 template class TSpriteSystem<>;
@@ -86,32 +90,32 @@ template class TSpriteSystem<>;
 class SpriteSystemFixture
 {
 public:
-  SpriteSystemFixture(const SpriteSystemFixture &) = default;
-  SpriteSystemFixture()
-  {
-    SpriteSystem::Init();
-  }
-  ~SpriteSystemFixture()
-  {
-    SpriteSystem::Deinit();
-  }
+	SpriteSystemFixture(const SpriteSystemFixture&) = default;
+	SpriteSystemFixture() { SpriteSystem::Init(); }
+	~SpriteSystemFixture() { SpriteSystem::Deinit(); }
 };
 
 TEST_CASE_FIXTURE(SpriteSystemFixture, "Test for CreateSprite")
 {
-  auto &sprite_system = SpriteSystem::Get();
-  auto &sprite = sprite_system.CreateSprite();
-  sprite.active = true;
-  CHECK(sprite.num == 1);
-  auto &sprite2 = sprite_system.CreateSprite(sprite.num);
-  CHECK(sprite2.num == 1);
-  auto &sprite3 = sprite_system.CreateSprite();
-  CHECK(sprite3.num == 2);
+	auto& sprite_system = SpriteSystem::Get();
+	auto& sprite = sprite_system.CreateSprite();
+	sprite.active = true;
+	CHECK(sprite.num == 1);
+	auto& sprite2 = sprite_system.CreateSprite(sprite.num);
+	CHECK(sprite2.num == 1);
+	auto& sprite3 = sprite_system.CreateSprite();
+	CHECK(sprite3.num == 2);
 }
 
 TEST_CASE_FIXTURE(SpriteSystemFixture, "All sprites are inactive at the beggining")
 {
-  auto &sprite_system = SpriteSystem::Get();
-  auto &active = sprite_system.GetActiveSprites();
-  CHECK(std::count_if(active.begin(), active.end(), [](const auto &) { return true; }) == 0);
+	auto& sprite_system = SpriteSystem::Get();
+	auto& active = sprite_system.GetActiveSprites();
+	CHECK(std::count_if(active.begin(),
+			  active.end(),
+			  [](const auto&)
+			  {
+				  return true;
+			  })
+		  == 0);
 }

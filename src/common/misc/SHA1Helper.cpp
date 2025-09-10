@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <string>
 
-auto sha1file(const std::string &file) -> tsha1digest
+auto sha1file(const std::string& file) -> tsha1digest
 {
-  auto sha1 = SHA1::from_file(file);
-  tsha1digest ret;
-  std::ranges::copy(sha1, ret.Dummy.begin());
-  return ret;
+	auto sha1 = SHA1::from_file(file);
+	tsha1digest ret;
+	std::ranges::copy(sha1, ret.Dummy.begin());
+	return ret;
 }

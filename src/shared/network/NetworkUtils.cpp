@@ -24,155 +24,154 @@
 #include "shared/misc/GlobalSystems.hpp"
 
 #ifdef SERVER
-#include "../../server/BanSystem.hpp"
-#include "../../server/Server.hpp"
+	#include "../../server/BanSystem.hpp"
+	#include "../../server/Server.hpp"
 #else
-#include "../../client/Client.hpp"
-#include "../../client/GameMenus.hpp"
-#include "../../client/Sound.hpp"
+	#include "../../client/Client.hpp"
+	#include "../../client/GameMenus.hpp"
+	#include "../../client/Sound.hpp"
 #endif
 #include "shared/mechanics/SpriteSystem.hpp"
 
-void encodekeys(tsprite &SpriteC, uint16_t &Keys16);
-void decodekeys(tsprite &SpriteC, std::uint32_t Keys16);
+void encodekeys(tsprite& SpriteC, uint16_t& Keys16);
+void decodekeys(tsprite& SpriteC, std::uint32_t Keys16);
 
-auto ArrayToString(const char *c) -> std::string;
+auto ArrayToString(const char* c) -> std::string;
 
 #ifndef SERVER
 static void playradiosound(std::uint8_t RadioID)
 {
-  auto &sprite_system = SpriteSystem::Get();
-  if ((gGlobalStateClient.radiocooldown > 0) or (CVar::sv_radio))
-  {
-    return;
-  }
-  if ((CVar::sv_gamemode != Constants::GAMESTYLE_CTF) and
-      (CVar::sv_gamemode != Constants::GAMESTYLE_HTF) and
-      (CVar::sv_gamemode != Constants::GAMESTYLE_INF))
-  {
-    return;
-  }
+	auto& sprite_system = SpriteSystem::Get();
+	if ((gGlobalStateClient.radiocooldown > 0) or (CVar::sv_radio))
+	{
+		return;
+	}
+	if ((CVar::sv_gamemode != Constants::GAMESTYLE_CTF) and (CVar::sv_gamemode != Constants::GAMESTYLE_HTF)
+		and (CVar::sv_gamemode != Constants::GAMESTYLE_INF))
+	{
+		return;
+	}
 
-  gGlobalStateClient.radiocooldown = 3;
-  const auto &spritePartsPos = sprite_system.GetSpritePartsPos(gGlobalStateClient.mysprite);
-  switch (RadioID)
-  {
-  case 11:
-    gGlobalStateSound.playsound(SfxEffect::radio_efcup, spritePartsPos);
-    break;
-  case 12:
-    gGlobalStateSound.playsound(SfxEffect::radio_efcmid, spritePartsPos);
-    break;
-  case 13:
-    gGlobalStateSound.playsound(SfxEffect::radio_efcdown, spritePartsPos);
-    break;
-  case 21:
-    gGlobalStateSound.playsound(SfxEffect::radio_ffcup, spritePartsPos);
-    break;
-  case 22:
-    gGlobalStateSound.playsound(SfxEffect::radio_ffcmid, spritePartsPos);
-    break;
-  case 23:
-    gGlobalStateSound.playsound(SfxEffect::radio_ffcdown, spritePartsPos);
-    break;
-  case 31:
-    gGlobalStateSound.playsound(SfxEffect::radio_esup, spritePartsPos);
-    break;
-  case 32:
-    gGlobalStateSound.playsound(SfxEffect::radio_esmid, spritePartsPos);
-    break;
-  case 33:
-    gGlobalStateSound.playsound(SfxEffect::radio_esdown, spritePartsPos);
-    break;
-  }
+	gGlobalStateClient.radiocooldown = 3;
+	const auto& spritePartsPos = sprite_system.GetSpritePartsPos(gGlobalStateClient.mysprite);
+	switch (RadioID)
+	{
+		case 11:
+			gGlobalStateSound.playsound(SfxEffect::radio_efcup, spritePartsPos);
+			break;
+		case 12:
+			gGlobalStateSound.playsound(SfxEffect::radio_efcmid, spritePartsPos);
+			break;
+		case 13:
+			gGlobalStateSound.playsound(SfxEffect::radio_efcdown, spritePartsPos);
+			break;
+		case 21:
+			gGlobalStateSound.playsound(SfxEffect::radio_ffcup, spritePartsPos);
+			break;
+		case 22:
+			gGlobalStateSound.playsound(SfxEffect::radio_ffcmid, spritePartsPos);
+			break;
+		case 23:
+			gGlobalStateSound.playsound(SfxEffect::radio_ffcdown, spritePartsPos);
+			break;
+		case 31:
+			gGlobalStateSound.playsound(SfxEffect::radio_esup, spritePartsPos);
+			break;
+		case 32:
+			gGlobalStateSound.playsound(SfxEffect::radio_esmid, spritePartsPos);
+			break;
+		case 33:
+			gGlobalStateSound.playsound(SfxEffect::radio_esdown, spritePartsPos);
+			break;
+	}
 }
 #endif
 
 template <Config::Module M>
-void encodekeys(Sprite<M> &SpriteC, std::uint16_t &Keys16)
+void encodekeys(Sprite<M>& SpriteC, std::uint16_t& Keys16)
 {
-  auto &Controls = SpriteC.control;
+	auto& Controls = SpriteC.control;
 
-  Keys16 = 0;
-  if (Controls.left)
-  {
-    Keys16 = Keys16 | B1;
-  }
-  if (Controls.right)
-  {
-    Keys16 = Keys16 | B2;
-  }
-  if (Controls.up)
-  {
-    Keys16 = Keys16 | B3;
-  }
-  if (Controls.down)
-  {
-    Keys16 = Keys16 | B4;
-  }
-  if (Controls.fire)
-  {
-    Keys16 = Keys16 | B5;
-  }
-  if (Controls.jetpack)
-  {
-    Keys16 = Keys16 | B6;
-  }
-  if (Controls.thrownade)
-  {
-    Keys16 = Keys16 | B7;
-  }
-  if (Controls.changeweapon)
-  {
-    Keys16 = Keys16 | B8;
-  }
-  if (Controls.throwweapon)
-  {
-    Keys16 = Keys16 | B9;
-  }
-  if (Controls.reload)
-  {
-    Keys16 = Keys16 | B10;
-  }
-  if (Controls.flagthrow)
-  {
-    Keys16 = Keys16 | B11;
-  }
+	Keys16 = 0;
+	if (Controls.left)
+	{
+		Keys16 = Keys16 | B1;
+	}
+	if (Controls.right)
+	{
+		Keys16 = Keys16 | B2;
+	}
+	if (Controls.up)
+	{
+		Keys16 = Keys16 | B3;
+	}
+	if (Controls.down)
+	{
+		Keys16 = Keys16 | B4;
+	}
+	if (Controls.fire)
+	{
+		Keys16 = Keys16 | B5;
+	}
+	if (Controls.jetpack)
+	{
+		Keys16 = Keys16 | B6;
+	}
+	if (Controls.thrownade)
+	{
+		Keys16 = Keys16 | B7;
+	}
+	if (Controls.changeweapon)
+	{
+		Keys16 = Keys16 | B8;
+	}
+	if (Controls.throwweapon)
+	{
+		Keys16 = Keys16 | B9;
+	}
+	if (Controls.reload)
+	{
+		Keys16 = Keys16 | B10;
+	}
+	if (Controls.flagthrow)
+	{
+		Keys16 = Keys16 | B11;
+	}
 
-  if (SpriteC.bodyanimation.id == AnimationType::Change)
-  {
-    Keys16 = Keys16 | B8;
-  }
-  if (SpriteC.bodyanimation.id == AnimationType::ThrowWeapon)
-  {
-    Keys16 = Keys16 | B9;
-  }
+	if (SpriteC.bodyanimation.id == AnimationType::Change)
+	{
+		Keys16 = Keys16 | B8;
+	}
+	if (SpriteC.bodyanimation.id == AnimationType::ThrowWeapon)
+	{
+		Keys16 = Keys16 | B9;
+	}
 }
 
 template <Config::Module M>
-void decodekeys(Sprite<M> &SpriteC, uint16_t Keys16)
+void decodekeys(Sprite<M>& SpriteC, uint16_t Keys16)
 {
-  auto &Controls = SpriteC.control;
+	auto& Controls = SpriteC.control;
 
-  Controls.left = (Keys16 & B1) == B1;
-  Controls.right = (Keys16 & B2) == B2;
-  Controls.up = (Keys16 & B3) == B3;
-  Controls.down = (Keys16 & B4) == B4;
-  Controls.fire = (Keys16 & B5) == B5;
-  Controls.jetpack = (Keys16 & B6) == B6;
-  Controls.thrownade = (Keys16 & B7) == B7;
-  Controls.changeweapon = (Keys16 & B8) == B8;
-  Controls.throwweapon = (Keys16 & B9) == B9;
-  Controls.reload = (Keys16 & B10) == B10;
-  Controls.flagthrow = (Keys16 & B11) == B11;
+	Controls.left = (Keys16 & B1) == B1;
+	Controls.right = (Keys16 & B2) == B2;
+	Controls.up = (Keys16 & B3) == B3;
+	Controls.down = (Keys16 & B4) == B4;
+	Controls.fire = (Keys16 & B5) == B5;
+	Controls.jetpack = (Keys16 & B6) == B6;
+	Controls.thrownade = (Keys16 & B7) == B7;
+	Controls.changeweapon = (Keys16 & B8) == B8;
+	Controls.throwweapon = (Keys16 & B9) == B9;
+	Controls.reload = (Keys16 & B10) == B10;
+	Controls.flagthrow = (Keys16 & B11) == B11;
 }
 
 // Sets the player name to Major if it is invalid
 template <Config::Module M>
-auto fixplayername(const char *Name) -> std::string
+auto fixplayername(const char* Name) -> std::string
 {
-  NotImplemented();
-  return Name;
+	NotImplemented();
+	return Name;
 #if 0
     if ((trim(Name) == "")
         or (*Name == 0xC) || (uppercase(Name) = "SERVER MESSAGE") or ansicontainsstr(Name, 0xA) or
@@ -181,96 +180,99 @@ auto fixplayername(const char *Name) -> std::string
 }
 
 template <Config::Module M>
-auto verifypacket(std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId,
-                  const source_location &location) -> bool
+auto verifypacket(
+	std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId, const source_location& location) -> bool
 {
-  std::string Dropped;
-  auto Result = true;
-  SoldatAssert(ValidSize == ReceiveSize);
-  LogDebug("net_msg", "{}", location.function_name());
-  if (ValidSize != ReceiveSize)
-  {
-    Dropped = " - DROPPED (wrong size != " + inttostr(ValidSize) + ")";
-    Result = false;
-  }
-  if (CVar::log_level > 1)
-  {
-    GS::GetMainConsole().console("[NET] Received Packet (" + inttostr(PacketId) +
-                                   ") Size:" + inttostr(ReceiveSize) + Dropped,
-                                 debug_message_color);
-  }
-  return Result;
+	std::string Dropped;
+	auto Result = true;
+	SoldatAssert(ValidSize == ReceiveSize);
+	LogDebug("net_msg", "{}", location.function_name());
+	if (ValidSize != ReceiveSize)
+	{
+		Dropped = " - DROPPED (wrong size != " + inttostr(ValidSize) + ")";
+		Result = false;
+	}
+	if (CVar::log_level > 1)
+	{
+		GS::GetMainConsole().console(
+			"[NET] Received Packet (" + inttostr(PacketId) + ") Size:" + inttostr(ReceiveSize) + Dropped,
+			debug_message_color);
+	}
+	return Result;
 }
 
 template <Config::Module M>
-auto verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
-                               std::int32_t PacketId, const source_location &location) -> bool
+auto verifypacketlargerorequal(
+	std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId, const source_location& location) -> bool
 {
-  std::string Dropped;
-  auto Result = true;
-  SoldatAssert(ValidSize <= ReceiveSize);
-  LogDebug("net_msg", "{}", location.function_name());
-  if (ValidSize > ReceiveSize)
-  {
-    Dropped = " - DROPPED (wrong size, expected at least " + inttostr(ValidSize) + ")";
-    Result = false;
-  }
-  if (CVar::log_level > 1)
-  {
-    GS::GetMainConsole().console("[NET] Received Packet (" + inttostr(PacketId) +
-                                   ") Size:" + inttostr(ReceiveSize) + Dropped,
-                                 debug_message_color);
-  }
-  return Result;
+	std::string Dropped;
+	auto Result = true;
+	SoldatAssert(ValidSize <= ReceiveSize);
+	LogDebug("net_msg", "{}", location.function_name());
+	if (ValidSize > ReceiveSize)
+	{
+		Dropped = " - DROPPED (wrong size, expected at least " + inttostr(ValidSize) + ")";
+		Result = false;
+	}
+	if (CVar::log_level > 1)
+	{
+		GS::GetMainConsole().console(
+			"[NET] Received Packet (" + inttostr(PacketId) + ") Size:" + inttostr(ReceiveSize) + Dropped,
+			debug_message_color);
+	}
+	return Result;
 }
 
 #ifdef SERVER
 // Checks if the IP std::string is inside the remote IPs list
-auto isremoteadminip(const std::string &ip) -> bool
+auto isremoteadminip(const std::string& ip) -> bool
 {
-  return std::ranges::find(gGlobalStateServer.remoteips, ip) != gGlobalStateServer.remoteips.end();
+	return std::ranges::find(gGlobalStateServer.remoteips, ip) != gGlobalStateServer.remoteips.end();
 }
 
 // Checks if the IP std::string is inside the admin IPs list
-auto isadminip(const std::string &ip) -> bool
+auto isadminip(const std::string& ip) -> bool
 {
-  return std::ranges::find(gGlobalStateServer.adminips, ip) != gGlobalStateServer.adminips.end();
+	return std::ranges::find(gGlobalStateServer.adminips, ip) != gGlobalStateServer.adminips.end();
 }
 
 // Retruns true if the password is not empty and equal to the Admin password
 // Server passwords are not allowed to be empty else everyone could login
-auto isadminpassword(const std::string &Password) -> bool
+auto isadminpassword(const std::string& Password) -> bool
 {
-  return (CVar::sv_adminpassword != "") and (Password == CVar::sv_adminpassword);
+	return (CVar::sv_adminpassword != "") and (Password == CVar::sv_adminpassword);
 }
 
 // Checks if the given passwords match
 // If the password is not set then this returns false
-auto iswronggamepassword(const std::string &GamePassword) -> bool
+auto iswronggamepassword(const std::string& GamePassword) -> bool
 {
-  return (CVar::sv_password != "") and (GamePassword != CVar::sv_password);
+	return (CVar::sv_password != "") and (GamePassword != CVar::sv_password);
 }
 
 // Checks if server has MAX_PLAYERS slots taken and adding even and admin
 // wouldn"t work
-auto isservertotallyfull() -> bool { return GS::GetGame().GetPlayersNum() >= max_players; }
+auto isservertotallyfull() -> bool
+{
+	return GS::GetGame().GetPlayersNum() >= max_players;
+}
 
 // Checks if allowed server slots are taken
 // If MaxPlayers slots is lower than MAX_PLAYERS there are still slots for
 // admins to join
 auto isserverfull() -> bool
 {
-  return ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetBotsNum()) >= CVar::sv_maxplayers) or
-         (isservertotallyfull());
+	return ((GS::GetGame().GetPlayersNum() - GS::GetGame().GetBotsNum()) >= CVar::sv_maxplayers)
+		or (isservertotallyfull());
 }
 #endif
 
 // Checks if the Requested and the current Soldat version are the same
 template <Config::Module M>
-auto iswronggameversion(const std::string & /*RequestVersion*/) -> bool
+auto iswronggameversion(const std::string& /*RequestVersion*/) -> bool
 {
-  NotImplemented();
-  return false;
+	NotImplemented();
+	return false;
 #if 0
     return RequestVersion != soldat_version;
 #endif
@@ -279,11 +281,11 @@ auto iswronggameversion(const std::string & /*RequestVersion*/) -> bool
 #ifndef SERVER
 auto returnfixedplayername(std::string name) -> std::string
 {
-  std::string r;
-  r = "";
-  NotImplemented();
-  return name;
-#if 0
+	std::string r;
+	r = "";
+	NotImplemented();
+	return name;
+	#if 0
   for
       i = 1 to Length(name) do r = r + name[i];
 
@@ -292,7 +294,7 @@ auto returnfixedplayername(std::string name) -> std::string
 
   result = r;
   return r;
-#endif
+	#endif
 }
 #endif
 
@@ -300,171 +302,168 @@ auto returnfixedplayername(std::string name) -> std::string
 void newplayerweapon()
 
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t j = 0;
-  std::int32_t i = 0;
-  std::int32_t SecWep = 0;
-  if (sprite_system.GetPlayerSprite().weapon.num == noweapon_num)
-  {
-    gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu);
-  }
+	auto& sprite_system = SpriteSystem::Get();
+	std::int32_t j = 0;
+	std::int32_t i = 0;
+	std::int32_t SecWep = 0;
+	if (sprite_system.GetPlayerSprite().weapon.num == noweapon_num)
+	{
+		gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu);
+	}
 
-  i = gGlobalStateClient.mysprite;
+	i = gGlobalStateClient.mysprite;
 
-  sprite_system.GetSprite(i).player->secwep = CVar::cl_player_secwep;
-  auto &weaponsel = GS::GetGame().GetWeaponsel();
+	sprite_system.GetSprite(i).player->secwep = CVar::cl_player_secwep;
+	auto& weaponsel = GS::GetGame().GetWeaponsel();
 
-  for (j = 1; j < main_weapons; j++)
-  {
-    weaponsel[i][j] = 1;
-  }
+	for (j = 1; j < main_weapons; j++)
+	{
+		weaponsel[i][j] = 1;
+	}
 
-  if (CVar::sv_advancemode)
-  {
-    for (j = 1; j < primary_weapons; j++)
-    {
-      weaponsel[i][j] = 0;
-    }
-  }
-  auto &weaponSystem = GS::GetWeaponSystem();
+	if (CVar::sv_advancemode)
+	{
+		for (j = 1; j < primary_weapons; j++)
+		{
+			weaponsel[i][j] = 0;
+		}
+	}
+	auto& weaponSystem = GS::GetWeaponSystem();
 
-  for (j = 1; j < main_weapons; j++)
-  {
-    if (weaponSystem.IsEnabled(j))
-    {
-      gGlobalStateGameMenus.limbomenu->button[j - 1].active = static_cast<bool>(weaponsel[i][j]);
-    }
-  }
+	for (j = 1; j < main_weapons; j++)
+	{
+		if (weaponSystem.IsEnabled(j))
+		{
+			gGlobalStateGameMenus.limbomenu->button[j - 1].active = static_cast<bool>(weaponsel[i][j]);
+		}
+	}
 
-  SecWep = sprite_system.GetSprite(i).player->secwep + 1;
+	SecWep = sprite_system.GetSprite(i).player->secwep + 1;
 
-  auto &guns = GS::GetWeaponSystem().GetGuns();
+	auto& guns = GS::GetWeaponSystem().GetGuns();
 
-  if ((SecWep >= 1) and (SecWep <= secondary_weapons) and
-      (weaponSystem.IsEnabled(primary_weapons + SecWep)))
-  {
-    sprite_system.GetSprite(i).SetSecondWeapon(guns[primary_weapons + SecWep]);
-  }
-  else
-  {
-    sprite_system.GetSprite(i).SetSecondWeapon(guns[noweapon]);
-  }
+	if ((SecWep >= 1) and (SecWep <= secondary_weapons) and (weaponSystem.IsEnabled(primary_weapons + SecWep)))
+	{
+		sprite_system.GetSprite(i).SetSecondWeapon(guns[primary_weapons + SecWep]);
+	}
+	else
+	{
+		sprite_system.GetSprite(i).SetSecondWeapon(guns[noweapon]);
+	}
 }
 #endif
 #ifdef SERVER
 auto checkweaponnotallowed(std::uint8_t i) -> bool
 {
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t WeaponIndex = 0;
-  LogTraceG("CheckWeaponNotAllowed");
+	auto& sprite_system = SpriteSystem::Get();
+	std::int32_t WeaponIndex = 0;
+	LogTraceG("CheckWeaponNotAllowed");
 
-  auto Result = true;
-  auto &guns = GS::GetWeaponSystem().GetGuns();
+	auto Result = true;
+	auto& guns = GS::GetWeaponSystem().GetGuns();
 
-  auto &weaponSystem = GS::GetWeaponSystem();
-  WeaponIndex = weaponnumtoindex(sprite_system.GetSprite(i).weapon.num, guns);
-  if (ismainweaponindex(WeaponIndex) and (!weaponSystem.IsEnabled(WeaponIndex)))
-  {
-    return Result;
-  }
+	auto& weaponSystem = GS::GetWeaponSystem();
+	WeaponIndex = weaponnumtoindex(sprite_system.GetSprite(i).weapon.num, guns);
+	if (ismainweaponindex(WeaponIndex) and (!weaponSystem.IsEnabled(WeaponIndex)))
+	{
+		return Result;
+	}
 
-  if (((sprite_system.GetSprite(i).weapon.num == bow_num) and
-       (CVar::sv_gamemode != gamestyle_rambo)) or
-      ((sprite_system.GetSprite(i).weapon.num == bow2_num) and
-       (CVar::sv_gamemode != gamestyle_rambo)) or
-      ((sprite_system.GetSprite(i).weapon.num == flamer_num) and (CVar::sv_bonus_flamer)))
-  {
-    return Result;
-  }
+	if (((sprite_system.GetSprite(i).weapon.num == bow_num) and (CVar::sv_gamemode != gamestyle_rambo))
+		or ((sprite_system.GetSprite(i).weapon.num == bow2_num) and (CVar::sv_gamemode != gamestyle_rambo))
+		or ((sprite_system.GetSprite(i).weapon.num == flamer_num) and (CVar::sv_bonus_flamer)))
+	{
+		return Result;
+	}
 
-  Result = false;
-  return Result;
+	Result = false;
+	return Result;
 }
 
 // Searches for the flood ip in the flood ips array
 // Returns 0 when nothing was found
-auto findfloodid(const std::string &SrcIP) -> std::int32_t
+auto findfloodid(const std::string& SrcIP) -> std::int32_t
 {
-  std::int32_t i = 0;
-  auto Result = 0;
-  for (i = 1; i < max_floodips; i++)
-  {
-    if (gGlobalStateServer.floodip[i] == SrcIP)
-    {
-      Result = i;
-      break;
-    }
-  }
-  return Result;
+	std::int32_t i = 0;
+	auto Result = 0;
+	for (i = 1; i < max_floodips; i++)
+	{
+		if (gGlobalStateServer.floodip[i] == SrcIP)
+		{
+			Result = i;
+			break;
+		}
+	}
+	return Result;
 }
 
 // Adds a flooding ip to the Flood ips array
 // If the array is full the flood ip will not be added
-auto addfloodip(const std::string &SrcIP) -> std::int32_t
+auto addfloodip(const std::string& SrcIP) -> std::int32_t
 {
-  std::int32_t i = 0;
-  constexpr auto FLOOD_ID_NOT_FOUND = 0;
-  auto Result = FLOOD_ID_NOT_FOUND;
+	std::int32_t i = 0;
+	constexpr auto FLOOD_ID_NOT_FOUND = 0;
+	auto Result = FLOOD_ID_NOT_FOUND;
 
-  for (i = 1; i < max_floodips; i++)
-  {
-    if (gGlobalStateServer.floodip[i] == " ")
-    {
-      gGlobalStateServer.floodip[i] = SrcIP;
-      Result = i;
-      break;
-    }
-  }
-  return Result;
+	for (i = 1; i < max_floodips; i++)
+	{
+		if (gGlobalStateServer.floodip[i] == " ")
+		{
+			gGlobalStateServer.floodip[i] = SrcIP;
+			Result = i;
+			break;
+		}
+	}
+	return Result;
 }
 
-auto updateantiflood(const std::string &SrcIP) -> std::int32_t
+auto updateantiflood(const std::string& SrcIP) -> std::int32_t
 {
-  std::int32_t FloodID = 0;
-  constexpr auto FLOOD_ID_NOT_FOUND = 0;
+	std::int32_t FloodID = 0;
+	constexpr auto FLOOD_ID_NOT_FOUND = 0;
 
-  gGlobalStateServer.lastreqip[gGlobalStateServer.lastreqid] = SrcIP;
-  gGlobalStateServer.lastreqid = (gGlobalStateServer.lastreqid + 1) % 4;
+	gGlobalStateServer.lastreqip[gGlobalStateServer.lastreqid] = SrcIP;
+	gGlobalStateServer.lastreqid = (gGlobalStateServer.lastreqid + 1) % 4;
 
-  FloodID = findfloodid(SrcIP);
+	FloodID = findfloodid(SrcIP);
 
-  if (FloodID == FLOOD_ID_NOT_FOUND)
-  {
-    FloodID = addfloodip(SrcIP);
-  }
-  else
-  {
-    gGlobalStateServer.floodnum[FloodID]++;
+	if (FloodID == FLOOD_ID_NOT_FOUND)
+	{
+		FloodID = addfloodip(SrcIP);
+	}
+	else
+	{
+		gGlobalStateServer.floodnum[FloodID]++;
 
-    if (gGlobalStateServer.floodnum[FloodID] > floodip_max)
-    {
-      gGlobalStateBanSystem.addbannedip(SrcIP, "Flooding", Constants::TWENTY_MINUTES);
-      GS::GetMainConsole().console("IP number " + SrcIP + " banned for flooding", client_message_color);
-    }
-  }
-  return FloodID;
+		if (gGlobalStateServer.floodnum[FloodID] > floodip_max)
+		{
+			gGlobalStateBanSystem.addbannedip(SrcIP, "Flooding", Constants::TWENTY_MINUTES);
+			GS::GetMainConsole().console("IP number " + SrcIP + " banned for flooding", client_message_color);
+		}
+	}
+	return FloodID;
 }
 
 auto isfloodid(std::int32_t ID) -> bool
 {
-  constexpr auto FLOOD_ID_NOT_FOUND = 0;
-  return (ID != FLOOD_ID_NOT_FOUND) and (gGlobalStateServer.floodnum[ID] > floodip_max);
+	constexpr auto FLOOD_ID_NOT_FOUND = 0;
+	return (ID != FLOOD_ID_NOT_FOUND) and (gGlobalStateServer.floodnum[ID] > floodip_max);
 }
 
-auto addiptoremoteadmins(const std::string &SrcIP) -> bool
+auto addiptoremoteadmins(const std::string& SrcIP) -> bool
 {
-  auto Result = false;
-  if (SrcIP == " ")
-  {
-    return Result;
-  }
+	auto Result = false;
+	if (SrcIP == " ")
+	{
+		return Result;
+	}
 
-  if (not isadminip(SrcIP))
-  {
-    gGlobalStateServer.adminips.push_back(SrcIP);
-    Result = true;
-  }
-  return Result;
+	if (not isadminip(SrcIP))
+	{
+		gGlobalStateServer.adminips.push_back(SrcIP);
+		Result = true;
+	}
+	return Result;
 }
 #endif
 
@@ -484,19 +483,21 @@ std::string ArrayToString(array c of Char)
 #endif
 
 template <Config::Module M>
-void stringtoarray(char *c, std::string s)
+void stringtoarray(char* c, std::string s)
 {
-  std::strcpy(c, s.data());
+	std::strcpy(c, s.data());
 }
 
-template std::string fixplayername(const char *);
-template void encodekeys(Sprite<Config::GetModule()> &SpriteC, std::uint16_t &Keys16);
-template void decodekeys(Sprite<Config::GetModule()> &SpriteC, uint16_t Keys16);
-template void stringtoarray(char *c, std::string s);
+template std::string fixplayername(const char*);
+template void encodekeys(Sprite<Config::GetModule()>& SpriteC, std::uint16_t& Keys16);
+template void decodekeys(Sprite<Config::GetModule()>& SpriteC, uint16_t Keys16);
+template void stringtoarray(char* c, std::string s);
 template bool iswronggameversion<Config::GetModule()>(const std::string& RequestVersion);
-template bool verifypacket<Config::GetModule()>(
-  std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId,
-  const source_location &location = source_location::current());
-template bool verifypacketlargerorequal<Config::GetModule()>(
-  std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId,
-  const source_location &location = source_location::current());
+template bool verifypacket<Config::GetModule()>(std::int32_t ValidSize,
+	std::int32_t ReceiveSize,
+	std::int32_t PacketId,
+	const source_location& location = source_location::current());
+template bool verifypacketlargerorequal<Config::GetModule()>(std::int32_t ValidSize,
+	std::int32_t ReceiveSize,
+	std::int32_t PacketId,
+	const source_location& location = source_location::current());
