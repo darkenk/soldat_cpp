@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <fstream>
 #include <ios>
-#include <math.h>
+#include <cmath>
 #include <spdlog/fmt/bundled/core.h>
 #include <string>
 

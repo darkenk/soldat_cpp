@@ -1,6 +1,8 @@
 // automatically converted
 
 #include "Control.hpp"
+#include "shared/Demo.hpp"
+#include <SDL3/SDL_keyboard.h>
 #ifdef SERVER
 #include "../AI.hpp"
 #include "../network/NetworkServerGame.hpp"
@@ -118,7 +120,7 @@ void controlsprite(tsprite &spritec)
   float d = NAN;
   tgun tempgun;
   tvector2 playervelocity;
-  bool playerpressedleftright = false;
+  bool playerpressedleftright = false; // NOLINT
   bool unprone = false;
 
   auto &map = GS::GetGame().GetMap();
@@ -155,12 +157,12 @@ void controlsprite(tsprite &spritec)
     {
       spritec.freecontrols();
 
-      sprite_system.GetPlayerSprite().control.mouseaimx = round(
-        gGlobalStateClientGame.mx - gGlobalStateGame.gamewidthhalf + gGlobalStateClient.camerax);
-      sprite_system.GetPlayerSprite().control.mouseaimy = round(
-        gGlobalStateClientGame.my - gGlobalStateGame.gameheighthalf + gGlobalStateClient.cameray);
+	  sprite_system.GetPlayerSprite().control.mouseaimx = std::round(
+		  gGlobalStateClientGame.mx - gGlobalStateGame.gamewidthhalf + gGlobalStateClient.camerax);
+	  sprite_system.GetPlayerSprite().control.mouseaimy = std::round(
+		  gGlobalStateClientGame.my - gGlobalStateGame.gameheighthalf + gGlobalStateClient.cameray);
 
-      if (!gGlobalStateGameMenus.teammenu->active && !gGlobalStateGameMenus.limbomenu->active)
+	  if (!gGlobalStateGameMenus.teammenu->active && !gGlobalStateGameMenus.limbomenu->active)
       {
         if (gGlobalStateClientGame.chattext.empty())
         {
@@ -1803,8 +1805,8 @@ void controlsprite(tsprite &spritec)
             if (spritec.colliderdistance == 1)
             {
               d = std::min<float>(d, 253);
-              spritec.colliderdistance = round(d);
-            }
+			  spritec.colliderdistance = std::round(d);
+			}
 
             break;
           }
@@ -1839,8 +1841,8 @@ void controlsprite(tsprite &spritec)
               if (spritec.colliderdistance == 1)
               {
                 d = std::min<float>(d, 253);
-                spritec.colliderdistance = round(d);
-              }
+				spritec.colliderdistance = std::round(d);
+			  }
 
               break;
             }

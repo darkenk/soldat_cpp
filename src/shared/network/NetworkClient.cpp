@@ -6,7 +6,7 @@
 #include <memory>
 #include <spdlog/fmt/bundled/core.h>
 #include <steam/isteamnetworkingsockets.h>
-#include <steam/isteamnetworkingutils.h>
+#include <steam/isteamnetworkingutils.h> // NOLINT
 #include <steam/steamclientpublic.h>
 #include <steam/steamnetworkingtypes.h>
 #include <string>

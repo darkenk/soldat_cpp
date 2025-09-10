@@ -2,7 +2,7 @@
 
 #include "MapGraphics.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include <array>
 #include <cmath>

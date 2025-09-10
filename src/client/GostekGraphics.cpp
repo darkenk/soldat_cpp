@@ -474,45 +474,47 @@ void loadgostekdata(const TIniFile::Entries &data)
 
 void applygostekconstraints(tgfxspritearray textures)
 {
-  auto texwidth = [&textures](const std::int32_t index) {
-    return fabs(textures[index]->width * textures[index]->scale);
-  };
+	auto texwidth = [&textures](const std::int32_t index)
+	{
+		return std::fabs(textures[index]->width * textures[index]->scale);
+	};
 
-  auto texheight = [&textures](const std::int32_t index) {
-    return fabs(textures[index]->height * textures[index]->scale);
-  };
+	auto texheight = [&textures](const std::int32_t index)
+	{
+		return std::fabs(textures[index]->height * textures[index]->scale);
+	};
 
-  constexpr std::int32_t t2 = GFX::GOSTEK_TEAM2_STOPA - GFX::GOSTEK_STOPA;
+	constexpr std::int32_t t2 = GFX::GOSTEK_TEAM2_STOPA - GFX::GOSTEK_STOPA;
 
-  for (std::int32_t i = GOSTEK_FIRST; i < GOSTEK_LAST; i++)
-  {
-    auto &gs = gosteksprites[i];
+	for (std::int32_t i = GOSTEK_FIRST; i < GOSTEK_LAST; i++)
+	{
+		auto& gs = gosteksprites[i];
 
-    if (gs.image != 0)
-    {
-      auto w = texwidth(gs.image);
-      w = max(w, texwidth(gs.image + ord(gs.flip)));
-      w = max(w, texwidth(gs.image + (t2 * ord(gs.team))));
-      w = max(w, texwidth(gs.image + (t2 * ord(gs.team)) + ord(gs.flip)));
+		if (gs.image != 0)
+		{
+			auto w = texwidth(gs.image);
+			w = max(w, texwidth(gs.image + ord(gs.flip)));
+			w = max(w, texwidth(gs.image + (t2 * ord(gs.team))));
+			w = max(w, texwidth(gs.image + (t2 * ord(gs.team)) + ord(gs.flip)));
 
-      auto h = texheight(gs.image);
-      h = max(h, texheight(gs.image + ord(gs.flip)));
-      h = max(h, texheight(gs.image + (t2 * ord(gs.team))));
-      h = max(h, texheight(gs.image + (t2 * ord(gs.team)) + ord(gs.flip)));
+			auto h = texheight(gs.image);
+			h = max(h, texheight(gs.image + ord(gs.flip)));
+			h = max(h, texheight(gs.image + (t2 * ord(gs.team))));
+			h = max(h, texheight(gs.image + (t2 * ord(gs.team)) + ord(gs.flip)));
 
-      const float cx = w * fabs(gs.cx + 0.5);
-      const float cy = h * fabs(gs.cy + 0.5);
+			const float cx = w * fabs(gs.cx + 0.5);
+			const float cy = h * fabs(gs.cy + 0.5);
 
-      if (cx > (w + gos_restrict_width))
-      {
-        gs.cx = 0.5 + sign(gs.cx + 0.5) * (static_cast<float>((w + gos_restrict_width)) / w);
-      }
+			if (cx > (w + gos_restrict_width))
+			{
+				gs.cx = 0.5 + sign(gs.cx + 0.5) * (static_cast<float>((w + gos_restrict_width)) / w);
+			}
 
-      if (cy > (h + gos_restrict_height))
-      {
-        gs.cy = 0.5 + sign(gs.cy + 0.5) * (static_cast<float>((h + gos_restrict_height)) / h);
-      }
-    }
+			if (cy > (h + gos_restrict_height))
+			{
+				gs.cy = 0.5 + sign(gs.cy + 0.5) * (static_cast<float>((h + gos_restrict_height)) / h);
+			}
+		}
   }
 }
 
@@ -529,8 +531,8 @@ static void drawgosteksprite(pgfxsprite sprite, float x, float y, float sx, floa
   std::pmr::monotonic_buffer_resource res2(buff2.data(), buff2.size() * sizeof(tvector2));
   std::pmr::vector<tvector2> p{4, &res2};
 
-  const float c = cos(r);
-  const float s = sin(r);
+  const float c = std::cos(r);
+  const float s = std::sin(r);
 
   m[0] = c * sx;
   m[3] = -s * sy;
@@ -608,7 +610,7 @@ void rendergostek(tsprite &soldier)
   }
 
   alpha[alpha_base] = soldier.alpha;
-  alpha[alpha_blood] = max(0.0F, min(255.0F, 200.0f - roundf(soldier.GetHealth())));
+  alpha[alpha_blood] = max(0.0F, min(255.0F, 200.0F - roundf(soldier.GetHealth())));
 
   if (soldier.GetHealth() > (90 - 40 * static_cast<int>(CVar::sv_realisticmode)))
   {
@@ -885,8 +887,8 @@ void rendergostek(tsprite &soldier)
     y1 = soldier.skeleton.pos[gosteksprites[GOSTEK_HEAD].p1].y;
     x2 = soldier.skeleton.pos[gosteksprites[GOSTEK_HEAD].p2].x;
     y2 = soldier.skeleton.pos[gosteksprites[GOSTEK_HEAD].p2].y;
-    r = atan2(y2 - y1, x2 - x1) - pi / 2;
-    m = gfxmat3rot(r);
+	r = std::atan2(y2 - y1, x2 - x1) - pi / 2;
+	m = gfxmat3rot(r);
   }
 
   for (i = GOSTEK_FIRST; i < GOSTEK_LAST; i++)
@@ -905,8 +907,8 @@ void rendergostek(tsprite &soldier)
       y1 = soldier.skeleton.pos[gs.p1].y;
       x2 = soldier.skeleton.pos[gs.p2].x;
       y2 = soldier.skeleton.pos[gs.p2].y;
-      r = atan2(y2 - y1, x2 - x1);
-      float cx = gs.cx;
+	  r = std::atan2(y2 - y1, x2 - x1);
+	  float cx = gs.cx;
       float cy = gs.cy;
       float sx = 1;
       float sy = 1;

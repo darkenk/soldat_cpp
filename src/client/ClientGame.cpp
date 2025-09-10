@@ -9,7 +9,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
-#include <math.h>
+#include <cmath>
 #include <string>
 #include <thread>
 

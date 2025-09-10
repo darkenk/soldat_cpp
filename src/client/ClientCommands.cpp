@@ -48,7 +48,7 @@ void commandbind(std::vector<std::string> &args, std::uint8_t /*sender*/)
   commandstring = args[2];
   modifier = km_none;
 
-  if (bindkeyname.find("+") != std::string::npos)
+  if (bindkeyname.find('+') != std::string::npos)
   {
     if (bindkeyname.find("ctrl") != std::string::npos)
     {

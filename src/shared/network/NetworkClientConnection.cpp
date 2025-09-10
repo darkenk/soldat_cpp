@@ -8,6 +8,7 @@
 #include <physfs.h>
 #include <spdlog/fmt/bundled/core.h>
 #include <string_view>
+#include <utility>
 
 #include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"

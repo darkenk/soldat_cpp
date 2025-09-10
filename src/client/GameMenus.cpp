@@ -72,13 +72,13 @@ void GlobalStateGameMenus::initgamemenus()
 
   if (CVar::r_scaleinterface)
   {
-    escmenu->x = round(static_cast<float>((gGlobalStateGame.gamewidth - escmenu->w)) / 2);
-    escmenu->y = round(static_cast<float>((gGlobalStateGame.gameheight - escmenu->h)) / 2);
+	  escmenu->x = std::round(static_cast<float>((gGlobalStateGame.gamewidth - escmenu->w)) / 2);
+	  escmenu->y = std::round(static_cast<float>((gGlobalStateGame.gameheight - escmenu->h)) / 2);
   }
   else
   {
-    escmenu->x = round(static_cast<float>((gGlobalStateClientGame.renderwidth - escmenu->w)) / 2);
-    escmenu->y = round(static_cast<float>((gGlobalStateClientGame.renderheight - escmenu->h)) / 2);
+	  escmenu->x = std::round(static_cast<float>((gGlobalStateClientGame.renderwidth - escmenu->w)) / 2);
+	  escmenu->y = std::round(static_cast<float>((gGlobalStateClientGame.renderheight - escmenu->h)) / 2);
   }
 
   initbutton(escmenu, 0, string("1 ") + ("Exit to menu"), 5, 1 * 25, 240, 25);

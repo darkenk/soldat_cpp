@@ -5,7 +5,6 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
-#include <iterator>
 #include <spdlog/fmt/bundled/core.h>
 #include <string>
 #include <utility>
@@ -250,10 +249,10 @@ auto soldat_getpid() -> std::int32_t
 #endif
 }
 
-void writeconsole(std::uint8_t id, std::string text, std::uint32_t colour)
+void writeconsole(std::uint8_t id, const std::string& text, std::uint32_t colour)
 {
   // Write text to the console of ALL Players
-  serversendspecialmessage(std::move(text), 0, 0, 0, 0, colour, 0, 0, id);
+  serversendspecialmessage(text, 0, 0, 0, 0, colour, 0, 0, id);
 }
 
 void updatewaverespawntime()

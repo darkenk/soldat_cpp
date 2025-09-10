@@ -309,9 +309,9 @@ void tspark::render() const
     _p.x = _p.x - 19;
     _p.y = _p.y - 38;
 
-    i = GFX::SPARKS_EXPLOSION_EXPLODE16 - round(l / 4);
+	i = GFX::SPARKS_EXPLOSION_EXPLODE16 - std::round(l / 4);
 
-    if ((i - 1) >= GFX::SPARKS_EXPLOSION_EXPLODE1)
+	if ((i - 1) >= GFX::SPARKS_EXPLOSION_EXPLODE1)
     {
       gfxdrawsprite(t[i - 1], _p.x, _p.y, 0.75, rgba(0xadadad, 100));
     }
@@ -322,17 +322,20 @@ void tspark::render() const
   case 13: {
     _p.x = _p.x - 8;
     _p.y = _p.y - 17;
-    gfxdrawsprite(t[GFX::SPARKS_EXPLOSION_EXPLODE16 - static_cast<std::int32_t>(round(l / 3))],
-                  _p.x, _p.y, 0.3, rgba(0xffffff, 255 - (2 * l)));
+	gfxdrawsprite(t[GFX::SPARKS_EXPLOSION_EXPLODE16 - static_cast<std::int32_t>(std::round(l / 3))],
+		_p.x,
+		_p.y,
+		0.3,
+		rgba(0xffffff, 255 - (2 * l)));
   }
   break;
   case 14: {
     _p.x = _p.x - 50;
     _p.y = _p.y - 100;
 
-    i = GFX::SPARKS_EXPLOSION_EXPLODE16 - round(l / 3);
+	i = GFX::SPARKS_EXPLOSION_EXPLODE16 - std::round(l / 3);
 
-    if ((i - 1) >= GFX::SPARKS_EXPLOSION_EXPLODE1)
+	if ((i - 1) >= GFX::SPARKS_EXPLOSION_EXPLODE1)
     {
       gfxdrawsprite(t[i - 1], _p.x, _p.y, 2, rgba(0xadadad, 100));
     }
@@ -344,9 +347,9 @@ void tspark::render() const
     _p.x = _p.x - 75;
     _p.y = _p.y - 150;
 
-    i = GFX::SPARKS_EXPLOSION_EXPLODE16 - round(l / 3);
+	i = GFX::SPARKS_EXPLOSION_EXPLODE16 - std::round(l / 3);
 
-    if ((i - 1) >= GFX::SPARKS_EXPLOSION_EXPLODE1)
+	if ((i - 1) >= GFX::SPARKS_EXPLOSION_EXPLODE1)
     {
       gfxdrawsprite(t[i - 1], _p.x, _p.y, 3, rgba(0xadadad, 100));
     }
@@ -361,9 +364,9 @@ void tspark::render() const
     _p.x = _p.x - 25;
     _p.y = _p.y - 50;
 
-    i = GFX::SPARKS_EXPLOSION_EXPLODE16 - round(l / 4);
+	i = GFX::SPARKS_EXPLOSION_EXPLODE16 - std::round(l / 4);
 
-    if ((i - 1) >= GFX::SPARKS_EXPLOSION_EXPLODE1)
+	if ((i - 1) >= GFX::SPARKS_EXPLOSION_EXPLODE1)
     {
       gfxdrawsprite(t[i - 1], _p.x, _p.y, rgba(0xaaaaaa, 100));
     }
@@ -394,8 +397,7 @@ void tspark::render() const
     _scala.y = 0.6 + ((static_cast<float>(75) / l) / 120);
     _p.x = _p.x - (22 * _scala.x);
     _p.y = _p.y - 64 + (l / 2);
-    gfxdrawsprite(t[GFX::SPARKS_BIGSMOKE], _p.x, _p.y, _scala.x, _scala.y,
-                  rgba(0xffffff, trunc(3 * l)));
+	gfxdrawsprite(t[GFX::SPARKS_BIGSMOKE], _p.x, _p.y, _scala.x, _scala.y, rgba(0xffffff, std::trunc(3 * l)));
   }
   break;
   case 25:
@@ -409,9 +411,12 @@ void tspark::render() const
     gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y, rgba(0xaaaaaa, min((l * 3.0) + 154, 255.0)));
     break;
   case 28:
-    gfxdrawsprite(t[GFX::SPARKS_EXPLOSION_EXPLODE16 - static_cast<std::int32_t>(round(l / 3))],
-                  _p.x - 15, _p.y - 37, 0.5, rgba(0xffffff, 255 - (2 * l)));
-    break;
+	  gfxdrawsprite(t[GFX::SPARKS_EXPLOSION_EXPLODE16 - static_cast<std::int32_t>(std::round(l / 3))],
+		  _p.x - 15,
+		  _p.y - 37,
+		  0.5,
+		  rgba(0xffffff, 255 - (2 * l)));
+	  break;
   case 29: {
     _scala.x = 0.5 * (0.6 + (static_cast<float>(75) / l) / 96);
     _scala.y = 0.5 * (0.6 + (static_cast<float>(75) / l) / 90);
@@ -461,44 +466,38 @@ void tspark::render() const
     gfxdrawsprite(t[GFX::SPARKS_SAND], _p.x, _p.y, rgba(0xffffff, 105));
     break;
   case 40:
-    gfxdrawsprite(t[GFX::SPARKS_ODLAMEK1], _p.x, _p.y, 0, 0, degtorad(l * 8),
-                  rgba(0xffffff, trunc(l + 10)));
-    break;
+	  gfxdrawsprite(t[GFX::SPARKS_ODLAMEK1], _p.x, _p.y, 0, 0, degtorad(l * 8), rgba(0xffffff, std::trunc(l + 10)));
+	  break;
   case 41:
-    gfxdrawsprite(t[GFX::SPARKS_ODLAMEK2], _p.x, _p.y, 0, 0, degtorad(l * 8),
-                  rgba(0xffffff, trunc(l + 10)));
-    break;
+	  gfxdrawsprite(t[GFX::SPARKS_ODLAMEK2], _p.x, _p.y, 0, 0, degtorad(l * 8), rgba(0xffffff, std::trunc(l + 10)));
+	  break;
   case 42:
-    gfxdrawsprite(t[GFX::SPARKS_ODLAMEK3], _p.x, _p.y, 0, 0, degtorad(l * 8),
-                  rgba(0xffffff, trunc(l + 10)));
-    break;
+	  gfxdrawsprite(t[GFX::SPARKS_ODLAMEK3], _p.x, _p.y, 0, 0, degtorad(l * 8), rgba(0xffffff, std::trunc(l + 10)));
+	  break;
   case 43:
-    gfxdrawsprite(t[GFX::SPARKS_ODLAMEK4], _p.x, _p.y, 0, 0, degtorad(l * 8),
-                  rgba(0xffffff, trunc(l + 10)));
-    break;
+	  gfxdrawsprite(t[GFX::SPARKS_ODLAMEK4], _p.x, _p.y, 0, 0, degtorad(l * 8), rgba(0xffffff, std::trunc(l + 10)));
+	  break;
   case 44:
-    gfxdrawsprite(t[GFX::SPARKS_ODLAMEK1], _p.x, _p.y, 0.7, rgba(0xffffff, trunc(l * 2) + 15));
-    break;
+	  gfxdrawsprite(t[GFX::SPARKS_ODLAMEK1], _p.x, _p.y, 0.7, rgba(0xffffff, std::trunc(l * 2) + 15));
+	  break;
   case 45:
-    gfxdrawsprite(t[GFX::SPARKS_ODLAMEK2], _p.x, _p.y, 0.7, rgba(0xffffff, trunc(l * 2) + 15));
-    break;
+	  gfxdrawsprite(t[GFX::SPARKS_ODLAMEK2], _p.x, _p.y, 0.7, rgba(0xffffff, std::trunc(l * 2) + 15));
+	  break;
   case 46:
-    gfxdrawsprite(t[GFX::SPARKS_ODLAMEK3], _p.x, _p.y, 0.7, rgba(0xffffff, trunc(l * 2) + 15));
-    break;
+	  gfxdrawsprite(t[GFX::SPARKS_ODLAMEK3], _p.x, _p.y, 0.7, rgba(0xffffff, std::trunc(l * 2) + 15));
+	  break;
   case 47:
-    gfxdrawsprite(t[GFX::SPARKS_ODLAMEK4], _p.x, _p.y, 0.7, rgba(0xffffff, trunc(l * 2) + 15));
-    break;
+	  gfxdrawsprite(t[GFX::SPARKS_ODLAMEK4], _p.x, _p.y, 0.7, rgba(0xffffff, std::trunc(l * 2) + 15));
+	  break;
   case 48:
-    gfxdrawsprite(t[GFX::SPARKS_SKRAWEK], _p.x, _p.y, 0, 0, degtorad(l * 5),
-                  rgba(sprite_system.GetSprite(owner).player->shirtcolor, trunc(l * 2) + 15));
-    break;
+	  gfxdrawsprite(t[GFX::SPARKS_SKRAWEK], _p.x, _p.y, 0, 0, degtorad(l * 5), rgba(sprite_system.GetSprite(owner).player->shirtcolor, std::trunc(l * 2) + 15));
+	  break;
   case 49:
-    gfxdrawsprite(t[GFX::SPARKS_SKRAWEK], _p.x, _p.y, 0, 0, degtorad(l * 5),
-                  rgba(sprite_system.GetSprite(owner).player->pantscolor, trunc(l * 2) + 15));
-    break;
+	  gfxdrawsprite(t[GFX::SPARKS_SKRAWEK], _p.x, _p.y, 0, 0, degtorad(l * 5), rgba(sprite_system.GetSprite(owner).player->pantscolor, std::trunc(l * 2) + 15));
+	  break;
   case 50:
-    gfxdrawsprite(t[GFX::SPARKS_PUFF], _p.x, _p.y, rgba(0xffffff, trunc(l) + 5));
-    break;
+	  gfxdrawsprite(t[GFX::SPARKS_PUFF], _p.x, _p.y, rgba(0xffffff, std::trunc(l) + 5));
+	  break;
   case 51:
     gfxdrawsprite(t[GFX::WEAPONS_SPAS_SHELL], _p.x, _p.y, 0, 0, degtorad(l * 3.77));
     break;
@@ -514,9 +513,9 @@ void tspark::render() const
       _p.x = _p.x - 26;
       _p.y = _p.y - 48;
 
-      i = GFX::SPARKS_MINISMOKE - round(l / 4);
+	  i = GFX::SPARKS_MINISMOKE - std::round(l / 4);
 
-      if ((i - 1) >= GFX::SPARKS_EXPLOSION_SMOKE1)
+	  if ((i - 1) >= GFX::SPARKS_EXPLOSION_SMOKE1)
       {
         gfxdrawsprite(t[i - 1], _p.x, _p.y, rgba(0xcccccc, (2 * l) + 10.0));
       }
@@ -557,9 +556,8 @@ void tspark::render() const
 
     if (l > 30)
     {
-      gfxdrawsprite(t[GFX::SPARKS_BIGSMOKE2], _p.x, _p.y, _scala.x, _scala.y,
-                    rgba(0x666666, trunc(((255 - l)) / 9)));
-    }
+		gfxdrawsprite(t[GFX::SPARKS_BIGSMOKE2], _p.x, _p.y, _scala.x, _scala.y, rgba(0x666666, std::trunc(((255 - l)) / 9)));
+	}
     else
     {
       gfxdrawsprite(t[GFX::SPARKS_BIGSMOKE2], _p.x, _p.y, _scala.x, _scala.y,

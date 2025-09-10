@@ -35,7 +35,7 @@
 #pragma clang diagnostic ignored "-Wmissing-field-initializers"
 #endif // __clang__
 #include <freetype/freetype.h>
-#include <math.h>
+#include <cmath>
 #include <stb_image.h>
 #include <stb_image_resize.h>
 #include <stb_image_write.h>
@@ -784,9 +784,8 @@ void gfxsetmipmapbias(float /*bias*/)
 #endif
 }
 
-tscreenshotthread::tscreenshotthread(string filename, std::int32_t w, std::int32_t h,
-                                     std::uint8_t *data)
-  : fname(filename), fwidth(w), fheight(h), fdata(data)
+tscreenshotthread::tscreenshotthread(string filename, std::int32_t w, std::int32_t h, std::uint8_t* data)
+	: fname(std::move(std::move(filename))), fwidth(w), fheight(h), fdata(data)
 {
 }
 
@@ -2313,7 +2312,7 @@ tgfximage::tgfximage(const std::string &filename, tgfxcolor colorkey)
 }
 
 tgfximage::tgfximage(std::int32_t width, std::int32_t height, std::int32_t comp)
-  : fwidth(width), fheight(height), fcomponents(comp), fnumframes(1), floadedfromfile(false)
+  : fwidth(width), fheight(height), fcomponents(comp), fnumframes(1)
 {
   getmem(fdata, static_cast<std::size_t>(width * height * comp));
   fillchar(fdata, static_cast<std::size_t>(width * height * comp), 0);
@@ -2681,8 +2680,8 @@ tgfxvertexbuffer::tgfxvertexbuffer(std::int32_t cap, bool /*_static*/, pgfxverte
   AbortIf(vertex_transferbuffer == nullptr, "Failed to create transfer buffer to upload. Error {}", SDL_GetError());
   AbortIf(data->u < 0.0F, "Something wrong with texture");
 
-  auto vtx_dst = static_cast<pgfxvertex>(
-    SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true));
+  auto* vtx_dst = static_cast<pgfxvertex>(
+	  SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true));
   memcpy(vtx_dst, data, buffer_info.size);
   SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer);
 
@@ -2725,8 +2724,8 @@ void tgfxvertexbuffer::update(std::int32_t offset, std::int32_t count, pgfxverte
   AbortIf(vertex_transferbuffer == nullptr, "Failed to create transfer buffer to upload. Error {}", SDL_GetError());
   AbortIf(data->u < 0.0F, "Something wrong with texture");
 
-  auto vtx_dst = static_cast<pgfxvertex>(
-    SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true));
+  auto* vtx_dst = static_cast<pgfxvertex>(
+	  SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true));
   memcpy(vtx_dst, data, vertex_transferbuffer_info.size);
   SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer);
 

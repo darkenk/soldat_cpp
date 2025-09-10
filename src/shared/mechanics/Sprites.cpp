@@ -9,6 +9,7 @@
 #include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "shared/Constants.cpp.h"
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -84,8 +85,7 @@ bool weaponscleaned = false;
 }
 
 template <Config::Module M>
-auto createsprite(tvector2 &spos, SpriteId id, std::shared_ptr<tplayer> player,
-                  const tsprite::Style style) -> std::int32_t
+auto createsprite(tvector2& spos, const SpriteId id, const std::shared_ptr<tplayer> player, const tsprite::Style /*style*/) -> std::int32_t // NOLINT
 {
   LogDebug(LOG, "CreateSprite");
   auto &game = GS::GetGame();
@@ -1125,8 +1125,8 @@ void Sprite<M>::update()
       if (ceasefirecounter > -1)
       {
         ceasefirecounter = ceasefirecounter - 1;
-        alpha = round(fabs(100 + (70 * sin(GS::GetGame().GetSinusCounter()))));
-      }
+		alpha = round(fabs(100 + (70 * std::sin(GS::GetGame().GetSinusCounter()))));
+	  }
       else
       {
         alpha = 255;
@@ -2171,15 +2171,14 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
           skeleton.constraints[20].active = true; // Keep head attached to corpse
           for (i = 0; i <= 50; i++)
           {
-            a.x = skeleton.pos[9].x + (cos(deg2rad(static_cast<float>(360) / 50 * i)) * 2);
-            a.y = skeleton.pos[9].y + (sin(deg2rad(static_cast<float>(360) / 50 * i)) * 2);
-            Randomize();
-            // FIXME: Causes range check error
-            // RandSeed := RandSeed * i;
-            b.x = (cos(deg2rad(static_cast<float>(360) / 50 * i)) * randomrange(1, 3));
-            b.y = (sin(deg2rad(static_cast<float>(360) / 50 * i)) * randomrange(1, 3));
-            gGlobalStateSparks.createspark(a, b, iif(i < 25, randomrange(4, 5), 5), num,
-                                           100 - Random(20));
+			  a.x = skeleton.pos[9].x + (std::cos(deg2rad(static_cast<float>(360) / 50 * i)) * 2);
+			  a.y = skeleton.pos[9].y + (std::sin(deg2rad(static_cast<float>(360) / 50 * i)) * 2);
+			  Randomize();
+			  // FIXME: Causes range check error
+			  // RandSeed := RandSeed * i;
+			  b.x = (std::cos(deg2rad(static_cast<float>(360) / 50 * i)) * randomrange(1, 3));
+			  b.y = (std::sin(deg2rad(static_cast<float>(360) / 50 * i)) * randomrange(1, 3));
+			  gGlobalStateSparks.createspark(a, b, iif(i < 25, randomrange(4, 5), 5), num, 100 - Random(20));
           }
         }
 
@@ -5199,9 +5198,9 @@ void Sprite<M>::fire()
           (legsanimation.id == AnimationType::Prone) ||
           (legsanimation.id == AnimationType::ProneMove))
       {
-        gGlobalStateClient.hitspraycounter =
-          calculatebink(gGlobalStateClient.hitspraycounter, round((float)(-weapon.bink) / 2));
-      }
+		  gGlobalStateClient.hitspraycounter =
+			  calculatebink(gGlobalStateClient.hitspraycounter, std::round((float)(-weapon.bink) / 2));
+	  }
       else
       {
         gGlobalStateClient.hitspraycounter =
@@ -5256,12 +5255,14 @@ void Sprite<M>::fire()
 
     if (rc > 0)
     {
-      rc = sin(degtorad(((float)(weapon.speed * weapon.fireinterval) / 364) * rc));
+		rc = std::sin(degtorad(((float)(weapon.speed * weapon.fireinterval) / 364) * rc));
 
-      calculaterecoil(
-        gGlobalStateGame.gamewidthhalf - gGlobalStateClient.camerax + spritePartsPos.x,
-        gGlobalStateGame.gameheighthalf - gGlobalStateClient.cameray + spritePartsPos.y,
-        gGlobalStateClientGame.mx, gGlobalStateClientGame.my, -(pi / 1) * rc);
+		calculaterecoil(
+			gGlobalStateGame.gamewidthhalf - gGlobalStateClient.camerax + spritePartsPos.x,
+			gGlobalStateGame.gameheighthalf - gGlobalStateClient.cameray + spritePartsPos.y,
+			gGlobalStateClientGame.mx,
+			gGlobalStateClientGame.my,
+			-(pi / 1) * rc);
     }
   }
 #endif

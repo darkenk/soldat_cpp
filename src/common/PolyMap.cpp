@@ -10,7 +10,8 @@
 #include <cstring>
 #include <limits>
 #include <map>
-#include <math.h>
+#include <cmath>
+#include <utility>
 
 #include "Calc.hpp"
 #include "Constants.hpp"

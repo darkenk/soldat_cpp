@@ -2,7 +2,7 @@
 
 #include <cmath>
 #include <cstdint>
-#include <math.h>
+#include <cmath>
 #include <spdlog/fmt/bundled/core.h>
 #include <string>
 

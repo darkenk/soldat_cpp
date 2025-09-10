@@ -1,6 +1,6 @@
 #include "Calc.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include <cmath>
 #include <cstdint>

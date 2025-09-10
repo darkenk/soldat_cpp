@@ -1,5 +1,6 @@
 #include "NetworkUtils.hpp"
 
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <spdlog/fmt/bundled/core.h>

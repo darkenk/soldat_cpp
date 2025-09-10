@@ -13,8 +13,8 @@ class TRectList final
 {
 private:
   pbprect fdata{};
-  std::int32_t fsize;
-  std::int32_t fcapacity;
+  std::int32_t fsize{ 0 };
+  std::int32_t fcapacity{ 16 };
 
   auto GetValue(std::int32_t index) -> tbprect &;
   void SetValue(std::int32_t index, const tbprect &value);
@@ -307,7 +307,10 @@ static void RectMemCopy(pbprect a, pbprect b, std::int32_t n)
   }
 }
 
-TRectList::TRectList() : fsize(0), fcapacity(16) { getmem(fdata, fcapacity * sizeof(tbprect)); }
+TRectList::TRectList()
+{
+	getmem(fdata, fcapacity * sizeof(tbprect));
+}
 
 TRectList::~TRectList()
 {

@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <spdlog/fmt/bundled/core.h>
 #include <string>
+#include <utility>
 
 #include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
@@ -366,20 +367,13 @@ void clientspritesnapshotmov()
   tvector2 const posdiff = vec2subtract(clientmsg.pos, oldclientsnapshotmovmsg.pos);
   tvector2 const veldiff = vec2subtract(clientmsg.velocity, oldclientsnapshotmovmsg.velocity);
 
-  if ((vec2length(posdiff) > posdelta) || (vec2length(veldiff) > veldelta) ||
-      (clientmsg.keys16 != oldclientsnapshotmovmsg.keys16) || ((clientmsg.keys16 & B6) == B6) ||
-      (((sprite_system.GetPlayerSprite().weapon.fireinterval > fireinterval_net) ||
-        (sprite_system.GetPlayerSprite().weapon.ammocount <= 0) ||
-        (round(gGlobalStateClientGame.mx) != oldclientsnapshotmovmsg.mouseaimx) ||
-        (round(gGlobalStateClientGame.my) != oldclientsnapshotmovmsg.mouseaimy)) &&
-       ((fabs(gGlobalStateClientGame.mx - oldclientsnapshotmovmsg.mouseaimx) >= mouseaimdelta) ||
-        (fabs(gGlobalStateClientGame.my - oldclientsnapshotmovmsg.mouseaimy) >= mouseaimdelta))))
+  if ((vec2length(posdiff) > posdelta) || (vec2length(veldiff) > veldelta) || (clientmsg.keys16 != oldclientsnapshotmovmsg.keys16) || ((clientmsg.keys16 & B6) == B6) || (((sprite_system.GetPlayerSprite().weapon.fireinterval > fireinterval_net) || (sprite_system.GetPlayerSprite().weapon.ammocount <= 0) || (std::round(gGlobalStateClientGame.mx) != oldclientsnapshotmovmsg.mouseaimx) || (std::round(gGlobalStateClientGame.my) != oldclientsnapshotmovmsg.mouseaimy)) && ((std::fabs(gGlobalStateClientGame.mx - oldclientsnapshotmovmsg.mouseaimx) >= mouseaimdelta) || (std::fabs(gGlobalStateClientGame.my - oldclientsnapshotmovmsg.mouseaimy) >= mouseaimdelta))))
   {
     oldclientsnapshotmovmsg = clientmsg;
-    oldclientsnapshotmovmsg.mouseaimx = round(gGlobalStateClientGame.mx);
-    oldclientsnapshotmovmsg.mouseaimy = round(gGlobalStateClientGame.my);
+	oldclientsnapshotmovmsg.mouseaimx = std::round(gGlobalStateClientGame.mx);
+	oldclientsnapshotmovmsg.mouseaimy = std::round(gGlobalStateClientGame.my);
 
-    gGlobalStateNetworkClient.GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
+	gGlobalStateNetworkClient.GetNetwork()->SendData(&clientmsg, sizeof(clientmsg), false);
   }
 }
 

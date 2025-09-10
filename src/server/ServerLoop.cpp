@@ -7,11 +7,8 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
-#include <iterator>
 #include <spdlog/fmt/bundled/core.h>
 #include <string>
-#include <utility>
-#include <vector>
 
 #include "BanSystem.hpp"
 #include "Server.hpp"
@@ -217,95 +214,87 @@ void apponidle()
     // Send Bundled packets
     if (CVar::net_lan == LAN)
     {
-      if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(30 * adjust)) == 0)
-      {
-        gGlobalStateNetworkServerSprite.serverspritesnapshot(netw);
-      }
+		if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(30 * adjust)) == 0)
+		{
+			gGlobalStateNetworkServerSprite.serverspritesnapshot(netw);
+		}
 
-      if ((GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(15 * adjust)) ==
-           0) &&
-          (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(30 * adjust)) != 0))
-      {
-        gGlobalStateNetworkServerSprite.serverspritesnapshotmajor(netw);
-      }
+		if ((GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(15 * adjust)) == 0)
+			&& (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(30 * adjust)) != 0))
+		{
+			gGlobalStateNetworkServerSprite.serverspritesnapshotmajor(netw);
+		}
 
-      if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(20 * adjust)) == 0)
-      {
-        gGlobalStateNetworkServerSprite.serverskeletonsnapshot(netw);
-      }
+		if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(20 * adjust)) == 0)
+		{
+			gGlobalStateNetworkServerSprite.serverskeletonsnapshot(netw);
+		}
 
-      if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(59 * adjust)) == 0)
-      {
-        serverheartbeat(*gGlobalStateNetworkServer.GetServerNetwork(), sprite_system,
-                        GS::GetGame());
-      }
+		if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(59 * adjust)) == 0)
+		{
+			serverheartbeat(*gGlobalStateNetworkServer.GetServerNetwork(), sprite_system, GS::GetGame());
+		}
 
-      if ((GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(4 * adjust)) ==
-           0) &&
-          (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(30 * adjust)) !=
-           0) &&
-          (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(60 * adjust)) != 0))
-      {
-        for (auto &sprite : sprite_system.GetActiveSprites())
-        {
-          if (sprite.player->controlmethod == bot)
-          {
-            gGlobalStateNetworkServerSprite.serverspritedeltas(sprite.num);
-          }
-        }
+		if ((GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(4 * adjust)) == 0)
+			&& (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(30 * adjust)) != 0)
+			&& (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(60 * adjust)) != 0))
+		{
+			for (auto& sprite : sprite_system.GetActiveSprites())
+			{
+				if (sprite.player->controlmethod == bot)
+				{
+					gGlobalStateNetworkServerSprite.serverspritedeltas(sprite.num);
+				}
+			}
       }
     }
     else if (CVar::net_lan == INTERNET)
     {
-      if (GS::GetGame().GetMainTickCounter() %
-            static_cast<std::int32_t>(round(CVar::net_t1_snapshot * adjust)) ==
-          0)
-      {
-        gGlobalStateNetworkServerSprite.serverspritesnapshot(netw);
-      }
+		if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(CVar::net_t1_snapshot * adjust))
+			== 0)
+		{
+			gGlobalStateNetworkServerSprite.serverspritesnapshot(netw);
+		}
 
-      if ((GS::GetGame().GetMainTickCounter() %
-             static_cast<std::int32_t>(round(CVar::net_t1_majorsnapshot * adjust)) ==
-           0) &&
-          (GS::GetGame().GetMainTickCounter() %
-             static_cast<std::int32_t>(round(CVar::net_t1_snapshot * adjust)) !=
-           0))
-      {
-        gGlobalStateNetworkServerSprite.serverspritesnapshotmajor(netw);
-      }
+		if ((GS::GetGame().GetMainTickCounter()
+					% static_cast<std::int32_t>(std::round(CVar::net_t1_majorsnapshot * adjust))
+				== 0)
+			&& (GS::GetGame().GetMainTickCounter()
+					% static_cast<std::int32_t>(std::round(CVar::net_t1_snapshot * adjust))
+				!= 0))
+		{
+			gGlobalStateNetworkServerSprite.serverspritesnapshotmajor(netw);
+		}
 
-      if (GS::GetGame().GetMainTickCounter() %
-            static_cast<std::int32_t>(round(CVar::net_t1_deadsnapshot * adjust)) ==
-          0)
-      {
-        gGlobalStateNetworkServerSprite.serverskeletonsnapshot(netw);
-      }
+		if (GS::GetGame().GetMainTickCounter()
+				% static_cast<std::int32_t>(std::round(CVar::net_t1_deadsnapshot * adjust))
+			== 0)
+		{
+			gGlobalStateNetworkServerSprite.serverskeletonsnapshot(netw);
+		}
 
-      if (GS::GetGame().GetMainTickCounter() %
-            static_cast<std::int32_t>(round(CVar::net_t1_heartbeat * adjust)) ==
-          0)
-      {
-        serverheartbeat(*gGlobalStateNetworkServer.GetServerNetwork(), sprite_system,
-                        GS::GetGame());
-      }
+		if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(CVar::net_t1_heartbeat * adjust))
+			== 0)
+		{
+			serverheartbeat(*gGlobalStateNetworkServer.GetServerNetwork(), sprite_system, GS::GetGame());
+		}
 
-      if ((GS::GetGame().GetMainTickCounter() %
-             static_cast<std::int32_t>(round(CVar::net_t1_delta * adjust)) ==
-           0) &&
-          (GS::GetGame().GetMainTickCounter() %
-             static_cast<std::int32_t>(round(CVar::net_t1_snapshot * adjust)) !=
-           0) &&
-          (GS::GetGame().GetMainTickCounter() %
-             static_cast<std::int32_t>(round(CVar::net_t1_majorsnapshot * adjust)) !=
-           0))
-      {
-        for (auto &sprite : sprite_system.GetActiveSprites())
-        {
-          if (sprite.player->controlmethod == bot)
-          {
-            gGlobalStateNetworkServerSprite.serverspritedeltas(sprite.num);
-          }
-        }
+		if ((GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(CVar::net_t1_delta * adjust))
+				== 0)
+			&& (GS::GetGame().GetMainTickCounter()
+					% static_cast<std::int32_t>(std::round(CVar::net_t1_snapshot * adjust))
+				!= 0)
+			&& (GS::GetGame().GetMainTickCounter()
+					% static_cast<std::int32_t>(std::round(CVar::net_t1_majorsnapshot * adjust))
+				!= 0))
+		{
+			for (auto& sprite : sprite_system.GetActiveSprites())
+			{
+				if (sprite.player->controlmethod == bot)
+				{
+					gGlobalStateNetworkServerSprite.serverspritedeltas(sprite.num);
+				}
+			}
       }
     }
 
@@ -366,33 +355,30 @@ void apponidle()
 
         if (CVar::net_lan == LAN)
         {
-          if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(21 * adjust)) ==
-              0)
-          {
-            serverping(j);
-          }
+			if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(21 * adjust)) == 0)
+			{
+				serverping(j);
+			}
 
-          if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(12 * adjust)) ==
-              0)
-          {
-            serverthingsnapshot(j);
-          }
+			if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(12 * adjust)) == 0)
+			{
+				serverthingsnapshot(j);
+			}
         }
         else if (CVar::net_lan == INTERNET)
         {
-          if (GS::GetGame().GetMainTickCounter() %
-                static_cast<std::int32_t>(round(CVar::net_t1_ping * adjust)) ==
-              0)
-          {
-            serverping(j);
-          }
+			if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(std::round(CVar::net_t1_ping * adjust))
+				== 0)
+			{
+				serverping(j);
+			}
 
-          if (GS::GetGame().GetMainTickCounter() %
-                static_cast<std::int32_t>(round(CVar::net_t1_thingsnapshot * adjust)) ==
-              0)
-          {
-            serverthingsnapshot(j);
-          }
+			if (GS::GetGame().GetMainTickCounter()
+					% static_cast<std::int32_t>(std::round(CVar::net_t1_thingsnapshot * adjust))
+				== 0)
+			{
+				serverthingsnapshot(j);
+			}
         }
       }
     }

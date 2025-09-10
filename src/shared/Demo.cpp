@@ -5,15 +5,16 @@
 
 #include <array>
 #include <cstdint>
+#include <limits>
 #include <string>
 
 #ifdef SERVER
-#include "../server/Server.hpp"
+#include "../server/Server.hpp" // NOLINT
 #else
-#include "../client/Client.hpp"
-#include "../client/ClientGame.hpp"
-#include "../client/InterfaceGraphics.hpp"
-#include "common/GameStrings.hpp"
+	#include "../client/Client.hpp"
+	#include "../client/ClientGame.hpp"
+	#include "../client/InterfaceGraphics.hpp"
+	#include "common/GameStrings.hpp"
 #endif
 #include <filesystem>
 #include <cstddef>

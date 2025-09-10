@@ -1,7 +1,7 @@
 // automatically converted
 
 #include "BanSystem.hpp"
-#include "Server.hpp"
+#include "Server.hpp" // NOLINT
 #include "ServerHelper.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/port_utils/NotImplemented.hpp"

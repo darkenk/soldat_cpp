@@ -1,11 +1,18 @@
 // automatically converted
 
 #include "Bullets.hpp"
+#include "client/Gfx.hpp"
+#include "common/Util.hpp"
 #include "common/Vector.hpp"
+#include "common/gfx.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/SoldatConfig.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "shared/Demo.hpp"
 #include <array>
+#include <cmath>
 #include <cstdint>
+#include <utility>
 
 #ifdef SERVER
 #include "../network/NetworkServerBullet.hpp"
@@ -46,7 +53,6 @@
 #if SOLDAT_UTBOT
 constexpr auto pi = 3.14159265358979323846;
 #else
-#include <numbers>
 
 #endif // SOLDAT_UTBOT
 
@@ -595,21 +601,21 @@ void calculaterecoil(float px, float py, float &cx, float &cy, float da)
   // Calculate delta x/y and radius
   dx = cx - px;
   dy = cy - py;
-  radius = sqrt((dx * dx) + (dy * dy));
+  radius = std::sqrt((dx * dx) + (dy * dy));
 
   // Depending on is cursor is on left/right side do different things
   if (dx > 0)
   {
-    alpha = atan(dy / dx);
-    alpha = alpha + da;
+	  alpha = std::atan(dy / dx);
+	  alpha = alpha + da;
 
-    alpha = std::min<double>(alpha, pi / 2);
+	  alpha = std::min<double>(alpha, pi / 2);
   }
   else
   {
-    alpha = atan(dy / dx) + pi;
-    alpha = alpha - da;
-    alpha = std::max<double>(alpha, pi / 2);
+	  alpha = std::atan(dy / dx) + pi;
+	  alpha = alpha - da;
+	  alpha = std::max<double>(alpha, pi / 2);
   }
 
   // Calculate new x/y for cursor
@@ -622,12 +628,8 @@ void calculaterecoil(float px, float py, float &cx, float &cy, float da)
   // M.X := (dx / SpriteSystem::Get().GetSprite(CameraFollowSprite).AimDistCoef) * 3;
   // M.Y := (dy / SpriteSystem::Get().GetSprite(CameraFollowSprite).AimDistCoef) * 3;
 
-  cx = px + ((dx + cos(alpha) * radius) /
-             sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef) *
-              (sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef / 2);
-  cy = py + ((dy + sin(alpha) * radius) /
-             sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef) *
-              (sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef / 2);
+  cx = px + ((dx + std::cos(alpha) * radius) / sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef) * (sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef / 2);
+  cy = py + ((dy + std::sin(alpha) * radius) / sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef) * (sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef / 2);
 
   // Lastly make sure that cursor is still at the same side as it was first
   if (dx > 0)
@@ -995,9 +997,8 @@ void Bullet<M>::render(double timeelapsed)
 
       if (pingadd < 1)
       {
-        gfxdrawsprite(t[imagestyle], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
-                      rgba(0xffffff, round(alfa)));
-      }
+		  gfxdrawsprite(t[imagestyle], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto, rgba(0xffffff, std::round(alfa)));
+	  }
 
       if (pingadd > 0)
       {
@@ -1015,8 +1016,8 @@ void Bullet<M>::render(double timeelapsed)
         {
           alfa = alfa / 4;
         }
-        gfxdrawsprite(t[imagestyle], _p.x, _p.y, b.x, b.y, 0, 0, roto, rgba(0xffffff, round(alfa)));
-      }
+		gfxdrawsprite(t[imagestyle], _p.x, _p.y, b.x, b.y, 0, 0, roto, rgba(0xffffff, std::round(alfa)));
+	  }
 
       if (hitbody > 0)
       {
@@ -1026,8 +1027,8 @@ void Bullet<M>::render(double timeelapsed)
           {
             _p.x = bulletpos.x;
             _p.y = bulletpos.y;
-            _scala.x = fabs((float)(vec2length(bulletvel)) / 4);
-            _scala.y = 1;
+			_scala.x = std::fabs((float)(vec2length(bulletvel)) / 4);
+			_scala.y = 1;
             gfxdrawsprite(t[imagestyle], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                           rgba(0xffdddd, bulletalpha / 2));
           }
@@ -1110,8 +1111,8 @@ void Bullet<M>::render(double timeelapsed)
         {
           _p.x = bulletpos.x;
           _p.y = bulletpos.y;
-          _scala.x = fabs((float)(vec2length(bulletvel)) / 9);
-          _scala.y = 1;
+		  _scala.x = std::fabs((float)(vec2length(bulletvel)) / 9);
+		  _scala.y = 1;
           gfxdrawsprite(t[GFX::WEAPONS_BULLET], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                         rgba(0xffffff, bulletalpha / 5));
         }
@@ -1155,8 +1156,8 @@ void Bullet<M>::render(double timeelapsed)
 
           _p.x = bulletpos.x + ox;
           _p.y = bulletpos.y + oy;
-          _scala.x = fabs((float)(vec2length(bulletvel)) / 4);
-          _scala.y = 1.3;
+		  _scala.x = std::fabs((float)(vec2length(bulletvel)) / 4);
+		  _scala.y = 1.3;
           gfxdrawsprite(t[GFX::WEAPONS_BULLET], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                         rgba(0xffff55, bulletalpha));
         }
@@ -1169,9 +1170,8 @@ void Bullet<M>::render(double timeelapsed)
     _p.y = bulletpos.y - 17;
     if ((timeoutfloat > 0) && (timeoutfloat <= flamer_timeout))
     {
-      gfxdrawsprite(t[GFX::SPARKS_FLAMES_EXPLODE16 - (std::int32_t)trunc(timeoutfloat / 2)], _p.x,
-                    _p.y);
-    }
+		gfxdrawsprite(t[GFX::SPARKS_FLAMES_EXPLODE16 - (std::int32_t)std::trunc(timeoutfloat / 2)], _p.x, _p.y);
+	}
   }
   break;
 
@@ -1191,8 +1191,8 @@ void Bullet<M>::render(double timeelapsed)
         {
           _p.x = bulletpos.x;
           _p.y = bulletpos.y;
-          _scala.x = fabs((float)(vec2length(bulletvel)) / 3);
-          _scala.y = 1;
+		  _scala.x = std::fabs((float)(vec2length(bulletvel)) / 3);
+		  _scala.y = 1;
           gfxdrawsprite(t[GFX::WEAPONS_BULLET], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                         rgba(0xffffff, bulletalpha / 7));
         }
@@ -1243,8 +1243,8 @@ void Bullet<M>::render(double timeelapsed)
         {
           _p.x = bulletpos.x;
           _p.y = bulletpos.y;
-          _scala.x = fabs((float)(vec2length(bulletvel)) / 3);
-          _scala.y = 1;
+		  _scala.x = std::fabs((float)(vec2length(bulletvel)) / 3);
+		  _scala.y = 1;
           gfxdrawsprite(t[GFX::WEAPONS_BULLET], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                         rgba(0xffffff, bulletalpha / 5));
         }
@@ -1275,8 +1275,8 @@ void Bullet<M>::render(double timeelapsed)
       _p.y = bulletpos.y + bulletvel.y;
       _p2.x = _p.x - bulletvel.x;
       _p2.y = _p.y - bulletvel.y;
-      _scala.x = fabs((float)(vec2length(bulletvel)) / bullettrail);
-      _scala.y = 1.2;
+	  _scala.x = std::fabs((float)(vec2length(bulletvel)) / bullettrail);
+	  _scala.y = 1.2;
       roto = -angle2points(_p, _p2);
       gfxdrawsprite(t[GFX::WEAPONS_BULLET], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                     rgba(0xffbf77, bulletalpha * 2));
@@ -1287,8 +1287,8 @@ void Bullet<M>::render(double timeelapsed)
         {
           _p.x = bulletpos.x;
           _p.y = bulletpos.y;
-          _scala.x = fabs((float)(vec2length(bulletvel)) / 3);
-          _scala.y = 1;
+		  _scala.x = std::fabs((float)(vec2length(bulletvel)) / 3);
+		  _scala.y = 1;
           gfxdrawsprite(t[GFX::WEAPONS_BULLET], _p.x, _p.y, _scala.x, _scala.y, 0, 0, roto,
                         rgba(0xffffff, bulletalpha / 5));
 
@@ -2958,7 +2958,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
       if (s < explosionradius2)
       {
-        s = sqrt(s);
+		  s = std::sqrt(s);
 
 #ifndef SERVER
         gGlobalStateSparks.createspark(spritePartsPos, vector2(0, -0.01), 5, owner, 80);
@@ -3014,13 +3014,13 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
         if (s < explosionradius2)
         {
-          s = sqrt(s);
-          vec2scale(a, a, (static_cast<float>(1) / (s + 1)) * explosion_deadimpact_multiply);
-          sprite.skeleton.oldpos[j].x += a.x;
-          sprite.skeleton.oldpos[j].y += a.y;
+			s = std::sqrt(s);
+			vec2scale(a, a, (static_cast<float>(1) / (s + 1)) * explosion_deadimpact_multiply);
+			sprite.skeleton.oldpos[j].x += a.x;
+			sprite.skeleton.oldpos[j].y += a.y;
 
-          parthit = true;
-          s2 = s;
+			parthit = true;
+			s2 = s;
         }
       }
 
@@ -3064,11 +3064,11 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
       if (s < explosionradius2)
       {
-        s = sqrt(s);
-        vec2scale(a, a, 0.5 * (static_cast<float>(1) / (s + 1)) * explosion_impact_multiply);
-        things[i].skeleton.oldpos[j].x += a.x;
-        things[i].skeleton.oldpos[j].y += a.y;
-        things[i].statictype = false;
+		  s = std::sqrt(s);
+		  vec2scale(a, a, 0.5 * (static_cast<float>(1) / (s + 1)) * explosion_impact_multiply);
+		  things[i].skeleton.oldpos[j].x += a.x;
+		  things[i].skeleton.oldpos[j].y += a.y;
+		  things[i].statictype = false;
       }
     }
   } // for Thing[i]

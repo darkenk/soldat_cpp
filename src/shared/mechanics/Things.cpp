@@ -6,6 +6,9 @@
 #include <cstdint>
 #include <cstring>
 #include <spdlog/fmt/bundled/core.h>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "common/Anims.hpp"
 #include "common/Constants.hpp"
@@ -16,6 +19,7 @@
 #include "common/Vector.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/Weapons.hpp"
+#include "common/gfx.hpp"
 #include "common/misc/RandomGenerator.hpp"
 #include "common/misc/SafeType.hpp"
 #include "common/misc/SoldatConfig.hpp"
@@ -32,11 +36,11 @@
 #include "../../client/Gfx.hpp"
 #include "../../client/Sound.hpp"
 #else
-#include "../../server/Server.hpp"
-#include "../network/NetworkServer.hpp"
-#include "../network/NetworkServerGame.hpp"
-#include "../network/NetworkServerMessages.hpp"
-#include "../network/NetworkServerThing.hpp"
+  #include "../../server/Server.hpp" // NOLINT
+	#include "../network/NetworkServer.hpp"
+	#include "../network/NetworkServerGame.hpp"
+	#include "../network/NetworkServerMessages.hpp"
+	#include "../network/NetworkServerThing.hpp"
 #endif
 
 #include "../Cvar.hpp"
@@ -49,7 +53,6 @@
 #if SOLDAT_UTBOT
 constexpr auto pi = 3.14159265358979323846;
 #else
-#include <numbers>
 #endif // SOLDAT_UTBOT
 
 template <Config::Module M>

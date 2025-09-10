@@ -8,7 +8,7 @@
 
 #include <bits/chrono.h>
 #include <cstdint>
-#include <math.h>
+#include <cmath>
 #include <string>
 
 #ifndef SERVER

@@ -7,8 +7,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstdint>
-#include <iterator>
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include <soloud.h>
 #include <soloud_wav.h>

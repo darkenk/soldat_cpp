@@ -5,7 +5,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstring>
-#include <math.h>
+#include <cmath>
 #include <physfs.h>
 #include <vector>
 

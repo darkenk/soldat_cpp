@@ -113,8 +113,8 @@ auto loadbotconfig(TIniFile &ini, tsprite &spritec, GunsDescription &guns) -> bo
     ReadConf(conf, "Secondary_Weapon", spritec.player->secwep);
     ReadConf(conf, "Friend", spritec.brain.friend_, true);
     ReadConf(conf, "Accuracy", spritec.brain.accuracy);
-    spritec.brain.accuracy = trunc(spritec.brain.accuracy * ((float)(CVar::bots_difficulty) / 100));
-    ReadConf(conf, "Shoot_Dead", spritec.brain.deadkill);
+	spritec.brain.accuracy = std::trunc(spritec.brain.accuracy * ((float)(CVar::bots_difficulty) / 100));
+	ReadConf(conf, "Shoot_Dead", spritec.brain.deadkill);
     ReadConf(conf, "Grenade_Frequency", spritec.brain.grenadefreq);
     ReadConf(conf, "OnStartUse", spritec.brain.use);
 

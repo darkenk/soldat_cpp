@@ -21,7 +21,7 @@ std::string weaponnamebynum(std::int32_t num);
 #endif
 void writepid();
 std::int32_t soldat_getpid();
-void writeconsole(std::uint8_t id, std::string text, std::uint32_t colour);
+void writeconsole(std::uint8_t id, const std::string& text, std::uint32_t colour);
 void updatewaverespawntime();
 std::string randombot();
 void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam);

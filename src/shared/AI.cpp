@@ -2,10 +2,9 @@
 
 #include "AI.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include <Tracy.hpp>
-#include <cmath>
 #include <cstdint>
 #include <string>
 #include <utility>
@@ -1170,7 +1169,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
               (spritec.tertiaryweapon.ammocount < CVar::sv_maxgrenades) &&
               ((spritec.tertiaryweapon.num != clustergrenade_num) ||
                (spritec.tertiaryweapon.ammocount == 0)))))
-        {
+		{
           startpoint.x = thing.skeleton.pos[2].x;
           startpoint.y = thing.skeleton.pos[2].y - 5;
 

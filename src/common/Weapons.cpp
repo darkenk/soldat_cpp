@@ -1462,8 +1462,7 @@ auto calculatebink(std::uint32_t accumulated, std::uint32_t bink) -> std::uint32
 {
   // Adding bink has diminishing returns as more gets accumulated
   std::uint64_t result = 0;
-  result = accumulated + bink -
-           round(accumulated * (static_cast<float>(accumulated) / ((10 * bink) + accumulated)));
+  result = accumulated + bink - std::round(accumulated * (static_cast<float>(accumulated) / ((10 * bink) + accumulated)));
   return result;
 }
 

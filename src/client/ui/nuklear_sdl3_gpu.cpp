@@ -230,48 +230,48 @@ NK_INTERN void nk_create_or_resize_buffer(SDL_GPUBuffer **buffer, uint32_t *old_
 void nk_sdl_prepare_render_data(enum nk_anti_aliasing AA, SDL_GPUCommandBuffer *command_buffer,
                                 unsigned int fb_width, unsigned int fb_height)
 {
-  struct nk_buffer vbuf;
-  struct nk_buffer ebuf;
-  sdl.display_height = fb_height;
-  sdl.display_width = fb_width;
+	struct nk_buffer vbuf{};
+	struct nk_buffer ebuf{};
+	sdl.display_height = fb_height;
+	sdl.display_width = fb_width;
 
-  /* fill converting configuration */
-  struct nk_convert_config config{};
-  static const struct nk_draw_vertex_layout_element vertex_layout[] = {
-    {.attribute = NK_VERTEX_POSITION,
-     .format = NK_FORMAT_FLOAT,
-     .offset = NK_OFFSETOF(struct nk_sdl_vertex, position)},
-    {.attribute = NK_VERTEX_TEXCOORD,
-     .format = NK_FORMAT_FLOAT,
-     .offset = NK_OFFSETOF(struct nk_sdl_vertex, uv)},
-    {.attribute = NK_VERTEX_COLOR,
-     .format = NK_FORMAT_R8G8B8A8,
-     .offset = NK_OFFSETOF(struct nk_sdl_vertex, col)},
-    {NK_VERTEX_LAYOUT_END}};
-  memset(&config, 0, sizeof(config));
-  config.vertex_layout = vertex_layout;
-  config.vertex_size = sizeof(struct nk_sdl_vertex);
-  config.vertex_alignment = NK_ALIGNOF(struct nk_sdl_vertex);
-  config.tex_null = sdl.ogl.tex_null;
-  config.circle_segment_count = 22;
-  config.curve_segment_count = 22;
-  config.arc_segment_count = 22;
-  config.global_alpha = 1.0F;
-  config.shape_AA = AA;
-  config.line_AA = AA;
+	/* fill converting configuration */
+	struct nk_convert_config config{};
+	static const struct nk_draw_vertex_layout_element vertex_layout[] = {
+		{ .attribute = NK_VERTEX_POSITION,
+			.format = NK_FORMAT_FLOAT,
+			.offset = NK_OFFSETOF(struct nk_sdl_vertex, position) },
+		{ .attribute = NK_VERTEX_TEXCOORD,
+			.format = NK_FORMAT_FLOAT,
+			.offset = NK_OFFSETOF(struct nk_sdl_vertex, uv) },
+		{ .attribute = NK_VERTEX_COLOR,
+			.format = NK_FORMAT_R8G8B8A8,
+			.offset = NK_OFFSETOF(struct nk_sdl_vertex, col) },
+		{ NK_VERTEX_LAYOUT_END }
+	};
+	memset(&config, 0, sizeof(config));
+	config.vertex_layout = vertex_layout;
+	config.vertex_size = sizeof(struct nk_sdl_vertex);
+	config.vertex_alignment = NK_ALIGNOF(struct nk_sdl_vertex);
+	config.tex_null = sdl.ogl.tex_null;
+	config.circle_segment_count = 22;
+	config.curve_segment_count = 22;
+	config.arc_segment_count = 22;
+	config.global_alpha = 1.0F;
+	config.shape_AA = AA;
+	config.line_AA = AA;
 
-  /* convert shapes into vertexes */
-  nk_buffer_init_default(&vbuf);
-  nk_buffer_init_default(&ebuf);
-  nk_convert(&sdl.ctx, &sdl.ogl.cmds, &vbuf, &ebuf, &config);
+	/* convert shapes into vertexes */
+	nk_buffer_init_default(&vbuf);
+	nk_buffer_init_default(&ebuf);
+	nk_convert(&sdl.ctx, &sdl.ogl.cmds, &vbuf, &ebuf, &config);
 
-  uint32_t const vertex_size = vbuf.size; // * sizeof(struct nk_sdl_vertex);
-  uint32_t const index_size = ebuf.size;  // * sizeof(nk_draw_index);
-  if (sdl.vertex_buffer == nullptr || sdl.vertex_buffer_size < vertex_size)
-  {
-    nk_create_or_resize_buffer(&sdl.vertex_buffer, &sdl.vertex_buffer_size, vertex_size,
-                               SDL_GPU_BUFFERUSAGE_VERTEX, "nuklear_vertex_buffer");
-  }
+	uint32_t const vertex_size = vbuf.size; // * sizeof(struct nk_sdl_vertex);
+	uint32_t const index_size = ebuf.size;	// * sizeof(nk_draw_index);
+	if (sdl.vertex_buffer == nullptr || sdl.vertex_buffer_size < vertex_size)
+	{
+		nk_create_or_resize_buffer(&sdl.vertex_buffer, &sdl.vertex_buffer_size, vertex_size, SDL_GPU_BUFFERUSAGE_VERTEX, "nuklear_vertex_buffer");
+	}
   if (sdl.index_buffer == nullptr || sdl.index_buffer_size < index_size)
   {
     nk_create_or_resize_buffer(&sdl.index_buffer, &sdl.index_buffer_size, index_size,
@@ -631,10 +631,10 @@ NK_API void nk_sdl_render(enum nk_anti_aliasing /*AA*/, SDL_GPUCommandBuffer *co
 
     nk_draw_foreach(cmd, &sdl.ctx, &dev->cmds)
     {
-      if (cmd->elem_count == 0u)
-      {
-        continue;
-      }
+		if (cmd->elem_count == 0U)
+		{
+			continue;
+		}
 
       {
         SDL_Rect r;
@@ -721,8 +721,8 @@ NK_API void nk_sdl_font_stash_begin(struct nk_font_atlas **atlas)
 NK_API void nk_sdl_font_stash_end()
 {
   const void *image = nullptr;
-  int w;
-  int h;
+  int w = 0;
+  int h = 0;
   image = nk_font_atlas_bake(&sdl.atlas, &w, &h, NK_FONT_ATLAS_RGBA32);
   nk_sdl_device_upload_atlas(image, w, h);
   nk_font_atlas_end(&sdl.atlas, nk_handle_ptr(&sdl.font_binding), &sdl.ogl.tex_null);
@@ -850,12 +850,12 @@ NK_API int nk_sdl_handle_event(SDL_Event *evt)
     return 1;
 
   case SDL_EVENT_MOUSE_MOTION:
-    if (ctx->input.mouse.grabbed != 0u)
-    {
-      int x = (int)ctx->input.mouse.prev.x;
-      int y = (int)ctx->input.mouse.prev.y;
-      nk_input_motion(ctx, x + evt->motion.xrel, y + evt->motion.yrel);
-    }
+	  if (ctx->input.mouse.grabbed != 0U)
+	  {
+		  int const x = static_cast<int>(ctx->input.mouse.prev.x);
+		  int const y = static_cast<int>(ctx->input.mouse.prev.y);
+		  nk_input_motion(ctx, x + evt->motion.xrel, y + evt->motion.yrel);
+	  }
     else
     {
       nk_input_motion(ctx, evt->motion.x, evt->motion.y);

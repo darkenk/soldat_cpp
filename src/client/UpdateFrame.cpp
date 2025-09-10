@@ -7,7 +7,6 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
-#include <iterator>
 #include <string>
 
 #include "Client.hpp"
@@ -218,10 +217,9 @@ void update_frame()
           {
             if (sprite.isinsameteam(sprite_system.GetPlayerSprite()))
             {
-              gGlobalStateInterfaceGraphics.cursortext =
-                gGlobalStateInterfaceGraphics.cursortext + ' ' +
-                inttostr(round((sprite.GetHealth() / game.GetStarthealth()) * 100)) + '%';
-              gGlobalStateInterfaceGraphics.cursorfriendly = true;
+				gGlobalStateInterfaceGraphics.cursortext =
+					gGlobalStateInterfaceGraphics.cursortext + ' ' + inttostr(std::round((sprite.GetHealth() / game.GetStarthealth()) * 100)) + '%';
+				gGlobalStateInterfaceGraphics.cursorfriendly = true;
             }
           }
 
@@ -303,10 +301,10 @@ void update_frame()
         if (sprite_system.GetPlayerSprite().isnotspectator() &&
             (!sprite_system.GetPlayerSprite().player->demoplayer))
         {
-          if (oldmousex - round(gGlobalStateClientGame.mx) == 0)
-          {
-            idlecounter += 1;
-          }
+			if (oldmousex - std::round(gGlobalStateClientGame.mx) == 0)
+			{
+				idlecounter += 1;
+			}
           else
           {
             idlecounter = 0;
@@ -318,8 +316,8 @@ void update_frame()
             gGlobalStateClient.exittomenu();
           }
 
-          oldmousex = round(gGlobalStateClientGame.mx);
-        }
+		  oldmousex = std::round(gGlobalStateClientGame.mx);
+		}
       }
     }
 

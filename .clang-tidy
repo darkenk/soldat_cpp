@@ -21,6 +21,7 @@ Checks: >
   -readability-convert-member-functions-to-static,
   -modernize-use-trailing-return-type,
   -modernize-use-nodiscard,
+  -modernize-use-integer-sign-comparison,
   -clang-analyzer-alpha*,
   -bugprone-easily-swappable-parameters,
   -bugprone-narrowing-conversions
@@ -40,3 +41,78 @@ ImplementationFileExtensions:
   - cxx
 
 FormatStyle: file
+
+CheckOptions:
+  # === Classes ===
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.ClassPrefix
+    value: 'U;A;F;I;T'
+  - key: readability-identifier-naming.ClassIgnoredRegexp
+    value: '^(UObject|AActor|UEngine|UMG|UStruct)$'   # Core engine classes, extend as needed
+
+  # === Structs ===
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructPrefix
+    value: 'F'
+  - key: readability-identifier-naming.StructIgnoredRegexp
+    value: '^(FString|FName|FText|FVector|FRotator|FTransform|FColor|FGuid|FDateTime)$'
+
+  # === Enums ===
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumPrefix
+    value: 'E'
+  - key: readability-identifier-naming.EnumIgnoredRegexp
+    value: '^(EKeys|EInputEvent|EAxis|EBlendMode)$'
+
+  - key: readability-identifier-naming.EnumConstantCase
+    value: CamelCase
+
+  # === Interfaces ===
+  - key: readability-identifier-naming.InterfaceCase
+    value: CamelCase
+  - key: readability-identifier-naming.InterfacePrefix
+    value: 'I'
+
+  # === Type aliases / templates ===
+  - key: readability-identifier-naming.TypeAliasCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypeAliasPrefix
+    value: 'T'
+  - key: readability-identifier-naming.TypeAliasIgnoredRegexp
+    value: '^(TArray|TMap|TSet|TPair|TWeakObjectPtr|TSoftObjectPtr|TSubclassOf|TSharedPtr|TUniquePtr)$'
+
+  # === Functions & Methods ===
+  - key: readability-identifier-naming.FunctionCase
+    value: CamelCase
+  - key: readability-identifier-naming.MethodCase
+    value: CamelCase
+
+  # === Variables ===
+  - key: readability-identifier-naming.VariableCase
+    value: camelBack
+  - key: readability-identifier-naming.GlobalVariableCase
+    value: camelBack
+  - key: readability-identifier-naming.MemberCase
+    value: camelBack
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: camelBack
+  - key: readability-identifier-naming.ProtectedMemberCase
+    value: camelBack
+  - key: readability-identifier-naming.PublicMemberCase
+    value: camelBack
+
+  # === Booleans (strict UE: must start with "b") ===
+  - key: readability-identifier-naming.BooleanCase
+    value: camelBack
+  - key: readability-identifier-naming.BooleanPrefix
+    value: 'b'
+
+  # === Macros ===
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.MacroDefinitionIgnoredRegexp
+    value: '^(UCLASS|USTRUCT|UENUM|UFUNCTION|UPROPERTY|GENERATED_BODY|GENERATED_UCLASS_BODY)$'
+
