@@ -1,6 +1,7 @@
 #include "FontAtlas.hpp"
 
 #include <algorithm>
+#include <cstdint>
 
 #include "common/misc/PortUtils.hpp"
 
@@ -24,7 +25,7 @@ auto RectangleArea::Add(Rectangle &rect) -> bool
     auto fit = [this, rect](const SkylineItem &item) {
       return item.Width >= rect.w && (item.Height + rect.h) < Height;
     };
-    it = std::min_element(Skyline.begin(), Skyline.end(), [fit](auto const &l, auto const &r) {
+    it = std::ranges::min_element(Skyline, [fit](auto const &l, auto const &r) {
       auto fitL = fit(l);
       auto fitR = fit(r);
       if (fitL && fitR)
@@ -96,8 +97,8 @@ void RectangleArea::MergeWithNeighbours(SkylineItemContainer::iterator it)
 
 void RectangleArea::RaiseSkylineLevel()
 {
-  auto it = std::min_element(Skyline.begin(), Skyline.end(),
-                             [](const auto &l, const auto &r) { return l.Height < r.Height; });
+  auto it = std::ranges::min_element(
+    Skyline, [](const auto &l, const auto &r) { return l.Height < r.Height; });
 
   auto itLower = Skyline.end();
 

@@ -1,9 +1,15 @@
 // automatically converted
 
 #include "Game.hpp"
+#include "common/Constants.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "shared/Constants.cpp.h"
 
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <bits/chrono.h>
+#include <cstdint>
+#include <math.h>
+#include <string>
 
 #ifndef SERVER
 #include "../client/Client.hpp"
@@ -19,32 +25,27 @@
 #include "shared/network/NetworkServerGame.hpp"
 #include "shared/network/NetworkServerSprite.hpp"
 #endif
-#include <chrono>
 #include <algorithm>
-#include <compare>
+#include <chrono>
 #include <iterator>
 #include <limits>
-#include <memory>
+#include <utility>
 #include <vector>
 
 #include "Cvar.hpp"
 #include "Demo.hpp"
-#include "common/Console.hpp"
 #include "common/Util.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Vector.hpp"
 #include "common/WeaponSystem.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/SafeType.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
-#include "shared/network/Net.hpp"
-#include "common/MapFile.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 #ifndef SERVER
 GlobalStateGame gGlobalStateGame{
@@ -82,7 +83,7 @@ template <Config::Module M>
 void Game<M>::updategamestats()
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
+  std::int32_t i = 0;
   tstringlist s;
 
   // Game Stats save
@@ -175,15 +176,15 @@ template <Config::Module M>
 auto Game<M>::pointvisible(float x, float y, const std::int32_t i) -> bool
 {
 #ifdef SERVER
-  // TODO: check why numbers differ on server and client
+  // TODO(vscode): check why numbers differ on server and client
   const std::int32_t game_width = max_game_width;
   const std::int32_t game_height = 480;
 #else
-  std::int32_t game_width;
-  std::int32_t game_height;
+  std::int32_t game_width = 0;
+  std::int32_t game_height = 0;
 #endif
-  float sx;
-  float sy;
+  float sx = NAN;
+  float sy = NAN;
 
 #ifdef SERVER
   LogTraceG("PointVisible");
@@ -202,10 +203,14 @@ auto Game<M>::pointvisible(float x, float y, const std::int32_t i) -> bool
 
   auto &spritePartsPos = SpriteSystem::Get().GetSpritePartsPos(i);
 
-  sx = spritePartsPos.x -
-       ((float)((spritePartsPos.x - SpriteSystem::Get().GetSprite(i).control.mouseaimx)) / 2);
-  sy = spritePartsPos.y -
-       ((float)((spritePartsPos.y - SpriteSystem::Get().GetSprite(i).control.mouseaimy)) / 2);
+  sx =
+    spritePartsPos.x -
+    (static_cast<float>((spritePartsPos.x - SpriteSystem::Get().GetSprite(i).control.mouseaimx)) /
+     2);
+  sy =
+    spritePartsPos.y -
+    (static_cast<float>((spritePartsPos.y - SpriteSystem::Get().GetSprite(i).control.mouseaimy)) /
+     2);
 
   if ((x > (sx - game_width)) && (x < (sx + game_width)) && (y > (sy - game_height)) &&
       (y < (sy + game_height)))
@@ -218,7 +223,7 @@ auto Game<M>::pointvisible(float x, float y, const std::int32_t i) -> bool
 template <Config::Module M>
 auto Game<M>::pointvisible2(float x, float y, const std::int32_t i) -> bool
 {
-// TODO: check why numbers differ on server and client
+// TODO(vscode): check why numbers differ on server and client
 #ifdef SERVER
   const std::int32_t game_width = max_game_width;
   const std::int32_t game_height = 480;
@@ -226,8 +231,8 @@ auto Game<M>::pointvisible2(float x, float y, const std::int32_t i) -> bool
   const std::int32_t game_width = 600;
   const std::int32_t game_height = 440;
 #endif
-  float sx;
-  float sy;
+  float sx = NAN;
+  float sy = NAN;
 
 #ifdef SERVER
   LogTraceG("PointVisible2");
@@ -252,10 +257,10 @@ auto Game<M>::pointvisible2(float x, float y, const std::int32_t i) -> bool
 template <Config::Module M>
 auto Game<M>::ispointonscreen(const tvector2 &point) -> bool
 {
-  float p1;
-  float p2;
+  float p1 = NAN;
+  float p2 = NAN;
 
-  bool result;
+  bool result = false;
   result = true;
   p1 = gGlobalStateGame.gamewidthhalf - (gGlobalStateClient.camerax - point.x);
   p2 = gGlobalStateGame.gameheighthalf - (gGlobalStateClient.cameray - point.y);
@@ -305,8 +310,8 @@ void Game<M>::startvote(std::uint8_t startervote, std::uint8_t typevote, std::st
 #endif
   }
   VoteType = typevote;
-  VoteTarget = targetvote;
-  VoteReason = reasonvote;
+  VoteTarget = std::move(targetvote);
+  VoteReason = std::move(reasonvote);
   VoteTimeRemaining = default_voting_time;
   VoteNumVotes = 0;
   VoteMaxVotes = 0;
@@ -330,7 +335,7 @@ void Game<M>::stopvote()
   VoteStarter = "";
   VoteReason = "";
   VoteTimeRemaining = -1;
-  std::fill(std::begin(VoteHasVoted), std::end(VoteHasVoted), false);
+  std::ranges::fill(VoteHasVoted, false);
 }
 
 template <Config::Module M>
@@ -369,8 +374,8 @@ template <Config::Module M>
 void Game<M>::countvote(std::uint8_t voter)
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  float edge;
+  std::int32_t i = 0;
+  float edge = NAN;
   // Status: TMapInfo;
 
   if (VoteActive && !VoteHasVoted[voter])
@@ -417,7 +422,7 @@ void Game<M>::showmapchangescoreboard()
 }
 
 template <Config::Module M>
-void Game<M>::showmapchangescoreboard(const std::string nextmap)
+void Game<M>::showmapchangescoreboard(const std::string &nextmap)
 {
   mapchangename = nextmap;
   mapchangecounter = mapchangetime;
@@ -438,7 +443,7 @@ void Game<M>::showmapchangescoreboard(const std::string nextmap)
 template <Config::Module M>
 auto Game<M>::isteamgame() -> bool
 {
-  bool isteamgame_result;
+  bool isteamgame_result = false;
   switch (CVar::sv_gamemode)
   {
   case gamestyle_teammatch:
@@ -460,7 +465,7 @@ void Game<M>::changemap()
   tvector2 a;
 #endif
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t secwep;
+  std::int32_t secwep = 0;
 #ifndef SERVER
   tmapinfo mapchangestatus;
 #endif
@@ -473,9 +478,8 @@ void Game<M>::changemap()
   if (fileexists(UserDirectory + std::string(CVar::sv_maplist)))
   {
     gGlobalStateServer.mapslist.loadfromfile(UserDirectory + std::string(CVar::sv_maplist));
-    auto it =
-      std::remove(gGlobalStateServer.mapslist.begin(), gGlobalStateServer.mapslist.end(), "");
-    gGlobalStateServer.mapslist.erase(it, gGlobalStateServer.mapslist.end());
+    auto [begin, end] = std::ranges::remove(gGlobalStateServer.mapslist, "");
+    gGlobalStateServer.mapslist.erase(begin, end);
   }
 
   for (auto &w : botpath.waypoint)
@@ -752,13 +756,13 @@ void Game<M>::changemap()
 template <Config::Module M>
 void Game<M>::sortplayers()
 {
-  std::int32_t j;
-  tkillsort temp;
+  std::int32_t j = 0;
+  tkillsort temp{};
 
   playersnum = 0;
   botsnum = 0;
   spectatorsnum = 0;
-  std::fill(std::begin(playersteamnum), std::end(playersteamnum), 0);
+  std::ranges::fill(playersteamnum, 0);
 
   for (auto &sp : sortedplayers)
   {
@@ -1052,10 +1056,7 @@ void Game<M>::CalculateTeamAliveNum(int32_t player)
         {
           teamscore[1] -= 5 * (playersteamnum[1] - playersteamnum[2]);
         }
-        if (teamscore[1] < 0)
-        {
-          teamscore[1] = 0;
-        }
+        teamscore[1] = std::max(teamscore[1], 0);
       }
     }
 

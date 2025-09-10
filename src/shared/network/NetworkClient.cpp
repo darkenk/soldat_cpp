@@ -1,12 +1,16 @@
 #include "NetworkClient.hpp"
 
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <spdlog/fmt/bundled/core.h>
 #include <steam/isteamnetworkingsockets.h>
 #include <steam/isteamnetworkingutils.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
 #include <steam/steamclientpublic.h>
 #include <steam/steamnetworkingtypes.h>
-#include <array>
+#include <string>
+#include <string_view>
 #include <utility>
 
 #include "../Demo.hpp"
@@ -19,8 +23,11 @@
 #include "NetworkClientSprite.hpp"
 #include "NetworkClientThing.hpp"
 #include "common/Logging.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/misc/PortUtils.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/SourceLocation.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 constexpr std::string_view NETMSG = "net_msg";
 auto constexpr LOG_NET = "network";
@@ -31,8 +38,8 @@ GlobalStateNetworkClient gGlobalStateNetworkClient{
 
 void NetworkClientImpl::ProcessLoop()
 {
-  std::int32_t numMsgs;
-  PSteamNetworkingMessage_t IncomingMsg;
+  std::int32_t numMsgs = 0;
+  PSteamNetworkingMessage_t IncomingMsg = nullptr;
   RunCallbacks();
   if (mPeer == k_HSteamNetConnection_Invalid)
   {
@@ -112,7 +119,7 @@ void NetworkClientImpl::ProcessEvents(PSteamNetConnectionStatusChangedCallback_t
 
 void NetworkClientImpl::RegisterMsgHandler(msgid id, msg_handler handler)
 {
-  mMessageHandlers[id] = handler;
+  mMessageHandlers[id] = std::move(handler);
 }
 
 void NetworkClientImpl::RegisterMsgHandler(msgid id, std::unique_ptr<INetMessageHandler> handler)
@@ -182,7 +189,7 @@ auto NetworkClientImpl::Connect(const std::string_view host, std::uint32_t port)
   mNetworkingSockets->InitAuthentication();
 
   initSettings[0].SetInt32(k_ESteamNetworkingConfig_IP_AllowWithoutAuth, 1);
-  auto _this = dynamic_cast<TNetwork*>(this); // required for NetworksGlobalCallback, FIXME
+  auto *_this = dynamic_cast<TNetwork *>(this); // required for NetworksGlobalCallback, FIXME
   initSettings[1].SetInt64(k_ESteamNetworkingConfig_ConnectionUserData, reinterpret_cast<std::int64_t>(_this));
 
   mPeer = mNetworkingSockets->ConnectByIPAddress(address, initSettings.size(), initSettings.data());

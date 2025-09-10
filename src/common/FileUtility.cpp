@@ -1,24 +1,26 @@
 #include "FileUtility.hpp"
 
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
-#include <string.h>
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <filesystem>
+#include <ios>
+#include <iterator>
+#include <memory>
+#include <spdlog/fmt/bundled/core.h>
+#include <string>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include <algorithm>
-#include <array>
-#include <format>
-#include <iterator>
-#include <memory>
 
 #include "Logging.hpp"
 #include "PhysFSExt.hpp"
 #include "misc/PortUtils.hpp"
 #include "physfs.h"
 #include "port_utils/NotImplemented.hpp"
-#include "port_utils/Utilities.hpp"
 
 namespace fs = std::filesystem;
 using namespace std::string_view_literals;
@@ -90,7 +92,7 @@ struct PHYSFS_IoMemory
     t->m_position = offset;
     return 1;
   }
-  static auto Tell(struct PHYSFS_Io *io) -> PHYSFS_sint64
+  static auto Tell(struct PHYSFS_Io * /*io*/) -> PHYSFS_sint64
   {
     NotImplemented("fsMem");
     return {};
@@ -101,12 +103,12 @@ struct PHYSFS_IoMemory
     return t->m_content->size();
   }
 
-  static auto Duplicate(struct PHYSFS_Io *io) -> struct PHYSFS_Io *
+  static auto Duplicate(struct PHYSFS_Io * /*io*/) -> struct PHYSFS_Io *
   {
     NotImplemented("fsMem");
     return {};
   }
-  static auto Flush(struct PHYSFS_Io *io) -> int
+  static auto Flush(struct PHYSFS_Io * /*io*/) -> int
   {
     // do nothing?
     return 1;
@@ -162,14 +164,15 @@ struct Memory
 
   static auto GetThis(void *opaque) -> Memory * { return reinterpret_cast<Memory *>(opaque); }
 
-  static auto OpenArchive(PHYSFS_Io *io, const char *name, int forWrite, int *claimed) -> void *
+  static auto OpenArchive(PHYSFS_Io *io, const char *name, int /*forWrite*/, int *claimed) -> void *
   {
     *claimed = 1;
     return new Memory(io, name);
   }
 
-  static auto Enumerate(void *opaque, const char *dirname, PHYSFS_EnumerateCallback cb,
-                        const char *origdir, void *callbackdata) -> PHYSFS_EnumerateCallbackResult
+  static auto Enumerate(void * /*opaque*/, const char * /*dirname*/,
+                        PHYSFS_EnumerateCallback /*cb*/, const char * /*origdir*/,
+                        void * /*callbackdata*/) -> PHYSFS_EnumerateCallbackResult
   {
     NotImplemented("fsMem");
     return {};
@@ -192,12 +195,12 @@ struct Memory
     return PHYSFS_IoMemory::Create(filename, &m->m_files[filename]);
   }
 
-  static auto OpenAppend(void *opaque, const char *filename) -> PHYSFS_Io *
+  static auto OpenAppend(void * /*opaque*/, const char * /*filename*/) -> PHYSFS_Io *
   {
     NotImplemented("fsMem");
     return {};
   }
-  static auto Remove(void *opaque, const char *filename) -> int
+  static auto Remove(void * /*opaque*/, const char * /*filename*/) -> int
   {
     NotImplemented("fsMem");
     return {};
@@ -206,7 +209,7 @@ struct Memory
   {
     auto *m = GetThis(opaque);
     auto &directories = m->m_directories;
-    auto it = std::find(directories.begin(), directories.end(), filename);
+    auto it = std::ranges::find(directories, filename);
     if (it == std::end(directories))
     {
       directories.emplace_back(filename);
@@ -221,7 +224,7 @@ struct Memory
       return 1;
     }
     auto *m = GetThis(opaque);
-    if (std::end(m->m_directories) != std::find(m->m_directories.begin(), m->m_directories.end(), fn))
+    if (std::end(m->m_directories) != std::ranges::find(m->m_directories, fn))
     {
       stat->filetype = PHYSFS_FILETYPE_DIRECTORY;
       return 1;
@@ -261,7 +264,7 @@ struct FileUtility::File
 FileUtility::FileUtility(const std::string_view rootPrefix): RootPrefix{rootPrefix}
 {
   auto r = PhysFS_InitThreadSafe();
-  if (r == 0u)
+  if (r == 0U)
   {
     LogError(LOG, "FS init failed {}", PHYSFS_getLastErrorCode());
   }
@@ -330,7 +333,7 @@ auto FileUtility::Read(File *file, std::byte *data, const std::size_t size) -> s
   SoldatAssert(file);
   auto bytesRead = PHYSFS_readBytes(reinterpret_cast<PHYSFS_File *>(file), data, size);
   SoldatAssert(bytesRead > 0);
-  SoldatAssert(bytesRead == size);
+  SoldatAssert(std::cmp_equal(bytesRead , size));
   return bytesRead;
 }
 
@@ -339,8 +342,8 @@ auto FileUtility::Write(File *file, const std::byte *data, const std::size_t siz
   SoldatAssert(file);
   auto bytesWritten = PHYSFS_writeBytes(reinterpret_cast<PHYSFS_File *>(file), data, size);
   SoldatAssert(bytesWritten > 0);
-  SoldatAssert(bytesWritten == size);
-  return bytesWritten == size;
+  SoldatAssert(std::cmp_equal(bytesWritten , size));
+  return std::cmp_equal(bytesWritten , size);
 }
 
 auto FileUtility::Exists(const std::string_view path) -> bool
@@ -405,7 +408,7 @@ auto FileUtility::ReadFile(const std::string_view path) -> std::vector<std::uint
   result.resize(length);
   auto read = Read(fh, reinterpret_cast<std::byte*>(result.data()), length);
   Close(fh);
-  if (read == -1)
+  if (std::cmp_equal(read, -1))
   {
     LogError(LOG, "Error while reading data");
     result.resize(0);
@@ -465,7 +468,7 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Mount memory and write file and later rea
   {
     auto *f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
     std::array<std::byte, TEST_DATA_SIZE> d = {};
-    std::fill(std::begin(d), std::end(d), std::byte(0));
+    std::ranges::fill(d, std::byte(0));
     auto r = FileUtility::Read(f, d.data(), TEST_DATA_SIZE);
     FileUtility::Close(f);
     CHECK_EQ(TEST_DATA_SIZE, r);
@@ -492,7 +495,7 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Mount file system write and read file")
   {
     auto *f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
     std::array<std::byte, TEST_DATA_SIZE> d = {};
-    std::fill(std::begin(d), std::end(d), std::byte(0));
+    std::ranges::fill(d, std::byte(0));
     auto r = FileUtility::Read(f, d.data(), TEST_DATA_SIZE);
     FileUtility::Close(f);
     CHECK_EQ(TEST_DATA_SIZE, r);
@@ -502,8 +505,8 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Mount file system write and read file")
 
 TEST_CASE_FIXTURE(FileUtilityFixture, "FileUtility initialized twice does not crash")
 {
-  FileUtility fu1;
-  FileUtility fu2;
+  FileUtility const fu1;
+  FileUtility const fu2;
 }
 
 TEST_CASE_FIXTURE(FileUtilityFixture, "Create directory in memory")
@@ -541,7 +544,7 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Create directory in filesystem")
 
 TEST_CASE_FIXTURE(FileUtilityFixture, "Get base path returns path to directory with with exe")
 {
-  FileUtility fu;
+  FileUtility const fu;
   auto s = FileUtility::GetBasePath();
   CHECK_NE("", s);
   CHECK_EQ(true, std::filesystem::is_directory(s));
@@ -549,7 +552,7 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "Get base path returns path to directory w
 
 TEST_CASE_FIXTURE(FileUtilityFixture, "Get pref data returns path to directory with user settings")
 {
-  FileUtility fu;
+  FileUtility const fu;
   auto s = FileUtility::GetPrefPath("test_pref");
   CHECK_EQ(s.substr(s.rfind('/') + 1), "test_pref");
   CHECK_EQ(true, std::filesystem::is_directory(s));
@@ -676,7 +679,7 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "The same file can be mounted twice in dif
                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x76, 0x00, 0x00, 0x00, 0x73, 0x68, 0x61, 0x72, 0x65, 0x64, 0x5f,
                                  0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00,
                                  0x03, 0x00, 0x03, 0x00, 0xb7, 0x00, 0x00, 0x00, 0xb1, 0x00, 0x00, 0x00, 0x00, 0x00};
-  unsigned int soldat_smod_len = 382;
+  unsigned int const soldat_smod_len = 382;
 
   FileUtility fu("/t1");
   auto testDir = FileUtility::GetPrefPath("mount_test", true);
@@ -685,7 +688,7 @@ TEST_CASE_FIXTURE(FileUtilityFixture, "The same file can be mounted twice in dif
   testDir = FileUtility::GetPrefPath("mount_test", true);
   {
     std::ofstream s(testDir + "/soldat.smod", std::ios_base::binary | std::ios_base::trunc);
-    s.write((char*)soldat_smod, soldat_smod_len);
+    s.write(reinterpret_cast<char *>(soldat_smod), soldat_smod_len);
   }
 
   CHECK_EQ(true, fu.Mount(testDir + "/soldat.smod", "/"));

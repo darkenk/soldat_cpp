@@ -1,8 +1,12 @@
 #include "Cvar.hpp"
 
-#include <map>
+#include <algorithm>
 #include <cctype>
+#include <cstdint>
 #include <cstdlib>
+#include <map>
+#include <string>
+#include <string_view>
 
 #include "shared/misc/FlagSet.hpp"
 
@@ -10,8 +14,7 @@ template <>
 auto FromString<std::int32_t>(const std::string_view &value,
                               std::int32_t &outValue) noexcept -> bool
 {
-  const auto *ret = std::find_if(std::begin(value), std::end(value),
-                                 [](auto const &c) { return !std::isdigit(c); });
+  const auto *ret = std::ranges::find_if(value, [](auto const &c) { return !std::isdigit(c); });
   if (ret != std::end(value))
   {
     return false;
@@ -44,9 +47,8 @@ auto FromString<std::string>(const std::string_view &value, std::string &outValu
 template <>
 auto FromString<float>(const std::string_view &value, float &outValue) noexcept -> bool
 {
-  const auto *ret = std::find_if(std::begin(value), std::end(value), [](auto const &c) {
-    return !(std::isdigit(c) || c == '.' || c == 'f');
-  });
+  const auto *ret = std::ranges::find_if(
+    value, [](auto const &c) { return !(std::isdigit(c) || c == '.' || c == 'f'); });
   if (ret != std::end(value))
   {
     return false;
@@ -102,7 +104,7 @@ CVarInt log_level{"log_level", "Sets log level", CVarFlags::NONE, 1};
 CVarBool log_enable{"log_enable", "Enables logging to file", CVarFlags::NONE, true};
 CVarInt log_filesupdate{"log_filesupdate", "How often the log files should be updated", CVarFlags::NONE, 3600};
 #ifdef SERVER
-CVarBool log_timestamp{ "log_timestamp", "Enables/Disables timestamps in console", CVarFlags::SERVER_FLAG, false};
+static CVarBool log_timestamp{ "log_timestamp", "Enables/Disables timestamps in console", CVarFlags::SERVER_FLAG, false};
 #endif
 #ifdef SERVER
 #ifdef ENABLE_FAE
@@ -164,7 +166,7 @@ CVarInt ui_killconsole_length{"ui_killconsole_length", "Sets length of kill cons
 CVarBool ui_hidespectators{"ui_hidespectators", "Hides spectators from the fragsmenu",  CVarFlags::CLIENT, false};
 
 // Client cvars
-CVarFloat cl_sensitivity{"cl_sensitivity", "Mouse sensitivity", CVarFlags::CLIENT, 1.0f};
+CVarFloat cl_sensitivity{"cl_sensitivity", "Mouse sensitivity", CVarFlags::CLIENT, 1.0F};
 CVarBool cl_endscreenshot{"cl_endscreenshot", "Take screenshot when game ends", CVarFlags::CLIENT, false};
 CVarBool cl_actionsnap{"cl_actionsnap", "Enables action snap", CVarFlags::CLIENT, false};
 CVarBool cl_screenshake{"cl_screenshake", "Enables screen shake from enemy fire", CVarFlags::CLIENT, true};
@@ -189,7 +191,7 @@ CVarInt cl_runs{"cl_runs", "Game runs", CVarFlags::CLIENT, 0};
 CVarString cl_lang{"cl_lang", "Game language", CVarFlags::CLIENT | CVarFlags::INITONLY, ""};
 
 // Demo cvars
-CVarFloat demo_speed{"demo_speed", "Demo speed", CVarFlags::CLIENT, 1.0f};
+CVarFloat demo_speed{"demo_speed", "Demo speed", CVarFlags::CLIENT, 1.0F};
 CVarInt demo_rate{"demo_rate", "Rate of demo recording", CVarFlags::CLIENT, 1};
 CVarBool demo_showcrosshair{"demo_showcrosshair", "Enables rendering crosshair in demos", CVarFlags::CLIENT, true};
 
@@ -198,7 +200,7 @@ CVarInt snd_volume{"snd_volume", "Sets sound volume", CVarFlags::CLIENT, 50};
 CVarBool snd_effects_battle{"snd_effects_battle", "Enables battle sound effects", CVarFlags::CLIENT, false};
 CVarBool snd_effects_explosions{"snd_effects_explosions", "Enables sound explosions effects", CVarFlags::CLIENT, false};
 
-// TODO: Remove
+// TODO(vscode): Remove
 CVarInt sv_respawntime{"sv_respawntime", "Respawn time in ticks (60 ticks = 1 second)", CVarFlags::SERVER_FLAG, 60};
 
 CVarString font_1_filename{"font_1_filename", "First font filename", CVarFlags::CLIENT, "play-regular.ttf"};
@@ -212,7 +214,7 @@ CVarInt font_menusize{"font_menusize",   "Menu font size", CVarFlags::CLIENT, 12
 CVarInt font_consolesize{"font_consolesize", "Console font size", CVarFlags::CLIENT, 9};
 CVarInt font_consolesmallsize{"font_consolesmallsize", "Console small font size", CVarFlags::CLIENT, 7};
 
-CVarFloat font_consolelineheight{"font_consolelineheight", "Console line height", CVarFlags::CLIENT, 1.5f};
+CVarFloat font_consolelineheight{"font_consolelineheight", "Console line height", CVarFlags::CLIENT, 1.5F};
 CVarInt font_bigsize{"font_bigsize", "Big message font size", CVarFlags::CLIENT, 28};
 CVarInt font_weaponmenusize{"font_weaponmenusize", "Weapon menu font size", CVarFlags::CLIENT, 8};
 
@@ -247,7 +249,7 @@ CVarString sv_password{"sv_password", "Sets game password", CVarFlags::SERVER_FL
 CVarString sv_adminpassword{"sv_adminpassword", "Sets admin password", CVarFlags::SERVER_FLAG, ""};
 CVarInt sv_maxplayers{"sv_maxplayers", "Max number of players that can play on server", CVarFlags::SERVER_FLAG, 24};
 CVarInt sv_maxspectators{"sv_maxspectators", "Sets the limit of spectators", CVarFlags::SERVER_FLAG, 10};
-CVarBool sv_spectatorchat{"sv_spectatorchat", "Enables/disables spectators chat", CVarFlags::SERVER_FLAG, true};
+static CVarBool sv_spectatorchat{"sv_spectatorchat", "Enables/disables spectators chat", CVarFlags::SERVER_FLAG, true};
 CVarString sv_greeting{"sv_greeting", "First greeting message", CVarFlags::SERVER_FLAG, "Welcome"};
 CVarString sv_greeting2{"sv_greeting2", "Second greeting message", CVarFlags::SERVER_FLAG, ""};
 CVarString sv_greeting3{"sv_greeting3", "Third greeting message", CVarFlags::SERVER_FLAG, ""};
@@ -255,12 +257,12 @@ CVarInt sv_minping{"sv_minping", "The minimum ping a player must have to play in
 CVarInt sv_maxping{"sv_maxping", "The maximum ping a player can have to play in your server", CVarFlags::SERVER_FLAG, 400};
 CVarInt sv_votepercent{"sv_votepercent", "Percentage of players in favor of a map/kick vote to let it pass", CVarFlags::SERVER_FLAG, 60};
 CVarBool sv_lockedmode{"sv_lockedmode", "When Locked Mode is enabled, admins will not be able to type /loadcon, /password or /maxplayers", CVarFlags::SERVER_FLAG, false};
-CVarString sv_pidfilename{"sv_pidfilename", "Sets the Process ID file name", CVarFlags::SERVER_FLAG, "soldatserver.pid"};
+static CVarString sv_pidfilename{"sv_pidfilename", "Sets the Process ID file name", CVarFlags::SERVER_FLAG, "soldatserver.pid"};
 CVarString sv_maplist{"sv_maplist", "Sets the name of maplist file", CVarFlags::SERVER_FLAG, "mapslist.txt"};
 CVarBool sv_lobby{"sv_lobby", "Enables/Disables registering in lobby", CVarFlags::SERVER_FLAG, true};
-CVarString sv_lobbyurl{"sv_lobbyurl", "URL of the lobby server", CVarFlags::SERVER_FLAG, "http://api.soldat.pl:443"};
+static CVarString sv_lobbyurl{"sv_lobbyurl", "URL of the lobby server", CVarFlags::SERVER_FLAG, "http://api.soldat.pl:443"};
 
-CVarBool sv_steamonly{"sv_steamonly", "Enables/Disables steam only mode", CVarFlags::SERVER_FLAG, false};
+static CVarBool sv_steamonly{"sv_steamonly", "Enables/Disables steam only mode", CVarFlags::SERVER_FLAG, false};
 
 CVarInt sv_warnings_flood{"sv_warnings_flood", "How many warnings someone who is flooding the server gets before getting kicked for 20 minutes", CVarFlags::SERVER_FLAG, 4};
 CVarInt sv_warnings_ping{"sv_warnings_ping", "How many warnings someone who has a ping outside the required values above gets before being kicked for 15 minutes", CVarFlags::SERVER_FLAG, 10};
@@ -282,8 +284,8 @@ CVarInt net_port{"net_port", "The port your server runs on, and player have to c
 CVarString net_ip{"net_ip", "Binds server ports to specific ip address", CVarFlags::SERVER_FLAG, "0.0.0.0"};
 CVarString net_adminip{"net_adminip", "Binds admin port to specific ip address", CVarFlags::SERVER_FLAG, ""};
 CVarInt net_lan{"net_lan", "Set to 1 to set server to LAN mode", CVarFlags::SERVER_FLAG, 0};
-CVarInt net_maxconnections{"net_maxconnections", "Maximum number of simultaneous file transfer connections", CVarFlags::SERVER_FLAG, 10};
-CVarInt net_maxadminconnections{"net_maxadminconnections", "Maximum number of admin connections", CVarFlags::SERVER_FLAG, 10};
+static CVarInt net_maxconnections{"net_maxconnections", "Maximum number of simultaneous file transfer connections", CVarFlags::SERVER_FLAG, 10};
+static CVarInt net_maxadminconnections{"net_maxadminconnections", "Maximum number of admin connections", CVarFlags::SERVER_FLAG, 10};
 
 CVarInt net_floodingpacketslan{"net_floodingpacketslan", "When running on a LAN, controls how many packets should be considered flooding", CVarFlags::SERVER_FLAG, 80};
 CVarInt net_floodingpacketsinternet{"net_floodingpacketsinternet", "When running on the Internet, controls how many packets should be considered flooding", CVarFlags::SERVER_FLAG, 42};
@@ -429,43 +431,43 @@ TEST_CASE_FIXTURE(CVarFixture, "ParseAndSetStringCorrectValue")
 TEST_CASE_FIXTURE(CVarFixture, "ParseAndSetFloatCorretValue")
 {
   {
-    CVarFloat test{"f1", "", CVarFlags::NONE, 11.0f};
+    CVarFloat test{"f1", "", CVarFlags::NONE, 11.0F};
     auto ret = test.ParseAndSetValue("12.0");
-    CHECK_EQ(12.0f, test);
+    CHECK_EQ(12.0F, test);
     CHECK_EQ(true, ret);
   }
   {
-    CVarFloat test{"f2", "", CVarFlags::NONE, 11.0f};
+    CVarFloat test{"f2", "", CVarFlags::NONE, 11.0F};
     auto ret = test.ParseAndSetValue("12.1f");
-    CHECK_EQ(12.1f, test);
+    CHECK_EQ(12.1F, test);
     CHECK_EQ(true, ret);
   }
   {
-    CVarFloat test{"f3", "", CVarFlags::NONE, 11.0f};
+    CVarFloat test{"f3", "", CVarFlags::NONE, 11.0F};
     auto ret = test.ParseAndSetValue("12");
-    CHECK_EQ(12.0f, test);
+    CHECK_EQ(12.0F, test);
     CHECK_EQ(true, ret);
   }
 }
 
 TEST_CASE_FIXTURE(CVarFixture, "ParseAndDontSetFloatWrongValue")
 {
-  CVarFloat test{"f4", "", CVarFlags::NONE, 12.0f};
+  CVarFloat test{"f4", "", CVarFlags::NONE, 12.0F};
   auto ret = test.ParseAndSetValue("aa");
-  CHECK_EQ(12.0f, test);
+  CHECK_EQ(12.0F, test);
   CHECK_EQ(false, ret);
 }
 
 TEST_CASE_FIXTURE(CVarFixture, "ValueAsString")
 {
-  CVarInt test{"t3", "", CVarFlags::NONE, 12};
+  CVarInt const test{"t3", "", CVarFlags::NONE, 12};
   auto ret = test.ValueAsString();
   CHECK_EQ("12", doctest::String(ret.c_str()));
 }
 
 TEST_CASE_FIXTURE(CVarFixture, "FindCreatedCVar")
 {
-  CVarInt test{"test", "some test description", CVarFlags::NONE, 12};
+  CVarInt const test{"test", "some test description", CVarFlags::NONE, 12};
 
   auto &ref = CVarInt::Find("test");
   CHECK_EQ(true, ref.IsValid());
@@ -480,15 +482,15 @@ TEST_CASE_FIXTURE(CVarFixture, "CheckMemoryCorruptionIfCVarDoesNotExist")
 
 TEST_CASE_FIXTURE(CVarFixture, "DoNotCreateCVarTwice")
 {
-  CVarInt test{"test1", "some test description", CVarFlags::NONE, 12};
-  auto func = []() {CVarInt test1("test1", "some test description", CVarFlags::NONE, 12);};
+  CVarInt const test{"test1", "some test description", CVarFlags::NONE, 12};
+  auto func = []() {CVarInt const test1("test1", "some test description", CVarFlags::NONE, 12);};
   CHECK_THROWS(func());
 }
 
 TEST_CASE_FIXTURE(CVarFixture, "AssingOneCVarToAnother")
 {
   CVarInt t1{"t4", "", CVarFlags::NONE, 12};
-  CVarInt t2{"t5", "", CVarFlags::NONE, 13};
+  CVarInt const t2{"t5", "", CVarFlags::NONE, 13};
   t1 = t2;
   CHECK_EQ(13, t1);
 }
@@ -497,7 +499,7 @@ TEST_CASE_FIXTURE(CVarFixture, "IterateOverAllCVars")
 {
   struct Dummy
   {
-    Dummy(std::int32_t v) : value{v}
+    explicit Dummy(std::int32_t v) : value{v}
     {
     }
     std::int32_t value;
@@ -509,17 +511,17 @@ TEST_CASE_FIXTURE(CVarFixture, "IterateOverAllCVars")
   using CVarDummy = CVarBase<Dummy>;
 
   // random order
-  CVarDummy cv1{"dummy1", "", CVarFlags::NONE, 1};
-  CVarDummy cv2{"dummy2", "", CVarFlags::NONE, 2};
+  CVarDummy const cv1{"dummy1", "", CVarFlags::NONE, Dummy(1)};
+  CVarDummy const cv2{"dummy2", "", CVarFlags::NONE, Dummy(2)};
 
-  CHECK_EQ(1, std::count(CVarDummy::GetAllCVars().begin(), CVarDummy::GetAllCVars().end(), 1));
+  CHECK_EQ(1, std::count(CVarDummy::GetAllCVars().begin(), CVarDummy::GetAllCVars().end(), Dummy(1)));
 
   std::int32_t n = 1;
   for (const auto &cv : CVarDummy::GetAllCVars())
   {
-    CHECK_EQ(n++, cv);
+    CHECK_EQ(Dummy(n++), cv);
   }
 }
 
 
-}
+}  // namespace

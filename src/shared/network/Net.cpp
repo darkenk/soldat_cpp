@@ -1,10 +1,9 @@
 #include "Net.hpp"
 
 #include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
+#ifdef SERVER
 #include "shared/Game.hpp"
 #include "shared/Cvar.hpp"
-#ifdef SERVER
-#include "../../server/Server.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #endif
 

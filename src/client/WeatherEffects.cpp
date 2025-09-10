@@ -6,23 +6,22 @@
 
 #include "Client.hpp"
 #include "Sound.hpp"
-#include "shared/Cvar.hpp"
-#include "shared/Game.hpp"
-#include "shared/mechanics/Sprites.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Vector.hpp"
 #include "common/misc/RandomGenerator.hpp"
 #include "common/misc/SafeType.hpp"
-#include "common/misc/SoldatConfig.hpp"
+#include "shared/Cvar.hpp"
+#include "shared/Game.hpp"
 #include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 // Backgorund animation and sound for rain
 void makerain()
 {
-  std::int32_t i;
+  std::int32_t i = 0;
   tvector2 a;
   tvector2 b;
-  std::int32_t modder;
+  std::int32_t modder = 0;
 
   if (CVar::r_maxsparks < (max_sparks - 10))
   {
@@ -55,10 +54,10 @@ void makerain()
 // Backgorund animation and sound for sandstorm
 void makesandstorm()
 {
-  std::int32_t i;
+  std::int32_t i = 0;
   tvector2 a;
   tvector2 b;
-  std::int32_t modder;
+  std::int32_t modder = 0;
 
   if (CVar::r_maxsparks < (max_sparks - 10))
   {
@@ -71,7 +70,7 @@ void makesandstorm()
 
   if (GS::GetGame().GetMainTickCounter() % modder == 0)
   {
-    a.x = gGlobalStateClient.camerax - gGlobalStateGame.gamewidthhalf - 1.5 * 512;
+    a.x = gGlobalStateClient.camerax - gGlobalStateGame.gamewidthhalf - (1.5 * 512);
 
     b.x = 10;
     b.y = 7;
@@ -91,10 +90,10 @@ void makesandstorm()
 // Backgorund animation and sound for snow
 void makesnow()
 {
-  std::int32_t i;
+  std::int32_t i = 0;
   tvector2 a;
   tvector2 b;
-  std::int32_t modder;
+  std::int32_t modder = 0;
 
   if (CVar::r_maxsparks < (max_sparks - 10))
   {

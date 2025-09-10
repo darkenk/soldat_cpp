@@ -2,10 +2,13 @@
 
 #include "AI.hpp"
 
+#include <math.h>
+
 #include <Tracy.hpp>
 #include <cmath>
-#include <memory>
+#include <cstdint>
 #include <string>
+#include <utility>
 
 #include "Game.hpp"
 #include "common/Calc.hpp"
@@ -28,9 +31,11 @@
 #include "common/network/Net.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/mechanics/Things.hpp"
-#include "shared/network/Net.hpp"
 
-constexpr auto sround(float v) -> std::int16_t { return static_cast<std::int16_t>(std::roundf(v)); }
+static constexpr auto sround(float v) -> std::int16_t
+{
+  return static_cast<std::int16_t>(std::roundf(v));
+}
 
 // Checks the distance on one axis
 auto checkdistance(float posa, float posb) -> std::int32_t
@@ -38,7 +43,7 @@ auto checkdistance(float posa, float posb) -> std::int32_t
 
   std::int32_t result = dist_away;
 
-  float distance = std::fabs(posa - posb);
+  float const distance = std::fabs(posa - posb);
 
   if (distance <= dist_too_close)
   {
@@ -75,11 +80,11 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 {
   auto &sprite_system = SpriteSystem::Get();
   tvector2 tv;
-  std::int32_t disttotargetx;
-  std::int32_t disttotargety;
-  std::int32_t dist;
-  std::int32_t gr;
-  std::int32_t i;
+  std::int32_t disttotargetx = 0;
+  std::int32_t disttotargety = 0;
+  std::int32_t dist = 0;
+  std::int32_t gr = 0;
+  std::int32_t i = 0;
 
   {
     auto &with = sprite_system.GetSprite(snum);
@@ -493,18 +498,18 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
     with.control.mouseaimx = sround(t.x);
     if (disttotargetx < dist_far)
     {
-      with.control.mouseaimy = sround(t.y - (0.5f * disttotargetx / (with.weapon.speed)) -
-                                     with.brain.accuracy + Random(with.brain.accuracy));
+      with.control.mouseaimy = sround(t.y - (0.5F * disttotargetx / (with.weapon.speed)) -
+                                      with.brain.accuracy + Random(with.brain.accuracy));
     }
     else
     {
-      with.control.mouseaimy = sround(t.y - (1.75f * disttotargetx / (with.weapon.speed)) -
+      with.control.mouseaimy = sround(t.y - (1.75F * disttotargetx / (with.weapon.speed)) -
                                       with.brain.accuracy + Random(with.brain.accuracy));
     }
 
     if (sprite_system.GetSprite(snum).stat > 0)
     {
-      with.control.mouseaimy = sround(t.y - (0.5f * disttotargetx / (30.f)) - with.brain.accuracy +
+      with.control.mouseaimy = sround(t.y - (0.5F * disttotargetx / (30.F)) - with.brain.accuracy +
                                       Random(with.brain.accuracy));
     }
 
@@ -518,10 +523,9 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
         with.control.mouseaimx = sround(t.x);
         with.control.mouseaimy = sround(t.y);
 
-        for (i = 1;
-             i <=
-             round(((float)(dist) / sprite_system.GetSprite(with.brain.targetnum).weapon.speed) *
-                   1.0);
+        for (i = 1; i <= round((static_cast<float>(dist) /
+                                sprite_system.GetSprite(with.brain.targetnum).weapon.speed) *
+                               1.0);
              i++)
         {
           with.control.mouseaimx = with.control.mouseaimx + sround(targetVelocity.x);
@@ -553,7 +557,7 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 
     if (CVar::sv_realisticmode)
     {
-      with.control.mouseaimy = with.control.mouseaimy - with.burstcount * 3.f;
+      with.control.mouseaimy = with.control.mouseaimy - with.burstcount * 3.F;
     }
   }
 }
@@ -561,8 +565,8 @@ void simpledecision(std::uint8_t snum, const twaypoints &botpath)
 void gotothing(std::uint8_t snum, std::uint8_t tnum)
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t disttotargetx;
-  std::int32_t disttotargety;
+  std::int32_t disttotargetx = 0;
+  std::int32_t disttotargety = 0;
 
   auto &things = GS::GetThingSystem().GetThings();
   {
@@ -638,15 +642,15 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
   tvector2 b;
   tvector2 lookpoint;
   tvector2 startpoint;
-  std::int32_t k;
-  std::int32_t i;
-  bool seeclosest;
-  bool seething;
-  bool runaway;
-  float d;
-  float d2;
-  float dt;
-  bool tempb;
+  std::int32_t k = 0;
+  std::int32_t i = 0;
+  bool seeclosest = false;
+  bool seething = false;
+  bool runaway = false;
+  float d = NAN;
+  float d2 = NAN;
+  float dt = NAN;
+  bool tempb = false;
 
   auto &map = GS::GetGame().GetMap();
   auto &things = GS::GetThingSystem().GetThings();
@@ -923,7 +927,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
 
           if ((spritec.brain.currentwaypoint == 0) || (k > 0))
           {
-            if ((spritec.brain.pathnum == botpath.waypoint[k].pathnum) ||
+            if ((std::cmp_equal(spritec.brain.pathnum, botpath.waypoint[k].pathnum)) ||
                 (spritec.brain.currentwaypoint == 0))
             {
               spritec.brain.currentwaypoint = k;
@@ -1181,7 +1185,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
                   (thing.style == spritec.player->team) && thing.inbase)
               {
                 seething = false;
-                if ((spritec.holdedthing > 0) && (i != spritec.holdedthing))
+                if ((spritec.holdedthing > 0) && (std::cmp_not_equal(i, spritec.holdedthing)))
                 {
                   if (things[spritec.holdedthing].holdingsprite == spritec.num)
                   {
@@ -1357,7 +1361,7 @@ void controlbot(tsprite &spritec, const twaypoints &botpath)
     {
       if (Random(spritec.brain.chatfreq * 150) == 0)
       {
-        if (GS::GetGame().GetSortedPlayers(1).playernum == spritec.num)
+        if (std::cmp_equal(GS::GetGame().GetSortedPlayers(1).playernum, spritec.num))
         {
           serversendstringmessage((spritec.brain.chatwinning), all_players, spritec.num,
                                   msgtype_pub);

@@ -1,12 +1,10 @@
 // automatically converted
 #include "NetworkClientThing.hpp"
 
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
 #include <array>
 #include <cstdint>
-#include <memory>
 #include <string>
+#include <utility>
 
 #include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
@@ -17,24 +15,21 @@
 #include "NetworkClientSprite.hpp"
 #include "NetworkUtils.hpp"
 #include "common/Calc.hpp"
-#include "common/GameStrings.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Constants.hpp"
+#include "common/GameStrings.hpp"
 #include "common/Parts.hpp"
 #include "common/Util.hpp"
 #include "common/Vector.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/Weapons.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
-#include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
-#include "shared/network/Net.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 void clienthandleserverthingsnapshot::Handle(NetworkContext *netmessage)
 {
@@ -46,7 +41,7 @@ void clienthandleserverthingsnapshot::Handle(NetworkContext *netmessage)
     return;
   }
 
-  auto *thingsnap = pmsg_serverthingsnapshot(netmessage->packet);
+  auto *thingsnap = reinterpret_cast<pmsg_serverthingsnapshot>(netmessage->packet);
 
   // assign received Thing info to thing
   const auto i = thingsnap->num;
@@ -144,11 +139,11 @@ void clienthandleserverthingsnapshot::Handle(NetworkContext *netmessage)
 void clienthandleserverthingmustsnapshot::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_serverthingmustsnapshot *thingmustsnap;
-  std::int32_t d;
+  tmsg_serverthingmustsnapshot *thingmustsnap = nullptr;
+  std::int32_t d = 0;
   tvector2 a;
-  tsprite *spritethingowner;
-  std::int32_t weaponthing;
+  tsprite *spritethingowner = nullptr;
+  std::int32_t weaponthing = 0;
 
   if (!verifypacket(sizeof(tmsg_serverthingmustsnapshot), netmessage->size,
                     msgid_serverthingmustsnapshot))
@@ -156,7 +151,7 @@ void clienthandleserverthingmustsnapshot::Handle(NetworkContext *netmessage)
     return;
   }
 
-  thingmustsnap = pmsg_serverthingmustsnapshot(netmessage->packet);
+  thingmustsnap = reinterpret_cast<pmsg_serverthingmustsnapshot>(netmessage->packet);
 
   // assign received Thing info to thing
   const auto i = thingmustsnap->num;
@@ -243,11 +238,11 @@ void clienthandleserverthingmustsnapshot::Handle(NetworkContext *netmessage)
 
       if (weaponthing > -1)
       {
-        if (spritethingowner->weapon.num == weaponthing)
+        if (std::cmp_equal(spritethingowner->weapon.num, weaponthing))
         {
           spritethingowner->applyweaponbynum(noweapon_num, 1);
         }
-        else if (spritethingowner->secondaryweapon.num == weaponthing)
+        else if (std::cmp_equal(spritethingowner->secondaryweapon.num, weaponthing))
         {
           spritethingowner->applyweaponbynum(noweapon_num, 2);
         }
@@ -308,11 +303,11 @@ void clienthandleserverthingmustsnapshot::Handle(NetworkContext *netmessage)
 void clienthandlethingtaken::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_serverthingtaken *thingtakensnap;
-  std::int32_t j;
-  std::int32_t n;
-  tmsg_requestthing requestthingmsg;
-  std::uint8_t weaponindex;
+  tmsg_serverthingtaken *thingtakensnap = nullptr;
+  std::int32_t j = 0;
+  std::int32_t n = 0;
+  tmsg_requestthing requestthingmsg{};
+  std::uint8_t weaponindex = 0;
   std::uint32_t capcolor = capture_message_color;
   std::string bigcaptext;
   std::string smallcaptext;
@@ -324,7 +319,7 @@ void clienthandlethingtaken::Handle(NetworkContext *netmessage)
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
-  thingtakensnap = pmsg_serverthingtaken(netmessage->packet);
+  thingtakensnap = reinterpret_cast<pmsg_serverthingtaken>(netmessage->packet);
 
   const auto i = thingtakensnap->num;
   if ((i < 1) || (i > max_things))

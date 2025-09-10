@@ -2,20 +2,17 @@
 
 #include "ControlGame.hpp"
 
-#include <shared/network/NetworkClient.hpp>
 #include <SDL3/SDL_clipboard.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_video.h>
-#include <math.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
-#include <numeric>
 #include <array>
+#include <cmath>
 #include <cstdint>
-#include <memory>
+#include <numeric>
+#include <shared/network/NetworkClient.hpp>
 #include <string>
 
 #include "Client.hpp"
@@ -24,28 +21,24 @@
 #include "Input.hpp"
 #include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
-#include "common/Console.hpp"
 #include "common/GameStrings.hpp"
-#include "shared/Command.hpp"
-#include "shared/Cvar.hpp"
-#include "shared/Demo.hpp"
-#include "shared/Game.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
-#include "shared/network/NetworkClientConnection.hpp"
-#include "shared/network/NetworkClientGame.hpp"
-#include "shared/network/NetworkClientMessages.hpp"
 #include "common/Util.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/Weapons.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
-#include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
+#include "shared/Command.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/Cvar.hpp"
+#include "shared/Demo.hpp"
+#include "shared/Game.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
-#include "shared/network/Net.hpp"
+#include "shared/misc/GlobalSystems.hpp"
+#include "shared/network/NetworkClientConnection.hpp"
+#include "shared/network/NetworkClientGame.hpp"
+#include "shared/network/NetworkClientMessages.hpp"
 
 GlobalStateControlGame gGlobalStateControlGame{
 
@@ -79,11 +72,11 @@ auto GlobalStateControlGame::filterchattext(const std::string &str1) -> std::str
 auto GlobalStateControlGame::chatkeydown(std::uint8_t keymods, SDL_Keycode keycode) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t len;
+  std::int32_t len = 0;
   std::string str1;
   std::string consolestr;
 
-  bool result;
+  bool result = false;
   result = false;
 
   if (length(gGlobalStateClientGame.chattext) > 0)
@@ -101,7 +94,7 @@ auto GlobalStateControlGame::chatkeydown(std::uint8_t keymods, SDL_Keycode keyco
       {
         gGlobalStateClientGame.chattext = gGlobalStateClientGame.chattext.substr(1);
         gGlobalStateClientGame.cursorposition =
-          min(gGlobalStateClientGame.cursorposition, (std::uint8_t)len);
+          min(gGlobalStateClientGame.cursorposition, static_cast<std::uint8_t>(len));
       }
 
       gGlobalStateClientGame.currenttabcompleteplayer = 0;
@@ -225,7 +218,7 @@ auto GlobalStateControlGame::chatkeydown(std::uint8_t keymods, SDL_Keycode keyco
 
 auto GlobalStateControlGame::menukeydown(std::uint8_t keymods, SDL_Scancode keycode) -> bool
 {
-  bool result;
+  bool result = false;
   result = false;
 
   if ((keymods == km_none) && (keycode == SDL_SCANCODE_ESCAPE))
@@ -287,10 +280,10 @@ auto GlobalStateControlGame::menukeydown(std::uint8_t keymods, SDL_Scancode keyc
 auto GlobalStateControlGame::keydown(SDL_KeyboardEvent &keyevent) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  std::uint8_t keymods;
+  std::int32_t i = 0;
+  std::uint8_t keymods = 0;
   SDL_Scancode keycode;
-  pbind bind;
+  pbind bind = nullptr;
   taction action;
 
   bool result = true;
@@ -306,7 +299,7 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent &keyevent) -> bool
     return result;
   }
 
-  if (keyevent.repeat != 0)
+  if (static_cast<int>(keyevent.repeat) != 0)
   {
     result = false;
     return result;
@@ -506,7 +499,7 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent &keyevent) -> bool
     if (!CVar::sv_sniperline)
     {
       gGlobalStateClient.sniperline_client_hpp = static_cast<std::uint8_t>(
-        static_cast<std::uint8_t>(gGlobalStateClient.sniperline_client_hpp) == 0u);
+        static_cast<std::uint8_t>(gGlobalStateClient.sniperline_client_hpp) == 0U);
     }
   }
   else if (action == taction::statsmenu)
@@ -614,7 +607,8 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent &keyevent) -> bool
     if ((gGlobalStateClientGame.chattext.empty()) && !gGlobalStateGameMenus.escmenu->active)
     {
       i = iif(action == taction::mousesensitivitydown, -5, 5);
-      CVar::cl_sensitivity = ((float)(max(0.0f, i + floor(100 * CVar::cl_sensitivity))) / 100);
+      CVar::cl_sensitivity =
+        (static_cast<float>(max(0.0, i + floor(100 * CVar::cl_sensitivity))) / 100);
       GS::GetMainConsole().console(
         _("Sensitivity:") + (std::string(" ") + inttostr(floor(100 * CVar::cl_sensitivity)) + "%"),
         music_message_color);
@@ -674,7 +668,7 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent &keyevent) -> bool
         gGlobalStateClientGame.actionsnaptaken)
     {
       gGlobalStateClientGame.showscreen = static_cast<std::uint8_t>(
-        static_cast<std::uint8_t>(gGlobalStateClientGame.showscreen) == 0u);
+        static_cast<std::uint8_t>(gGlobalStateClientGame.showscreen) == 0U);
 
       if (!static_cast<bool>(gGlobalStateClientGame.showscreen))
       {
@@ -688,7 +682,7 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent &keyevent) -> bool
     else
     {
       gGlobalStateClientGame.screencounter = 255;
-      gGlobalStateClientGame.showscreen = 0u;
+      gGlobalStateClientGame.showscreen = 0U;
     }
   }
   else if (action == taction::weapons)
@@ -751,12 +745,12 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent &keyevent) -> bool
 
 auto GlobalStateControlGame::keyup(SDL_KeyboardEvent &keyevent) -> bool
 {
-  std::uint8_t keymods;
+  std::uint8_t keymods = 0;
   SDL_Scancode keycode;
-  pbind bind;
+  pbind bind = nullptr;
   taction action;
 
-  bool result;
+  bool result = false;
   result = true;
   keycode = keyevent.scancode;
 
@@ -764,7 +758,7 @@ auto GlobalStateControlGame::keyup(SDL_KeyboardEvent &keyevent) -> bool
             (ord(0 != (keyevent.mod & SDL_KMOD_CTRL)) << 1) |
             (ord(0 != (keyevent.mod & SDL_KMOD_SHIFT)) << 2);
 
-  if (keyevent.repeat != 0)
+  if (static_cast<int>(keyevent.repeat) != 0)
   {
     result = false;
     return result;
@@ -794,7 +788,7 @@ auto GlobalStateControlGame::keyup(SDL_KeyboardEvent &keyevent) -> bool
 void GlobalStateControlGame::gameinput(SDL_Event &event)
 {
   std::string str1;
-  bool chatenabled;
+  bool chatenabled = false;
 
   chatenabled = length(gGlobalStateClientGame.chattext) > 0;
 
@@ -874,11 +868,11 @@ void GlobalStateControlGame::gameinput(SDL_Event &event)
       if (0 != (SDL_GetWindowFlags(gGlobalStateInput.gamewindow) & SDL_WINDOW_INPUT_FOCUS))
       {
         gGlobalStateClientGame.mx =
-          max(0.f, min((float)gGlobalStateGame.gamewidth,
-                       gGlobalStateClientGame.mx + event.motion.xrel * CVar::cl_sensitivity));
+          max(0.F, min(static_cast<float>(gGlobalStateGame.gamewidth),
+                       gGlobalStateClientGame.mx + (event.motion.xrel * CVar::cl_sensitivity)));
         gGlobalStateClientGame.my =
-          max(0.f, min((float)gGlobalStateGame.gameheight,
-                       gGlobalStateClientGame.my + event.motion.yrel * CVar::cl_sensitivity));
+          max(0.F, min(static_cast<float>(gGlobalStateGame.gameheight),
+                       gGlobalStateClientGame.my + (event.motion.yrel * CVar::cl_sensitivity)));
 
         gGlobalStateGameMenus.gamemenumousemove();
       }

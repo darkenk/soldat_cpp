@@ -27,13 +27,13 @@ struct tmapinfo
 std::int32_t charcount(const char, const std::string &str1);
 
 // splits a string, ie: 1|2|3 with a limit of 1, into 1 and 2|3
-tstringarray splitstr(const std::string source, const char delimiter, std::int32_t limit = -1);
+tstringarray splitstr(const std::string &source, const char delimiter, std::int32_t limit = -1);
 
 // Gets a specific piece of a string
-std::string getpiece(const std::string source, const char delimiter, const std::int32_t piece);
+std::string getpiece(const std::string &source, const char delimiter, const std::int32_t piece);
 
 // TODO: posex function returns values moved by 1 in comparision to pascal
-std::int32_t posex(const std::string substr, std::string s, std::uint32_t offset = 1);
+std::int32_t posex(const std::string &substr, const std::string &s, std::uint32_t offset = 1);
 
 template <typename T>
 T iif(const bool condition, T truepart, T falsepart)

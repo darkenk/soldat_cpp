@@ -1,12 +1,11 @@
 #include "Logging.hpp"
 
 // clang-format off
+#include <memory>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/logger.h>
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/common.h>
-#include <spdlog/formatter.h>
 // clang-format on
 
 void InitLogging()

@@ -31,30 +31,30 @@ void clientpong(INetwork& network, std::uint8_t pingnum);
 class clienthandleplayerslist : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *nc) override;
+  void Handle(NetworkContext *netmessage) override;
 };
 class clienthandleunaccepted : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *nc) override;
+  void Handle(NetworkContext *netmessage) override;
 };
 class clienthandleserverdisconnect : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *nc) override;
+  void Handle(NetworkContext *netmessage) override;
 };
 class clienthandleping : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *nc) override;
+  void Handle(NetworkContext *netmessage) override;
 };
 class clienthandleservervars : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *nc) override;
+  void Handle(NetworkContext *netmessage) override;
 };
 class clienthandlesynccvars : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *nc) override;
+  void Handle(NetworkContext *netmessage) override;
 };

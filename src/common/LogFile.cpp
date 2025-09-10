@@ -1,20 +1,21 @@
 // automatically converted
 #include "LogFile.hpp"
 
-#include <sstream>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <ctime>
 #include <format>
 #include <iomanip>
-#include <utility>
+#include <mutex>
+#include <sstream>
+#include <string>
+#include <string_view>
 
 #include "FileUtility.hpp"
 #include "Logging.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 #include "port_utils/NotImplemented.hpp"
-#include "port_utils/Utilities.hpp"
 
 static constexpr std::int32_t max_logfilesize = 512000;
 
@@ -60,7 +61,7 @@ void LogFile::CreateNewLogFile(const std::string &prefix)
   }
 
   {
-    std::lock_guard<std::mutex> lock(mLogLock);
+    std::lock_guard<std::mutex> const lock(mLogLock);
     mLogList.clear();
   }
 
@@ -106,7 +107,7 @@ void LogFile::Log(const std::string_view s, bool withdate)
   }
 
   {
-    std::lock_guard lock(mLogLock);
+    std::lock_guard const lock(mLogLock);
     if (withdate)
     {
       mLogList.emplace_back(std::format("{} {}", sGetCurrentDate("%y/%m/%d %H:%M:%S"), s));
@@ -132,7 +133,7 @@ void LogFile::WriteToFile()
 
   auto *logfile = mFileUtility.Open(mLogName, FileUtility::FileMode::Write);
   {
-    std::lock_guard lock(mLogLock);
+    std::lock_guard const lock(mLogLock);
     for (auto &line : mLogList)
     {
       FileUtility::Write(logfile, reinterpret_cast<const std::byte *>(line.c_str()), line.size());
@@ -155,7 +156,6 @@ void LogFile::CreateNewLogIfCurrentLogIsTooBig()
 // TEST
 #include <doctest/doctest.h>
 #include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
 
 class LogFileFixture
 {
@@ -222,7 +222,7 @@ TEST_SUITE("LogFile")
     logFile.Enable(true);
     logFile.SetLogLevel(2);
     logFile.Log("Test log entry", false);
-    std::string content = ReadFile(logFile.GetLogName());
+    std::string const content = ReadFile(logFile.GetLogName());
     CHECK(content.find("Test log entry") != std::string::npos);
   }
 
@@ -231,9 +231,9 @@ TEST_SUITE("LogFile")
     logFile.Enable(true);
     logFile.SetLogLevel(2);
     logFile.Log("Test log entry", true);
-    std::string content = ReadFile(logFile.GetLogName());
+    std::string const content = ReadFile(logFile.GetLogName());
     CHECK(content.find("Test log entry") != std::string::npos);
-    CHECK(content.find("/") != std::string::npos); // Check for date format
+    CHECK(content.find('/') != std::string::npos); // Check for date format
   }
 
   TEST_CASE_FIXTURE(LogFileFixture, "AddLineToLogFile_LogLevelGreaterThanOne_WritesLogFile")
@@ -251,7 +251,7 @@ TEST_SUITE("LogFile")
     logFile.SetLogLevel(0);
     logFile.Init(logName);
     logFile.SetLogLevel(1);
-    std::string initialLogName{logFile.GetLogName()};
+    std::string const initialLogName{logFile.GetLogName()};
     logFile.Log(std::string(max_logfilesize - 1, 'a'), false);
     logFile.WriteToFile();
     logFile.CreateNewLogIfCurrentLogIsTooBig();
@@ -265,7 +265,7 @@ TEST_SUITE("LogFile")
     logFile.Enable(true);
     logFile.SetLogLevel(2);
     logFile.Init(logName);
-    std::string prevLogName{logFile.GetLogName()};
+    std::string const prevLogName{logFile.GetLogName()};
     logFile.Log(std::string(max_logfilesize, 'a'), false);
     logFile.CreateNewLogIfCurrentLogIsTooBig();
     CHECK_GT(mockFileUtility.Size(prevLogName), 0);
@@ -283,7 +283,7 @@ TEST_SUITE("LogFile")
     auto *h = mockFileUtility.Open(existing_log, FileUtility::FileMode::Write);
     FileUtility::Close(h);
 
-    std::string expectedName = std::format("/user/logfile-{}-01.txt", date);
+    std::string const expectedName = std::format("/user/logfile-{}-01.txt", date);
 
     logFile.Init("/user/logfile");
     CHECK_EQ(logFile.GetLogName(), expectedName);
@@ -294,8 +294,8 @@ TEST_SUITE("LogFile")
     logFile.Enable(true);
     logFile.SetLogLevel(0);
     logFile.Init(logName);
-    std::string baseName = "/user/logfile";
-    std::string expectedName = "/user/logfile.txt";
+    std::string const baseName = "/user/logfile";
+    std::string const expectedName = "/user/logfile.txt";
     logFile.Init(baseName);
     CHECK_EQ(logFile.GetLogName(), expectedName);
   }
@@ -316,7 +316,7 @@ TEST_SUITE("LogFile")
     logFile.SetLogLevel(1);
     logFile.Init(logName);
 
-    std::string initialLogName{logFile.GetLogName()};
+    std::string const initialLogName{logFile.GetLogName()};
 
     logFile.Log(std::string(max_logfilesize, 'a'), false);
     logFile.WriteToFile();

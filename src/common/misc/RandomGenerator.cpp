@@ -1,11 +1,11 @@
 #include "RandomGenerator.hpp"
 
+#include <cstdint>
 #include <random>
 
 #include "../port_utils/NotImplemented.hpp"
-#include "../port_utils/Utilities.hpp"
 
-std::default_random_engine generator;
+static std::default_random_engine generator;
 
 void Randomize()
 {
@@ -14,7 +14,7 @@ void Randomize()
 
 auto Random() -> float
 {
-  std::uniform_real_distribution<> dis(0.0f, 1.0);
+  std::uniform_real_distribution<> dis(0.0F, 1.0);
   return dis(generator);
 }
 

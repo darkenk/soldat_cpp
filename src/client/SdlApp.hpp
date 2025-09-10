@@ -24,7 +24,7 @@ public:
 
   bool RegisterEventHandler(SDL_EventType evt, HandlerType handler);
   // probably only for imgui
-  void RegisterEventInterception(HandlerType handler);
+  void RegisterEventInterception(const HandlerType &handler);
   void ProcessEvents();
   void Present();
 

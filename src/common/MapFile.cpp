@@ -1,14 +1,20 @@
 // automatically converted
 #include "MapFile.hpp"
 
-#include <physfs.h>
+#include <array>
 #include <cassert>
+#include <cstdint>
 #include <cstring>
+#include <math.h>
+#include <physfs.h>
+#include <vector>
 
+#include "FileUtility.hpp"
+#include "Util.hpp"
+#include "Vector.hpp"
+#include "Waypoints.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 #include "port_utils/NotImplemented.hpp"
-#include "FileUtility.hpp"
-#include "port_utils/Utilities.hpp"
 
 /******************************************************************************/
 /*                              Helper functions                              */
@@ -54,9 +60,9 @@ const std::array<std::uint32_t, 256> crctable = {
    0x89b8fd09, 0x8d79e0be, 0x803ac667, 0x84fbdbd0, 0x9abc8bd5, 0x9e7d9662, 0x933eb0bb, 0x97ffad0c,
    0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4}};
 
-auto crc32(std::uint32_t crc, const std::uint8_t *data, std::int32_t len) -> std::uint32_t
+static auto crc32(std::uint32_t crc, const std::uint8_t *data, std::int32_t len) -> std::uint32_t
 {
-  std::uint32_t result;
+  std::uint32_t result = 0;
   result = crc;
   while (len > 0)
   {
@@ -67,7 +73,7 @@ auto crc32(std::uint32_t crc, const std::uint8_t *data, std::int32_t len) -> std
   return result;
 }
 
-auto readallbytes(FileUtility &fs, const tmapinfo &map, tfilebuffer &buffer) -> bool
+static auto readallbytes(FileUtility &fs, const tmapinfo &map, tfilebuffer &buffer) -> bool
 {
   bool result = false;
 
@@ -106,7 +112,7 @@ auto readallbytes(FileUtility &fs, const tmapinfo &map, tfilebuffer &buffer) -> 
   return result;
 }
 
-void bufferread(tfilebuffer &bf, void *dest, std::int32_t size)
+static void bufferread(tfilebuffer &bf, void *dest, std::int32_t size)
 {
   std::memset(dest, 0, size);
   assert(bf.pos + size <= bf.data.size());
@@ -114,38 +120,38 @@ void bufferread(tfilebuffer &bf, void *dest, std::int32_t size)
   bf.pos += size;
 }
 
-auto readuint8(tfilebuffer &bf) -> std::uint8_t
+static auto readuint8(tfilebuffer &bf) -> std::uint8_t
 {
-  std::uint8_t readuint8_result;
+  std::uint8_t readuint8_result = 0;
   bufferread(bf, &readuint8_result, 1);
   return readuint8_result;
 }
 
-auto readuint16(tfilebuffer &bf) -> std::uint16_t
+static auto readuint16(tfilebuffer &bf) -> std::uint16_t
 {
-  std::uint16_t readuint16_result;
+  std::uint16_t readuint16_result = 0;
   bufferread(bf, &readuint16_result, 2);
   return readuint16_result;
 }
 
-auto readint32(tfilebuffer &bf) -> std::int32_t
+static auto readint32(tfilebuffer &bf) -> std::int32_t
 {
-  std::int32_t readint32_result;
+  std::int32_t readint32_result = 0;
   bufferread(bf, &readint32_result, 4);
   return readint32_result;
 }
 
-auto readfloat(tfilebuffer &bf) -> float
+static auto readfloat(tfilebuffer &bf) -> float
 {
-  float readfloat_result;
+  float readfloat_result = NAN;
   bufferread(bf, &readfloat_result, 4);
   return readfloat_result;
 }
 
-auto readstring(tfilebuffer &bf, std::int32_t maxsize) -> std::string
+static auto readstring(tfilebuffer &bf, std::int32_t maxsize) -> std::string
 {
-  std::int32_t n;
-  std::array<char, 128> s;
+  std::int32_t n = 0;
+  std::array<char, 128> s{};
 
   std::string readstring_result;
   n = readuint8(bf);
@@ -163,7 +169,7 @@ auto readstring(tfilebuffer &bf, std::int32_t maxsize) -> std::string
   return readstring_result;
 }
 
-auto readvec3(tfilebuffer &bf) -> tvector3
+static auto readvec3(tfilebuffer &bf) -> tvector3
 {
   tvector3 result;
   result.x = readfloat(bf);
@@ -172,7 +178,7 @@ auto readvec3(tfilebuffer &bf) -> tvector3
   return result;
 }
 
-auto readcolor(tfilebuffer &bf) -> tmapcolor
+static auto readcolor(tfilebuffer &bf) -> tmapcolor
 {
   tmapcolor result;
   result[2] = readuint8(bf);
@@ -182,7 +188,7 @@ auto readcolor(tfilebuffer &bf) -> tmapcolor
   return result;
 }
 
-auto readvertex(tfilebuffer &bf) -> tmapvertex
+static auto readvertex(tfilebuffer &bf) -> tmapvertex
 {
   tmapvertex result;
   result.x = readfloat(bf);
@@ -198,10 +204,10 @@ auto readvertex(tfilebuffer &bf) -> tmapvertex
 auto mapcolor(std::uint32_t color) -> tmapcolor
 {
   tmapcolor result;
-  result[0] = ((unsigned long)color >> (0 * 8)) & 0xff;
-  result[1] = ((unsigned long)color >> (1 * 8)) & 0xff;
-  result[2] = ((unsigned long)color >> (2 * 8)) & 0xff;
-  result[3] = ((unsigned long)color >> (3 * 8)) & 0xff;
+  result[0] = (static_cast<unsigned long>(color) >> (0 * 8)) & 0xff;
+  result[1] = (static_cast<unsigned long>(color) >> (1 * 8)) & 0xff;
+  result[2] = (static_cast<unsigned long>(color) >> (2 * 8)) & 0xff;
+  result[3] = (static_cast<unsigned long>(color) >> (3 * 8)) & 0xff;
   return result;
 }
 
@@ -212,10 +218,10 @@ auto mapcolor(std::uint32_t color) -> tmapcolor
 auto loadmapfile(FileUtility &fs, const tmapinfo &mapinfo, tmapfile &map) -> bool
 {
   tfilebuffer bf;
-  std::int32_t i;
-  std::int32_t j;
-  std::int32_t n;
-  std::int32_t m;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
+  std::int32_t n = 0;
+  std::int32_t m = 0;
 
   bool result = false;
 
@@ -415,9 +421,9 @@ auto loadmapfile(FileUtility &fs, const tmapinfo &mapinfo, tmapfile &map) -> boo
 
 auto ispropactive(tmapfile &map, std::int32_t index) -> bool
 {
-  tmapprop *prop;
+  tmapprop *prop = nullptr;
 
-  bool ispropactive_result;
+  bool ispropactive_result = false;
   prop = &map.props[index];
   ispropactive_result =
     prop->active && (prop->level <= 2) && (prop->style > 0) && (prop->style < map.scenery.size());

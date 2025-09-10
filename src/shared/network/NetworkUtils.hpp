@@ -12,7 +12,7 @@ template <Config::Module M>
 class Sprite;
 
 template <Config::Module M = Config::GetModule()>
-bool iswronggameversion(std::string RequestVersion);
+bool iswronggameversion(const std::string& RequestVersion);
 template <Config::Module M = Config::GetModule()>
 bool verifypacket(std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId,
                   const source_location &location = source_location::current());
@@ -24,7 +24,7 @@ bool verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
 #ifdef SERVER
 extern bool isremoteadminip(const std::string &IP);
 extern bool isadminip(const std::string &IP);
-extern bool isadminpassword(std::string Password);
+extern bool isadminpassword(const std::string &Password);
 #endif
 
 template <Config::Module M = Config::GetModule()>
@@ -36,15 +36,15 @@ template <Config::Module M = Config::GetModule()>
 std::string fixplayername(const char *);
 #ifdef SERVER
 bool checkweaponnotallowed(std::uint8_t i);
-std::int32_t findfloodid(std::string SrcIP);
-std::int32_t addfloodip(std::string SrcIP);
-std::int32_t updateantiflood(std::string SrcIP);
+std::int32_t findfloodid(const std::string &SrcIP);
+std::int32_t addfloodip(const std::string &SrcIP);
+std::int32_t updateantiflood(const std::string &SrcIP);
 bool isfloodid(std::int32_t ID);
 
-bool addiptoremoteadmins(std::string SrcIP);
+bool addiptoremoteadmins(const std::string &SrcIP);
 bool isservertotallyfull();
 bool isserverfull();
-bool iswronggamepassword(std::string GamePassword);
+bool iswronggamepassword(const std::string &GamePassword);
 #endif
 
 #ifndef SERVER

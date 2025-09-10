@@ -3,26 +3,38 @@
 #include "ServerLoop.hpp"
 
 #include <Tracy.hpp>
-#include <math.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <iterator>
-#include <memory>
+#include <spdlog/fmt/bundled/core.h>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "BanSystem.hpp"
 #include "Server.hpp"
 #include "ServerHelper.hpp"
-#include "common/Logging.hpp"
+#include "common/Constants.hpp"
 #include "common/LogFile.hpp"
+#include "common/Logging.hpp"
+#include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Vector.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "shared/Constants.cpp.h"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
+#include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/mechanics/Things.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkServer.hpp"
 #include "shared/network/NetworkServerConnection.hpp"
@@ -30,22 +42,6 @@
 #include "shared/network/NetworkServerHeartbeat.hpp"
 #include "shared/network/NetworkServerSprite.hpp"
 #include "shared/network/NetworkServerThing.hpp"
-#include "common/Constants.hpp"
-#include "common/Parts.hpp"
-#include "common/PolyMap.hpp"
-#include "common/Vector.hpp"
-#include "common/Weapons.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "common/misc/RandomGenerator.hpp"
-#include "common/misc/SoldatConfig.hpp"
-#include "common/network/Net.hpp"
-#include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
-#include "shared/Constants.cpp.h"
-#include "shared/mechanics/Bullets.hpp"
-#include "shared/mechanics/Sprites.hpp"
-#include "shared/mechanics/Things.hpp"
-#include "shared/network/Net.hpp"
 
 using string = std::string;
 
@@ -53,10 +49,10 @@ void apponidle()
 {
   ZoneScopedN("AppOnIdle");
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t maincontrol;
-  std::int32_t j;
-  std::int32_t heavysendersnum;
-  float adjust;
+  std::int32_t maincontrol = 0;
+  std::int32_t j = 0;
+  std::int32_t heavysendersnum = 0;
+  float adjust = NAN;
 
   // LogTraceG("AppOnIdle");
 
@@ -89,14 +85,13 @@ void apponidle()
     // Flood Nums Cancel
     if (GS::GetGame().GetMainTickCounter() % 1000 == 0)
     {
-      std::fill(std::begin(gGlobalStateServer.floodnum), std::end(gGlobalStateServer.floodnum), 0);
+      std::ranges::fill(gGlobalStateServer.floodnum, 0);
     }
 
     // clear last admin connect flood list every 3 seconds
     if (GS::GetGame().GetMainTickCounter() % (second * 3) == 0)
     {
-      std::fill(std::begin(gGlobalStateServer.lastadminips),
-                std::end(gGlobalStateServer.lastadminips), "");
+      std::ranges::fill(gGlobalStateServer.lastadminips, "");
     }
 
     // Warnings Cancel
@@ -192,8 +187,7 @@ void apponidle()
         }
       }
 
-      std::fill(std::begin(gGlobalStateNetworkServer.messagesasecnum),
-                std::end(gGlobalStateNetworkServer.messagesasecnum), 0);
+      std::ranges::fill(gGlobalStateNetworkServer.messagesasecnum, 0);
     }
 
     if (GS::GetGame().GetMainTickCounter() % (second * 10) == 0)
@@ -223,31 +217,34 @@ void apponidle()
     // Send Bundled packets
     if (CVar::net_lan == LAN)
     {
-      if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) == 0)
+      if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(30 * adjust)) == 0)
       {
         gGlobalStateNetworkServerSprite.serverspritesnapshot(netw);
       }
 
-      if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(15 * adjust) == 0) &&
-          (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) != 0))
+      if ((GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(15 * adjust)) ==
+           0) &&
+          (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(30 * adjust)) != 0))
       {
         gGlobalStateNetworkServerSprite.serverspritesnapshotmajor(netw);
       }
 
-      if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(20 * adjust) == 0)
+      if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(20 * adjust)) == 0)
       {
         gGlobalStateNetworkServerSprite.serverskeletonsnapshot(netw);
       }
 
-      if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(59 * adjust) == 0)
+      if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(59 * adjust)) == 0)
       {
         serverheartbeat(*gGlobalStateNetworkServer.GetServerNetwork(), sprite_system,
                         GS::GetGame());
       }
 
-      if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(4 * adjust) == 0) &&
-          (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) != 0) &&
-          (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(60 * adjust) != 0))
+      if ((GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(4 * adjust)) ==
+           0) &&
+          (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(30 * adjust)) !=
+           0) &&
+          (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(60 * adjust)) != 0))
       {
         for (auto &sprite : sprite_system.GetActiveSprites())
         {
@@ -261,44 +258,45 @@ void apponidle()
     else if (CVar::net_lan == INTERNET)
     {
       if (GS::GetGame().GetMainTickCounter() %
-            (std::int32_t)round(CVar::net_t1_snapshot * adjust) ==
+            static_cast<std::int32_t>(round(CVar::net_t1_snapshot * adjust)) ==
           0)
       {
         gGlobalStateNetworkServerSprite.serverspritesnapshot(netw);
       }
 
       if ((GS::GetGame().GetMainTickCounter() %
-             (std::int32_t)round(CVar::net_t1_majorsnapshot * adjust) ==
+             static_cast<std::int32_t>(round(CVar::net_t1_majorsnapshot * adjust)) ==
            0) &&
           (GS::GetGame().GetMainTickCounter() %
-             (std::int32_t)round(CVar::net_t1_snapshot * adjust) !=
+             static_cast<std::int32_t>(round(CVar::net_t1_snapshot * adjust)) !=
            0))
       {
         gGlobalStateNetworkServerSprite.serverspritesnapshotmajor(netw);
       }
 
       if (GS::GetGame().GetMainTickCounter() %
-            (std::int32_t)round(CVar::net_t1_deadsnapshot * adjust) ==
+            static_cast<std::int32_t>(round(CVar::net_t1_deadsnapshot * adjust)) ==
           0)
       {
         gGlobalStateNetworkServerSprite.serverskeletonsnapshot(netw);
       }
 
       if (GS::GetGame().GetMainTickCounter() %
-            (std::int32_t)round(CVar::net_t1_heartbeat * adjust) ==
+            static_cast<std::int32_t>(round(CVar::net_t1_heartbeat * adjust)) ==
           0)
       {
         serverheartbeat(*gGlobalStateNetworkServer.GetServerNetwork(), sprite_system,
                         GS::GetGame());
       }
 
-      if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(CVar::net_t1_delta * adjust) ==
+      if ((GS::GetGame().GetMainTickCounter() %
+             static_cast<std::int32_t>(round(CVar::net_t1_delta * adjust)) ==
            0) &&
           (GS::GetGame().GetMainTickCounter() %
-             (std::int32_t)round(CVar::net_t1_snapshot * adjust) !=
+             static_cast<std::int32_t>(round(CVar::net_t1_snapshot * adjust)) !=
            0) &&
           (GS::GetGame().GetMainTickCounter() %
-             (std::int32_t)round(CVar::net_t1_majorsnapshot * adjust) !=
+             static_cast<std::int32_t>(round(CVar::net_t1_majorsnapshot * adjust)) !=
            0))
       {
         for (auto &sprite : sprite_system.GetActiveSprites())
@@ -334,10 +332,8 @@ void apponidle()
           dobalancebots(1, sprite.player->team);
           continue;
         }
-        if (gGlobalStateNetworkServer.noclientupdatetime[j] < 0)
-        {
-          gGlobalStateNetworkServer.noclientupdatetime[j] = 0;
-        }
+        gGlobalStateNetworkServer.noclientupdatetime[j] =
+          std::max(gGlobalStateNetworkServer.noclientupdatetime[j], 0);
 
 #ifdef ENABLE_FAE
         if (CVar::ac_enable)
@@ -370,12 +366,14 @@ void apponidle()
 
         if (CVar::net_lan == LAN)
         {
-          if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(21 * adjust) == 0)
+          if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(21 * adjust)) ==
+              0)
           {
             serverping(j);
           }
 
-          if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(12 * adjust) == 0)
+          if (GS::GetGame().GetMainTickCounter() % static_cast<std::int32_t>(round(12 * adjust)) ==
+              0)
           {
             serverthingsnapshot(j);
           }
@@ -383,14 +381,14 @@ void apponidle()
         else if (CVar::net_lan == INTERNET)
         {
           if (GS::GetGame().GetMainTickCounter() %
-                (std::int32_t)round(CVar::net_t1_ping * adjust) ==
+                static_cast<std::int32_t>(round(CVar::net_t1_ping * adjust)) ==
               0)
           {
             serverping(j);
           }
 
           if (GS::GetGame().GetMainTickCounter() %
-                (std::int32_t)round(CVar::net_t1_thingsnapshot * adjust) ==
+                static_cast<std::int32_t>(round(CVar::net_t1_thingsnapshot * adjust)) ==
               0)
           {
             serverthingsnapshot(j);
@@ -406,10 +404,10 @@ void updateframe()
 {
   ZoneScopedN("UpdateFrame");
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  std::int32_t j;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
   tvector2 m;
-  std::uint32_t _x;
+  std::uint32_t _x = 0;
 
   LogTraceG("UpdateFrame");
   auto &things = GS::GetThingSystem().GetThings();
@@ -424,8 +422,7 @@ void updateframe()
     {
       ZoneScopedN("UpdateSprites");
       auto &activeSprites = sprite_system.GetActiveSprites();
-      std::for_each(std::begin(activeSprites), std::end(activeSprites),
-                    [](auto &sprite) { sprite.update(); });
+      std::ranges::for_each(activeSprites, [](auto &sprite) { sprite.update(); });
     }
 
     {
@@ -700,8 +697,7 @@ void updateframe()
     if (GS::GetGame().GetMainTickCounter() % minute == 0)
     {
       auto &activeSprites = sprite_system.GetActiveSprites();
-      std::for_each(std::begin(activeSprites), std::end(activeSprites),
-                    [](auto &sprite) { sprite.player->playtime += 1; });
+      std::ranges::for_each(activeSprites, [](auto &sprite) { sprite.player->playtime += 1; });
     }
 
     // Leftover from old Ban Timers code
@@ -856,10 +852,7 @@ void updateframe()
                       (GS::GetGame().GetPlayersTeamNum(2) - GS::GetGame().GetPlayersTeamNum(1));
                 }
 
-                if (gGlobalStateServer.htftime < htf_sec_point)
-                {
-                  gGlobalStateServer.htftime = htf_sec_point;
-                }
+                gGlobalStateServer.htftime = std::max(gGlobalStateServer.htftime, htf_sec_point);
 
                 GS::GetGame().sortplayers();
               }

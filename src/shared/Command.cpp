@@ -1,9 +1,12 @@
 // automatically converted
 
 #include "Command.hpp"
+#include "common/misc/SoldatConfig.hpp"
 
+#include <cstdint>
 #include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <string>
+#include <vector>
 
 #ifdef SERVER
 #include "../server/Server.hpp"
@@ -22,18 +25,16 @@
 
 #include "Cvar.hpp"
 #include "common/Console.hpp"
-#include "common/Logging.hpp"
-#include "common/FileUtility.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Constants.hpp"
+#include "common/FileUtility.hpp"
+#include "common/Logging.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
-#include "shared/network/Net.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 static bool deferredinitialized = false;
 static std::map<std::string, tcommand *> commands;
@@ -51,7 +52,7 @@ static auto commandfind(const std::string &name) -> pcommand
 
 /*$PUSH*/
 /*$WARN 5024 OFF : Parameter "$1" not used*/
-static void commandexec(std::vector<std::string> &args, std::uint8_t sender = 255)
+static void commandexec(std::vector<std::string> &args, std::uint8_t /*sender*/ = 255)
 {
   if (length(args) == 1)
   {
@@ -61,7 +62,7 @@ static void commandexec(std::vector<std::string> &args, std::uint8_t sender = 25
   loadconfig(args[1], GS::GetFileSystem());
 }
 
-static void commandtoggle(std::vector<std::string> &args, std::uint8_t sender)
+static void commandtoggle(std::vector<std::string> & /*args*/, std::uint8_t /*sender*/)
 {
   NotImplemented();
 #if 0
@@ -86,7 +87,7 @@ static void commandtoggle(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 }
 
-static void commandalias(std::vector<std::string> &args, std::uint8_t sender)
+static void commandalias(std::vector<std::string> &args, std::uint8_t /*sender*/)
 {
   std::string aliasname;
 
@@ -110,10 +111,10 @@ static void commandalias(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 }
 
-static void commandexecutealias(std::vector<std::string> &args, std::uint8_t sender)
+static void commandexecutealias(std::vector<std::string> &args)
 {
-  pcommand commandptr;
-  tstringlist inputparse;
+  pcommand commandptr = nullptr;
+  tstringlist const inputparse;
 
   commandptr = commandfind(args[0]);
   if (!assigned(commandptr))
@@ -132,7 +133,7 @@ static void commandexecutealias(std::vector<std::string> &args, std::uint8_t sen
 #endif
 }
 
-static void commandecho(std::vector<std::string> &args, std::uint8_t sender)
+static void commandecho(std::vector<std::string> &args, std::uint8_t /*sender*/)
 {
   if (length(args) == 1)
   {
@@ -142,7 +143,7 @@ static void commandecho(std::vector<std::string> &args, std::uint8_t sender)
   GS::GetMainConsole().console(args[1], game_message_color);
 }
 
-static void commandreset(std::vector<std::string> &args, std::uint8_t sender)
+static void commandreset(std::vector<std::string> & /*args*/, std::uint8_t /*sender*/)
 {
   NotImplemented();
 #if 0
@@ -168,7 +169,7 @@ static void commandreset(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 }
 
-static void commandcmdlist(std::vector<std::string> &args, std::uint8_t sender)
+static void commandcmdlist(std::vector<std::string> & /*args*/, std::uint8_t /*sender*/)
 {
   NotImplemented();
 #if 0
@@ -183,7 +184,7 @@ static void commandcmdlist(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 }
 
-static void commandcvarlist(std::vector<std::string> &args, std::uint8_t sender)
+static void commandcvarlist(std::vector<std::string> & /*args*/, std::uint8_t /*sender*/)
 {
   NotImplemented();
 #if 0
@@ -210,7 +211,7 @@ static void commandcvarlist(std::vector<std::string> &args, std::uint8_t sender)
 #endif
 }
 
-static void commandinc(std::vector<std::string> &args, std::uint8_t sender)
+static void commandinc(std::vector<std::string> & /*args*/, std::uint8_t /*sender*/)
 {
   NotImplemented();
 #if 0
@@ -387,7 +388,7 @@ template <Config::Module M>
 auto commandadd(const std::string &commandnamevar, tcommandfunction commandptr,
                 const std::string &description, tcommandflags flags) -> pcommand
 {
-  pcommand newcommand;
+  pcommand newcommand = nullptr;
   std::string commandname;
 
   pcommand result = nullptr;
@@ -415,7 +416,7 @@ auto parseinput(const std::string &input) -> bool
 }
 
 template <typename T>
-auto SetValue(const std::string &cvarName, const std::string &value) -> bool
+static auto SetValue(const std::string &cvarName, const std::string &value) -> bool
 {
   auto &cvi = CVarBase<T>::Find(cvarName);
   if (!cvi.IsValid())
@@ -434,12 +435,12 @@ template <Config::Module M>
 auto parseinput(const std::string &input, std::uint8_t sender) -> bool
 {
   [[maybe_unused]] auto &sprite_system = SpriteSystem::Get();
-  tstringlist inputparse;
+  tstringlist const inputparse;
 
-  pcommand commandptr;
-  tcommandfunction commandfunction;
+  pcommand commandptr = nullptr;
+  tcommandfunction commandfunction = nullptr;
 
-  bool result;
+  bool result = false;
   result = false;
 
   if (length(input) == 0)
@@ -535,7 +536,7 @@ auto loadconfig(const std::string &configname, FileUtility &fs) -> bool
 {
   std::string line;
 
-  bool result = false;
+  bool const result = false;
   auto path = "/user/configs/" + configname;
   if (!fs.Exists(path))
   {
@@ -577,7 +578,7 @@ template <Config::Module M>
 void parsecommandline(int argc, char *argv[])
 {
   std::vector<std::string> args;
-  std::int32_t i;
+  std::int32_t i = 0;
 
   for (i = 1; i < argc; i++)
   {
@@ -607,14 +608,14 @@ auto commandtarget(const std::string &target, std::uint8_t sender) -> tcommandta
 {
   auto &sprite_system = SpriteSystem::Get();
   std::vector<std::uint8_t> players;
-  std::int32_t targetid;
+  std::int32_t targetid = 0;
 
   targetid = strtointdef(target, 0);
   setlength(players, 0);
 
   for (auto &sprite : sprite_system.GetActiveSprites())
   {
-    if ((targetid != 0) && (sprite.num == targetid))
+    if ((targetid != 0) && (std::cmp_equal(sprite.num, targetid)))
     {
       addplayer(sprite.num, players);
       break;

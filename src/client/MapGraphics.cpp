@@ -2,24 +2,30 @@
 
 #include "MapGraphics.hpp"
 
+#include <math.h>
+
 #include <array>
 #include <cmath>
-#include <set>
+#include <cstdint>
 #include <cstring>
+#include <set>
+#include <string>
+#include <vector>
 
 #include "Client.hpp"
 #include "ClientGame.hpp"
 #include "GameRendering.hpp"
+#include "client/Gfx.hpp"
+#include "common/FileUtility.hpp"
+#include "common/MapFile.hpp"
+#include "common/PolyMap.hpp"
+#include "common/Util.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/port_utils/NotImplemented.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include "client/Gfx.hpp"
-#include "common/FileUtility.hpp"
-#include "common/PolyMap.hpp"
-#include "common/misc/SoldatConfig.hpp"
-#include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 
 using string = std::string;
 
@@ -34,7 +40,7 @@ auto GlobalStateMapGraphics::loadmaptexture(const string &texname, tgfxcolor col
   std::string filename;
   auto& fs = GS::GetFileSystem();
 
-  tgfximage *result;
+  tgfximage *result = nullptr;
   result = nullptr;
 
   s[0] = gGlobalStateClient.moddir + "textures/" + texname;
@@ -84,8 +90,8 @@ auto GlobalStateMapGraphics::loadmaptexture(const string &texname, tgfxcolor col
 
 void GlobalStateMapGraphics::settexturefilter(tgfxtexture *texture, bool allowmipmaps)
 {
-  std::int32_t i;
-  std::array<tgfxtexturefilter, 2> filters;
+  std::int32_t i = 0;
+  std::array<tgfxtexturefilter, 2> filters{};
 
   if (texture == nullptr)
   {
@@ -130,10 +136,10 @@ void GlobalStateMapGraphics::updatescale(const tmapvertex p, tmapvertex q,
   dy = q.y - p.y;
   du = q.u - p.u;
   dv = q.v - p.v;
-  d1 = sqrt(dx * dx + dy * dy);
-  d2 = sqrt(du * du + dv * dv);
-  sx = fabs((float)(d1 * resolutionx * du) / d2) / (du * image->width());
-  sy = fabs((float)(d1 * resolutiony * dv) / d2) / (dv * image->height());
+  d1 = sqrt((dx * dx) + (dy * dy));
+  d2 = sqrt((du * du) + (dv * dv));
+  sx = std::fabs((d1 * resolutionx * du) / d2) / (du * image->width());
+  sy = std::fabs((d1 * resolutiony * dv) / d2) / (dv * image->height());
 
   if (!std::isnan(sx) && !std::isinf(sx))
   {
@@ -148,22 +154,23 @@ void GlobalStateMapGraphics::updatescale(const tmapvertex p, tmapvertex q,
 
 auto GlobalStateMapGraphics::gettexturetargetscale(tmapfile &mapfile, tgfximage *image) -> float
 {
-  std::int32_t i;
+  std::int32_t i = 0;
   tvector2 scale;
-  std::uint8_t alpha;
-  float area;
-  float resolutionx;
-  float resolutiony;
+  std::uint8_t alpha = 0;
+  float area = NAN;
+  float resolutionx = NAN;
+  float resolutiony = NAN;
   tmapvertex a;
   tmapvertex b;
   tmapvertex c;
 
-  float result;
+  float result = NAN;
   scale.x = 0;
   scale.y = 0;
 
-  resolutionx = (float)(gGlobalStateClientGame.renderwidth) / gGlobalStateGame.gamewidth;
-  resolutiony = (float)(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight;
+  resolutionx = static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateGame.gamewidth;
+  resolutiony =
+    static_cast<float>(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight;
 
   for (i = low(mapfile.polygons); i <= high(mapfile.polygons); i++)
   {
@@ -172,7 +179,7 @@ auto GlobalStateMapGraphics::gettexturetargetscale(tmapfile &mapfile, tgfximage 
     c = mapfile.polygons[i].vertices[2];
 
     alpha = a.color[3] | b.color[3] | c.color[3];
-    area = 0.5 * fabs((a.x - c.x) * (b.y - a.y) - (a.x - b.x) * (c.y - a.y));
+    area = 0.5 * fabs(((a.x - c.x) * (b.y - a.y)) - ((a.x - b.x) * (c.y - a.y)));
 
     if ((alpha > 0) && (area > 0))
     {
@@ -182,7 +189,7 @@ auto GlobalStateMapGraphics::gettexturetargetscale(tmapfile &mapfile, tgfximage 
     }
   }
 
-  result = min(MyFloat(1.f), max(scale.x, scale.y));
+  result = min(MyFloat(1.F), max(scale.x, scale.y));
   return result;
 }
 
@@ -199,53 +206,53 @@ struct tedge
 void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tmapcolor bgcolortop,
                                              tmapcolor bgcolorbtm)
 {
-  std::int32_t i;
-  std::int32_t j;
-  std::int32_t k;
-  std::int32_t n;
-  std::int32_t d;
-  std::int32_t level;
-  std::int32_t imgwidth;
-  std::int32_t imgheight;
-  std::int32_t proptotal;
-  std::int32_t animtotal;
-  std::int32_t animindex;
-  std::int32_t vbanimindex;
-  std::int32_t vbpropindex;
-  std::int32_t vbindex;
-  std::int32_t ibindex;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
+  std::int32_t k = 0;
+  std::int32_t n = 0;
+  std::int32_t d = 0;
+  std::int32_t level = 0;
+  std::int32_t imgwidth = 0;
+  std::int32_t imgheight = 0;
+  std::int32_t proptotal = 0;
+  std::int32_t animtotal = 0;
+  std::int32_t animindex = 0;
+  std::int32_t vbanimindex = 0;
+  std::int32_t vbpropindex = 0;
+  std::int32_t vbindex = 0;
+  std::int32_t ibindex = 0;
   tgfxspritesheet *sheet = nullptr;
-  pgfxsprite sprite;
-  tgfximage *image;
-  tgfximage *edgeimage;
+  pgfxsprite sprite = nullptr;
+  tgfximage *image = nullptr;
+  tgfximage *edgeimage = nullptr;
   std::vector<tgfxsprite *> edgesprites;
-  tgfxcolor color;
-  pmapprop prop;
-  pmappolygon poly;
-  std::int32_t edgecount;
-  tedge edge;
+  tgfxcolor color{};
+  pmapprop prop = nullptr;
+  pmappolygon poly = nullptr;
+  std::int32_t edgecount = 0;
+  tedge edge{};
   std::vector<tedge *> edges;
   pgfxdrawcommand cmd = nullptr;
-  std::array<std::int32_t, 3> animcount;
-  std::array<std::int32_t, 3> propcount;
+  std::array<std::int32_t, 3> animcount{};
+  std::array<std::int32_t, 3> propcount{};
   std::array<std::vector<pmapprop>, 3> proplist;
   std::vector<tgfxvertex> vb;
   std::vector<std::uint16_t> ib;
-  float u;
-  float v;
-  float r;
-  float sx;
-  float w;
-  float h;
-  float scale;
+  float u = NAN;
+  float v = NAN;
+  float r = NAN;
+  float sx = NAN;
+  float w = NAN;
+  float h = NAN;
+  float scale = NAN;
   tvector2 a;
   tvector2 b;
   tgfxrect bounds;
   std::vector<tgfxvertex> quad{4};
-  tgfxtexture *texture;
+  tgfxtexture *texture = nullptr;
   //  Str: string;
-  bool previsanim;
-  std::int32_t scenerycount;
+  bool previsanim = false;
+  std::int32_t scenerycount = 0;
   std::vector<std::int32_t> scenerycounters;
   std::vector<tvector2> scenerymaxsize;
   std::vector<std::int32_t> scenerysheetindex;
@@ -273,7 +280,7 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
 
   for (i = 0; i <= high(mapfile.textures); i++)
   {
-    image = loadmaptexture(mapfile.textures[i], rgba(0, 0, 0, (std::uint8_t)(0)));
+    image = loadmaptexture(mapfile.textures[i], rgba(0, 0, 0, static_cast<std::uint8_t>(0)));
 
     imgwidth = image->width();
     imgheight = image->height();
@@ -281,8 +288,10 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
     if (CVar::r_optimizetextures)
     {
       scale = gettexturetargetscale(mapfile, image);
-      imgwidth = max(2, min(image->width(), (std::int32_t)round(scale * image->width())));
-      imgheight = max(2, min(image->height(), (std::int32_t)round(scale * image->height())));
+      imgwidth =
+        max(2, min(image->width(), static_cast<std::int32_t>(std::round(scale * image->width()))));
+      imgheight = max(
+        2, min(image->height(), static_cast<std::int32_t>(std::round(scale * image->height()))));
     }
 
     mg.textures[i] = gfxcreatetexture(imgwidth, imgheight, 4, nullptr, mapfile.mapname);
@@ -335,9 +344,10 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
       edgesprites[i]->height = edgeimage->height();
       edgesprites[i]->texcoords.left = 0;
       edgesprites[i]->texcoords.top = 0;
-      edgesprites[i]->texcoords.right = (float)(edgeimage->width()) / mg.edgetextures[i]->width();
+      edgesprites[i]->texcoords.right =
+        static_cast<float>(edgeimage->width()) / mg.edgetextures[i]->width();
       edgesprites[i]->texcoords.bottom =
-        (float)(edgeimage->height()) / mg.edgetextures[i]->height();
+        static_cast<float>(edgeimage->height()) / mg.edgetextures[i]->height();
 
       if (image != edgeimage)
       {
@@ -370,16 +380,14 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
       {
         prop = &mapfile.props[i];
         scenerycounters[prop->style - 1] += 1;
-        scenerymaxsize[prop->style - 1].x =
-          max(scenerymaxsize[prop->style - 1].x,
-              (MyFloat)((MyFloat)fabs(prop->scalex * prop->width) *
-                        ((MyFloat)(gGlobalStateClientGame.renderheight) /
-                         gGlobalStateGame.gameheight)));
-        scenerymaxsize[prop->style - 1].y =
-          max(scenerymaxsize[prop->style - 1].y,
-              (MyFloat)((MyFloat)fabs(prop->scaley * prop->height) *
-                        ((MyFloat)(gGlobalStateClientGame.renderheight) /
-                         gGlobalStateGame.gameheight)));
+        scenerymaxsize[prop->style - 1].x = max(
+          scenerymaxsize[prop->style - 1].x,
+          MyFloat(MyFloat(std::fabs(prop->scalex * prop->width)) *
+                  (MyFloat(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight)));
+        scenerymaxsize[prop->style - 1].y = max(
+          scenerymaxsize[prop->style - 1].y,
+          MyFloat(MyFloat(std::fabs(prop->scaley * prop->height)) *
+                  (MyFloat(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight)));
       }
     }
 
@@ -492,8 +500,8 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
         edge.a = &mapfile.polygons[i].vertices[k];
         edge.b = &mapfile.polygons[i].vertices[j];
 
-        a.x = edge.a->x + (edge.b->x - edge.a->x) * 0.5;
-        a.y = edge.a->y + (edge.b->y - edge.a->y) * 0.5;
+        a.x = edge.a->x + ((edge.b->x - edge.a->x) * 0.5);
+        a.y = edge.a->y + ((edge.b->y - edge.a->y) * 0.5);
 
         if ((!map.collisiontestexcept(a, b, i + 1)) and
             (min(edge.a->color[3], edge.b->color[3]) > 128))
@@ -534,8 +542,8 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
 
   // initialize vertex/index buffers + animations list
 
-  setlength(vb, 4 * proptotal + 4 * edgecount + 6 + 3 * length(mapfile.polygons));
-  setlength(ib, 6 * proptotal + 6 * edgecount);
+  setlength(vb, (4 * proptotal) + (4 * edgecount) + 6 + (3 * length(mapfile.polygons)));
+  setlength(ib, (6 * proptotal) + (6 * edgecount));
   setlength(mg.animations, animtotal);
   setlength(mg.animationscmd, animtotal);
   setlength(mg.animduration, animtotal);
@@ -705,7 +713,8 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
 
   i = 4 * (proptotal + edgecount);
   h = gGlobalStateGame.gameheight;
-  d = max_sector * max((float)mapfile.sectorsdivision, (float)ceil(0.5 * h / max_sector));
+  d = max_sector * max(static_cast<float>(mapfile.sectorsdivision),
+                       static_cast<float>(ceil(0.5 * h / max_sector)));
 
   if (bgforce)
   {
@@ -802,7 +811,7 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
 
   if (CVar::r_scaleinterface)
   {
-    w = 260 * ((float)(gGlobalStateClientGame.renderwidth) / gGlobalStateGame.gamewidth);
+    w = 260 * (static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateGame.gamewidth);
   }
   else
   {
@@ -811,8 +820,8 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
 
   sx = w / ((bounds.right - bounds.left) + (bounds.bottom - bounds.top));
 
-  i = round(sx * (bounds.right - bounds.left)); // width
-  j = round(sx * (bounds.bottom - bounds.top)); // height
+  i = std::round(sx * (bounds.right - bounds.left)); // width
+  j = std::round(sx * (bounds.bottom - bounds.top)); // height
 
   mg.minimap.texture = nullptr;
   mg.minimapscale = sx;
@@ -833,8 +842,8 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
     gfxtransform(gfxmat3ortho(0, 1, bounds.top, bounds.bottom));
     gfxbegin();
 
-    quad[0] = gfxvertex(0, min((MyFloat)-d, bounds.top), 0, 0, mg.bgcolortop);
-    quad[1] = gfxvertex(1, min((MyFloat)-d, bounds.top), 0, 0, mg.bgcolortop);
+    quad[0] = gfxvertex(0, min(MyFloat(-d), bounds.top), 0, 0, mg.bgcolortop);
+    quad[1] = gfxvertex(1, min(MyFloat(-d), bounds.top), 0, 0, mg.bgcolortop);
     quad[2] = gfxvertex(1, bounds.top, 0, 0, mg.bgcolortop);
     quad[3] = gfxvertex(0, bounds.top, 0, 0, mg.bgcolortop);
 
@@ -842,8 +851,8 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
 
     quad[0] = gfxvertex(0, bounds.bottom, 0, 0, mg.bgcolorbtm);
     quad[1] = gfxvertex(1, bounds.bottom, 0, 0, mg.bgcolorbtm);
-    quad[2] = gfxvertex(1, max((MyFloat)d, bounds.bottom), 0, 0, mg.bgcolorbtm);
-    quad[3] = gfxvertex(0, max((MyFloat)d, bounds.bottom), 0, 0, mg.bgcolorbtm);
+    quad[2] = gfxvertex(1, max(MyFloat(d), bounds.bottom), 0, 0, mg.bgcolorbtm);
+    quad[3] = gfxvertex(0, max(MyFloat(d), bounds.bottom), 0, 0, mg.bgcolorbtm);
 
     gfxdrawquad(nullptr, quad);
     gfxend();
@@ -874,12 +883,13 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
     sprite->scale = 1;
     sprite->texcoords.left = 0;
     sprite->texcoords.top = 0;
-    sprite->texcoords.right = (float)(i) / sprite->texture->width();
-    sprite->texcoords.bottom = (float)(j) / sprite->texture->height();
+    sprite->texcoords.right = static_cast<float>(i) / sprite->texture->width();
+    sprite->texcoords.bottom = static_cast<float>(j) / sprite->texture->height();
 
     if (CVar::r_scaleinterface)
     {
-      sprite->scale = (float)(gGlobalStateGame.gamewidth) / gGlobalStateClientGame.renderwidth;
+      sprite->scale =
+        static_cast<float>(gGlobalStateGame.gamewidth) / gGlobalStateClientGame.renderwidth;
       mg.minimapscale = mg.minimapscale * sprite->scale;
     }
 
@@ -888,8 +898,8 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
     gfxclear(0, 0, 0, 0);
     gfxtransform(gfxmat3ortho(0, 1, 0, 1));
 
-    u = (float)((n * i)) / texture->width();
-    v = (float)((n * j)) / texture->height();
+    u = static_cast<float>((n * i)) / texture->width();
+    v = static_cast<float>((n * j)) / texture->height();
     color = rgba(0xffffff);
 
     quad[0] = gfxvertex(0, 0, 0, 0, color);
@@ -912,13 +922,13 @@ void GlobalStateMapGraphics::loadmapgraphics(tmapfile &mapfile, bool bgforce, tm
 
 void GlobalStateMapGraphics::updateprops(double t)
 {
-  std::int32_t i;
-  std::int32_t vbindex;
-  std::int32_t animtime;
-  std::int32_t accum;
-  float duration;
-  tmapgraphics *mg;
-  pgfxsprite sprite;
+  std::int32_t i = 0;
+  std::int32_t vbindex = 0;
+  std::int32_t animtime = 0;
+  std::int32_t accum = 0;
+  float duration = NAN;
+  tmapgraphics *mg = nullptr;
+  pgfxsprite sprite = nullptr;
 
   mg = &mapgfx;
   vbindex = 0;
@@ -928,8 +938,8 @@ void GlobalStateMapGraphics::updateprops(double t)
     if (mg->animduration[i] > 0)
     {
       accum = 0;
-      duration = (float)(mg->animduration[i]) / 100;
-      animtime = trunc(100 * (t - duration * trunc((float)(t) / duration)));
+      duration = static_cast<float>(mg->animduration[i]) / 100;
+      animtime = trunc(100 * (t - duration * std::trunc(static_cast<float>(t) / duration)));
       sprite = mg->animations[i];
 
       while ((accum + sprite->delay) < animtime)
@@ -966,7 +976,7 @@ void GlobalStateMapGraphics::updateprops(double t)
 
 void GlobalStateMapGraphics::renderprops(std::int32_t level)
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   tmapgraphics &mg = mapgfx;
 
@@ -985,7 +995,7 @@ void GlobalStateMapGraphics::renderminimap(float x, float y, std::uint8_t alpha)
   }
 }
 
-void GlobalStateMapGraphics::worldtominimap(float x, float y, MyFloat &ox, MyFloat &oy)
+void GlobalStateMapGraphics::worldtominimap(float x, float y, MyFloat &ox, MyFloat &oy) const
 {
   ox = (x - mapgfx.minimapoffset.x) * mapgfx.minimapscale;
   oy = (y - mapgfx.minimapoffset.y) * mapgfx.minimapscale;
@@ -993,7 +1003,7 @@ void GlobalStateMapGraphics::worldtominimap(float x, float y, MyFloat &ox, MyFlo
 
 void GlobalStateMapGraphics::destroymapgraphics()
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   if (mapgfx.vertexbuffer != nullptr)
   {

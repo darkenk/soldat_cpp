@@ -10,10 +10,10 @@
 
 struct GlobalStateClientGame
 {
-  float getcurrenttime();
-  std::int32_t getgamefps();
+  float getcurrenttime() const;
+  std::int32_t getgamefps() const;
   std::uint8_t getcameratarget(bool backwards = false);
-  void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col);
+  void bigmessage(const std::string &text, std::int32_t delay, std::uint32_t col) const;
   void gameloop();
   void resetframetiming();
   void resetweaponstats();

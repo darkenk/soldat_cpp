@@ -1,7 +1,20 @@
 // automatically converted
 
 #include "Sprites.hpp"
+#include "common/Anims.hpp"
+#include "common/Constants.hpp"
+#include "common/Parts.hpp"
+#include "common/Vector.hpp"
+#include "common/Weapons.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
+#include "shared/Constants.cpp.h"
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <type_traits>
 #ifndef SERVER
+#include "../../client/ClientGame.hpp"
 #include "../../client/Client.hpp"
 #include "../../client/GameMenus.hpp"
 #include "../../client/Sound.hpp"
@@ -18,45 +31,43 @@
 #include "../network/NetworkServerThing.hpp"
 #endif
 #include <Tracy.hpp>
-#include <client/ClientGame.hpp>
-#include <math.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <algorithm>
+#include <cmath>
 #include <limits>
 #include <new>
+#include <spdlog/fmt/bundled/core.h>
+#include <utility>
 #include <vector>
 
 #include "../Cvar.hpp"
 #include "../Game.hpp"
 #include "Control.hpp"
 #include "common/Calc.hpp"
-#include "common/Console.hpp"
 #include "common/GameStrings.hpp"
 #include "common/Logging.hpp"
-#include "common/misc/PortUtils.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/MapFile.hpp"
 #include "common/PolyMap.hpp"
 #include "common/Util.hpp"
 #include "common/WeaponSystem.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/RandomGenerator.hpp"
 #include "common/misc/SafeType.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/AnimationSystem.hpp"
 #include "shared/mechanics/BackgroundState.hpp"
 #include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Things.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
 #if !SOLDAT_UTBOT
 #include <numbers>
 #endif // !SOLDAT_UTBOT
 
 #ifndef SERVER
-bool wasreloading;
+static bool wasreloading;
 #endif
 
 auto constexpr LOG = "sprites";
@@ -116,7 +127,7 @@ auto createsprite(tvector2 &spos, SpriteId id, std::shared_ptr<tplayer> player,
   }
 
   // activate sprite part
-  spriteSystem.CreateSpritePart(spos, tvector2(0.f, 0.f), 1, sprite.num);
+  spriteSystem.CreateSpritePart(spos, tvector2(0.F, 0.F), 1, sprite.num);
 
   // create skeleton
   sprite.skeleton = anim.GetSkeleton(Gostek);
@@ -170,7 +181,7 @@ auto createsprite(tvector2 &spos, SpriteId id, std::shared_ptr<tplayer> player,
 template <Config::Module M>
 auto teamcollides(PolygonType polytype, std::int32_t team, const bool bullet) -> bool
 {
-  bool result;
+  bool result = false;
   result = true;
   if (bullet)
   {
@@ -242,10 +253,10 @@ void Sprite<M>::update()
 {
   ZoneScopedN("Sprite::Update");
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
+  std::int32_t i = 0;
 #ifndef SERVER
-  std::int32_t k;
-  std::int32_t rnd;
+  std::int32_t k = 0;
+  std::int32_t rnd = 0;
   tvector2 m3;
   tvector2 m4;
   SfxEffect weaponreloadsound;
@@ -256,8 +267,8 @@ void Sprite<M>::update()
   // rotation vars
   tvector2 rnorm;
   tvector2 legvector;
-  float bodyy;
-  float arms;
+  float bodyy = NAN;
+  float arms = NAN;
   float legdistance = 0.0;
 
   auto &map = GS::GetGame().GetMap();
@@ -419,7 +430,7 @@ void Sprite<M>::update()
             (i == 18))
         {
           skeleton.pos[i].x =
-            spritePartsPos.x + direction * legsanimation.frames[legsanimation.currframe].pos[i].x;
+            spritePartsPos.x + (direction * legsanimation.frames[legsanimation.currframe].pos[i].x);
           skeleton.pos[i].y =
             spritePartsPos.y + legsanimation.frames[legsanimation.currframe].pos[i].y;
         }
@@ -430,7 +441,7 @@ void Sprite<M>::update()
           (i == 14) || (i == 15) || (i == 16) || (i == 19) || (i == 20))
       {
         skeleton.pos[i].x =
-          spritePartsPos.x + direction * bodyanimation.frames[bodyanimation.currframe].pos[i].x;
+          spritePartsPos.x + (direction * bodyanimation.frames[bodyanimation.currframe].pos[i].x);
         if (!halfdead)
         {
           skeleton.pos[i].y = (skeleton.pos[6].y - (spritePartsPos.y - bodyy)) + spritePartsPos.y +
@@ -459,12 +470,12 @@ void Sprite<M>::update()
       rnorm = vec2subtract(p, mouseaim);
       vec2normalize(rnorm, rnorm);
       vec2scale(rnorm, rnorm, 0.1);
-      skeleton.pos[i].x = skeleton.pos[9].x - direction * rnorm.y;
-      skeleton.pos[i].y = skeleton.pos[9].y + direction * rnorm.x;
+      skeleton.pos[i].x = skeleton.pos[9].x - (direction * rnorm.y);
+      skeleton.pos[i].y = skeleton.pos[9].y + (direction * rnorm.x);
 
       vec2scale(rnorm, rnorm, 50);
-      skeleton.pos[23].x = skeleton.pos[9].x - direction * rnorm.y;
-      skeleton.pos[23].y = skeleton.pos[9].y + direction * rnorm.x;
+      skeleton.pos[23].x = skeleton.pos[9].x - (direction * rnorm.y);
+      skeleton.pos[23].y = skeleton.pos[9].y + (direction * rnorm.x);
     }
 
     if (bodyanimation.id == AnimationType::Throw)
@@ -971,7 +982,7 @@ void Sprite<M>::update()
       }
 
       // weapon jam fix?
-      // TODO: check if server or client do stuff wrong here...
+      // TODO(vscode): check if server or client do stuff wrong here...
       if (weapon.ammocount == 0)
       {
 #ifdef SERVER
@@ -982,10 +993,7 @@ void Sprite<M>::update()
           weapon.startuptimecount = weapon.startuptime;
           weapon.ammocount = weapon.ammo;
         }
-        if (weapon.reloadtimecount > weapon.reloadtime)
-        {
-          weapon.reloadtimecount = weapon.reloadtime;
-        }
+        weapon.reloadtimecount = std::min(weapon.reloadtimecount, weapon.reloadtime);
 #endif
 
         if (weapon.num != spas12_num)
@@ -1038,7 +1046,7 @@ void Sprite<M>::update()
           {
             m3 = skeleton.pos[9];
             m3.y = m3.y - 2;
-            m3.x = m3.x + direction * 3;
+            m3.x = m3.x + (direction * 3);
             m4.x = 0;
             m4.y = -0.25;
             gGlobalStateSparks.createspark(m3, m4, 1, num, 20);
@@ -1073,8 +1081,8 @@ void Sprite<M>::update()
             if (Random(4) == 0)
             {
               m3 = skeleton.pos[9];
-              m3.y = m3.y - 2 - 1 + (float)(Random(60)) / 10;
-              m3.x = m3.x + direction * 3 - 8 + (float)(Random(80)) / 10;
+              m3.y = m3.y - 2 - 1 + (static_cast<float>(Random(60)) / 10);
+              m3.x = m3.x + (direction * 3) - 8 + (static_cast<float>(Random(80)) / 10);
               m4.x = 0;
               m4.y = -0.3;
               gGlobalStateSparks.createspark(m3, m4, 1, num, 20);
@@ -1088,7 +1096,7 @@ void Sprite<M>::update()
       {
         if (Random(10) == 0)
         {
-          m3.x = skeleton.pos[15].x + direction * 6;
+          m3.x = skeleton.pos[15].x + (direction * 6);
           m3.y = skeleton.pos[15].y - 5;
           gGlobalStateSparks.createspark(m3, vector2(0, -0.5), 36, num, 40);
         }
@@ -1117,7 +1125,7 @@ void Sprite<M>::update()
       if (ceasefirecounter > -1)
       {
         ceasefirecounter = ceasefirecounter - 1;
-        alpha = round(fabs(100 + 70 * sin(GS::GetGame().GetSinusCounter())));
+        alpha = round(fabs(100 + (70 * sin(GS::GetGame().GetSinusCounter()))));
       }
       else
       {
@@ -1240,7 +1248,7 @@ void Sprite<M>::update()
           {
             m3 = skeleton.pos[9];
             m3.y = m3.y - 2;
-            m3.x = m3.x + direction * 4;
+            m3.x = m3.x + (direction * 4);
             m4.x = 0;
             m4.y = -0.75;
             gGlobalStateSparks.createspark(m3, m4, 31, num, 55);
@@ -1248,7 +1256,7 @@ void Sprite<M>::update()
             {
               m3 = skeleton.pos[9];
               m3.y = m3.y - 2;
-              m3.x = m3.x + direction * 4.1;
+              m3.x = m3.x + (direction * 4.1);
               m4.x = 0;
               m4.y = -0.69;
               gGlobalStateSparks.createspark(m3, m4, 31, num, 55);
@@ -1257,7 +1265,7 @@ void Sprite<M>::update()
               {
                 m3 = skeleton.pos[9];
                 m3.y = m3.y - 2;
-                m3.x = m3.x + direction * 3.9;
+                m3.x = m3.x + (direction * 3.9);
                 m4.x = 0;
                 m4.y = -0.81;
                 gGlobalStateSparks.createspark(m3, m4, 31, num, 55);
@@ -1277,7 +1285,7 @@ void Sprite<M>::update()
             {
               m3 = skeleton.pos[9];
               m3.y = m3.y - 2;
-              m3.x = m3.x + direction * 4;
+              m3.x = m3.x + (direction * 4);
               m4.x = 0;
               m4.y = -0.75;
               gGlobalStateSparks.createspark(m3, m4, 31, num, 55);
@@ -1467,7 +1475,7 @@ template <Config::Module M>
 void Sprite<M>::kill()
 {
   auto &sprite_system = SpriteSystem::Get();
-  bool left;
+  bool left = false;
 
   auto &things = GS::GetThingSystem().GetThings();
 
@@ -1541,13 +1549,13 @@ void Sprite<M>::kill()
 }
 
 #ifndef SERVER
-// TODO move into Sprite
+// TODO(vscode): move into Sprite
 void selectdefaultweapons(std::uint8_t sprite_id)
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  std::int32_t j;
-  std::int32_t k;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
+  std::int32_t k = 0;
   SoldatAssert(sprite_system.IsPlayerSprite(sprite_id));
 
   auto &weaponSystem = GS::GetWeaponSystem();
@@ -1603,9 +1611,9 @@ void selectdefaultweapons(std::uint8_t sprite_id)
   }
 }
 
-auto deg2rad(float deg) -> float
+static auto deg2rad(float deg) -> float
 {
-  float result;
+  float result = NAN;
   result = deg / (180 / std::numbers::pi);
   return result;
 }
@@ -1616,15 +1624,15 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
                     tvector2 impact)
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  std::int32_t j;
-  float k;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
+  float k = NAN;
   std::string s;
   tvector2 a;
 #ifndef SERVER
   tvector2 b;
 #else
-  std::string s2;
+  std::string const s2;
 #endif
 
   LogTraceG("TSprite.Die");
@@ -1654,8 +1662,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
         {
           auto &spritePartsPos = sprite_system.GetSpritePartsPos(sprite.num);
           auto &spritePartsPosWho = sprite_system.GetSpritePartsPos(who);
-          if (sprite.active && (sprite.num != who) && (!sprite.player->demoplayer) and
-              sprite.isnotspectator())
+          if (sprite.active && (std::cmp_not_equal(sprite.num, who)) &&
+              (!sprite.player->demoplayer) and sprite.isnotspectator())
           {
             if (distance(spritePartsPos, spritePartsPosWho) > bullettime_mindistance)
             {
@@ -1734,7 +1742,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     }
 #endif
 
-    if (who != num)
+    if (std::cmp_not_equal(who, num))
     {
       if (CVar::sv_gamemode == gamestyle_deathmatch)
       {
@@ -1981,7 +1989,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     }
 
 #ifndef SERVER
-    if ((who != num) && (sprite_system.IsPlayerSprite(who)))
+    if ((std::cmp_not_equal(who, num)) && (sprite_system.IsPlayerSprite(who)))
     {
       for (auto &w : gGlobalStateClient.wepstats)
       {
@@ -2041,7 +2049,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
             serversendstringmessage((brain.chatdead), all_players, num, msgtype_pub);
           }
         }
-        if ((who != num) && (sprite_system.GetSprite(who).player->controlmethod == bot))
+        if ((std::cmp_not_equal(who, num)) &&
+            (sprite_system.GetSprite(who).player->controlmethod == bot))
         {
           if (Random(sprite_system.GetSprite(who).brain.chatfreq / 3) == 0)
           {
@@ -2162,13 +2171,13 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
           skeleton.constraints[20].active = true; // Keep head attached to corpse
           for (i = 0; i <= 50; i++)
           {
-            a.x = skeleton.pos[9].x + (cos(deg2rad((float)(360) / 50 * i)) * 2);
-            a.y = skeleton.pos[9].y + (sin(deg2rad((float)(360) / 50 * i)) * 2);
+            a.x = skeleton.pos[9].x + (cos(deg2rad(static_cast<float>(360) / 50 * i)) * 2);
+            a.y = skeleton.pos[9].y + (sin(deg2rad(static_cast<float>(360) / 50 * i)) * 2);
             Randomize();
             // FIXME: Causes range check error
             // RandSeed := RandSeed * i;
-            b.x = (cos(deg2rad((float)(360) / 50 * i)) * randomrange(1, 3));
-            b.y = (sin(deg2rad((float)(360) / 50 * i)) * randomrange(1, 3));
+            b.x = (cos(deg2rad(static_cast<float>(360) / 50 * i)) * randomrange(1, 3));
+            b.y = (sin(deg2rad(static_cast<float>(360) / 50 * i)) * randomrange(1, 3));
             gGlobalStateSparks.createspark(a, b, iif(i < 25, randomrange(4, 5), 5), num,
                                            100 - Random(20));
           }
@@ -2459,7 +2468,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
     auto &weaponSystem = GlobalSystems<M>::GetWeaponSystem();
     
 #ifdef SERVER
-    if (!deadmeat && (num != who))
+    if (!deadmeat && (std::cmp_not_equal(num, who)))
 #else
     if (!deadmeat)
 #endif
@@ -2467,7 +2476,8 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
       i = CVar::sv_advancemode_amount;
 
 #ifndef SERVER
-      if ((num != who) && (isnotinsameteam(sprite_system.GetSprite(who)) or issolo()))
+      if ((std::cmp_not_equal(num, who)) &&
+          (isnotinsameteam(sprite_system.GetSprite(who)) or issolo()))
 #endif
       {
         if ((sprite_system.GetSprite(who).player->kills % i) == 0)
@@ -2561,7 +2571,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 template <Config::Module M>
 auto Sprite<M>::dropweapon() -> std::int32_t
 {
-  std::int32_t result;
+  std::int32_t result = 0;
   result = -1;
 
 #ifdef SERVER
@@ -2708,7 +2718,7 @@ void Sprite<M>::bodyapplyanimation(const AnimationType anim, std::int32_t curr)
 template <Config::Module M>
 void Sprite<M>::moveskeleton(float x1, float y1, bool fromzero)
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   ZoneScopedN("Sprite::MoveSkeleton");
   if (!fromzero)
@@ -2742,8 +2752,8 @@ template <Config::Module M>
 auto Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t k;
-  std::int32_t z;
+  std::int32_t k = 0;
+  std::int32_t z = 0;
   std::int32_t b = 0;
   tvector2 spos;
   tvector2 pos;
@@ -2754,8 +2764,8 @@ auto Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided) -> b
   tvector2 p2;
   tvector2 p3;
   float d = 0.0;
-  std::int32_t detacc;
-  bool teamcol;
+  std::int32_t detacc = 0;
+  bool teamcol = false;
 
   LogTraceG("TSprite.CheckRadiusMapCollision");
   auto &map = GS::GetGame().GetMap();
@@ -2773,7 +2783,7 @@ auto Sprite<M>::checkradiusmapcollision(float x, float y, bool hascollided) -> b
   {
     detacc = 1;
   }
-  vec2scale(step, spriteVelocity, (float)(1) / detacc);
+  vec2scale(step, spriteVelocity, static_cast<float>(1) / detacc);
 
   // make steps for accurate collision detection
   for (z = 0; z <= detacc - 1; z++)
@@ -2876,7 +2886,7 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
   tvector2 perp;
   tvector2 step;
   float d = 0.0;
-  bool teamcol;
+  bool teamcol = false;
 
 #ifdef SERVER
   LogTraceG("TSprite.CheckMapCollision");
@@ -2963,7 +2973,7 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
               {
                 spos.x = (float)(spriteVelocity.x) / 4;
                 spos.y = -0.8;
-                vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
+                vec2scale(spos, spos, 0.4 + (static_cast<float>(Random(4)) / 10));
                 gGlobalStateSparks.createspark(pos, spos, 1, num, 70);
               }
             }
@@ -2976,7 +2986,7 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
               {
                 spos.x = (float)(spriteVelocity.x) / 4;
                 spos.y = -1.3;
-                vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
+                vec2scale(spos, spos, 0.4 + (static_cast<float>(Random(4)) / 10));
                 gGlobalStateSparks.createspark(pos, spos, 1, num, 70);
               }
             }
@@ -3024,7 +3034,7 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
           {
             spos.x = (float)(spriteVelocity.x) / 4;
             spos.y = -0.9;
-            vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
+            vec2scale(spos, spos, 0.4 + (static_cast<float>(Random(4)) / 10));
             gGlobalStateSparks.createspark(pos, spos, 1, num, 70);
           }
 #endif
@@ -3090,7 +3100,7 @@ auto Sprite<M>::checkmapcollision(float x, float y, std::int32_t area) -> bool
                   {
                     spos.x = spriteVelocity.x * 3;
                     spos.y = -spriteVelocity.y * 2;
-                    vec2scale(spos, spos, 0.4 + (float)(Random(4)) / 10);
+                    vec2scale(spos, spos, 0.4 + (static_cast<float>(Random(4)) / 10));
                     gGlobalStateSparks.createspark(pos, spos, 1, num, 70);
                   }
                 }
@@ -3165,12 +3175,12 @@ template <Config::Module M>
 auto Sprite<M>::checkmapverticescollision(float x, float y, float r, bool hascollided) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
+  std::int32_t i = 0;
   tvector2 pos;
   tvector2 dir;
   tvector2 vert;
-  float d;
-  bool teamcol;
+  float d = NAN;
+  bool teamcol = false;
 
 #ifdef SERVER
   LogTraceG("TSprite.CheckMapVerticesCollision");
@@ -3239,7 +3249,7 @@ auto Sprite<M>::checkskeletonmapcollision(std::int32_t i, float x, float y) -> b
   tvector2 a;
 #endif
   float d = 0.0;
-  bool teamcol;
+  bool teamcol = false;
 
 #ifdef SERVER
   LogTraceG("TSprite.CheckSkeletonMapCollision");
@@ -3478,7 +3488,7 @@ void Sprite<M>::handlespecialpolytypes(std::int32_t polytype, const tvector2 &po
 template <Config::Module M>
 auto BackgroundState<M>::backgroundtest(const PolyMapSector::Poly &poly) -> bool
 {
-  bool result;
+  bool result = false;
   result = false;
 
   const auto &polytype = poly.Type;
@@ -3530,9 +3540,9 @@ template <Config::Module M>
 auto BackgroundState<M>::backgroundfindcurrentpoly(const tvector2 &pos) -> std::int16_t
 {
   auto &map = GS::GetGame().GetMap();
-  std::int32_t i;
+  std::int32_t i = 0;
 
-  std::int16_t result;
+  std::int16_t result = 0;
   for (i = 1; i <= map.backpolycount; i++)
   {
     if (Polymap::pointinpoly(pos, *map.backpolys[i]))
@@ -3565,7 +3575,7 @@ template <Config::Module M>
 void Sprite<M>::applyweaponbynum(std::uint8_t wnum, std::uint8_t gun, std::int32_t ammo,
                                  bool restoreprimarystate)
 {
-  std::int32_t weaponindex;
+  std::int32_t weaponindex = 0;
 
 #ifdef SERVER
   LogTraceG("TSprite.ApplyWeaponByNum");
@@ -3630,9 +3640,9 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
 {
   auto &sprite_system = SpriteSystem::Get();
   tvector2 t;
-  float hm;
+  float hm = NAN;
 #ifndef SERVER
-  std::int32_t j;
+  std::int32_t j = 0;
   std::string s;
 #endif
 
@@ -3641,7 +3651,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
 #endif
   // Friendly Fire
   if ((!CVar::sv_friendlyfire) && isnotsolo() && isinsameteam(sprite_system.GetSprite(who)) &&
-      (num != who))
+      (std::cmp_not_equal(num, who)))
   {
     return;
   }
@@ -3662,11 +3672,11 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
   // no health hit if someone is rambo
   if (CVar::sv_gamemode == gamestyle_rambo)
   {
-    if (num != who)
+    if (std::cmp_not_equal(num, who))
     {
       for (auto &sprite : sprite_system.GetActiveSprites())
       {
-        if ((who != sprite.num) && (num != sprite.num))
+        if ((std::cmp_not_equal(who, sprite.num)) && (num != sprite.num))
         {
           if ((sprite.weapon.num == bow_num) || (sprite.weapon.num == bow2_num))
           {
@@ -3686,11 +3696,16 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
     hm = round(0.25 * amount);
   }
 
-  bool enable_berserker = who != num;
-  if constexpr (Config::IsServer(M))
-  {
-    enable_berserker = true;
-  }
+  bool const enable_berserker = [&]() {
+    if constexpr (Config::IsServer(M))
+    {
+      return true;
+    }
+    else
+    {
+      return std::cmp_not_equal(who, num);
+    }
+  }();
   if (sprite_system.GetSprite(who).bonusstyle == bonus_berserker && enable_berserker)
   {
     hm = 4 * amount;
@@ -3731,7 +3746,8 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
   if (!this->deadmeat && (what > 0))
   {
     // Check to prevent one AoE explosion counting as multiple hits on one bullet
-    if ((who != this->num) && (!bullet[what].hashit) && (sprite_system.IsPlayerSprite(who)))
+    if ((std::cmp_not_equal(who, this->num)) && (!bullet[what].hashit) &&
+        (sprite_system.IsPlayerSprite(who)))
     {
       for (j = 1; j <= 20; j++)
       {
@@ -3762,10 +3778,7 @@ void Sprite<M>::healthhit(float amount, std::int32_t who, std::int32_t where, st
   {
     Health = brutaldeathhealth;
   }
-  if (Health > GS::GetGame().GetStarthealth())
-  {
-    Health = GS::GetGame().GetStarthealth();
-  }
+  Health = std::min<float>(Health, GS::GetGame().GetStarthealth());
 
   // death!
   t = impact;
@@ -3827,7 +3840,7 @@ template <Config::Module M>
 void Sprite<M>::checkoutofbounds()
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t bound;
+  std::int32_t bound = 0;
 
 #ifdef SERVER
   LogTraceG("TSprite.CheckOutOfBounds");
@@ -3855,9 +3868,9 @@ template <Config::Module M>
 void Sprite<M>::checkskeletonoutofbounds()
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  std::int32_t bound;
-  struct tvector2 *skeletonpos;
+  std::int32_t i = 0;
+  std::int32_t bound = 0;
+  struct tvector2 *skeletonpos = nullptr;
 
   LogTraceG("TSprite.CheckSkeletonOutOfBounds");
   auto &map = GS::GetGame().GetMap();
@@ -3890,15 +3903,15 @@ template <Config::Module M>
 void Sprite<M>::respawn()
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t j;
+  std::int32_t j = 0;
 #ifdef SERVER
-  std::int32_t k;
-  std::int32_t weaponindex;
-  std::int16_t favweaponindex;
+  std::int32_t k = 0;
+  std::int32_t weaponindex = 0;
+  std::int16_t favweaponindex = 0;
 #endif
-  std::int32_t secwep;
-  bool deadmeatbeforerespawn;
-  bool survivalcheckendround;
+  std::int32_t secwep = 0;
+  bool deadmeatbeforerespawn = false;
+  bool survivalcheckendround = false;
   auto &map = GS::GetGame().GetMap();
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
@@ -4047,11 +4060,16 @@ void Sprite<M>::respawn()
 
   if (selweapon > 0)
   {
-    bool is_weapon_enabled = (weaponSystem.IsEnabled(selweapon)) && (weaponsel[num][selweapon] == 1);
-    if constexpr(Config::IsServer(M))
-    {
-      is_weapon_enabled = true;
-    }
+    bool const is_weapon_enabled = [&]() {      
+      if constexpr(Config::IsServer(M))
+      {
+        return true;
+      }
+      else
+      {
+        return (weaponSystem.IsEnabled(selweapon)) && (weaponsel[num][selweapon] == 1);
+      }
+    }();
     if (is_weapon_enabled)
     {
       applyweaponbynum(selweapon, 1);
@@ -4077,11 +4095,16 @@ void Sprite<M>::respawn()
     SetSecondWeapon(guns[noweapon]);
   }
 
-  bool advanced_mode = CVar::sv_advancemode;
-  if constexpr(Config::IsClient(M))
-  {
-    advanced_mode = true;
-  }
+  bool const advanced_mode = [&](){
+    if constexpr(Config::IsClient(M))
+    {
+      return true;
+    }
+    else
+    {
+      return (bool)CVar::sv_advancemode;
+    }
+  }();
 
   if (advanced_mode)
   {
@@ -4264,7 +4287,7 @@ void Sprite<M>::respawn()
       skeleton.pos[j].y = spritePartsPos.y;
       skeleton.oldpos[j] = skeleton.pos[j];
     }
-    // TODO: Fix this shouldn't change wepstats
+    // TODO(vscode): Fix this shouldn't change wepstats
     die(normal_death, num, 1, -1, skeleton.pos[12]);
     player->deaths -= 1;
   }
@@ -4274,8 +4297,8 @@ template <Config::Module M>
 void Sprite<M>::parachute(tvector2 &a)
 {
   tvector2 b;
-  std::int32_t n;
-  std::int32_t i;
+  std::int32_t n = 0;
+  std::int32_t i = 0;
   float d = 0.0;
   auto &map = GS::GetGame().GetMap();
   auto &things = GS::GetThingSystem().GetThings();
@@ -4317,10 +4340,10 @@ void Sprite<M>::parachute(tvector2 &a)
 }
 
 template <Config::Module M>
-void Sprite<M>::changeteam_ServerVariant(std::int32_t team, bool adminchange, std::uint8_t jointype)
+void Sprite<M>::changeteam_ServerVariant(std::int32_t team, bool adminchange, std::uint8_t jointype) // NOLINT
 {
   [[maybe_unused]] auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
+  std::int32_t i = 0;
   tvector2 a;
 #ifdef SERVER
   std::vector<std::int32_t> teamscount(6);
@@ -4475,7 +4498,7 @@ void Sprite<M>::changeteam_ServerVariant(std::int32_t team, bool adminchange, st
     // prevent players from joining alive midround in survival mode
     if ((CVar::sv_survivalmode) && (player->team != team_spectator))
     {
-      // TODO: Fix this shouldn't change wepstats
+      // TODO(vscode): Fix this shouldn't change wepstats
       healthhit(4000, num, 1, 1, a);
       player->deaths -= 1;
     }
@@ -4520,17 +4543,17 @@ void Sprite<M>::fire()
   tvector2 d;
   tvector2 m;
   tvector2 aimdirection;
-  std::int32_t i;
-  std::int32_t bn;
-  float inaccuracy;
-  float maxdeviation;
+  std::int32_t i = 0;
+  std::int32_t bn = 0;
+  float inaccuracy = NAN;
+  float maxdeviation = NAN;
   tvector2 collisiontestperpendicular;
   tvector2 bnorm;
 #ifndef SERVER
   tvector2 muzzlesmokevector;
   tvector2 c;
-  float rc;
-  bool col;
+  float rc = NAN;
+  bool col = false;
 #endif
   auto &map = GS::GetGame().GetMap();
 
@@ -4599,17 +4622,14 @@ void Sprite<M>::fire()
   // This should be solved more elegantly.
   inaccuracy = inaccuracy * 0.25;
 
-  if (inaccuracy > max_inaccuracy)
-  {
-    inaccuracy = max_inaccuracy;
-  }
+  inaccuracy = std::min(inaccuracy, max_inaccuracy);
 
   // Calculate the maximum bullet deviation between 0 and MAX_INACCURACY.
   // The scaling is modeled after Sin(x) where x = 0 -> Pi/2 to gracefully reach
   // the maximum. Then multiply by a float between -1.0 and 1.0.
   maxdeviation = max_inaccuracy * sin((inaccuracy / max_inaccuracy) * (pi / 2));
-  d.x = (float)(Random() * 2 - 1) * maxdeviation;
-  d.y = (float)(Random() * 2 - 1) * maxdeviation;
+  d.x = ((Random() * 2) - 1) * maxdeviation;
+  d.y = ((Random() * 2) - 1) * maxdeviation;
 
   // Add inaccuracies to directional vector and re-normalize
   b = vec2add(b, d);
@@ -4654,17 +4674,17 @@ void Sprite<M>::fire()
         randseed = bulletcount;
 #endif
 
-    d.x = b.x + (Random() * 2 - 1) * weapon.bulletspread;
-    d.y = b.y + (Random() * 2 - 1) * weapon.bulletspread;
+    d.x = b.x + ((Random() * 2 - 1) * weapon.bulletspread);
+    d.y = b.y + ((Random() * 2 - 1) * weapon.bulletspread);
 
     bn = createbullet(a, d, weapon.num, num, 255, weapon.hitmultiply, true, false, bulletcount);
 
-    d.x = b.x + (Random() * 2 - 1) * weapon.bulletspread;
-    d.y = b.y + (Random() * 2 - 1) * weapon.bulletspread;
+    d.x = b.x + ((Random() * 2 - 1) * weapon.bulletspread);
+    d.y = b.y + ((Random() * 2 - 1) * weapon.bulletspread);
 
     vec2normalize(bnorm, b);
-    a.x = a.x - sign(b.x) * fabs(bnorm.y) * 3.0;
-    a.y = a.y + sign(b.y) * fabs(bnorm.x) * 3.0;
+    a.x = a.x - (sign(b.x) * fabs(bnorm.y) * 3.0);
+    a.y = a.y + (sign(b.y) * fabs(bnorm.x) * 3.0);
 
     createbullet(a, d, weapon.num, num, 255, weapon.hitmultiply, false, false);
   }
@@ -4677,15 +4697,15 @@ void Sprite<M>::fire()
         randseed = bulletcount;
 #endif
 
-    d.x = b.x + (Random() * 2 - 1) * weapon.bulletspread;
-    d.y = b.y + (Random() * 2 - 1) * weapon.bulletspread;
+    d.x = b.x + ((Random() * 2 - 1) * weapon.bulletspread);
+    d.y = b.y + ((Random() * 2 - 1) * weapon.bulletspread);
 
     bn = createbullet(a, d, weapon.num, num, 255, weapon.hitmultiply, true, false, bulletcount);
 
     for (i = 0; i <= 4; i++) // Remaining 5 pellets
     {
-      d.x = b.x + (Random() * 2 - 1) * weapon.bulletspread;
-      d.y = b.y + (Random() * 2 - 1) * weapon.bulletspread;
+      d.x = b.x + ((Random() * 2 - 1) * weapon.bulletspread);
+      d.y = b.y + ((Random() * 2 - 1) * weapon.bulletspread);
       createbullet(a, d, weapon.num, num, 255, weapon.hitmultiply, false, false);
     }
 
@@ -4721,8 +4741,8 @@ void Sprite<M>::fire()
 
   if (weapon.num == flamer_num) // Flamer
   {
-    a.x = a.x + b.x * 2;
-    a.y = a.y + b.y * 2;
+    a.x = a.x + (b.x * 2);
+    a.y = a.y + (b.y * 2);
     bn = createbullet(a, b, weapon.num, num, 255, weapon.hitmultiply, true, false);
 #ifndef SERVER
     gGlobalStateSound.playsound(SfxEffect::flamer, spritePartsPos, gattlingsoundchannel);
@@ -4731,8 +4751,8 @@ void Sprite<M>::fire()
 
   if (weapon.num == chainsaw_num) // Chainsaw
   {
-    a.x = a.x + b.x * 2;
-    a.y = a.y + b.y * 2;
+    a.x = a.x + (b.x * 2);
+    a.y = a.y + (b.y * 2);
     bn = createbullet(a, b, weapon.num, num, 255, weapon.hitmultiply, true, false);
   }
 
@@ -4797,10 +4817,10 @@ void Sprite<M>::fire()
 
 #ifndef SERVER
   // Spent bullet shell vectors
-  c.x = spriteVelocity.x + direction * aimdirection.y * (Random(0) * 0.5 + 0.8);
-  c.y = spriteVelocity.y - direction * aimdirection.x * (Random(0) * 0.5 + 0.8);
-  a.x = skeleton.pos[15].x + 2 - direction * 0.015 * b.x;
-  a.y = skeleton.pos[15].y - 2 - direction * 0.015 * b.y;
+  c.x = spriteVelocity.x + (direction * aimdirection.y * (Random(0) * 0.5 + 0.8));
+  c.y = spriteVelocity.y - (direction * aimdirection.x * (Random(0) * 0.5 + 0.8));
+  a.x = skeleton.pos[15].x + 2 - (direction * 0.015 * b.x);
+  a.y = skeleton.pos[15].y - 2 - (direction * 0.015 * b.y);
 
   col = map.collisiontest(a, b);
 
@@ -4918,8 +4938,8 @@ void Sprite<M>::fire()
     {
       gGlobalStateSound.playsound(SfxEffect::mp5_fire, spritePartsPos);
     }
-    a.x = skeleton.pos[15].x + 2 - 0.2 * b.x;
-    a.y = skeleton.pos[15].y - 2 - 0.2 * b.y;
+    a.x = skeleton.pos[15].x + 2 - (0.2 * b.x);
+    a.y = skeleton.pos[15].y - 2 - (0.2 * b.y);
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
@@ -4985,8 +5005,8 @@ void Sprite<M>::fire()
     {
       gGlobalStateSound.playsound(SfxEffect::deserteagle_fire, spritePartsPos);
     }
-    a.x = skeleton.pos[15].x + 3 - 0.17 * b.x;
-    a.y = skeleton.pos[15].y - 2 - 0.15 * b.y;
+    a.x = skeleton.pos[15].x + 3 - (0.17 * b.x);
+    a.y = skeleton.pos[15].y - 2 - (0.15 * b.y);
 #endif
     if ((bodyanimation.id != AnimationType::Throw) && (position == pos_stand) &&
         (bodyanimation.id != AnimationType::GetUp) && (bodyanimation.id != AnimationType::Melee))
@@ -5011,10 +5031,10 @@ void Sprite<M>::fire()
     }
     if (!col)
     {
-      a.x = skeleton.pos[15].x - 3 - 0.25 * b.x;
-      a.y = skeleton.pos[15].y - 3 - 0.3 * b.y;
-      c.x = spriteVelocity.x + direction * aimdirection.y * (Random(0) * 0.5 + 0.8);
-      c.y = spriteVelocity.y - direction * aimdirection.x * (Random(0) * 0.5 + 0.8);
+      a.x = skeleton.pos[15].x - 3 - (0.25 * b.x);
+      a.y = skeleton.pos[15].y - 3 - (0.3 * b.y);
+      c.x = spriteVelocity.x + (direction * aimdirection.y * (Random(0) * 0.5 + 0.8));
+      c.y = spriteVelocity.y - (direction * aimdirection.x * (Random(0) * 0.5 + 0.8));
       gGlobalStateSparks.createspark(a, c, 66, num, 255); // shell
     }
 #endif
@@ -5095,8 +5115,8 @@ void Sprite<M>::fire()
     {
       gGlobalStateSound.playsound(SfxEffect::colt1911_fire, spritePartsPos);
     }
-    a.x = skeleton.pos[15].x + 2 - 0.2 * b.x;
-    a.y = skeleton.pos[15].y - 2 - 0.2 * b.y;
+    a.x = skeleton.pos[15].x + 2 - (0.2 * b.x);
+    a.y = skeleton.pos[15].y - 2 - (0.2 * b.y);
     if (!col)
     {
       gGlobalStateSparks.createspark(a, c, 65, num, 255); // shell
@@ -5217,7 +5237,7 @@ void Sprite<M>::fire()
   // Recoil!
   if (sprite_system.IsPlayerSprite(num))
   {
-    rc = (float)(burstcount) / 10.f;
+    rc = (float)(burstcount) / 10.F;
     rc = rc * (float)weapon.recoil;
 
     // less recoil on crouch
@@ -5251,8 +5271,8 @@ template <Config::Module M>
 void Sprite<M>::throwflag()
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  std::int32_t j;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
   tvector2 b;
   float d = 0.0;
   tvector2 cursordirection;
@@ -5366,9 +5386,9 @@ void Sprite<M>::throwgrenade()
   tvector2 c;
   tvector2 e;
   float f = 0.0;
-  float grenadearcsize;
-  float grenadearcx;
-  float grenadearcy;
+  float grenadearcsize = NAN;
+  float grenadearcx = NAN;
+  float grenadearcy = NAN;
   tvector2 playervelocity;
   auto &map = GS::GetGame().GetMap();
   auto &spriteVelocity = sprite_system.GetVelocity(num);
@@ -5401,8 +5421,8 @@ void Sprite<M>::throwgrenade()
       vec2scale(b, b, 0.65);
     }
     b = vec2add(b, spriteVelocity);
-    a.x = skeleton.pos[15].x + b.x * 3;
-    a.y = skeleton.pos[15].y - 2 + b.y * 3;
+    a.x = skeleton.pos[15].x + (b.x * 3);
+    a.y = skeleton.pos[15].y - 2 + (b.y * 3);
     if (!map.collisiontest(a, c))
     {
       b = gethandsaimdirection();
@@ -5426,7 +5446,7 @@ void Sprite<M>::throwgrenade()
       b = getcursoraimdirection();
 
       // Add a few degrees of arc to the throw. The arc approaches zero as you aim up or down
-      grenadearcsize = (float)(sign(b.x)) / 8 * (1 - fabs(b.y));
+      grenadearcsize = static_cast<float>(sign(b.x)) / 8 * (1 - fabs(b.y));
       grenadearcx = sin(b.y * pi / 2) * grenadearcsize;
       grenadearcy = sin(b.x * pi / 2) * grenadearcsize;
       b.x = b.x + grenadearcx;
@@ -5442,7 +5462,7 @@ void Sprite<M>::throwgrenade()
       vec2scale(playervelocity, spriteVelocity, guns[fraggrenade].inheritedvelocity);
 
       b = vec2add(b, playervelocity);
-      a.x = skeleton.pos[15].x + b.x * 3;
+      a.x = skeleton.pos[15].x + (b.x * 3);
       a.y = skeleton.pos[15].y - 2 + (b.y * 3);
       e.x = spritePartsPos.x;
       e.y = spritePartsPos.y - 12;
@@ -5452,12 +5472,13 @@ void Sprite<M>::throwgrenade()
         createbullet(a, b, tertiaryweapon.num, num, 255, guns[fraggrenade].hitmultiply, true,
                      false);
 
-        bool is_current_sprite = false;
-          
-        if constexpr(Config::IsClient(M))
-        {
-          is_current_sprite = ((player->controlmethod == human) && (TSpriteSystem<Sprite<M>>::Get().IsPlayerSprite(num)));
-        }
+        bool const is_current_sprite = [&]() {
+          if constexpr(Config::IsClient(M))
+          {
+            return ((player->controlmethod == human) && (TSpriteSystem<Sprite<M>>::Get().IsPlayerSprite(num)));
+          }
+          return false;
+        }();
 
         if (is_current_sprite || (player->controlmethod == bot))
         {
@@ -5505,17 +5526,22 @@ void Sprite<M>::throwgrenade()
 template <Config::Module M>
 auto Sprite<M>::getmoveacc() -> float
 {
-  float moveacc;
+  float moveacc = NAN;
 
-  float result;
+  float result = NAN;
   result = 0;
 
   // No moveacc for bots on harder difficulties
-  bool bots_difficulty_low = true;
-  if constexpr (Config::IsServer(M))
-  {
-    bots_difficulty_low = CVar::bots_difficulty < 50;
-  }
+  bool const bots_difficulty_low = []() {
+    if constexpr (Config::IsServer(M))
+    {
+      return CVar::bots_difficulty < 50;
+    }
+    else
+    {
+      return true;
+    }
+  } ();
   if (player->controlmethod == bot && bots_difficulty_low)
   {
     moveacc = 0;
@@ -5587,7 +5613,7 @@ auto Sprite<M>::isnotsolo() -> bool
 template <Config::Module M>
 auto Sprite<M>::isinteam() -> bool
 {
-  bool result;
+  bool result = false;
   switch (player->team)
   {
   case team_alpha:
@@ -5623,7 +5649,7 @@ auto Sprite<M>::isnotinsameteam(const Sprite &otherplayer) -> bool
 template <Config::Module M>
 auto Sprite<M>::canrespawn(bool deadmeatbeforerespawn) -> bool
 {
-  bool result;
+  bool result = false;
   result = (CVar::sv_survivalmode == false) or (GS::GetGame().GetSurvivalEndRound()) or
            (!deadmeatbeforerespawn);
   return result;
@@ -5711,7 +5737,7 @@ public:
 TEST_CASE_FIXTURE(SpritesFixture, "CreateSprite")
 {
   tvector2 spos; // out
-  std::uint8_t spriteId = 255;
+  std::uint8_t const spriteId = 255;
   auto player = std::make_shared<tplayer>();
   auto retSpriteId = createsprite(spos, spriteId, player);
   CHECK(retSpriteId == 1);

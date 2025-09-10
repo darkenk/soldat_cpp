@@ -13,6 +13,6 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
 
 void serverhandlechatmessage(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player);
 
-void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8_t layerid,
-                              std::int32_t delay, float scale, std::uint32_t color, float x, float y,
-                              std::uint8_t tonum);
+void serversendspecialmessage(const std::string &text, std::uint8_t msgtype, std::uint8_t layerid,
+                              std::int32_t delay, float scale, std::uint32_t color, float x,
+                              float y, std::uint8_t tonum);

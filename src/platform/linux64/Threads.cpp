@@ -1,5 +1,7 @@
 #include "Threads.hpp"
 #include <pthread.h>
+#include <string_view>
+#include <thread>
 
 #if __EMSCRIPTEN__
 

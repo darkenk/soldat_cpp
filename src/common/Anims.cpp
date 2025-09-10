@@ -1,12 +1,13 @@
 #include "Anims.hpp"
 
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
 #include <cmath>
+#include <cstdint>
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
 #include <string>
-#include <utility>
 
 #include "Logging.hpp"
+#include "misc/PortUtilsSoldat.hpp"
 #include "misc/SafeType.hpp"
 #include "misc/TStream.hpp"
 
@@ -40,7 +41,7 @@ void tanimation::loadfromfile(TStream &stream)
   std::string r2;
   std::string r3;
   std::string r4;
-  std::int32_t p;
+  std::int32_t p = 0;
 
   numframes = 1;
 
@@ -71,8 +72,8 @@ void tanimation::loadfromfile(TStream &stream)
       p = strtointdef(r1, 0);
       if ((p >= 1) && (p <= max_pos_index))
       {
-        // TODO: check if this is correct
-        frames[numframes].pos[p].x = -scale * strtofloat(r2) / 1.1f;
+        // TODO(vscode): check if this is correct
+        frames[numframes].pos[p].x = -scale * strtofloat(r2) / 1.1F;
         frames[numframes].pos[p].y = -scale * strtofloat(r4);
       }
       else
@@ -87,9 +88,9 @@ void tanimation::loadfromfile(TStream &stream)
 
 auto tanimation::checksum() -> std::int32_t
 {
-  float chk;
-  std::int32_t i;
-  std::int32_t j;
+  float chk = NAN;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
 
   chk = 0.5;
 

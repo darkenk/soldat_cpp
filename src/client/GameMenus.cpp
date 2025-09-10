@@ -3,33 +3,33 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_keyboard.h>
-#include <math.h>
-#include <memory>
+#include <cmath>
+#include <cstdint>
+#include <string>
+#include <utility>
 
 #include "Client.hpp"
 #include "ClientGame.hpp"
 #include "ControlGame.hpp"
-#include "InterfaceGraphics.hpp"
 #include "Input.hpp"
+#include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "common/network/Net.hpp"
+#include "shared/Constants.cpp.h"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/mechanics/Sprites.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientGame.hpp"
 #include "shared/network/NetworkClientMessages.hpp"
 #include "shared/network/NetworkClientSprite.hpp"
-#include "common/Vector.hpp"
-#include "common/WeaponSystem.hpp"
-#include "common/Weapons.hpp"
-#include "common/misc/SoldatConfig.hpp"
-#include "common/network/Net.hpp"
-#include "shared/Constants.cpp.h"
-#include "shared/mechanics/Sprites.hpp"
-#include "shared/network/Net.hpp"
 
 using string = std::string;
 
@@ -72,13 +72,13 @@ void GlobalStateGameMenus::initgamemenus()
 
   if (CVar::r_scaleinterface)
   {
-    escmenu->x = round((float)((gGlobalStateGame.gamewidth - escmenu->w)) / 2);
-    escmenu->y = round((float)((gGlobalStateGame.gameheight - escmenu->h)) / 2);
+    escmenu->x = round(static_cast<float>((gGlobalStateGame.gamewidth - escmenu->w)) / 2);
+    escmenu->y = round(static_cast<float>((gGlobalStateGame.gameheight - escmenu->h)) / 2);
   }
   else
   {
-    escmenu->x = round((float)((gGlobalStateClientGame.renderwidth - escmenu->w)) / 2);
-    escmenu->y = round((float)((gGlobalStateClientGame.renderheight - escmenu->h)) / 2);
+    escmenu->x = round(static_cast<float>((gGlobalStateClientGame.renderwidth - escmenu->w)) / 2);
+    escmenu->y = round(static_cast<float>((gGlobalStateClientGame.renderheight - escmenu->h)) / 2);
   }
 
   initbutton(escmenu, 0, string("1 ") + ("Exit to menu"), 5, 1 * 25, 240, 25);
@@ -94,12 +94,12 @@ void GlobalStateGameMenus::initgamemenus()
   teammenu->y = 0;
 
   setlength(teammenu->button, 6);
-  initbutton(teammenu, 0, string("0 ") + ("0 Player"), 40, 140 + 40 * 1, 215, 35);
-  initbutton(teammenu, 1, string("1 ") + ("Alpha Team"), 40, 140 + 40 * 1, 215, 35);
-  initbutton(teammenu, 2, string("2 ") + ("Bravo Team"), 40, 140 + 40 * 2, 215, 35);
-  initbutton(teammenu, 3, string("3 ") + ("Charlie Team"), 40, 140 + 40 * 3, 215, 35);
-  initbutton(teammenu, 4, string("4 ") + ("Delta Team"), 40, 140 + 40 * 4, 215, 35);
-  initbutton(teammenu, 5, string("5 ") + ("Spectator"), 40, 140 + 40 * 5, 215, 35);
+  initbutton(teammenu, 0, string("0 ") + ("0 Player"), 40, 140 + (40 * 1), 215, 35);
+  initbutton(teammenu, 1, string("1 ") + ("Alpha Team"), 40, 140 + (40 * 1), 215, 35);
+  initbutton(teammenu, 2, string("2 ") + ("Bravo Team"), 40, 140 + (40 * 2), 215, 35);
+  initbutton(teammenu, 3, string("3 ") + ("Charlie Team"), 40, 140 + (40 * 3), 215, 35);
+  initbutton(teammenu, 4, string("4 ") + ("Delta Team"), 40, 140 + (40 * 4), 215, 35);
+  initbutton(teammenu, 5, string("5 ") + ("Spectator"), 40, 140 + (40 * 5), 215, 35);
 
   // limbo menu
 
@@ -122,7 +122,7 @@ void GlobalStateGameMenus::initgamemenus()
       s = (gGlobalStateClient.gundisplayname[GS::GetWeaponSystem().GetGuns()[i + 1].num]);
     }
 
-    initbutton(limbomenu, i, s, 35, 154 + 18 * (i + ord(i >= primary_weapons)), 235, 16);
+    initbutton(limbomenu, i, s, 35, 154 + (18 * (i + ord(i >= primary_weapons))), 235, 16);
   }
 
   // kick menu
@@ -138,7 +138,7 @@ void GlobalStateGameMenus::initgamemenus()
   initbutton(kickmenu, 2, ("Kick"), 105, 55, 90, 25);
   initbutton(kickmenu, 3, ("Ban"), 195, 55, 80, 25);
 
-  kickmenu->button[3].active = false; // TODO: ban not supported for now
+  kickmenu->button[3].active = false; // TODO(vscode): ban not supported for now
 
   // map menu
 
@@ -155,7 +155,7 @@ void GlobalStateGameMenus::initgamemenus()
 
 void GlobalStateGameMenus::hideall()
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   for (i = low(gGlobalStateGameMenus.gamemenu); i <= high(gGlobalStateGameMenus.gamemenu); i++)
   {
@@ -191,7 +191,7 @@ void GlobalStateGameMenus::gamemenushow(pgamemenu menu, bool show)
         gGlobalStateInterfaceGraphics.noobshow = true;
       }
 
-      // TODO: stop playing weather in escmenu
+      // TODO(vscode): stop playing weather in escmenu
     }
     else
     {
@@ -276,7 +276,7 @@ void GlobalStateGameMenus::gamemenushow(pgamemenu menu, bool show)
 auto GlobalStateGameMenus::gamemenuaction(pgamemenu menu, std::int32_t buttonindex) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
+  std::int32_t i = 0;
 
   bool result = false;
 
@@ -327,7 +327,7 @@ auto GlobalStateGameMenus::gamemenuaction(pgamemenu menu, std::int32_t buttonind
       gGlobalStateClient.selteam = buttonindex;
 
       if ((!sprite_system.IsPlayerSpriteValid()) ||
-          (buttonindex != sprite_system.GetPlayerSprite().player->team))
+          (std::cmp_not_equal(buttonindex, sprite_system.GetPlayerSprite().player->team)))
       {
         // NOTE this actually sends a change team request
         clientsendplayerinfo();
@@ -492,11 +492,11 @@ auto GlobalStateGameMenus::gamemenuaction(pgamemenu menu, std::int32_t buttonind
 
 void GlobalStateGameMenus::gamemenumousemove()
 {
-  std::int32_t i;
-  std::int32_t j;
-  float x;
-  float y;
-  pgamebutton btn;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
+  float x = NAN;
+  float y = NAN;
+  pgamebutton btn = nullptr;
 
   hoveredmenu = nullptr;
   hoveredbutton = nullptr;

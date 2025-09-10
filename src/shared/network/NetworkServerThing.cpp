@@ -2,22 +2,21 @@
 #include "NetworkServerThing.hpp"
 
 #include <array>
-#include <memory>
+#include <cstdint>
 
 #include "../Game.hpp"
-#include "NetworkUtils.hpp"
 #include "NetworkServer.hpp"
+#include "NetworkUtils.hpp"
 #include "common/Calc.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Parts.hpp"
 #include "common/Vector.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
-#include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
 
 #ifdef SERVER
@@ -86,7 +85,7 @@ void serverthingsnapshot(std::uint8_t tonum)
 void serverthingmustsnapshot(const std::uint8_t i)
 {
   tmsg_serverthingmustsnapshot thingmsg;
-  std::int32_t j;
+  std::int32_t j = 0;
 
   auto &things = GS::GetThingSystem().GetThings();
   auto &thing = things[i];
@@ -130,8 +129,8 @@ void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_serverthingmustsnapshot thingmsg;
-  std::int32_t i;
-  std::int32_t j;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
 
   auto &things = GS::GetThingSystem().GetThings();
   for (i = 1; i <= max_things; i++)
@@ -152,7 +151,7 @@ void serverthingmustsnapshotonconnect(const std::uint8_t tonum)
           thingmsg.oldpos[j - 1].x = thing.skeleton.oldpos[j].x;
           thingmsg.oldpos[j - 1].y = thing.skeleton.oldpos[j].y;
         }
-        thingmsg.timeout = std::int16_t(thing.timeout);
+        thingmsg.timeout = static_cast<std::int16_t>(thing.timeout);
         if (thing.timeout < 1)
         {
           thingmsg.timeout = 1;
@@ -177,7 +176,7 @@ void serverthingmustsnapshotonconnectto(const std::uint8_t i, const std::uint8_t
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_serverthingmustsnapshot thingmsg;
-  std::int32_t j;
+  std::int32_t j = 0;
 
   auto &things = GS::GetThingSystem().GetThings();
   auto &thing = things[i];
@@ -212,7 +211,7 @@ void serverthingmustsnapshotonconnectto(const std::uint8_t i, const std::uint8_t
 
 void serverthingtaken(const std::uint8_t i, const std::uint8_t w)
 {
-  tmsg_serverthingtaken thingmsg;
+  tmsg_serverthingtaken thingmsg{};
 
   auto &things = GS::GetThingSystem().GetThings();
   auto &thing = things[i];
@@ -234,15 +233,16 @@ void serverthingtaken(const std::uint8_t i, const std::uint8_t w)
   }
 }
 
-void serverhandlerequestthing(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void serverhandlerequestthing(tmsgheader *netmessage, std::int32_t size,
+                              NetworkServer & /*network*/, TServerPlayer *player)
 {
-  pmsg_requestthing msg;
+  pmsg_requestthing msg = nullptr;
 
   if (!verifypacket(sizeof(tmsg_requestthing), size, msgid_requestthing))
   {
     return;
   }
-  msg = pmsg_requestthing(netmessage);
+  msg = reinterpret_cast<pmsg_requestthing>(netmessage);
   serverthingmustsnapshotonconnectto(msg->thingid, player->spritenum);
 }
 #endif

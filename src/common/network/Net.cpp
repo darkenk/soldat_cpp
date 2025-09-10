@@ -1,21 +1,19 @@
 #include "Net.hpp"
 
-#include <steam/steamnetworkingsockets.h>
-#include <steam/isteamnetworkingutils.h>
+#include <atomic>
+#include <cstdint>
+#include <mutex>
 #include <spdlog/fmt/bundled/core.h>
 #include <spdlog/fmt/bundled/format.h>
 #include <steam/isteamnetworkingsockets.h>
+#include <steam/isteamnetworkingutils.h>
+#include <steam/steamnetworkingsockets.h>
 #include <steam/steamnetworkingtypes.h>
 #include <string>
-#include <atomic>
 #include <type_traits>
-#include <utility>
 
 #include "../Logging.hpp"
 #include "../Vector.hpp"
-#include "../misc/SafeType.hpp"
-#include "../port_utils/NotImplemented.hpp"
-#include "../port_utils/Utilities.hpp"
 
 static_assert(sizeof(HSoldatNetConnection) == sizeof(HSteamNetConnection));
 static_assert(std::is_same_v<HSoldatNetConnection, HSteamNetConnection>);
@@ -32,7 +30,7 @@ void NetworksGlobalCallback(SteamNetConnectionStatusChangedCallback_t* pInfo)
   network->EmplaceSteamNetConnectionStatusChangeMessage(pInfo);
 }
 
-static void sDebugNet(ESteamNetworkingSocketsDebugOutputType nType, const char *pszMsg)
+static void sDebugNet(ESteamNetworkingSocketsDebugOutputType /*nType*/, const char *pszMsg)
 {
   LogDebug("network", "{}", pszMsg);
 }
@@ -42,7 +40,7 @@ static std::mutex sNetworkGNSInit;
 
 TNetwork::TNetwork()
 {
-  if (std::lock_guard m(sNetworkGNSInit); ++sNetworkCount == 1)
+  if (std::lock_guard const m(sNetworkGNSInit); ++sNetworkCount == 1)
   {
     SteamNetworkingErrMsg error; // NOLINT
     if (not GameNetworkingSockets_Init(nullptr, error))
@@ -58,7 +56,7 @@ TNetwork::TNetwork()
 
 TNetwork::~TNetwork()
 {
-  if (std::lock_guard m(sNetworkGNSInit); --sNetworkCount == 0)
+  if (std::lock_guard const m(sNetworkGNSInit); --sNetworkCount == 0)
   {
     GameNetworkingSockets_Kill();
   }
@@ -76,7 +74,7 @@ auto TNetwork::GetStringAddress(bool withPort) -> std::string
 void TNetwork::RunCallbacks()
 {
   mNetworkingSockets->RunCallbacks();
-  std::lock_guard m(mQueueMutex);
+  std::lock_guard const m(mQueueMutex);
   while (!mQueuedCallbacks.empty())
   {
     ProcessEvents(&mQueuedCallbacks.front());
@@ -86,7 +84,7 @@ void TNetwork::RunCallbacks()
 void TNetwork::EmplaceSteamNetConnectionStatusChangeMessage(
   SteamNetConnectionStatusChangedCallback_t *pInfo)
 {
-  std::lock_guard m(mQueueMutex);
+  std::lock_guard const m(mQueueMutex);
   mQueuedCallbacks.emplace(*pInfo);
 }
 

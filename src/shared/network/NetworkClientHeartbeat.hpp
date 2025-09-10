@@ -7,5 +7,5 @@ struct NetworkContext;
 class ClientHandleHeartbeat : public INetMessageHandler
 {
 public:
-    void Handle(NetworkContext *nc) override;
+  void Handle(NetworkContext *netmessage) override;
 };

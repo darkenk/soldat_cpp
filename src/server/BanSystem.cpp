@@ -1,15 +1,14 @@
 // automatically converted
 
 #include "BanSystem.hpp"
-
 #include "Server.hpp"
 #include "ServerHelper.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
-#include "common/misc/SoldatConfig.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/misc/GlobalSystems.hpp"
+#include <cstdint>
+#include <string>
 
 GlobalStateBanSystem gGlobalStateBanSystem{
 
@@ -22,11 +21,11 @@ auto GlobalStateBanSystem::matchesmask([[maybe_unused]] const std::string &v,
   return false;
 }
 
-void GlobalStateBanSystem::addbannedip(const std::string &ip, std::string reason,
+void GlobalStateBanSystem::addbannedip(const std::string &ip, const std::string &reason,
                                        std::int32_t duration)
 {
-  std::int32_t i;
-  std::int32_t findex;
+  std::int32_t i = 0;
+  std::int32_t findex = 0;
 
   findex = 0;
   if (checkbannedip(ip))
@@ -60,9 +59,9 @@ void GlobalStateBanSystem::addbannedip(const std::string &ip, std::string reason
 
 auto GlobalStateBanSystem::delbannedip(const std::string &ip) -> bool
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
-  bool result;
+  bool result = false;
   result = false;
   for (i = 1; i <= high(bannediplist); i++)
   {
@@ -79,9 +78,9 @@ auto GlobalStateBanSystem::delbannedip(const std::string &ip) -> bool
 
 auto GlobalStateBanSystem::checkbannedip(const std::string &ip) -> bool
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
-  bool result;
+  bool result = false;
   result = false;
   for (i = 1; i <= high(bannediplist); i++)
   {
@@ -96,9 +95,9 @@ auto GlobalStateBanSystem::checkbannedip(const std::string &ip) -> bool
 
 auto GlobalStateBanSystem::findban(const std::string &ip) -> std::int32_t
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
-  std::int32_t result;
+  std::int32_t result = 0;
   result = -1;
   for (i = 1; i <= high(bannediplist); i++)
   {
@@ -111,7 +110,7 @@ auto GlobalStateBanSystem::findban(const std::string &ip) -> std::int32_t
   return result;
 }
 
-void GlobalStateBanSystem::loadbannedlist(const std::string &filename)
+void GlobalStateBanSystem::loadbannedlist(const std::string & /*filename*/)
 {
   NotImplemented();
 #if 0
@@ -146,7 +145,7 @@ void GlobalStateBanSystem::loadbannedlist(const std::string &filename)
 #endif
 }
 
-void GlobalStateBanSystem::savebannedlist(const std::string &filename)
+void GlobalStateBanSystem::savebannedlist(const std::string & /*filename*/)
 {
   NotImplemented();
 #if 0
@@ -195,11 +194,11 @@ void GlobalStateBanSystem::updateipbanlist()
 }
 
 // hardware id bans
-void GlobalStateBanSystem::addbannedhw(const std::string &hw, std::string reason,
+void GlobalStateBanSystem::addbannedhw(const std::string &hw, const std::string &reason,
                                        std::int32_t duration)
 {
-  std::int32_t i;
-  std::int32_t findex;
+  std::int32_t i = 0;
+  std::int32_t findex = 0;
 
   findex = 0;
   if (checkbannedhw(hw))
@@ -233,9 +232,9 @@ void GlobalStateBanSystem::addbannedhw(const std::string &hw, std::string reason
 
 auto GlobalStateBanSystem::delbannedhw(const std::string &hw) -> bool
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
-  bool result;
+  bool result = false;
   result = false;
   for (i = 1; i <= high(bannedhwlist); i++)
   {
@@ -252,9 +251,9 @@ auto GlobalStateBanSystem::delbannedhw(const std::string &hw) -> bool
 
 auto GlobalStateBanSystem::checkbannedhw(const std::string &hw) -> bool
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
-  bool result;
+  bool result = false;
   result = false;
   for (i = 1; i <= high(bannedhwlist); i++)
   {
@@ -269,9 +268,9 @@ auto GlobalStateBanSystem::checkbannedhw(const std::string &hw) -> bool
 
 auto GlobalStateBanSystem::findbanhw(const std::string &hw) -> std::int32_t
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
-  std::int32_t result;
+  std::int32_t result = 0;
   result = -1;
   for (i = 1; i <= high(bannedhwlist); i++)
   {
@@ -284,7 +283,7 @@ auto GlobalStateBanSystem::findbanhw(const std::string &hw) -> std::int32_t
   return result;
 }
 
-void GlobalStateBanSystem::loadbannedlisthw(const std::string &filename)
+void GlobalStateBanSystem::loadbannedlisthw(const std::string & /*filename*/)
 {
   NotImplemented();
 #if 0
@@ -319,7 +318,7 @@ void GlobalStateBanSystem::loadbannedlisthw(const std::string &filename)
 #endif
 }
 
-void GlobalStateBanSystem::savebannedlisthw(const std::string &filename)
+void GlobalStateBanSystem::savebannedlisthw(const std::string & /*filename*/)
 {
   NotImplemented();
 #if 0

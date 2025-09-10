@@ -85,13 +85,13 @@ private:
   tgfxtexture *rendertarget = nullptr;
   tgfxtexture *rendertargetaa = nullptr;
   auto getfontpath(std::string fallback, std::string &fontfile) -> std::string;
-  auto getfontpath(std::string fontfile) -> std::string;
+  auto getfontpath(const std::string &fontfile) -> std::string;
   auto getimagescale(const std::string &imagepath) -> float;
   auto getsizeconstraint(std::int32_t id, std::int32_t &w, std::int32_t &h) -> bool;
   void gfxlogcallback(const std::string &s);
   void interpolatestate(float p, tinterpolationstate &s, bool paused);
   void loadinterface();
-  void loadinterfacetextures(const std::string interfacename);
+  void loadinterfacetextures(const std::string &interfacename);
   void loadmaintextures();
   void loadmodinfo();
   void restorestate(tinterpolationstate &s);

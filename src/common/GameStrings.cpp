@@ -2,7 +2,7 @@
 #include "GameStrings.hpp"
 
 #include "port_utils/NotImplemented.hpp"
-#include "port_utils/Utilities.hpp"
+#include <string>
 
 class TStream;
 
@@ -12,7 +12,7 @@ class TStream;
 tmofile translationfile;
 #endif
 
-auto inittranslation(TStream *stream) -> bool
+auto inittranslation(TStream * /*stream*/) -> bool
 {
 #if ENABLE_STUBS
   NotImplemented("localization");

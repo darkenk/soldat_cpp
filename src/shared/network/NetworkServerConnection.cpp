@@ -1,7 +1,6 @@
 // automatically converted
 #include "NetworkServerConnection.hpp"
 
-#include "NetworkServer.hpp"
 #include "../../server/BanSystem.hpp"
 #include "../../server/Server.hpp"
 #include "../../server/ServerHelper.hpp"
@@ -10,43 +9,48 @@
 #include "../mechanics/Sprites.hpp"
 #include "../mechanics/Things.hpp"
 #include "../misc/BitStream.hpp"
+#include "NetworkServer.hpp"
 #include "NetworkServerGame.hpp"
 #include "NetworkServerMessages.hpp"
 #include "NetworkServerThing.hpp"
 #include "NetworkUtils.hpp"
-#include "common/Logging.hpp"
-#include "common/gfx.hpp"
-#include "shared/Version.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Constants.hpp"
+#include "common/Logging.hpp"
 #include "common/PolyMap.hpp"
 #include "common/Util.hpp"
 #include "common/Vector.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/Weapons.hpp"
+#include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/SHA1Helper.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/AnimationSystem.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/Cvar.hpp"
+#include "shared/Version.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
+#include <cstdint>
+#include <string>
 
 auto constexpr minsperhour = 60;
 auto constexpr minsperday = 24 * minsperhour;
 
 #ifdef SERVER
-std::array<std::array<std::int32_t, max_players>, 10> pingtime;
-std::array<std::uint8_t, max_players> pingsendcount;
+static std::array<std::array<std::int32_t, max_players>, 10> pingtime;
+static std::array<std::uint8_t, max_players> pingsendcount;
 #endif
 
 #ifdef SERVER
-void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void serverhandlerequestgame(tmsgheader *netmessage, std::int32_t size, NetworkServer & /*network*/,
+                             TServerPlayer *player)
 {
-  std::uint32_t state;
+  std::uint32_t state = 0;
 
   if (!verifypacketlargerorequal(sizeof(tmsg_requestgame), size, msgid_requestgame))
   {
@@ -165,16 +169,17 @@ void serverhandlerequestgame(tmsgheader* netmessage, std::int32_t size, NetworkS
   }
 }
 
-void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void serverhandleplayerinfo(tmsgheader *netmessage, std::int32_t size, NetworkServer & /*network*/,
+                            TServerPlayer *player)
 {
   auto &sprite_system = SpriteSystem::Get();
-  pmsg_playerinfo playerinfomsg;
+  pmsg_playerinfo playerinfomsg = nullptr;
   std::string fixedplayername;
   std::string finalplayername;
-  bool playernameunused;
-  std::int32_t suffixlen;
-  std::int32_t i;
-  std::int32_t j;
+  bool playernameunused = false;
+  std::int32_t suffixlen = 0;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
   tvector2 a;
 #ifdef SCRIPT
   std::int8_t newteam;
@@ -187,7 +192,7 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
 
   auto &things = GS::GetThingSystem().GetThings();
 
-  playerinfomsg = pmsg_playerinfo(netmessage);
+  playerinfomsg = reinterpret_cast<pmsg_playerinfo>(netmessage);
   SoldatAssert(player->spritenum == 0);
 
 #ifdef ENABLE_FAE
@@ -404,14 +409,13 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   // create sprite and assign it our player object
   randomizestart(a, playerinfomsg->team);
   auto players = gGlobalStateNetworkServer.GetServerNetwork()->GetPlayers();
-  auto it = std::find_if(players.begin(), players.end(),
-                         [&player](const auto &v) { return v.get() == player; });
+  auto it = std::ranges::find_if(players, [&player](const auto &v) { return v.get() == player; });
   SoldatAssert(it != players.end());
   createsprite(a, 255, *it); // assigns Player.SpriteNum
 
   // respawn holded thing if is
   // FIXME english
-  // TODO do a good bit of these things in CreateSprite instead?
+  // TODO(vscode): do a good bit of these things in CreateSprite instead?
   if (sprite_system.GetSprite(player->spritenum).holdedthing > 0)
   {
     if (things[sprite_system.GetSprite(player->spritenum).holdedthing].style < object_ussocom)
@@ -437,7 +441,7 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   }
 
   // reset legacy-ish counters that are stored under the sprite ID
-  // TODO: most of this can be moved to TPlayer
+  // TODO(vscode): most of this can be moved to TPlayer
   gGlobalStateNetworkServer.noclientupdatetime[player->spritenum] = 0;
   gGlobalStateNetworkServer.messagesasecnum[player->spritenum] = 0;
   gGlobalStateNetworkServer.floodwarnings[player->spritenum] = 0;
@@ -456,15 +460,15 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   serversyncmsg(player->spritenum);
 
   // greetings message
-  if (length((std::string)CVar::sv_greeting) > 0)
+  if (length(std::string(CVar::sv_greeting)) > 0)
   {
     serversendstringmessage((CVar::sv_greeting), player->spritenum, 255, msgtype_pub);
   }
-  if (length((std::string)CVar::sv_greeting2) > 0)
+  if (length(std::string(CVar::sv_greeting2)) > 0)
   {
     serversendstringmessage((CVar::sv_greeting2), player->spritenum, 255, msgtype_pub);
   }
-  if (length((std::string)CVar::sv_greeting3) > 0)
+  if (length(std::string(CVar::sv_greeting3)) > 0)
   {
     serversendstringmessage((CVar::sv_greeting3), player->spritenum, 255, msgtype_pub);
   }
@@ -511,7 +515,7 @@ void serverhandleplayerinfo(tmsgheader* netmessage, std::int32_t size, NetworkSe
   }
 
   // flood from IP prevention
-  // TODO eek, this should rather be done with enet (reject on connect, or using a built-in
+  // TODO(vscode): eek, this should rather be done with enet (reject on connect, or using a built-in
   // feature)
   j = 0;
   for (i = 1; i <= max_floodips; i++)
@@ -587,7 +591,7 @@ void serversendplaylist(HSoldatNetConnection peer)
       playerslist.jetcolor[i] = s.player->jetcolor;
       playerslist.team[i] = s.player->team;
       playerslist.predduration[i] =
-        iif(s.bonusstyle == bonus_predator, ((float)(s.bonustime) / 60), 0.f);
+        iif(s.bonusstyle == bonus_predator, (static_cast<float>(s.bonustime) / 60), 0.F);
 
       playerslist.look[i] = 0;
       if (s.player->hairstyle == 1)
@@ -723,14 +727,14 @@ auto getbanstrforindex(std::int32_t banindex, bool banhw) -> std::string
 
 void serversendunaccepted(HSoldatNetConnection peer, std::uint8_t state, const std::string &message)
 {
-  pmsg_unaccepted unaccepted;
-  std::int32_t size;
+  pmsg_unaccepted unaccepted = nullptr;
+  std::int32_t size = 0;
   std::vector<std::uint8_t> sendbuffer;
 
   // request memory
   size = sizeof(tmsg_unaccepted) + length(message) + 1;
   setlength(sendbuffer, size); // can throw out of memory exception
-  unaccepted = pmsg_unaccepted(sendbuffer.data());
+  unaccepted = reinterpret_cast<pmsg_unaccepted>(sendbuffer.data());
 
   // fill memory
   unaccepted->header.id = msgid_unaccepted;
@@ -816,7 +820,8 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
   {
     if (GS::GetDemoRecorder().active())
     {
-      newplayer.adoptspriteid = (std::uint8_t)(sprite_system.GetSprite(num).player->demoplayer);
+      newplayer.adoptspriteid =
+        static_cast<std::uint8_t>(sprite_system.GetSprite(num).player->demoplayer);
       GS::GetDemoRecorder().saverecord(&newplayer, sizeof(newplayer));
     }
   }
@@ -836,7 +841,7 @@ void serversendnewplayerinfo(std::uint8_t num, std::uint8_t jointype)
 #ifdef SERVER
 void serverdisconnect()
 {
-  tmsg_serverdisconnect servermsg;
+  tmsg_serverdisconnect servermsg{};
 
   servermsg.header.id = msgid_serverdisconnect;
 
@@ -859,9 +864,8 @@ void serverdisconnect()
 
 void serverplayerdisconnect(std::uint8_t num, std::uint8_t why)
 {
-  tmsg_playerdisconnect playermsg;
-  tplayer dstplayer;
-
+  tmsg_playerdisconnect playermsg{};
+  
   playermsg.header.id = msgid_playerdisconnect;
   playermsg.num = num;
   playermsg.why = why;
@@ -886,7 +890,7 @@ void serverplayerdisconnect(std::uint8_t num, std::uint8_t why)
 void serverping(std::uint8_t tonum)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_ping pingmsg;
+  tmsg_ping pingmsg{};
 
   pingmsg.header.id = msgid_ping;
   pingmsg.pingticks = sprite_system.GetSprite(tonum).player->pingticks;
@@ -909,10 +913,10 @@ void serverping(std::uint8_t tonum)
 #endif
 
 template <typename T>
-auto CopyCVarsToBuffer(BitStream &bs, bool fullsync) -> std::uint8_t
+static auto CopyCVarsToBuffer(BitStream &bs, bool /*fullsync*/) -> std::uint8_t
 {
   std::uint8_t fieldcount = 0;
-  // TODO: always sync all variables, make use of fullsync
+  // TODO(vscode): always sync all variables, make use of fullsync
   for (const auto &v : CVarBase<T>::GetAllCVars())
   {
     if (!v.IsSyncable())
@@ -929,7 +933,7 @@ auto CopyCVarsToBuffer(BitStream &bs, bool fullsync) -> std::uint8_t
 
 void serversynccvars(std::uint8_t tonum, HSoldatNetConnection peer, bool fullsync)
 {
-  pmsg_serversynccvars varsmsg;
+  pmsg_serversynccvars varsmsg = nullptr;
   std::uint8_t fieldcount = 0;
 
   BitStream bs;
@@ -940,7 +944,7 @@ void serversynccvars(std::uint8_t tonum, HSoldatNetConnection peer, bool fullsyn
   fieldcount += CopyCVarsToBuffer<float>(bs, fullsync);
   fieldcount += CopyCVarsToBuffer<std::string>(bs, fullsync);
 
-  std::uint32_t buffersize = bs.Data().size();
+  std::uint32_t const buffersize = bs.Data().size();
   auto *data = new uint8_t[sizeof(tmsg_serversynccvars) + buffersize];
   varsmsg = new (data) tmsg_serversynccvars();
   varsmsg->itemcount = fieldcount;
@@ -978,7 +982,7 @@ void serversynccvars(std::uint8_t tonum, HSoldatNetConnection peer, bool fullsyn
 void servervars(std::uint8_t tonum)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_servervars varsmsg;
+  tmsg_servervars varsmsg{};
 
   varsmsg.header.id = msgid_servervars;
   auto &weaponSystem = GS::GetWeaponSystem();
@@ -1022,7 +1026,8 @@ void servervars(std::uint8_t tonum)
 }
 
 #ifdef SERVER
-void serverhandlepong(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void serverhandlepong(tmsgheader *netmessage, std::int32_t size, NetworkServer & /*network*/,
+                      TServerPlayer *player)
 {
   if (!verifypacket(sizeof(tmsg_pong), size, msgid_pong))
   {
@@ -1047,15 +1052,13 @@ void serverhandlepong(tmsgheader* netmessage, std::int32_t size, NetworkServer& 
 #endif
 
 // tests
-#include <doctest/doctest.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <doctest/doctest.h>
 #include <memory>
 #include <new>
-#include <utility>
+#include <spdlog/fmt/bundled/core.h>
 #include <vector>
 
 #include "NetworkClient.hpp"

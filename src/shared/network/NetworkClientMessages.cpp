@@ -1,35 +1,32 @@
 // automatically converted
 #include "NetworkClientMessages.hpp"
 
-#include <bits/types/mbstate_t.h>
-#include <string.h>
-#include <locale>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_stdinc.h>
 #include <algorithm>
 #include <array>
+#include <cstdint>
+#include <cstring>
 #include <cwchar>
-#include <memory>
-#include <utility>
+#include <string>
+#include <string_view>
 
 #include "../../client/Client.hpp"
 #include "../../client/InterfaceGraphics.hpp"
 #include "../misc/MemoryUtils.hpp"
 #include "NetworkClient.hpp"
-#include "common/Console.hpp"
-#include "common/GameStrings.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Constants.hpp"
+#include "common/GameStrings.hpp"
+#include "common/Logging.hpp"
 #include "common/Util.hpp"
 #include "common/Vector.hpp"
-#include "common/misc/SoldatConfig.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
-#include "shared/network/Net.hpp"
-#include "common/Logging.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 using namespace std::literals::string_view_literals;
 
@@ -41,10 +38,10 @@ static std::u16string utf8_to_utf16(const std::string_view utf8)
   if (converted == nullptr)
   {
     LogWarn(TAG, "Cannot convert from utf8_to_utf16 {}. Error {}", utf8.data(), SDL_GetError());
-    return std::u16string();
+    return {};
   }
 
-  size_t len = SDL_utf8strlen(utf8.data());
+  size_t const len = SDL_utf8strlen(utf8.data());
   std::u16string result(reinterpret_cast<char16_t*>(converted), len);
 
   SDL_free(converted);
@@ -53,8 +50,8 @@ static std::u16string utf8_to_utf16(const std::string_view utf8)
 
 void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
 {
-  pmsg_stringmessage pchatmessage;
-  std::int32_t size;
+  pmsg_stringmessage pchatmessage = nullptr;
+  std::int32_t size = 0;
 
   if (length(text) == 0)
   {
@@ -72,7 +69,7 @@ void clientsendstringmessage(const std::string &text, std::uint8_t msgtype)
   std::u16string text16 = utf8_to_utf16(text);
 
   memcpy(&pchatmessage->text, text16.data(), text16.size() * 2);
-  memset(&pchatmessage->text + text16.size() * 2, 0, 2);
+  memset(&pchatmessage->text + (text16.size() * 2), 0, 2);
 
   gGlobalStateNetworkClient.GetNetwork()->SendData(pchatmessage, size, true);
   freemem(pchatmessage);
@@ -83,17 +80,17 @@ void clienthandlechatmessage::Handle(NetworkContext *netmessage)
   auto &sprite_system = SpriteSystem::Get();
   std::string cs;
   std::string prefix;
-  std::int32_t i;
-  std::int32_t d;
-  std::uint8_t msgtype;
-  std::uint32_t col;
+  std::int32_t i = 0;
+  std::int32_t d = 0;
+  std::uint8_t msgtype = 0;
+  std::uint32_t col = 0;
 
   NotImplemented("network");
 #if 0
     cs = pmsg_stringmessage(netmessage->m_pData)->text.data();
 #endif
-  i = pmsg_stringmessage(netmessage->packet)->num;
-  msgtype = pmsg_stringmessage(netmessage->packet)->msgtype;
+  i = reinterpret_cast<pmsg_stringmessage>(netmessage->packet)->num;
+  msgtype = reinterpret_cast<pmsg_stringmessage>(netmessage->packet)->msgtype;
 
   if (msgtype > msgtype_radio)
   {
@@ -132,10 +129,8 @@ void clienthandlechatmessage::Handle(NetworkContext *netmessage)
     gGlobalStateInterfaceGraphics.chatdelay[i] = d * spacechardelay;
   }
 
-  if (gGlobalStateInterfaceGraphics.chatdelay[i] > max_chatdelay)
-  {
-    gGlobalStateInterfaceGraphics.chatdelay[i] = max_chatdelay;
-  }
+  gGlobalStateInterfaceGraphics.chatdelay[i] =
+    std::min(gGlobalStateInterfaceGraphics.chatdelay[i], max_chatdelay);
 
   col = chat_message_color;
 
@@ -170,11 +165,11 @@ void clienthandlechatmessage::Handle(NetworkContext *netmessage)
 
 void clienthandlespecialmessage::Handle(NetworkContext *netmessage)
 {
-  tmsg_serverspecialmessage *specialmessage;
+  tmsg_serverspecialmessage *specialmessage = nullptr;
   std::string cs;
 
-  specialmessage = pmsg_serverspecialmessage(netmessage->packet);
-  cs = pmsg_serverspecialmessage(netmessage->packet)->text.data();
+  specialmessage = reinterpret_cast<pmsg_serverspecialmessage>(netmessage->packet);
+  cs = reinterpret_cast<pmsg_serverspecialmessage>(netmessage->packet)->text.data();
 
   if (specialmessage->msgtype == 0) // console
   {
@@ -227,7 +222,7 @@ TEST_SUITE("NetworkClientMessagesSuite")
 TEST_CASE_FIXTURE(NetworkClientMessagesFixture, "wstring_convert being deprecated" * doctest::skip(false))
 {
   auto text = utf8_to_utf16("Żółć!");
-  std::u16string result = u"Żółć!";
+  std::u16string const result = u"Żółć!";
   CHECK_EQ(text, result);
 }
 

@@ -3,32 +3,32 @@
 #include "GostekGraphics.hpp"
 
 #include <Tracy.hpp>
-#include <math.h>
 #include <array>
+#include <cmath>
+#include <cstdint>
 #include <memory_resource>
 #include <numbers>
 #include <set>
-#include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
 
 #include "GameRendering.hpp"
 #include "Gfx.hpp"
-#include "common/gfx.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/Cvar.hpp"
-#include "shared/Game.hpp"
-#include "shared/mechanics/Sprites.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Anims.hpp"
 #include "common/Constants.hpp"
 #include "common/Parts.hpp"
 #include "common/Vector.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/Weapons.hpp"
+#include "common/gfx.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/TIniFile.hpp"
 #include "shared/Constants.cpp.h"
-#include "shared/network/Net.hpp"
+#include "shared/Cvar.hpp"
+#include "shared/Game.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 using std::numbers::pi;
 
@@ -52,8 +52,8 @@ public:
                          const std::uint8_t visible, const std::uint8_t flip,
                          const std::uint8_t team, const float flex, const std::uint8_t color,
                          const std::uint8_t alpha)
-    : id(id), image(image), p1(p1), p2(p2), cx(cx), cy(cy), flex(flex), flip(flip != 0u),
-      team(team != 0u), color(color), alpha(alpha), visible(visible == 1)
+    : id(id), image(image), p1(p1), p2(p2), cx(cx), cy(cy), flex(flex), flip(flip != 0U),
+      team(team != 0U), color(color), alpha(alpha), visible(visible == 1)
   {
   }
 
@@ -465,8 +465,8 @@ void loadgostekdata(const TIniFile::Entries &data)
 
   for (std::int32_t i = GOSTEK_FIRST; i < GOSTEK_LAST; i++)
   {
-    std::string cx = data.at(std::string(gosteksprites[i].id) + "_CenterX");
-    std::string cy = data.at(std::string(gosteksprites[i].id) + "_CenterY");
+    std::string const cx = data.at(std::string(gosteksprites[i].id) + "_CenterX");
+    std::string const cy = data.at(std::string(gosteksprites[i].id) + "_CenterY");
     gosteksprites[i].cx = strtofloatdef(cx, gosteksprites[i].cx);
     gosteksprites[i].cy = strtofloatdef(cy, gosteksprites[i].cy);
   }
@@ -492,25 +492,25 @@ void applygostekconstraints(tgfxspritearray textures)
     {
       auto w = texwidth(gs.image);
       w = max(w, texwidth(gs.image + ord(gs.flip)));
-      w = max(w, texwidth(gs.image + t2 * ord(gs.team)));
-      w = max(w, texwidth(gs.image + t2 * ord(gs.team) + ord(gs.flip)));
+      w = max(w, texwidth(gs.image + (t2 * ord(gs.team))));
+      w = max(w, texwidth(gs.image + (t2 * ord(gs.team)) + ord(gs.flip)));
 
       auto h = texheight(gs.image);
       h = max(h, texheight(gs.image + ord(gs.flip)));
-      h = max(h, texheight(gs.image + t2 * ord(gs.team)));
-      h = max(h, texheight(gs.image + t2 * ord(gs.team) + ord(gs.flip)));
+      h = max(h, texheight(gs.image + (t2 * ord(gs.team))));
+      h = max(h, texheight(gs.image + (t2 * ord(gs.team)) + ord(gs.flip)));
 
       const float cx = w * fabs(gs.cx + 0.5);
       const float cy = h * fabs(gs.cy + 0.5);
 
       if (cx > (w + gos_restrict_width))
       {
-        gs.cx = 0.5 + sign(gs.cx + 0.5) * ((float)((w + gos_restrict_width)) / w);
+        gs.cx = 0.5 + sign(gs.cx + 0.5) * (static_cast<float>((w + gos_restrict_width)) / w);
       }
 
       if (cy > (h + gos_restrict_height))
       {
-        gs.cy = 0.5 + sign(gs.cy + 0.5) * ((float)((h + gos_restrict_height)) / h);
+        gs.cy = 0.5 + sign(gs.cy + 0.5) * (static_cast<float>((h + gos_restrict_height)) / h);
       }
     }
   }
@@ -521,11 +521,11 @@ static void drawgosteksprite(pgfxsprite sprite, float x, float y, float sx, floa
 {
   ZoneScopedN("DrawGostekSprite");
   tgfxmat3 m;
-  std::array<tgfxvertex, 4> buff;
+  std::array<tgfxvertex, 4> buff{};
   std::pmr::monotonic_buffer_resource res(buff.data(), buff.size() * sizeof(tgfxvertex));
   std::pmr::vector<tgfxvertex> v{4, &res};
 
-  std::array<tgfxvertex, 4> buff2;
+  std::array<tgfxvertex, 4> buff2{};
   std::pmr::monotonic_buffer_resource res2(buff2.data(), buff2.size() * sizeof(tvector2));
   std::pmr::vector<tvector2> p{4, &res2};
 
@@ -566,18 +566,18 @@ static void drawgosteksprite(pgfxsprite sprite, float x, float y, float sx, floa
 void rendergostek(tsprite &soldier)
 {
   ZoneScopedN("RenderGostek");
-  std::int32_t i;
-  std::int32_t index;
-  bool showclip;
+  std::int32_t i = 0;
+  std::int32_t index = 0;
+  bool showclip = false;
   tgostekspriteset visible;
-  PascalArray<tgfxcolor, color_none, color_headblood> color;
-  PascalArray<std::uint8_t, alpha_base, alpha_nades> alpha;
+  PascalArray<tgfxcolor, color_none, color_headblood> color{};
+  PascalArray<std::uint8_t, alpha_base, alpha_nades> alpha{};
   tgfxmat3 m{0};
-  float x1;
-  float y1;
-  float x2;
-  float y2;
-  float r;
+  float x1 = NAN;
+  float y1 = NAN;
+  float x2 = NAN;
+  float y2 = NAN;
+  float r = NAN;
 
   if ((soldier.style != tsprite::Style::Default) ||
       (soldier.ceasefirecounter > GS::GetGame().GetCeasefiretime() - 5) ||
@@ -608,7 +608,7 @@ void rendergostek(tsprite &soldier)
   }
 
   alpha[alpha_base] = soldier.alpha;
-  alpha[alpha_blood] = max(0.0f, min(255.0f, 200 - round(soldier.GetHealth())));
+  alpha[alpha_blood] = max(0.0F, min(255.0F, 200.0f - roundf(soldier.GetHealth())));
 
   if (soldier.GetHealth() > (90 - 40 * static_cast<int>(CVar::sv_realisticmode)))
   {
@@ -674,7 +674,7 @@ void rendergostek(tsprite &soldier)
     index = GOSTEK_CLUSTER_GRENADE1;
   }
 
-  std::int32_t n =
+  std::int32_t const n =
     soldier.tertiaryweapon.ammocount - ord(soldier.bodyanimation.id == AnimationType::Throw);
 
   for (i = 0; i <= min(5, n) - 1; i++)
@@ -726,9 +726,9 @@ void rendergostek(tsprite &soldier)
   }
   else
   {
-    bool grabbed = (AnimationType::Wipe == soldier.bodyanimation.id ||
-                    AnimationType::TakeOff == soldier.bodyanimation.id) &&
-                   (soldier.bodyanimation.currframe > 4);
+    bool const grabbed = (AnimationType::Wipe == soldier.bodyanimation.id ||
+                          AnimationType::TakeOff == soldier.bodyanimation.id) &&
+                         (soldier.bodyanimation.currframe > 4);
 
     if (soldier.wearhelmet == 1)
     {
@@ -932,7 +932,7 @@ void rendergostek(tsprite &soldier)
 
       if ((i >= GOSTEK_HAIR_DREADLOCK1) && (i <= GOSTEK_HAIR_DREADLOCK5))
       {
-        tvector2 v = gfxmat3mul(m, -cy * soldier.direction, cx);
+        tvector2 const v = gfxmat3mul(m, -cy * soldier.direction, cx);
         x1 = x1 + v.x;
         y1 = y1 + v.y;
         cx = 0;
@@ -942,7 +942,7 @@ void rendergostek(tsprite &soldier)
       }
       else if (gs.flex > 0)
       {
-        sx = min(1.5f, sqrt(sqr(x2 - x1) + sqr(y2 - y1)) / gs.flex);
+        sx = min(1.5F, sqrtf(sqr(x2 - x1) + sqr(y2 - y1)) / gs.flex);
       }
 
       drawgosteksprite(gGlobalStateGameRendering.textures[tex], x1, y1 + 1, sx, sy, cx, cy, r,

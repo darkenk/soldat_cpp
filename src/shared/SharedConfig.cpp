@@ -2,29 +2,25 @@
 
 #include "SharedConfig.hpp"
 
-#include <math.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <cmath>
 #include <cstdint>
-#include <memory>
+#include <spdlog/fmt/bundled/core.h>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <type_traits>
-#include <utility>
 
 #include "common/Constants.hpp"
 #include "common/Logging.hpp"
 #include "common/Weapons.hpp"
 #include "common/gfx.hpp"
-#include "common/misc/TIniFile.hpp"
-#include "network/Net.hpp"
-#include "shared/mechanics/Sprites.hpp"
 #include "common/misc/PortUtils.hpp"
+#include "common/misc/TIniFile.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/Cvar.hpp"
+#include "shared/mechanics/Sprites.hpp"
 
 namespace
 {
@@ -101,9 +97,9 @@ void ReadConfColor(const TIniFile::Entries &conf, const std::string_view entry, 
 auto loadbotconfig(TIniFile &ini, tsprite &spritec, GunsDescription &guns) -> bool
 {
   TIniFile::Entries conf;
-  std::string filename;
+  std::string const filename;
   std::string favweaponname;
-  std::uint8_t headgear;
+  std::uint8_t headgear = 0;
 
   if (!ini.ReadSectionValues("BOT", conf))
   {

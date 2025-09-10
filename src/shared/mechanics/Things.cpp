@@ -1,32 +1,30 @@
 // automatically converted
 #include "Things.hpp"
 
-#include <math.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <cstring>
-#include <memory>
-#include <utility>
-#include <vector>
-#include <string>
+#include <spdlog/fmt/bundled/core.h>
 
-#include "common/Logging.hpp"
 #include "common/Anims.hpp"
 #include "common/Constants.hpp"
+#include "common/Logging.hpp"
 #include "common/MapFile.hpp"
+#include "common/Parts.hpp"
 #include "common/PolyMap.hpp"
 #include "common/Vector.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/Weapons.hpp"
 #include "common/misc/RandomGenerator.hpp"
 #include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "shared/AnimationSystem.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
 #include "shared/mechanics/Sprites.hpp"
-#include "shared/network/Net.hpp"
 
 #ifndef SERVER
 #include "../../client/Client.hpp"
@@ -45,7 +43,6 @@
 #include "../Game.hpp"
 #include "SpriteSystem.hpp"
 #include "common/Calc.hpp"
-#include "common/gfx.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
@@ -53,8 +50,6 @@
 constexpr auto pi = 3.14159265358979323846;
 #else
 #include <numbers>
-
-using std::numbers::pi;
 #endif // SOLDAT_UTBOT
 
 template <Config::Module M>
@@ -63,18 +58,18 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
 
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  std::int32_t k;
-  std::int32_t s;
+  std::int32_t i = 0;
+  std::int32_t k = 0;
+  std::int32_t s = 0;
   tvector2 a;
 #ifdef SERVER
   tvector2 b;
-  float weaponthrowspeedpos1;
-  float weaponthrowspeedpos2;
+  float weaponthrowspeedpos1 = NAN;
+  float weaponthrowspeedpos2 = NAN;
   tvector2 weaponthrowvelocity;
 #endif
 
-  std::int32_t result;
+  std::int32_t result = 0;
   LogTraceG("CreateThing");
 
 #ifndef SERVER
@@ -511,8 +506,8 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
     thing.skeleton.pos[1] = a;
     thing.skeleton.oldpos[1] = a;
 
-    thing.skeleton.pos[1].x = thing.skeleton.pos[1].x + (float)(Random(100)) / 100;
-    thing.skeleton.pos[2].x = thing.skeleton.pos[2].x - (float)(Random(100)) / 100;
+    thing.skeleton.pos[1].x = thing.skeleton.pos[1].x + (static_cast<float>(Random(100)) / 100);
+    thing.skeleton.pos[2].x = thing.skeleton.pos[2].x - (static_cast<float>(Random(100)) / 100);
 
 #ifndef SERVER
     thing.tex1 = guns[knife].texturenum + k;
@@ -621,7 +616,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle,
 template <Config::Module M>
 auto thingcollision(std::uint8_t thingnum, std::uint32_t cooldownend) -> tthingcollision
 {
-  tthingcollision result;
+  tthingcollision result{};
   result.thingnum = thingnum;
   result.cooldownend = cooldownend;
   return result;
@@ -630,12 +625,12 @@ auto thingcollision(std::uint8_t thingnum, std::uint32_t cooldownend) -> tthingc
 template <Config::Module M>
 auto spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num) -> bool
 {
-  std::int32_t i;
-  std::int32_t spawnscount;
-  PascalArray<std::int32_t, 1, 255> spawns;
-  std::int32_t previousspawn;
+  std::int32_t i = 0;
+  std::int32_t spawnscount = 0;
+  PascalArray<std::int32_t, 1, 255> spawns{};
+  std::int32_t previousspawn = 0;
 
-  bool result;
+  bool result = false;
   LogTraceG("SpawnBoxes");
   result = true;
 
@@ -657,9 +652,9 @@ auto spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num) -> bool
   {
     if (map.spawnpoints[i].active)
     {
-      if (map.spawnpoints[i].team == team)
+      if (std::cmp_equal(map.spawnpoints[i].team, team))
       {
-        if (things[num].lastspawn != i)
+        if (std::cmp_not_equal(things[num].lastspawn, i))
         {
           spawnscount += 1;
           spawns[spawnscount] = i;
@@ -706,11 +701,11 @@ auto spawnboxes(tvector2 &start, std::uint8_t team, std::uint8_t num) -> bool
 template <Config::Module M>
 auto randomizestart(tvector2 &start, std::uint8_t team) -> bool
 {
-  std::int32_t i;
-  std::int32_t spawnscount;
-  PascalArray<std::int32_t, 1, 255> spawns;
+  std::int32_t i = 0;
+  std::int32_t spawnscount = 0;
+  PascalArray<std::int32_t, 1, 255> spawns{};
 
-  bool result;
+  bool result = false;
   LogTraceG("RandomizeStart {} x {}", start.x, start.y);
 
   result = true;
@@ -731,7 +726,7 @@ auto randomizestart(tvector2 &start, std::uint8_t team) -> bool
   {
     if (map.spawnpoints[i].active)
     {
-      if (map.spawnpoints[i].team == team)
+      if (std::cmp_equal(map.spawnpoints[i].team, team))
       {
         spawnscount += 1;
         spawns[spawnscount] = i;
@@ -765,12 +760,12 @@ template <Config::Module M>
 void Thing<M>::update()
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  bool collided;
-  bool collided2;
+  std::int32_t i = 0;
+  bool collided = false;
+  bool collided2 = false;
   tvector2 a;
   tvector2 b;
-  bool wasstatic;
+  bool wasstatic = false;
 
 #ifdef SERVER
   LogTraceG("TThing.Update");
@@ -807,7 +802,7 @@ void Thing<M>::update()
 
               if (collided)
               {
-                skeleton.forces[2].y = skeleton.forces[2].y + flag_stand_forceup * grav;
+                skeleton.forces[2].y = skeleton.forces[2].y + (flag_stand_forceup * grav);
               }
             }
           }
@@ -855,7 +850,7 @@ void Thing<M>::update()
     {
       if (collided && collided2)
       {
-        if ((float)((vec2length(a) + vec2length(b))) / 2 < minmovedelta)
+        if (static_cast<float>((vec2length(a) + vec2length(b))) / 2 < minmovedelta)
         {
           statictype = true;
         }
@@ -868,7 +863,7 @@ void Thing<M>::update()
       if ((holdingsprite > 0) && (holdingsprite < max_sprites + 1))
       {
         skeleton.pos[1] = sprite_system.GetSprite(holdingsprite).skeleton.pos[8];
-        skeleton.forces[2].y = skeleton.forces[2].y + flag_holding_forceup * grav;
+        skeleton.forces[2].y = skeleton.forces[2].y + (flag_holding_forceup * grav);
         interest = default_interest_time;
 
         interest = flag_interest_time;
@@ -943,7 +938,7 @@ void Thing<M>::update()
       { // check if other flag is inbase
         for (i = 1; i <= max_things; i++)
         {
-          if ((things[i].active) && (things[i].inbase) && (i != num) &&
+          if ((things[i].active) && (things[i].inbase) && (std::cmp_not_equal(i, num)) &&
               (things[i].holdingsprite == 0))
           { // check if flags are close
             if (distance(skeleton.pos[1], things[i].skeleton.pos[1]) < touchdown_radius)
@@ -1110,10 +1105,7 @@ void Thing<M>::update()
     else
     {
 #ifndef SERVER
-      if (timeout > 180)
-      {
-        timeout = 180;
-      }
+      timeout = std::min(timeout, 180);
 #endif
     }
   }
@@ -1124,10 +1116,7 @@ void Thing<M>::update()
 
   // count Time Out
   timeout = timeout - 1;
-  if (timeout < -1000)
-  {
-    timeout = -1000;
-  }
+  timeout = std::max(timeout, -1000);
   if (timeout == 0)
   {
     switch (style)
@@ -1187,16 +1176,17 @@ void Thing<M>::update()
 template <Config::Module M>
 void Thing<M>::render(double timeelapsed)
 {
+  constexpr auto pi = std::numbers::pi_v<float>;
   auto &sprite_system = SpriteSystem::Get();
   tvector2 _p;
   tvector2 a;
   tvector2 _scala;
   tvector2 _ra;
-  float roto;
-  struct tvector2 *pos1;
-  struct tvector2 *pos2;
-  struct tvector2 *pos3;
-  struct tvector2 *pos4;
+  float roto = NAN;
+  struct tvector2 *pos1 = nullptr;
+  struct tvector2 *pos2 = nullptr;
+  struct tvector2 *pos3 = nullptr;
+  struct tvector2 *pos4 = nullptr;
 
   tgfxspritearray &t = gGlobalStateGameRendering.textures;
 
@@ -1222,10 +1212,10 @@ void Thing<M>::render(double timeelapsed)
   // Iluminate the target thing
   if (gGlobalStateClient.gamethingtarget == num)
   {
-    _p.x = pos1->x + (float)((pos2->x - pos1->x)) / 2 - 12.5;
-    _p.y = pos1->y + (float)((pos2->y - pos1->y)) / 2 - 12.5;
+    _p.x = pos1->x + (static_cast<float>((pos2->x - pos1->x)) / 2) - 12.5;
+    _p.y = pos1->y + (static_cast<float>((pos2->y - pos1->y)) / 2) - 12.5;
     gfxdrawsprite(t[GFX::OBJECTS_ILUM], _p.x, _p.y,
-                  rgba(0xffffff, round(fabs(5 + 20 * sin(5.1 * timeelapsed)))));
+                  rgba(0xffffff, round(fabs(5 + (20 * sin(5.1 * timeelapsed))))));
   }
 
   switch (style)
@@ -1261,10 +1251,10 @@ void Thing<M>::render(double timeelapsed)
 
     if (inbase)
     {
-      _p.x = pos1->x + (float)((pos2->x - pos1->x)) / 2 - 12.5;
-      _p.y = pos1->y + (float)((pos2->y - pos1->y)) / 2 - 12.5;
+      _p.x = pos1->x + (static_cast<float>((pos2->x - pos1->x)) / 2) - 12.5;
+      _p.y = pos1->y + (static_cast<float>((pos2->y - pos1->y)) / 2) - 12.5;
       gfxdrawsprite(t[GFX::OBJECTS_ILUM], _p.x, _p.y,
-                    rgba(0xffffff, round(fabs(5 + 20 * sin(5.1 * timeelapsed)))));
+                    rgba(0xffffff, round(fabs(5 + (20 * sin(5.1 * timeelapsed))))));
     }
   }
   break; // 1,2,3
@@ -1342,7 +1332,7 @@ void Thing<M>::render(double timeelapsed)
     _p.y = pos4->y - 0.55;
     _ra.x = 0;
     _ra.y = 0.55;
-    roto = angle2points(*pos4, *pos3) - (5.0f * pi / 180.f);
+    roto = angle2points(*pos4, *pos3) - (5.0F * pi / 180.F);
     gfxdrawsprite(t[tex1], _p.x, _p.y, _ra.x, _ra.y, -roto);
 
     // rope 3
@@ -1356,7 +1346,7 @@ void Thing<M>::render(double timeelapsed)
     a = vec2subtract(*pos2, *pos3);
     _scala.y = vec2length(a) / 45.83;
     _scala.x = _scala.y;
-    if (_scala.y > 2.0f)
+    if (_scala.y > 2.0F)
     {
       return;
     }
@@ -1398,12 +1388,12 @@ void Thing<M>::render(double timeelapsed)
     if (pos4->x >= pos1->x)
     {
       gfxdrawsprite(t[GFX::WEAPONS_M2_2], _p.x, _p.y, _ra.x, _ra.y, roto,
-                    rgba(255, 255 - 10 * interest, 255 - 13 * interest));
+                    rgba(255, 255 - (10 * interest), 255 - (13 * interest)));
     }
     else
     {
       gfxdrawsprite(t[GFX::WEAPONS_M2], _p.x, _p.y, _ra.x, _ra.y, roto,
-                    rgba(255, 255 - 10 * interest, 255 - 13 * interest));
+                    rgba(255, 255 - (10 * interest), 255 - (13 * interest)));
     }
   }
   break; // 27
@@ -1419,10 +1409,10 @@ void Thing<M>::polygonsrender()
   tvector2 pos3;
   tvector2 pos4;
   tvector2 a;
-  tgfxcolor colorbase;
-  tgfxcolor colortop;
-  tgfxcolor colorlow;
-  pgfxrect tc;
+  tgfxcolor colorbase{};
+  tgfxcolor colortop{};
+  tgfxcolor colorlow{};
+  pgfxrect tc = nullptr;
   std::vector<tgfxvertex> v{4};
 
   if (texture == 0)
@@ -1552,10 +1542,10 @@ auto Thing<M>::checkmapcollision(std::int32_t i, float x, float y) -> bool
   tvector2 posdiff;
   tvector2 posdiffperp;
   float d = 0.0;
-  float posdifflen;
-  bool teamcol;
+  float posdifflen = NAN;
+  bool teamcol = false;
 
-  bool result;
+  bool result = false;
 
 #ifdef SERVER
   LogTraceG("TThing.CheckMapCollision");
@@ -1744,9 +1734,9 @@ template <Config::Module M>
 void Thing<M>::checkoutofbounds()
 {
   [[maybe_unused]] auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  std::int32_t bound;
-  struct tvector2 *skeletonpos;
+  std::int32_t i = 0;
+  std::int32_t bound = 0;
+  struct tvector2 *skeletonpos = nullptr;
 
 #ifdef SERVER
   LogTraceG("TThing.CheckOutOfBounds");
@@ -1821,7 +1811,7 @@ void Thing<M>::respawn()
 {
   auto &sprite_system = SpriteSystem::Get();
   tvector2 a;
-  std::int32_t i;
+  std::int32_t i = 0;
   auto &things = GS::GetThingSystem().GetThings();
 
 #ifdef SERVER
@@ -1909,7 +1899,7 @@ void Thing<M>::respawn()
 template <Config::Module M>
 void Thing<M>::moveskeleton(float x1, float y1, bool fromzero)
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   LogTraceG("TThing.MoveSkeleton");
 
@@ -1945,20 +1935,20 @@ template <Config::Module M>
 auto Thing<M>::checkspritecollision() -> std::int32_t
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t j;
-  std::int32_t closestplayer;
+  std::int32_t j = 0;
+  std::int32_t closestplayer = 0;
   tvector2 pos;
   tvector2 norm;
   tvector2 colpos;
   tvector2 a;
-  float k;
-  float closestdist;
-  float dist;
-  std::uint8_t weaponindex;
-  std::uint32_t capcolor;
+  float k = NAN;
+  float closestdist = NAN;
+  float dist = NAN;
+  std::uint8_t weaponindex = 0;
+  std::uint32_t capcolor = 0;
   std::string smallcaptextstr;
 
-  std::int32_t result;
+  std::int32_t result = 0;
   LogTraceG("TThing.CheckSpriteCollision");
   auto &guns = GS::GetWeaponSystem().GetGuns();
   auto &things = GS::GetThingSystem().GetThings();
@@ -2471,12 +2461,12 @@ auto Thing<M>::checkstationaryguncollision(bool clientcheck) -> std::int32_t
 #endif
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t k;
+  std::int32_t k = 0;
   tvector2 pos;
   tvector2 norm;
   tvector2 colpos;
 
-  std::int32_t result;
+  std::int32_t result = 0;
 #ifdef SERVER
   LogTraceG("TThing.CheckStationaryGunCollision");
 #endif

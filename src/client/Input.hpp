@@ -75,7 +75,7 @@ struct GlobalStateInput
                std::uint32_t modifier);
   pbind findkeybind(std::uint32_t keymods, SDL_Scancode keycode);
   taction GetActionEnum(const std::string_view &name);
-  void startinput();
+  void startinput() const;
   void unbindall();
   std::array<bool, 512> keystatus = {};
   std::vector<tbind> binds = {};

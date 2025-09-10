@@ -2,38 +2,39 @@
 
 #include "Sound.hpp"
 
+#include <algorithm>
+#include <array>
+#include <cctype>
+#include <cmath>
+#include <cstdint>
+#include <iterator>
+#include <math.h>
+#include <memory>
 #include <soloud.h>
 #include <soloud_wav.h>
-#include <ctype.h>
 #include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
-#include <array>
-#include <string>
-#include <algorithm>
-#include <cmath>
-#include <iterator>
 #include <stdexcept>
-#include <utility>
+#include <string>
+#include <string_view>
 
 #include "Client.hpp"
+#include "common/Console.hpp"
+#include "common/FileUtility.hpp"
 #include "common/Logging.hpp"
+#include "common/Vector.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
-#include "common/Console.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "shared/Constants.cpp.h"
 #include "shared/Cvar.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include "common/FileUtility.hpp"
-#include "common/Vector.hpp"
-#include "common/misc/RandomGenerator.hpp"
-#include "common/misc/SoldatConfig.hpp"
-#include "shared/Constants.cpp.h"
 
 using string = std::string;
 constexpr std::string_view AUDIO = "audio";
 
-constexpr void Add(std::array<std::string_view, ToUint32(SfxEffect::COUNT)> &ref,
-                                     SfxEffect sample, std::string_view name)
+static constexpr void Add(std::array<std::string_view, ToUint32(SfxEffect::COUNT)> &ref,
+                          SfxEffect sample, std::string_view name)
 {
   auto &s = ref[ToUint32(sample)];
   if (not s.empty())
@@ -43,7 +44,7 @@ constexpr void Add(std::array<std::string_view, ToUint32(SfxEffect::COUNT)> &ref
   s = name;
 }
 
-constexpr auto GenerateSampleFileNames()
+static constexpr auto GenerateSampleFileNames()
   -> std::array<std::string_view, ToUint32(SfxEffect::COUNT)>
 {
   std::array<std::string_view, ToUint32(SfxEffect::COUNT)> ref;
@@ -280,7 +281,7 @@ public:
 
   void CloseSound()
   {
-    std::for_each(std::begin(Waves), std::end(Waves), [](auto &w) {
+    std::ranges::for_each(Waves, [](auto &w) {
       delete w;
       w = nullptr;
     });
@@ -291,9 +292,9 @@ public:
                   float emittery, std::int32_t chan)
   {
     auto &sprite_system = SpriteSystem::Get();
-    float dist;
-    std::int32_t looping;
-    std::int32_t i;
+    float dist = NAN;
+    std::int32_t looping = 0;
+    std::int32_t i = 0;
     // Pan: Single = 0.0;
 
     if (!samp[ToUint32(samplenum)].loaded)
@@ -424,10 +425,11 @@ public:
         return;
       }
 
-      sources[chan] = Engine.play3d(
-        *Waves[ToUint32(samplenum)], (emitterx - listenerx) / sound_meterlength,
-        (emittery - listenery) / sound_meterlength, (float)(-sound_panwidth) / sound_meterlength);
-      auto volume = gGlobalStateSound.volumeinternal * (1.0f - dist);
+      sources[chan] =
+        Engine.play3d(*Waves[ToUint32(samplenum)], (emitterx - listenerx) / sound_meterlength,
+                      (emittery - listenery) / sound_meterlength,
+                      static_cast<float>(-sound_panwidth) / sound_meterlength);
+      auto volume = gGlobalStateSound.volumeinternal * (1.0F - dist);
       Engine.setVolume(sources[chan], volume);
       Engine.setLooping(sources[chan], looping != 0);
 
@@ -493,15 +495,15 @@ static auto uppercase(const std::string_view &str) -> std::string
 {
   std::string temp;
   temp.reserve(str.size());
-  std::transform(str.begin(), str.end(), temp.begin(), ::toupper);
+  std::ranges::transform(str, temp.begin(), ::toupper);
   return temp;
 }
 
 auto GlobalStateSound::soundnametoid(const std::string &name) -> std::int8_t
 {
-  std::uint8_t i;
+  std::uint8_t i = 0;
 
-  std::int8_t result;
+  std::int8_t result = 0;
   result = -1;
   if (high(scriptsamp) < 0)
   {
@@ -534,7 +536,7 @@ void GlobalStateSound::loadsounds(const string &moddir)
 {
 
   std::string sfxpath;
-  std::int32_t i;
+  std::int32_t i = 0;
 
   sfxpath = moddir + "sfx/";
 

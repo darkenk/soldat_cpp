@@ -2,10 +2,11 @@
 #include "Input.hpp"
 
 #include <SDL3/SDL_keyboard.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <SDL3/SDL_scancode.h>
+#include <cstdint>
 #include <map>
-#include <utility>
+#include <spdlog/fmt/bundled/core.h>
+#include <string>
 
 #include "common/Logging.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
@@ -44,7 +45,7 @@ auto GlobalStateInput::bindkey(const std::string &key, const std::string &action
     return bindkey_result;
   }
 
-  if (findkeybind(modifier, (SDL_Scancode)bind.keyid) != nullptr)
+  if (findkeybind(modifier, static_cast<SDL_Scancode>(bind.keyid)) != nullptr)
   {
     LogWarn(LOG, "Key {} is already binded", key);
     return bindkey_result;
@@ -80,7 +81,7 @@ auto GlobalStateInput::findkeybind(std::uint32_t keymods, SDL_Scancode keycode) 
 
 void GlobalStateInput::unbindall() { binds.clear(); }
 
-void GlobalStateInput::startinput()
+void GlobalStateInput::startinput() const
 {
   //SDL_SetWindowRelativeMouseMode(gamewindow, true);
   SDL_StopTextInput(gamewindow);

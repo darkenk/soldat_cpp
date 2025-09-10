@@ -2,25 +2,24 @@
 
 #include "GameRendering.hpp"
 
-#include <Tracy.hpp>
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_surface.h>
 #include <SDL3/SDL_video.h>
-#include <math.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
-#include <stdio.h>
+#include <Tracy.hpp>
 #include <algorithm>
 #include <array>
+#include <bits/chrono.h>
+#include <cmath>
 #include <cstdint>
-#include <filesystem>
-#include <set>
-#include <string>
-#include <chrono>
+#include <cstdio>
 #include <cstring>
+#include <filesystem>
 #include <iterator>
 #include <memory>
+#include <set>
+#include <spdlog/fmt/bundled/core.h>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -30,13 +29,25 @@
 #include "Input.hpp"
 #include "InterfaceGraphics.hpp"
 #include "MapGraphics.hpp"
+#include "client/Gfx.hpp"
+#include "common/FileUtility.hpp"
 #include "common/Logging.hpp"
+#include "common/MapFile.hpp"
+#include "common/Parts.hpp"
+#include "common/PolyMap.hpp"
 #include "common/Util.hpp"
 #include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
+#include "common/gfx.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include "common/misc/TFileStream.hpp"
 #include "common/misc/TIniFile.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "shared/Constants.cpp.h"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/Bullets.hpp"
@@ -45,25 +56,13 @@
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include "common/gfx.hpp"
-#include "client/Gfx.hpp"
-#include "common/FileUtility.hpp"
-#include "common/MapFile.hpp"
-#include "common/Parts.hpp"
-#include "common/PolyMap.hpp"
-#include "common/WeaponSystem.hpp"
-#include "common/Weapons.hpp"
-#include "common/misc/SafeType.hpp"
-#include "common/misc/SoldatConfig.hpp"
-#include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
-#include "shared/Constants.cpp.h"
 
 GlobalStateGameRendering gGlobalStateGameRendering{
 
 };
 
 using string = std::string;
+using namespace std;
 
 struct ttextureloaddata
 {
@@ -169,8 +168,9 @@ auto GlobalStateGameRendering::getimagescale(const std::string &imagepath) -> fl
   std::string scale;
   std::string key;
 
-  std::string intdir = string("/custom-interfaces/") +
-                       lowercase(gGlobalStateGameRendering.gamerenderingparams.interfacename) + '/';
+  std::string const intdir =
+    string("/custom-interfaces/") +
+    lowercase(gGlobalStateGameRendering.gamerenderingparams.interfacename) + '/';
 
   TIniFile::Entries *data = &scaledata.root;
   std::string path = lowercase(imagepath);
@@ -188,7 +188,7 @@ auto GlobalStateGameRendering::getimagescale(const std::string &imagepath) -> fl
     }
 #endif
 
-  std::replace(path.begin(), path.end(), '\\', '/');
+  std::ranges::replace(path, '\\', '/');
   key = path;
   if (const auto it = data->find(key); it != data->end())
   {
@@ -214,14 +214,14 @@ auto GlobalStateGameRendering::getimagescale(const std::string &imagepath) -> fl
 
 void GlobalStateGameRendering::takescreenshot(string filename, bool async)
 {
-  screenshotpath = filename;
+  screenshotpath = std::move(filename);
   screenshotasync = async;
 }
 
 auto GlobalStateGameRendering::pngoverride(const std::string_view &filename) -> string
 {
   std::string f{filename};
-  std::replace(f.begin(), f.end(), '\\', '/');
+  std::ranges::replace(f, '\\', '/');
 
   return overridefileext(GS::GetFileSystem(), f, ".png");
 }
@@ -229,7 +229,7 @@ auto GlobalStateGameRendering::pngoverride(const std::string_view &filename) -> 
 auto GlobalStateGameRendering::pngoverride(const std::string &filename) -> string
 {
   std::string f{filename};
-  std::replace(f.begin(), f.end(), '\\', '/');
+  std::ranges::replace(f, '\\', '/');
   return overridefileext(GS::GetFileSystem(), f, ".png");
 }
 
@@ -241,13 +241,13 @@ void GlobalStateGameRendering::loadmaintextures()
                         [](const auto &d) { return d.Group != GFXG::INTERFACE; });
 
   mainspritesheet = new tgfxspritesheet(count);
-  float scale = 1.5 * gGlobalStateClientGame.renderheight / gGlobalStateGame.gameheight;
+  float const scale = 1.5 * gGlobalStateClientGame.renderheight / gGlobalStateGame.gameheight;
 
   for (const auto &i : GFXData)
   {
     if (i.Group != GFXG::INTERFACE)
     {
-      tgfxcolor color;
+      tgfxcolor color{};
       auto id = i.ID;
       color.color.r = (i.ColorKey & 0xff) >> 0;
       color.color.g = (i.ColorKey & 0xff00) >> 8;
@@ -278,18 +278,18 @@ void GlobalStateGameRendering::loadmaintextures()
   mainspritesheet->startloading();
 }
 
-void GlobalStateGameRendering::loadinterfacetextures(const std::string interfacename)
+void GlobalStateGameRendering::loadinterfacetextures(const std::string &interfacename)
 {
   const std::int32_t custom_first = GFX::INTERFACE_CURSOR;
   const std::int32_t custom_last = GFX::INTERFACE_TITLE_R;
-  std::int32_t i;
+  std::int32_t i = 0;
   std::int32_t count = 0;
   std::int32_t cutlength = 0;
   std::string prefix;
   std::string path;
-  tgfxcolor color;
-  float scale;
-  bool iscustom = !gGlobalStateInterfaceGraphics.isdefaultinterface(interfacename);
+  tgfxcolor color{};
+  float scale = NAN;
+  bool const iscustom = !gGlobalStateInterfaceGraphics.isdefaultinterface(interfacename);
   auto& fs = GS::GetFileSystem();
 
   if (iscustom)
@@ -315,7 +315,7 @@ void GlobalStateGameRendering::loadinterfacetextures(const std::string interface
 
   if (CVar::r_scaleinterface)
   {
-    scale = (float)(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight;
+    scale = static_cast<float>(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight;
   }
   else
   {
@@ -383,7 +383,7 @@ void GlobalStateGameRendering::loadinterface()
   loadedinterfacename = gGlobalStateGameRendering.gamerenderingparams.interfacename;
 }
 
-auto GlobalStateGameRendering::getfontpath(string fontfile) -> string
+auto GlobalStateGameRendering::getfontpath(const string &fontfile) -> string
 {
   std::string result;
   auto p = std::filesystem::path(gGlobalStateClient.basedirectory + fontfile);
@@ -414,7 +414,7 @@ auto GlobalStateGameRendering::getfontpath(string fallback, string &fontfile) ->
 
   if (result.empty())
   {
-    fontfile = fallback;
+    fontfile = std::move(fallback);
     result = getfontpath(fontfile);
   }
   return result;
@@ -440,9 +440,9 @@ void GlobalStateGameRendering::loadfonts()
 
   const std::int32_t w = gGlobalStateClientGame.renderwidth;
   const std::int32_t h = gGlobalStateClientGame.renderheight;
-  const float s =
-    iif(CVar::r_scaleinterface,
-        (float)(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight, 1.0f);
+  const float s = iif(
+    CVar::r_scaleinterface,
+    static_cast<float>(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight, 1.0F);
 
   fonts[0] = gfxcreatefont(fontpath[0], npot(w / 2), npot(h / 2));
   fonts[1] = gfxcreatefont(fontpath[1], npot(w / 3), npot(h / 3));
@@ -481,7 +481,7 @@ void GlobalStateGameRendering::loadfonts()
 
   fontstyles[font_world].font = fonts[1];
   fontstyles[font_world].size =
-    128 * ((float)(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight);
+    128 * (static_cast<float>(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight);
   fontstyles[font_world].stretch = (float)(CVar::font_1_scale) / 100;
   fontstyles[font_world].flags = 0;
 
@@ -534,7 +534,7 @@ auto GlobalStateGameRendering::initgamegraphics() -> bool
 
     SDL_IOStream *iconfile = SDL_IOFromMem(filebuffer.data(), length(filebuffer));
 
-    auto icon_surface = SDL_LoadBMP_IO(iconfile, 1);
+    auto *icon_surface = SDL_LoadBMP_IO(iconfile, 1);
     SDL_SetWindowIcon(gGlobalStateInput.gamewindow, icon_surface);
     SDL_DestroySurface(icon_surface);
   }
@@ -554,7 +554,7 @@ auto GlobalStateGameRendering::initgamegraphics() -> bool
 
   gGlobalStateInput.startinput();
 
-  if (SDL_GL_SetSwapInterval(CVar::r_swapeffect) == false)
+  if (!SDL_GL_SetSwapInterval(CVar::r_swapeffect))
   {
     gfxlog(string("Error while setting SDL_GL_SetSwapInterval:") + SDL_GetError());
   }
@@ -628,9 +628,9 @@ void GlobalStateGameRendering::reloadgraphics()
 {
   tmapfile mapfile;
   tmapinfo mapinfo;
-  bool bgforce;
-  std::array<tmapcolor, 2> color;
-  tmapgraphics *mg;
+  bool bgforce = false;
+  std::array<tmapcolor, 2> color{};
+  tmapgraphics *mg = nullptr;
 
   mg = &gGlobalStateMapGraphics.mapgfx;
   mapinfo = mg->mapinfo;
@@ -658,7 +658,7 @@ void GlobalStateGameRendering::reloadgraphics()
 
 void GlobalStateGameRendering::destroygamegraphics()
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   if (!initialized)
   {
@@ -696,12 +696,11 @@ void GlobalStateGameRendering::destroygamegraphics()
   initialized = false;
 }
 
-constexpr auto lerp(const tvector2 &a, const tvector2 &b, float x)
-  -> tvector2
+static constexpr auto lerp(const tvector2 &a, const tvector2 &b, float x) -> tvector2
 {
   tvector2 lerp_result;
-  lerp_result.x = a.x + (b.x - a.x) * x;
-  lerp_result.y = a.y + (b.y - a.y) * x;
+  lerp_result.x = a.x + ((b.x - a.x) * x);
+  lerp_result.y = a.y + ((b.y - a.y) * x);
   return lerp_result;
 }
 
@@ -711,15 +710,15 @@ void GlobalStateGameRendering::interpolatestate(float p, tinterpolationstate &s,
   static const std::set<std::int32_t> kit_styles = {object_medical_kit,  object_grenade_kit, object_flamer_kit,
                                        object_predator_kit, object_vest_kit,    object_berserk_kit,
                                        object_cluster_kit};
-  std::int32_t i;
-  std::int32_t j;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
 
   s.camera.x = gGlobalStateClient.camerax;
   s.camera.y = gGlobalStateClient.cameray;
   s.mouse.x = gGlobalStateClientGame.mx;
   s.mouse.y = gGlobalStateClientGame.my;
 
-  gGlobalStateClient.camerax = lerp(gGlobalStateClient.cameraprev.x, gGlobalStateClient.camerax, p);
+  gGlobalStateClient.camerax = std::lerp(gGlobalStateClient.cameraprev.x, gGlobalStateClient.camerax, p);
   gGlobalStateClient.cameray = lerp(gGlobalStateClient.cameraprev.y, gGlobalStateClient.cameray, p);
   gGlobalStateClientGame.mx =
     lerp(gGlobalStateClientGame.mouseprev.x, gGlobalStateClientGame.mx, p);
@@ -818,7 +817,7 @@ void GlobalStateGameRendering::interpolatestate(float p, tinterpolationstate &s,
 
 void GlobalStateGameRendering::restorestate(tinterpolationstate &s)
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   gGlobalStateClient.camerax = s.camera.x;
   gGlobalStateClient.cameray = s.camera.y;
@@ -866,19 +865,19 @@ void GlobalStateGameRendering::renderframe(double timeelapsed, double frameperce
 {
   ZoneScopedN("RenderFrame");
   auto &sprite_system = SpriteSystem::Get();
-  tmapgraphics *mg;
-  std::int32_t i;
-  float dx;
-  float dy;
-  float w;
-  float h;
-  float s;
-  float u;
-  float v;
+  tmapgraphics *mg = nullptr;
+  std::int32_t i = 0;
+  float dx = NAN;
+  float dy = NAN;
+  float w = NAN;
+  float h = NAN;
+  float s = NAN;
+  float u = NAN;
+  float v = NAN;
   tinterpolationstate interpolationstate;
-  bool grabactionsnap;
+  bool grabactionsnap = false;
   trect rc;
-  tgfxtexture *rt;
+  tgfxtexture *rt = nullptr;
 
   mg = &gGlobalStateMapGraphics.mapgfx;
   auto &things = GS::GetThingSystem().GetThings();
@@ -906,7 +905,7 @@ void GlobalStateGameRendering::renderframe(double timeelapsed, double frameperce
     screenshotpath = "";
   }
 
-  if ((gGlobalStateClientGame.showscreen != 0u) && gGlobalStateClientGame.actionsnaptaken)
+  if ((gGlobalStateClientGame.showscreen != 0U) && gGlobalStateClientGame.actionsnaptaken)
   {
     ZoneScopedN("Render1");
     rc = trect(0, gGlobalStateClientGame.renderheight, gGlobalStateClientGame.renderwidth, 0);
@@ -1009,8 +1008,7 @@ void GlobalStateGameRendering::renderframe(double timeelapsed, double frameperce
       {
         ZoneScopedN("RenderAllGosteks");
         auto &activeSprites = sprite_system.GetActiveSprites();
-        std::for_each(std::begin(activeSprites), std::end(activeSprites),
-                      [](auto &sprite) { rendergostek(sprite); });
+        std::ranges::for_each(activeSprites, [](auto &sprite) { rendergostek(sprite); });
       }
 
       {
@@ -1102,18 +1100,22 @@ void GlobalStateGameRendering::renderframe(double timeelapsed, double frameperce
       rt = rendertargetaa;
     }
 
-    if (((float)(gGlobalStateClientGame.screenwidth) / gGlobalStateClientGame.screenheight) >=
-        ((float)(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight))
+    if ((static_cast<float>(gGlobalStateClientGame.screenwidth) /
+         gGlobalStateClientGame.screenheight) >=
+        (static_cast<float>(gGlobalStateClientGame.renderwidth) /
+         gGlobalStateClientGame.renderheight))
     {
       w = gGlobalStateClientGame.screenheight *
-          ((float)(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight);
+          (static_cast<float>(gGlobalStateClientGame.renderwidth) /
+           gGlobalStateClientGame.renderheight);
       h = gGlobalStateClientGame.screenheight;
     }
     else
     {
       w = gGlobalStateClientGame.screenwidth;
       h = gGlobalStateClientGame.screenwidth *
-          ((float)(gGlobalStateClientGame.renderheight) / gGlobalStateClientGame.renderwidth);
+          (static_cast<float>(gGlobalStateClientGame.renderheight) /
+           gGlobalStateClientGame.renderwidth);
     }
 
     dx = floor(0.5 * (gGlobalStateClientGame.screenwidth - w));
@@ -1121,18 +1123,20 @@ void GlobalStateGameRendering::renderframe(double timeelapsed, double frameperce
 
     if (gGlobalStateClientGame.screenwidth != gGlobalStateClientGame.windowwidth)
     {
-      s = (float)(gGlobalStateClientGame.windowwidth) / gGlobalStateClientGame.screenwidth;
+      s =
+        static_cast<float>(gGlobalStateClientGame.windowwidth) / gGlobalStateClientGame.screenwidth;
       w = w * s;
-      dx = (dx - (float)(gGlobalStateClientGame.screenwidth) / 2) * s +
-           (float)(gGlobalStateClientGame.windowwidth) / 2;
+      dx = (dx - static_cast<float>(gGlobalStateClientGame.screenwidth) / 2) * s +
+           static_cast<float>(gGlobalStateClientGame.windowwidth) / 2;
     }
 
     if (gGlobalStateClientGame.screenheight != gGlobalStateClientGame.windowheight)
     {
-      s = (float)(gGlobalStateClientGame.windowheight) / gGlobalStateClientGame.screenheight;
+      s = static_cast<float>(gGlobalStateClientGame.windowheight) /
+          gGlobalStateClientGame.screenheight;
       h = h * s;
-      dy = (dy - (float)(gGlobalStateClientGame.screenheight) / 2) * s +
-           (float)(gGlobalStateClientGame.windowheight) / 2;
+      dy = (dy - static_cast<float>(gGlobalStateClientGame.screenheight) / 2) * s +
+           static_cast<float>(gGlobalStateClientGame.windowheight) / 2;
     }
 
     gfxtarget(nullptr);
@@ -1141,8 +1145,8 @@ void GlobalStateGameRendering::renderframe(double timeelapsed, double frameperce
     gfxtransform(
       gfxmat3ortho(0, gGlobalStateClientGame.windowwidth, 0, gGlobalStateClientGame.windowheight));
 
-    u = (float)(gGlobalStateClientGame.renderwidth) / rendertarget->width();
-    v = (float)(gGlobalStateClientGame.renderheight) / rendertarget->height();
+    u = static_cast<float>(gGlobalStateClientGame.renderwidth) / rendertarget->width();
+    v = static_cast<float>(gGlobalStateClientGame.renderheight) / rendertarget->height();
 
     gfxbegin();
     gfxdrawquad(rt, gfxvertex(dx + 0, dy + 0, 0, v, rgba(0xffffff)),
@@ -1170,20 +1174,20 @@ void GlobalStateGameRendering::rendergameinfo(const std::string &textstring)
   gfxtextpixelratio(vector2(1, 1));
   rc = gfxtextmetrics(textstring);
   gfxbegin();
-  gfxdrawtext((float)((gGlobalStateClientGame.windowwidth - rc.width())) / 2,
-              (float)((gGlobalStateClientGame.windowheight - rc.height())) / 2);
+  gfxdrawtext(((gGlobalStateClientGame.windowwidth - rc.width())) / 2,
+              ((gGlobalStateClientGame.windowheight - rc.height())) / 2);
   setfontstyle(font_small);
   rc = gfxtextmetrics(("Press ESC to quit the game"));
-  gfxdrawtext((float)((gGlobalStateClientGame.windowwidth - rc.width())) / 2,
-              ((float)((gGlobalStateClientGame.windowheight - rc.height())) / 2) + 100);
+  gfxdrawtext(((gGlobalStateClientGame.windowwidth - rc.width())) / 2,
+              (((gGlobalStateClientGame.windowheight - rc.height())) / 2) + 100);
   gfxend();
   gfxpresent(true);
 }
 
 template <typename T>
-constexpr auto arraycontains(const T &list, std::int32_t x) -> bool
+static constexpr auto arraycontains(const T &list, std::int32_t x) -> bool
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   bool result = false;
 
@@ -1234,8 +1238,8 @@ auto GlobalStateGameRendering::getsizeconstraint(std::int32_t id, std::int32_t &
 
 auto GlobalStateGameRendering::dotextureloading(bool finishloading) -> bool
 {
-  std::int32_t i;
-  std::int32_t j;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
   std::int32_t w = 0;
   std::int32_t h = 0;
   std::string s;
@@ -1247,8 +1251,8 @@ auto GlobalStateGameRendering::dotextureloading(bool finishloading) -> bool
     return dotextureloading_result;
   }
 
-  bool mainloading = mainspritesheet->loading();
-  bool interfaceloading = interfacespritesheet->loading();
+  bool const mainloading = mainspritesheet->loading();
+  bool const interfaceloading = interfacespritesheet->loading();
 
   if (!(mainloading || interfaceloading))
   {
@@ -1282,20 +1286,21 @@ auto GlobalStateGameRendering::dotextureloading(bool finishloading) -> bool
       {
         auto id = GFXData[i].ID;
         textures[id] = mainspritesheet->getsprite(j);
-        textures[id]->scale = textures[id]->scale * ((float)(1) / imagescale[id]);
+        textures[id]->scale = textures[id]->scale * (static_cast<float>(1) / imagescale[id]);
 
         if (getsizeconstraint(i, w, h))
         {
           if (((textures[id]->width * textures[id]->scale) > w) ||
               ((textures[id]->height * textures[id]->scale) > h))
           {
-            if (((float)(textures[id]->width) / textures[id]->height) > ((float)(w) / h))
+            if ((static_cast<float>(textures[id]->width) / textures[id]->height) >
+                (static_cast<float>(w) / h))
             {
-              textures[id]->scale = (float)(w) / textures[id]->width;
+              textures[id]->scale = static_cast<float>(w) / textures[id]->width;
             }
             else
             {
-              textures[id]->scale = (float)(h) / textures[id]->height;
+              textures[id]->scale = static_cast<float>(h) / textures[id]->height;
             }
           }
         }
@@ -1330,7 +1335,7 @@ auto GlobalStateGameRendering::dotextureloading(bool finishloading) -> bool
       {
         auto id = GFXData[i].ID;
         textures[id] = interfacespritesheet->getsprite(j);
-        textures[id]->scale = textures[id]->scale * ((float)(1) / imagescale[id]);
+        textures[id]->scale = textures[id]->scale * (static_cast<float>(1) / imagescale[id]);
         j += 1;
       }
     }
@@ -1454,8 +1459,8 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
   gGlobalStateGameRendering.rendergameinfo("Test");
   auto data =
     gfxsavescreen(0, 0, gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight);
-  PngWriter writer(gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight,
-                   std::move(data));
+  PngWriter const writer(gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight,
+                         std::move(data));
   ApprovalTests::Approvals::verify(writer);
   gfxdestroycontext();
 }
@@ -1488,12 +1493,12 @@ TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(true))
   createweaponsbase(GS::GetWeaponSystem().GetGuns());
   gGlobalStateGameMenus.initgamemenus();
   gGlobalStateGameRendering.loadfonts();
-  gGlobalStateGameRendering.renderframe(1.0f, 1.0f, true);
+  gGlobalStateGameRendering.renderframe(1.0F, 1.0F, true);
   std::this_thread::sleep_for(16ms);
   auto data =
     gfxsavescreen(0, 0, gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight);
-  PngWriter writer(gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight,
-                   std::move(data));
+  PngWriter const writer(gGlobalStateClientGame.renderwidth, gGlobalStateClientGame.renderheight,
+                         std::move(data));
   ApprovalTests::Approvals::verify(writer);
   gGlobalStateMapGraphics.destroymapgraphics();
   gfxdestroycontext();

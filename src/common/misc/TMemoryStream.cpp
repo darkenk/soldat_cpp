@@ -1,14 +1,15 @@
 #include "TMemoryStream.hpp"
+#include "TStream.hpp"
 
+#include <memory>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 class MemoryStream : public TStream
 {
 public:
-  MemoryStream(const std::string_view content) : Stream(content.data())
-  {
-  }
+  explicit MemoryStream(const std::string_view content) : Stream(content.data()) {}
 
   ~MemoryStream() override = default;
 

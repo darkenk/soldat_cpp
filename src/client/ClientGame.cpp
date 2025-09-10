@@ -2,14 +2,16 @@
 
 #include "ClientGame.hpp"
 
-#include <common/Console.hpp>
-#include <Tracy.hpp>
 #include <SDL3/SDL_timer.h>
-#include <thread>
+#include <Tracy.hpp>
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <cmath>
-#include <memory>
+#include <cstdint>
+#include <math.h>
+#include <string>
+#include <thread>
 
 #include "Client.hpp"
 #include "GameMenus.hpp"
@@ -17,23 +19,21 @@
 #include "Gfx.hpp"
 #include "InterfaceGraphics.hpp"
 #include "UpdateFrame.hpp"
+#include "common/Util.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "shared/Constants.cpp.h"
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/mechanics/Sprites.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 #include "shared/network/NetworkClientSprite.hpp"
-#include "shared/network/NetworkClient.hpp"
-#include "common/Util.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "common/misc/SoldatConfig.hpp"
-#include "common/network/Net.hpp"
-#include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
-#include "shared/Constants.cpp.h"
-#include "shared/mechanics/Sprites.hpp"
-#include "shared/network/Net.hpp"
 
 using string = std::string;
 
@@ -75,37 +75,38 @@ void GlobalStateClientGame::resetframetiming()
   GS::GetGame().SetTickTimeLast(0);
 }
 
-auto GlobalStateClientGame::getcurrenttime() -> float
+auto GlobalStateClientGame::getcurrenttime() const -> float
 {
   auto x = SDL_GetPerformanceCounter();
-  return (float)((x - frametiming.starttime)) / frametiming.frequency;
+  return static_cast<float>((x - frametiming.starttime)) / frametiming.frequency;
 }
 
 void GlobalStateClientGame::bigmessage(const std::string &text, std::int32_t delay,
-                                       std::uint32_t col)
+                                       std::uint32_t col) const
 {
-  float w;
-  float s;
+  float w = NAN;
+  float s = NAN;
 
   gfxtextpixelratio(vector2(1, 1));
   gGlobalStateGameRendering.setfontstyle(font_big);
 
   w = rectwidth(gfxtextmetrics(text));
-  s = 4.8f * ((float)(renderheight) / 480.f);
+  s = 4.8F * (static_cast<float>(renderheight) / 480.F);
 
   gGlobalStateInterfaceGraphics.bigx[1] = 0;
   gGlobalStateInterfaceGraphics.bigtext[1] = text;
   gGlobalStateInterfaceGraphics.bigdelay[1] = delay;
-  gGlobalStateInterfaceGraphics.bigscale[1] = std::fmin(1.f / 4.8f, (0.7f * renderwidth / w) / s);
+  gGlobalStateInterfaceGraphics.bigscale[1] = std::fmin(1.F / 4.8F, (0.7F * renderwidth / w) / s);
   gGlobalStateInterfaceGraphics.bigcolor[1] = col;
   gGlobalStateInterfaceGraphics.bigposx[1] =
-    (float)((renderwidth - s * w * gGlobalStateInterfaceGraphics.bigscale[1])) / 2.f;
-  gGlobalStateInterfaceGraphics.bigposy[1] = 420.f * gGlobalStateInterfaceGraphics._iscala.y;
+    ((renderwidth - (s * w * gGlobalStateInterfaceGraphics.bigscale[1]))) / 2.F;
+  gGlobalStateInterfaceGraphics.bigposy[1] = 420.F * gGlobalStateInterfaceGraphics._iscala.y;
 
   if (CVar::r_scaleinterface)
   {
-    gGlobalStateInterfaceGraphics.bigposx[1] = gGlobalStateInterfaceGraphics.bigposx[1] *
-                                               ((float)(gGlobalStateGame.gamewidth) / renderwidth);
+    gGlobalStateInterfaceGraphics.bigposx[1] =
+      gGlobalStateInterfaceGraphics.bigposx[1] *
+      (static_cast<float>(gGlobalStateGame.gamewidth) / renderwidth);
   }
 }
 
@@ -113,12 +114,12 @@ void GlobalStateClientGame::bigmessage(const std::string &text, std::int32_t del
 void GlobalStateClientGame::tabcomplete()
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  std::int32_t chattextlen;
-  std::int32_t offset;
-  std::int32_t continuedtabcompleteplayer;
-  std::int32_t next;
-  std::int32_t availablechatspace;
+  std::int32_t i = 0;
+  std::int32_t chattextlen = 0;
+  std::int32_t offset = 0;
+  std::int32_t continuedtabcompleteplayer = 0;
+  std::int32_t next = 0;
+  std::int32_t availablechatspace = 0;
   std::string spacefittedname;
 
   if (!sprite_system.IsPlayerSpriteValid())
@@ -196,21 +197,21 @@ void GlobalStateClientGame::resetweaponstats()
   }
 }
 
-auto GlobalStateClientGame::getgamefps() -> std::int32_t { return frametiming.fps; }
+auto GlobalStateClientGame::getgamefps() const -> std::int32_t { return frametiming.fps; }
 
 void GlobalStateClientGame::gameloop()
 {
   ZoneScopedN("gameloop");
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t maincontrol;
-  std::int32_t heavysendersnum;
-  float adjust;
-  double currenttime;
-  double frametime;
-  double simtime;
-  double framepercent;
-  double dt;
-  bool gamepaused;
+  std::int32_t maincontrol = 0;
+  std::int32_t heavysendersnum = 0;
+  float adjust = NAN;
+  double currenttime = NAN;
+  double frametime = NAN;
+  double simtime = NAN;
+  double framepercent = NAN;
+  double dt = NAN;
+  bool gamepaused = false;
 
   gamepaused = (GS::GetGame().GetMapchangecounter() >= 0);
 
@@ -230,20 +231,20 @@ void GlobalStateClientGame::gameloop()
     frametime = 0;
   }
 
-  dt = (float)(1) / game.GetGoalTicks();
+  dt = static_cast<float>(1) / game.GetGoalTicks();
 
   frametiming.accumulator = frametiming.accumulator + frametime;
-  game.SetTickTime(game.GetTickTime() + trunc((float)(frametiming.accumulator) / dt));
+  game.SetTickTime(game.GetTickTime() + trunc(static_cast<float>(frametiming.accumulator) / dt));
 
   simtime = (game.GetTickTime() - game.GetTickTimeLast()) * dt;
   frametiming.accumulator = frametiming.accumulator - simtime;
-  framepercent = std::fmin(1, std::fmax(0, (float)(frametiming.accumulator) / dt));
+  framepercent = std::fmin(1, std::fmax(0, static_cast<float>(frametiming.accumulator) / dt));
 
   for (maincontrol = 1; maincontrol <= (game.GetTickTime() - game.GetTickTimeLast()); maincontrol++)
   { // frame rate independant code
     if (!gamepaused)
     {
-      frametiming.elapsed = frametiming.elapsed + ((float)(1) / default_goalticks);
+      frametiming.elapsed = frametiming.elapsed + (static_cast<float>(1) / default_goalticks);
     }
 
     gGlobalStateNetworkClient.clienttickcount += 1;
@@ -343,10 +344,8 @@ void GlobalStateClientGame::gameloop()
         clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
       }
 
-      if (gGlobalStateNetworkClient.noheartbeattime < 0)
-      {
-        gGlobalStateNetworkClient.noheartbeattime = 0;
-      }
+      gGlobalStateNetworkClient.noheartbeattime =
+        std::max(gGlobalStateNetworkClient.noheartbeattime, 0);
 
       clientstopmovingcounter -= 1;
 
@@ -358,18 +357,26 @@ void GlobalStateClientGame::gameloop()
         {
           if (!sprite.deadmeat)
           {
-            if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(7 * adjust) == 1) &&
-                (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(5 * adjust) != 0))
+            if ((GS::GetGame().GetMainTickCounter() %
+                   static_cast<std::int32_t>(std::round(7 * adjust)) ==
+                 1) &&
+                (GS::GetGame().GetMainTickCounter() %
+                   static_cast<std::int32_t>(std::round(5 * adjust)) !=
+                 0))
             {
               clientspritesnapshot();
             }
-            if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(5 * adjust) == 0) ||
+            if ((GS::GetGame().GetMainTickCounter() %
+                   static_cast<std::int32_t>(std::round(5 * adjust)) ==
+                 0) ||
                 forceclientspritesnapshotmov)
             {
               clientspritesnapshotmov();
             }
           }
-          else if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(30 * adjust) == 0)
+          else if (GS::GetGame().GetMainTickCounter() %
+                     static_cast<std::int32_t>(std::round(30 * adjust)) ==
+                   0)
           {
             clientspritesnapshotdead();
           }
@@ -379,18 +386,24 @@ void GlobalStateClientGame::gameloop()
       {
         if (!sprite.deadmeat)
         {
-          if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(4 * adjust) == 0)
+          if (GS::GetGame().GetMainTickCounter() %
+                static_cast<std::int32_t>(std::round(4 * adjust)) ==
+              0)
           {
             clientspritesnapshot();
           }
 
-          if ((GS::GetGame().GetMainTickCounter() % (std::int32_t)round(3 * adjust) == 0) ||
+          if ((GS::GetGame().GetMainTickCounter() %
+                 static_cast<std::int32_t>(std::round(3 * adjust)) ==
+               0) ||
               forceclientspritesnapshotmov)
           {
             clientspritesnapshotmov();
           }
         }
-        else if (GS::GetGame().GetMainTickCounter() % (std::int32_t)round(15 * adjust) == 0)
+        else if (GS::GetGame().GetMainTickCounter() %
+                   static_cast<std::int32_t>(std::round(15 * adjust)) ==
+                 0)
         {
           clientspritesnapshotdead();
         }
@@ -416,7 +429,7 @@ void GlobalStateClientGame::gameloop()
 
     if (frametiming.counter >= 30)
     {
-      frametiming.fps = round((float)(frametiming.counter) / frametiming.fpsaccum);
+      frametiming.fps = round(static_cast<float>(frametiming.counter) / frametiming.fpsaccum);
       frametiming.counter = 0;
       frametiming.fpsaccum = 0;
     }
@@ -427,7 +440,7 @@ void GlobalStateClientGame::gameloop()
     }
     else
     {
-      gGlobalStateGameRendering.renderframe(frametiming.elapsed - dt * (1 - framepercent),
+      gGlobalStateGameRendering.renderframe(frametiming.elapsed - (dt * (1 - framepercent)),
                                             framepercent, false);
     }
   }
@@ -456,9 +469,9 @@ void GlobalStateClientGame::gameloop()
 auto GlobalStateClientGame::getcameratarget(bool backwards) -> std::uint8_t
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::uint8_t newcam;
-  std::uint8_t numloops;
-  bool validcam;
+  std::uint8_t newcam = 0;
+  std::uint8_t numloops = 0;
+  bool validcam = false;
 
   validcam = false;
   newcam = gGlobalStateClient.camerafollowsprite;

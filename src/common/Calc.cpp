@@ -1,8 +1,12 @@
 #include "Calc.hpp"
 
+#include <math.h>
+
 #include <cmath>
+#include <cstdint>
 #include <numbers>
 
+#include "Vector.hpp"
 #include "misc/SafeType.hpp"
 
 static auto sqr(float v) -> float { return v * v; }
@@ -16,22 +20,22 @@ static constexpr auto inrange(const T &v, const T &min, const T &max) -> bool
 auto islineintersectingcircle(tvector2 line1, tvector2 line2, tvector2 circlecenter,
                               float radius) -> tintersectionresult
 {
-  MyFloat a = 0.f;
-  MyFloat a1 = 0.f;
-  MyFloat b = 0.f;
-  MyFloat b1 = 0.f;
-  MyFloat c1 = 0.f;
-  MyFloat delta = 0.f;
-  MyFloat diffx = 0.f;
-  MyFloat diffy = 0.f;
-  MyFloat sqrtdelta = 0.f;
-  MyFloat a2 = 0.f;
-  MyFloat minx = 0.f;
-  MyFloat miny = 0.f;
-  MyFloat maxx = 0.f;
-  MyFloat maxy = 0.f;
-  MyFloat temp = 0.f;
-  bool flipped;
+  MyFloat a = 0.F;
+  MyFloat a1 = 0.F;
+  MyFloat b = 0.F;
+  MyFloat b1 = 0.F;
+  MyFloat c1 = 0.F;
+  MyFloat delta = 0.F;
+  MyFloat diffx = 0.F;
+  MyFloat diffy = 0.F;
+  MyFloat sqrtdelta = 0.F;
+  MyFloat a2 = 0.F;
+  MyFloat minx = 0.F;
+  MyFloat miny = 0.F;
+  MyFloat maxx = 0.F;
+  MyFloat maxy = 0.F;
+  MyFloat temp = 0.F;
+  bool flipped = false;
   tvector2 intersect;
 
   tintersectionresult result;
@@ -78,7 +82,7 @@ auto islineintersectingcircle(tvector2 line1, tvector2 line2, tvector2 circlecen
   // a = (y1 - y2)/(x1 - x2)
   a = diffy / diffx;
   // b := y - ax
-  b = line1.y - a * line1.x;
+  b = line1.y - (a * line1.x);
   // Circle equation: (x - x1)^2 + (y - y1)^2 - r^2 = 0
   // Now we need to solve: (x - x1)^2 + (y - y1)^2 - r^2 = ax + b - y
   // Simplyfing above: (a^2 + 1)x^2 + 2(ab − ay1 − x1)x + (y1^2 − r^2 + x1^2 − 2by1b^2)=0
@@ -89,9 +93,9 @@ auto islineintersectingcircle(tvector2 line1, tvector2 line2, tvector2 circlecen
   // B = 2(ab - ay1 - x1)
   b1 = 2 * (a * b - a * circlecenter.y - circlecenter.x);
   // C = y1^2 − r^2 + x1^2 − 2by1 + b^2
-  c1 = sqr(circlecenter.y) - sqr(radius) + sqr(circlecenter.x) - 2 * b * circlecenter.y + sqr(b);
+  c1 = sqr(circlecenter.y) - sqr(radius) + sqr(circlecenter.x) - (2 * b * circlecenter.y) + sqr(b);
   // delta = B^2 - 4AC;
-  delta = sqr(b1) - 4 * a1 * c1;
+  delta = sqr(b1) - (4 * a1 * c1);
   // having x1 and x2 result, we can calculate y1 and y2 from y = a * x + b
 
   // if delta < 0, no intersection
@@ -127,7 +131,7 @@ auto islineintersectingcircle(tvector2 line1, tvector2 line2, tvector2 circlecen
   sqrtdelta = sqrt(delta);
   a2 = 2 * a1;
   intersect.x = (-b1 - sqrtdelta) / a2;
-  intersect.y = a * intersect.x + b;
+  intersect.y = (a * intersect.x) + b;
   // we know that infinite line does intersect the circle, now let's see if our part does
   if (inrange(intersect.x, minx, maxx) && inrange(intersect.y, miny, maxy))
   {
@@ -142,7 +146,7 @@ auto islineintersectingcircle(tvector2 line1, tvector2 line2, tvector2 circlecen
   }
 
   intersect.x = (-b1 + sqrtdelta) / a2;
-  intersect.y = a * intersect.x + b;
+  intersect.y = (a * intersect.x) + b;
   if (inrange(intersect.x, minx, maxx) && inrange(intersect.y, miny, maxy))
   {
     if (flipped)
@@ -161,7 +165,7 @@ auto linecirclecollision(const tvector2 &startpoint, const tvector2 &endpoint,
                          const tvector2 &circlecenter, float radius,
                          tvector2 &collisionpoint) -> bool
 {
-  float r2;
+  float r2 = NAN;
   tintersectionresult intersectionresult;
 
   bool result = false;
@@ -197,9 +201,9 @@ auto linecirclecollision(const tvector2 &startpoint, const tvector2 &endpoint,
 
 auto pointlinedistance(const tvector2 &p1, const tvector2 &p2, const tvector2 &p3) -> float
 {
-  float u;
-  float x;
-  float y;
+  float u = NAN;
+  float x = NAN;
+  float y = NAN;
 
   u = ((p3.x - p1.x) * (p2.x - p1.x) + (p3.y - p1.y) * (p2.y - p1.y)) /
       (sqr(p2.x - p1.x) + sqr(p2.y - p1.y));
@@ -212,8 +216,8 @@ auto pointlinedistance(const tvector2 &p1, const tvector2 &p2, const tvector2 &p
 
 auto angle2points(const tvector2 &p1, const tvector2 &p2) -> float
 {
-  float result = 0.0f;
-  if ((p2.x - p1.x) != 0.0f)
+  float result = 0.0F;
+  if ((p2.x - p1.x) != 0.0F)
   {
     if (p1.x > p2.x)
     {
@@ -228,11 +232,11 @@ auto angle2points(const tvector2 &p1, const tvector2 &p2) -> float
   {
     if (p2.y > p1.y)
     {
-      result = std::numbers::pi_v<float> / 2.0f;
+      result = std::numbers::pi_v<float> / 2.0F;
     }
     else if (p2.y < p1.y)
     {
-      result = -std::numbers::pi_v<float> / 2.0f;
+      result = -std::numbers::pi_v<float> / 2.0F;
     }
     else
     {
@@ -269,4 +273,4 @@ auto greaterpowerof2(std::int32_t n) -> std::int32_t
 }
 
 // Rounds, but witout that "Banker's rule" that prefers even numbers.
-auto roundfair(float value) -> std::int32_t { return std::floor(value + 0.5f); }
+auto roundfair(float value) -> std::int32_t { return std::floor(value + 0.5F); }

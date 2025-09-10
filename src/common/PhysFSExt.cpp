@@ -1,27 +1,30 @@
 #include "PhysFSExt.hpp"
 
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
-#include <filesystem>
 #include <array>
 #include <atomic>
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
+#include <filesystem>
+#include <memory>
 #include <mutex>
-#include <utility>
+#include <physfs.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <string>
+#include <string_view>
 
 #include "Logging.hpp"
 #include "misc/TStream.hpp"
 #include "misc/PortUtils.hpp"
 
-auto LOG = "physfs";
+static auto LOG = "physfs";
 
 class PhysFSStream : public TStream
 {
 public:
-  explicit PhysFSStream(const std::string_view &filename)
+  explicit PhysFSStream(const std::string_view &filename) : Handle(PHYSFS_openRead(filename.data()))
   {
-    Handle = PHYSFS_openRead(filename.data());
+
     SoldatAssert(Handle != nullptr);
   }
 
@@ -52,7 +55,7 @@ private:
 
 void PhysFS_ReadLn(PHYSFS_File *fileHandle, std::string &line)
 {
-  char c;
+  char c = 0;
   line = "";
   while ((PHYSFS_readBytes(fileHandle, &c, 1) != 0) && c != '\n')
   {
@@ -99,10 +102,10 @@ auto PhysFS_CopyFileFromArchive(const std::string_view &sourceFile,
     return false;
   }
   auto *inputFile = PHYSFS_openRead(sourceFile.data());
-  auto *outputFile = std::fopen(destination.data(), "wb");
+  auto *outputFile = std::fopen(destination.data(), "wbe");
   if ((inputFile != nullptr) && (outputFile != nullptr))
   {
-    std::array<std::byte, 1024> data;
+    std::array<std::byte, 1024> data{};
     while (PHYSFS_eof(inputFile) == 0)
     {
       auto dataRead = PHYSFS_readBytes(inputFile, data.data(), data.size());
@@ -132,7 +135,7 @@ namespace
 
 auto PhysFS_InitThreadSafe() -> std::uint32_t
 {
-  std::lock_guard m(sInitMutex);
+  std::lock_guard const m(sInitMutex);
   if ((PHYSFS_isInit() != 0) || (PHYSFS_init(nullptr) != 0))
   {
     sNoOfInstances++;
@@ -142,7 +145,7 @@ auto PhysFS_InitThreadSafe() -> std::uint32_t
 
 auto PhysFS_DeinitThreadSafe() -> bool
 {
-  std::lock_guard m(sInitMutex);
+  std::lock_guard const m(sInitMutex);
   sNoOfInstances--;
   if (sNoOfInstances > 0)
   {

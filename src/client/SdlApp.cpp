@@ -1,20 +1,23 @@
 #include "SdlApp.hpp"
 
-#include <glad/glad.h>
 #include <SDL3/SDL_error.h>
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_gpu.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_properties.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_video.h>
+#include <cstdint>
+#include <glad/glad.h>
+#include <map>
 #include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <string_view>
 
 #include "shared/misc/SignalUtils.hpp"
 #include "common/Logging.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 
 static void OpenGLGladDebug(const char *name, void * /*funcptr*/, int /*len_args*/, ...)
 {
@@ -46,11 +49,11 @@ static auto CreateOpenGLContext(SDL_Window *window) -> SDL_GLContext
     std::uint32_t minor;
   };
   constexpr std::array versions{
-    OpenGLVersion{SDL_GL_CONTEXT_PROFILE_CORE, 4, 3},
-    OpenGLVersion{SDL_GL_CONTEXT_PROFILE_CORE, 3, 0},
-    OpenGLVersion{SDL_GL_CONTEXT_PROFILE_CORE, 2, 0},
-    OpenGLVersion{SDL_GL_CONTEXT_PROFILE_ES, 3, 0},
-    OpenGLVersion{SDL_GL_CONTEXT_PROFILE_ES, 2, 0},
+    OpenGLVersion{.profile = SDL_GL_CONTEXT_PROFILE_CORE, .major = 4, .minor = 3},
+    OpenGLVersion{.profile = SDL_GL_CONTEXT_PROFILE_CORE, .major = 3, .minor = 0},
+    OpenGLVersion{.profile = SDL_GL_CONTEXT_PROFILE_CORE, .major = 2, .minor = 0},
+    OpenGLVersion{.profile = SDL_GL_CONTEXT_PROFILE_ES, .major = 3, .minor = 0},
+    OpenGLVersion{.profile = SDL_GL_CONTEXT_PROFILE_ES, .major = 2, .minor = 0},
   };
 
   for (const auto &v : versions)
@@ -81,8 +84,8 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
     mDevice = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
     AbortIf(mDevice == nullptr, "Failed to create gpu device");
   }
-  
-  int num_displays;
+
+  int num_displays = 0;
   SDL_DisplayID* displays = SDL_GetDisplays(&num_displays);
   AbortIf(num_displays == 0, "Failed to get displays");
   for (int i = 0; i < num_displays; i++)
@@ -93,7 +96,7 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
   }
   SDL_free(displays);
 
-  SDL_PropertiesID props = SDL_CreateProperties();
+  SDL_PropertiesID const props = SDL_CreateProperties();
   SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, appTitle.data());
   //SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN, true);
   SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, width);
@@ -117,12 +120,12 @@ SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32
 
 SdlApp::~SdlApp()
 {
-  if (mDevice)
+  if (mDevice != nullptr)
   {
 	  SDL_ReleaseWindowFromGPUDevice(mDevice, mWindow);
   }
   SDL_DestroyWindow(mWindow);
-  if (mDevice)
+  if (mDevice != nullptr)
   {
     SDL_DestroyGPUDevice(mDevice);
   }
@@ -136,11 +139,11 @@ auto SdlApp::RegisterEventHandler(SDL_EventType evt, HandlerType handler) -> boo
     LogWarnG("Cannot register another handler for event 0x{0:x}", evt);
     return false;
   }
-  mEventHandlers[evt] = handler;
+  mEventHandlers[evt] = std::move(handler);
   return true;
 }
 
-void SdlApp::RegisterEventInterception(HandlerType handler)
+void SdlApp::RegisterEventInterception(const HandlerType &handler)
 {
   mEventInterceptors.emplace_back(handler);
 }
@@ -148,7 +151,7 @@ void SdlApp::RegisterEventInterception(HandlerType handler)
 void SdlApp::ProcessEvents()
 {
   SDL_Event event;
-  while (SDL_PollEvent(&event) != 0)
+  while (static_cast<int>(SDL_PollEvent(&event)) != 0)
   {
     for (auto &intercept : mEventInterceptors)
     {
@@ -189,8 +192,8 @@ TEST_CASE("ProcessEvents triggers handler")
 {
   SdlApp app("Test app");
   bool triggered = false;
-  auto handler = [&triggered](SDL_Event &evt) { triggered = true; };
-  auto myEvent = (SDL_EventType)SDL_RegisterEvents(1);
+  auto handler = [&triggered](SDL_Event & /*evt*/) { triggered = true; };
+  auto myEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
   auto b = app.RegisterEventHandler(myEvent, handler);
   CHECK(b == true);
   SDL_Event evt;
@@ -204,8 +207,8 @@ TEST_CASE("Handler can be registered only once")
 {
   SdlApp app("Test app");
   bool triggered = false;
-  auto handler = [&triggered](SDL_Event &evt) { triggered = true; };
-  auto myEvent = (SDL_EventType)SDL_RegisterEvents(1);
+  auto handler = [&triggered](SDL_Event & /*evt*/) { triggered = true; };
+  auto myEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
   {
     auto b = app.RegisterEventHandler(myEvent, handler);
     CHECK(b == true);
@@ -220,8 +223,8 @@ TEST_CASE("Event interception is called for every event")
 {
   SdlApp app("Test app");
   bool triggered = false;
-  auto handler = [&triggered](SDL_Event &evt) { triggered = true; };
-  auto myEvent = (SDL_EventType)SDL_RegisterEvents(1);
+  auto handler = [&triggered](SDL_Event & /*evt*/) { triggered = true; };
+  auto myEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
   app.RegisterEventInterception(handler);
   SDL_Event evt;
   evt.type = myEvent;

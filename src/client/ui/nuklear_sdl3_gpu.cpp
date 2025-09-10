@@ -8,10 +8,11 @@
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_video.h>
-#include <stdint.h>
-#include <string.h>
 #include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <cstdlib>
+#include <cstring>
 
 #include "Nuklear.hpp"
 #include "client/ui/nuklear_sdl3_gpu.hpp"
@@ -83,7 +84,7 @@ static unsigned char nuklear_ui_frag_spv[] = {
   0x38, 0x00, 0x01, 0x00};
 static unsigned int nuklear_ui_frag_spv_len = 868;
 
-unsigned char nuklear_ui_vert_spv[] = {
+static unsigned char nuklear_ui_vert_spv[] = {
   0x03, 0x02, 0x23, 0x07, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x2a, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x11, 0x00, 0x02, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x03, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -162,7 +163,7 @@ unsigned char nuklear_ui_vert_spv[] = {
   0x01, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x03, 0x00, 0x05, 0x00, 0x00, 0x00, 0x29, 0x00, 0x00, 0x00,
   0x3e, 0x00, 0x03, 0x00, 0x06, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x03, 0x00,
   0x07, 0x00, 0x00, 0x00, 0x1d, 0x00, 0x00, 0x00, 0xfd, 0x00, 0x01, 0x00, 0x38, 0x00, 0x01, 0x00};
-unsigned int nuklear_ui_vert_spv_len = 1248;
+static unsigned int nuklear_ui_vert_spv_len = 1248;
 
 struct nk_sdl_device
 {
@@ -180,23 +181,23 @@ struct nk_sdl_vertex
 
 static struct nk_sdl
 {
-  SDL_Window *win;
-  SDL_GPUDevice *device;
-  SDL_GPUShader *vertex_shader;
-  SDL_GPUShader *fragment_shader;
-  SDL_GPUTextureSamplerBinding font_binding = {NULL, NULL};
-  SDL_GPUSampler *font_sampler;
-  SDL_GPUGraphicsPipeline *pipeline;
-  SDL_GPUBuffer *vertex_buffer;
-  SDL_GPUBuffer *index_buffer;
-  unsigned int vertex_buffer_size;
-  unsigned int index_buffer_size;
-  int width, height;
-  unsigned int display_width;
-  unsigned int display_height;
-  struct nk_sdl_device ogl;
-  struct nk_context ctx;
-  struct nk_font_atlas atlas;
+  SDL_Window *win{};
+  SDL_GPUDevice *device{};
+  SDL_GPUShader *vertex_shader{};
+  SDL_GPUShader *fragment_shader{};
+  SDL_GPUTextureSamplerBinding font_binding = {nullptr, nullptr};
+  SDL_GPUSampler *font_sampler{};
+  SDL_GPUGraphicsPipeline *pipeline{};
+  SDL_GPUBuffer *vertex_buffer{};
+  SDL_GPUBuffer *index_buffer{};
+  unsigned int vertex_buffer_size{};
+  unsigned int index_buffer_size{};
+  int width{}, height{};
+  unsigned int display_width{};
+  unsigned int display_height{};
+  struct nk_sdl_device ogl{};
+  struct nk_context ctx{};
+  struct nk_font_atlas atlas{};
 } sdl;
 
 NK_INTERN void nk_create_or_resize_buffer(SDL_GPUBuffer **buffer, uint32_t *old_size,
@@ -211,34 +212,41 @@ NK_INTERN void nk_create_or_resize_buffer(SDL_GPUBuffer **buffer, uint32_t *old_
   buffer_info.usage = usage;
   buffer_info.size = new_size;
   buffer_info.props = 0;
-  if (buffer_name != NULL)
+  if (buffer_name != nullptr)
   {
     buffer_info.props = SDL_CreateProperties();
     SDL_SetStringProperty(buffer_info.props, SDL_PROP_GPU_BUFFER_CREATE_NAME_STRING, buffer_name);
   }
   *buffer = SDL_CreateGPUBuffer(sdl.device, &buffer_info);
   *old_size = new_size;
-  if (buffer_name != NULL)
+  if (buffer_name != nullptr)
   {
     SDL_DestroyProperties(buffer_info.props);
   }
-  assert(*buffer != NULL &&
+  assert(*buffer != nullptr &&
          "Failed to create GPU Buffer, call SDL_GetError() for more information");
 }
 
 void nk_sdl_prepare_render_data(enum nk_anti_aliasing AA, SDL_GPUCommandBuffer *command_buffer,
                                 unsigned int fb_width, unsigned int fb_height)
 {
-  struct nk_buffer vbuf, ebuf;
+  struct nk_buffer vbuf;
+  struct nk_buffer ebuf;
   sdl.display_height = fb_height;
   sdl.display_width = fb_width;
 
   /* fill converting configuration */
-  struct nk_convert_config config;
+  struct nk_convert_config config{};
   static const struct nk_draw_vertex_layout_element vertex_layout[] = {
-    {NK_VERTEX_POSITION, NK_FORMAT_FLOAT, NK_OFFSETOF(struct nk_sdl_vertex, position)},
-    {NK_VERTEX_TEXCOORD, NK_FORMAT_FLOAT, NK_OFFSETOF(struct nk_sdl_vertex, uv)},
-    {NK_VERTEX_COLOR, NK_FORMAT_R8G8B8A8, NK_OFFSETOF(struct nk_sdl_vertex, col)},
+    {.attribute = NK_VERTEX_POSITION,
+     .format = NK_FORMAT_FLOAT,
+     .offset = NK_OFFSETOF(struct nk_sdl_vertex, position)},
+    {.attribute = NK_VERTEX_TEXCOORD,
+     .format = NK_FORMAT_FLOAT,
+     .offset = NK_OFFSETOF(struct nk_sdl_vertex, uv)},
+    {.attribute = NK_VERTEX_COLOR,
+     .format = NK_FORMAT_R8G8B8A8,
+     .offset = NK_OFFSETOF(struct nk_sdl_vertex, col)},
     {NK_VERTEX_LAYOUT_END}};
   memset(&config, 0, sizeof(config));
   config.vertex_layout = vertex_layout;
@@ -248,7 +256,7 @@ void nk_sdl_prepare_render_data(enum nk_anti_aliasing AA, SDL_GPUCommandBuffer *
   config.circle_segment_count = 22;
   config.curve_segment_count = 22;
   config.arc_segment_count = 22;
-  config.global_alpha = 1.0f;
+  config.global_alpha = 1.0F;
   config.shape_AA = AA;
   config.line_AA = AA;
 
@@ -257,14 +265,18 @@ void nk_sdl_prepare_render_data(enum nk_anti_aliasing AA, SDL_GPUCommandBuffer *
   nk_buffer_init_default(&ebuf);
   nk_convert(&sdl.ctx, &sdl.ogl.cmds, &vbuf, &ebuf, &config);
 
-  uint32_t vertex_size = vbuf.size; // * sizeof(struct nk_sdl_vertex);
-  uint32_t index_size = ebuf.size;  // * sizeof(nk_draw_index);
-  if (sdl.vertex_buffer == NULL || sdl.vertex_buffer_size < vertex_size)
+  uint32_t const vertex_size = vbuf.size; // * sizeof(struct nk_sdl_vertex);
+  uint32_t const index_size = ebuf.size;  // * sizeof(nk_draw_index);
+  if (sdl.vertex_buffer == nullptr || sdl.vertex_buffer_size < vertex_size)
+  {
     nk_create_or_resize_buffer(&sdl.vertex_buffer, &sdl.vertex_buffer_size, vertex_size,
                                SDL_GPU_BUFFERUSAGE_VERTEX, "nuklear_vertex_buffer");
-  if (sdl.index_buffer == NULL || sdl.index_buffer_size < index_size)
+  }
+  if (sdl.index_buffer == nullptr || sdl.index_buffer_size < index_size)
+  {
     nk_create_or_resize_buffer(&sdl.index_buffer, &sdl.index_buffer_size, index_size,
                                SDL_GPU_BUFFERUSAGE_INDEX, "nuklear_index_buffer");
+  }
 
   // FIXME: It feels like more code could be shared there.
   SDL_GPUTransferBufferCreateInfo vertex_transferbuffer_info = {};
@@ -276,17 +288,17 @@ void nk_sdl_prepare_render_data(enum nk_anti_aliasing AA, SDL_GPUCommandBuffer *
 
   SDL_GPUTransferBuffer *vertex_transferbuffer =
     SDL_CreateGPUTransferBuffer(sdl.device, &vertex_transferbuffer_info);
-  assert(vertex_transferbuffer != NULL &&
+  assert(vertex_transferbuffer != nullptr &&
          "Failed to create the vertex transfer buffer, call SDL_GetError() for more information");
   SDL_GPUTransferBuffer *index_transferbuffer =
     SDL_CreateGPUTransferBuffer(sdl.device, &index_transferbuffer_info);
-  assert(index_transferbuffer != NULL &&
+  assert(index_transferbuffer != nullptr &&
          "Failed to create the index transfer buffer, call SDL_GetError() for more information");
 
-  nk_sdl_vertex *vtx_dst =
-    (nk_sdl_vertex *)SDL_MapGPUTransferBuffer(sdl.device, vertex_transferbuffer, true);
-  nk_draw_index *idx_dst =
-    (nk_draw_index *)SDL_MapGPUTransferBuffer(sdl.device, index_transferbuffer, true);
+  auto *vtx_dst =
+    static_cast<nk_sdl_vertex *>(SDL_MapGPUTransferBuffer(sdl.device, vertex_transferbuffer, true));
+  auto *idx_dst =
+    static_cast<nk_draw_index *>(SDL_MapGPUTransferBuffer(sdl.device, index_transferbuffer, true));
   memcpy(vtx_dst, vbuf.memory.ptr, vertex_size);
   memcpy(idx_dst, ebuf.memory.ptr, index_size);
 
@@ -362,9 +374,9 @@ NK_INTERN void nk_create_shaders()
   }
   sdl.vertex_shader = SDL_CreateGPUShader(sdl.device, &vertex_shader_info);
   sdl.fragment_shader = SDL_CreateGPUShader(sdl.device, &fragment_shader_info);
-  assert(sdl.vertex_shader != NULL &&
+  assert(sdl.vertex_shader != nullptr &&
          "Failed to create vertex shader, call SDL_GetError() for more information");
-  assert(sdl.fragment_shader != NULL &&
+  assert(sdl.fragment_shader != nullptr &&
          "Failed to create fragment shader, call SDL_GetError() for more information");
   SDL_DestroyProperties(vertex_shader_info.props);
   SDL_DestroyProperties(fragment_shader_info.props);
@@ -382,11 +394,11 @@ NK_INTERN void nk_sdl_create_font_sampler()
   sampler_info.address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE;
   sampler_info.address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE;
   sampler_info.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_CLAMP_TO_EDGE;
-  sampler_info.mip_lod_bias = 0.0f;
-  sampler_info.min_lod = -1000.0f;
-  sampler_info.max_lod = 1000.0f;
+  sampler_info.mip_lod_bias = 0.0F;
+  sampler_info.min_lod = -1000.0F;
+  sampler_info.max_lod = 1000.0F;
   sampler_info.enable_anisotropy = false;
-  sampler_info.max_anisotropy = 1.0f;
+  sampler_info.max_anisotropy = 1.0F;
   sampler_info.enable_compare = false;
   sampler_info.props = SDL_CreateProperties();
   SDL_SetStringProperty(sampler_info.props, SDL_PROP_GPU_SAMPLER_CREATE_NAME_STRING,
@@ -394,7 +406,7 @@ NK_INTERN void nk_sdl_create_font_sampler()
 
   sdl.font_sampler = SDL_CreateGPUSampler(sdl.device, &sampler_info);
   sdl.font_binding.sampler = sdl.font_sampler;
-  assert(sdl.font_sampler != NULL &&
+  assert(sdl.font_sampler != nullptr &&
          "Failed to create font sampler, call SDL_GetError() for more information");
   SDL_DestroyProperties(sampler_info.props);
 }
@@ -458,7 +470,8 @@ NK_INTERN void nk_sdl_create_graphics_pipeline()
 
   SDL_GPUColorTargetDescription color_target_desc[1];
   color_target_desc[0].format = SDL_GetGPUSwapchainTextureFormat(
-    sdl.device, sdl.win); // TODO: This is a hack, we should have a way to get the swapchain format
+    sdl.device,
+    sdl.win); // TODO(vscode): This is a hack, we should have a way to get the swapchain format
   color_target_desc[0].blend_state = blend_state;
 
   SDL_GPUGraphicsPipelineTargetInfo target_info = {};
@@ -480,7 +493,7 @@ NK_INTERN void nk_sdl_create_graphics_pipeline()
                         "nuklear_graphics_pipeline");
 
   sdl.pipeline = SDL_CreateGPUGraphicsPipeline(sdl.device, &pipeline_info);
-  assert(sdl.pipeline != NULL &&
+  assert(sdl.pipeline != nullptr &&
          "Failed to create graphics pipeline, call SDL_GetError() for more information");
   SDL_DestroyProperties(pipeline_info.props);
 }
@@ -512,10 +525,10 @@ NK_INTERN void nk_sdl_setup_render_state(SDL_GPUGraphicsPipeline *pipeline,
   SDL_GPUViewport viewport = {};
   viewport.x = 0;
   viewport.y = 0;
-  viewport.w = (float)sdl.display_width;
-  viewport.h = (float)sdl.display_height;
-  viewport.min_depth = 0.0f;
-  viewport.max_depth = 1.0f;
+  viewport.w = static_cast<float>(sdl.display_width);
+  viewport.h = static_cast<float>(sdl.display_height);
+  viewport.min_depth = 0.0F;
+  viewport.max_depth = 1.0F;
   SDL_SetGPUViewport(render_pass, &viewport);
 
   // Setup scale and translation
@@ -526,24 +539,24 @@ NK_INTERN void nk_sdl_setup_render_state(SDL_GPUGraphicsPipeline *pipeline,
   {
     float scale[2];
     float translation[2];
-  } ubo;
-  ubo.scale[0] = 2.0f / (float)sdl.display_width;
-  ubo.scale[1] = 2.0f / (float)sdl.display_height;
-  ubo.translation[0] = -1.0f;
-  ubo.translation[1] = -1.0f;
+  } ubo{};
+  ubo.scale[0] = 2.0F / static_cast<float>(sdl.display_width);
+  ubo.scale[1] = 2.0F / static_cast<float>(sdl.display_height);
+  ubo.translation[0] = -1.0F;
+  ubo.translation[1] = -1.0F;
   SDL_PushGPUVertexUniformData(command_buffer, 0, &ubo, sizeof(UBO));
 }
 
 NK_INTERN void nk_sdl_device_upload_atlas(const void *image, int width, int height)
 {
   // Destroy existing texture (if any)
-  if (sdl.ogl.font_tex)
+  if (sdl.ogl.font_tex != nullptr)
   {
     SDL_WaitForGPUIdle(sdl.device);
     SDL_ReleaseGPUTexture(sdl.device, sdl.ogl.font_tex);
   }
 
-  uint32_t upload_size = width * height * 4 * sizeof(char);
+  uint32_t const upload_size = static_cast<unsigned long>(width * height * 4) * sizeof(char);
 
   // Create the Image:
   {
@@ -576,7 +589,7 @@ NK_INTERN void nk_sdl_device_upload_atlas(const void *image, int width, int heig
 
     SDL_GPUTransferBuffer *transferbuffer =
       SDL_CreateGPUTransferBuffer(sdl.device, &transferbuffer_info);
-    assert(transferbuffer != NULL &&
+    assert(transferbuffer != nullptr &&
            "Failed to create font transfer buffer, call SDL_GetError() for more information");
 
     void *texture_ptr = SDL_MapGPUTransferBuffer(sdl.device, transferbuffer, false);
@@ -602,7 +615,7 @@ NK_INTERN void nk_sdl_device_upload_atlas(const void *image, int width, int heig
   }
 }
 
-NK_API void nk_sdl_render(enum nk_anti_aliasing AA, SDL_GPUCommandBuffer *command_buffer,
+NK_API void nk_sdl_render(enum nk_anti_aliasing /*AA*/, SDL_GPUCommandBuffer *command_buffer,
                           SDL_GPURenderPass *render_pass)
 {
   /* setup global state */
@@ -613,18 +626,20 @@ NK_API void nk_sdl_render(enum nk_anti_aliasing AA, SDL_GPUCommandBuffer *comman
 
   {
 
-    const struct nk_draw_command *cmd;
+    const struct nk_draw_command *cmd = nullptr;
     int global_idx_offset = 0;
 
     nk_draw_foreach(cmd, &sdl.ctx, &dev->cmds)
     {
-      if (!cmd->elem_count)
+      if (cmd->elem_count == 0u)
+      {
         continue;
+      }
 
       {
         SDL_Rect r;
-        r.x = NK_MAX(cmd->clip_rect.x, 0.0f);
-        r.y = NK_MAX(cmd->clip_rect.y, 0.0f);
+        r.x = NK_MAX(cmd->clip_rect.x, 0.0F);
+        r.y = NK_MAX(cmd->clip_rect.y, 0.0F);
         r.w = cmd->clip_rect.w; // x + w?
         r.h = cmd->clip_rect.h; // y + h?
         SDL_SetGPUScissor(render_pass, &r);
@@ -632,13 +647,14 @@ NK_API void nk_sdl_render(enum nk_anti_aliasing AA, SDL_GPUCommandBuffer *comman
 
       {
 
-        SDL_BindGPUFragmentSamplers(render_pass, 0,
-                                    (SDL_GPUTextureSamplerBinding *)(cmd->texture.ptr), 1);
+        SDL_BindGPUFragmentSamplers(
+          render_pass, 0, static_cast<SDL_GPUTextureSamplerBinding *>(cmd->texture.ptr), 1);
         SDL_DrawGPUIndexedPrimitives(render_pass, cmd->elem_count, 1, global_idx_offset, 0, 0);
       }
       global_idx_offset += cmd->elem_count;
     }
-    SDL_Rect scissor_rect{0, 0, (int)sdl.display_width, (int)sdl.display_height};
+    SDL_Rect const scissor_rect{0, 0, static_cast<int>(sdl.display_width),
+                                static_cast<int>(sdl.display_height)};
     SDL_SetGPUScissor(render_pass, &scissor_rect);
 
     nk_clear(&sdl.ctx);
@@ -649,21 +665,27 @@ NK_API void nk_sdl_render(enum nk_anti_aliasing AA, SDL_GPUCommandBuffer *comman
 static void nk_sdl_clipboard_paste(nk_handle usr, struct nk_text_edit *edit)
 {
   const char *text = SDL_GetClipboardText();
-  if (text)
+  if (text != nullptr)
+  {
     nk_textedit_paste(edit, text, nk_strlen(text));
+  }
   (void)usr;
 }
 
 static void nk_sdl_clipboard_copy(nk_handle usr, const char *text, int len)
 {
-  char *str = 0;
+  char *str = nullptr;
   (void)usr;
-  if (!len)
+  if (len == 0)
+  {
     return;
-  str = (char *)malloc((size_t)len + 1);
-  if (!str)
+  }
+  str = static_cast<char *>(malloc(static_cast<size_t>(len) + 1));
+  if (str == nullptr)
+  {
     return;
-  memcpy(str, text, (size_t)len);
+  }
+  memcpy(str, text, static_cast<size_t>(len));
   str[len] = '\0';
   SDL_SetClipboardText(str);
   free(str);
@@ -674,16 +696,16 @@ NK_API struct nk_context *nk_sdl_init(SDL_Window *win, SDL_GPUDevice *device)
   sdl.win = win;
   sdl.device = device;
   SDL_GetWindowSize(sdl.win, &sdl.width, &sdl.height);
-  nk_init_default(&sdl.ctx, 0);
+  nk_init_default(&sdl.ctx, nullptr);
   sdl.ctx.clip.copy = nk_sdl_clipboard_copy;
   sdl.ctx.clip.paste = nk_sdl_clipboard_paste;
-  sdl.ctx.clip.userdata = nk_handle_ptr(0);
+  sdl.ctx.clip.userdata = nk_handle_ptr(nullptr);
   nk_buffer_init_default(&sdl.ogl.cmds);
   nk_create_shaders();
   nk_sdl_create_font_sampler();
   nk_sdl_create_graphics_pipeline();
-  sdl.index_buffer = NULL;
-  sdl.vertex_buffer = NULL;
+  sdl.index_buffer = nullptr;
+  sdl.vertex_buffer = nullptr;
   sdl.index_buffer_size = 0;
   sdl.vertex_buffer_size = 0;
   return &sdl.ctx;
@@ -696,15 +718,18 @@ NK_API void nk_sdl_font_stash_begin(struct nk_font_atlas **atlas)
   *atlas = &sdl.atlas;
 }
 
-NK_API void nk_sdl_font_stash_end(void)
+NK_API void nk_sdl_font_stash_end()
 {
-  const void *image;
-  int w, h;
+  const void *image = nullptr;
+  int w;
+  int h;
   image = nk_font_atlas_bake(&sdl.atlas, &w, &h, NK_FONT_ATLAS_RGBA32);
   nk_sdl_device_upload_atlas(image, w, h);
   nk_font_atlas_end(&sdl.atlas, nk_handle_ptr(&sdl.font_binding), &sdl.ogl.tex_null);
-  if (sdl.atlas.default_font)
+  if (sdl.atlas.default_font != nullptr)
+  {
     nk_style_set_font(&sdl.ctx, &sdl.atlas.default_font->handle);
+  }
 }
 
 NK_API int nk_sdl_handle_event(SDL_Event *evt)
@@ -715,78 +740,86 @@ NK_API int nk_sdl_handle_event(SDL_Event *evt)
   {
   case SDL_EVENT_KEY_UP: /* KEYUP & KEYDOWN share same routine */
   case SDL_EVENT_KEY_DOWN: {
-    int down = evt->type == SDL_EVENT_KEY_DOWN;
-    const bool *state = SDL_GetKeyboardState(0);
+    int const down = static_cast<int>(evt->type == SDL_EVENT_KEY_DOWN);
+    const bool *state = SDL_GetKeyboardState(nullptr);
     switch (evt->key.key)
     {
     case SDLK_RSHIFT: /* RSHIFT & LSHIFT share same routine */
     case SDLK_LSHIFT:
-      nk_input_key(ctx, NK_KEY_SHIFT, down);
+      nk_input_key(ctx, NK_KEY_SHIFT, down != 0);
       break;
     case SDLK_DELETE:
-      nk_input_key(ctx, NK_KEY_DEL, down);
+      nk_input_key(ctx, NK_KEY_DEL, down != 0);
       break;
     case SDLK_RETURN:
-      nk_input_key(ctx, NK_KEY_ENTER, down);
+      nk_input_key(ctx, NK_KEY_ENTER, down != 0);
       break;
     case SDLK_TAB:
-      nk_input_key(ctx, NK_KEY_TAB, down);
+      nk_input_key(ctx, NK_KEY_TAB, down != 0);
       break;
     case SDLK_BACKSPACE:
-      nk_input_key(ctx, NK_KEY_BACKSPACE, down);
+      nk_input_key(ctx, NK_KEY_BACKSPACE, down != 0);
       break;
     case SDLK_HOME:
-      nk_input_key(ctx, NK_KEY_TEXT_START, down);
-      nk_input_key(ctx, NK_KEY_SCROLL_START, down);
+      nk_input_key(ctx, NK_KEY_TEXT_START, down != 0);
+      nk_input_key(ctx, NK_KEY_SCROLL_START, down != 0);
       break;
     case SDLK_END:
-      nk_input_key(ctx, NK_KEY_TEXT_END, down);
-      nk_input_key(ctx, NK_KEY_SCROLL_END, down);
+      nk_input_key(ctx, NK_KEY_TEXT_END, down != 0);
+      nk_input_key(ctx, NK_KEY_SCROLL_END, down != 0);
       break;
     case SDLK_PAGEDOWN:
-      nk_input_key(ctx, NK_KEY_SCROLL_DOWN, down);
+      nk_input_key(ctx, NK_KEY_SCROLL_DOWN, down != 0);
       break;
     case SDLK_PAGEUP:
-      nk_input_key(ctx, NK_KEY_SCROLL_UP, down);
+      nk_input_key(ctx, NK_KEY_SCROLL_UP, down != 0);
       break;
     case SDLK_Z:
-      nk_input_key(ctx, NK_KEY_TEXT_UNDO, down && state[SDL_SCANCODE_LCTRL]);
+      nk_input_key(ctx, NK_KEY_TEXT_UNDO, (down != 0) && state[SDL_SCANCODE_LCTRL]);
       break;
     case SDLK_R:
-      nk_input_key(ctx, NK_KEY_TEXT_REDO, down && state[SDL_SCANCODE_LCTRL]);
+      nk_input_key(ctx, NK_KEY_TEXT_REDO, (down != 0) && state[SDL_SCANCODE_LCTRL]);
       break;
     case SDLK_C:
-      nk_input_key(ctx, NK_KEY_COPY, down && state[SDL_SCANCODE_LCTRL]);
+      nk_input_key(ctx, NK_KEY_COPY, (down != 0) && state[SDL_SCANCODE_LCTRL]);
       break;
     case SDLK_V:
-      nk_input_key(ctx, NK_KEY_PASTE, down && state[SDL_SCANCODE_LCTRL]);
+      nk_input_key(ctx, NK_KEY_PASTE, (down != 0) && state[SDL_SCANCODE_LCTRL]);
       break;
     case SDLK_X:
-      nk_input_key(ctx, NK_KEY_CUT, down && state[SDL_SCANCODE_LCTRL]);
+      nk_input_key(ctx, NK_KEY_CUT, (down != 0) && state[SDL_SCANCODE_LCTRL]);
       break;
     case SDLK_B:
-      nk_input_key(ctx, NK_KEY_TEXT_LINE_START, down && state[SDL_SCANCODE_LCTRL]);
+      nk_input_key(ctx, NK_KEY_TEXT_LINE_START, (down != 0) && state[SDL_SCANCODE_LCTRL]);
       break;
     case SDLK_E:
-      nk_input_key(ctx, NK_KEY_TEXT_LINE_END, down && state[SDL_SCANCODE_LCTRL]);
+      nk_input_key(ctx, NK_KEY_TEXT_LINE_END, (down != 0) && state[SDL_SCANCODE_LCTRL]);
       break;
     case SDLK_UP:
-      nk_input_key(ctx, NK_KEY_UP, down);
+      nk_input_key(ctx, NK_KEY_UP, down != 0);
       break;
     case SDLK_DOWN:
-      nk_input_key(ctx, NK_KEY_DOWN, down);
+      nk_input_key(ctx, NK_KEY_DOWN, down != 0);
       break;
     case SDLK_LEFT:
       if (state[SDL_SCANCODE_LCTRL])
-        nk_input_key(ctx, NK_KEY_TEXT_WORD_LEFT, down);
+      {
+        nk_input_key(ctx, NK_KEY_TEXT_WORD_LEFT, down != 0);
+      }
       else
-        nk_input_key(ctx, NK_KEY_LEFT, down);
+      {
+        nk_input_key(ctx, NK_KEY_LEFT, down != 0);
+      }
       break;
     case SDLK_RIGHT:
       if (state[SDL_SCANCODE_LCTRL])
-        nk_input_key(ctx, NK_KEY_TEXT_WORD_RIGHT, down);
+      {
+        nk_input_key(ctx, NK_KEY_TEXT_WORD_RIGHT, down != 0);
+      }
       else
-        nk_input_key(ctx, NK_KEY_RIGHT, down);
+      {
+        nk_input_key(ctx, NK_KEY_RIGHT, down != 0);
+      }
       break;
     }
     return 1;
@@ -794,33 +827,39 @@ NK_API int nk_sdl_handle_event(SDL_Event *evt)
 
   case SDL_EVENT_MOUSE_BUTTON_UP: /* MOUSEBUTTONUP & MOUSEBUTTONDOWN share same routine */
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    int down = evt->button.down;
-    const int x = evt->button.x, y = evt->button.y;
+    int const down = static_cast<int>(evt->button.down);
+    const int x = evt->button.x;
+    const int y = evt->button.y;
     switch (evt->button.button)
     {
     case SDL_BUTTON_LEFT:
       if (evt->button.clicks > 1)
-        nk_input_button(ctx, NK_BUTTON_DOUBLE, x, y, down);
-      nk_input_button(ctx, NK_BUTTON_LEFT, x, y, down);
+      {
+        nk_input_button(ctx, NK_BUTTON_DOUBLE, x, y, down != 0);
+      }
+      nk_input_button(ctx, NK_BUTTON_LEFT, x, y, down != 0);
       break;
     case SDL_BUTTON_MIDDLE:
-      nk_input_button(ctx, NK_BUTTON_MIDDLE, x, y, down);
+      nk_input_button(ctx, NK_BUTTON_MIDDLE, x, y, down != 0);
       break;
     case SDL_BUTTON_RIGHT:
-      nk_input_button(ctx, NK_BUTTON_RIGHT, x, y, down);
+      nk_input_button(ctx, NK_BUTTON_RIGHT, x, y, down != 0);
       break;
     }
   }
     return 1;
 
   case SDL_EVENT_MOUSE_MOTION:
-    if (ctx->input.mouse.grabbed)
+    if (ctx->input.mouse.grabbed != 0u)
     {
-      int x = (int)ctx->input.mouse.prev.x, y = (int)ctx->input.mouse.prev.y;
+      int x = (int)ctx->input.mouse.prev.x;
+      int y = (int)ctx->input.mouse.prev.y;
       nk_input_motion(ctx, x + evt->motion.xrel, y + evt->motion.yrel);
     }
     else
+    {
       nk_input_motion(ctx, evt->motion.x, evt->motion.y);
+    }
     return 1;
 
   case SDL_EVENT_TEXT_INPUT: {
@@ -838,7 +877,7 @@ NK_API int nk_sdl_handle_event(SDL_Event *evt)
 }
 
 NK_API
-void nk_sdl_shutdown(void)
+void nk_sdl_shutdown()
 {
   struct nk_sdl_device *dev = &sdl.ogl;
 

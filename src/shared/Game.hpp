@@ -75,7 +75,7 @@ public:
   void countvote(std::uint8_t voter);
 #endif
   void showmapchangescoreboard();
-  void showmapchangescoreboard(const std::string nextmap);
+  void showmapchangescoreboard(const std::string &nextmap);
   auto isteamgame() -> bool;
 #ifndef SERVER
   auto ispointonscreen(const tvector2 &point) -> bool;
@@ -440,20 +440,20 @@ private:
   std::int32_t VoteTimeRemaining = -1;
   std::uint8_t VoteNumVotes = 0;
   std::uint8_t VoteMaxVotes = 0;
-  PascalArray<bool, 1, Constants::MAX_PLAYERS> VoteHasVoted;
-  PascalArray<std::int32_t, 1, Constants::MAX_PLAYERS> VoteCooldown;
+  PascalArray<bool, 1, Constants::MAX_PLAYERS> VoteHasVoted{};
+  PascalArray<std::int32_t, 1, Constants::MAX_PLAYERS> VoteCooldown{};
   std::string UserDirectory;
-  twaypoints botpath;
+  twaypoints botpath{};
   Polymap map;
 
   std::int32_t ticktime{};
   std::int32_t ticktimelast{};
   std::int32_t goalticks = default_goalticks;
-  std::int32_t bullettimetimer;
+  std::int32_t bullettimetimer{};
 
-  std::uint8_t alivenum;
-  std::array<std::int8_t, 6> teamalivenum;
-  PascalArray<std::int8_t, 0, 4> teamplayersnum;
+  std::uint8_t alivenum{};
+  std::array<std::int8_t, 6> teamalivenum{};
+  PascalArray<std::int8_t, 0, 4> teamplayersnum{};
   bool survivalendround = false;
 
   std::int32_t ceasefiretime = default_ceasefire_time;
@@ -461,18 +461,18 @@ private:
   std::int32_t mapchangecounter = 0;
   std::string mapchangename;
   tmapinfo mapchange;
-  std::uint64_t mapchangeitemid;
+  std::uint64_t mapchangeitemid{};
   tsha1digest mapchangechecksum;
   std::int32_t timelimitcounter = 3600;
   std::int32_t starthealth = 150;
-  std::int32_t timeleftsec;
-  std::int32_t timeleftmin;
+  std::int32_t timeleftsec{};
+  std::int32_t timeleftmin{};
 
-  std::int32_t maintickcounter;
+  std::int32_t maintickcounter{};
   std::int32_t playersnum = 0;
-  std::int32_t botsnum;
-  std::int32_t spectatorsnum;
-  PascalArray<std::int32_t, 1, 4> playersteamnum;
+  std::int32_t botsnum{};
+  std::int32_t spectatorsnum{};
+  PascalArray<std::int32_t, 1, 4> playersteamnum{};
 
   std::array<std::int32_t, 5> teamscore = {0};
   std::array<std::int32_t, 4> teamflag = {0};
@@ -480,8 +480,8 @@ private:
   tsha1digest custommodchecksum;
   tsha1digest gamemodchecksum;
   tsha1digest mapchecksum;
-  PascalArray<tkillsort, 1, Constants::MAX_PLAYERS> sortedplayers;
-  PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, Constants::MAX_PLAYERS> weaponsel;
+  PascalArray<tkillsort, 1, Constants::MAX_PLAYERS> sortedplayers{};
+  PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, Constants::MAX_PLAYERS> weaponsel{};
 
   friend GlobalSubsystem<Game<M>>;
 };

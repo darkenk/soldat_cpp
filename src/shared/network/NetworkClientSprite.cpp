@@ -2,14 +2,12 @@
 
 #include "NetworkClientSprite.hpp"
 
-#include <math.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdint>
-#include <memory>
+#include <spdlog/fmt/bundled/core.h>
 #include <string>
-#include <utility>
 
 #include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
@@ -41,7 +39,6 @@
 #include "shared/mechanics/Sparks.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
-#include "shared/network/Net.hpp"
 
 namespace
 {
@@ -59,7 +56,7 @@ void clienthandleserverspritesnapshot::Handle(NetworkContext *netmessage)
     return;
   }
 
-  auto *spritesnap = pmsg_serverspritesnapshot(netmessage->packet);
+  auto *spritesnap = reinterpret_cast<pmsg_serverspritesnapshot>(netmessage->packet);
   auto &things = GS::GetThingSystem().GetThings();
 
   // assign received sprite info to sprite
@@ -181,10 +178,7 @@ void clienthandleserverspritesnapshot::Handle(NetworkContext *netmessage)
 
   sprite.SetHealth(spritesnap->health);
   sprite.vest = spritesnap->vest;
-  if (sprite.vest > defaultvest)
-  {
-    sprite.vest = defaultvest;
-  }
+  sprite.vest = std::min<float>(sprite.vest, defaultvest);
 
   if (sprite_system.IsPlayerSprite(i))
   {
@@ -206,10 +200,10 @@ void clienthandleserverspritesnapshot_major::Handle(NetworkContext *netmessage)
     return;
   }
 
-  auto *spritesnapmajor = pmsg_serverspritesnapshot_major(netmessage->packet);
+  auto *spritesnapmajor = reinterpret_cast<pmsg_serverspritesnapshot_major>(netmessage->packet);
 
   // assign received sprite info to sprite
-  std::int32_t i = spritesnapmajor->num;
+  std::int32_t const i = spritesnapmajor->num;
 
   if ((i < 1) || (i > max_sprites))
   {
@@ -298,10 +292,10 @@ void clienthandleserverskeletonsnapshot::Handle(NetworkContext *netmessage)
     return;
   }
 
-  auto *skeletonsnap = pmsg_serverskeletonsnapshot(netmessage->packet);
+  auto *skeletonsnap = reinterpret_cast<pmsg_serverskeletonsnapshot>(netmessage->packet);
 
   // assign received Skeleton info to skeleton
-  std::int32_t i = skeletonsnap->num;
+  std::int32_t const i = skeletonsnap->num;
 
   if ((i < 1) || (i > max_sprites))
   {
@@ -323,7 +317,7 @@ void clienthandleserverskeletonsnapshot::Handle(NetworkContext *netmessage)
 void clientspritesnapshot()
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_clientspritesnapshot clientmsg;
+  tmsg_clientspritesnapshot clientmsg{};
 
   clientmsg.header.id = msgid_clientspritesnapshot;
 
@@ -369,8 +363,8 @@ void clientspritesnapshotmov()
     clientmsg.keys16 = clientmsg.keys16 & ~B9;
   }
 
-  tvector2 posdiff = vec2subtract(clientmsg.pos, oldclientsnapshotmovmsg.pos);
-  tvector2 veldiff = vec2subtract(clientmsg.velocity, oldclientsnapshotmovmsg.velocity);
+  tvector2 const posdiff = vec2subtract(clientmsg.pos, oldclientsnapshotmovmsg.pos);
+  tvector2 const veldiff = vec2subtract(clientmsg.velocity, oldclientsnapshotmovmsg.velocity);
 
   if ((vec2length(posdiff) > posdelta) || (vec2length(veldiff) > veldelta) ||
       (clientmsg.keys16 != oldclientsnapshotmovmsg.keys16) || ((clientmsg.keys16 & B6) == B6) ||
@@ -392,7 +386,7 @@ void clientspritesnapshotmov()
 // CLIENT SPRITE SNAPSHOT DEAD
 void clientspritesnapshotdead()
 {
-  tmsg_clientspritesnapshot_dead clientmsg;
+  tmsg_clientspritesnapshot_dead clientmsg{};
 
   clientmsg.header.id = msgid_clientspritesnapshot_dead;
   clientmsg.camerafocus = gGlobalStateClient.camerafollowsprite;
@@ -491,7 +485,7 @@ static void sFillPos(Sprite<M> &sprite, const tmsg_spritedeath *deathsnap)
 void clienthandlespritedeath::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t j;
+  std::int32_t j = 0;
   tvector2 b;
 
   auto &map = GS::GetGame().GetMap();
@@ -501,7 +495,7 @@ void clienthandlespritedeath::Handle(NetworkContext *netmessage)
     return;
   }
 
-  auto *deathsnap = pmsg_spritedeath(netmessage->packet);
+  auto *deathsnap = reinterpret_cast<pmsg_spritedeath>(netmessage->packet);
 
   const std::int32_t i = deathsnap->num;
 
@@ -569,7 +563,7 @@ void clienthandlespritedeath::Handle(NetworkContext *netmessage)
   sprite.onfire = deathsnap->onfire;
 
   // mulitkill count
-  if (deathsnap->killer != i)
+  if (std::cmp_not_equal(deathsnap->killer, i))
   {
     sprite_system.GetSprite(deathsnap->killer).multikilltime = multikillinterval;
     sprite_system.GetSprite(deathsnap->killer).multikills += 1;
@@ -605,7 +599,7 @@ void clienthandlespritedeath::Handle(NetworkContext *netmessage)
       gGlobalStateClientGame.bigmessage(multikillmessage[9], killmessagewait, kill_message_color);
     }
 
-    if ((gGlobalStateClient.shotdistance > -1) && (deathsnap->killer != i))
+    if ((gGlobalStateClient.shotdistance > -1) && (std::cmp_not_equal(deathsnap->killer, i)))
     {
       gGlobalStateClient.shotdistanceshow = killmessagewait - 30;
       gGlobalStateClient.shotdistance = deathsnap->shotdistance;
@@ -665,7 +659,7 @@ void clienthandlespritedeath::Handle(NetworkContext *netmessage)
     break;
   }
 
-  if (deathsnap->killer != i)
+  if (std::cmp_not_equal(deathsnap->killer, i))
   {
     gGlobalStateClient.GetKillConsole().ConsoleAdd(
       (sprite_system.GetSprite(deathsnap->killer).player->name) + " (" +
@@ -749,7 +743,7 @@ void clienthandledelta_movement::Handle(NetworkContext *netmessage)
     return;
   }
 
-  auto *deltamov = pmsg_serverspritedelta_movement(netmessage->packet);
+  auto *deltamov = reinterpret_cast<pmsg_serverspritedelta_movement>(netmessage->packet);
 
   // Older than Heartbeat Drop the Packet
   if (!gGlobalStateDemo.demoplayer.active() &&
@@ -757,7 +751,7 @@ void clienthandledelta_movement::Handle(NetworkContext *netmessage)
   {
     return;
   }
-  std::int32_t i = deltamov->num;
+  std::int32_t const i = deltamov->num;
 
   if ((i < 1) || (i > max_sprites))
   {
@@ -784,7 +778,7 @@ void clienthandledelta_movement::Handle(NetworkContext *netmessage)
 void clienthandledelta_mouseaim::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_serverspritedelta_mouseaim *deltamouse;
+  tmsg_serverspritedelta_mouseaim *deltamouse = nullptr;
 
   if (!verifypacket(sizeof(tmsg_serverspritedelta_mouseaim), netmessage->size,
                     msgid_delta_mouseaim))
@@ -792,9 +786,9 @@ void clienthandledelta_mouseaim::Handle(NetworkContext *netmessage)
     return;
   }
 
-  deltamouse = pmsg_serverspritedelta_mouseaim(netmessage->packet);
+  deltamouse = reinterpret_cast<pmsg_serverspritedelta_mouseaim>(netmessage->packet);
 
-  std::int32_t i = deltamouse->num;
+  std::int32_t const i = deltamouse->num;
   if ((i < 1) || (i > max_sprites))
   {
     return;
@@ -831,7 +825,7 @@ void clienthandledelta_weapons::Handle(NetworkContext *netmessage)
     return;
   }
 
-  std::int32_t i = pmsg_serverspritedelta_weapons(netmessage->packet)->num;
+  std::int32_t const i = reinterpret_cast<pmsg_serverspritedelta_weapons>(netmessage->packet)->num;
 
   if ((i < 1) || (i > max_sprites))
   {
@@ -844,11 +838,11 @@ void clienthandledelta_weapons::Handle(NetworkContext *netmessage)
   }
 
   sprite.applyweaponbynum(
-    pmsg_serverspritedelta_weapons(netmessage->packet)->weaponnum, 1);
+    reinterpret_cast<pmsg_serverspritedelta_weapons>(netmessage->packet)->weaponnum, 1);
   sprite.applyweaponbynum(
-    pmsg_serverspritedelta_weapons(netmessage->packet)->secondaryweaponnum, 2);
+    reinterpret_cast<pmsg_serverspritedelta_weapons>(netmessage->packet)->secondaryweaponnum, 2);
   sprite.weapon.ammocount =
-    pmsg_serverspritedelta_weapons(netmessage->packet)->ammocount;
+    reinterpret_cast<pmsg_serverspritedelta_weapons>(netmessage->packet)->ammocount;
 
   if ((sprite_system.IsPlayerSprite(i)) && !sprite_system.GetPlayerSprite().deadmeat)
   {
@@ -865,9 +859,9 @@ void clienthandledelta_helmet::Handle(NetworkContext *netmessage)
     return;
   }
 
-  auto *deltahelmet = pmsg_serverspritedelta_helmet(netmessage->packet);
+  auto *deltahelmet = reinterpret_cast<pmsg_serverspritedelta_helmet>(netmessage->packet);
 
-  std::int32_t i = deltahelmet->num;
+  std::int32_t const i = deltahelmet->num;
 
   if ((i < 1) || (i > max_sprites))
   {
@@ -901,7 +895,7 @@ void clienthandleclientspritesnapshot_dead::Handle(NetworkContext *netmessage)
   if (gGlobalStateClient.freecam == 0)
   {
     gGlobalStateClient.camerafollowsprite =
-      pmsg_clientspritesnapshot_dead(netmessage->packet)->camerafocus;
+      reinterpret_cast<pmsg_clientspritesnapshot_dead>(netmessage->packet)->camerafocus;
   }
 }
 
@@ -1033,18 +1027,18 @@ TEST_SUITE("NetworkClientSprite")
     tmsg_spritedeath deathsnap;
     for (std::int32_t d = 0; d < 16; d++)
     {
-      deathsnap.pos[d] = tvector2{0.0f, 0.0f};
-      deathsnap.oldpos[d] = tvector2{0.0f, 0.0f};
+      deathsnap.pos[d] = tvector2{0.0F, 0.0F};
+      deathsnap.oldpos[d] = tvector2{0.0F, 0.0F};
     }
 
     sFillPos(sprite, &deathsnap);
 
     for (std::int32_t d = 1; d <= 16; d++)
     {
-      CHECK(sprite.skeleton.pos[d].x == 0.0f);
-      CHECK(sprite.skeleton.pos[d].y == 0.0f);
-      CHECK(sprite.skeleton.oldpos[d].x == 0.0f);
-      CHECK(sprite.skeleton.oldpos[d].y == 0.0f);
+      CHECK(sprite.skeleton.pos[d].x == 0.0F);
+      CHECK(sprite.skeleton.pos[d].y == 0.0F);
+      CHECK(sprite.skeleton.oldpos[d].x == 0.0F);
+      CHECK(sprite.skeleton.oldpos[d].y == 0.0F);
     }
   }
 
@@ -1054,9 +1048,9 @@ TEST_SUITE("NetworkClientSprite")
     tmsg_spritedeath deathsnap;
     for (std::int32_t d = 0; d < 16; d++)
     {
-      deathsnap.pos[d] = tvector2{static_cast<float>(d % 2 + 2), static_cast<float>(d % 2 + 2)};
+      deathsnap.pos[d] = tvector2{static_cast<float>((d % 2) + 2), static_cast<float>((d % 2) + 2)};
       deathsnap.oldpos[d] =
-        tvector2{static_cast<float>((d + 1) % 2 + 2), static_cast<float>((d + 1) % 2 + 2)};
+        tvector2{static_cast<float>(((d + 1) % 2) + 2), static_cast<float>(((d + 1) % 2) + 2)};
     }
 
     sFillPos(sprite, &deathsnap);
@@ -1065,17 +1059,17 @@ TEST_SUITE("NetworkClientSprite")
     {
       if (d % 2 == 1)
       {
-        CHECK(sprite.skeleton.pos[d].x == 2.0f);
-        CHECK(sprite.skeleton.pos[d].y == 2.0f);
-        CHECK(sprite.skeleton.oldpos[d].x == 3.0f);
-        CHECK(sprite.skeleton.oldpos[d].y == 3.0f);
+        CHECK(sprite.skeleton.pos[d].x == 2.0F);
+        CHECK(sprite.skeleton.pos[d].y == 2.0F);
+        CHECK(sprite.skeleton.oldpos[d].x == 3.0F);
+        CHECK(sprite.skeleton.oldpos[d].y == 3.0F);
       }
       else
       {
-        CHECK(sprite.skeleton.pos[d].x == 3.0f);
-        CHECK(sprite.skeleton.pos[d].y == 3.0f);
-        CHECK(sprite.skeleton.oldpos[d].x == 2.0f);
-        CHECK(sprite.skeleton.oldpos[d].y == 2.0f);
+        CHECK(sprite.skeleton.pos[d].x == 3.0F);
+        CHECK(sprite.skeleton.pos[d].y == 3.0F);
+        CHECK(sprite.skeleton.oldpos[d].x == 2.0F);
+        CHECK(sprite.skeleton.oldpos[d].y == 2.0F);
       }
     }
   }

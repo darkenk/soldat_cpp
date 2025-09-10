@@ -2,11 +2,12 @@
 
 #include "NetworkClientConnection.hpp"
 
-#include <physfs.h>
 #include <alloca.h>
+#include <cstdint>
 #include <endian.h>
+#include <physfs.h>
 #include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <string_view>
 
 #include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
@@ -21,21 +22,17 @@
 #include "NetworkClientSprite.hpp"
 #include "NetworkMessageCreator.hpp"
 #include "NetworkUtils.hpp"
-#include "common/Console.hpp"
+#include "common/Constants.hpp"
 #include "common/GameStrings.hpp"
 #include "common/LogFile.hpp"
 #include "common/Logging.hpp"
-#include "common/gfx.hpp"
-#include "common/misc/PortUtils.hpp"
-#include "shared/Version.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
-#include "common/Constants.hpp"
 #include "common/PolyMap.hpp"
 #include "common/Util.hpp"
 #include "common/Vector.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/Weapons.hpp"
+#include "common/gfx.hpp"
+#include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/RandomGenerator.hpp"
 #include "common/misc/SHA1Helper.hpp"
@@ -44,10 +41,12 @@
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
 #include "common/port_utils/SourceLocation.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/AnimationSystem.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/Version.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
 
 using string = std::string;
@@ -61,7 +60,7 @@ static void sPreprocessSprites(SpriteSystem &spriteSystem, tmsg_playerslist *pla
     {
       continue;
     }
-    SpriteId id{static_cast<std::uint8_t>(i + 1)};
+    SpriteId const id{static_cast<std::uint8_t>(i + 1)};
     auto newplayer = spriteSystem.GetSprite(id).player; // reuse object
     newplayer->name = returnfixedplayername(playerslistmsg->name[i].data());
     newplayer->shirtcolor = playerslistmsg->shirtcolor[i] | 0xff000000;
@@ -164,7 +163,7 @@ void clientsendplayerinfo()
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_playerinfo playerinfo;
-  tmsg_changeteam changemsg;
+  tmsg_changeteam changemsg{};
 
   if ((gGlobalStateClient.spectator == 1) && (gGlobalStateClient.selteam == 0))
   {
@@ -262,7 +261,7 @@ void clientsendplayerinfo()
 void clientdisconnect(INetwork &client)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_playerdisconnect playermsg;
+  tmsg_playerdisconnect playermsg{};
 
   if (sprite_system.IsPlayerSpriteValid())
   { // send disconnection info to server
@@ -285,23 +284,23 @@ void clientdisconnect(INetwork &client)
 
 void ClientPongMsg::send(const std::uint8_t pingnum)
 {
-  tmsg_pong pongmsg(pingnum);
+  tmsg_pong const pongmsg(pingnum);
   mNetwork.SendData(pongmsg);
 }
 
 void clientpong(INetwork& network, const std::uint8_t pingnum)
 {
-  tmsg_pong pongmsg(pingnum);
+  tmsg_pong const pongmsg(pingnum);
   network.SendData(pongmsg);
 }
 
 void clienthandleplayerslist::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_playerslist *playerslistmsg;
+  tmsg_playerslist *playerslistmsg = nullptr;
   tvector2 pos;
   tvector2 vel;
-  std::string downloadurl;
+  std::string const downloadurl;
   bool forcegraphicsreload = false;
   std::string modname;
   std::string mapname;
@@ -354,8 +353,8 @@ void clienthandleplayerslist::Handle(NetworkContext *netmessage)
             sha1file(GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod");
           playerslistmsg->modchecksum == checksum)
       {
-        if (PHYSFS_mount((pchar)(GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod"),
-                         (pchar)(string("mods/") + modname + '/'), 0) == 0)
+        if (PHYSFS_mount(pchar(GS::GetGame().GetUserDirectory() + "mods/" + modname + ".smod"),
+                         pchar(string("mods/") + modname + '/'), 0) == 0)
         {
           gGlobalStateClient.showmessage(
             _(string("Could not load mod archive (") + modname + ")."));
@@ -576,7 +575,7 @@ void clienthandleplayerslist::Handle(NetworkContext *netmessage)
 
 void clienthandleunaccepted::Handle(NetworkContext *netmessage)
 {
-  pmsg_unaccepted unacceptedmsg;
+  pmsg_unaccepted unacceptedmsg = nullptr;
   std::string text;
 
   if (!verifypacketlargerorequal(sizeof(unacceptedmsg), netmessage->size, msgid_unaccepted))
@@ -585,7 +584,7 @@ void clienthandleunaccepted::Handle(NetworkContext *netmessage)
   }
 
   unacceptedmsg = reinterpret_cast<pmsg_unaccepted>(netmessage->packet);
-  std::int32_t textlen = netmessage->size - sizeof(tmsg_unaccepted);
+  std::int32_t const textlen = netmessage->size - sizeof(tmsg_unaccepted);
 
   if ((textlen > 0) && (unacceptedmsg->text[textlen - 1] == '\0'))
   {
@@ -673,11 +672,11 @@ void clienthandleping::Handle(NetworkContext *netmessage)
   if (sprite_system.IsPlayerSpriteValid())
   {
     auto &player = sprite_system.GetPlayerSprite().player;
-    player->pingticks = pmsg_ping(netmessage->packet)->pingticks;
+    player->pingticks = reinterpret_cast<pmsg_ping>(netmessage->packet)->pingticks;
     player->pingtime = player->pingticks * 1000 / 60;
   }
 
-  clientpong(netmessage->networkClient, pmsg_ping(netmessage->packet)->pingnum);
+  clientpong(netmessage->networkClient, reinterpret_cast<pmsg_ping>(netmessage->packet)->pingnum);
 
   gGlobalStateClientGame.clientstopmovingcounter = clientstopmove_retrys;
   gGlobalStateNetworkClient.noheartbeattime = 0;
@@ -691,7 +690,7 @@ void clienthandleservervars::Handle(NetworkContext *netmessage)
     return;
   }
 
-  const auto *varsmsg = pmsg_servervars(netmessage->packet);
+  const auto *varsmsg = reinterpret_cast<pmsg_servervars>(netmessage->packet);
 
   gGlobalStateNetworkClient.clientvarsrecieved = true;
 
@@ -762,7 +761,7 @@ void clienthandleservervars::Handle(NetworkContext *netmessage)
 }
 
 template <typename T>
-auto ReadAndSetValue(BitStream &bs, std::uint8_t cvarid) -> bool
+static auto ReadAndSetValue(BitStream &bs, std::uint8_t cvarid) -> bool
 {
   auto &cvi = CVarBase<T>::Find(cvarid);
   if (!cvi.IsValid())
@@ -784,12 +783,13 @@ void clienthandlesynccvars::Handle(NetworkContext *netmessage)
   }
 
   auto *varsmsg = reinterpret_cast<pmsg_serversynccvars>(netmessage->packet);
-  std::int32_t size = netmessage->size - (sizeof(varsmsg->header) + sizeof(varsmsg->itemcount));
+  std::int32_t const size =
+    netmessage->size - (sizeof(varsmsg->header) + sizeof(varsmsg->itemcount));
   auto *data = reinterpret_cast<std::uint8_t *>(&varsmsg->data);
   BitStream bs(data, size);
 
   LogDebug("net_msg", "Read sync variables. Count {}", varsmsg->itemcount);
-  for (auto i = 0; i < varsmsg->itemcount; i++)
+  for (auto i = 0; std::cmp_less(i, varsmsg->itemcount); i++)
   {
     std::uint8_t cvarid = 0;
     bs.Read(cvarid);
@@ -818,17 +818,16 @@ void clienthandlesynccvars::Handle(NetworkContext *netmessage)
 
 #pragma region tests
 
-#include <doctest/doctest.h>
 #include <array>
+#include <boost/di.hpp>
+#include <boost/di/extension/scopes/shared.hpp>
 #include <cstddef>
 #include <cstring>
+#include <doctest/doctest.h>
 #include <memory>
 #include <new>
 #include <string>
-#include <utility>
 #include <vector>
-#include <boost/di.hpp>
-#include <boost/di/extension/scopes/shared.hpp>
 
 namespace
 {
@@ -858,12 +857,12 @@ public:
   [[nodiscard]] auto GetReliable() const -> bool { return mReliable; }
 
   void ProcessLoop() override {}
-  bool Connect(const std::string_view host, std::uint32_t port) override { return true; }
-  bool Disconnect(bool now) override { return true; }
+  bool Connect(const std::string_view /*host*/, std::uint32_t /*port*/) override { return true; }
+  bool Disconnect(bool /*now*/) override { return true; }
 
 protected:
   auto SendDataImpl(const std::byte *data, const std::int32_t size, const bool reliable,
-                    const source_location& /*unused*/) -> bool override final
+                    const source_location & /*unused*/) -> bool final
   {
     mMessage = std::make_unique<std::byte[]>(size);
     std::memcpy(mMessage.get(), data, size);
@@ -998,8 +997,8 @@ TEST_SUITE("NetworkClientConnection")
   {
     auto &ss = SpriteSystem::Get();
     tmsg_playerslist msg;
-    tvector2 pos{1.0f, 2.0f};
-    tvector2 vel{3.0f, 4.0f};
+    tvector2 pos{1.0F, 2.0F};
+    tvector2 vel{3.0F, 4.0F};
     for (auto &name : msg.name)
     {
       std::strcpy(name.data(), "0 ");
@@ -1027,8 +1026,8 @@ TEST_SUITE("NetworkClientConnection")
 
     // Verify position and velocity
     const auto &velocity = ss.GetVelocity(1);
-    CHECK_EQ(3.0f, velocity.x);
-    CHECK_EQ(4.0f, velocity.y);
+    CHECK_EQ(3.0F, velocity.x);
+    CHECK_EQ(4.0F, velocity.y);
   }
 
   TEST_CASE_FIXTURE(NetworkClientConnectionFixture, "sPreprocessSprites player appearance")
@@ -1052,16 +1051,25 @@ TEST_SUITE("NetworkClientConnection")
     };
 
     const TestCase testCases[] = {
-      {B1, 1, 0, 0},                     // Hairstyle 1
-      {B2, 2, 0, 0},                     // Hairstyle 2
-      {B3, 3, 0, 0},                     // Hairstyle 3
-      {B4, 4, 0, 0},                     // Hairstyle 4
-      {B5, 0, GFX::GOSTEK_HELM, 0},      // Helmet
-      {B6, 0, GFX::GOSTEK_KAP, 0},       // Hat
-      {B7, 0, 0, 1},                     // Chain 1
-      {B8, 0, 0, 2},                     // Chain 2
-      {B1 | B5, 1, GFX::GOSTEK_HELM, 0}, // Combined hair + helm
-      {B2 | B7, 2, 0, 1},                // Combined hair + chain
+      {.look = B1, .expectedHair = 1, .expectedHead = 0, .expectedChain = 0}, // Hairstyle 1
+      {.look = B2, .expectedHair = 2, .expectedHead = 0, .expectedChain = 0}, // Hairstyle 2
+      {.look = B3, .expectedHair = 3, .expectedHead = 0, .expectedChain = 0}, // Hairstyle 3
+      {.look = B4, .expectedHair = 4, .expectedHead = 0, .expectedChain = 0}, // Hairstyle 4
+      {.look = B5,
+       .expectedHair = 0,
+       .expectedHead = GFX::GOSTEK_HELM,
+       .expectedChain = 0}, // Helmet
+      {.look = B6, .expectedHair = 0, .expectedHead = GFX::GOSTEK_KAP, .expectedChain = 0}, // Hat
+      {.look = B7, .expectedHair = 0, .expectedHead = 0, .expectedChain = 1}, // Chain 1
+      {.look = B8, .expectedHair = 0, .expectedHead = 0, .expectedChain = 2}, // Chain 2
+      {.look = B1 | B5,
+       .expectedHair = 1,
+       .expectedHead = GFX::GOSTEK_HELM,
+       .expectedChain = 0}, // Combined hair + helm
+      {.look = B2 | B7,
+       .expectedHair = 2,
+       .expectedHead = 0,
+       .expectedChain = 1}, // Combined hair + chain
     };
 
     for (const auto &tc : testCases)
@@ -1093,8 +1101,8 @@ TEST_SUITE("NetworkClientConnection")
   {
     auto &ss = SpriteSystem::Get();
     tmsg_playerslist msg;
-    tvector2 pos{1.0f, 2.0f};
-    tvector2 vel{3.0f, 4.0f};
+    tvector2 pos{1.0F, 2.0F};
+    tvector2 vel{3.0F, 4.0F};
 
     // Reset sprite system
     for (int i = 1; i <= max_sprites; i++)
@@ -1105,7 +1113,7 @@ TEST_SUITE("NetworkClientConnection")
     // Setup 32 players with unique values
     for (int i = 0; i < max_sprites; i++)
     {
-      std::string name = "Player" + std::to_string(i);
+      std::string const name = "Player" + std::to_string(i);
       std::strcpy(msg.name[i].data(), name.c_str());
       msg.shirtcolor[i] = 0x100000 + i;
       msg.pantscolor[i] = 0x200000 + i;
@@ -1114,8 +1122,8 @@ TEST_SUITE("NetworkClientConnection")
       msg.jetcolor[i] = 0x500000 + i;
       msg.team[i] = (i % 4) + 1; // Teams 1-4
       msg.look[i] = (1 << (i % 4)) | ( (i + 1) % 3) << 5 | ((i + 2) % 3) << 7; // All possible looks
-      msg.pos[i] = tvector2(float(i), float(i * 2));
-      msg.vel[i] = tvector2(float(i / 2), float(i / 3));
+      msg.pos[i] = tvector2(static_cast<float>(i), static_cast<float>(i * 2));
+      msg.vel[i] = tvector2(static_cast<float>(i / 2), static_cast<float>(i / 3));
       msg.predduration[i] = i % 2; // Every other player is predator
     }
 
@@ -1127,8 +1135,8 @@ TEST_SUITE("NetworkClientConnection")
       const auto &sprite = ss.GetSprite(i);
       CHECK(sprite.active);
 
-      int idx = i - 1; // Convert to 0-based for message array access
-      std::string expectedName = "Player" + std::to_string(idx);
+      int const idx = i - 1; // Convert to 0-based for message array access
+      std::string const expectedName = "Player" + std::to_string(idx);
 
       CHECK(verifyPlayer(sprite, expectedName, (0x100000 + idx) | 0xff000000,
                          (0x200000 + idx) | 0xff000000, (0x300000 + idx) | 0xff000000,

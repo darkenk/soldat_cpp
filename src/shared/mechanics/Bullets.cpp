@@ -1,10 +1,13 @@
 // automatically converted
 
 #include "Bullets.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SoldatConfig.hpp"
+#include <array>
+#include <cstdint>
 
 #ifdef SERVER
-#include "../../server/Server.hpp"
-#include "../network/NetworkServer.hpp"
 #include "../network/NetworkServerBullet.hpp"
 #else
 #include "../../client/Client.hpp"
@@ -14,27 +17,17 @@
 #include "../network/NetworkClientBullet.hpp"
 #endif
 #include <Tracy.hpp>
-#include <math.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
-#include <limits>
 #include <algorithm>
+#include <cmath>
 #include <cstring>
-#include <memory>
-#include <string>
-#include <utility>
+#include <limits>
+#include <spdlog/fmt/bundled/core.h>
 
 #include "../Cvar.hpp"
-#include "../Demo.hpp"
 #include "../Game.hpp"
+#include "common/Anims.hpp"
 #include "common/Calc.hpp"
 #include "common/Logging.hpp"
-#include "common/Util.hpp"
-#include "common/gfx.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
-#include "client/Gfx.hpp"
-#include "common/Anims.hpp"
 #include "common/MapFile.hpp"
 #include "common/Parts.hpp"
 #include "common/PolyMap.hpp"
@@ -43,20 +36,18 @@
 #include "common/misc/RandomGenerator.hpp"
 #include "common/misc/SafeType.hpp"
 #include "common/network/Net.hpp"
-#include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
-#include "shared/network/Net.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 #if SOLDAT_UTBOT
 constexpr auto pi = 3.14159265358979323846;
 #else
 #include <numbers>
 
-using std::numbers::pi;
 #endif // SOLDAT_UTBOT
 
 template <Config::Module M>
@@ -75,13 +66,13 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
 {
   auto &sprite_system = SpriteSystem::Get();
 #ifndef SERVER
-  std::int32_t j;
+  std::int32_t j = 0;
 #endif
-  float mass;
-  std::int16_t weaponindex;
-  std::uint8_t sstyle;
+  float mass = NAN;
+  std::int16_t weaponindex = 0;
+  std::uint8_t sstyle = 0;
 
-  std::int32_t result;
+  std::int32_t result = 0;
   result = -1;
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
@@ -170,18 +161,18 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
   b.num = i;
   b.owner = sowner;
   b.timeout = guns[weaponindex].timeout;
-#ifndef SERVER // TODO: Check if this should be used also in server
+#ifndef SERVER // TODO(vscode): Check if this should be used also in server
   b.timeoutprev = guns[weaponindex].timeout;
 #endif
   b.hitmultiply = hitm;
-#ifndef SERVER // TODO: Check if this should be used also in server
+#ifndef SERVER // TODO(vscode): Check if this should be used also in server
   b.hitmultiplyprev = hitm;
 #endif
   b.whizzed = false;
 
   if (
 #ifndef SERVER
-    (sowner == gGlobalStateClient.camerafollowsprite) ||
+    (std::cmp_equal(sowner, gGlobalStateClient.camerafollowsprite)) ||
 #endif
     (sstyle == bullet_style_flamearrow) || (sstyle == bullet_style_flame))
   {
@@ -203,7 +194,7 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
   b.hitspot.y = 0;
   b.tracking = 0;
 
-#ifndef SERVER // TODO: Check if this should be used also in server
+#ifndef SERVER // TODO(vscode): Check if this should be used also in server
   if (sprite_system.GetSprite(sowner).aimdistcoef < defaultaimdist)
   {
     b.tracking = 255;
@@ -215,7 +206,7 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
 #endif
   b.startuptime = GS::GetGame().GetMainTickCounter();
   b.ricochetcount = 0;
-#ifndef SERVER // TODO: Check if this should be used also in server
+#ifndef SERVER // TODO(vscode): Check if this should be used also in server
   b.degradecount = 0;
   b.pingadd = 0;
   b.pingaddstart = 0;
@@ -460,9 +451,9 @@ auto createbullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int
 auto servercreatebullet(tvector2 spos, tvector2 svelocity, std::uint8_t snum, std::int32_t sowner,
                         std::uint8_t n, float hitm, bool net) -> std::int32_t
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
-  std::int32_t result;
+  std::int32_t result = 0;
   result = -1;
   auto &bullet = GS::GetBulletSystem().GetBullets();
 
@@ -490,10 +481,10 @@ template <Config::Module M>
 auto bulletcansend(float x, float y, const std::int32_t i, float vx) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
-  float sx;
-  float sy;
+  float sx = NAN;
+  float sy = NAN;
 
-  bool result;
+  bool result = false;
   LogTraceG("BulletCanSend");
   result = false;
 
@@ -511,9 +502,9 @@ auto bulletcansend(float x, float y, const std::int32_t i, float vx) -> bool
   const auto &spritePartsPos = sprite_system.GetSpritePartsPos(i);
 
   sx = spritePartsPos.x -
-       ((float)((spritePartsPos.x - sprite_system.GetSprite(i).control.mouseaimx)) / 2);
+       (static_cast<float>((spritePartsPos.x - sprite_system.GetSprite(i).control.mouseaimx)) / 2);
   sy = spritePartsPos.y -
-       ((float)((spritePartsPos.y - sprite_system.GetSprite(i).control.mouseaimy)) / 2);
+       (static_cast<float>((spritePartsPos.y - sprite_system.GetSprite(i).control.mouseaimy)) / 2);
 #ifdef SERVER
   if ((x > (sx - max_game_width)) && (x < (sx + max_game_width)) && (y > (sy - 480)) &&
       (y < (sy + 480)))
@@ -551,7 +542,7 @@ template bool bulletcansend<Config::GetModule()>(float x, float y, std::int32_t 
 auto canhitspray(std::int32_t victim, std::int32_t attacker) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
-  bool result;
+  bool result = false;
   result = false;
 
   if (sprite_system.IsPlayerSprite(victim))
@@ -569,7 +560,7 @@ auto canhitspray(std::int32_t victim, std::int32_t attacker) -> bool
 void hitspray()
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int16_t bink;
+  std::int16_t bink = 0;
 
   bink = sprite_system.GetPlayerSprite().weapon.bink;
   if (bink > 0)
@@ -580,12 +571,13 @@ void hitspray()
 
 void calculaterecoil(float px, float py, float &cx, float &cy, float da)
 {
+  constexpr auto pi = std::numbers::pi_v<float>;
   auto &sprite_system = SpriteSystem::Get();
-  float dx;
-  float dy;
-  float radius;
-  float alpha;
-  float displacementx;
+  float dx = NAN;
+  float dy = NAN;
+  float radius = NAN;
+  float alpha = NAN;
+  float displacementx = NAN;
   // M: TVector2;
 
   displacementx = 0;
@@ -603,7 +595,7 @@ void calculaterecoil(float px, float py, float &cx, float &cy, float da)
   // Calculate delta x/y and radius
   dx = cx - px;
   dy = cy - py;
-  radius = sqrt(dx * dx + dy * dy);
+  radius = sqrt((dx * dx) + (dy * dy));
 
   // Depending on is cursor is on left/right side do different things
   if (dx > 0)
@@ -611,19 +603,13 @@ void calculaterecoil(float px, float py, float &cx, float &cy, float da)
     alpha = atan(dy / dx);
     alpha = alpha + da;
 
-    if (alpha > pi / 2)
-    {
-      alpha = pi / 2;
-    }
+    alpha = std::min<double>(alpha, pi / 2);
   }
   else
   {
     alpha = atan(dy / dx) + pi;
     alpha = alpha - da;
-    if (alpha < pi / 2)
-    {
-      alpha = pi / 2;
-    }
+    alpha = std::max<double>(alpha, pi / 2);
   }
 
   // Calculate new x/y for cursor
@@ -671,7 +657,7 @@ void Bullet<M>::update()
   [[maybe_unused]] auto &sprite_system = SpriteSystem::Get();
   tvector2 oldv;
   tvector2 a;
-  float dist;
+  float dist = NAN;
   tvector2 oldp;
   tvector2 oldop;
   tvector2 hitp;
@@ -933,6 +919,7 @@ template <Config::Module M>
 void Bullet<M>::render(double timeelapsed)
 {
   auto &sprite_system = SpriteSystem::Get();
+  constexpr auto pi = std::numbers::pi_v<float>;
   tvector2 bulletpos;
   tvector2 bulletvel;
   tvector2 _p;
@@ -940,12 +927,12 @@ void Bullet<M>::render(double timeelapsed)
   tvector2 _scala;
   tvector2 a;
   tvector2 b;
-  float roto;
-  float alfa;
+  float roto = NAN;
+  float alfa = NAN;
   float grenvel = 0.0;
-  float ox;
-  float oy;
-  float sinusvar;
+  float ox = NAN;
+  float oy = NAN;
+  float sinusvar = NAN;
 
   tgfxspritearray &t = gGlobalStateGameRendering.textures;
   bulletpos = GetBulletParts().pos[num];
@@ -971,7 +958,7 @@ void Bullet<M>::render(double timeelapsed)
   }
 
   bulletvel = GetBulletParts().velocity[num];
-  sinusvar = sin(timeoutfloat + 5.1 * timeelapsed);
+  sinusvar = sin(timeoutfloat + (5.1 * timeelapsed));
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
@@ -1003,14 +990,8 @@ void Bullet<M>::render(double timeelapsed)
 
       alfa = ((hitmultiply * _scala.x * _scala.x) / 4.63) * 255;
 
-      if (alfa > 230)
-      {
-        alfa = 230;
-      }
-      if (alfa < 50)
-      {
-        alfa = 50;
-      }
+      alfa = std::min<float>(alfa, 230);
+      alfa = std::max<float>(alfa, 50);
 
       if (pingadd < 1)
       {
@@ -1022,8 +1003,8 @@ void Bullet<M>::render(double timeelapsed)
       {
         a.x = bulletpos.x - initial.x;
         a.y = bulletpos.y - initial.y;
-        b.x = vec2length(a) *
-              min((float)(1) / bulletlength, ((float)((pingadd + 2)) / pingaddstart) / bullettrail);
+        b.x = vec2length(a) * min(static_cast<float>(1) / bulletlength,
+                                  ((float)((pingadd + 2)) / pingaddstart) / bullettrail);
         b.y = 1;
 
         if (active)
@@ -1343,17 +1324,17 @@ auto Bullet<M>::checkmapcollision(float x, float y) -> tvector2
 {
   ZoneScopedN("Bullet::CheckMapCollision");
   auto &sprite_system = SpriteSystem::Get();
-  float largestvelocitycomponent;
-  std::int32_t b;
+  float largestvelocitycomponent = NAN;
+  std::int32_t b = 0;
   tvector2 pos;
   tvector2 perp;
   tvector2 step;
   tvector2 temp;
   tvector2 temp2;
   float d = 0.0;
-  std::int32_t detacc;
+  std::int32_t detacc = 0;
   std::int32_t tempint = 0;
-  bool teamcol;
+  bool teamcol = false;
 
   tvector2 result;
 
@@ -1374,13 +1355,13 @@ auto Bullet<M>::checkmapcollision(float x, float y) -> tvector2
   {
     detacc = 1;
   }
-  vec2scale(step, GetBulletParts().velocity[num], (float)(1) / detacc);
+  vec2scale(step, GetBulletParts().velocity[num], static_cast<float>(1) / detacc);
 
   // make steps for accurate collision detection
   for (b = 0; b <= detacc - 1; b++)
   {
-    pos.x = x + b * step.x;
-    pos.y = y + b * step.y;
+    pos.x = x + (b * step.x);
+    pos.y = y + (b * step.y);
 
     // iterate through maps sector polygons
     const auto sector = map.GetSector(pos);
@@ -1426,11 +1407,11 @@ auto Bullet<M>::checkmapcollision(float x, float y) -> tvector2
                 vec2scale(perp, perp, -d);
 
                 GetBulletParts().velocity[num].x =
-                  GetBulletParts().velocity[num].x * ((float)(25) / 35) +
-                  perp.x * ((float)(10) / 35);
+                  (GetBulletParts().velocity[num].x * (static_cast<float>(25) / 35)) +
+                  (perp.x * (static_cast<float>(10) / 35));
                 GetBulletParts().velocity[num].y =
-                  GetBulletParts().velocity[num].y * ((float)(25) / 35) +
-                  perp.y * ((float)(10) / 35);
+                  (GetBulletParts().velocity[num].y * (static_cast<float>(25) / 35)) +
+                  (perp.y * (static_cast<float>(10) / 35));
                 GetBulletParts().pos[num] = pos;
                 hitspot = GetBulletParts().pos[num];
 
@@ -1490,10 +1471,7 @@ auto Bullet<M>::checkmapcollision(float x, float y) -> tvector2
               GetBulletParts().pos[num] = vec2subtract(pos, GetBulletParts().velocity[num]);
               GetBulletParts().forces[num].y =
                 GetBulletParts().forces[num].y - GetBulletParts().gravity;
-              if (timeout > arrow_resist)
-              {
-                timeout = arrow_resist;
-              }
+              timeout = std::min<int>(timeout, arrow_resist);
               if (timeout < 20)
               {
                 GetBulletParts().forces[num].y =
@@ -1528,10 +1506,7 @@ auto Bullet<M>::checkmapcollision(float x, float y) -> tvector2
 
               if (style == bullet_style_flame)
               {
-                if (timeout > 16)
-                {
-                  timeout = 16;
-                }
+                timeout = std::min<int16_t>(timeout, 16);
               }
             }
             break;
@@ -1555,11 +1530,11 @@ auto Bullet<M>::checkmapcollision(float x, float y) -> tvector2
                 vec2scale(perp, perp, -d);
 
                 GetBulletParts().velocity[num].x =
-                  GetBulletParts().velocity[num].x * ((float)(25) / 35) +
-                  perp.x * ((float)(10) / 35);
+                  (GetBulletParts().velocity[num].x * (static_cast<float>(25) / 35)) +
+                  (perp.x * (static_cast<float>(10) / 35));
                 GetBulletParts().velocity[num].y =
-                  GetBulletParts().velocity[num].y * ((float)(25) / 35) +
-                  perp.y * ((float)(10) / 35);
+                  (GetBulletParts().velocity[num].y * (static_cast<float>(25) / 35)) +
+                  (perp.y * (static_cast<float>(10) / 35));
                 GetBulletParts().pos[num] = pos;
                 hitspot = GetBulletParts().pos[num];
 
@@ -1656,37 +1631,37 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
   auto &sprite_system = SpriteSystem::Get();
   const std::array<std::int32_t, 7> bodypartspriority = {{12, 11, 10, 6, 5, 4, 3}};
   tspriteindexes spritesbydistance;
-  std::int32_t spritecount;
-  std::int32_t spritecounter;
-  std::int32_t j;
+  std::int32_t spritecount = 0;
+  std::int32_t spritecounter = 0;
+  std::int32_t j = 0;
   tvector2 pos;
   tvector2 norm;
   tvector2 colpos;
   tvector2 a;
   tvector2 col;
   tvector2 bulletvelocity;
-  particlesystem *candidateskeleton;
-  std::int32_t bodypartpriorityindex;
-  std::int32_t bodypartid;
+  particlesystem *candidateskeleton = nullptr;
+  std::int32_t bodypartpriorityindex = 0;
+  std::int32_t bodypartid = 0;
   tvector2 bodypartoffset;
   tvector2 buttstockpositionoffset;
   tvector2 startpoint;
   tvector2 endpoint;
-  std::uint8_t where;
-  std::uint8_t weaponindex;
-  float dist;
-  float mindist;
-  std::int32_t r;
+  std::uint8_t where = 0;
+  std::uint8_t weaponindex = 0;
+  float dist = NAN;
+  float mindist = NAN;
+  std::int32_t r = 0;
   tvector2 bulletpush;
-  std::int32_t pushtick;
-  float hitboxmodifier;
-  float speed;
-  bool wasdead;
-  std::uint8_t nocollision;
+  std::int32_t pushtick = 0;
+  float hitboxmodifier = NAN;
+  float speed = NAN;
+  bool wasdead = false;
+  std::uint8_t nocollision = 0;
 #ifndef SERVER
-  std::uint8_t clothesshreadstyle;
-  std::int32_t i;
-  std::int32_t srv = 0;
+  std::uint8_t clothesshreadstyle = 0;
+  std::int32_t i = 0;
+  std::int32_t const srv = 0;
 #endif
 
   tvector2 result;
@@ -1788,7 +1763,8 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
       LogTraceG("TBullet.CheckSpriteCollision 4 ");
 #endif
 
-      if (((style != bullet_style_punch) && (style != bullet_style_knife)) || (j != owner))
+      if (((style != bullet_style_punch) && (style != bullet_style_knife)) ||
+          (std::cmp_not_equal(j, owner)))
       {
         if (where > 0)
         {
@@ -1826,12 +1802,12 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
 
           if (((nocollision & weapon_nocollision_team) != 0) and
               (sprite_system.GetSprite(j).isinsameteam(sprite_system.GetSprite(owner))) &&
-              (j != owner))
+              (std::cmp_not_equal(j, owner)))
           {
             continue;
           }
 
-          if (((nocollision & weapon_nocollision_self) != 0) && (owner == j))
+          if (((nocollision & weapon_nocollision_self) != 0) && (std::cmp_equal(owner, j)))
           {
             continue;
           }
@@ -1848,10 +1824,7 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
               {
                 vec2scale(bulletpush, bulletvelocity, guns[weaponindex].push);
                 pushtick = sprite_system.GetSprite(j).player->pingticks / 2 + ownerpingtick + 1;
-                if (pushtick > max_pushtick)
-                {
-                  pushtick = max_pushtick;
-                }
+                pushtick = std::min(pushtick, max_pushtick);
                 sprite_system.GetSprite(j).nextpush[pushtick] =
                   vec2add(sprite_system.GetSprite(j).nextpush[pushtick], bulletpush);
               }
@@ -1870,7 +1843,7 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
               // Blood spark
               if ((CVar::sv_friendlyfire) or sprite_system.GetSprite(owner).issolo() or
                   sprite_system.GetSprite(owner).isnotinsameteam(sprite_system.GetSprite(j)) or
-                  (j == owner))
+                  (std::cmp_equal(j, owner)))
               {
                 hit(hit_type_blood);
               }
@@ -2137,7 +2110,7 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
               break;
 
             case bullet_style_flame:
-              if (owner != j)
+              if (std::cmp_not_equal(owner, j))
               {
                 const auto &spriteVelocity = sprite_system.GetVelocity(j);
                 GetBulletParts().pos[num] = sprite_system.GetSprite(j).skeleton.pos[where];
@@ -2204,7 +2177,7 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
               // Blood spark
               if ((CVar::sv_friendlyfire) or sprite_system.GetSprite(owner).issolo() or
                   sprite_system.GetSprite(owner).isnotinsameteam(sprite_system.GetSprite(j)) or
-                  (j == owner))
+                  (std::cmp_equal(j, owner)))
               {
                 hit(hit_type_blood);
               }
@@ -2249,8 +2222,8 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
               }
 
               // play hit sound
-              if (std::find(spritecollisions.begin(), spritecollisions.end(),
-                            sprite_system.GetSprite(j).num) != spritecollisions.end())
+              if (std::ranges::find(spritecollisions, sprite_system.GetSprite(j).num) !=
+                  spritecollisions.end())
               {
                 NotImplemented("Check spritecollisions");
 #if 0
@@ -2323,20 +2296,20 @@ auto Bullet<M>::checkspritecollision(float lasthitdist) -> tvector2
 template <Config::Module M>
 auto Bullet<M>::checkthingcollision(float lasthitdist) -> tvector2
 {
-  std::int32_t i;
-  std::int32_t j;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
   tvector2 startpoint;
   tvector2 endpoint;
   tvector2 pos;
   tvector2 colpos;
   tvector2 a;
-  std::uint8_t where;
-  float dist;
+  std::uint8_t where = 0;
+  float dist = NAN;
   tvector2 thingvel;
   tvector2 veldiff;
   tvector2 bulletpush;
-  std::uint8_t newindex;
-  bool skipcollision;
+  std::uint8_t newindex = 0;
+  bool skipcollision = false;
 
   tvector2 result;
 #ifdef SERVER
@@ -2395,7 +2368,7 @@ auto Bullet<M>::checkthingcollision(float lasthitdist) -> tvector2
           {
             if (thingcollisions[i].thingnum == things[j].num)
             {
-              if (GS::GetGame().GetMainTickCounter() < thingcollisions[i].cooldownend)
+              if (std::cmp_less(GS::GetGame().GetMainTickCounter(), thingcollisions[i].cooldownend))
               {
                 skipcollision = true;
                 break;
@@ -2408,7 +2381,7 @@ auto Bullet<M>::checkthingcollision(float lasthitdist) -> tvector2
             break;
           }
 
-          // TODO: has high performance impact? -> do alloc like std vector
+          // TODO(vscode): has high performance impact? -> do alloc like std vector
           newindex = length(thingcollisions);
           setlength(thingcollisions, newindex + 1);
           thingcollisions[newindex] = thingcollision(
@@ -2447,16 +2420,16 @@ template <Config::Module M>
 auto Bullet<M>::checkcollidercollision(float lasthitdist) -> tvector2
 {
   ZoneScopedN("Bullet::CheckColliderCollision");
-  std::int32_t j;
+  std::int32_t j = 0;
 #ifndef SERVER
-  std::int32_t i;
+  std::int32_t i = 0;
 #endif
   tvector2 startpoint;
   tvector2 endpoint;
   tvector2 pos;
   tvector2 colpos;
   tvector2 a;
-  float dist;
+  float dist = NAN;
 
   LogTraceG("TBullet.CheckColliderCollision");
 
@@ -2587,7 +2560,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 {
   tvector2 a;
   tvector2 b;
-  std::int32_t i;
+  std::int32_t i = 0;
 
 #ifdef SERVER
   LogTraceG("TBullet.Hit");
@@ -2605,19 +2578,19 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     vec2scale(b, b, -0.06);
     b.y = b.y - 1.0;
 
-    b.x = b.x * (0.6 + (float)(Random(8)) / 10);
-    b.y = b.y * (0.8 + (float)(Random(4)) / 10);
+    b.x = b.x * (0.6 + static_cast<float>(Random(8)) / 10);
+    b.y = b.y * (0.8 + static_cast<float>(Random(4)) / 10);
     gGlobalStateSparks.createspark(a, b, 3, owner, 60);
 
-    b.x = b.x * (0.8 + (float)(Random(4)) / 10);
-    b.y = b.y * (0.6 + (float)(Random(8)) / 10);
+    b.x = b.x * (0.8 + static_cast<float>(Random(4)) / 10);
+    b.y = b.y * (0.6 + static_cast<float>(Random(8)) / 10);
     gGlobalStateSparks.createspark(a, b, 3, owner, 65);
 
-    vec2scale(b, b, 0.4 + (float)(Random(4)) / 10);
+    vec2scale(b, b, 0.4 + (static_cast<float>(Random(4)) / 10));
     gGlobalStateSparks.createspark(a, b, 1, owner, 60);
 
-    b.x = b.x * (0.5 + (float)(Random(4)) / 10);
-    b.y = b.y * (0.7 + (float)(Random(8)) / 10);
+    b.x = b.x * (0.5 + static_cast<float>(Random(4)) / 10);
+    b.y = b.y * (0.7 + static_cast<float>(Random(8)) / 10);
     gGlobalStateSparks.createspark(a, b, 3, owner, 50);
 
     b.x = 0;
@@ -2696,7 +2669,8 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 
     if (CVar::r_maxsparks > (max_sparks - 10))
     {
-      gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 54, owner, smoke_anims * 4 + 10);
+      gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 54, owner,
+                                     (smoke_anims * 4) + 10);
     }
 
     gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 12, owner, explosion_anims * 3);
@@ -2718,7 +2692,8 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
 
     if (CVar::r_maxsparks > (max_sparks - 10))
     {
-      gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 54, owner, smoke_anims * 4 + 10);
+      gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 54, owner,
+                                     (smoke_anims * 4) + 10);
     }
 
     gGlobalStateSparks.createspark(GetBulletParts().pos[num], a, 17, owner, explosion_anims * 3);
@@ -2734,7 +2709,7 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     b = GetBulletParts().velocity[num];
     a = vec2add(GetBulletParts().pos[num], GetBulletParts().velocity[num]);
     vec2scale(b, b, -0.02);
-    vec2scale(b, b, 0.4 + (float)(Random(4)) / 10);
+    vec2scale(b, b, 0.4 + (static_cast<float>(Random(4)) / 10));
     gGlobalStateSparks.createspark(a, b, 1, owner, 70);
 
     gGlobalStateSound.playsound(SfxEffect::bodyfall, GetBulletParts().pos[num]);
@@ -2757,9 +2732,9 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
     {
       b = GetBulletParts().velocity[num];
       vec2scale(b, b, -0.75);
-      b.x = -b.x - 2.5 + ((float)(Random(50)) / 10.0f);
-      b.y = b.y - 2.5 + ((float)(Random(25)) / 10.0f);
-      createbullet(a, b, cluster_num, owner, 255, guns[fraggrenade].hitmultiply / 2.0f, true,
+      b.x = -b.x - 2.5 + (static_cast<float>(Random(50)) / 10.0F);
+      b.y = b.y - 2.5 + (static_cast<float>(Random(25)) / 10.0F);
+      createbullet(a, b, cluster_num, owner, 255, guns[fraggrenade].hitmultiply / 2.0F, true,
                    false);
     }
   }
@@ -2829,23 +2804,23 @@ void Bullet<M>::hit(std::int32_t t, std::int32_t spritehit, std::int32_t where)
   {
     a = vec2add(GetBulletParts().pos[num], GetBulletParts().velocity[num]);
 
-    b.x = (-2.0 + (float)(Random(40)) / 10.0);
-    b.y = (-2.0 + (float)(Random(40)) / 10.0);
+    b.x = (-2.0 + (static_cast<float>(Random(40)) / 10.0));
+    b.y = (-2.0 + (static_cast<float>(Random(40)) / 10.0));
     gGlobalStateSparks.createspark(a, b, 26, owner, 35);
-    b.x = (-2.0 + (float)(Random(40)) / 10.0);
-    b.y = (-2.0 + (float)(Random(40)) / 10.0);
+    b.x = (-2.0 + (static_cast<float>(Random(40)) / 10.0));
+    b.y = (-2.0 + (static_cast<float>(Random(40)) / 10.0));
     gGlobalStateSparks.createspark(a, b, 26, owner, 35);
-    b.x = (-3.0 + (float)(Random(60)) / 10.0);
-    b.y = (-3.0 + (float)(Random(60)) / 10.0);
+    b.x = (-3.0 + (static_cast<float>(Random(60)) / 10.0));
+    b.y = (-3.0 + (static_cast<float>(Random(60)) / 10.0));
     gGlobalStateSparks.createspark(a, b, 26, owner, 35);
-    b.x = (-3.0 + (float)(Random(60)) / 10.0);
-    b.y = (-3.0 + (float)(Random(60)) / 10.0);
+    b.x = (-3.0 + (static_cast<float>(Random(60)) / 10.0));
+    b.y = (-3.0 + (static_cast<float>(Random(60)) / 10.0));
     gGlobalStateSparks.createspark(a, b, 26, owner, 35);
-    b.x = (-3.0 + (float)(Random(60)) / 10.0);
-    b.y = (-3.0 + (float)(Random(60)) / 10.0);
+    b.x = (-3.0 + (static_cast<float>(Random(60)) / 10.0));
+    b.y = (-3.0 + (static_cast<float>(Random(60)) / 10.0));
     gGlobalStateSparks.createspark(a, b, 26, owner, 35);
-    b.x = (-3.0 + (float)(Random(60)) / 10.0);
-    b.y = (-3.0 + (float)(Random(60)) / 10.0);
+    b.x = (-3.0 + (static_cast<float>(Random(60)) / 10.0));
+    b.y = (-3.0 + (static_cast<float>(Random(60)) / 10.0));
     gGlobalStateSparks.createspark(a, b, 27, owner, 35);
 
     gGlobalStateSound.playsound(SfxEffect::ric5 + Random(3), GetBulletParts().pos[num]);
@@ -2866,21 +2841,21 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 #endif
   tvector2 a;
   tvector2 col;
-  std::int32_t i;
-  std::int32_t j;
-  std::int32_t w;
-  std::int32_t igun;
-  std::int32_t pushtick;
-  bool parthit;
-  float s;
-  float explosionradius;
-  float explosionradius2;
-  float hitboxmodifier;
-  std::uint8_t nocollision;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
+  std::int32_t w = 0;
+  std::int32_t igun = 0;
+  std::int32_t pushtick = 0;
+  bool parthit = false;
+  float s = NAN;
+  float explosionradius = NAN;
+  float explosionradius2 = NAN;
+  float hitboxmodifier = NAN;
+  std::uint8_t nocollision = 0;
   float s2 = 0.0;
 #ifndef SERVER
   tvector2 b;
-  std::int32_t n, rnd;
+  std::int32_t n = 0, rnd = 0;
 #endif
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
@@ -2944,7 +2919,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
       // if hitpoint is not given find closest one
       w = where;
-      if ((sprite.num != spritehit) || (where == 0))
+      if ((std::cmp_not_equal(sprite.num, spritehit)) || (where == 0))
       {
         s = std::numeric_limits<float>::max();
         for (j = low(bodyparts); j <= high(bodyparts); j++)
@@ -2991,16 +2966,16 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 #endif
 
         // collision respond
-        a.x = (a.x * ((float)(1) / (s + 1)) * explosion_impact_multiply);
-        a.y = (a.y * ((float)(1) / (s + 1)) * explosion_impact_multiply);
+        a.x = (a.x * (static_cast<float>(1) / (s + 1)) * explosion_impact_multiply);
+        a.y = (a.y * (static_cast<float>(1) / (s + 1)) * explosion_impact_multiply);
 
         if (typ == hit_type_fragnade || typ == hit_type_explode)
         {
-          a.y *= 2.0f;
+          a.y *= 2.0F;
         }
         else
         {
-          hitboxmodifier *= 0.5f; // cluster/flak is halved
+          hitboxmodifier *= 0.5F; // cluster/flak is halved
         }
 
         pushtick = sprite.player->pingticks / 2 + ownerpingtick + 1;
@@ -3010,7 +2985,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
         if (sprite.ceasefirecounter < 0)
         {
-          s = ((float)(1) / (s + 1)) * guns[igun].hitmultiply * hitboxmodifier;
+          s = (static_cast<float>(1) / (s + 1)) * guns[igun].hitmultiply * hitboxmodifier;
           sprite.healthhit(
 #ifndef SERVER
             srv *
@@ -3040,7 +3015,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
         if (s < explosionradius2)
         {
           s = sqrt(s);
-          vec2scale(a, a, ((float)(1) / (s + 1)) * explosion_deadimpact_multiply);
+          vec2scale(a, a, (static_cast<float>(1) / (s + 1)) * explosion_deadimpact_multiply);
           sprite.skeleton.oldpos[j].x += a.x;
           sprite.skeleton.oldpos[j].y += a.y;
 
@@ -3055,14 +3030,14 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 
         if (typ == hit_type_explode)
         {
-          s2 = max(s2, 20.0000001f);
+          s2 = max(s2, 20.0000001F);
         }
         else if (typ == hit_type_cluster || typ == hit_type_flak)
         {
           hitboxmodifier = 0.5;
         }
 
-        s2 = ((float)(1) / (s2 + 1)) * guns[igun].hitmultiply * hitboxmodifier;
+        s2 = (static_cast<float>(1) / (s2 + 1)) * guns[igun].hitmultiply * hitboxmodifier;
         sprite.healthhit(
 #ifndef SERVER
           srv *
@@ -3090,7 +3065,7 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
       if (s < explosionradius2)
       {
         s = sqrt(s);
-        vec2scale(a, a, 0.5 * ((float)(1) / (s + 1)) * explosion_impact_multiply);
+        vec2scale(a, a, 0.5 * (static_cast<float>(1) / (s + 1)) * explosion_impact_multiply);
         things[i].skeleton.oldpos[j].x += a.x;
         things[i].skeleton.oldpos[j].y += a.y;
         things[i].statictype = false;
@@ -3166,8 +3141,8 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
     for (i = 1; i <= n; i++)
     {
       vec2scale(b, GetBulletParts().velocity[num], s);
-      b.x = -b.x - 3.5 + ((float)(Random(70)) / 10.0);
-      b.y = b.y - 3.5 + ((float)(Random(65)) / 10.0);
+      b.x = -b.x - 3.5 + (static_cast<float>(Random(70)) / 10.0);
+      b.y = b.y - 3.5 + (static_cast<float>(Random(65)) / 10.0);
       if (Random(4) == 0)
       {
         gGlobalStateSparks.createspark(a, b, 40, owner, 180 + Random(50));
@@ -3197,8 +3172,8 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
     for (i = 1; i <= n; i++)
     {
       vec2scale(b, GetBulletParts().velocity[num], s);
-      b.x = -b.x - 3.5 + ((float)(Random(70)) / 10.0);
-      b.y = b.y - 3.5 + ((float)(Random(65)) / 10.0);
+      b.x = -b.x - 3.5 + (static_cast<float>(Random(70)) / 10.0);
+      b.y = b.y - 3.5 + (static_cast<float>(Random(65)) / 10.0);
       if (Random(rnd) == 0)
       {
         gGlobalStateSparks.createspark(a, b, 44, owner, 120);
@@ -3227,8 +3202,8 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
     for (i = 1; i <= n; i++)
     {
       vec2scale(b, GetBulletParts().velocity[num], -0.3);
-      b.x = -b.x - 3.5 + ((float)(Random(70)) / 10.0);
-      b.y = b.y - 3.5 + ((float)(Random(65)) / 10.0);
+      b.x = -b.x - 3.5 + (static_cast<float>(Random(70)) / 10.0);
+      b.y = b.y - 3.5 + (static_cast<float>(Random(65)) / 10.0);
       if (Random(rnd) == 0)
       {
         gGlobalStateSparks.createspark(a, b, 2, owner, 120);
@@ -3257,8 +3232,8 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
       a.x = a.x - j + Random(rnd);
       a.y = a.y - j + Random(rnd);
       vec2scale(b, GetBulletParts().velocity[num], s);
-      b.x = -b.x - 3.5 + ((float)(Random(70)) / 10);
-      b.y = b.y - 3.5 + ((float)(Random(65)) / 10);
+      b.x = -b.x - 3.5 + (static_cast<float>(Random(70)) / 10);
+      b.y = b.y - 3.5 + (static_cast<float>(Random(65)) / 10);
       gGlobalStateSparks.createspark(a, b, 64, owner, 35);
     }
   }
@@ -3268,8 +3243,8 @@ void Bullet<M>::explosionhit(std::int32_t typ, std::int32_t spritehit, std::int3
 template <Config::Module M>
 void Bullet<M>::checkoutofbounds()
 {
-  std::int32_t bound;
-  tvector2 *bulletpartspos;
+  std::int32_t bound = 0;
+  tvector2 *bulletpartspos = nullptr;
 
 #ifdef SERVER
   LogTraceG("TBullet.CheckOutOfBounds");
@@ -3289,13 +3264,13 @@ template <Config::Module M>
 auto Bullet<M>::filterspritesbydistance(tspriteindexes &spriteindexes) -> std::int32_t
 {
   ZoneScopedN("Bullet::FilterSpritesByDistance");
-  std::int32_t i;
-  std::int32_t j;
-  std::int32_t spritecount;
-  float roughdistance;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
+  std::int32_t spritecount = 0;
+  float roughdistance = NAN;
   tspritedistances distances;
 
-  std::int32_t result;
+  std::int32_t result = 0;
   spritecount = 0;
 
   for (i = 1; i <= max_sprites; i++)
@@ -3331,9 +3306,9 @@ template <Config::Module M>
 auto Bullet<M>::targetablesprite(std::int32_t i) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t ownervulnerabletime;
+  std::int32_t ownervulnerabletime = 0;
 
-  bool result;
+  bool result = false;
   if (style == bullet_style_fragnade)
   {
     ownervulnerabletime = grenade_timeout - 50;
@@ -3352,8 +3327,9 @@ auto Bullet<M>::targetablesprite(std::int32_t i) -> bool
   }
 
   // Check whether a sprite can be hit by this bullet
-  result = sprite_system.GetSprite(i).active && ((owner != i) || (timeout < ownervulnerabletime)) &&
-           (hitbody != i) && sprite_system.GetSprite(i).isnotspectator();
+  result = sprite_system.GetSprite(i).active &&
+           ((std::cmp_not_equal(owner, i)) || (timeout < ownervulnerabletime)) &&
+           (std::cmp_not_equal(hitbody, i)) && sprite_system.GetSprite(i).isnotspectator();
   return result;
 }
 
@@ -3363,7 +3339,7 @@ auto Bullet<M>::getcomparablespritedistance(std::int32_t i) -> float
   tvector2 spritecol;
   tvector2 distance;
 
-  float result;
+  float result = NAN;
   spritecol = getspritecollisionpoint(i);
   distance = vec2subtract(GetBulletParts().pos[num], spritecol);
 
@@ -3405,11 +3381,11 @@ auto Bullet<M>::getspritecollisionpoint(std::int32_t i) -> tvector2
 template <Config::Module M>
 auto Bullet<M>::getweaponindex() -> std::uint8_t
 {
-  std::uint8_t weaponindex;
+  std::uint8_t weaponindex = 0;
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
-  std::uint8_t result;
+  std::uint8_t result = 0;
   for (weaponindex = 1; weaponindex <= high(guns); weaponindex++)
   {
     if (ownerweapon == guns[weaponindex].num)

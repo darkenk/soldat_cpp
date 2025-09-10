@@ -4,7 +4,6 @@
 
 #include <array>
 #include <cstdint>
-#include <memory>
 #include <string>
 
 #include "../../client/Client.hpp"
@@ -12,33 +11,29 @@
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "common/Console.hpp"
-#include "common/GameStrings.hpp"
 #include "NetworkClient.hpp"
 #include "NetworkClientConnection.hpp"
 #include "NetworkUtils.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Constants.hpp"
+#include "common/GameStrings.hpp"
 #include "common/PolyMap.hpp"
-#include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
-#include "shared/network/Net.hpp"
-
+#include "shared/misc/GlobalSystems.hpp"
 
 void ClientHandleHeartbeat::Handle(NetworkContext *netmessage)
 {
-  tmsg_heartbeat *heartbeat;
-  std::int32_t i;
+  tmsg_heartbeat *heartbeat = nullptr;
+  std::int32_t i = 0;
 
   if (!verifypacket(sizeof(tmsg_heartbeat), netmessage->size, msgid_heartbeat))
   {
     return;
   }
 
-  heartbeat = pmsg_heartbeat(netmessage->packet);
+  heartbeat = reinterpret_cast<pmsg_heartbeat>(netmessage->packet);
 
   auto &map = GS::GetGame().GetMap();
 

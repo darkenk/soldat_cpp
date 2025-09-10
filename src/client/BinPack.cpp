@@ -1,8 +1,9 @@
 // automatically converted
 #include "BinPack.hpp"
 
-#include <limits>
 #include <cstddef>
+#include <cstdint>
+#include <limits>
 
 #include "shared/misc/MemoryUtils.hpp"
 
@@ -11,7 +12,7 @@
 class TRectList final
 {
 private:
-  pbprect fdata;
+  pbprect fdata{};
   std::int32_t fsize;
   std::int32_t fcapacity;
 
@@ -54,15 +55,15 @@ static auto IsContainedIn(const tbprect &a, const tbprect &b) -> bool;
 auto packrects(std::int32_t w, std::int32_t h, tbprectarray &rects) -> std::int32_t
 {
   TBinPack bp;
-  std::size_t i;
-  std::size_t j;
+  std::size_t i = 0;
+  std::size_t j = 0;
   tbprect rect;
   tbprect bestrect;
-  std::int32_t bestindex;
-  std::int32_t bestscore1;
-  std::int32_t bestscore2;
-  std::int32_t score1;
-  std::int32_t score2;
+  std::int32_t bestindex = 0;
+  std::int32_t bestscore1 = 0;
+  std::int32_t bestscore2 = 0;
+  std::int32_t score1 = 0;
+  std::int32_t score2 = 0;
 
   // todo what to do with default?
   // bestrect = default_(tbprect);
@@ -119,10 +120,10 @@ auto ScoreRect(TBinPack &bp, std::int32_t w, std::int32_t h, std::int32_t &besty
                std::int32_t &bestx) -> tbprect
 {
   tbprect bestrect;
-  std::int32_t topsidey;
-  std::int32_t i;
+  std::int32_t topsidey = 0;
+  std::int32_t i = 0;
 
-  tbprect scorerect_result;
+  tbprect const scorerect_result;
   bestrect.x = 0;
   bestrect.y = 0;
   bestrect.w = 0;
@@ -178,8 +179,8 @@ auto ScoreRect(TBinPack &bp, std::int32_t w, std::int32_t h, std::int32_t &besty
 
 void PlaceRect(TBinPack &bp, const tbprect& rect)
 {
-  std::int32_t i;
-  std::int32_t n;
+  std::int32_t i = 0;
+  std::int32_t n = 0;
 
   i = 0;
   n = bp.free.Size();
@@ -251,9 +252,9 @@ auto SplitFreeRect(TBinPack &bp, tbprect freerect, const tbprect &usedrect) -> b
 
 void PruneFreeList(TBinPack &bp)
 {
-  std::int32_t i;
-  std::int32_t j;
-  std::int32_t n;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
+  std::int32_t n = 0;
 
   i = 0;
   n = bp.free.Size();
@@ -294,9 +295,9 @@ auto IsContainedIn(const tbprect &a, const tbprect &b) -> bool
 
 // TRectList class
 
-void RectMemCopy(pbprect a, pbprect b, std::int32_t n)
+static void RectMemCopy(pbprect a, pbprect b, std::int32_t n)
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   for (i = 0; i <= n - 1; i++)
   {
@@ -306,12 +307,7 @@ void RectMemCopy(pbprect a, pbprect b, std::int32_t n)
   }
 }
 
-TRectList::TRectList()
-{
-  fsize = 0;
-  fcapacity = 16;
-  getmem(fdata, fcapacity * sizeof(tbprect));
-}
+TRectList::TRectList() : fsize(0), fcapacity(16) { getmem(fdata, fcapacity * sizeof(tbprect)); }
 
 TRectList::~TRectList()
 {
@@ -320,7 +316,7 @@ TRectList::~TRectList()
 
 auto TRectList::GetValue(std::int32_t index) -> tbprect &
 {
-  pbprect p;
+  pbprect p = nullptr;
 
   p = fdata;
   p += index;
@@ -329,7 +325,7 @@ auto TRectList::GetValue(std::int32_t index) -> tbprect &
 
 void TRectList::SetValue(std::int32_t index, const tbprect &value)
 {
-  pbprect p;
+  pbprect p = nullptr;
 
   p = fdata;
   p += index;
@@ -338,7 +334,7 @@ void TRectList::SetValue(std::int32_t index, const tbprect &value)
 
 void TRectList::Push(const tbprect &rect)
 {
-  pbprect p;
+  pbprect p = nullptr;
 
   if (fsize == fcapacity)
   {
@@ -357,8 +353,8 @@ void TRectList::Push(const tbprect &rect)
 
 void TRectList::Remove(std::int32_t index)
 {
-  pbprect a;
-  pbprect b;
+  pbprect a = nullptr;
+  pbprect b = nullptr;
 
   a = fdata;
   b = fdata;

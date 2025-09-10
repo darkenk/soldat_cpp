@@ -148,7 +148,7 @@ public:
   {
     std::int32_t x, y;
     tgfxcolor color;
-  } fpixel;
+  } fpixel{};
   void update(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, std::uint8_t *data);
   void setwrap(tgfxtexturewrap s, tgfxtexturewrap t);
   void setfilter(tgfxtexturefilter min, tgfxtexturefilter mag);
@@ -188,7 +188,7 @@ public:
 class tgfxvertexbuffer
 {
 private:
-  std::uint32_t fhandle;
+  std::uint32_t fhandle{};
   std::int32_t fcapacity;
   SDL_GPUBuffer * mBuffer;
 
@@ -215,7 +215,7 @@ public:
 class tgfxindexbuffer
 {
 private:
-  std::uint32_t fhandle;
+  std::uint32_t fhandle{};
   std::int32_t fcapacity;
   SDL_GPUBuffer * mBuffer;
 

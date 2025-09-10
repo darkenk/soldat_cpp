@@ -3,15 +3,17 @@
 #include "Waypoints.hpp"
 
 #include <Tracy.hpp>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <cstdint>
 #include <fstream>
-#include <utility>
+#include <ios>
+#include <math.h>
+#include <spdlog/fmt/bundled/core.h>
+#include <string>
 
 #include "Calc.hpp"
 #include "Logging.hpp"
 
-auto operator>>(std::ifstream &in, twaypoint &waypoint) -> std::ifstream &
+static auto operator>>(std::ifstream &in, twaypoint &waypoint) -> std::ifstream &
 {
   twaypoint &w = waypoint;
   in >> w.active;
@@ -28,7 +30,7 @@ auto operator>>(std::ifstream &in, twaypoint &waypoint) -> std::ifstream &
   return in;
 }
 
-auto operator<<(std::ofstream &in, twaypoint &waypoint) -> std::ofstream &
+static auto operator<<(std::ofstream &in, twaypoint &waypoint) -> std::ofstream &
 {
   twaypoint &w = waypoint;
   in << w.active;
@@ -48,8 +50,8 @@ auto operator<<(std::ofstream &in, twaypoint &waypoint) -> std::ofstream &
 void twaypoints::loadfromfile(const std::string &filename)
 {
   // file<tpathrec> addrfile;
-  std::int32_t i;
-  std::int32_t j;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
 
   std::ifstream addrfile(filename, std::ios::binary);
   i = 0;
@@ -97,8 +99,8 @@ auto twaypoints::findclosest(float x, float y, std::int32_t radius,
 
 {
   ZoneScopedN("TWaypoints::FindClosest");
-  float d;
-  std::int32_t i;
+  float d = NAN;
+  std::int32_t i = 0;
 
   std::int32_t result = 0;
 
@@ -122,7 +124,7 @@ auto twaypoints::findclosest(float x, float y, std::int32_t radius,
 auto twaypoints::createwaypoint(std::int32_t sx, std::int32_t sy,
                                 std::int32_t spath) -> std::int32_t
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   for (i = 0; i < max_waypoints + 1; i++)
   {

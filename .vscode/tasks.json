@@ -8,6 +8,12 @@
       "type": "shell",
       "command": "run-clang-tidy -format -config-file=${workspaceFolder}/.clang-tidy   -fix -p ${workspaceFolder}/../soldat_build/clangd ${file}",
       "problemMatcher": []
+    },
+    {
+      "label": "clang-tidy fix all files",
+      "type": "shell",
+      "command": "run-clang-tidy -format -config-file=${workspaceFolder}/.clang-tidy   -fix -p ${workspaceFolder}/../soldat_build/clangd *",
+      "problemMatcher": []
     }
   ]
 }

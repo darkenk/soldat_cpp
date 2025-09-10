@@ -1,34 +1,33 @@
 // automatically converted
 #include "ServerHelper.hpp"
 
-#include <math.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
 #include <algorithm>
 #include <array>
+#include <cmath>
+#include <cstdint>
 #include <iterator>
-#include <memory>
+#include <spdlog/fmt/bundled/core.h>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "BanSystem.hpp"
 #include "Server.hpp"
+#include "common/Constants.hpp"
 #include "common/Logging.hpp"
+#include "common/Util.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
 #include "shared/Command.hpp"
+#include "shared/Constants.cpp.h"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/NetworkServerMessages.hpp"
-#include "common/Constants.hpp"
-#include "common/Util.hpp"
-#include "common/misc/RandomGenerator.hpp"
-#include "common/misc/SoldatConfig.hpp"
-#include "common/network/Net.hpp"
-#include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
-#include "shared/Constants.cpp.h"
-#include "shared/network/Net.hpp"
 
 // procedure WriteLn1(S: Variant); overload;
 // begin
@@ -89,40 +88,6 @@ auto teamtoname(std::int32_t id) -> std::string
   return result;
 }
 
-auto nametoid(std::string name) -> std::int32_t
-{
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-
-  std::int32_t result;
-  result = 0;
-  for (i = 1; i <= max_sprites; i++)
-  {
-    if (sprite_system.GetSprite(i).player->name == name)
-    {
-      result = i;
-    }
-  }
-  return result;
-}
-
-auto nametohw(std::string name) -> std::string
-{
-  auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-
-  std::string result;
-  result = "0";
-  for (i = 1; i <= max_sprites; i++)
-  {
-    if (sprite_system.GetSprite(i).player->name == name)
-    {
-      result = sprite_system.GetSprite(i).player->hwid;
-    }
-  }
-  return result;
-}
-
 auto rgb(std::uint8_t r, std::uint8_t g, std::uint8_t b) -> std::uint32_t
 {
   return (r | (g << 8) | (b << 16));
@@ -130,10 +95,10 @@ auto rgb(std::uint8_t r, std::uint8_t g, std::uint8_t b) -> std::uint32_t
 
 auto findlowestteam(const std::vector<std::int32_t> &arr) -> std::int32_t
 {
-  std::int32_t i;
-  std::int32_t tmp;
+  std::int32_t i = 0;
+  std::int32_t tmp = 0;
 
-  std::int32_t result;
+  std::int32_t result = 0;
   tmp = 1;
   for (i = 1; i <= iif(CVar::sv_gamemode == gamestyle_teammatch, 4, 2); i++)
   {
@@ -148,7 +113,7 @@ auto findlowestteam(const std::vector<std::int32_t> &arr) -> std::int32_t
 
 auto fixteam(std::uint8_t team) -> std::uint8_t
 {
-  std::uint8_t result;
+  std::uint8_t result = 0;
   result = team_spectator;
 
   switch (CVar::sv_gamemode)
@@ -213,7 +178,7 @@ std::string weaponnamebynum(std::int32_t num)
 
 auto checknextmap() -> std::string
 {
-  std::int32_t m;
+  std::int32_t m = 0;
 
   std::string result;
   LogTraceG("CheckNextMap");
@@ -288,7 +253,7 @@ auto soldat_getpid() -> std::int32_t
 void writeconsole(std::uint8_t id, std::string text, std::uint32_t colour)
 {
   // Write text to the console of ALL Players
-  serversendspecialmessage(text, 0, 0, 0, 0, colour, 0, 0, id);
+  serversendspecialmessage(std::move(text), 0, 0, 0, 0, colour, 0, 0, id);
 }
 
 void updatewaverespawntime()
@@ -301,10 +266,7 @@ void updatewaverespawntime()
   }
   gGlobalStateServer.waverespawntime =
     gGlobalStateServer.waverespawntime - CVar::sv_respawntime_minwave;
-  if (gGlobalStateServer.waverespawntime < 1)
-  {
-    gGlobalStateServer.waverespawntime = 1;
-  }
+  gGlobalStateServer.waverespawntime = std::max(gGlobalStateServer.waverespawntime, 1);
 }
 
 auto randombot() -> std::string
@@ -349,7 +311,7 @@ auto randombot() -> std::string
 void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::array<std::int32_t, 4> teams;
+  std::array<std::int32_t, 4> teams{};
   std::string thebot;
 
   if (!CVar::sv_botbalance)
@@ -368,7 +330,7 @@ void dobalancebots(std::uint8_t leftgame, std::uint8_t newteam)
   teams[4] = 0;
 
   auto &activeSprites = sprite_system.GetActiveSprites();
-  std::for_each(std::begin(activeSprites), std::end(activeSprites), [&teams](auto &sprite) {
+  std::ranges::for_each(activeSprites, [&teams](auto &sprite) {
     if (sprite.isnotspectator())
     {
       teams[sprite.player->team] += 1;

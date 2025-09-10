@@ -1,10 +1,11 @@
 #include "TFileStream.hpp"
 
-#include <sstream>
-#include <memory>
-#include <cstring>
 #include <cstddef>
+#include <cstring>
+#include <memory>
+#include <sstream>
 #include <string>
+#include <string_view>
 
 #include "TStream.hpp"
 #include "../FileUtility.hpp"
@@ -71,7 +72,7 @@ class TFileStreamFixture
 {
 public:
   TFileStreamFixture(): FS("/TFileStream") {
-    std::string_view testData= R"(; Some comments
+    std::string_view const testData = R"(; Some comments
 [TestSection1]
 TestEntry=1.0
 )";
@@ -139,4 +140,4 @@ TEST_CASE_FIXTURE(TFileStreamFixture, "Reset allows ReadLine to read file from t
   CHECK_EQ(0, std::strcmp("; Some comments", line.c_str()));
 }
 
-}
+} // namespace

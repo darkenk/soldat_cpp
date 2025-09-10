@@ -37,25 +37,25 @@ TEST_CASE_FIXTURE(LoadingScreenFixture, "Nuklear sdl3 gpu test")
   app.RegisterEventInterception([](SDL_Event &evt) { nk_sdl_handle_event(&evt); });
 
   nk_context* ctx = nk_sdl_init(app.GetWindow(), app.GetDevice());
-  struct nk_font_atlas *atlas;
+  struct nk_font_atlas *atlas = nullptr;
   nk_sdl_font_stash_begin(&atlas);
   nk_sdl_font_stash_end();
 
   enum {EASY, HARD};
   int op = EASY;
-  float value = 0.6f;
+  float value = 0.6F;
 
   auto i = 1;
-  while (i--)
+  while ((i--) != 0)
   {
     nk_input_begin(ctx);
     app.ProcessEvents();
     nk_input_end(ctx);
     SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(app.GetDevice()); // Acquire a GPU command buffer
 
-    SDL_GPUTexture* swapchain_texture;
-    Uint32 swapchain_texture_width;
-    Uint32 swapchain_texture_height;
+    SDL_GPUTexture *swapchain_texture = nullptr;
+    Uint32 swapchain_texture_width = 0;
+    Uint32 swapchain_texture_height = 0;
     SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, app.GetWindow(), &swapchain_texture, &swapchain_texture_width, &swapchain_texture_height); // Acquire a swapchain texture
 
     
@@ -69,8 +69,14 @@ TEST_CASE_FIXTURE(LoadingScreenFixture, "Nuklear sdl3 gpu test")
 
       /* fixed widget window ratio width */
       nk_layout_row_dynamic(ctx, 30, 2);
-      if (nk_option_label(ctx, "easy", op == EASY)) op = EASY;
-      if (nk_option_label(ctx, "hard", op == HARD)) op = HARD;
+      if (nk_option_label(ctx, "easy", op == EASY))
+      {
+        op = EASY;
+      }
+      if (nk_option_label(ctx, "hard", op == HARD))
+      {
+        op = HARD;
+      }
 
       /* custom widget pixel width */
       nk_layout_row_begin(ctx, NK_STATIC, 30, 2);
@@ -78,7 +84,7 @@ TEST_CASE_FIXTURE(LoadingScreenFixture, "Nuklear sdl3 gpu test")
           nk_layout_row_push(ctx, 50);
           nk_label(ctx, "Volume:", NK_TEXT_LEFT);
           nk_layout_row_push(ctx, 110);
-          nk_slider_float(ctx, 0, &value, 1.0f, 0.1f);
+          nk_slider_float(ctx, 0, &value, 1.0F, 0.1F);
       }
       nk_layout_row_end(ctx);
     }
@@ -89,7 +95,7 @@ TEST_CASE_FIXTURE(LoadingScreenFixture, "Nuklear sdl3 gpu test")
     // Setup and start a render pass
     SDL_GPUColorTargetInfo target_info = {};
     target_info.texture = swapchain_texture;
-    target_info.clear_color = SDL_FColor { 0.10f, 0.18f, 0.24f, 1.00f };
+    target_info.clear_color = SDL_FColor{0.10F, 0.18F, 0.24F, 1.00F};
     target_info.load_op = SDL_GPU_LOADOP_CLEAR;
     target_info.store_op = SDL_GPU_STOREOP_STORE;
     target_info.mip_level = 0;
@@ -112,23 +118,24 @@ TEST_CASE_FIXTURE(LoadingScreenFixture, "Loading screen")
   app.RegisterEventInterception([](SDL_Event &evt) { nk_sdl_handle_event(&evt); });
 
   nk_context* ctx = nk_sdl_init(app.GetWindow(), app.GetDevice());
-  struct nk_font_atlas *atlas;
+  struct nk_font_atlas *atlas = nullptr;
   nk_sdl_font_stash_begin(&atlas);
-  nk_font* default_font = nk_font_atlas_add_from_memory(atlas, sDefaultFont, sDefaultFont_len, 28, 0);
+  nk_font *default_font =
+    nk_font_atlas_add_from_memory(atlas, sDefaultFont, sDefaultFont_len, 28, nullptr);
   nk_sdl_font_stash_end();
   nk_style_set_font(ctx, &default_font->handle);
 
   auto i = 1;
-  while (i--)
+  while ((i--) != 0)
   {
     nk_input_begin(ctx);
     app.ProcessEvents();
     nk_input_end(ctx);
     SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(app.GetDevice()); // Acquire a GPU command buffer
 
-    SDL_GPUTexture* swapchain_texture;
-    Uint32 swapchain_texture_width;
-    Uint32 swapchain_texture_height;
+    SDL_GPUTexture *swapchain_texture = nullptr;
+    Uint32 swapchain_texture_width = 0;
+    Uint32 swapchain_texture_height = 0;
     SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, app.GetWindow(), &swapchain_texture, &swapchain_texture_width, &swapchain_texture_height); // Acquire a swapchain texture
 
     if (nk_begin(ctx, "Loading screen", nk_rect(0, 0, swapchain_texture_width, swapchain_texture_height), NK_WINDOW_NO_INPUT | NK_WINDOW_NO_SCROLLBAR))
@@ -145,7 +152,7 @@ TEST_CASE_FIXTURE(LoadingScreenFixture, "Loading screen")
     // Setup and start a render pass
     SDL_GPUColorTargetInfo target_info = {};
     target_info.texture = swapchain_texture;
-    target_info.clear_color = SDL_FColor { 0.10f, 0.18f, 0.24f, 1.00f };
+    target_info.clear_color = SDL_FColor{0.10F, 0.18F, 0.24F, 1.00F};
     target_info.load_op = SDL_GPU_LOADOP_CLEAR;
     target_info.store_op = SDL_GPU_STOREOP_STORE;
     target_info.mip_level = 0;

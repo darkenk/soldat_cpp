@@ -1,6 +1,8 @@
 #include "WeaponSystem.hpp"
+#include "Weapons.hpp"
 
 #include <algorithm>
+#include <cstdint>
 
 WeaponSystem::WeaponSystem()
 {

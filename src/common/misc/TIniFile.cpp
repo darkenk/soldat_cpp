@@ -1,9 +1,13 @@
 #include "TIniFile.hpp"
 
+#include <memory>
 #include <regex>
+#include <string>
+#include <string_view>
 #include <utility>
 
 #include "PortUtilsSoldat.hpp"
+#include "TStream.hpp"
 
 TIniFile::TIniFile(std::unique_ptr<TStream> stream) : Stream(std::move(stream))
 {
@@ -12,9 +16,10 @@ TIniFile::TIniFile(std::unique_ptr<TStream> stream) : Stream(std::move(stream))
 auto TIniFile::ReadSectionValues(const std::string_view section, Entries &out) -> bool
 {
   std::string line;
-  std::regex sectionRegex{R"(^\[(.*)\])"};
-  std::regex desiredSectionRegex{std::string("^\\[") + std::string(section.data()) + std::string("\\]")};
-  std::regex entryRegex{R"((.*)=(.*))"};
+  std::regex const sectionRegex{R"(^\[(.*)\])"};
+  std::regex const desiredSectionRegex{std::string("^\\[") + std::string(section.data()) +
+                                       std::string("\\]")};
+  std::regex const entryRegex{R"((.*)=(.*))"};
   bool sectionFound = false;
 
   if (Stream == nullptr)

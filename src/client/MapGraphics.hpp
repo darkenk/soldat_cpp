@@ -48,7 +48,7 @@ struct GlobalStateMapGraphics
   void renderprops(std::int32_t level);
   void settexturefilter(tgfxtexture *texture, bool allowmipmaps);
   void updateprops(double t);
-  void worldtominimap(float x, float y, MyFloat &ox, MyFloat &oy);
+  void worldtominimap(float x, float y, MyFloat &ox, MyFloat &oy) const;
   tmapgraphics mapgfx = {};
 
 private:

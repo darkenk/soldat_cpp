@@ -1,12 +1,16 @@
 // automatically converted
 #include "Util.hpp"
 
+#include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
-#include <cstddef>
+#include <string>
+#include <vector>
 
 #include "FileUtility.hpp"
 #include "misc/PortUtilsSoldat.hpp"
+#include "misc/SHA1Helper.hpp"
 
 auto charcount(const char character, const std::string &str1) -> std::int32_t
 {
@@ -21,7 +25,7 @@ auto charcount(const char character, const std::string &str1) -> std::int32_t
   return result;
 }
 
-auto splitstr(const std::string source, const char delimiter, std::int32_t limit) -> tstringarray
+auto splitstr(const std::string &source, const char delimiter, std::int32_t limit) -> tstringarray
 {
 
   size_t last = 0;
@@ -36,13 +40,13 @@ auto splitstr(const std::string source, const char delimiter, std::int32_t limit
   return ret;
 }
 
-auto getpiece(const std::string source, const char delimiter,
-              const std::int32_t piece) -> std::string
+auto getpiece(const std::string &source, const char delimiter, const std::int32_t piece)
+  -> std::string
 {
   return splitstr(source, delimiter, piece)[piece - 1];
 }
 
-auto posex(const std::string substr, std::string s, std::uint32_t offset) -> std::int32_t
+auto posex(const std::string &substr, const std::string &s, std::uint32_t offset) -> std::int32_t
 {
   return s.find(substr, offset);
 }
@@ -104,7 +108,7 @@ std::string md5stringhelper(std::string text)
 // returns false on error and true if everything is allright
 auto createdirifmissing(const std::string &dir) -> bool
 {
-  std::filesystem::path p(dir);
+  std::filesystem::path const p(dir);
   if (std::filesystem::is_directory(p))
   {
     return true;
@@ -114,18 +118,18 @@ auto createdirifmissing(const std::string &dir) -> bool
 
 auto createfileifmissing(const std::string &filename) -> bool
 {
-  std::filesystem::path p(filename);
+  std::filesystem::path const p(filename);
   if (std::filesystem::is_regular_file(p))
   {
     return true;
   }
-  std::ofstream d(filename);
+  std::ofstream const d(filename);
   return true;
 }
 
 auto getsize(std::int64_t bytes) -> std::string
 {
-  std::int64_t filesize;
+  std::int64_t filesize = 0;
 
   if (bytes < 1024)
   {
@@ -167,11 +171,12 @@ auto getmapchecksum(FileUtility &fs, const tmapinfo &map,
 }
 
 // for string delimiter
-auto split_string(std::string s, std::string delimiter) -> std::vector<std::string>
+static auto split_string(const std::string &s, const std::string &delimiter)
+  -> std::vector<std::string>
 {
   size_t pos_start = 0;
-  size_t pos_end;
-  size_t delim_len = delimiter.length();
+  size_t pos_end = 0;
+  size_t const delim_len = delimiter.length();
   std::string token;
   std::vector<std::string> res;
 
@@ -190,9 +195,9 @@ auto getmapinfo(FileUtility &fs, const std::string &mapname, const std::string &
                 tmapinfo &mapinfo) -> bool // dk out MapInfo
 {
   tstringarray split;
-  std::uint64_t itemid;
+  std::uint64_t itemid = 0;
 
-  bool result;
+  bool result = false;
   result = false;
 
   if (mapname.rfind("workshop/") == 0)

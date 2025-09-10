@@ -2,7 +2,6 @@
 
 #include "Control.hpp"
 #ifdef SERVER
-#include "../../server/Server.hpp"
 #include "../AI.hpp"
 #include "../network/NetworkServerGame.hpp"
 #include "../network/NetworkServerSprite.hpp"
@@ -15,19 +14,14 @@
 #include "../network/NetworkClientGame.hpp"
 #include "../network/NetworkClientMessages.hpp"
 #include "../network/NetworkClientSprite.hpp"
+#include "../Cvar.hpp"
 #endif
 #include <Tracy.hpp>
-#include <SDL3/SDL_keyboard.h>
-#include <math.h>
-#include <array>
+#include <algorithm>
+#include <cmath>
 #include <cstdint>
-#include <memory>
 #include <new>
-#include <string>
-#include <vector>
 
-#include "../Cvar.hpp"
-#include "../Demo.hpp"
 #include "../Game.hpp"
 #include "common/Calc.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
@@ -51,7 +45,6 @@
 #include "shared/mechanics/Sparks.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
-#include "shared/network/Net.hpp"
 
 #ifndef SERVER
 namespace
@@ -66,13 +59,13 @@ namespace
 };
 #endif
 
-auto checkspritelineofsightvisibility(tsprite &looksprite, tsprite &spritetocheck) -> bool
+static auto checkspritelineofsightvisibility(tsprite &looksprite, tsprite &spritetocheck) -> bool
 {
   tvector2 startpoint;
   tvector2 lookpoint;
   float d2 = 0.0;
 
-  bool result;
+  bool result = false;
   result = false;
   // Do we look in the right direction?
   startpoint.x = spritetocheck.skeleton.pos[7].x - looksprite.skeleton.pos[7].x;
@@ -97,13 +90,14 @@ auto checkspritelineofsightvisibility(tsprite &looksprite, tsprite &spritetochec
   return result;
 }
 
-auto areconflictingkeyspressed(tsprite &spritec) -> bool
+static auto areconflictingkeyspressed(tsprite &spritec) -> bool
 {
   // True if more than one of the keys are pressed
-  bool result;
-  result = (std::int32_t)(spritec.control.thrownade) +
-             (std::int32_t)(spritec.control.changeweapon) +
-             (std::int32_t)(spritec.control.throwweapon) + (std::int32_t)(spritec.control.reload) >
+  bool result = false;
+  result = static_cast<std::int32_t>(spritec.control.thrownade) +
+             static_cast<std::int32_t>(spritec.control.changeweapon) +
+             static_cast<std::int32_t>(spritec.control.throwweapon) +
+             static_cast<std::int32_t>(spritec.control.reload) >
            1;
   return result;
 }
@@ -116,16 +110,16 @@ void controlsprite(tsprite &spritec)
   tvector2 b;
   tvector2 lookpoint;
   tvector2 startpoint;
-  std::int32_t j;
+  std::int32_t j = 0;
 #ifndef SERVER
-  std::int32_t i;
-  std::int32_t cameratarget;
+  std::int32_t i = 0;
+  std::int32_t cameratarget = 0;
 #endif
-  float d;
+  float d = NAN;
   tgun tempgun;
   tvector2 playervelocity;
   bool playerpressedleftright = false;
-  bool unprone;
+  bool unprone = false;
 
   auto &map = GS::GetGame().GetMap();
   auto &spriteSystem = SpriteSystem::Get();
@@ -154,14 +148,8 @@ void controlsprite(tsprite &spritec)
 #endif
     }
 
-    if (spritec.legsanimation.speed < 1)
-    {
-      spritec.legsanimation.speed = 1;
-    }
-    if (spritec.bodyanimation.speed < 1)
-    {
-      spritec.bodyanimation.speed = 1;
-    }
+    spritec.legsanimation.speed = std::max(spritec.legsanimation.speed, 1);
+    spritec.bodyanimation.speed = std::max(spritec.bodyanimation.speed, 1);
 #ifndef SERVER
     if ((sprite_system.IsPlayerSprite(spritec.num)) && !gGlobalStateGameMenus.escmenu->active)
     {
@@ -180,8 +168,8 @@ void controlsprite(tsprite &spritec)
           {
             if (gGlobalStateInput.keystatus[gGlobalStateInput.binds[i].keyid] and
                 ((gGlobalStateInput.binds[i].keymod == 0) ||
-                 (static_cast<int>((gGlobalStateInput.binds[i].keymod != 0u) &&
-                                   (SDL_GetModState() != 0u)) != 0)))
+                 (static_cast<int>((gGlobalStateInput.binds[i].keymod != 0U) &&
+                                   (SDL_GetModState() != 0U)) != 0)))
             {
               if (gGlobalStateInput.binds[i].action == taction::left)
               {
@@ -373,7 +361,7 @@ void controlsprite(tsprite &spritec)
 
                 cameratarget =
                   iif(i == 1, gGlobalStateClientGame.getcameratarget(spritec.control.jetpack),
-                      (std::uint8_t)0);
+                      static_cast<std::uint8_t>(0));
 
                 if ((cameratarget > 0) || !freecampressed)
                 {
@@ -486,8 +474,9 @@ void controlsprite(tsprite &spritec)
         }
         else
         {
-          spriteForces.x = spriteForces.x +
-                           ((float)(spritec.direction * iif(grav > 0.05, jetspeed, grav * 2)) / 2);
+          spriteForces.x =
+            spriteForces.x +
+            (static_cast<float>(spritec.direction * iif(grav > 0.05, jetspeed, grav * 2)) / 2);
         }
       }
 
@@ -707,10 +696,8 @@ void controlsprite(tsprite &spritec)
       }
       else
       {
-        if (spritec.weapon.startuptimecount < spritec.weapon.startuptime)
-        {
-          spritec.weapon.startuptimecount = spritec.weapon.startuptime;
-        }
+        spritec.weapon.startuptimecount =
+          std::max(spritec.weapon.startuptimecount, spritec.weapon.startuptime);
 
         spritec.burstcount = 0;
       }
@@ -971,8 +958,8 @@ void controlsprite(tsprite &spritec)
         b = spritec.getcursoraimdirection();
         vec2scale(playervelocity, spriteVelocity, guns[thrownknife].inheritedvelocity);
 
-        d = (float)(min(max(spritec.bodyanimation.currframe, 8), 16)) / 16;
-        vec2scale(b, b, guns[thrownknife].speed * 1.5f * d);
+        d = static_cast<float>(min(max(spritec.bodyanimation.currframe, 8), 16)) / 16;
+        vec2scale(b, b, guns[thrownknife].speed * 1.5F * d);
         b = vec2add(b, playervelocity);
         a = spritec.skeleton.pos[16];
         createbullet(a, b, guns[thrownknife].num, spritec.num, 255, guns[thrownknife].hitmultiply,
@@ -995,9 +982,9 @@ void controlsprite(tsprite &spritec)
           (spritec.bodyanimation.currframe == 11) && (spritec.weapon.num != law_num) &&
           (spritec.weapon.num != m79_num))
       {
-        a.x = spritec.skeleton.pos[16].x + 2.f * spritec.direction;
-        a.y = spritec.skeleton.pos[16].y + 3.f;
-        b.x = spritec.direction * 0.1f;
+        a.x = spritec.skeleton.pos[16].x + (2.F * spritec.direction);
+        a.y = spritec.skeleton.pos[16].y + 3.F;
+        b.x = spritec.direction * 0.1F;
         b.y = 0;
         createbullet(a, b, spritec.weapon.num, spritec.num, 255, spritec.weapon.hitmultiply, true,
                      false);
@@ -1019,7 +1006,7 @@ void controlsprite(tsprite &spritec)
       if ((spritec.bodyanimation.id == AnimationType::Melee) &&
           (spritec.bodyanimation.currframe == 12))
       {
-        a.x = spritec.skeleton.pos[16].x + 2 * spritec.direction;
+        a.x = spritec.skeleton.pos[16].x + (2 * spritec.direction);
         a.y = spritec.skeleton.pos[16].y + 3;
         b.x = spritec.direction * 0.1;
         b.y = 0;
@@ -1046,10 +1033,10 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
       b = spritec.gethandsaimdirection();
       vec2scale(b, b, spritec.weapon.speed);
-      b.x = spritec.direction * 0.025 * b.y + spriteVelocity.x;
-      b.y = -spritec.direction * 0.025 * b.x + spriteVelocity.y;
-      a.x = spritec.skeleton.pos[15].x + 2 - spritec.direction * 0.015 * b.x;
-      a.y = spritec.skeleton.pos[15].y - 2 - spritec.direction * 0.015 * b.y;
+      b.x = (spritec.direction * 0.025 * b.y) + spriteVelocity.x;
+      b.y = (-spritec.direction * 0.025 * b.x) + spriteVelocity.y;
+      a.x = spritec.skeleton.pos[15].x + 2 - (spritec.direction * 0.015 * b.x);
+      a.y = spritec.skeleton.pos[15].y - 2 - (spritec.direction * 0.015 * b.y);
 
       gGlobalStateSparks.createspark(a, b, 51, spritec.num, 255); // czerwona luska
 #endif
@@ -1063,10 +1050,10 @@ void controlsprite(tsprite &spritec)
 #ifndef SERVER
       b = spritec.gethandsaimdirection();
       vec2scale(b, b, spritec.weapon.speed);
-      b.x = spritec.direction * 0.08 * b.y + spriteVelocity.x;
-      b.y = -spritec.direction * 0.08 * b.x + spriteVelocity.y;
-      a.x = spritec.skeleton.pos[15].x + 2 - spritec.direction * 0.015 * b.x;
-      a.y = spritec.skeleton.pos[15].y - 2 - spritec.direction * 0.015 * b.y;
+      b.x = (spritec.direction * 0.08 * b.y) + spriteVelocity.x;
+      b.y = (-spritec.direction * 0.08 * b.x) + spriteVelocity.y;
+      a.x = spritec.skeleton.pos[15].x + 2 - (spritec.direction * 0.015 * b.x);
+      a.y = spritec.skeleton.pos[15].y - 2 - (spritec.direction * 0.015 * b.y);
 
       gGlobalStateSparks.createspark(a, b, 52, spritec.num, 255); /*m79 luska*/
 #endif
@@ -1356,14 +1343,14 @@ void controlsprite(tsprite &spritec)
             spritec.hascigar = 10;
 #ifndef SERVER
             a = spritec.skeleton.pos[12];
-            a.x = a.x + spritec.direction * 4;
+            a.x = a.x + (spritec.direction * 4);
             b.x = 0;
             b.y = -0.7;
             gGlobalStateSparks.createspark(a, b, 31, spritec.num, 65);
             gGlobalStateSound.playsound(SfxEffect::smoke, spritePartsPos);
 
             a = spritec.skeleton.pos[15];
-            b.x = (float)(spritec.direction) / 2;
+            b.x = static_cast<float>(spritec.direction) / 2;
             b.y = 0.15;
             gGlobalStateSparks.createspark(a, b, 33, spritec.num, 245);
 #endif
@@ -1384,7 +1371,7 @@ void controlsprite(tsprite &spritec)
           // Step 7/8
 #ifndef SERVER
           a = spritec.skeleton.pos[12];
-          a.x = a.x + spritec.direction * 4;
+          a.x = a.x + (spritec.direction * 4);
           b.x = 0;
           b.y = -0.7;
           gGlobalStateSparks.createspark(a, b, 31, spritec.num, 65);
@@ -1815,10 +1802,7 @@ void controlsprite(tsprite &spritec)
 
             if (spritec.colliderdistance == 1)
             {
-              if (d > 253)
-              {
-                d = 253;
-              }
+              d = std::min<float>(d, 253);
               spritec.colliderdistance = round(d);
             }
 
@@ -1854,10 +1838,7 @@ void controlsprite(tsprite &spritec)
 
               if (spritec.colliderdistance == 1)
               {
-                if (d > 253)
-                {
-                  d = 253;
-                }
+                d = std::min<float>(d, 253);
                 spritec.colliderdistance = round(d);
               }
 
@@ -1928,7 +1909,7 @@ void controlsprite(tsprite &spritec)
           {
             if (spritec.control.up)
             {
-              spriteForces.y = spriteForces.y - jumpdirspeed * 1.5;
+              spriteForces.y = spriteForces.y - (jumpdirspeed * 1.5);
               spriteForces.x = spriteForces.x * 0.5;
               spriteVelocity.x = spriteVelocity.x * 0.8;
             }

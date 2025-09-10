@@ -1,11 +1,15 @@
 #include "NetworkServer.hpp"
 
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <spdlog/fmt/bundled/core.h>
 #include <steam/isteamnetworkingsockets.h>
 #include <steam/isteamnetworkingutils.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
 #include <steam/steamclientpublic.h>
 #include <steam/steamnetworkingtypes.h>
+#include <string>
+#include <string_view>
 
 #include "../Demo.hpp"
 #include "NetworkServerBullet.hpp"
@@ -16,13 +20,12 @@
 #include "NetworkServerSprite.hpp"
 #include "NetworkServerThing.hpp"
 #include "common/Logging.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/misc/PortUtils.hpp"
-#include "common/misc/SoldatConfig.hpp"
+#include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
 
 GlobalStateNetworkServer gGlobalStateNetworkServer{
@@ -80,7 +83,7 @@ NetworkServer::~NetworkServer()
 
 void NetworkServer::ProcessLoop()
 {
-  PSteamNetworkingMessage_t IncomingMsg;
+  PSteamNetworkingMessage_t IncomingMsg = nullptr;
   RunCallbacks();
 
   auto numMsgs = mNetworkingSockets->ReceiveMessagesOnPollGroup(FPollGroup, &IncomingMsg, 1);
@@ -188,7 +191,7 @@ void NetworkServer::HandleMessages(SteamNetworkingMessage_t *msg)
   }
 
   auto *player = GetPlayer(msg);
-  auto *packet = pmsgheader(msg->m_pData);
+  auto *packet = static_cast<pmsgheader>(msg->m_pData);
 
   switch (packet->id)
   {
@@ -389,7 +392,6 @@ auto GlobalStateNetworkServer::DeinitServerNetwork() -> bool
 #include <limits>
 #include <type_traits>
 #include <utility>
-#include <vector>
 
 #include "NetworkClient.hpp"
 

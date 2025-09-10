@@ -3,20 +3,23 @@
 #include "Parts.hpp"
 
 #include <Tracy.hpp>
-#include <math.h>
+#include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <memory>
+#include <string>
 
-#include "misc/PortUtilsSoldat.hpp"
-#include "misc/TFileStream.hpp"
 #include "FileUtility.hpp"
+#include "Vector.hpp"
+#include "misc/PortUtilsSoldat.hpp"
 #include "misc/SafeType.hpp"
+#include "misc/TFileStream.hpp"
 #include "misc/TStream.hpp"
 
 void particlesystem::doverlettimestep()
 {
   ZoneScopedN("DoVerletTimeStep");
-  std::int32_t i;
+  std::int32_t i = 0;
 
   for (i = 1; i <= num_particles; i++)
   {
@@ -42,7 +45,7 @@ void particlesystem::doeulertimestepfor(std::int32_t i)
 void particlesystem::doeulertimestep()
 {
   ZoneScopedN("DoEulerTimeStep");
-  std::int32_t i;
+  std::int32_t i = 0;
 
   for (i = 1; i <= num_particles; i++)
   {
@@ -81,14 +84,14 @@ void particlesystem::verlet(std::int32_t i)
 
   // Accumulate Forces
   forces[i].y = forces[i].y + gravity;
-  tvector2 temppos = pos[i];
+  tvector2 const temppos = pos[i];
 
   // Pos[I]:= 2 * Pos[I] - OldPos[I] + Forces[I]{ / Mass} * TimeStep * TimeStep;  {Verlet
   // integration}
   vec2scale(s1, pos[i], 1.0 + vdamping);
   vec2scale(s2, oldpos[i], vdamping);
 
-  tvector2 d = vec2subtract(s1, s2);
+  tvector2 const d = vec2subtract(s1, s2);
   vec2scale(s1, forces[i], oneovermass[i]);
   vec2scale(s2, s1, sqr(timestep));
 
@@ -101,17 +104,17 @@ void particlesystem::verlet(std::int32_t i)
 
 void particlesystem::satisfyconstraints()
 {
-  std::int32_t i;
+  std::int32_t i = 0;
   tvector2 delta;
   tvector2 d;
-  float deltalength;
-  float diff;
+  float deltalength = NAN;
+  float diff = NAN;
 
   if (constraintcount > 0)
   {
     for (i = 1; i <= constraintcount; i++)
     {
-      constraint &with = constraints[i];
+      constraint const &with = constraints[i];
       if (with.active)
       {
         diff = 0;
@@ -140,11 +143,11 @@ void particlesystem::satisfyconstraintsfor(std::int32_t i)
 {
   tvector2 delta;
   tvector2 d;
-  float deltalength;
-  float diff;
+  float deltalength = NAN;
+  float diff = NAN;
 
   {
-    constraint &with = constraints[i];
+    constraint const &with = constraints[i];
 
     diff = 0;
     delta = vec2subtract(pos[with.partb], pos[with.parta]);
@@ -175,7 +178,7 @@ void particlesystem::createpart(const tvector2 &start, const tvector2 &vel, cons
   velocity[num] = vel;
 
   oldpos[num] = start;
-  oneovermass[num] = (float)(1) / mass;
+  oneovermass[num] = static_cast<float>(1) / mass;
 }
 
 void particlesystem::makeconstraint(std::int32_t pa, std::int32_t pb, float rest)
@@ -193,7 +196,7 @@ void particlesystem::makeconstraint(std::int32_t pa, std::int32_t pb, float rest
 
 void particlesystem::clone(const particlesystem &other)
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   constraintcount = other.constraintcount;
   partcount = other.partcount;
@@ -242,7 +245,7 @@ void particlesystem::loadpoobject(FileUtility &fs, const std::string &filename, 
     stream->ReadLine(nm); // name
     if (nm != "CONSTRAINTS")
     {
-      tvector2 v;
+      tvector2 const v;
       stream->ReadLine(x); // X
       stream->ReadLine(y); // Y
       stream->ReadLine(z); // Z
@@ -269,17 +272,17 @@ void particlesystem::loadpoobject(FileUtility &fs, const std::string &filename, 
     stream->ReadLine(b); // Part B
     a.erase(0, 1);
     b.erase(0, 1);
-    std::int32_t pa = strtoint(a);
-    std::int32_t pb = strtoint(b);
+    std::int32_t const pa = strtoint(a);
+    std::int32_t const pb = strtoint(b);
 
-    tvector2 delta = vec2subtract(pos[pa], pos[pb]);
+    tvector2 const delta = vec2subtract(pos[pa], pos[pb]);
     makeconstraint(pa, pb, sqrt(vec2dot(delta, delta)));
   } while (a != "ENDFILE");
 }
 
 void particlesystem::stopallparts()
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   for (i = 1; i <= num_particles; i++)
   {
@@ -294,7 +297,7 @@ void particlesystem::stopallparts()
 
 void particlesystem::destroy()
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   for (i = 1; i <= num_particles; i++)
   {

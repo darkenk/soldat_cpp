@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "common/Logging.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include "shared/misc/GlobalSystems.hpp"
 
 auto main(int argc, char *argv[]) -> int

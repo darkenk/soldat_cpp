@@ -1,36 +1,34 @@
 // automatically converted
 #include "NetworkServerMessages.hpp"
 
-#include <bits/types/mbstate_t.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
-#include <cuchar>
 #include <array>
+#include <bits/types/mbstate_t.h>
+#include <cstdint>
 #include <cstring>
-#include <memory>
-#include <utility>
+#include <cuchar>
+#include <spdlog/fmt/bundled/core.h>
+#include <string>
 
 #include "../../server/Server.hpp"
 #include "../Command.hpp"
 #include "../misc/MemoryUtils.hpp"
 #include "NetworkServer.hpp"
 #include "common/Logging.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Util.hpp"
-#include "common/misc/SoldatConfig.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "common/network/Net.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
 
 void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::uint8_t from,
                              std::uint8_t msgtype)
 {
   auto &sprite_system = SpriteSystem::Get();
-  pmsg_stringmessage pchatmessage;
-  std::int32_t size;
+  pmsg_stringmessage pchatmessage = nullptr;
+  std::int32_t size = 0;
 
   if (length(text) == 0)
   {
@@ -57,7 +55,7 @@ void serversendstringmessage(const std::string &text, std::uint8_t tonum, std::u
         if ((tonum == 0) || (sprite.num == tonum))
         {
           if ((from != 255) || (tonum != 0))
-          { // TODO: Simplify it.
+          { // TODO(vscode): Simplify it.
             if ((((msgtype != msgtype_team) && (msgtype != msgtype_radio)) || (from == 255)) or
                 (((msgtype == msgtype_team) || (msgtype == msgtype_radio)) and
                  sprite_system.GetSprite(from).isinsameteam(sprite)))
@@ -101,11 +99,12 @@ static inline auto U16toString(const std::u16string &wstr) -> std::string
   return str;
 }
 
-void serverhandlechatmessage(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void serverhandlechatmessage(tmsgheader *netmessage, std::int32_t /*size*/,
+                             NetworkServer & /*network*/, TServerPlayer *player)
 {
   std::string cs;
   std::string cschat;
-  std::uint8_t msgtype;
+  std::uint8_t msgtype = 0;
 
   if (player->spritenum == 0)
   {
@@ -116,7 +115,7 @@ void serverhandlechatmessage(tmsgheader* netmessage, std::int32_t size, NetworkS
 
   auto *v = reinterpret_cast<char16_t *>(&(reinterpret_cast<pmsg_stringmessage>(netmessage)->text));
   cs = U16toString(v);
-  msgtype = pmsg_stringmessage(netmessage)->msgtype;
+  msgtype = reinterpret_cast<pmsg_stringmessage>(netmessage)->msgtype;
 
   LogDebug("net_msg", "Message {}", cs);
 
@@ -191,12 +190,12 @@ void serverhandlechatmessage(tmsgheader* netmessage, std::int32_t size, NetworkS
 #endif
 }
 
-void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8_t layerid,
-                              std::int32_t delay, float scale, std::uint32_t color, float x, float y,
-                              std::uint8_t tonum)
+void serversendspecialmessage(const std::string &text, std::uint8_t msgtype, std::uint8_t layerid,
+                              std::int32_t delay, float scale, std::uint32_t color, float x,
+                              float y, std::uint8_t tonum)
 {
-  pmsg_serverspecialmessage pchatmessage;
-  std::int32_t size;
+  pmsg_serverspecialmessage pchatmessage = nullptr;
+  std::int32_t size = 0;
 
   size = sizeof(tmsg_serverspecialmessage) + length(text) + 1;
   getmem(pchatmessage, size);
@@ -210,7 +209,7 @@ void serversendspecialmessage(std::string text, std::uint8_t msgtype, std::uint8
   pchatmessage->x = x;
   pchatmessage->y = y;
 
-  strcpy(pchatmessage->text.data(), (pchar)(text));
+  strcpy(pchatmessage->text.data(), pchar(text));
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {

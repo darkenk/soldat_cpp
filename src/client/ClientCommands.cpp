@@ -1,9 +1,8 @@
 // automatically converted
 #include "ClientCommands.hpp"
 
-#include <regex>
 #include <cstdint>
-#include <memory>
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -12,36 +11,32 @@
 #include "GameRendering.hpp"
 #include "Input.hpp"
 #include "Sound.hpp"
+#include "common/Parts.hpp"
 #include "common/Util.hpp"
-#include "common/Console.hpp"
+#include "common/Vector.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
 #include "shared/Command.hpp"
+#include "shared/Constants.cpp.h"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
-#include "shared/network/NetworkClientMessages.hpp"
-#include "common/Parts.hpp"
-#include "common/Vector.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "common/misc/SoldatConfig.hpp"
-#include "common/network/Net.hpp"
-#include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
-#include "shared/Constants.cpp.h"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
-#include "shared/network/Net.hpp"
+#include "shared/misc/GlobalSystems.hpp"
+#include "shared/network/NetworkClientMessages.hpp"
 
-std::uint8_t screenshotsinarow = 0;
+static std::uint8_t screenshotsinarow = 0;
 
 namespace
 {
 
-void commandbind(std::vector<std::string> &args, std::uint8_t sender)
+void commandbind(std::vector<std::string> &args, std::uint8_t /*sender*/)
 {
   std::string bindkeyname;
   std::string commandstring;
-  std::uint64_t modifier;
+  std::uint64_t modifier = 0;
 
   if (length(args) < 3)
   {
@@ -84,7 +79,7 @@ void commandbind(std::vector<std::string> &args, std::uint8_t sender)
   }
 }
 
-void commandconnect(std::vector<std::string> &args, std::uint8_t sender)
+void commandconnect(std::vector<std::string> &args, std::uint8_t /*sender*/)
 {
   std::string s;
 
@@ -128,18 +123,18 @@ void commandconnect(std::vector<std::string> &args, std::uint8_t sender)
   gGlobalStateClient.joinserver();
 }
 
-void commandretry(std::vector<std::string> &args, std::uint8_t sender)
+void commandretry(std::vector<std::string> & /*args*/, std::uint8_t /*sender*/)
 {
   gGlobalStateClient.exittomenu();
   gGlobalStateClient.joinserver();
 }
 
-void commanddisconnect(std::vector<std::string> &args, std::uint8_t sender)
+void commanddisconnect(std::vector<std::string> & /*args*/, std::uint8_t /*sender*/)
 {
   gGlobalStateClient.exittomenu();
 }
 
-void commandsay(std::vector<std::string> &args, std::uint8_t sender)
+void commandsay(std::vector<std::string> &args, std::uint8_t /*sender*/)
 {
   if (length(args) <= 1)
   {
@@ -149,7 +144,7 @@ void commandsay(std::vector<std::string> &args, std::uint8_t sender)
   clientsendstringmessage((args[1]), msgtype_pub);
 }
 
-void commandsayteam(std::vector<std::string> &args, std::uint8_t sender)
+void commandsayteam(std::vector<std::string> &args, std::uint8_t /*sender*/)
 {
   if (length(args) <= 1)
   {
@@ -159,9 +154,9 @@ void commandsayteam(std::vector<std::string> &args, std::uint8_t sender)
   clientsendstringmessage((args[1]), msgtype_team);
 }
 
-void commandrecord(std::vector<std::string> &args, std::uint8_t sender)
+void commandrecord(std::vector<std::string> & /*args*/, std::uint8_t /*sender*/)
 {
-  std::string str1;
+  std::string const str1;
 
   NotImplemented();
 #if 0
@@ -179,7 +174,7 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
 {
   auto &sprite_system = SpriteSystem::Get();
   std::string str1;
-  std::int32_t i;
+  std::int32_t i = 0;
   tcommandtargets targets;
 
   if (length(args) == 1)
@@ -214,7 +209,7 @@ void commandmute(std::vector<std::string> &args, std::uint8_t sender)
   }
 }
 
-void commandunbindall(std::vector<std::string> &args, std::uint8_t sender)
+void commandunbindall(std::vector<std::string> & /*args*/, std::uint8_t /*sender*/)
 {
   gGlobalStateInput.unbindall();
   GS::GetMainConsole().console("Unbinded all binds", game_message_color);
@@ -224,7 +219,7 @@ void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
 {
   auto &sprite_system = SpriteSystem::Get();
   std::string str1;
-  std::int32_t i;
+  std::int32_t i = 0;
   tcommandtargets targets;
 
   if (length(args) == 1)
@@ -243,19 +238,19 @@ void commandunmute(std::vector<std::string> &args, std::uint8_t sender)
   }
 }
 
-void commandstop(std::vector<std::string> &args, std::uint8_t sender)
+void commandstop(std::vector<std::string> & /*args*/, std::uint8_t /*sender*/)
 {
   GS::GetDemoRecorder().stoprecord();
 }
 
-void commandshutdown(std::vector<std::string> &args, std::uint8_t sender)
+void commandshutdown(std::vector<std::string> & /*args*/, std::uint8_t /*sender*/)
 {
   gGlobalStateClient.exittomenu();
 }
 
-void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)
+void commandscreenshot(std::vector<std::string> & /*args*/, std::uint8_t /*sender*/)
 {
-  std::string screenfile;
+  std::string const screenfile;
 
   if (screenshotsinarow < 3)
   {
@@ -272,14 +267,14 @@ void commandscreenshot(std::vector<std::string> &args, std::uint8_t sender)
 
     gGlobalStateSound.playsound(SfxEffect::snapshot);
 
-    if (gGlobalStateClientGame.showscreen != 0u)
+    if (gGlobalStateClientGame.showscreen != 0U)
     {
-      gGlobalStateClientGame.showscreen = 0u;
+      gGlobalStateClientGame.showscreen = 0U;
     }
   }
 }
 
-void commandswitchcam(std::vector<std::string> &args, std::uint8_t sender)
+void commandswitchcam(std::vector<std::string> &args, std::uint8_t /*sender*/)
 {
   auto &sprite_system = SpriteSystem::Get();
   if (length(args) <= 1)
@@ -293,10 +288,10 @@ void commandswitchcam(std::vector<std::string> &args, std::uint8_t sender)
   }
 }
 
-void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
+void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t /*sender*/)
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
+  std::int32_t i = 0;
 
   if (length(args) <= 1)
   {
@@ -320,7 +315,7 @@ void commandswitchcamflag(std::vector<std::string> &args, std::uint8_t sender)
   }
 }
 
-void commanddemotick(std::vector<std::string> &args, std::uint8_t sender)
+void commanddemotick(std::vector<std::string> &args, std::uint8_t /*sender*/)
 {
   if (args[0] == "demo_tick")
   {

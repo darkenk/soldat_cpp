@@ -16,10 +16,10 @@ void clientsendstringmessage(const std::string &text, std::uint8_t msgtype);
 class clienthandlechatmessage : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *nc) override;
+  void Handle(NetworkContext *netmessage) override;
 };
 class clienthandlespecialmessage : public INetMessageHandler
 {
 public:
-  void Handle(NetworkContext *nc) override;
+  void Handle(NetworkContext *netmessage) override;
 };

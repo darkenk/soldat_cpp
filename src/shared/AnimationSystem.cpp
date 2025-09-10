@@ -2,19 +2,22 @@
 #include "AnimationSystem.hpp"
 
 #include <array>
+#include <cstdint>
+#include <string>
 
 #include "common/Anims.hpp"
 #include "common/LogFile.hpp"
 #include "common/Parts.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include "common/misc/TFileStream.hpp"
 #include "mechanics/SpriteSystem.hpp"
+#include "shared/Constants.cpp.h"
 #include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include "shared/Constants.cpp.h"
 
-// TODO: add file missing checks
-// TODO: translate filenames into english
+// TODO(vscode): add file missing checks
+// TODO(vscode): translate filenames into english
 template <Config::Module M>
 void TAnimationSystem<M>::LoadAnimObjects(const std::string &moddir)
 {

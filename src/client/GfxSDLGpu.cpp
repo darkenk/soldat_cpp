@@ -1,7 +1,8 @@
 // automatically converted
 
-#include <cmath>
 #include <array>
+#include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <format>
@@ -10,19 +11,17 @@
 #include <string_view>
 #include <utility>
 
-#include "Gfx.hpp"
 #include "BinPack.hpp"
+#include "Gfx.hpp"
+#include "common/FileUtility.hpp"
 #include "common/Logging.hpp"
+#include "common/Vector.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SafeType.hpp"
+#include "common/port_utils/NotImplemented.hpp"
 #include "shared/misc/FontAtlas.hpp"
 #include "shared/misc/SignalUtils.hpp"
-#include "common/FileUtility.hpp"
-#include "common/Vector.hpp"
-#include "common/misc/SafeType.hpp"
-#include "common/misc/SoldatConfig.hpp"
-#include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 
 // clang-format off
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
@@ -36,6 +35,7 @@
 #pragma clang diagnostic ignored "-Wmissing-field-initializers"
 #endif // __clang__
 #include <freetype/freetype.h>
+#include <math.h>
 #include <stb_image.h>
 #include <stb_image_resize.h>
 #include <stb_image_write.h>
@@ -48,7 +48,6 @@
 #include <freetype/ftimage.h>
 #include <freetype/fttypes.h>
 #include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
 #ifdef __clang__
 #pragma clang diagnostic pop
 #elif defined(__GNUC__) // __clang__
@@ -83,7 +82,7 @@ constexpr std::array<SDL_GPUTextureFormat, 4> SDL_GPU_TEXTURE_FORMAT = {{
 /*                              Helper functions                              */
 /******************************************************************************/
 template <std::size_t N>
-auto join1(const std::array<std::string, N> &list, const std::string &separator) -> string
+static auto join1(const std::array<std::string, N> &list, const std::string &separator) -> string
 {
   std::ostringstream os;
   std::copy(list.begin(), list.end(),
@@ -94,12 +93,12 @@ auto join1(const std::array<std::string, N> &list, const std::string &separator)
 auto npot(std::uint32_t x) -> std::int32_t
 {
   x -= 1;
-  x = x | ((unsigned long)x >> 1);
-  x = x | ((unsigned long)x >> 2);
-  x = x | ((unsigned long)x >> 4);
-  x = x | ((unsigned long)x >> 8);
-  x = x | ((unsigned long)x >> 16);
-  return std::max(2u, x + 1);
+  x = x | (static_cast<unsigned long>(x) >> 1);
+  x = x | (static_cast<unsigned long>(x) >> 2);
+  x = x | (static_cast<unsigned long>(x) >> 4);
+  x = x | (static_cast<unsigned long>(x) >> 8);
+  x = x | (static_cast<unsigned long>(x) >> 16);
+  return std::max(2U, x + 1);
 }
 
 auto rectwidth(const tgfxrect &rect) -> float { return std::abs(rect.right - rect.left); }
@@ -122,19 +121,19 @@ struct tbatchbuffer
 
 struct tbatch
 {
-  tgfxvertexbuffer *vertexbuffer;
+  tgfxvertexbuffer *vertexbuffer{};
   std::vector<tbatchbuffer> buffers;
   std::vector<tgfxdrawcommand> commands;
-  std::int32_t commandssize;
+  std::int32_t commandssize{};
 };
 
 using pglyph = struct tglyph *;
 using ppglyph = pglyph *;
 struct tglyph
 {
-  std::int32_t glyphindex;
-  std::int32_t page;
-  float advance;
+  std::int32_t glyphindex{};
+  std::int32_t page{};
+  float advance{};
   tgfxrect bounds;
   tgfxrect texcoords;
 };
@@ -163,21 +162,21 @@ using pcomputedglyph = struct tcomputedglyph *;
 struct tcomputedglyph
 {
   MyFloat x, y;
-  pglyph glyph;
+  pglyph glyph{};
 };
 
 using pfont = struct tfont *;
 struct tfont
 {
-  FT_Face handle;
-  std::int32_t width;
-  std::int32_t height;
-  std::uint8_t *buffer;
-  std::int32_t buffersize;
+  FT_Face handle{};
+  std::int32_t width{};
+  std::int32_t height{};
+  std::uint8_t *buffer{};
+  std::int32_t buffersize{};
   std::vector<tgfxtexture *> pages;
   std::vector<tglyphtable> tables;
   std::vector<pglyph> pool;
-  std::int32_t poolindex;
+  std::int32_t poolindex{};
   std::vector<RectangleArea> pageDesc;
 };
 
@@ -194,32 +193,32 @@ public:
   void execute();
 };
 
-struct
+static struct
 {
-  std::int32_t majorversion;
-  GLuint shaderprogram;
-  GLint matrixloc;
+  std::int32_t majorversion{};
+  GLuint shaderprogram{};
+  GLint matrixloc{};
   tbatch batch;
-  tgfxtexture *rendertarget;
-  tgfxtexture *whitetexture;
+  tgfxtexture *rendertarget{};
+  tgfxtexture *whitetexture{};
   tgfxvertexbuffer *boundbuffer = nullptr;
-  GLuint ditheringtexture;
-  GLint maxtexturesize;
-  GLint msaasamples;
-  FT_Library ftlibrary;
+  GLuint ditheringtexture{};
+  GLint maxtexturesize{};
+  GLint msaasamples{};
+  FT_Library ftlibrary{};
   pfont font = nullptr;
   pglyphtable glyphtable = nullptr;
   tvector2 textpixelratio;
-  float textscale;
-  tgfxcolor textcolor;
+  float textscale{};
+  tgfxcolor textcolor{};
   tvector2 textshadowoffset;
-  tgfxcolor textshadowcolor;
+  tgfxcolor textshadowcolor{};
   tgfxverticalalign textverticalalign;
-  std::int32_t *textindexstr;
+  std::int32_t *textindexstr{};
   ppglyph textglyphstr = nullptr;
   pcomputedglyph textcomputedstr = nullptr;
-  std::int32_t textstrsize;
-  std::int32_t textcomputedcount;
+  std::int32_t textstrsize{};
+  std::int32_t textcomputedcount{};
   GLuint testVao = 0;
   SDL_GPUShader * mVertexShader = nullptr;
   SDL_GPUShader * mFragmentShader = nullptr;
@@ -238,14 +237,14 @@ struct
   bool mClearColorDirty = false;
 } gfxcontext;
 
-static auto createshader(GLenum shadertype, const std::string shadersource) -> GLuint
+static auto createshader(GLenum shadertype, const std::string &shadersource) -> GLuint
 {
   std::string source;
-  const GLchar *sourceptr;
-  GLchar *info;
-  GLint status;
-  GLsizei len;
-  GLsizei dummy;
+  const GLchar *sourceptr = nullptr;
+  GLchar *info = nullptr;
+  GLint status = 0;
+  GLsizei len = 0;
+  GLsizei dummy = 0;
 
   source = std::string(shadersource);
   sourceptr = source.c_str();
@@ -255,7 +254,7 @@ static auto createshader(GLenum shadertype, const std::string shadersource) -> G
   glCompileShader(result);
   glGetShaderiv(result, GL_COMPILE_STATUS, &status);
 
-  if (status == GLint(GL_FALSE))
+  if (status == static_cast<GLint>(GL_FALSE))
   {
     dummy = 0;
     glGetShaderiv(result, GL_INFO_LOG_LENGTH, &len);
@@ -286,12 +285,14 @@ auto gfxframebuffersupported() -> bool
   //return glGenFramebuffers != nullptr && glBlitFramebuffer != nullptr;
 }
 
-void gfxSetGpuDevice(SDL_GPUDevice* device)
+// NOLINTNEXTLINE
+void gfxSetGpuDevice(SDL_GPUDevice *device)
 {
   gfxcontext.mGpuDevice = device;
 }
 
-constexpr inline std::uint32_t gfxCalculateSamplerIndex(const SDL_GPUFilter min_filter, const SDL_GPUFilter mag_filter)
+static constexpr std::uint32_t gfxCalculateSamplerIndex(const SDL_GPUFilter min_filter,
+                                                        const SDL_GPUFilter mag_filter)
 {
   return min_filter | (mag_filter << 1);
 }
@@ -305,18 +306,18 @@ static SDL_GPUSampler* gfxCreateSampler(const SDL_GPUFilter min_filter, const SD
   sampler_info.address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
   sampler_info.address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
   sampler_info.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
-  sampler_info.mip_lod_bias = 0.0f;
-  sampler_info.min_lod = -1000.0f;
-  sampler_info.max_lod = 1000.0f;
+  sampler_info.mip_lod_bias = 0.0F;
+  sampler_info.min_lod = -1000.0F;
+  sampler_info.max_lod = 1000.0F;
   sampler_info.enable_anisotropy = false;
-  sampler_info.max_anisotropy = 1.0f;
+  sampler_info.max_anisotropy = 1.0F;
   sampler_info.enable_compare = false;
   sampler_info.props = SDL_CreateProperties();
   auto sampler_name = std::format("soldat_sampler_{}", gfxCalculateSamplerIndex(min_filter, mag_filter));
   SDL_SetStringProperty(sampler_info.props, SDL_PROP_GPU_SAMPLER_CREATE_NAME_STRING,
                         sampler_name.c_str());
 
-  auto sampler = SDL_CreateGPUSampler(gfxcontext.mGpuDevice, &sampler_info);
+  auto *sampler = SDL_CreateGPUSampler(gfxcontext.mGpuDevice, &sampler_info);
   AbortIf(sampler == nullptr, "Failed to create font sampler. Error: {}", SDL_GetError());
   SDL_DestroyProperties(sampler_info.props);
   return sampler;
@@ -380,7 +381,10 @@ static SDL_GPUGraphicsPipeline * gfxCreateGraphicsPipeline()
                                  SDL_GPU_COLORCOMPONENT_B | SDL_GPU_COLORCOMPONENT_A;
 
   SDL_GPUColorTargetDescription color_target_desc[1];
-  color_target_desc[0].format = SDL_GetGPUSwapchainTextureFormat(gfxcontext.mGpuDevice, gfxcontext.mWindow); // TODO: This is a hack, we should have a way to get the swapchain format
+  color_target_desc[0].format = SDL_GetGPUSwapchainTextureFormat(
+    gfxcontext.mGpuDevice,
+    gfxcontext
+      .mWindow); // TODO(vscode): This is a hack, we should have a way to get the swapchain format
   color_target_desc[0].blend_state = blend_state;
 
   SDL_GPUGraphicsPipelineTargetInfo target_info = {};
@@ -401,14 +405,13 @@ static SDL_GPUGraphicsPipeline * gfxCreateGraphicsPipeline()
   SDL_SetStringProperty(pipeline_info.props, SDL_PROP_GPU_GRAPHICSPIPELINE_CREATE_NAME_STRING,
                         "soldat_graphics_pipeline");
 
-  auto pipeline = SDL_CreateGPUGraphicsPipeline(gfxcontext.mGpuDevice, &pipeline_info);
+  auto *pipeline = SDL_CreateGPUGraphicsPipeline(gfxcontext.mGpuDevice, &pipeline_info);
   AbortIf(pipeline == nullptr, "Failed to create graphics pipeline. Error: {}", SDL_GetError());
   SDL_DestroyProperties(pipeline_info.props);
   return pipeline;
 }
 
-
-auto gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline) -> bool
+auto gfxinitcontext(SDL_Window *wnd, bool /*dithering*/, bool /*fixedpipeline*/) -> bool
 {
 #pragma region sdl3
 
@@ -428,11 +431,8 @@ auto gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline) -> bool
 
 #pragma endregion sdl3
 
-
-
-
-  tgfxcolor color;
-  std::string version;
+  tgfxcolor color{};
+  std::string const version;
   const char *driver = SDL_GetGPUDeviceDriver(gfxcontext.mGpuDevice);
   gfxcontext.mWindow = wnd;
 
@@ -488,7 +488,8 @@ auto gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline) -> bool
   // create a default white texture
 
   color.rgba = 0xffffffff;
-  gfxcontext.whitetexture = gfxcreatetexture(1, 1, 4, (std::uint8_t *)&color, "white texture");
+  gfxcontext.whitetexture =
+    gfxcreatetexture(1, 1, 4, reinterpret_cast<std::uint8_t *>(&color), "white texture");
 
   // setup some state
 #if 0
@@ -522,7 +523,7 @@ auto gfxinitcontext(SDL_Window *wnd, bool dithering, bool fixedpipeline) -> bool
 
 void gfxdestroycontext()
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   tbatch &batch = gfxcontext.batch;
 
@@ -564,10 +565,10 @@ void gfxdestroycontext()
   }
 
   fillchar(&gfxcontext, sizeof(gfxcontext), 0);
-  if (gfxcontext.mGpuDevice)
+  if (gfxcontext.mGpuDevice != nullptr)
   {
     SDL_WaitForGPUIdle(gfxcontext.mGpuDevice);
-    if (gfxcontext.mWindow)
+    if (gfxcontext.mWindow != nullptr)
     {
       SDL_ReleaseWindowFromGPUDevice(gfxcontext.mGpuDevice, gfxcontext.mWindow);
     }
@@ -585,10 +586,10 @@ void gfxtarget(tgfxtexture *rendertarget)
 
   if (rendertarget == nullptr)
   {
-    if (!gfxcontext.mSwapchainTexture)
+    if (gfxcontext.mSwapchainTexture == nullptr)
     {
-      Uint32 swapchain_texture_width;
-      Uint32 swapchain_texture_height;
+      Uint32 swapchain_texture_width = 0;
+      Uint32 swapchain_texture_height = 0;
       SDL_WaitAndAcquireGPUSwapchainTexture(gfxcontext.mCommandBuffer, gfxcontext.mWindow, &gfxcontext.mSwapchainTexture, &swapchain_texture_width, &swapchain_texture_height); // Acquire a swapchain texture 
     }
     gfxcontext.mRenderTexture = gfxcontext.mSwapchainTexture;
@@ -599,8 +600,8 @@ void gfxtarget(tgfxtexture *rendertarget)
   }
 }
 
-void gfxblit(tgfxtexture *src, tgfxtexture *dst, trect srcrect, trect dstrect,
-             tgfxtexturefilter filter)
+void gfxblit(tgfxtexture * /*src*/, tgfxtexture * /*dst*/, trect /*srcrect*/, trect /*dstrect*/,
+             tgfxtexturefilter /*filter*/)
 {
 
   NotImplemented("rendering");
@@ -608,13 +609,13 @@ void gfxblit(tgfxtexture *src, tgfxtexture *dst, trect srcrect, trect dstrect,
 
 void gfxviewport(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h)
 {
-  SDL_GPUViewport viewport = {
+  SDL_GPUViewport const viewport = {
     .x = static_cast<float>(x),
     .y = static_cast<float>(y),
     .w = static_cast<float>(w),
     .h = static_cast<float>(h),
-    .min_depth = 0.0f,
-    .max_depth = 1.0f,
+    .min_depth = 0.0F,
+    .max_depth = 1.0F,
   };
   SDL_SetGPUViewport(gfxcontext.mRenderPass, &viewport);
 }
@@ -632,7 +633,10 @@ void gfxtransform(const tgfxmat3 t)
 void gfxclear(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a)
 {
   AbortIf(gfxcontext.mClearColorDirty, "Clear color is already dirty");
-  gfxcontext.mClearColor = {(float)(r) / 255.0f, (float)(g) / 255.0f, (float)(b) / 255.0f, (float)(a) / 255.0f};
+  gfxcontext.mClearColor = {.r = static_cast<float>(r) / 255.0F,
+                            .g = static_cast<float>(g) / 255.0F,
+                            .b = static_cast<float>(b) / 255.0F,
+                            .a = static_cast<float>(a) / 255.0F};
   gfxcontext.mClearColorDirty = true;
 }
 
@@ -654,7 +658,7 @@ void gfxdraw(tgfxvertexbuffer *buffer, std::int32_t offset, std::int32_t count)
   target_info.layer_or_depth_plane = 0;
   target_info.cycle = false;
   gfxcontext.mRenderPass = SDL_BeginGPURenderPass(gfxcontext.mCommandBuffer, &target_info, 1, nullptr);
-  SDL_SetGPUBlendConstants(gfxcontext.mRenderPass, SDL_FColor(0.f, 0.f, 0.f, 0.f));
+  SDL_SetGPUBlendConstants(gfxcontext.mRenderPass, SDL_FColor(0.F, 0.F, 0.F, 0.F));
   SDL_BindGPUGraphicsPipeline(gfxcontext.mRenderPass, gfxcontext.mPipeline);
   if (gfxcontext.mTransformDirty)
   {
@@ -691,7 +695,7 @@ void gfxdraw(tgfxvertexbuffer *buffer, tgfxindexbuffer *indexbuffer, std::int32_
   target_info.layer_or_depth_plane = 0;
   target_info.cycle = false;
   gfxcontext.mRenderPass = SDL_BeginGPURenderPass(gfxcontext.mCommandBuffer, &target_info, 1, nullptr);
-  SDL_SetGPUBlendConstants(gfxcontext.mRenderPass, SDL_FColor(0.f, 0.f, 0.f, 0.f));
+  SDL_SetGPUBlendConstants(gfxcontext.mRenderPass, SDL_FColor(0.F, 0.F, 0.F, 0.F));
   SDL_BindGPUGraphicsPipeline(gfxcontext.mRenderPass, gfxcontext.mPipeline);
   if (gfxcontext.mTransformDirty)
   {
@@ -702,7 +706,7 @@ void gfxdraw(tgfxvertexbuffer *buffer, tgfxindexbuffer *indexbuffer, std::int32_
   { 
     SDL_BindGPUFragmentSamplers(gfxcontext.mRenderPass, 0, &gfxcontext.mTextureSamplerBinding, 1);
     setupvertexattributes(buffer);
-    SDL_GPUBufferBinding buffer_binding = {.buffer = indexbuffer->getBuffer(), .offset = 0};
+    SDL_GPUBufferBinding const buffer_binding = {.buffer = indexbuffer->getBuffer(), .offset = 0};
     SDL_BindGPUIndexBuffer(gfxcontext.mRenderPass, &buffer_binding, SDL_GPUIndexElementSize::SDL_GPU_INDEXELEMENTSIZE_16BIT);
     SDL_DrawGPUIndexedPrimitives(gfxcontext.mRenderPass, count, 1, offset, 0, 0);
   }
@@ -726,7 +730,7 @@ void gfxdraw(tgfxvertexbuffer *buffer, pgfxdrawcommand cmds, std::int32_t cmdcou
   target_info.layer_or_depth_plane = 0;
   target_info.cycle = false;
   gfxcontext.mRenderPass = SDL_BeginGPURenderPass(gfxcontext.mCommandBuffer, &target_info, 1, nullptr);
-  SDL_SetGPUBlendConstants(gfxcontext.mRenderPass, SDL_FColor(0.f, 0.f, 0.f, 0.f));
+  SDL_SetGPUBlendConstants(gfxcontext.mRenderPass, SDL_FColor(0.F, 0.F, 0.F, 0.F));
   SDL_BindGPUGraphicsPipeline(gfxcontext.mRenderPass, gfxcontext.mPipeline);
   if (gfxcontext.mTransformDirty)
   {
@@ -735,7 +739,7 @@ void gfxdraw(tgfxvertexbuffer *buffer, pgfxdrawcommand cmds, std::int32_t cmdcou
   }
   gfxcontext.mClearColorDirty = false;
   {
-    std::int32_t i;
+    std::int32_t i = 0;
     setupvertexattributes(buffer);
 
     for (i = 1; i <= cmdcount; i++)
@@ -752,8 +756,8 @@ void gfxdraw(tgfxvertexbuffer *buffer, pgfxdrawcommand cmds, std::int32_t cmdcou
   SDL_PopGPUDebugGroup(gfxcontext.mCommandBuffer);
 }
 
-void gfxdraw(tgfxvertexbuffer *buffer, tgfxindexbuffer *indexbuffer, pgfxdrawcommand cmds,
-             std::int32_t cmdcount)
+void gfxdraw(tgfxvertexbuffer * /*buffer*/, tgfxindexbuffer * /*indexbuffer*/,
+             pgfxdrawcommand /*cmds*/, std::int32_t /*cmdcount*/)
 {
   NotImplemented("rendering");
 }
@@ -772,7 +776,7 @@ void gfxpresent(bool finish)
   gfxcontext.mSwapchainTexture = nullptr;
 }
 
-void gfxsetmipmapbias(float bias)
+void gfxsetmipmapbias(float /*bias*/)
 {
   NotImplemented("rendering", "This is probably some garbage after fixed pipeline");
 #if 0
@@ -782,19 +786,16 @@ void gfxsetmipmapbias(float bias)
 
 tscreenshotthread::tscreenshotthread(string filename, std::int32_t w, std::int32_t h,
                                      std::uint8_t *data)
+  : fname(filename), fwidth(w), fheight(h), fdata(data)
 {
-  fname = filename;
-  fwidth = w;
-  fheight = h;
-  fdata = data;
 }
 
 void tscreenshotthread::execute()
 {
-  std::uint8_t *src;
-  std::uint8_t *dst;
-  std::int32_t stride;
-  std::int32_t y;
+  std::uint8_t *src = nullptr;
+  std::uint8_t *dst = nullptr;
+  std::int32_t stride = 0;
+  std::int32_t y = 0;
 
   stride = 4 * fwidth;
 
@@ -817,7 +818,7 @@ void tscreenshotthread::execute()
 
 std::unique_ptr<std::uint8_t[]> gfxsavescreen(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h)
 {
-  auto data = std::make_unique<uint8_t[]>(w * h * 4);
+  auto data = std::make_unique<uint8_t[]>(static_cast<size_t>(w * h * 4));
 
   SDL_GPUCommandBuffer *cmd = SDL_AcquireGPUCommandBuffer(gfxcontext.mGpuDevice);
 
@@ -843,8 +844,8 @@ std::unique_ptr<std::uint8_t[]> gfxsavescreen(std::int32_t x, std::int32_t y, st
   SDL_GPUTextureTransferInfo xferInfo{};
   xferInfo.transfer_buffer = transferBuffor;
   xferInfo.offset = 0;
-  xferInfo.pixels_per_row = (Uint32)(w);
-  xferInfo.rows_per_layer = (Uint32)(h);        
+  xferInfo.pixels_per_row = static_cast<Uint32>(w);
+  xferInfo.rows_per_layer = static_cast<Uint32>(h);
 
   SDL_DownloadFromGPUTexture(copyPass, &region, &xferInfo);
   SDL_EndGPUCopyPass(copyPass);
@@ -855,20 +856,19 @@ std::unique_ptr<std::uint8_t[]> gfxsavescreen(std::int32_t x, std::int32_t y, st
 
   void* pixels = SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, transferBuffor, false);
   AbortIf(pixels == nullptr, "Failed to map transfer buffer: {}", SDL_GetError());
-  std::memcpy(data.get(), pixels, w * h * 4);
+  std::memcpy(data.get(), pixels, static_cast<size_t>(w * h * 4));
   SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, transferBuffor);
   SDL_ReleaseGPUTransferBuffer(gfxcontext.mGpuDevice, transferBuffor);
   for(int line = 0; line < h; ++line) {
     for (int linex = 0; linex < w; ++linex) {
-      std::swap(data.get()[4 * (line * w + linex) + 0],
-                data.get()[4 * (line * w + linex) + 2]);
+      std::swap(data.get()[(4 * (line * w + linex)) + 0], data.get()[(4 * (line * w + linex)) + 2]);
     }
   }
   return data;
 }
 
-void gfxsavescreen(const std::string &filename, std::int32_t x, std::int32_t y, std::int32_t w,
-                   std::int32_t h, bool async)
+void gfxsavescreen(const std::string & /*filename*/, std::int32_t /*x*/, std::int32_t /*y*/,
+                   std::int32_t /*w*/, std::int32_t /*h*/, bool /*async*/)
 {
   NotImplemented("rendering", "Lack of screenshot");
 #if 0
@@ -908,7 +908,7 @@ void max(float a, float b)
 #endif
 auto rgba(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a) -> tgfxcolor
 {
-  tgfxcolor result;
+  tgfxcolor result{};
   result.color.r = r;
   result.color.g = g;
   result.color.b = b;
@@ -917,7 +917,7 @@ auto rgba(std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a) -> tgf
 }
 auto rgba(std::uint8_t r, std::uint8_t g, std::uint8_t b) -> tgfxcolor
 {
-  tgfxcolor result;
+  tgfxcolor result{};
   result.color.r = r;
   result.color.g = g;
   result.color.b = b;
@@ -926,39 +926,39 @@ auto rgba(std::uint8_t r, std::uint8_t g, std::uint8_t b) -> tgfxcolor
 }
 auto rgba(std::uint32_t rgba) -> tgfxcolor
 {
-  tgfxcolor result;
+  tgfxcolor result{};
   result.color.a = 255;
-  result.color.r = (std::uint32_t)(rgba & 0xff0000) >> 16;
-  result.color.g = (std::uint32_t)(rgba & 0xff00) >> 8;
+  result.color.r = (rgba & 0xff0000) >> 16;
+  result.color.g = (rgba & 0xff00) >> 8;
   result.color.b = (rgba & 0xff);
   return result;
 }
 
-auto rgba(std::uint8_t r, std::uint8_t g, std::uint8_t b, double a) -> tgfxcolor
+static auto rgba(std::uint8_t r, std::uint8_t g, std::uint8_t b, double a) -> tgfxcolor
 {
 
-  tgfxcolor result;
+  tgfxcolor result{};
   result.color.r = r;
   result.color.g = g;
   result.color.b = b;
-  result.color.a = (std::uint8_t)(trunc(a));
+  result.color.a = static_cast<std::uint8_t>(trunc(a));
   return result;
 }
 
 auto rgba(std::uint32_t rgb, float a) -> tgfxcolor
 {
 
-  tgfxcolor result;
-  result.color.r = (std::uint32_t)(rgb & 0xff0000) >> 16;
-  result.color.g = (std::uint32_t)(rgb & 0xff00) >> 8;
+  tgfxcolor result{};
+  result.color.r = (rgb & 0xff0000) >> 16;
+  result.color.g = (rgb & 0xff00) >> 8;
   result.color.b = (rgb & 0xff);
-  result.color.a = (std::uint8_t)(trunc(a));
+  result.color.a = static_cast<std::uint8_t>(trunc(a));
   return result;
 }
 
 auto gfxvertex(float x, float y, float u, float v, const tgfxcolor &c) -> tgfxvertex
 {
-  tgfxvertex result;
+  tgfxvertex result{};
   result.x = x;
   result.y = y;
   result.u = u;
@@ -969,7 +969,7 @@ auto gfxvertex(float x, float y, float u, float v, const tgfxcolor &c) -> tgfxve
 
 void gfxbindtexture(tgfxtexture *texture)
 {
-  auto tex = texture ? texture : gfxcontext.whitetexture;
+  auto *tex = (texture != nullptr) ? texture : gfxcontext.whitetexture;
   gfxcontext.mTextureSamplerBinding.sampler = gfxcontext.mSamplers[gfxCalculateSamplerIndex(tex->mMinFilter, tex->mMagFilter)];
   gfxcontext.mTextureSamplerBinding.texture = tex->getTexture();
 }
@@ -1047,12 +1047,12 @@ void gfxdeletetexture(tgfxtexture *&texture)
 
 static void premultiplycolor(pgfxvertex v, std::int32_t n)
 {
-  std::int32_t i;
-  float a;
+  std::int32_t i = 0;
+  float a = NAN;
 
   for (i = 0; i <= n - 1; i++)
   {
-    a = (float)(v->color.color.a) / 255;
+    a = static_cast<float>(v->color.color.a) / 255;
     v->color.color.r = round(v->color.color.r * a);
     v->color.color.g = round(v->color.color.g * a);
     v->color.color.b = round(v->color.color.b * a);
@@ -1093,7 +1093,7 @@ void gfxdeleteindexbuffer(tgfxindexbuffer *b)
 
 void gfxbegin()
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   tbatch &batch = gfxcontext.batch;
 
@@ -1123,8 +1123,8 @@ void gfxbegin()
 
 void gfxend()
 {
-  std::int32_t n;
-  std::int32_t total;
+  std::int32_t n = 0;
+  std::int32_t total = 0;
 
   tbatch &batch = gfxcontext.batch;
   total = 0;
@@ -1200,7 +1200,7 @@ void gfxdrawquad(tgfxtexture *texture, const std::vector<tgfxvertex, Allocator> 
   {
     if (length(b.commands) < (n + 1))
     {
-      b.commands.resize(max(2 * length(b.commands), 32uL));
+      b.commands.resize(max(2 * length(b.commands), 32UL));
     }
 
     b.commands[n].texture = texture;
@@ -1414,22 +1414,22 @@ void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx,
 void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx, float ry, float r,
                    const tgfxcolor &color, const tgfxrect &rc)
 {
-  float w;
-  float h;
+  float w = NAN;
+  float h = NAN;
   std::vector<tgfxvertex> v{4};
   tgfxrect rect;
-  pgfxrect tc;
+  pgfxrect tc = nullptr;
 
-  w = min(rc.right - rc.left, (float)s->width);
-  h = min(rc.bottom - rc.top, (float)s->height);
+  w = min(rc.right - rc.left, static_cast<float>(s->width));
+  h = min(rc.bottom - rc.top, static_cast<float>(s->height));
   tc = &s->texcoords;
 
   gfxspritevertices(s, x, y, w, h, sx, sy, rx, ry, -r, color, v.data());
 
-  rect.left = (float)((s->x + rc.left)) / s->texture->width();
-  rect.top = (float)((s->y + rc.top)) / s->texture->height();
-  rect.right = (float)((s->x + rc.right)) / s->texture->width();
-  rect.bottom = (float)((s->y + rc.bottom)) / s->texture->height();
+  rect.left = static_cast<float>((s->x + rc.left)) / s->texture->width();
+  rect.top = static_cast<float>((s->y + rc.top)) / s->texture->height();
+  rect.right = static_cast<float>((s->x + rc.right)) / s->texture->width();
+  rect.bottom = static_cast<float>((s->y + rc.bottom)) / s->texture->height();
 
   rect.left = max(min(rect.left, tc->right), tc->left);
   rect.top = max(min(rect.top, tc->bottom), tc->top);
@@ -1452,7 +1452,7 @@ void gfxdrawsprite(pgfxsprite s, float x, float y, float sx, float sy, float rx,
 /*                              Font (internal)                               */
 /******************************************************************************/
 
-void addfontpage(pfont f)
+static void addfontpage(pfont f)
 {
   fillchar(f->buffer, static_cast<std::size_t>(4 * f->width * f->height), 0);
 
@@ -1463,15 +1463,15 @@ void addfontpage(pfont f)
   f->pageDesc.emplace_back(f->width, f->height);
 }
 
-void requestfontsize(pfont f, std::int32_t fontsize, std::int32_t stretch)
+static void requestfontsize(pfont f, std::int32_t fontsize, std::int32_t stretch)
 {
-  float fontsizef;
+  float fontsizef = NAN;
   FT_Size_RequestRec sizereq;
 
-  fontsizef = ((float)(fontsize) / 1000) * ((float)(96) / 72);
+  fontsizef = (static_cast<float>(fontsize) / 1000) * (static_cast<float>(96) / 72);
 
   sizereq.type = FT_SIZE_REQUEST_TYPE_NOMINAL;
-  sizereq.width = round(64 * fontsizef * ((float)(stretch) / 1000));
+  sizereq.width = round(64 * fontsizef * (static_cast<float>(stretch) / 1000));
   sizereq.height = round(64 * fontsizef);
   sizereq.horiResolution = 0;
   sizereq.vertResolution = 0;
@@ -1479,19 +1479,19 @@ void requestfontsize(pfont f, std::int32_t fontsize, std::int32_t stretch)
   FT_Request_Size(f->handle, &sizereq);
 }
 
-auto addglyphtable(pfont f, std::int32_t fontsize, std::int32_t stretch,
-                   std::uint32_t flags) -> std::int32_t
+static auto addglyphtable(pfont f, std::int32_t fontsize, std::int32_t stretch, std::uint32_t flags)
+  -> std::int32_t
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
-  std::int32_t result;
+  std::int32_t result = 0;
   i = length(f->tables);
   f->tables.resize(i + 1);
 
   f->tables[i].fontsize = fontsize;
   f->tables[i].stretch = stretch;
   f->tables[i].flags = flags;
-  f->tables[i].vspace = (float)(f->handle->size->metrics.height) / 64;
+  f->tables[i].vspace = static_cast<float>(f->handle->size->metrics.height) / 64;
   f->tables[i].ascent = fabs(f->handle->size->metrics.ascender) / 64;
   f->tables[i].descent = fabs(f->handle->size->metrics.descender) / 64;
   f->tables[i].size = 0;
@@ -1503,10 +1503,10 @@ auto addglyphtable(pfont f, std::int32_t fontsize, std::int32_t stretch,
   return result;
 }
 
-auto findglyphtable(pfont f, std::int32_t fontsize, std::int32_t stretch,
-                    std::uint32_t flags) -> std::int32_t
+static auto findglyphtable(pfont f, std::int32_t fontsize, std::int32_t stretch,
+                           std::uint32_t flags) -> std::int32_t
 {
-  std::int32_t result;
+  std::int32_t result = 0;
   requestfontsize(f, fontsize, stretch);
   result = 0;
   for (result = 0; result < f->tables.size(); result++)
@@ -1522,9 +1522,9 @@ auto findglyphtable(pfont f, std::int32_t fontsize, std::int32_t stretch,
   return result;
 }
 
-auto allocglyph(pfont f) -> pglyph
+static auto allocglyph(pfont f) -> pglyph
 {
-  pglyph result;
+  pglyph result = nullptr;
   if (f->poolindex == glyph_pool_size)
   {
     f->poolindex = 0;
@@ -1539,13 +1539,13 @@ auto allocglyph(pfont f) -> pglyph
   return result;
 }
 
-void DumpGlyph(const FT_Bitmap &glyph)
+static void DumpGlyph(const FT_Bitmap &glyph)
 {
   LogDebugG("dump glyph:");
-  for (auto y = 0u; y < glyph.rows; y++)
+  for (auto y = 0U; y < glyph.rows; y++)
   {
     std::string line;
-    for (auto x = 0u; x < glyph.width; x++)
+    for (auto x = 0U; x < glyph.width; x++)
     {
       line += *(glyph.buffer + static_cast<size_t>(y * glyph.pitch) + x);
     }
@@ -1553,20 +1553,20 @@ void DumpGlyph(const FT_Bitmap &glyph)
   }
 }
 
-void loadglyphbitmap(pfont f, pglyphtable table, pglyph glyph)
+static void loadglyphbitmap(pfont f, pglyphtable table, pglyph glyph)
 {
-  std::uint8_t pixel;
-  std::uint8_t *srcrow;
-  std::uint8_t *src;
-  std::uint8_t *dst;
-  std::int32_t i;
-  std::int32_t j;
-  std::int32_t k;
-  std::int32_t w;
-  std::int32_t h;
-  std::int32_t wb;
-  std::int32_t wr;
-  std::int32_t bufsize;
+  std::uint8_t pixel = 0;
+  std::uint8_t *srcrow = nullptr;
+  std::uint8_t *src = nullptr;
+  std::uint8_t *dst = nullptr;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
+  std::int32_t k = 0;
+  std::int32_t w = 0;
+  std::int32_t h = 0;
+  std::int32_t wb = 0;
+  std::int32_t wr = 0;
+  std::int32_t bufsize = 0;
   std::int32_t x = 0;
   std::int32_t y = 0;
 
@@ -1592,10 +1592,10 @@ void loadglyphbitmap(pfont f, pglyphtable table, pglyph glyph)
   y = r.y;
 
   glyph->page = high(f->pages);
-  glyph->texcoords.left = (float)(x) / f->width;
-  glyph->texcoords.top = (float)(y) / f->height;
-  glyph->texcoords.right = (float)((x + w)) / f->width;
-  glyph->texcoords.bottom = (float)((y + h)) / f->height;
+  glyph->texcoords.left = static_cast<float>(x) / f->width;
+  glyph->texcoords.top = static_cast<float>(y) / f->height;
+  glyph->texcoords.right = static_cast<float>((x + w)) / f->width;
+  glyph->texcoords.bottom = static_cast<float>((y + h)) / f->height;
 
   srcrow = f->handle->glyph->bitmap.buffer;
   dst = f->buffer;
@@ -1639,7 +1639,8 @@ void loadglyphbitmap(pfont f, pglyphtable table, pglyph glyph)
       {
         for (k = 7; k >= 0; k--)
         {
-          pixel = 0xff & ((std::uint32_t)0xff00 >> ((((std::uint32_t)*src >> k) & 1) << 3));
+          pixel = 0xff & (static_cast<std::uint32_t>(0xff00) >>
+                          (((static_cast<std::uint32_t>(*src) >> k) & 1) << 3));
           *dst = pixel;
           dst += 1;
           *dst = pixel;
@@ -1658,7 +1659,8 @@ void loadglyphbitmap(pfont f, pglyphtable table, pglyph glyph)
       // unpack bits from leftover std::uint8_t if any
       for (k = 7; k >= wr; k--)
       {
-        pixel = 0xff & ((std::uint32_t)0xff00 >> ((((std::uint32_t)*src >> k) & 1) << 3));
+        pixel = 0xff & (static_cast<std::uint32_t>(0xff00) >>
+                        (((static_cast<std::uint32_t>(*src) >> k) & 1) << 3));
         *dst = pixel;
         dst += 1;
         *dst = pixel;
@@ -1678,12 +1680,12 @@ void loadglyphbitmap(pfont f, pglyphtable table, pglyph glyph)
   gfxupdatetexture(f->pages[glyph->page], x, y, w, h, f->buffer);
 }
 
-auto loadglyph(pfont f, pglyphtable table, std::int32_t glyphindex) -> pglyph
+static auto loadglyph(pfont f, pglyphtable table, std::int32_t glyphindex) -> pglyph
 {
-  std::int32_t w;
-  std::int32_t h;
+  std::int32_t w = 0;
+  std::int32_t h = 0;
 
-  pglyph result;
+  pglyph result = nullptr;
   auto flags = FT_LOAD_RENDER | FT_LOAD_TARGET_MONO;
   if ((table->flags & gfx_monochrome) == 0)
   {
@@ -1699,7 +1701,7 @@ auto loadglyph(pfont f, pglyphtable table, std::int32_t glyphindex) -> pglyph
   result = allocglyph(f);
   result->glyphindex = glyphindex;
   result->page = -2;
-  result->advance = (float)(f->handle->glyph->advance.x) / 64.0f;
+  result->advance = static_cast<float>(f->handle->glyph->advance.x) / 64.0F;
   result->bounds.left = f->handle->glyph->bitmap_left;
   result->bounds.top = -f->handle->glyph->bitmap_top;
   result->bounds.right = result->bounds.left + w;
@@ -1717,11 +1719,11 @@ auto loadglyph(pfont f, pglyphtable table, std::int32_t glyphindex) -> pglyph
   return result;
 }
 
-void insertglyph(pglyphtable table, std::int32_t index, pglyph glyph)
+static void insertglyph(pglyphtable table, std::int32_t index, pglyph glyph)
 {
-  ppglyph glyphs;
-  ppglyph src;
-  ppglyph dst;
+  ppglyph glyphs = nullptr;
+  ppglyph src = nullptr;
+  ppglyph dst = nullptr;
 
   if (table->capacity == table->size)
   {
@@ -1741,20 +1743,20 @@ void insertglyph(pglyphtable table, std::int32_t index, pglyph glyph)
   *src = glyph;
 }
 
-auto findglyph(pfont f, pglyphtable table, std::int32_t glyphindex) -> pglyph
+static auto findglyph(pfont f, pglyphtable table, std::int32_t glyphindex) -> pglyph
 {
-  std::int32_t lo;
-  std::int32_t hi;
-  std::int32_t mi;
-  ppglyph g;
+  std::int32_t lo = 0;
+  std::int32_t hi = 0;
+  std::int32_t mi = 0;
+  ppglyph g = nullptr;
 
-  pglyph result;
+  pglyph result = nullptr;
   lo = 0;
   hi = table->size;
 
   while (lo < hi)
   {
-    mi = lo + ((std::uint32_t)(hi - lo) >> 1);
+    mi = lo + (static_cast<std::uint32_t>(hi - lo) >> 1);
     g = table->glyphs;
     g += mi;
 
@@ -1778,13 +1780,13 @@ auto findglyph(pfont f, pglyphtable table, std::int32_t glyphindex) -> pglyph
   return result;
 }
 
-auto iswhitespace(char ch) -> bool { return (ch == '\12') || (ch == '\15'); }
+static auto iswhitespace(char ch) -> bool { return (ch == '\12') || (ch == '\15'); }
 
-void strtoglyphs(pfont f, pglyphtable table, const std::string &s)
+static void strtoglyphs(pfont f, pglyphtable table, const std::string &s)
 {
-  std::int32_t i;
-  std::int32_t *indexstr;
-  ppglyph glyphstr;
+  std::int32_t i = 0;
+  std::int32_t *indexstr = nullptr;
+  ppglyph glyphstr = nullptr;
 
   if (gfxcontext.textstrsize < length(s))
   {
@@ -1812,7 +1814,7 @@ void strtoglyphs(pfont f, pglyphtable table, const std::string &s)
 
     if (!iswhitespace(c))
     {
-      *indexstr = FT_Get_Char_Index(f->handle, FT_ULong(c));
+      *indexstr = FT_Get_Char_Index(f->handle, static_cast<FT_ULong>(c));
     }
 
     indexstr += 1;
@@ -1835,17 +1837,17 @@ void strtoglyphs(pfont f, pglyphtable table, const std::string &s)
   }
 }
 
-void computeglyphs(pfont f, pglyphtable table, const std::string &s)
+static void computeglyphs(pfont f, pglyphtable table, const std::string &s)
 {
-  std::int32_t i;
-  std::int32_t prev;
-  float x;
-  float y;
-  float vspace;
+  std::int32_t i = 0;
+  std::int32_t prev = 0;
+  float x = NAN;
+  float y = NAN;
+  float vspace = NAN;
   FT_Vector kerning;
-  std::int32_t *indexstr;
-  ppglyph glyphstr;
-  pcomputedglyph computed;
+  std::int32_t *indexstr = nullptr;
+  ppglyph glyphstr = nullptr;
+  pcomputedglyph computed = nullptr;
 
   strtoglyphs(f, table, s);
 
@@ -1872,7 +1874,7 @@ void computeglyphs(pfont f, pglyphtable table, const std::string &s)
       if (prev != -1)
       {
         FT_Get_Kerning(f->handle, prev, *indexstr, 0, &kerning);
-        x = x + (float)(kerning.x) / 64;
+        x = x + static_cast<float>(kerning.x) / 64;
       }
 
       prev = *indexstr;
@@ -1890,10 +1892,10 @@ void computeglyphs(pfont f, pglyphtable table, const std::string &s)
   }
 }
 
-void drawglyph(pfont f, pglyph g, float x, float y, const tgfxcolor &color)
+static void drawglyph(pfont f, pglyph g, float x, float y, const tgfxcolor &color)
 {
   ZoneScopedN("DrawGlyph");
-  std::array<tgfxvertex, 4> buff;
+  std::array<tgfxvertex, 4> buff{};
   std::pmr::monotonic_buffer_resource res(buff.data(), buff.size() * sizeof(tgfxvertex));
   std::pmr::vector<tgfxvertex> v{4, &res};
   tvector2 pxl;
@@ -1935,8 +1937,8 @@ void drawglyph(pfont f, pglyph g, float x, float y, const tgfxcolor &color)
 
 auto gfxcreatefont(const string &filename, std::int32_t w, std::int32_t h) -> tgfxfont
 {
-  pfont f;
-  FT_Face fonthandle;
+  pfont f = nullptr;
+  FT_Face fonthandle = nullptr;
 
   tgfxfont gfxcreatefont_result = nullptr;
 
@@ -1982,10 +1984,10 @@ auto gfxcreatefont(const string &filename, std::int32_t w, std::int32_t h) -> tg
 
 void gfxdeletefont(tgfxfont font)
 {
-  std::int32_t i;
-  pfont f;
+  std::int32_t i = 0;
+  pfont f = nullptr;
 
-  f = (pfont)font;
+  f = static_cast<pfont>(font);
 
   if (f->handle != nullptr)
   {
@@ -2018,22 +2020,24 @@ void gfxdeletefont(tgfxfont font)
 
 auto gfxsetfont(tgfxfont font, float fontsize, std::uint32_t flags, float stretch) -> std::int32_t
 {
-  std::int32_t result;
-  result = findglyphtable((pfont)font, trunc(fontsize * 1000), trunc(stretch * 1000), flags);
+  std::int32_t result = 0;
+  result =
+    findglyphtable(static_cast<pfont>(font), trunc(fontsize * 1000), trunc(stretch * 1000), flags);
 
-  gfxcontext.font = (pfont)font;
-  gfxcontext.glyphtable = &((pfont)(font))->tables[result];
+  gfxcontext.font = static_cast<pfont>(font);
+  gfxcontext.glyphtable = &(static_cast<pfont>(font))->tables[result];
   gfxcontext.textcomputedcount = 0;
   return result;
 }
 
 void gfxsetfonttable(tgfxfont font, std::int32_t tableindex)
 {
-  gfxcontext.font = (pfont)font;
-  gfxcontext.glyphtable = &((pfont)(font))->tables[tableindex];
+  gfxcontext.font = static_cast<pfont>(font);
+  gfxcontext.glyphtable = &(static_cast<pfont>(font))->tables[tableindex];
   gfxcontext.textcomputedcount = 0;
 
-  requestfontsize((pfont)font, gfxcontext.glyphtable->fontsize, gfxcontext.glyphtable->stretch);
+  requestfontsize(static_cast<pfont>(font), gfxcontext.glyphtable->fontsize,
+                  gfxcontext.glyphtable->stretch);
 }
 
 void gfxtextpixelratio(const tvector2 &pixelratio)
@@ -2065,8 +2069,8 @@ void gfxtextverticalalign(tgfxverticalalign align)
 
 auto gfxtextmetrics() -> tgfxrect
 {
-  pcomputedglyph comp;
-  std::int32_t i;
+  pcomputedglyph comp = nullptr;
+  std::int32_t i = 0;
   tvector2 pxl;
 
   tgfxrect result;
@@ -2077,10 +2081,10 @@ auto gfxtextmetrics() -> tgfxrect
 
   for (i = 1; i <= gfxcontext.textcomputedcount; i++)
   {
-    result.left = min(result.left, (MyFloat)(pxl.x * (comp->x + comp->glyph->bounds.left)));
-    result.right = max(result.right, (MyFloat)(pxl.x * (comp->x + comp->glyph->bounds.right)));
-    result.top = min(result.top, (MyFloat)(pxl.y * (comp->y + comp->glyph->bounds.top)));
-    result.bottom = max(result.bottom, (MyFloat)(pxl.y * (comp->y + comp->glyph->bounds.bottom)));
+    result.left = min(result.left, MyFloat(pxl.x * (comp->x + comp->glyph->bounds.left)));
+    result.right = max(result.right, MyFloat(pxl.x * (comp->x + comp->glyph->bounds.right)));
+    result.top = min(result.top, MyFloat(pxl.y * (comp->y + comp->glyph->bounds.top)));
+    result.bottom = max(result.bottom, MyFloat(pxl.y * (comp->y + comp->glyph->bounds.bottom)));
     comp += 1;
   }
   return result;
@@ -2094,24 +2098,24 @@ auto gfxtextmetrics(const std::string &text) -> tgfxrect
 
 void gfxdrawtext(MyFloat x, MyFloat y)
 {
-  pfont f;
-  pglyphtable table;
-  pcomputedglyph comp;
-  std::int32_t i;
-  float s;
-  float dx;
-  float dy;
+  pfont f = nullptr;
+  pglyphtable table = nullptr;
+  pcomputedglyph comp = nullptr;
+  std::int32_t i = 0;
+  float s = NAN;
+  float dx = NAN;
+  float dy = NAN;
   tvector2 p;
   tvector2 pxl;
-  tgfxcolor textcolor;
-  tgfxcolor shadowcolor;
+  tgfxcolor textcolor{};
+  tgfxcolor shadowcolor{};
 
   f = gfxcontext.font;
   table = gfxcontext.glyphtable;
   comp = gfxcontext.textcomputedstr;
   textcolor = gfxcontext.textcolor;
   shadowcolor = gfxcontext.textshadowcolor;
-  shadowcolor.color.a = trunc(shadowcolor.color.a * ((float)(textcolor.color.a) / 255));
+  shadowcolor.color.a = trunc(shadowcolor.color.a * (static_cast<float>(textcolor.color.a) / 255));
   pxl = gfxcontext.textpixelratio;
   s = gfxcontext.textscale;
   dx = gfxcontext.textshadowoffset.x * pxl.x;
@@ -2120,10 +2124,10 @@ void gfxdrawtext(MyFloat x, MyFloat y)
   switch (gfxcontext.textverticalalign)
   {
   case gfx_top:
-    y = y + pxl.y * table->ascent * s;
+    y = y + (pxl.y * table->ascent * s);
     break;
   case gfx_bottom:
-    y = y - pxl.y * table->descent * s;
+    y = y - (pxl.y * table->descent * s);
     break;
   case gfx_baseline:
     //y = y;
@@ -2142,8 +2146,8 @@ void gfxdrawtext(MyFloat x, MyFloat y)
   {
     if (comp->glyph->page >= 0)
     {
-      p.x = x + pxl.x * comp->x;
-      p.y = y + pxl.y * comp->y;
+      p.x = x + (pxl.x * comp->x);
+      p.y = y + (pxl.y * comp->y);
 
       if (shadowcolor.color.a > 0)
       {
@@ -2163,11 +2167,6 @@ void gfxdrawtext(const std::string &text, float x, float y)
   gfxdrawtext(x, y);
 }
 
-void gfxdrawtext(const std::string text, float x, float y)
-{
-  computeglyphs(gfxcontext.font, gfxcontext.glyphtable, (text));
-  gfxdrawtext(x, y);
-}
 /******************************************************************************/
 /*                                   Matrix                                   */
 /******************************************************************************/
@@ -2175,8 +2174,8 @@ void gfxdrawtext(const std::string text, float x, float y)
 auto gfxmat3rot(float r) -> tgfxmat3
 {
 
-  float c;
-  float s;
+  float c = NAN;
+  float s = NAN;
 
   tgfxmat3 result;
   c = cos(r);
@@ -2197,22 +2196,22 @@ auto gfxmat3rot(float r) -> tgfxmat3
 
 auto gfxmat3ortho(float l, float r, float t, float b) -> tgfxmat3
 {
-  float w;
-  float h;
+  float w = NAN;
+  float h = NAN;
 
   tgfxmat3 result;
   w = r - l;
   h = t - b;
 
-  result[0] = 2.f / w;
-  result[3] = 0.f;
+  result[0] = 2.F / w;
+  result[3] = 0.F;
   result[6] = -(r + l) / w;
-  result[1] = 0.f;
-  result[4] = 2.f / h;
+  result[1] = 0.F;
+  result[4] = 2.F / h;
   result[7] = -(t + b) / h;
   result[2] = 0;
   result[5] = 0;
-  result[8] = 1.f;
+  result[8] = 1.F;
   return result;
 }
 
@@ -2220,8 +2219,8 @@ auto gfxmat3transform(float tx, float ty, float sx, float sy, float cx, float cy
                       float r) -> tgfxmat3
 {
 
-  float c;
-  float s;
+  float c = NAN;
+  float s = NAN;
 
   tgfxmat3 result;
   c = cos(r);
@@ -2243,8 +2242,8 @@ auto gfxmat3transform(float tx, float ty, float sx, float sy, float cx, float cy
 auto gfxmat3mul(const tgfxmat3 &m, float x, float y) -> tvector2
 {
   tvector2 result;
-  result.x = m[0] * x + m[3] * y + m[6];
-  result.y = m[1] * x + m[4] * y + m[7];
+  result.x = (m[0] * x) + (m[3] * y) + m[6];
+  result.y = (m[1] * x) + (m[4] * y) + m[7];
   return result;
 }
 
@@ -2252,11 +2251,11 @@ auto gfxmat3mul(const tgfxmat3 &m, float x, float y) -> tvector2
 /*                                 TGfxImage                                  */
 /******************************************************************************/
 
-void applycolorkey(std::uint8_t *data, std::int32_t w, std::int32_t h, tgfxcolor colorkey)
+static void applycolorkey(std::uint8_t *data, std::int32_t w, std::int32_t h, tgfxcolor colorkey)
 {
-  std::int32_t i;
-  std::uint8_t *p;
-  tgfxcolor c;
+  std::int32_t i = 0;
+  std::uint8_t *p = nullptr;
+  tgfxcolor c{};
 
   p = data;
 
@@ -2314,14 +2313,10 @@ tgfximage::tgfximage(const std::string &filename, tgfxcolor colorkey)
 }
 
 tgfximage::tgfximage(std::int32_t width, std::int32_t height, std::int32_t comp)
+  : fwidth(width), fheight(height), fcomponents(comp), fnumframes(1), floadedfromfile(false)
 {
   getmem(fdata, static_cast<std::size_t>(width * height * comp));
   fillchar(fdata, static_cast<std::size_t>(width * height * comp), 0);
-  fwidth = width;
-  fheight = height;
-  fcomponents = comp;
-  fnumframes = 1;
-  floadedfromfile = false;
 }
 
 tgfximage::~tgfximage()
@@ -2345,7 +2340,7 @@ auto tgfximage::getimagedata(std::int32_t frame) -> std::uint8_t *
 
 auto tgfximage::getframedelay(std::int32_t frame) -> std::uint64_t
 {
-  std::uint8_t *p;
+  std::uint8_t *p = nullptr;
 
   std::uint64_t result = 0;
 
@@ -2355,7 +2350,7 @@ auto tgfximage::getframedelay(std::int32_t frame) -> std::uint64_t
     p += (fwidth * fheight * fcomponents + 2) * (frame + 1) - 2;
     result = *p;
     p += 1;
-    result = result | ((std::uint64_t)(*p) << 8);
+    result = result | (static_cast<std::uint64_t>(*p) << 8);
   }
   return result;
 }
@@ -2363,11 +2358,11 @@ auto tgfximage::getframedelay(std::int32_t frame) -> std::uint64_t
 void tgfximage::update(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h,
                        std::uint8_t *data, std::int32_t frame)
 {
-  std::uint8_t *src;
-  std::uint8_t *dst;
-  std::int32_t i;
-  std::int32_t srcline;
-  std::int32_t dstline;
+  std::uint8_t *src = nullptr;
+  std::uint8_t *dst = nullptr;
+  std::int32_t i = 0;
+  std::int32_t srcline = 0;
+  std::int32_t dstline = 0;
 
   // - number of components same on both buffers or gtfo
   // - update within bounds or gtfo
@@ -2390,10 +2385,10 @@ void tgfximage::update(std::int32_t x, std::int32_t y, std::int32_t w, std::int3
 
 void tgfximage::premultiply()
 {
-  std::uint8_t *p;
-  std::int32_t i;
-  std::int32_t j;
-  float a;
+  std::uint8_t *p = nullptr;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
+  float a = NAN;
 
   if (fcomponents != 4)
   {
@@ -2407,7 +2402,7 @@ void tgfximage::premultiply()
     for (j = 0; j < fwidth * fheight; j++)
     {
       p += 3;
-      a = (float)(*p) / 255;
+      a = static_cast<float>(*p) / 255;
       p -= 3;
 
       *p = round(*p * a);
@@ -2424,18 +2419,18 @@ void tgfximage::premultiply()
 
 void tgfximage::resize(std::int32_t w, std::int32_t h)
 {
-  std::int32_t i;
-  std::int32_t size;
-  std::uint8_t *data;
-  std::uint8_t *dst;
-  std::uint64_t delay;
+  std::int32_t i = 0;
+  std::int32_t size = 0;
+  std::uint8_t *data = nullptr;
+  std::uint8_t *dst = nullptr;
+  std::uint64_t delay = 0;
 
   if (fdata == nullptr)
   {
     return;
   }
 
-  size = w * h * fcomponents + (2 * std::int32_t(fnumframes > 1));
+  size = w * h * fcomponents + (2 * static_cast<std::int32_t>(fnumframes > 1));
   getmem(data, static_cast<std::size_t>(fnumframes * size));
 
   dst = data;
@@ -2452,7 +2447,7 @@ void tgfximage::resize(std::int32_t w, std::int32_t h)
       dst -= 2;
       *dst = delay & 0xff;
       dst += 1;
-      *dst = ((std::uint32_t)delay >> 8) & 0xff;
+      *dst = (static_cast<std::uint32_t>(delay) >> 8) & 0xff;
       dst += 1;
     }
   }
@@ -2477,16 +2472,12 @@ void tgfximage::resize(std::int32_t w, std::int32_t h)
 
 tgfxtexture::tgfxtexture(std::int32_t width, std::int32_t height, std::int32_t comp, bool rt,
                          bool msaa, std::uint8_t *data, const std::string_view &debug_name)
+  : fhandle(1), ffbohandle(0), fwidth(width), fheight(height), fcomponents(comp), fsamples(0)
 {
-  fwidth = width;
-  fheight = height;
-  fcomponents = comp;
-  ffbohandle = 0;
-  fsamples = 0;
+
   fpixel.x = 0;
   fpixel.y = 0;
   fpixel.color.rgba = 0;
-  fhandle = 1;
 
   if (data != nullptr)
   {
@@ -2509,12 +2500,13 @@ tgfxtexture::tgfxtexture(std::int32_t width, std::int32_t height, std::int32_t c
                           debug_name.data());
 
     mTexture = SDL_CreateGPUTexture(gfxcontext.mGpuDevice, &texture_info);
-    AbortIf(!mTexture, "Failed to create texture {}. Error {}", debug_name, SDL_GetError());
+    AbortIf(mTexture == nullptr, "Failed to create texture {}. Error {}", debug_name,
+            SDL_GetError());
     SDL_DestroyProperties(texture_info.props);
   }
 
   // Create all the upload structures and upload:
-  if (data)
+  if (data != nullptr)
   {
     SDL_GPUTransferBufferCreateInfo transferbuffer_info = {};
     transferbuffer_info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
@@ -2666,7 +2658,8 @@ void tgfxtexture::setfilter(tgfxtexturefilter min, tgfxtexturefilter mag)
 /*                              TGfxVertexBuffer                              */
 /******************************************************************************/
 
-tgfxvertexbuffer::tgfxvertexbuffer(std::int32_t cap, bool _static, pgfxvertex data)
+tgfxvertexbuffer::tgfxvertexbuffer(std::int32_t cap, bool /*_static*/, pgfxvertex data)
+  : fcapacity(cap)
 {
   SDL_GPUBufferCreateInfo buffer_info = {};
   buffer_info.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
@@ -2675,7 +2668,6 @@ tgfxvertexbuffer::tgfxvertexbuffer(std::int32_t cap, bool _static, pgfxvertex da
   mBuffer = SDL_CreateGPUBuffer(gfxcontext.mGpuDevice, &buffer_info);
   AbortIf(mBuffer == nullptr, "Failed to create GPU Buffer. Error {}", SDL_GetError());
 
-  fcapacity = cap;
   if (data == nullptr)
   {
     return;
@@ -2687,9 +2679,10 @@ tgfxvertexbuffer::tgfxvertexbuffer(std::int32_t cap, bool _static, pgfxvertex da
 
   SDL_GPUTransferBuffer *vertex_transferbuffer = SDL_CreateGPUTransferBuffer(gfxcontext.mGpuDevice, &vertex_transferbuffer_info);
   AbortIf(vertex_transferbuffer == nullptr, "Failed to create transfer buffer to upload. Error {}", SDL_GetError());
-  AbortIf(data->u < 0.0f, "Something wrong with texture");
+  AbortIf(data->u < 0.0F, "Something wrong with texture");
 
-  pgfxvertex vtx_dst = (pgfxvertex)SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true);
+  auto vtx_dst = static_cast<pgfxvertex>(
+    SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true));
   memcpy(vtx_dst, data, buffer_info.size);
   SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer);
 
@@ -2730,9 +2723,10 @@ void tgfxvertexbuffer::update(std::int32_t offset, std::int32_t count, pgfxverte
 
   SDL_GPUTransferBuffer *vertex_transferbuffer = SDL_CreateGPUTransferBuffer(gfxcontext.mGpuDevice, &vertex_transferbuffer_info);
   AbortIf(vertex_transferbuffer == nullptr, "Failed to create transfer buffer to upload. Error {}", SDL_GetError());
-  AbortIf(data->u < 0.0f, "Something wrong with texture");
+  AbortIf(data->u < 0.0F, "Something wrong with texture");
 
-  pgfxvertex vtx_dst = (pgfxvertex)SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true);
+  auto vtx_dst = static_cast<pgfxvertex>(
+    SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true));
   memcpy(vtx_dst, data, vertex_transferbuffer_info.size);
   SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer);
 
@@ -2761,7 +2755,8 @@ void tgfxvertexbuffer::update(std::int32_t offset, std::int32_t count, pgfxverte
 /*                              TGfxIndexBuffer                               */
 /******************************************************************************/
 
-tgfxindexbuffer::tgfxindexbuffer(std::int32_t cap, bool _static, uint16_t *data)
+tgfxindexbuffer::tgfxindexbuffer(std::int32_t cap, bool /*_static*/, uint16_t *data)
+  : fcapacity(cap)
 {
   SDL_GPUBufferCreateInfo buffer_info = {};
   buffer_info.usage = SDL_GPU_BUFFERUSAGE_INDEX;
@@ -2770,7 +2765,6 @@ tgfxindexbuffer::tgfxindexbuffer(std::int32_t cap, bool _static, uint16_t *data)
   mBuffer = SDL_CreateGPUBuffer(gfxcontext.mGpuDevice, &buffer_info);
   AbortIf(mBuffer == nullptr, "Failed to create GPU Buffer. Error {}", SDL_GetError());
 
-  fcapacity = cap;
   if (data == nullptr)
   {
     return;
@@ -2783,7 +2777,8 @@ tgfxindexbuffer::tgfxindexbuffer(std::int32_t cap, bool _static, uint16_t *data)
   SDL_GPUTransferBuffer *vertex_transferbuffer = SDL_CreateGPUTransferBuffer(gfxcontext.mGpuDevice, &transferbuffer_info);
   AbortIf(vertex_transferbuffer == nullptr, "Failed to create transfer buffer to upload. Error {}", SDL_GetError());
 
-  uint16_t* vtx_dst = (uint16_t*)SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true);
+  auto *vtx_dst = static_cast<uint16_t *>(
+    SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer, true));
   memcpy(vtx_dst, data, buffer_info.size);
   SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, vertex_transferbuffer);
 
@@ -2825,7 +2820,8 @@ void tgfxindexbuffer::update(std::int32_t offset, std::int32_t count, uint16_t *
   SDL_GPUTransferBuffer *transferbuffer = SDL_CreateGPUTransferBuffer(gfxcontext.mGpuDevice, &transferbuffer_info);
   AbortIf(transferbuffer == nullptr, "Failed to create transfer buffer to upload. Error {}", SDL_GetError());
 
-  uint16_t* vtx_dst = (uint16_t*)SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, transferbuffer, true);
+  auto *vtx_dst =
+    static_cast<uint16_t *>(SDL_MapGPUTransferBuffer(gfxcontext.mGpuDevice, transferbuffer, true));
   memcpy(vtx_dst, data, transferbuffer_info.size);
   SDL_UnmapGPUTransferBuffer(gfxcontext.mGpuDevice, transferbuffer);
 
@@ -2869,17 +2865,17 @@ struct tsheetloaddata
   std::vector<std::string> imagespath;
   std::vector<tvector2> imagestargetsize;
   std::vector<float> imagestargetscale;
-  std::int32_t imageindex;
+  std::int32_t imageindex{};
   tbprectarray rects;
   std::vector<trectinfo> rectinfo;
-  std::int32_t loadingstage;
-  std::int32_t loadingindex;
-  std::int32_t additionalframes;
+  std::int32_t loadingstage{};
+  std::int32_t loadingindex{};
+  std::int32_t additionalframes{};
 };
 
 tgfxspritesheet::tgfxspritesheet(std::int32_t count)
 {
-  tsheetloaddata *ld;
+  tsheetloaddata *ld = nullptr;
 
   setlength(fsprites, count);
 
@@ -2899,7 +2895,7 @@ tgfxspritesheet::tgfxspritesheet(std::int32_t count)
 
 tgfxspritesheet::~tgfxspritesheet()
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   cleanup();
 
@@ -2922,9 +2918,9 @@ auto tgfxspritesheet::gettexturecount() -> std::int32_t { return length(ftexture
 
 auto tgfxspritesheet::isloading() -> bool
 {
-  tsheetloaddata *ld;
+  tsheetloaddata *ld = nullptr;
 
-  bool result;
+  bool result = false;
   ld = reinterpret_cast<tsheetloaddata *>(floaddata);
 
   if (ld == nullptr)
@@ -2940,7 +2936,7 @@ auto tgfxspritesheet::isloading() -> bool
 
 void tgfxspritesheet::addimage(const string &path, tgfxcolor colorkey, float targetscale)
 {
-  tsheetloaddata *ld;
+  tsheetloaddata *ld = nullptr;
 
   ld = reinterpret_cast<tsheetloaddata *>(floaddata);
 
@@ -2950,14 +2946,14 @@ void tgfxspritesheet::addimage(const string &path, tgfxcolor colorkey, float tar
     ld->imageskey[ld->imageindex] = colorkey;
     ld->imagestargetsize[ld->imageindex].x = 0;
     ld->imagestargetsize[ld->imageindex].y = 0;
-    ld->imagestargetscale[ld->imageindex] = max(0.f, min(1.f, targetscale));
+    ld->imagestargetscale[ld->imageindex] = max(0.F, min(1.F, targetscale));
     ld->imageindex += 1;
   }
 }
 
 void tgfxspritesheet::addimage(const string &path, tgfxcolor colorkey, tvector2 targetsize)
 {
-  tsheetloaddata *ld;
+  tsheetloaddata *ld = nullptr;
 
   ld = reinterpret_cast<tsheetloaddata *>(floaddata);
 
@@ -2974,7 +2970,7 @@ void tgfxspritesheet::addimage(const string &path, tgfxcolor colorkey, tvector2 
 
 void tgfxspritesheet::addimage(tgfximage *image)
 {
-  tsheetloaddata *ld;
+  tsheetloaddata *ld = nullptr;
 
   ld = reinterpret_cast<tsheetloaddata *>(floaddata);
 
@@ -2996,7 +2992,7 @@ void tgfxspritesheet::load()
 
 void tgfxspritesheet::startloading()
 {
-  tsheetloaddata *ld;
+  tsheetloaddata *ld = nullptr;
 
   ld = reinterpret_cast<tsheetloaddata *>(floaddata);
 
@@ -3008,7 +3004,7 @@ void tgfxspritesheet::startloading()
 
 void tgfxspritesheet::continueloading()
 {
-  tsheetloaddata *ld;
+  tsheetloaddata *ld = nullptr;
 
   ld = reinterpret_cast<tsheetloaddata *>(floaddata);
 
@@ -3037,20 +3033,20 @@ void tgfxspritesheet::finishloading()
   }
 }
 
-void gettargetdimensions(tgfximage &image, float scale, std::int32_t &w, std::int32_t &h)
+static void gettargetdimensions(tgfximage &image, float scale, std::int32_t &w, std::int32_t &h)
 {
   w = image.width();
   h = image.height();
 
   if (scale < 1)
   {
-    h = max(1.f, round(image.height() * scale));
-    w = round(image.width() * ((float)(h) / image.height()));
+    h = max(1.F, round(image.height() * scale));
+    w = round(image.width() * (static_cast<float>(h) / image.height()));
 
     if (w == 0)
     {
       w = 1;
-      h = round((float)(image.height()) / image.width());
+      h = round(static_cast<float>(image.height()) / image.width());
     }
   }
 
@@ -3059,25 +3055,25 @@ void gettargetdimensions(tgfximage &image, float scale, std::int32_t &w, std::in
     if (w > h)
     {
       w = gfxcontext.maxtexturesize;
-      h = max(1.f, round(image.height() * ((float)(w) / image.width())));
+      h = max(1.F, round(image.height() * (static_cast<float>(w) / image.width())));
     }
     else
     {
       h = gfxcontext.maxtexturesize;
-      w = max(1.f, round(image.width() * ((float)(h) / image.height())));
+      w = max(1.F, round(image.width() * (static_cast<float>(h) / image.height())));
     }
   }
 }
 
 void tgfxspritesheet::loadnextimage()
 {
-  std::int32_t i;
-  std::int32_t j;
-  std::int32_t k;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
+  std::int32_t k = 0;
   std::int32_t w = 0;
   std::int32_t h = 0;
-  pgfxsprite sprite;
-  tsheetloaddata *ld;
+  pgfxsprite sprite = nullptr;
+  tsheetloaddata *ld = nullptr;
 
   ld = reinterpret_cast<tsheetloaddata *>(floaddata);
   i = ld->loadingindex;
@@ -3107,7 +3103,7 @@ void tgfxspritesheet::loadnextimage()
 
     if ((w != ld->images[i]->width()) || (h != ld->images[i]->height()))
     {
-      ld->imagestargetscale[i] = (float)(h) / ld->images[i]->height();
+      ld->imagestargetscale[i] = static_cast<float>(h) / ld->images[i]->height();
       ld->images[i]->resize(w, h);
     }
     else
@@ -3146,14 +3142,14 @@ void tgfxspritesheet::loadnextimage()
   }
 }
 
-void packrectsrecursive(tbprectarray &rects, ttexturearray &textures)
+static void packrectsrecursive(tbprectarray &rects, ttexturearray &textures)
 {
-  std::int32_t i;
-  std::int32_t n;
-  std::int32_t w;
-  std::int32_t h;
-  std::int64_t a;
-  std::int64_t aa;
+  std::int32_t i = 0;
+  std::int32_t n = 0;
+  std::int32_t w = 0;
+  std::int32_t h = 0;
+  std::int64_t a = 0;
+  std::int64_t aa = 0;
   tbprectarray rects1;
   tbprectarray rects2;
 
@@ -3164,7 +3160,7 @@ void packrectsrecursive(tbprectarray &rects, ttexturearray &textures)
     w = npot(rects[0].w - padding);
     h = npot(rects[0].h - padding);
     textures[n] = gfxcreatetexture(w, h, 4, nullptr, "bin_pack_texture");
-    ((prectinfo)(rects[0].data))->texture = n;
+    (reinterpret_cast<prectinfo>(rects[0].data))->texture = n;
     return;
   }
 
@@ -3172,7 +3168,7 @@ void packrectsrecursive(tbprectarray &rects, ttexturearray &textures)
 
   for (i = 0; i < rects.size(); i++)
   {
-    a = a + std::int64_t(rects[i].w) * std::int64_t(rects[i].h);
+    a = a + static_cast<std::int64_t>(rects[i].w) * static_cast<std::int64_t>(rects[i].h);
   }
 
   w = npot(round(ceil(sqrt(a + 0.0))));
@@ -3181,8 +3177,8 @@ void packrectsrecursive(tbprectarray &rects, ttexturearray &textures)
   while ((w <= gfxcontext.maxtexturesize) && (h <= gfxcontext.maxtexturesize) &&
          (packrects(w + padding, h + padding, rects) != length(rects)))
   {
-    h = h << (std::int32_t)(h < w);
-    w = w << (std::int32_t)(w <= h);
+    h = h << static_cast<std::int32_t>(h < w);
+    w = w << static_cast<std::int32_t>(w <= h);
   }
 
   if ((w <= gfxcontext.maxtexturesize) && (h <= gfxcontext.maxtexturesize))
@@ -3193,7 +3189,7 @@ void packrectsrecursive(tbprectarray &rects, ttexturearray &textures)
 
     for (i = 0; i < rects.size(); i++)
     {
-      ((prectinfo)(rects[i].data))->texture = n;
+      (reinterpret_cast<prectinfo>(rects[i].data))->texture = n;
     }
   }
   else
@@ -3204,7 +3200,7 @@ void packrectsrecursive(tbprectarray &rects, ttexturearray &textures)
 
     while ((aa < a) && (i < length(rects) - 1))
     {
-      aa = aa + std::int64_t(rects[i].w) * std::int64_t(rects[i].h);
+      aa = aa + static_cast<std::int64_t>(rects[i].w) * static_cast<std::int64_t>(rects[i].h);
       i += 1;
     }
 
@@ -3224,12 +3220,12 @@ void packrectsrecursive(tbprectarray &rects, ttexturearray &textures)
 
 void tgfxspritesheet::packrects()
 {
-  std::int32_t i;
-  std::int32_t j;
-  std::int32_t k;
-  std::int32_t n;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
+  std::int32_t k = 0;
+  std::int32_t n = 0;
   ttexturearray textures;
-  tsheetloaddata *ld;
+  tsheetloaddata *ld = nullptr;
 
   ld = reinterpret_cast<tsheetloaddata *>(floaddata);
   n = length(fsprites) + length(fadditionalsprites);
@@ -3273,13 +3269,13 @@ void tgfxspritesheet::packrects()
 
 void tgfxspritesheet::updatenextsprite()
 {
-  std::int32_t x;
-  std::int32_t y;
-  std::int32_t w;
-  std::int32_t h;
-  pgfxsprite sprite;
-  tsheetloaddata *ld;
-  trectinfo *info;
+  std::int32_t x = 0;
+  std::int32_t y = 0;
+  std::int32_t w = 0;
+  std::int32_t h = 0;
+  pgfxsprite sprite = nullptr;
+  tsheetloaddata *ld = nullptr;
+  trectinfo *info = nullptr;
 
   ld = reinterpret_cast<tsheetloaddata *>(floaddata);
   info = reinterpret_cast<trectinfo *>(ld->rects[ld->loadingindex].data);
@@ -3307,12 +3303,14 @@ void tgfxspritesheet::updatenextsprite()
   sprite->y = y;
   sprite->width = w;
   sprite->height = h;
-  sprite->scale = (float)(1) / ld->imagestargetscale[info->image];
+  sprite->scale = static_cast<float>(1) / ld->imagestargetscale[info->image];
 
-  sprite->texcoords.left = (float)(sprite->x) / sprite->texture->width();
-  sprite->texcoords.top = (float)(sprite->y) / sprite->texture->height();
-  sprite->texcoords.right = (float)((sprite->x + sprite->width)) / sprite->texture->width();
-  sprite->texcoords.bottom = (float)((sprite->y + sprite->height)) / sprite->texture->height();
+  sprite->texcoords.left = static_cast<float>(sprite->x) / sprite->texture->width();
+  sprite->texcoords.top = static_cast<float>(sprite->y) / sprite->texture->height();
+  sprite->texcoords.right =
+    static_cast<float>((sprite->x + sprite->width)) / sprite->texture->width();
+  sprite->texcoords.bottom =
+    static_cast<float>((sprite->y + sprite->height)) / sprite->texture->height();
 
   ld->loadingindex += 1;
 
@@ -3324,10 +3322,10 @@ void tgfxspritesheet::updatenextsprite()
 
 void tgfxspritesheet::updatetexture()
 {
-  tsheetloaddata *ld;
+  tsheetloaddata *ld = nullptr;
 
   ld = reinterpret_cast<tsheetloaddata *>(floaddata);
-  for (auto i = 0u; i < ld->atlasimages.size(); i++)
+  for (auto i = 0U; i < ld->atlasimages.size(); i++)
   {
     gfxupdatetexture(ftextures[i], 0, 0, ld->atlasimages[i]->width(), ld->atlasimages[i]->height(),
                      ld->atlasimages[i]->getimagedata());
@@ -3337,7 +3335,7 @@ void tgfxspritesheet::updatetexture()
 
 void tgfxspritesheet::cleanup()
 {
-  tsheetloaddata *ld;
+  tsheetloaddata *ld = nullptr;
 
   ld = reinterpret_cast<tsheetloaddata *>(floaddata);
   floaddata = nullptr;

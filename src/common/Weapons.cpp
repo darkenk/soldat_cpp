@@ -2,10 +2,11 @@
 
 #include "Weapons.hpp"
 
-#include <math.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <cmath>
+#include <cstdint>
 #include <new>
+#include <spdlog/fmt/bundled/core.h>
+#include <utility>
 
 #include "Constants.hpp"
 #include "Logging.hpp"
@@ -20,9 +21,9 @@ void createweapons(bool floatisticmode, GunsDescription &guns, GunsDescription &
 
 void createdefaultweapons(bool floatisticmode, GunsDescription &guns, GunsDescription &defaultguns)
 {
-  tgun *gun;
-  tgun *defaultgun;
-  std::int32_t weaponindex;
+  tgun *gun = nullptr;
+  tgun *defaultgun = nullptr;
+  std::int32_t weaponindex = 0;
 
   if (floatisticmode)
   {
@@ -62,7 +63,7 @@ void createdefaultweapons(bool floatisticmode, GunsDescription &guns, GunsDescri
 
 void createweaponsbase(GunsDescription &guns)
 {
-  tgun *gun;
+  tgun *gun = nullptr;
 
   // Desert Eagle
   gun = &guns[eagle];
@@ -344,7 +345,7 @@ void createweaponsbase(GunsDescription &guns)
 
 void createnormalweapons(GunsDescription &guns)
 {
-  tgun *gun;
+  tgun *gun = nullptr;
 
   // Desert Eagle
   gun = &guns[eagle];
@@ -729,7 +730,7 @@ void createnormalweapons(GunsDescription &guns)
 
 void createfloatisticweapons(GunsDescription &guns)
 {
-  tgun *gun;
+  tgun *gun = nullptr;
 
   // Desert Eagle
   gun = &guns[eagle];
@@ -1114,8 +1115,8 @@ void createfloatisticweapons(GunsDescription &guns)
 
 void buildweapons(GunsDescription &guns)
 {
-  tgun *gun;
-  std::int32_t weaponindex;
+  tgun *gun = nullptr;
+  std::int32_t weaponindex = 0;
 
   // TODO(skoskav): Add a proper entry for cluster nade and thrown knife
   // Cluster grenade
@@ -1214,7 +1215,7 @@ void buildweapons(GunsDescription &guns)
   // Force M79 reload on spawn
   guns[m79].ammocount = 0;
 }
-// TODO weapons off for now
+// TODO(vscode): weapons off for now
 #if OPTION_Q == 1 /*$Q-*/
 #define NoOverflowCheck
 #endif
@@ -1223,11 +1224,11 @@ void buildweapons(GunsDescription &guns)
 #endif
 auto createwmchecksum(GunsDescription &guns) -> std::uint32_t
 {
-  std::uint32_t hash;
-  std::int32_t weaponindex;
-  tgun *gun;
+  std::uint32_t hash = 0;
+  std::int32_t weaponindex = 0;
+  tgun *gun = nullptr;
 
-  std::uint32_t result;
+  std::uint32_t result = 0;
   LogTraceG("CreateWMChecksum");
 
   // djb2 hashing algorithm
@@ -1362,7 +1363,7 @@ auto weaponnumtoname(std::int32_t num, GunsDescription &guns) -> std::string
 
 auto weaponnuminternaltoexternal(std::uint8_t num) -> std::uint8_t
 {
-  std::uint8_t result;
+  std::uint8_t result = 0;
   switch (num)
   {
   case knife_num:
@@ -1391,7 +1392,7 @@ auto weaponnuminternaltoexternal(std::uint8_t num) -> std::uint8_t
 
 auto weaponnumexternaltointernal(std::uint8_t num) -> std::uint8_t
 {
-  std::uint8_t result;
+  std::uint8_t result = 0;
   switch (num)
   {
   case 11:
@@ -1420,14 +1421,14 @@ auto weaponnumexternaltointernal(std::uint8_t num) -> std::uint8_t
 
 auto weaponnamebynum(std::int32_t num, GunsDescription &guns) -> std::string
 {
-  std::int32_t weaponindex;
+  std::int32_t weaponindex = 0;
 
   std::string result;
   result = "";
 
   for (weaponindex = guns.StartIdx(); weaponindex <= guns.EndIdx(); weaponindex++)
   {
-    if (num == guns[weaponindex].num)
+    if (std::cmp_equal(num, guns[weaponindex].num))
     {
       result = guns[weaponindex].name;
       break;
@@ -1438,21 +1439,21 @@ auto weaponnamebynum(std::int32_t num, GunsDescription &guns) -> std::string
 
 auto ismainweaponindex(std::int16_t weaponindex) -> bool
 {
-  bool result;
+  bool result = false;
   result = (weaponindex >= 1) && (weaponindex <= main_weapons);
   return result;
 }
 
 auto issecondaryweaponindex(std::int16_t weaponindex) -> bool
 {
-  bool result;
+  bool result = false;
   result = (weaponindex >= primary_weapons + 1) && (weaponindex <= main_weapons);
   return result;
 }
 
 auto isdoubleweaponindex(std::int16_t weaponindex) -> bool
 {
-  bool result;
+  bool result = false;
   result = (weaponindex >= 1) && (weaponindex <= double_weapons);
   return result;
 }
@@ -1460,9 +1461,9 @@ auto isdoubleweaponindex(std::int16_t weaponindex) -> bool
 auto calculatebink(std::uint32_t accumulated, std::uint32_t bink) -> std::uint32_t
 {
   // Adding bink has diminishing returns as more gets accumulated
-  std::uint64_t result;
-  result =
-    accumulated + bink - round(accumulated * ((float)(accumulated) / ((10 * bink) + accumulated)));
+  std::uint64_t result = 0;
+  result = accumulated + bink -
+           round(accumulated * (static_cast<float>(accumulated) / ((10 * bink) + accumulated)));
   return result;
 }
 

@@ -31,9 +31,9 @@ struct GlobalStateBanSystem
   bool delbannedip(const std::string &ip);
   std::int32_t findban(const std::string &ip);
   std::int32_t findbanhw(const std::string &hw);
-  void addbannedhw(const std::string &hw, std::string reason,
+  void addbannedhw(const std::string &hw, const std::string &reason,
                    std::int32_t duration = Constants::PERMAMENT);
-  void addbannedip(const std::string &ip, std::string reason,
+  void addbannedip(const std::string &ip, const std::string &reason,
                    std::int32_t duration = Constants::PERMAMENT);
   void loadbannedlist(const std::string &filename);
   void loadbannedlisthw(const std::string &filename);

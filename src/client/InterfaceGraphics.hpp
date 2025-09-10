@@ -19,7 +19,7 @@ struct GlobalStateInterfaceGraphics
   bool isdefaultinterface(const std::string &interfacename);
   bool loadinterfacedata(const std::string &interfacename);
   void loadinterfacearchives(const std::string &path, bool firstonly = false);
-  void renderactionsnaptext(double t);
+  void renderactionsnaptext(double t) const;
   void renderinterface(float timeelapsed, float width, float height);
   PascalArray<std::string, 1, MAX_CHAT_SIZE> chatmessage = {};
   PascalArray<bool, 1, MAX_CHAT_SIZE> chatteam = {};
@@ -132,8 +132,8 @@ private:
   };
   auto getweaponattribdesc(tattr &attr) -> std::string;
   auto isinteractiveinterface() -> bool;
-  auto pixelalignx(float x) -> float;
-  auto pixelaligny(float y) -> float;
+  auto pixelalignx(float x) const -> float;
+  auto pixelaligny(float y) const -> float;
   auto tominimap(const tvector2 pos, float scale = 1) -> tvector2;
   void drawline(float x, float y, float w, tgfxcolor color);
   void getweaponattribs(std::int32_t i, std::vector<tattr> &attrs);
@@ -146,7 +146,7 @@ private:
   void renderceasefirecounter();
   void renderchatinput(float w, float h, double t);
   void renderchattexts();
-  void renderconsoletexts(float w);
+  void renderconsoletexts(float w) const;
   void renderendgametexts(float fragmenubottom);
   void renderescmenutext(float w, float h);
   void renderfragsmenutexts(float fragmenubottom);
@@ -154,13 +154,13 @@ private:
   void renderkickwindowtext();
   void renderkillconsoletexts(float w);
   void rendermapwindowtext();
-  void renderplayerinterfacetexts(std::int32_t playerindex);
+  void renderplayerinterfacetexts(std::int32_t playerindex) const;
   void renderplayername(float width, float height, std::int32_t i, bool onlyoffscreen);
   void renderplayernames(float width, float height);
   void renderradiomenutexts();
   void renderrespawnandsurvivaltexts();
   void renderteammenutext();
-  void renderteamscoretexts();
+  void renderteamscoretexts() const;
   void rendervotemenutexts();
   void renderweaponmenutext();
   void renderweaponstatstexts();

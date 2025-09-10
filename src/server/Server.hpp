@@ -16,8 +16,8 @@
 struct GlobalStateServer
 {
   bool kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
-                  std::string Reason = "");
-  bool preparemapchange(std::string Name);
+                  const std::string &Reason = "");
+  bool preparemapchange(const std::string &Name);
   std::int8_t addbotplayer(const std::string &name, std::int32_t team);
   void ActivateServer(int argc, char *argv[]);
   void RunServer(int argc, char *argv[]);

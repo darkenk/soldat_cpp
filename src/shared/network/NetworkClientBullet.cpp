@@ -1,15 +1,13 @@
 // automatically converted
 #include "NetworkClientBullet.hpp"
 
-#include <math.h>
 #include <array>
-#include <memory>
+#include <cmath>
+#include <cstdint>
 
 #include "../mechanics/Bullets.hpp"
 #include "NetworkClient.hpp"
 #include "NetworkUtils.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Parts.hpp"
 #include "common/Vector.hpp"
 #include "common/WeaponSystem.hpp"
@@ -17,14 +15,13 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/RandomGenerator.hpp"
 #include "common/misc/SafeType.hpp"
-#include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
-#include "shared/network/Net.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 constexpr auto pingticksadd = 2;
 
@@ -57,26 +54,26 @@ void clientsendbullet(std::uint8_t i)
 void clienthandlebulletsnapshot::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_bulletsnapshot *bulletsnap;
+  tmsg_bulletsnapshot *bulletsnap = nullptr;
   tvector2 a;
   tvector2 b;
   tvector2 bx;
   tvector2 bstraight;
   tvector2 bnorm;
-  float hm;
-  std::int32_t pa;
-  std::int32_t c;
-  std::int32_t d;
-  std::int16_t weaponindex;
-  std::uint8_t style;
-  float bulletspread;
+  float hm = NAN;
+  std::int32_t pa = 0;
+  std::int32_t c = 0;
+  std::int32_t d = 0;
+  std::int16_t weaponindex = 0;
+  std::uint8_t style = 0;
+  float bulletspread = NAN;
 
   if (!verifypacket(sizeof(tmsg_bulletsnapshot), netmessage->size, msgid_bulletsnapshot))
   {
     return;
   }
 
-  bulletsnap = pmsg_bulletsnapshot(netmessage->packet);
+  bulletsnap = reinterpret_cast<pmsg_bulletsnapshot>(netmessage->packet);
 
   bulletsnap->Dump();
 
@@ -138,15 +135,15 @@ void clienthandlebulletsnapshot::Handle(NetworkContext *netmessage)
 #if 0
             randseed = bulletsnap->seed;
 #endif
-      bstraight.x = b.x - (float)(Random() * 2 - 1) * bulletspread;
-      bstraight.y = b.y - (float)(Random() * 2 - 1) * bulletspread;
+      bstraight.x = b.x - (((Random() * 2) - 1) * bulletspread);
+      bstraight.y = b.y - (((Random() * 2) - 1) * bulletspread);
 
-      bx.x = bstraight.x + (float)(Random() * 2 - 1) * bulletspread;
-      bx.y = bstraight.y + (float)(Random() * 2 - 1) * bulletspread;
+      bx.x = bstraight.x + (((Random() * 2) - 1) * bulletspread);
+      bx.y = bstraight.y + (((Random() * 2) - 1) * bulletspread);
 
       vec2normalize(bnorm, bstraight);
-      a.x = a.x - sign(bstraight.x) * fabs(bnorm.y) * 3.0;
-      a.y = a.y + sign(bstraight.y) * fabs(bnorm.x) * 3.0;
+      a.x = a.x - (sign(bstraight.x) * fabs(bnorm.y) * 3.0);
+      a.y = a.y + (sign(bstraight.y) * fabs(bnorm.x) * 3.0);
 
       const auto k =
         createbullet(a, bx, bulletsnap->weaponnum, bulletsnap->owner, 255, i, false, true);
@@ -176,13 +173,13 @@ void clienthandlebulletsnapshot::Handle(NetworkContext *netmessage)
 #if 0
             randseed = bulletsnap->seed;
 #endif
-      bstraight.x = b.x - (Random() * 2 - 1) * bulletspread;
-      bstraight.y = b.y - (Random() * 2 - 1) * bulletspread;
+      bstraight.x = b.x - ((Random() * 2 - 1) * bulletspread);
+      bstraight.y = b.y - ((Random() * 2 - 1) * bulletspread);
 
       for (d = 0; d <= 4; d++) // Remaining 5 pellets
       {
-        bx.x = bstraight.x + (Random() * 2 - 1) * bulletspread;
-        bx.y = bstraight.y + (Random() * 2 - 1) * bulletspread;
+        bx.x = bstraight.x + ((Random() * 2 - 1) * bulletspread);
+        bx.y = bstraight.y + ((Random() * 2 - 1) * bulletspread);
         const auto k =
           createbullet(a, bx, bulletsnap->weaponnum, bulletsnap->owner, 255, hm, false, true);
 

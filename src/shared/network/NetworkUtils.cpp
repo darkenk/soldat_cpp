@@ -1,32 +1,26 @@
 #include "NetworkUtils.hpp"
 
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
-#include <algorithm>
+#include <cstdint>
 #include <cstring>
+#include <spdlog/fmt/bundled/core.h>
 #include <string>
-#include <memory>
-#include <utility>
-#include <vector>
-#include <array>
 
 #include "../Cvar.hpp"
 #include "../Game.hpp"
 #include "../mechanics/Sprites.hpp"
-#include "common/Console.hpp"
-#include "common/Logging.hpp"
-#include "common/Weapons.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Anims.hpp"
 #include "common/Constants.hpp"
+#include "common/Logging.hpp"
 #include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
 #include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
+#include "common/port_utils/SourceLocation.hpp"
 #include "shared/Constants.cpp.h"
-#include "shared/network/Net.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 #ifdef SERVER
 #include "../../server/BanSystem.hpp"
@@ -35,7 +29,6 @@
 #include "../../client/Client.hpp"
 #include "../../client/GameMenus.hpp"
 #include "../../client/Sound.hpp"
-#include "common/Parts.hpp"
 #endif
 #include "shared/mechanics/SpriteSystem.hpp"
 
@@ -45,7 +38,7 @@ void decodekeys(tsprite &SpriteC, std::uint32_t Keys16);
 auto ArrayToString(const char *c) -> std::string;
 
 #ifndef SERVER
-void playradiosound(std::uint8_t RadioID)
+static void playradiosound(std::uint8_t RadioID)
 {
   auto &sprite_system = SpriteSystem::Get();
   if ((gGlobalStateClient.radiocooldown > 0) or (CVar::sv_radio))
@@ -234,27 +227,25 @@ auto verifypacketlargerorequal(std::int32_t ValidSize, std::int32_t ReceiveSize,
 // Checks if the IP std::string is inside the remote IPs list
 auto isremoteadminip(const std::string &ip) -> bool
 {
-  return std::find(gGlobalStateServer.remoteips.begin(), gGlobalStateServer.remoteips.end(), ip) !=
-         gGlobalStateServer.remoteips.end();
+  return std::ranges::find(gGlobalStateServer.remoteips, ip) != gGlobalStateServer.remoteips.end();
 }
 
 // Checks if the IP std::string is inside the admin IPs list
 auto isadminip(const std::string &ip) -> bool
 {
-  return std::find(gGlobalStateServer.adminips.begin(), gGlobalStateServer.adminips.end(), ip) !=
-         gGlobalStateServer.adminips.end();
+  return std::ranges::find(gGlobalStateServer.adminips, ip) != gGlobalStateServer.adminips.end();
 }
 
 // Retruns true if the password is not empty and equal to the Admin password
 // Server passwords are not allowed to be empty else everyone could login
-auto isadminpassword(std::string Password) -> bool
+auto isadminpassword(const std::string &Password) -> bool
 {
   return (CVar::sv_adminpassword != "") and (Password == CVar::sv_adminpassword);
 }
 
 // Checks if the given passwords match
 // If the password is not set then this returns false
-auto iswronggamepassword(std::string GamePassword) -> bool
+auto iswronggamepassword(const std::string &GamePassword) -> bool
 {
   return (CVar::sv_password != "") and (GamePassword != CVar::sv_password);
 }
@@ -275,7 +266,7 @@ auto isserverfull() -> bool
 
 // Checks if the Requested and the current Soldat version are the same
 template <Config::Module M>
-auto iswronggameversion(std::string RequestVersion) -> bool
+auto iswronggameversion(const std::string & /*RequestVersion*/) -> bool
 {
   NotImplemented();
   return false;
@@ -309,9 +300,9 @@ void newplayerweapon()
 
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t j;
-  std::int32_t i;
-  std::int32_t SecWep;
+  std::int32_t j = 0;
+  std::int32_t i = 0;
+  std::int32_t SecWep = 0;
   if (sprite_system.GetPlayerSprite().weapon.num == noweapon_num)
   {
     gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu);
@@ -340,7 +331,7 @@ void newplayerweapon()
   {
     if (weaponSystem.IsEnabled(j))
     {
-      gGlobalStateGameMenus.limbomenu->button[j - 1].active = bool(weaponsel[i][j]);
+      gGlobalStateGameMenus.limbomenu->button[j - 1].active = static_cast<bool>(weaponsel[i][j]);
     }
   }
 
@@ -363,7 +354,7 @@ void newplayerweapon()
 auto checkweaponnotallowed(std::uint8_t i) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t WeaponIndex;
+  std::int32_t WeaponIndex = 0;
   LogTraceG("CheckWeaponNotAllowed");
 
   auto Result = true;
@@ -391,9 +382,9 @@ auto checkweaponnotallowed(std::uint8_t i) -> bool
 
 // Searches for the flood ip in the flood ips array
 // Returns 0 when nothing was found
-auto findfloodid(std::string SrcIP) -> std::int32_t
+auto findfloodid(const std::string &SrcIP) -> std::int32_t
 {
-  std::int32_t i;
+  std::int32_t i = 0;
   auto Result = 0;
   for (i = 1; i < max_floodips; i++)
   {
@@ -408,9 +399,9 @@ auto findfloodid(std::string SrcIP) -> std::int32_t
 
 // Adds a flooding ip to the Flood ips array
 // If the array is full the flood ip will not be added
-auto addfloodip(std::string SrcIP) -> std::int32_t
+auto addfloodip(const std::string &SrcIP) -> std::int32_t
 {
-  std::int32_t i;
+  std::int32_t i = 0;
   constexpr auto FLOOD_ID_NOT_FOUND = 0;
   auto Result = FLOOD_ID_NOT_FOUND;
 
@@ -426,9 +417,9 @@ auto addfloodip(std::string SrcIP) -> std::int32_t
   return Result;
 }
 
-auto updateantiflood(std::string SrcIP) -> std::int32_t
+auto updateantiflood(const std::string &SrcIP) -> std::int32_t
 {
-  std::int32_t FloodID;
+  std::int32_t FloodID = 0;
   constexpr auto FLOOD_ID_NOT_FOUND = 0;
 
   gGlobalStateServer.lastreqip[gGlobalStateServer.lastreqid] = SrcIP;
@@ -459,7 +450,7 @@ auto isfloodid(std::int32_t ID) -> bool
   return (ID != FLOOD_ID_NOT_FOUND) and (gGlobalStateServer.floodnum[ID] > floodip_max);
 }
 
-auto addiptoremoteadmins(std::string SrcIP) -> bool
+auto addiptoremoteadmins(const std::string &SrcIP) -> bool
 {
   auto Result = false;
   if (SrcIP == " ")
@@ -501,7 +492,7 @@ template std::string fixplayername(const char *);
 template void encodekeys(Sprite<Config::GetModule()> &SpriteC, std::uint16_t &Keys16);
 template void decodekeys(Sprite<Config::GetModule()> &SpriteC, uint16_t Keys16);
 template void stringtoarray(char *c, std::string s);
-template bool iswronggameversion<Config::GetModule()>(std::string RequestVersion);
+template bool iswronggameversion<Config::GetModule()>(const std::string& RequestVersion);
 template bool verifypacket<Config::GetModule()>(
   std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId,
   const source_location &location = source_location::current());

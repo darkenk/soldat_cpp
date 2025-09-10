@@ -1,47 +1,48 @@
 // automatically converted
 #include "NetworkServerGame.hpp"
 
-#include <string.h>
-#include <string>
 #include <algorithm>
 #include <array>
+#include <cstdint>
+#include <cstring>
 #include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
-#include "NetworkServer.hpp"
 #include "../../server/Server.hpp"
 #include "../../server/ServerHelper.hpp"
 #include "../Game.hpp"
+#include "NetworkServer.hpp"
 #include "NetworkServerConnection.hpp"
 #include "NetworkServerMessages.hpp"
 #include "NetworkUtils.hpp"
-#include "common/Util.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Constants.hpp"
+#include "common/Util.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/SHA1Helper.hpp"
-#include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
 
-void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void serverhandleplayerdisconnect(tmsgheader *netmessage, std::int32_t size,
+                                  NetworkServer & /*network*/, TServerPlayer *player)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_playerdisconnect *playermsg;
-  std::int32_t i;
-  std::int32_t j;
+  tmsg_playerdisconnect *playermsg = nullptr;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
 
   if (!verifypacket(sizeof(tmsg_playerdisconnect), size, msgid_playerdisconnect))
   {
     return;
   }
 
-  playermsg = pmsg_playerdisconnect(netmessage);
+  playermsg = reinterpret_cast<pmsg_playerdisconnect>(netmessage);
   i = player->spritenum;
 
   for (j = 0; j <= sprite_system.GetSprite(i).bulletcheckamount; j++)
@@ -122,9 +123,8 @@ void serverhandleplayerdisconnect(tmsgheader* netmessage, std::int32_t size, Net
   NotImplemented("Check if &player is used properly to remove player");
   auto players = gGlobalStateNetworkServer.GetServerNetwork()->GetPlayers();
   auto peer = player->peer;
-  players.erase(std::remove_if(players.begin(), players.end(),
-                               [&player](const auto &v) { return v.get() == player; }),
-                players.end());
+  auto [begin, end] = std::ranges::remove_if(players, [&player](const auto &v) { return v.get() == player; });
+  players.erase(begin, end);
 
   gGlobalStateNetworkServer.GetServerNetwork()->CloseConnection(peer, true);
 
@@ -135,7 +135,6 @@ void servermapchange(std::uint8_t id)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_mapchange mapchangemsg;
-  tplayer dstplayer;
 
   mapchangemsg.header.id = msgid_mapchange;
   mapchangemsg.counter = GS::GetGame().GetMapchangecounter();
@@ -173,7 +172,7 @@ void servermapchange(std::uint8_t id)
 
 void serverflaginfo(std::uint8_t style, std::uint8_t who)
 {
-  tmsg_serverflaginfo flagmsg;
+  tmsg_serverflaginfo flagmsg{};
 
   flagmsg.header.id = msgid_flaginfo;
   flagmsg.style = style;
@@ -191,7 +190,7 @@ void serverflaginfo(std::uint8_t style, std::uint8_t who)
 
 void serveridleanimation(std::uint8_t num, std::int16_t style)
 {
-  tmsg_idleanimation idlemsg;
+  tmsg_idleanimation idlemsg{};
 
   idlemsg.header.id = msgid_idleanimation;
   idlemsg.num = num;
@@ -210,14 +209,14 @@ void serveridleanimation(std::uint8_t num, std::int16_t style)
 void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string targetname,
                       std::string reason)
 {
-  tmsg_voteon votemsg;
+  tmsg_voteon votemsg{};
 
   votemsg.header.id = msgid_voteon;
   votemsg.votetype = votestyle;
   votemsg.timer = GS::GetGame().GetVoteTimeRemaining();
   votemsg.who = voter;
-  stringtoarray(votemsg.targetname.data(), targetname);
-  stringtoarray(votemsg.reason.data(), reason);
+  stringtoarray(votemsg.targetname.data(), std::move(targetname));
+  stringtoarray(votemsg.reason.data(), std::move(reason));
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
@@ -231,7 +230,7 @@ void serversendvoteon(std::uint8_t votestyle, std::int32_t voter, std::string ta
 
 void serversendvoteoff()
 {
-  tmsg_voteoff votemsg;
+  tmsg_voteoff votemsg{};
 
   votemsg.header.id = msgid_voteoff;
 
@@ -245,18 +244,19 @@ void serversendvoteoff()
   }
 }
 
-void serverhandlevotekick(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void serverhandlevotekick(tmsgheader *netmessage, std::int32_t size, NetworkServer & /*network*/,
+                          TServerPlayer *player)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_votekick *votekickmsg;
-  std::int32_t i;
+  tmsg_votekick *votekickmsg = nullptr;
+  std::int32_t i = 0;
 
   if (!verifypacket(sizeof(tmsg_votekick), size, msgid_votekick))
   {
     return;
   }
 
-  votekickmsg = pmsg_votekick(netmessage);
+  votekickmsg = reinterpret_cast<pmsg_votekick>(netmessage);
   i = player->spritenum;
 
   if (GS::GetGame().IsVoteActive())
@@ -324,19 +324,20 @@ void serverhandlevotekick(tmsgheader* netmessage, std::int32_t size, NetworkServ
   }
 }
 
-void serverhandlevotemap(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void serverhandlevotemap(tmsgheader *netmessage, std::int32_t size, NetworkServer & /*network*/,
+                         TServerPlayer *player)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_votemap *votemapmsg;
-  tmsg_votemapreply votemapreplymsg;
-  std::int32_t i;
+  tmsg_votemap *votemapmsg = nullptr;
+  tmsg_votemapreply votemapreplymsg{};
+  std::int32_t i = 0;
 
   if (!verifypacket(sizeof(tmsg_votemap), size, msgid_votemap))
   {
     return;
   }
 
-  votemapmsg = pmsg_votemap(netmessage);
+  votemapmsg = reinterpret_cast<pmsg_votemap>(netmessage);
   i = player->spritenum;
 
   if (votemapmsg->mapid > gGlobalStateServer.mapslist.size() - 1)
@@ -352,24 +353,25 @@ void serverhandlevotemap(tmsgheader* netmessage, std::int32_t size, NetworkServe
     &votemapreplymsg, sizeof(votemapreplymsg), sprite_system.GetSprite(i).player->peer, true);
 }
 
-void serverhandlechangeteam(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void serverhandlechangeteam(tmsgheader *netmessage, std::int32_t size, NetworkServer & /*network*/,
+                            TServerPlayer *player)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_changeteam *changeteammsg;
-  std::int32_t i;
+  tmsg_changeteam *changeteammsg = nullptr;
+  std::int32_t i = 0;
 
   if (!verifypacket(sizeof(tmsg_changeteam), size, msgid_changeteam))
   {
     return;
   }
-  changeteammsg = pmsg_changeteam(netmessage);
+  changeteammsg = reinterpret_cast<pmsg_changeteam>(netmessage);
   i = player->spritenum;
   sprite_system.GetSprite(i).changeteam_ServerVariant(changeteammsg->team);
 }
 
 void serversyncmsg(std::int32_t tonum)
 {
-  tmsg_serversyncmsg syncmsg;
+  tmsg_serversyncmsg syncmsg{};
 
   syncmsg.header.id = msgid_serversyncmsg;
   syncmsg.time = GS::GetGame().GetTimelimitcounter();
@@ -384,7 +386,7 @@ void serversyncmsg(std::int32_t tonum)
 
   for (auto &sprite : SpriteSystem::Get().GetActiveSprites())
   {
-    if ((tonum == 0) || (sprite.num == tonum))
+    if ((tonum == 0) || (std::cmp_equal(sprite.num, tonum)))
     {
       if (sprite.player->controlmethod == human)
       {

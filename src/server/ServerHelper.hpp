@@ -11,8 +11,6 @@ void writeln1(variant s);;
 #endif
 std::string idtoname(std::int32_t id);
 std::string teamtoname(std::int32_t id);
-std::int32_t nametoid(const std::string &name);
-std::string nametohw(const std::string &name);
 std::int32_t findlowestteam(const std::vector<std::int32_t> &arr);
 void savetxtlists();
 void savemaplist();

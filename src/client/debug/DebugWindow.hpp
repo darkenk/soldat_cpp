@@ -18,7 +18,7 @@ public:
   template<typename ServiceLocator>
   static void DrawStatic(ImGuiDrawFunction func) {ServiceLocator::Get().DebugWindow().Draw(func);}
 
-  void Draw(ImGuiDrawFunction func);
+  void Draw(const ImGuiDrawFunction &func);
   void DrawEverything(SDL_GPUCommandBuffer* _command_buffer,  SDL_GPUTexture* _texture);
 
 private:

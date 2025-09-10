@@ -3,16 +3,17 @@
 #include "NetworkServerHeartbeat.hpp"
 
 #include "NetworkServer.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
-#include "shared/Cvar.hpp"
 #include "common/Constants.hpp"
 #include "common/Vector.hpp"
 #include "common/misc/PortUtils.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "shared/AnimationSystem.hpp"
+#include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
 
 template<class TSprite, Config::Module M>
@@ -84,14 +85,13 @@ void serverheartbeat(NetworkServer& transport, TSpriteSystem<TSprite>& spriteSys
 
 }
 // tests
-#include <doctest/doctest.h>
-#include <spdlog/spdlog.h>
-#include <spdlog/common.h>
-#include <spdlog/logger.h>
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <doctest/doctest.h>
 #include <memory>
+#include <spdlog/common.h>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <string_view>
 
@@ -103,7 +103,7 @@ namespace
 class LogBumper
 {
 public:
-  LogBumper(std::string_view logger, spdlog::level::level_enum lv = spdlog::level::trace)
+  explicit LogBumper(std::string_view logger, spdlog::level::level_enum lv = spdlog::level::trace)
     : Logger(logger)
   {
     PreviousLevel = spdlog::get(Logger)->level();
@@ -155,7 +155,7 @@ TEST_CASE_FIXTURE(NetworkServerHeartbeatFixture, "Initial test for heartbeat" * 
   auto player = server->GetPlayers().at(0);
   player->controlmethod = human;
   tvector2 spos; // out
-  std::uint8_t spriteId = 255;
+  std::uint8_t const spriteId = 255;
   createsprite(spos, spriteId, player);
 
   serverheartbeat(*server, spriteSystem, game);

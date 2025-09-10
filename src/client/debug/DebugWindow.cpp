@@ -31,7 +31,7 @@ DebugWindow::~DebugWindow()
   ImGui::DestroyContext();
 }
 
-void DebugWindow::Draw(ImGuiDrawFunction func) { PendingDrawCalls.push_back(func); }
+void DebugWindow::Draw(const ImGuiDrawFunction &func) { PendingDrawCalls.push_back(func); }
 
 void DebugWindow::DrawEverything(SDL_GPUCommandBuffer* _command_buffer,  SDL_GPUTexture* _texture)
 {
@@ -46,8 +46,8 @@ void DebugWindow::DrawEverything(SDL_GPUCommandBuffer* _command_buffer,  SDL_GPU
   ImDrawData* draw_data = ImGui::GetDrawData();
   // This is mandatory: call Imgui_ImplSDLGPU3_PrepareDrawData() to upload the vertex/index buffer!
   ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, _command_buffer);
-  
-  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+  ImVec4 const clear_color = ImVec4(0.45F, 0.55F, 0.60F, 1.00F);
   // Setup and start a render pass
   SDL_GPUColorTargetInfo target_info = {};
   target_info.texture = _texture;
@@ -93,7 +93,7 @@ TEST_CASE_FIXTURE(DebugWindowFixture, "Check whether debug window is displayed")
   {
     SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(app.GetDevice()); // Acquire a GPU command buffer
 
-    SDL_GPUTexture* swapchain_texture;
+    SDL_GPUTexture *swapchain_texture = nullptr;
     SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, app.GetWindow(), &swapchain_texture, nullptr, nullptr); // Acquire a swapchain texture
     app.ProcessEvents();
     dw.Draw([]() {
@@ -128,4 +128,4 @@ TEST_CASE_FIXTURE(DebugWindowFixture, "Draw without passing DebugWindow to funct
     delete SampleServiceLocator::s_SampleServiceLocator;
 }
 
-}
+} // namespace

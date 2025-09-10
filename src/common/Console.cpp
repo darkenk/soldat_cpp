@@ -1,9 +1,10 @@
 #include "Console.hpp"
 
-#include "Logging.hpp"
 #include "Constants.hpp"
+#include "Logging.hpp"
 #include "port_utils/NotImplemented.hpp"
-#include "port_utils/Utilities.hpp"
+#include <cstdint>
+#include <string_view>
 
 void Console::ScrollConsole()
 {
@@ -78,11 +79,9 @@ void ConsoleMain::console(const std::string_view what, std::int32_t col) // over
 }
 
 // tests
+#include <cstdio>
 #include <doctest/doctest.h>
 #include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
-#include <stdio.h>
-#include <utility>
 
 namespace
 {

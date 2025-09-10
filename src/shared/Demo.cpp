@@ -1,9 +1,11 @@
 // automatically converted
 
 #include "Demo.hpp"
+#include "common/misc/SoldatConfig.hpp"
 
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
+#include <array>
+#include <cstdint>
+#include <string>
 
 #ifdef SERVER
 #include "../server/Server.hpp"
@@ -11,30 +13,27 @@
 #include "../client/Client.hpp"
 #include "../client/ClientGame.hpp"
 #include "../client/InterfaceGraphics.hpp"
+#include "common/GameStrings.hpp"
 #endif
 #include <filesystem>
 #include <cstddef>
 #include <memory>
-#include <limits>
 
-#include "common/GameStrings.hpp"
-#include "common/MapFile.hpp"
-#include "common/Console.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/Game.hpp"
-#include "shared/Version.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Constants.hpp"
+#include "common/MapFile.hpp"
 #include "common/PolyMap.hpp"
 #include "common/Vector.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/SafeType.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/Game.hpp"
+#include "shared/Version.hpp"
 #include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
 
 using string = std::string;
@@ -57,7 +56,7 @@ auto extractfilename(const std::string &filepath) -> std::string
 } // namespace
 
 template <std::size_t N>
-void stringtoarray(std::array<char, N> &arr, const std::string &str)
+static void stringtoarray(std::array<char, N> &arr, const std::string &str)
 {
   int i = 0;
   for (const auto &c : str)
@@ -68,9 +67,9 @@ void stringtoarray(std::array<char, N> &arr, const std::string &str)
 template <Config::Module M>
 auto tdemorecorder<M>::startrecord(const string &filename) -> bool
 {
-  std::int32_t spriteid;
+  std::int32_t spriteid = 0;
 
-  bool result;
+  bool result = false;
   result = false;
 #ifndef SERVER
   if (gGlobalStateDemo.demoplayer.active())
@@ -156,7 +155,7 @@ template <Config::Module M>
 auto tdemorecorder<M>::createdemoplayer() -> std::int32_t
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t p;
+  std::int32_t p = 0;
 #if SERVER
   auto player = std::make_shared<TServerPlayer>();
 #else
@@ -164,7 +163,7 @@ auto tdemorecorder<M>::createdemoplayer() -> std::int32_t
 #endif
   tvector2 a;
 
-  std::int32_t createdemoplayer_result = -1;
+  std::int32_t const createdemoplayer_result = -1;
 
   if (sprite_system.GetSprite(max_sprites).IsActive())
   {
@@ -408,7 +407,7 @@ void tdemoplayer::processdemo()
 void tdemoplayer::position(std::int32_t ticks)
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
+  std::int32_t i = 0;
 
   fskipto = ticks;
   gGlobalStateClientGame.shouldrenderframes = false;
@@ -476,45 +475,45 @@ void tdemoplayer::position(std::int32_t ticks)
 // end;
 
 template <Config::Module M>
-auto tmemorystream<M>::writebuffer(const void *buff, int32_t size) -> bool
+auto tmemorystream<M>::writebuffer(const void * /*buff*/, int32_t /*size*/) -> bool
 {
   NotImplemented("filesystem");
   return false;
 }
 
 template <Config::Module M>
-auto tmemorystream<M>::savetofile(const std::string &filename) -> bool
+auto tmemorystream<M>::savetofile(const std::string & /*filename*/) -> bool
 {
   NotImplemented("filesystem");
   return false;
 }
 
 template <Config::Module M>
-void tmemorystream<M>::write1(const void *buff, int32_t size)
+void tmemorystream<M>::write1(const void * /*buff*/, int32_t /*size*/)
 {
   NotImplemented("filesystem");
 }
 
 template <Config::Module M>
-void tmemorystream<M>::read1(void *buff, int32_t size)
+void tmemorystream<M>::read1(void * /*buff*/, int32_t /*size*/)
 {
   NotImplemented("filesystem");
 }
 
 template <Config::Module M>
-void tmemorystream<M>::readbuffer(void *buff, int32_t size)
+void tmemorystream<M>::readbuffer(void * /*buff*/, int32_t /*size*/)
 {
   NotImplemented("filesystem");
 }
 
 template <Config::Module M>
-void tmemorystream<M>::loadfromfile(const std::string &filename)
+void tmemorystream<M>::loadfromfile(const std::string & /*filename*/)
 {
   NotImplemented("filesystem");
 }
 
 template <Config::Module M>
-void tmemorystream<M>::seek(int32_t bytes, tmemorystream::pos position)
+void tmemorystream<M>::seek(int32_t /*bytes*/, tmemorystream::pos /*position*/)
 {
   NotImplemented("filesystem");
 }

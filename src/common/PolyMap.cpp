@@ -2,21 +2,24 @@
 #include "PolyMap.hpp"
 
 #include <Tracy.hpp>
-#include <stdlib.h>
-#include <map>
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstdint>
+#include <cstdlib>
 #include <cstring>
-#include <iterator>
-#include <utility>
+#include <limits>
+#include <map>
+#include <math.h>
 
 #include "Calc.hpp"
 #include "Constants.hpp"
+#include "MapFile.hpp"
+#include "Vector.hpp"
+#include "Waypoints.hpp"
 #include "misc/PortUtils.hpp"
 #include "misc/PortUtilsSoldat.hpp"
-#include "Waypoints.hpp"
 #include "port_utils/NotImplemented.hpp"
-#include "port_utils/Utilities.hpp"
 
 class FileUtility;
 
@@ -85,7 +88,7 @@ void Polymap::initialize()
   fillchar(&botpath.waypoint[idx], sizeof(botpath.waypoint), 0);
 }
 
-void Precompute(tmappolygon &polygon)
+static void Precompute(tmappolygon &polygon)
 {
   auto calc = [](const tmapvertex &p, const tmapvertex &q) {
     if (q.x != p.x)
@@ -104,7 +107,7 @@ void Precompute(tmappolygon &polygon)
 
 void Polymap::loaddata(const tmapfile &mapfile)
 {
-  std::int32_t i;
+  std::int32_t i = 0;
 
   this->mapid = mapfile.hash;
   this->sectorsnum = mapfile.sectorsnum;
@@ -245,7 +248,7 @@ auto Polymap::loadmap(FileUtility &fs, const tmapinfo &map, bool bgforce, std::u
 {
   tmapfile mapfile;
 
-  bool result;
+  bool result = false;
   if (this->filename == map.name)
   {
     result = true;
@@ -279,13 +282,13 @@ static auto LineInPoly(const tvector2 &a, const tvector2 &b, const PolyMapSector
   auto calc = [&](const PolyMapSector::Vertex &p, const PolyMapSector::Vertex &q) {
     if (b.x != a.x && q.x != p.x)
     {
-      float bk = ((q.y - p.y)) / (q.x - p.x);
+      float const bk = ((q.y - p.y)) / (q.x - p.x);
       if (ak != bk)
       {
-        float am = a.y - ak * a.x;
-        float bm = p.y - bk * p.x;
+        float const am = a.y - (ak * a.x);
+        float const bm = p.y - (bk * p.x);
         v.x = ((bm - am)) / (ak - bk);
-        v.y = ak * v.x + am;
+        v.y = (ak * v.x) + am;
 
         if ((v.x > std::min(p.x, q.x)) && (v.x < std::max(p.x, q.x)) &&
             (v.x > std::min(a.x, b.x)) && (v.x < std::max(a.x, b.x)))
@@ -296,10 +299,10 @@ static auto LineInPoly(const tvector2 &a, const tvector2 &b, const PolyMapSector
     }
     else if (b.x == a.x && q.x != p.x)
     {
-      float bk = ((q.y - p.y)) / (q.x - p.x);
-      float bm = p.y - bk * p.x;
+      float const bk = ((q.y - p.y)) / (q.x - p.x);
+      float const bm = p.y - (bk * p.x);
       v.x = a.x;
-      v.y = bk * v.x + bm;
+      v.y = (bk * v.x) + bm;
 
       if ((v.x > std::min(p.x, q.x)) && (v.x < std::max(p.x, q.x)) && (v.y > std::min(a.y, b.y)) &&
           (v.y < std::max(a.y, b.y)))
@@ -309,9 +312,9 @@ static auto LineInPoly(const tvector2 &a, const tvector2 &b, const PolyMapSector
     }
     else if (q.x == p.x && b.x != a.x)
     {
-      float am = a.y - ak * a.x;
+      float const am = a.y - (ak * a.x);
       v.x = p.x;
-      v.y = ak * v.x + am;
+      v.y = (ak * v.x) + am;
 
       if ((v.y > std::min(p.y, q.y)) && (v.y < std::max(p.y, q.y)) && (v.x > std::min(a.x, b.x)) &&
           (v.x < std::max(a.x, b.x)))
@@ -331,7 +334,7 @@ static auto LineInPoly(const tvector2 &a, const tvector2 &b, const PolyMapSector
 auto Polymap::pointinpolyedges(float x, float y, std::int32_t i) -> bool
 {
   tvector2 u;
-  float d;
+  float d = NAN;
 
   bool pointinpolyedges_result = false;
 
@@ -389,11 +392,11 @@ auto Polymap::pointinpoly(const tvector2 &p, const tmappolygon &poly) -> bool
   const auto &b = poly.vertices[1];
   const auto &c = poly.vertices[2];
 
-  float ap_x = p.x - a.x;
-  float ap_y = p.y - a.y;
+  float const ap_x = p.x - a.x;
+  float const ap_y = p.y - a.y;
 
-  bool p_ab = (b.x - a.x) * ap_y - (b.y - a.y) * ap_x > 0;
-  bool p_ac = (c.x - a.x) * ap_y - (c.y - a.y) * ap_x > 0;
+  bool const p_ab = (b.x - a.x) * ap_y - (b.y - a.y) * ap_x > 0;
+  bool const p_ac = (c.x - a.x) * ap_y - (c.y - a.y) * ap_x > 0;
 
   if (p_ac == p_ab)
   {
@@ -432,11 +435,11 @@ auto Polymap::PointInPoly(const tvector2 &p, const PolyMapSector::Poly &poly) ->
   const auto &b = poly.Vertices[1];
   const auto &c = poly.Vertices[2];
 
-  float ap_x = p.x - a.x;
-  float ap_y = p.y - a.y;
+  float const ap_x = p.x - a.x;
+  float const ap_y = p.y - a.y;
 
-  bool p_ab = (b.x - a.x) * ap_y - (b.y - a.y) * ap_x > 0;
-  bool p_ac = (c.x - a.x) * ap_y - (c.y - a.y) * ap_x > 0;
+  bool const p_ab = (b.x - a.x) * ap_y - (b.y - a.y) * ap_x > 0;
+  bool const p_ac = (c.x - a.x) * ap_y - (c.y - a.y) * ap_x > 0;
 
   if (p_ac == p_ab)
   {
@@ -454,15 +457,15 @@ auto Polymap::PointInPoly(const tvector2 &p, const PolyMapSector::Poly &poly) ->
 auto Polymap::closestperpendicular(std::int32_t j, const tvector2 &pos, float &d,
                                    std::int32_t &n) -> tvector2
 {
-  std::array<float, 3> px;
-  std::array<float, 3> py;
+  std::array<float, 3> px{};
+  std::array<float, 3> py{};
   tvector2 p1;
   tvector2 p2;
-  float d1;
-  float d2;
-  float d3;
-  std::int32_t edgev1;
-  std::int32_t edgev2;
+  float d1 = NAN;
+  float d2 = NAN;
+  float d3 = NAN;
+  std::int32_t edgev1 = 0;
+  std::int32_t edgev2 = 0;
 
   tvector2 result;
   auto &polygon = polys[j];
@@ -538,7 +541,7 @@ auto Polymap::closestperpendicular(std::int32_t j, const tvector2 &pos, float &d
 }
 
 template <typename T, typename K>
-auto has(const T &arr, const K &value) -> bool
+static auto has(const T &arr, const K &value) -> bool
 {
   return std::find(arr.begin(), arr.end(), value);
 }
@@ -549,7 +552,7 @@ auto Polymap::collisiontest(const tvector2 &pos, tvector2 &perpvec, bool isflag)
   static constexpr std::array<std::int32_t, 9> excluded1 = {1, 2, 3, 11, 13, 15, 17, 24, 25};
   static constexpr std::array<std::int32_t, 3> excluded2 = {21, 22, 23};
   std::int32_t b = 0;
-  float d = 0.0f;
+  float d = 0.0F;
 
   const auto &sector = GetSector(pos);
 
@@ -576,7 +579,7 @@ auto Polymap::collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::i
 {
   static constexpr std::array<std::int32_t, 6> excluded = {1, 2, 3, 11, 24, 25};
   std::int32_t b = 0;
-  float d = 0.0f;
+  float d = 0.0F;
 
   bool collisiontestexcept_result = false;
   const auto sector = GetSector(pos);
@@ -587,7 +590,7 @@ auto Polymap::collisiontestexcept(const tvector2 &pos, tvector2 &perpvec, std::i
   }
   for (const auto &w : sector.GetPolys())
   {
-    if ((w.Index != c) && !(has(excluded, w.Type)))
+    if ((std::cmp_not_equal(w.Index, c)) && !(has(excluded, w.Type)))
     {
       if (PointInPoly(pos, w))
       {
@@ -648,12 +651,12 @@ auto Polymap::GetSectorCoordUnsafe(const tvector2 &pos) const -> Polymap::Sector
 {
   const std::int32_t kx = std::roundf((pos.x) * PositionToSectorScale);
   const std::int32_t ky = std::roundf((pos.y) * PositionToSectorScale);
-  return {kx, ky};
+  return {.x = kx, .y = ky};
 }
 
 auto Polymap::GetIndex(const SectorCoord &s) const -> std::int32_t
 {
-  return (s.x + sectorsnum) * (2 * sectorsnum + 1) + (s.y + sectorsnum);
+  return ((s.x + sectorsnum) * (2 * sectorsnum + 1)) + (s.y + sectorsnum);
 }
 
 auto Polymap::GetSectorCoord(const tvector2 &pos) -> Polymap::SectorCoord
@@ -669,8 +672,8 @@ auto Polymap::GetSectorCoord(const tvector2 &pos) -> Polymap::SectorCoord
 void Polymap::SetSectorsDivision(int32_t sectorsdivision)
 {
   SectorsDivision = sectorsdivision;
-  PositionToSectorScale = 1.0f / sectorsdivision;
-  MapHalfSize = (float)sectorsdivision * ((float)sectorsnum + 0.5f);
+  PositionToSectorScale = 1.0F / sectorsdivision;
+  MapHalfSize = static_cast<float>(sectorsdivision) * (static_cast<float>(sectorsnum) + 0.5F);
 }
 
 auto Polymap::GetSector(const tvector2 &pos) -> Polymap::Sector
@@ -688,16 +691,16 @@ auto Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
                          std::uint8_t team) -> bool
 {
   ZoneScopedN("PolyMap::RayCastOpt");
-  std::int32_t i;
-  std::int32_t j;
+  std::int32_t i = 0;
+  std::int32_t j = 0;
   tvector2 d;
-  bool npcol;
-  bool nbcol;
-  float e;
-  float f;
-  float g;
-  float h;
-  float r;
+  bool npcol = false;
+  bool nbcol = false;
+  float e = NAN;
+  float f = NAN;
+  float g = NAN;
+  float h = NAN;
+  float r = NAN;
 
   bool raycast_result = false;
   distance = vec2length(vec2subtract(a, b));
@@ -725,7 +728,7 @@ auto Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
 
   float ak = std::numeric_limits<float>::max();
 
-  const auto lineWidth = 2 * sectorsnum + 1;
+  const auto lineWidth = (2 * sectorsnum) + 1;
   const auto endx = (bx + sectorsnum) * lineWidth;
   for (i = (ax + sectorsnum) * lineWidth; i <= endx; i += lineWidth)
   {
@@ -741,7 +744,7 @@ auto Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
         {
           if (PointInPoly(a, w))
           {
-            distance = 0.f;
+            distance = 0.F;
             return true;
           }
           if (ak == std::numeric_limits<float>::max() && b.x != a.x)
@@ -766,12 +769,12 @@ auto Polymap::RayCastOpt(const tvector2 &a, const tvector2 &b, float &distance, 
     e = a.y - b.y;
     f = b.x - a.x;
     g = a.x * b.y - a.y * b.x;
-    h = sqrt(e * e + f * f);
+    h = std::sqrt((e * e) + (f * f));
     for (i = 1; i <= collidercount; i++)
     {
       if (collider[i].active)
       {
-        if (std::abs(e * collider[i].x + f * collider[i].y + g) / h <= collider[i].radius)
+        if (std::abs((e * collider[i].x) + (f * collider[i].y) + g) / h <= collider[i].radius)
         {
           r = sqrdist(a.x, a.y, b.x, b.y) + collider[i].radius * collider[i].radius;
           if (sqrdist(a.x, a.y, collider[i].x, collider[i].y) <= r)

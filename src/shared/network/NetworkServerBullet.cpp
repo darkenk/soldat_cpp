@@ -1,19 +1,18 @@
 // automatically converted
 #include "NetworkServerBullet.hpp"
 
-#include <math.h>
+#include <algorithm>
 #include <array>
-#include <memory>
+#include <cmath>
+#include <cstdint>
 #include <string>
 
-#include "../Game.hpp"
-#include "NetworkUtils.hpp"
-#include "NetworkServer.hpp"
-#include "common/Calc.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "../../server/Server.hpp"
+#include "../Game.hpp"
+#include "NetworkServer.hpp"
+#include "NetworkUtils.hpp"
 #include "common/Anims.hpp"
+#include "common/Calc.hpp"
 #include "common/Parts.hpp"
 #include "common/PolyMap.hpp"
 #include "common/Vector.hpp"
@@ -22,15 +21,15 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/RandomGenerator.hpp"
 #include "common/misc/SafeType.hpp"
-#include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/Cvar.hpp"
 #include "shared/mechanics/Bullets.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
 
 namespace
@@ -88,24 +87,25 @@ void serverbulletsnapshot(const std::uint8_t i, std::uint8_t tonum, bool forced)
 }
 
 #ifdef SERVER
-void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void serverhandlebulletsnapshot(tmsgheader *netmessage, std::int32_t size,
+                                NetworkServer & /*network*/, TServerPlayer *player)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_clientbulletsnapshot *bulletsnap;
-  std::int32_t p;
-  std::int32_t d;
-  float k;
-  std::int32_t i;
-  bool onstatgun;
-  bool failedbulletcheck;
-  std::int16_t weaponindex;
-  std::uint8_t style;
+  tmsg_clientbulletsnapshot *bulletsnap = nullptr;
+  std::int32_t p = 0;
+  std::int32_t d = 0;
+  float k = NAN;
+  std::int32_t i = 0;
+  bool onstatgun = false;
+  bool failedbulletcheck = false;
+  std::int16_t weaponindex = 0;
+  std::uint8_t style = 0;
   tvector2 a;
   tvector2 b;
   tvector2 bx;
   tvector2 bstraight;
   tvector2 bnorm;
-  float bulletspread;
+  float bulletspread = NAN;
   auto &map = GS::GetGame().GetMap();
 
   if (!verifypacket(sizeof(tmsg_clientbulletsnapshot), size, msgid_bulletsnapshot))
@@ -113,7 +113,7 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
     return;
   }
 
-  bulletsnap = pmsg_clientbulletsnapshot(netmessage);
+  bulletsnap = reinterpret_cast<pmsg_clientbulletsnapshot>(netmessage);
   p = player->spritenum;
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
@@ -123,14 +123,8 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
   auto& sprite = sprite_system.GetSprite(p);
 
   sprite.player->pingticksb = gGlobalStateNetworkServer.servertickcounter - bulletsnap->clientticks;
-  if (sprite.player->pingticksb < 0)
-  {
-    sprite.player->pingticksb = 0;
-  }
-  if (sprite.player->pingticksb > max_oldpos)
-  {
-    sprite.player->pingticksb = max_oldpos;
-  }
+  sprite.player->pingticksb = std::max(sprite.player->pingticksb, 0);
+  sprite.player->pingticksb = std::min(sprite.player->pingticksb, max_oldpos);
 
   weaponindex = weaponnumtoindex(bulletsnap->weaponnum, guns);
   if (weaponindex == -1)
@@ -406,15 +400,15 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
 #if 0
         randseed = bulletsnap->seed;
 #endif
-    bstraight.x = b.x - (Random() * 2 - 1) * bulletspread;
-    bstraight.y = b.y - (Random() * 2 - 1) * bulletspread;
+    bstraight.x = b.x - ((Random() * 2 - 1) * bulletspread);
+    bstraight.y = b.y - ((Random() * 2 - 1) * bulletspread);
 
-    bx.x = bstraight.x + (Random() * 2 - 1) * bulletspread;
-    bx.y = bstraight.y + (Random() * 2 - 1) * bulletspread;
+    bx.x = bstraight.x + ((Random() * 2 - 1) * bulletspread);
+    bx.y = bstraight.y + ((Random() * 2 - 1) * bulletspread);
 
     vec2normalize(bnorm, bstraight);
-    a.x = a.x - sign(bstraight.x) * fabs(bnorm.y) * 3.0;
-    a.y = a.y + sign(bstraight.y) * fabs(bnorm.x) * 3.0;
+    a.x = a.x - (sign(bstraight.x) * fabs(bnorm.y) * 3.0);
+    a.y = a.y + (sign(bstraight.y) * fabs(bnorm.x) * 3.0);
 
     createbullet(a, bx, bulletsnap->weaponnum, p, 255, k, false, true);
   }
@@ -426,13 +420,13 @@ void serverhandlebulletsnapshot(tmsgheader* netmessage, std::int32_t size, Netwo
 #if 0
         randseed = bulletsnap->seed;
 #endif
-    bstraight.x = b.x - (Random() * 2 - 1) * bulletspread;
-    bstraight.y = b.y - (Random() * 2 - 1) * bulletspread;
+    bstraight.x = b.x - ((Random() * 2 - 1) * bulletspread);
+    bstraight.y = b.y - ((Random() * 2 - 1) * bulletspread);
 
     for (d = 0; d <= 4; d++) // Remaining 5 pellets
     {
-      bx.x = bstraight.x + (Random() * 2 - 1) * bulletspread;
-      bx.y = bstraight.y + (Random() * 2 - 1) * bulletspread;
+      bx.x = bstraight.x + ((Random() * 2 - 1) * bulletspread);
+      bx.y = bstraight.y + ((Random() * 2 - 1) * bulletspread);
       createbullet(a, bx, bulletsnap->weaponnum, p, 255, k, false, true);
     }
   }

@@ -1,16 +1,16 @@
 #include "Server.hpp"
 
 #include <Tracy.hpp>
-#include <math.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
-#include <stdio.h>
-#include <array>
-#include <thread>
 #include <algorithm>
+#include <array>
 #include <chrono>
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
 #include <memory>
-#include <ratio>
+#include <spdlog/fmt/bundled/core.h>
+#include <string>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -19,14 +19,29 @@
 #include "ServerCommands.hpp"
 #include "ServerHelper.hpp"
 #include "ServerLoop.hpp"
+#include "common/Console.hpp"
+#include "common/Constants.hpp"
 #include "common/FileUtility.hpp"
-#include "common/Logging.hpp"
 #include "common/LogFile.hpp"
+#include "common/Logging.hpp"
+#include "common/MapFile.hpp"
+#include "common/PolyMap.hpp"
 #include "common/Util.hpp"
+#include "common/Vector.hpp"
+#include "common/WeaponSystem.hpp"
+#include "common/Weapons.hpp"
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/RandomGenerator.hpp"
+#include "common/misc/SHA1Helper.hpp"
+#include "common/misc/SafeType.hpp"
 #include "common/misc/TFileStream.hpp"
+#include "common/misc/TIniFile.hpp"
+#include "common/network/Net.hpp"
+#include "common/port_utils/NotImplemented.hpp"
+#include "shared/AnimationSystem.hpp"
 #include "shared/Command.hpp"
+#include "shared/Constants.cpp.h"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/SharedConfig.hpp"
@@ -42,22 +57,6 @@
 #include "shared/network/NetworkServerMessages.hpp"
 #include "shared/network/NetworkServerSprite.hpp"
 #include "shared/network/NetworkUtils.hpp"
-#include "common/Console.hpp"
-#include "common/MapFile.hpp"
-#include "common/PolyMap.hpp"
-#include "common/Vector.hpp"
-#include "common/WeaponSystem.hpp"
-#include "common/Weapons.hpp"
-#include "common/misc/RandomGenerator.hpp"
-#include "common/misc/SHA1Helper.hpp"
-#include "common/misc/SafeType.hpp"
-#include "common/misc/SoldatConfig.hpp"
-#include "common/misc/TIniFile.hpp"
-#include "common/network/Net.hpp"
-#include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
-#include "shared/AnimationSystem.hpp"
-#include "shared/Constants.cpp.h"
 
 // constexpr auto PATH_MAX = 4095;
 
@@ -140,7 +139,7 @@ void GlobalStateServer::CreateDirectoryStructure(FileUtility &fs)
 
 void GlobalStateServer::ActivateServer(int argc, char *argv[])
 {
-  std::int32_t i;
+  std::int32_t i = 0;
   NotImplemented("network", "Rewrite message");
 #if 0
   WriteLn("");
@@ -282,8 +281,8 @@ void GlobalStateServer::ActivateServer(int argc, char *argv[])
   if (fileexists(userDirectory + "configs/" + std::string(CVar::sv_maplist)))
   {
     mapslist.loadfromfile(userDirectory + "configs/" + std::string(CVar::sv_maplist));
-    auto it = std::remove(mapslist.begin(), mapslist.end(), "");
-    mapslist.erase(it, mapslist.end());
+    auto it = std::ranges::remove(mapslist, "");
+    mapslist.erase(it.begin(), it.end());
   }
 
   if (mapslist.empty())
@@ -420,7 +419,7 @@ void GlobalStateServer::ShutDown()
 
 void GlobalStateServer::loadweapons(const std::string &Filename)
 {
-  bool IsRealistic;
+  bool IsRealistic = false;
   LogDebugG("LoadWeapons");
 
   auto &guns = GS::GetWeaponSystem().GetGuns();
@@ -473,7 +472,7 @@ auto GlobalStateServer::addbotplayer(const std::string &name, std::int32_t team)
 {
   auto &sprite_system = SpriteSystem::Get();
   tvector2 a;
-  std::int32_t p;
+  std::int32_t p = 0;
   std::string TempStr;
   LogDebugG("AddBotPlayer");
   std::int8_t Result = 0;
@@ -557,9 +556,9 @@ void GlobalStateServer::startserver()
 {
   auto &sprite_system = SpriteSystem::Get();
   tvector2 a;
-  std::int32_t i;
-  std::int32_t k;
-  std::int32_t j;
+  std::int32_t i = 0;
+  std::int32_t k = 0;
+  std::int32_t j = 0;
   tmapinfo StartMap;
   LogDebugG("StartServer");
 #ifdef SCRIPT
@@ -835,7 +834,7 @@ void GlobalStateServer::startserver()
 
   gGlobalStateNetworkServer.InitNetworkServer(std::string(CVar::net_ip), CVar::net_port);
   gGlobalStateNetworkServer.GetServerNetwork()->SetDisconnectionCallback(
-    [&sprite_system](std::shared_ptr<TServerPlayer> player) {
+    [&sprite_system](const std::shared_ptr<TServerPlayer> &player) {
       // the sprite may be zero if we"re still in the setup phase
       if (player->spritenum != 0)
       {
@@ -910,7 +909,7 @@ void GlobalStateServer::startserver()
   GS::GetGame().updategamestats();
 }
 
-auto GlobalStateServer::preparemapchange(std::string Name) -> bool
+auto GlobalStateServer::preparemapchange(const std::string &Name) -> bool
 {
   tmapinfo Status;
   bool Result = false;
@@ -953,10 +952,10 @@ void GlobalStateServer::nextmap()
 
 void GlobalStateServer::spawnthings(std::int8_t Style, std::int8_t Amount)
 {
-  std::int32_t i;
-  std::int32_t k;
-  std::int32_t l;
-  std::int32_t team;
+  std::int32_t i = 0;
+  std::int32_t k = 0;
+  std::int32_t l = 0;
+  std::int32_t team = 0;
   tvector2 a;
 
   LogTraceG("SpawnThings");
@@ -1036,11 +1035,11 @@ void GlobalStateServer::spawnthings(std::int8_t Style, std::int8_t Amount)
 }
 
 auto GlobalStateServer::kickplayer(std::int8_t num, bool Ban, std::int32_t why, std::int32_t time,
-                                   std::string Reason) -> bool
+                                   const std::string &Reason) -> bool
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  std::string timestr;
+  std::int32_t i = 0;
+  std::string const timestr;
 
   bool Result = false;
   LogDebugG("KickPlayer");
@@ -1185,7 +1184,7 @@ void GlobalStateServer::RunServer(int argc, char *argv[])
     auto begin = std::chrono::system_clock::now();
     apponidle();
     auto end = std::chrono::system_clock::now();
-    constexpr auto frameTime = std::chrono::seconds(1) / 60.f;
+    constexpr auto frameTime = std::chrono::seconds(1) / 60.F;
     {
       ZoneScopedN("WaitingForNextFrame");
       std::this_thread::sleep_for(frameTime - (end - begin));

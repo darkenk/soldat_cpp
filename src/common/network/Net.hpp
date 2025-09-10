@@ -187,10 +187,10 @@ public:
   [[nodiscard]] std::uint32_t Port() const { return mPort; }
 
 protected:
-  bool mActive;
+  bool mActive{};
   ISteamNetworkingSockets *mNetworkingSockets;
   std::string mIpAddress;
-  std::uint32_t mPort;
+  std::uint32_t mPort{};
 
   void RunCallbacks();
   virtual void ProcessEvents(SteamNetConnectionStatusChangedCallback_t* pInfo) = 0;

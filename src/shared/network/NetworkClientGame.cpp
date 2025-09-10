@@ -1,12 +1,12 @@
 // automatically converted
 #include "NetworkClientGame.hpp"
 
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
-#include <limits>
 #include <algorithm>
 #include <array>
+#include <cstdint>
+#include <limits>
 #include <memory>
+#include <utility>
 
 #include "../../client/Client.hpp"
 #include "../../client/ClientGame.hpp"
@@ -19,40 +19,37 @@
 #include "../mechanics/Sprites.hpp"
 #include "NetworkClient.hpp"
 #include "NetworkUtils.hpp"
-#include "common/Console.hpp"
-#include "common/GameStrings.hpp"
-#include "common/gfx.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Constants.hpp"
+#include "common/GameStrings.hpp"
 #include "common/Parts.hpp"
 #include "common/Vector.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/Weapons.hpp"
+#include "common/gfx.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/RandomGenerator.hpp"
 #include "common/misc/SafeType.hpp"
-#include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Things.hpp"
-#include "shared/network/Net.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 void clienthandlenewplayer::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_newplayer *newplayermsg;
+  tmsg_newplayer *newplayermsg = nullptr;
   tvector2 a;
-  std::int32_t i;
-  std::int32_t d;
+  std::int32_t i = 0;
+  std::int32_t d = 0;
 
   if (!verifypacket(sizeof(tmsg_newplayer), netmessage->size, msgid_newplayer))
   {
     return;
   }
 
-  newplayermsg = pmsg_newplayer(netmessage->packet);
+  newplayermsg = reinterpret_cast<pmsg_newplayer>(netmessage->packet);
   i = newplayermsg->num;
   if ((i < 1) || (i > max_sprites))
   {
@@ -131,7 +128,7 @@ void clienthandlenewplayer::Handle(NetworkContext *netmessage)
       sprite_system.GetPlayerSprite().player->demoplayer = true;
     }
 
-    // TODO wat?
+    // TODO(vscode): wat?
     sprite_system.GetPlayerSprite().bulletcount = Random(std::numeric_limits<std::uint16_t>::max());
 
     if (player->team == team_spectator)
@@ -217,18 +214,18 @@ void clienthandlenewplayer::Handle(NetworkContext *netmessage)
 
 void clientvotekick(std::uint8_t num, bool ban, std::string reason)
 {
-  tmsg_votekick votemsg;
+  tmsg_votekick votemsg{};
 
   votemsg.header.id = msgid_votekick;
-  votemsg.ban = (std::uint8_t)(ban);
+  votemsg.ban = static_cast<std::uint8_t>(ban);
   votemsg.num = num;
-  stringtoarray(votemsg.reason.data(), reason);
+  stringtoarray(votemsg.reason.data(), std::move(reason));
   gGlobalStateNetworkClient.GetNetwork()->SendData(&votemsg, sizeof(votemsg), true);
 }
 
 void clientvotemap(std::uint32_t mapid)
 {
-  tmsg_votemap votemsg;
+  tmsg_votemap votemsg{};
 
   votemsg.header.id = msgid_votemap;
   votemsg.mapid = mapid;
@@ -237,14 +234,14 @@ void clientvotemap(std::uint32_t mapid)
 
 void clienthandlevoteresponse::Handle(NetworkContext *netmessage)
 {
-  tmsg_votemapreply *votemsgreply;
+  tmsg_votemapreply *votemsgreply = nullptr;
 
   if (!verifypacket(sizeof(tmsg_votemapreply), netmessage->size, msgid_votemapreply))
   {
     return;
   }
 
-  votemsgreply = pmsg_votemapreply(netmessage->packet);
+  votemsgreply = reinterpret_cast<pmsg_votemapreply>(netmessage->packet);
   gGlobalStateNetworkClient.votemapname = votemsgreply->mapname.data();
   gGlobalStateNetworkClient.votemapcount = votemsgreply->count;
 }
@@ -264,14 +261,14 @@ void clientfreecamtarget()
 void clienthandleplayerdisconnect::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_playerdisconnect *playermsg;
+  tmsg_playerdisconnect *playermsg = nullptr;
 
   if (!verifypacket(sizeof(tmsg_playerdisconnect), netmessage->size, msgid_playerdisconnect))
   {
     return;
   }
 
-  playermsg = pmsg_playerdisconnect(netmessage->packet);
+  playermsg = reinterpret_cast<pmsg_playerdisconnect>(netmessage->packet);
   if ((playermsg->num < 1) || (playermsg->num > max_sprites))
   {
     return;
@@ -468,14 +465,14 @@ void clienthandleplayerdisconnect::Handle(NetworkContext *netmessage)
 
 void clienthandlemapchange::Handle(NetworkContext *netmessage)
 {
-  tmsg_mapchange *mapchange;
+  tmsg_mapchange *mapchange = nullptr;
 
   if (!verifypacket(sizeof(tmsg_mapchange), netmessage->size, msgid_mapchange))
   {
     return;
   }
 
-  mapchange = pmsg_mapchange(netmessage->packet);
+  mapchange = reinterpret_cast<pmsg_mapchange>(netmessage->packet);
 
   std::string mapchangename;
   mapchangename.resize(mapchange->mapnamelength, '0');
@@ -535,7 +532,7 @@ void clienthandlemapchange::Handle(NetworkContext *netmessage)
 void clienthandleflaginfo::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t j;
+  std::int32_t j = 0;
   tvector2 a;
   tvector2 b;
   auto &things = GS::GetThingSystem().GetThings();
@@ -545,13 +542,13 @@ void clienthandleflaginfo::Handle(NetworkContext *netmessage)
     return;
   }
 
-  if ((pmsg_serverflaginfo(netmessage->packet)->who < 1) ||
-      (pmsg_serverflaginfo(netmessage->packet)->who > max_sprites))
+  if ((reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->who < 1) ||
+      (reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->who > max_sprites))
   {
     return;
   }
 
-  if (pmsg_serverflaginfo(netmessage->packet)->style == returnred)
+  if (reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->style == returnred)
   {
     if (CVar::sv_gamemode == gamestyle_ctf)
     {
@@ -562,7 +559,8 @@ void clienthandleflaginfo::Handle(NetworkContext *netmessage)
       GS::GetMainConsole().console(
         wideformat(
           _("{} returned the Red Flag"),
-          (sprite_system.GetSprite(pmsg_serverflaginfo(netmessage->packet)->who).player->name)),
+          (sprite_system.GetSprite(reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->who)
+             .player->name)),
         alpha_message_color);
       if (GS::GetGame().GetTeamFlag(1) > 0)
       {
@@ -570,7 +568,7 @@ void clienthandleflaginfo::Handle(NetworkContext *netmessage)
       }
     }
   }
-  if (pmsg_serverflaginfo(netmessage->packet)->style == returnblue)
+  if (reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->style == returnblue)
   {
     if (CVar::sv_gamemode == gamestyle_ctf)
     {
@@ -581,7 +579,8 @@ void clienthandleflaginfo::Handle(NetworkContext *netmessage)
       GS::GetMainConsole().console(
         wideformat(
           _("{} returned the Blue Flag"),
-          (sprite_system.GetSprite(pmsg_serverflaginfo(netmessage->packet)->who).player->name)),
+          (sprite_system.GetSprite(reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->who)
+             .player->name)),
         bravo_message_color);
       if (GS::GetGame().GetTeamFlag(2) > 0)
       {
@@ -589,14 +588,15 @@ void clienthandleflaginfo::Handle(NetworkContext *netmessage)
       }
     }
   }
-  if (pmsg_serverflaginfo(netmessage->packet)->style == capturered)
+  if (reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->style == capturered)
   {
     gGlobalStateClientGame.bigmessage(_("Alpha Team Scores!"), capturectfmessagewait,
                                       alpha_message_color);
     GS::GetMainConsole().console(
       wideformat(
         _("{} scores for Alpha Team"),
-        (sprite_system.GetSprite(pmsg_serverflaginfo(netmessage->packet)->who).player->name)),
+        (sprite_system.GetSprite(reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->who)
+           .player->name)),
       alpha_message_color);
 
     if (CVar::sv_gamemode == gamestyle_inf)
@@ -628,21 +628,23 @@ void clienthandleflaginfo::Handle(NetworkContext *netmessage)
 
     // cap spark
     gGlobalStateSparks.createspark(things[GS::GetGame().GetTeamFlag(1)].skeleton.pos[2], b, 61,
-                                   pmsg_serverflaginfo(netmessage->packet)->who, 18);
+                                   reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->who,
+                                   18);
 
     if (CVar::sv_survivalmode)
     {
       GS::GetGame().SetSurvivalendround(true);
     }
   }
-  if (pmsg_serverflaginfo(netmessage->packet)->style == captureblue)
+  if (reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->style == captureblue)
   {
     gGlobalStateClientGame.bigmessage(_("Bravo Team Scores!"), capturectfmessagewait,
                                       bravo_message_color);
     GS::GetMainConsole().console(
       wideformat(
         _("{} scores for Bravo Team"),
-        (sprite_system.GetSprite(pmsg_serverflaginfo(netmessage->packet)->who).player->name)),
+        (sprite_system.GetSprite(reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->who)
+           .player->name)),
       bravo_message_color);
     gGlobalStateSound.playsound(SfxEffect::ctf);
     if (GS::GetGame().GetTeamFlag(1) > 0)
@@ -652,7 +654,8 @@ void clienthandleflaginfo::Handle(NetworkContext *netmessage)
 
     // cap spark
     gGlobalStateSparks.createspark(things[GS::GetGame().GetTeamFlag(2)].skeleton.pos[2], b, 61,
-                                   pmsg_serverflaginfo(netmessage->packet)->who, 18);
+                                   reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->who,
+                                   18);
 
     if (CVar::sv_survivalmode)
     {
@@ -664,14 +667,14 @@ void clienthandleflaginfo::Handle(NetworkContext *netmessage)
 void clienthandleidleanimation::Handle(NetworkContext *netmessage)
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
+  std::int32_t i = 0;
 
   if (!verifypacket(sizeof(tmsg_idleanimation), netmessage->size, msgid_idleanimation))
   {
     return;
   }
 
-  i = pmsg_idleanimation(netmessage->packet)->num;
+  i = reinterpret_cast<pmsg_idleanimation>(netmessage->packet)->num;
 
   if (!sprite_system.GetSprite(i).active)
   {
@@ -679,5 +682,6 @@ void clienthandleidleanimation::Handle(NetworkContext *netmessage)
   }
 
   sprite_system.GetSprite(i).idletime = 1;
-  sprite_system.GetSprite(i).idlerandom = pmsg_idleanimation(netmessage->packet)->idlerandom;
+  sprite_system.GetSprite(i).idlerandom =
+    reinterpret_cast<pmsg_idleanimation>(netmessage->packet)->idlerandom;
 }

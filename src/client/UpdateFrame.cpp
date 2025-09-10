@@ -3,12 +3,11 @@
 #include "UpdateFrame.hpp"
 
 #include <Tracy.hpp>
-#include <math.h>
-#include <cstdint>
 #include <algorithm>
 #include <array>
+#include <cmath>
+#include <cstdint>
 #include <iterator>
-#include <memory>
 #include <string>
 
 #include "Client.hpp"
@@ -20,46 +19,44 @@
 #include "WeatherEffects.hpp"
 #include "common/Calc.hpp"
 #include "common/Console.hpp"
+#include "common/Constants.hpp"
 #include "common/GameStrings.hpp"
 #include "common/LogFile.hpp"
-#include "shared/Cvar.hpp"
-#include "shared/Demo.hpp"
-#include "shared/Game.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
-#include "shared/network/NetworkClient.hpp"
-#include "shared/network/NetworkClientConnection.hpp"
-#include "common/Constants.hpp"
 #include "common/MapFile.hpp"
 #include "common/Parts.hpp"
 #include "common/PolyMap.hpp"
 #include "common/Vector.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/SafeType.hpp"
-#include "common/misc/SoldatConfig.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/Cvar.hpp"
+#include "shared/Demo.hpp"
+#include "shared/Game.hpp"
 #include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/mechanics/Things.hpp"
-#include "shared/network/Net.hpp"
+#include "shared/misc/GlobalSystems.hpp"
+#include "shared/network/NetworkClient.hpp"
+#include "shared/network/NetworkClientConnection.hpp"
 
-std::int32_t idlecounter, oldmousex;
+static std::int32_t idlecounter;
+static std::int32_t oldmousex;
 
 void update_frame()
 {
   ZoneScopedN("update_frame");
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t j;
+  std::int32_t j = 0;
   tvector2 norm;
   tvector2 camv;
   tvector2 s;
   tvector2 m;
   tvector2 p;
-  float displayratio;
-  std::string screenfile;
+  float displayratio = NAN;
+  std::string const screenfile;
 
 #ifdef ENABLE_FAE
   faeontick;
@@ -93,8 +90,7 @@ void update_frame()
     {
       ZoneScopedN("UpdateSprites");
       auto &activeSprites = sprite_system.GetActiveSprites();
-      std::for_each(std::begin(activeSprites), std::end(activeSprites),
-                    [](auto &sprite) { sprite.update(); });
+      std::ranges::for_each(activeSprites, [](auto &sprite) { sprite.update(); });
     }
 
     // Bullets update
@@ -150,7 +146,7 @@ void update_frame()
     {
       if (gGlobalStateClientGame.screencounter != 255)
       {
-        // TODO: don't rely on underflow
+        // TODO(vscode): don't rely on underflow
         gGlobalStateClientGame.screencounter = 0xff & (gGlobalStateClientGame.screencounter - 1);
       }
     }
@@ -439,15 +435,15 @@ void update_frame()
       // FIXME(skoskav): Scope zoom and non-default resolution makes this a bit complicated.
       // Why does the magic number ~6.8 work so well?
 
-      m.x =
-        exp(CVar::r_zoom) *
-        ((gGlobalStateClientGame.mx - gGlobalStateGame.gamewidthhalf) /
-         sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef *
-         (((float)(2 * 640) / gGlobalStateGame.gamewidth - 1) +
-          (float)((gGlobalStateGame.gamewidth - 640)) / (float)gGlobalStateGame.gamewidth *
-            (float)(defaultaimdist -
-                    sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef) /
-            6.8));
+      m.x = exp(CVar::r_zoom) *
+            ((gGlobalStateClientGame.mx - gGlobalStateGame.gamewidthhalf) /
+             sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef *
+             ((static_cast<float>(2 * 640) / gGlobalStateGame.gamewidth - 1) +
+              static_cast<float>((gGlobalStateGame.gamewidth - 640)) /
+                static_cast<float>(gGlobalStateGame.gamewidth) *
+                (defaultaimdist -
+                 sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).aimdistcoef) /
+                6.8));
 
       m.y = exp(CVar::r_zoom) *
             ((gGlobalStateClientGame.my - gGlobalStateGame.gameheighthalf) /
@@ -471,7 +467,7 @@ void update_frame()
   }
   else if (gGlobalStateClient.camerafollowsprite == 0)
   {
-    displayratio = (float)(gGlobalStateGame.gamewidth) / 640;
+    displayratio = static_cast<float>(gGlobalStateGame.gamewidth) / 640;
 
     if ((gGlobalStateClientGame.mx > 310 * displayratio) &&
         (gGlobalStateClientGame.mx < 330 * displayratio) && (gGlobalStateClientGame.my > 230) &&
@@ -509,7 +505,7 @@ void update_frame()
   // end game screen
   if (gGlobalStateClient.screentaken)
   {
-    if (game.GetMapchangecounter() < ((float)(default_mapchange_time) / 3))
+    if (game.GetMapchangecounter() < (static_cast<float>(default_mapchange_time) / 3))
     {
       gGlobalStateClient.screentaken = false;
       NotImplemented("No now() function");

@@ -21,7 +21,7 @@ struct GlobalStateNetworkServerSprite
                                             NetworkServer &network, TServerPlayer *player);
   void serverskeletonsnapshot(std::uint8_t r);
   void serverspritedeath(std::int32_t who, std::int32_t killer, std::int32_t bulletnum,
-                         std::int32_t where);
+                         std::int32_t where) const;
   void serverspritedeltas(const uint8_t i);
   void serverspritedeltasmouse(std::uint8_t i);
   void serverspritesnapshot(std::uint8_t r);

@@ -3,11 +3,10 @@
 #include "Sparks.hpp"
 
 #include <Tracy.hpp>
-#include <math.h>
+#include <cmath>
+#include <cstdint>
 #include <numbers>
 #include <set>
-#include <memory>
-#include <vector>
 
 #include "../../client/Client.hpp"
 #include "../../client/GameRendering.hpp"
@@ -16,19 +15,19 @@
 #include "../Cvar.hpp"
 #include "../Demo.hpp"
 #include "../Game.hpp"
-#include "common/Util.hpp"
-#include "common/gfx.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Parts.hpp"
 #include "common/PolyMap.hpp"
+#include "common/Util.hpp"
 #include "common/Vector.hpp"
+#include "common/gfx.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/RandomGenerator.hpp"
 #include "common/misc/SafeType.hpp"
+#include "common/misc/SoldatConfig.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
-#include "shared/network/Net.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 
 template <Config::Module M>
 auto GlobalStateSparks::GetSparkParts() -> particlesystem &
@@ -50,10 +49,10 @@ auto GlobalStateSparks::createspark(tvector2 spos, tvector2 svelocity, std::uint
 {
   ZoneScopedN("CreateSpark");
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
-  float m;
+  std::int32_t i = 0;
+  float m = NAN;
 
-  std::int32_t result;
+  std::int32_t result = 0;
   result = 0;
 
   if (gGlobalStateClient.camerafollowsprite > 0)
@@ -137,9 +136,9 @@ void tspark::update()
   static const std::set<std::int32_t> noneuler_style = {12, 13, 14, 15, 17, 24, 25, 28,
                                                       29, 31, 36, 37, 50, 54, 56, 60};
 
-  std::int32_t wobble;
-  std::int32_t wobblex;
-  std::int32_t wobbley;
+  std::int32_t wobble = 0;
+  std::int32_t wobblex = 0;
+  std::int32_t wobbley = 0;
 
   if (!(noneuler_style.contains(style)))
   {
@@ -170,7 +169,7 @@ void tspark::update()
         // ((Style <> 17) and (Life > EXPLOSION_ANIMS * 2.4)) then
         {
           wobble = life / 6;
-          wobblex = Random(2 * wobble + 1);
+          wobblex = Random((2 * wobble) + 1);
           wobbley = Random(2 * wobble);
           gGlobalStateClient.camerax = gGlobalStateClient.camerax - wobble + wobblex;
           gGlobalStateClient.cameray = gGlobalStateClient.cameray - wobble + wobbley;
@@ -232,8 +231,8 @@ void tspark::render() const
   tvector2 _p;
   tvector2 _scala;
   float grenvel = 0.0;
-  float l;
-  std::int32_t i;
+  float l = NAN;
+  std::int32_t i = 0;
   auto &map = GS::GetGame().GetMap();
 
   tgfxspritearray &t = gGlobalStateGameRendering.textures;
@@ -270,17 +269,17 @@ void tspark::render() const
     gfxdrawsprite(t[GFX::SPARKS_LILFIRE], _p.x, _p.y, rgba(0xffffff, l));
     break;
   case 3:
-    gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y, rgba(0xffffff, l * 3 + 10));
+    gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y, rgba(0xffffff, (l * 3) + 10));
     break;
   case 4:
     gfxdrawsprite(t[GFX::SPARKS_LILBLOOD], _p.x, _p.y, 0.75, 0.75, 0, 0, degtorad(l * 10),
-                  rgba(0xffffff, l * 2 + 65));
+                  rgba(0xffffff, (l * 2) + 65));
     break;
   case 5: {
-    _scala.x = iif(l > 10, 0.33 + (float)(10) / l, 1.0);
+    _scala.x = iif(l > 10, 0.33 + (static_cast<float>(10) / l), 1.0);
     _scala.y = _scala.x;
     gfxdrawsprite(t[GFX::SPARKS_BLOOD], _p.x, _p.y, _scala.x, _scala.y, 0, 0, degtorad(l * 2),
-                  rgba(0xffffff, l * 2 + 85));
+                  rgba(0xffffff, (l * 2) + 85));
   }
   break;
   case 6:
@@ -323,8 +322,8 @@ void tspark::render() const
   case 13: {
     _p.x = _p.x - 8;
     _p.y = _p.y - 17;
-    gfxdrawsprite(t[GFX::SPARKS_EXPLOSION_EXPLODE16 - (std::int32_t)round(l / 3)], _p.x, _p.y, 0.3,
-                  rgba(0xffffff, 255 - 2 * l));
+    gfxdrawsprite(t[GFX::SPARKS_EXPLOSION_EXPLODE16 - static_cast<std::int32_t>(round(l / 3))],
+                  _p.x, _p.y, 0.3, rgba(0xffffff, 255 - (2 * l)));
   }
   break;
   case 14: {
@@ -338,7 +337,7 @@ void tspark::render() const
       gfxdrawsprite(t[i - 1], _p.x, _p.y, 2, rgba(0xadadad, 100));
     }
 
-    gfxdrawsprite(t[i], _p.x, _p.y, 2, rgba(0xffffff, 255 - 2 * l));
+    gfxdrawsprite(t[i], _p.x, _p.y, 2, rgba(0xffffff, 255 - (2 * l)));
   }
   break;
   case 15: {
@@ -352,7 +351,7 @@ void tspark::render() const
       gfxdrawsprite(t[i - 1], _p.x, _p.y, 3, rgba(0xadadad, 100));
     }
 
-    gfxdrawsprite(t[i], _p.x, _p.y, 3, rgba(0xffffff, 255 - 2 * l));
+    gfxdrawsprite(t[i], _p.x, _p.y, 3, rgba(0xffffff, 255 - (2 * l)));
   }
   break;
   case 16:
@@ -391,10 +390,10 @@ void tspark::render() const
     gfxdrawsprite(t[GFX::WEAPONS_SOCOM_CLIP], _p.x + 8, _p.y, 0, 0, pi);
     break;
   case 24: {
-    _scala.x = 0.6 + ((float)(75) / l) / 126;
-    _scala.y = 0.6 + ((float)(75) / l) / 120;
-    _p.x = _p.x - 22 * _scala.x;
-    _p.y = _p.y - 64 + l / 2;
+    _scala.x = 0.6 + ((static_cast<float>(75) / l) / 126);
+    _scala.y = 0.6 + ((static_cast<float>(75) / l) / 120);
+    _p.x = _p.x - (22 * _scala.x);
+    _p.y = _p.y - 64 + (l / 2);
     gfxdrawsprite(t[GFX::SPARKS_BIGSMOKE], _p.x, _p.y, _scala.x, _scala.y,
                   rgba(0xffffff, trunc(3 * l)));
   }
@@ -404,20 +403,20 @@ void tspark::render() const
                   rgba(sprite_system.GetSprite(owner).player->shirtcolor, min(6.0 * l, 255.0)));
     break;
   case 26:
-    gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y, rgba(0xfffe35, min(l * 3 + 154.0, 255.0)));
+    gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y, rgba(0xfffe35, min((l * 3) + 154.0, 255.0)));
     break;
   case 27:
-    gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y, rgba(0xaaaaaa, min(l * 3.0 + 154, 255.0)));
+    gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y, rgba(0xaaaaaa, min((l * 3.0) + 154, 255.0)));
     break;
   case 28:
-    gfxdrawsprite(t[GFX::SPARKS_EXPLOSION_EXPLODE16 - (std::int32_t)round(l / 3)], _p.x - 15,
-                  _p.y - 37, 0.5, rgba(0xffffff, 255 - 2 * l));
+    gfxdrawsprite(t[GFX::SPARKS_EXPLOSION_EXPLODE16 - static_cast<std::int32_t>(round(l / 3))],
+                  _p.x - 15, _p.y - 37, 0.5, rgba(0xffffff, 255 - (2 * l)));
     break;
   case 29: {
-    _scala.x = 0.5 * (0.6 + ((float)(75) / l) / 96);
-    _scala.y = 0.5 * (0.6 + ((float)(75) / l) / 90);
-    _p.x = _p.x - 22 * _scala.x;
-    _p.y = _p.y - 48 + l / 1.5;
+    _scala.x = 0.5 * (0.6 + (static_cast<float>(75) / l) / 96);
+    _scala.y = 0.5 * (0.6 + (static_cast<float>(75) / l) / 90);
+    _p.x = _p.x - (22 * _scala.x);
+    _p.y = _p.y - 48 + (l / 1.5);
     gfxdrawsprite(t[GFX::SPARKS_BIGSMOKE], _p.x, _p.y, _scala.x, _scala.y,
                   rgba(0xffffff, trunc(2.5 * l)));
   }
@@ -443,15 +442,15 @@ void tspark::render() const
   case 36: {
     _scala.x = l / 35;
     _scala.y = l / 35;
-    _p.y = _p.y - ((float)(1) / _scala.y);
+    _p.y = _p.y - (static_cast<float>(1) / _scala.y);
     gfxdrawsprite(t[GFX::SPARKS_PLOMYK], _p.x, _p.y, _scala.x, _scala.y,
-                  rgba(0xffffff, min(l * 2 + 185.0, 255.0)));
+                  rgba(0xffffff, min((l * 2) + 185.0, 255.0)));
   }
   break;
   case 37: {
     _scala.x = l / 75;
     _scala.y = l / 75;
-    _p.y = _p.y - ((float)(1) / _scala.y);
+    _p.y = _p.y - (static_cast<float>(1) / _scala.y);
     gfxdrawsprite(t[GFX::SPARKS_BLACKSMOKE], _p.x, _p.y, _scala.x, _scala.y, rgba(0xffffff, l * 3));
   }
   break;
@@ -519,39 +518,39 @@ void tspark::render() const
 
       if ((i - 1) >= GFX::SPARKS_EXPLOSION_SMOKE1)
       {
-        gfxdrawsprite(t[i - 1], _p.x, _p.y, rgba(0xcccccc, 2 * l + 10.0));
+        gfxdrawsprite(t[i - 1], _p.x, _p.y, rgba(0xcccccc, (2 * l) + 10.0));
       }
 
-      gfxdrawsprite(t[i], _p.x, _p.y, rgba(0xdddddd, 3 * l + 10));
+      gfxdrawsprite(t[i], _p.x, _p.y, rgba(0xdddddd, (3 * l) + 10));
     }
     break;
   case 55: {
-    _scala.x = iif(l > 20, 0.63 + (float)(10) / l, 1.0);
+    _scala.x = iif(l > 20, 0.63 + (static_cast<float>(10) / l), 1.0);
     _scala.y = _scala.x;
     gfxdrawsprite(t[GFX::SPARKS_SPLAT], _p.x, _p.y, _scala.x, _scala.y, 0, 0, degtorad(l),
-                  rgba(0xffffff, min(l * 2 + 55.0, 255.0)));
+                  rgba(0xffffff, min((l * 2) + 55.0, 255.0)));
   }
   break;
   case 56:
     gfxdrawsprite(t[GFX::SPARKS_MINISMOKE], _p.x - 3, _p.y - 3, rgba(0xffffff, trunc(2.5 * l)));
     break;
   case 57:
-    gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y, rgba(0xffff00, l * 2 + 10));
+    gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y, rgba(0xffff00, (l * 2) + 10));
     break;
   case 58:
-    gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y, rgba(0xffff00, l * 3 + 10));
+    gfxdrawsprite(t[GFX::SPARKS_ODPRYSK], _p.x, _p.y, rgba(0xffff00, (l * 3) + 10));
     break;
   case 59: {
     _p.y = _p.y - (50 - l);
-    _scala.x = 1.5 + ((float)(620) / l) / 50;
+    _scala.x = 1.5 + ((static_cast<float>(620) / l) / 50);
     _scala.y = _scala.x;
     gfxdrawsprite(t[GFX::SPARKS_SMOKE], _p.x, _p.y, _scala.x, _scala.y, rgba(0xffffff, l * 2));
   }
   break;
   case 60: {
-    _scala.x = 0.5 + ((float)(16) / (l + 50));
+    _scala.x = 0.5 + (static_cast<float>(16) / (l + 50));
     _scala.y = _scala.x;
-    _p.x = _p.x - 14 * _scala.x;
+    _p.x = _p.x - (14 * _scala.x);
     _p.y = _p.y - 30;
     gfxdrawsprite(t[GFX::SPARKS_BIGSMOKE], _p.x, _p.y, _scala.x, _scala.y,
                   rgba(0xffffff, trunc(l / 3.3)));
@@ -559,7 +558,7 @@ void tspark::render() const
     if (l > 30)
     {
       gfxdrawsprite(t[GFX::SPARKS_BIGSMOKE2], _p.x, _p.y, _scala.x, _scala.y,
-                    rgba(0x666666, trunc((float)((255 - l)) / 9)));
+                    rgba(0x666666, trunc(((255 - l)) / 9)));
     }
     else
     {
@@ -579,9 +578,9 @@ void tspark::render() const
   case 64: {
     _scala.x = l / 35;
     _scala.y = l / 35;
-    _p.y = _p.y - ((float)(1) / _scala.y);
+    _p.y = _p.y - (static_cast<float>(1) / _scala.y);
     gfxdrawsprite(t[GFX::SPARKS_PLOMYK], _p.x, _p.y, _scala.x, _scala.y,
-                  rgba(0xffffff, l * 2 + 185));
+                  rgba(0xffffff, (l * 2) + 185));
   }
   break;
   case 65:
@@ -622,9 +621,9 @@ auto tspark::checkmapcollision(float x, float y) -> bool
   tvector2 pos;
   tvector2 perp;
   float d = 0.0;
-  bool teamcol;
+  bool teamcol = false;
 
-  bool result;
+  bool result = false;
   result = false;
 
   pos.x = x - 8;
@@ -675,7 +674,7 @@ auto tspark::checkmapcollision(float x, float y) -> bool
             case 2:
             case 62: {
               vec2scale(perp, perp, 2.5);
-              perp.x = perp.x - 0.5 + (float)(Random(11)) / 10;
+              perp.x = perp.x - 0.5 + (static_cast<float>(Random(11)) / 10);
               perp.y = -perp.y;
               if (Random(2) == 0)
               {
@@ -696,7 +695,7 @@ auto tspark::checkmapcollision(float x, float y) -> bool
             case 33:
             case 34: {
               vec2scale(perp, perp, 2.5);
-              perp.x = perp.x - 0.5 + (float)(Random(11)) / 10;
+              perp.x = perp.x - 0.5 + (static_cast<float>(Random(11)) / 10);
               perp.y = -perp.y;
               if (Random(7) == 0)
               {
@@ -806,7 +805,7 @@ auto tspark::checkmapcollision(float x, float y) -> bool
             break;
             case 57: {
               vec2scale(perp, perp, 0.75);
-              perp.x = perp.x - 0.5 + (float)(Random(11)) / 10;
+              perp.x = perp.x - 0.5 + (static_cast<float>(Random(11)) / 10);
               perp.y = -perp.y;
               if (Random(2) == 0)
               {
@@ -844,8 +843,8 @@ void tspark::kill()
 
 void tspark::checkoutofbounds()
 {
-  std::int32_t bound;
-  tvector2 *sparkpartspos;
+  std::int32_t bound = 0;
+  tvector2 *sparkpartspos = nullptr;
   auto &map = GS::GetGame().GetMap();
 
   bound = map.sectorsnum * map.GetSectorsDivision() - 10;

@@ -61,10 +61,10 @@ public:
 
 private:
   WeaponSystem(const WeaponSystem &) = delete;
-  PascalArray<std::uint8_t, 1, main_weapons> WeaponActive;
+  PascalArray<std::uint8_t, 1, main_weapons> WeaponActive{};
   std::uint32_t WeaponsInGame = {0};
-  std::uint64_t LoadedWMChecksum;
-  std::uint64_t DefaultWMChecksum;
+  std::uint64_t LoadedWMChecksum{};
+  std::uint64_t DefaultWMChecksum{};
   GunsDescription Guns;
   GunsDescription DefaultGuns;
 };

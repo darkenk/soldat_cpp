@@ -2,32 +2,32 @@
 
 #include "NetworkServerFunctions.hpp"
 
+#include <algorithm>
 #include <array>
-#include <memory>
+#include <cstdint>
+#include <string>
 
 #include "NetworkServer.hpp"
 #include "NetworkUtils.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/misc/GlobalSystems.hpp"
 #include "common/Util.hpp"
 #include "common/Vector.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/Weapons.hpp"
 #include "common/misc/SafeType.hpp"
-#include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
 
-void serversendfreecam(std::uint8_t tonum, bool freecam, tvector2 pos)
+static void serversendfreecam(std::uint8_t tonum, bool freecam, tvector2 pos)
 {
   auto &sprite_system = SpriteSystem::Get();
   tmsg_clientfreecam freecammsg;
 
   freecammsg.header.id = msgid_clientfreecam;
-  freecammsg.freecamon = (std::uint8_t)(freecam);
+  freecammsg.freecamon = static_cast<std::uint8_t>(freecam);
   freecammsg.targetpos = pos;
 
   gGlobalStateNetworkServer.GetServerNetwork()->SendData(
@@ -37,7 +37,7 @@ void serversendfreecam(std::uint8_t tonum, bool freecam, tvector2 pos)
 void setweaponactive(std::uint8_t id, std::uint8_t weaponnum, bool state)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_weaponactivemessage wepmsg;
+  tmsg_weaponactivemessage wepmsg{};
 
   wepmsg.header.id = msgid_weaponactivemessage;
   wepmsg.weapon = weaponnum;
@@ -66,21 +66,15 @@ void forceweapon(std::uint8_t id, std::uint8_t primary, std::uint8_t secondary, 
                  std::uint8_t secammo)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_forceweapon wepmsg;
+  tmsg_forceweapon wepmsg{};
 
   sprite_system.GetSprite(id).applyweaponbynum(primary, 1);
   sprite_system.GetSprite(id).applyweaponbynum(secondary, 2);
   auto &guns = GS::GetWeaponSystem().GetGuns();
 
-  if (ammo > guns[weaponnumtoindex(primary, guns)].ammo)
-  {
-    ammo = guns[weaponnumtoindex(primary, guns)].ammo;
-  }
+  ammo = std::min(ammo, guns[weaponnumtoindex(primary, guns)].ammo);
 
-  if (secammo > guns[weaponnumtoindex(secondary, guns)].ammo)
-  {
-    secammo = guns[weaponnumtoindex(secondary, guns)].ammo;
-  }
+  secammo = std::min(secammo, guns[weaponnumtoindex(secondary, guns)].ammo);
 
   sprite_system.GetSprite(id).weapon.ammo = ammo;
   sprite_system.GetSprite(id).secondaryweapon.ammo = secammo;
@@ -166,11 +160,11 @@ void modifyplayervelocity(const std::uint8_t id, float velx, float vely)
   }
 }
 
-void forwardclient(std::uint8_t id, const std::string &targetip, std::int32_t targetport,
+void forwardclient(std::uint8_t id, const std::string & /*targetip*/, std::int32_t targetport,
                    const std::string &showmsg)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_joinserver joinservermsg;
+  tmsg_joinserver joinservermsg{};
 
   joinservermsg.header.id = msgid_joinserver;
   joinservermsg.port = targetport;
@@ -221,17 +215,18 @@ void playsound(std::uint8_t id, const std::string &name, float x, float y)
   }
 }
 
-void serverhandleclientfreecam(tmsgheader* netmessage, std::int32_t size, NetworkServer& network, TServerPlayer* player)
+void serverhandleclientfreecam(tmsgheader *netmessage, std::int32_t size,
+                               NetworkServer & /*network*/, TServerPlayer *player)
 {
   auto &sprite_system = SpriteSystem::Get();
-  tmsg_clientfreecam *freecammsg;
-  std::int32_t i;
+  tmsg_clientfreecam *freecammsg = nullptr;
+  std::int32_t i = 0;
 
   if (!verifypacket(sizeof(tmsg_clientfreecam), size, msgid_clientfreecam))
   {
     return;
   }
-  freecammsg = pmsg_clientfreecam(netmessage);
+  freecammsg = reinterpret_cast<pmsg_clientfreecam>(netmessage);
   i = player->spritenum;
   sprite_system.GetSprite(i).targetx = freecammsg->targetpos.x;
   sprite_system.GetSprite(i).targety = freecammsg->targetpos.y;
