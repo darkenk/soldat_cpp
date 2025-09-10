@@ -4,24 +4,24 @@
 
 #include "Client.hpp"
 
-#include <Tracy.hpp>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_messagebox.h>
 #include <SDL3/SDL_video.h>
-#include <math.h>
-#include <spdlog/fmt/bundled/core.h>
-#include <spdlog/fmt/bundled/format.h>
-#include <thread>
-#include <sstream>
+#include <Tracy.hpp>
 #include <algorithm>
+#include <array>
 #include <chrono>
+#include <cmath>
 #include <cstddef>
-#include <iterator>
+#include <cstdint>
+#include <ios>
 #include <memory>
 #include <new>
-#include <ratio>
+#include <spdlog/fmt/bundled/core.h>
+#include <sstream>
+#include <string>
+#include <thread>
 #include <utility>
-#include <vector>
 
 #include "ClientCommands.hpp"
 #include "ClientGame.hpp"
@@ -33,34 +33,32 @@
 #include "Sound.hpp"
 #include "common/FileUtility.hpp"
 #include "common/GameStrings.hpp"
-#include "common/Logging.hpp"
-#include "common/misc/PortUtils.hpp"
-#include "common/misc/PortUtilsSoldat.hpp"
-#include "common/misc/SHA1Helper.hpp"
-#include "common/misc/TFileStream.hpp"
-#include "common/misc/TIniFile.hpp"
-#include "common/port_utils/NotImplemented.hpp"
 #include "common/LogFile.hpp"
-#include "shared/Command.hpp"
-#include "shared/Cvar.hpp"
-#include "shared/Demo.hpp"
-#include "shared/Game.hpp"
-#include "shared/mechanics/SpriteSystem.hpp"
-#include "shared/mechanics/Sprites.hpp"
-#include "shared/misc/GlobalSystems.hpp"
-#include "shared/network/NetworkClient.hpp"
-#include "shared/network/NetworkClientConnection.hpp"
+#include "common/Logging.hpp"
 #include "common/PolyMap.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/Weapons.hpp"
+#include "common/misc/PortUtils.hpp"
+#include "common/misc/PortUtilsSoldat.hpp"
+#include "common/misc/SHA1Helper.hpp"
 #include "common/misc/SafeType.hpp"
 #include "common/misc/SoldatConfig.hpp"
-#include "common/network/Net.hpp"
-#include "common/port_utils/Utilities.hpp"
+#include "common/misc/TFileStream.hpp"
+#include "common/misc/TIniFile.hpp"
+#include "common/port_utils/NotImplemented.hpp"
 #include "shared/AnimationSystem.hpp"
+#include "shared/Command.hpp"
 #include "shared/Constants.cpp.h"
+#include "shared/Cvar.hpp"
+#include "shared/Demo.hpp"
+#include "shared/Game.hpp"
 #include "shared/mechanics/Sparks.hpp"
+#include "shared/mechanics/SpriteSystem.hpp"
+#include "shared/mechanics/Sprites.hpp"
+#include "shared/misc/GlobalSystems.hpp"
 #include "shared/network/Net.hpp"
+#include "shared/network/NetworkClient.hpp"
+#include "shared/network/NetworkClientConnection.hpp"
 
 auto GlobalStateClient::InitBigConsole(FileUtility *filesystem, const std::int32_t newMessageWait,
                                        const std::int32_t countMax,
@@ -111,7 +109,7 @@ void GlobalStateClient::restartgraph()
 void GlobalStateClient::loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
 {
   SoldatAssert(gunDisplayName.size() == double_weapons);
-  std::int32_t i;
+  std::int32_t i = 0;
 
   const std::string weaponNamesFile = modDir + "txt/weaponnames.txt";
 
@@ -145,9 +143,9 @@ void GlobalStateClient::loadweaponnames(FileUtility& fs, GunArray& gunDisplayNam
 
 void GlobalStateClient::redirectdialog()
 {
-  std::array<SDL_MessageBoxButtonData, 2> buttons;
+  std::array<SDL_MessageBoxButtonData, 2> buttons{};
   SDL_MessageBoxData data;
-  std::int32_t response;
+  std::int32_t response = 0;
 
   gGlobalStateGameRendering.rendergameinfo("Server Redirect");
   buttons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
@@ -168,7 +166,7 @@ void GlobalStateClient::redirectdialog()
   data.buttons = &buttons.at(0);
   data.colorScheme = nullptr;
 
-  if (SDL_ShowMessageBox(&data, &response) != 0)
+  if (static_cast<int>(SDL_ShowMessageBox(&data, &response)) != 0)
   {
     return;
   }
@@ -193,7 +191,7 @@ void GlobalStateClient::redirectdialog()
 void GlobalStateClient::exittomenu()
 {
   auto &sprite_system = SpriteSystem::Get();
-  std::int32_t i;
+  std::int32_t i = 0;
 
   GS::GetGame().ResetGoalTicks();
 
@@ -239,7 +237,7 @@ void GlobalStateClient::exittomenu()
 
   auto &activeSprites = sprite_system.GetActiveSprites();
 
-  std::for_each(std::begin(activeSprites), std::end(activeSprites),
+  std::ranges::for_each(activeSprites,
                 [](auto &sprite) { sprite.kill(); });
   GS::GetBulletSystem().KillAll();
   for (i = 1; i <= max_sparks; i++)
@@ -338,7 +336,7 @@ auto GlobalStateClient::MountAssets(FileUtility &fu, const std::string &userdire
   return true;
 }
 
-// TODO: throw away test variable
+// TODO(vscode): throw away test variable
 void GlobalStateClient::InitConsoles(bool test)
 {
   // Create Consoles
@@ -407,7 +405,7 @@ void GlobalStateClient::startgame(int argc, char *argv[])
   // todo this variable is needed when code is refactored
   const std::string systemfallbacklang = "en_US"; // NOLINT
 
-  // TODO remove HWIDs, replace by Fae auth tickets
+  // TODO(vscode): remove HWIDs, replace by Fae auth tickets
   hwid = "00000000000";
 
   LogDebugG("[FS] Initializing system");
@@ -431,7 +429,7 @@ void GlobalStateClient::startgame(int argc, char *argv[])
   gGlobalStateClientGame.renderwidth = CVar::r_renderwidth;
 
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-  SDL_DisplayID display = SDL_GetPrimaryDisplay();
+  SDL_DisplayID const display = SDL_GetPrimaryDisplay();
   const SDL_DisplayMode* currentdisplay = SDL_GetCurrentDisplayMode(display);
 
   if ((gGlobalStateClientGame.screenwidth == 0) || (gGlobalStateClientGame.screenheight == 0))
@@ -447,39 +445,44 @@ void GlobalStateClient::startgame(int argc, char *argv[])
   }
 
   // Calculcate FOV to check for too high/low vision
-  float fov = (float)(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight;
+  float fov =
+    static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight;
   if (fov > max_fov)
   {
-    gGlobalStateClientGame.renderwidth = ceil(gGlobalStateClientGame.renderheight * max_fov);
+    gGlobalStateClientGame.renderwidth = std::ceil(gGlobalStateClientGame.renderheight * max_fov);
     fov = max_fov;
   }
   else if (fov < min_fov)
   {
     gGlobalStateClientGame.renderheight =
-      ceil((float)(gGlobalStateClientGame.renderwidth) / min_fov);
+      std::ceil(static_cast<float>(gGlobalStateClientGame.renderwidth) / min_fov);
     fov = min_fov;
   }
 
   // Calulcate internal game width based on the fov and internal height
-  gGlobalStateGame.gamewidth = round(fov * gGlobalStateGame.gameheight);
-  gGlobalStateGame.gamewidthhalf = (float)(gGlobalStateGame.gamewidth) / 2;
-  gGlobalStateGame.gameheighthalf = (float)(gGlobalStateGame.gameheight) / 2;
+  gGlobalStateGame.gamewidth = std::round(fov * gGlobalStateGame.gameheight);
+  gGlobalStateGame.gamewidthhalf = static_cast<float>(gGlobalStateGame.gamewidth) / 2;
+  gGlobalStateGame.gameheighthalf = static_cast<float>(gGlobalStateGame.gameheight) / 2;
 
   if (CVar::r_fullscreen == 0)
   {
     // avoid black bars in windowed mode
-    if (((float)(gGlobalStateClientGame.screenwidth) / gGlobalStateClientGame.screenheight) >=
-        ((float)(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight))
+    if ((static_cast<float>(gGlobalStateClientGame.screenwidth) /
+         gGlobalStateClientGame.screenheight) >=
+        (static_cast<float>(gGlobalStateClientGame.renderwidth) /
+         gGlobalStateClientGame.renderheight))
     {
       gGlobalStateClientGame.screenwidth =
-        round(gGlobalStateClientGame.screenheight *
-              ((float)(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight));
+        std::round(gGlobalStateClientGame.screenheight *
+                   (static_cast<float>(gGlobalStateClientGame.renderwidth) /
+                    gGlobalStateClientGame.renderheight));
     }
     else
     {
       gGlobalStateClientGame.screenheight =
-        round(gGlobalStateClientGame.screenwidth *
-              ((float)(gGlobalStateClientGame.renderheight) / gGlobalStateClientGame.renderwidth));
+        std::round(gGlobalStateClientGame.screenwidth *
+                   (static_cast<float>(gGlobalStateClientGame.renderheight) /
+                    gGlobalStateClientGame.renderwidth));
     }
   }
 
@@ -511,23 +514,26 @@ void GlobalStateClient::startgame(int argc, char *argv[])
     gGlobalStateInterfaceGraphics._rscala.x = 1;
     gGlobalStateInterfaceGraphics._rscala.y = 1;
 
-    gGlobalStateInterfaceGraphics._iscala.x = (float)(gGlobalStateGame.gamewidth) / default_width;
+    gGlobalStateInterfaceGraphics._iscala.x =
+      static_cast<float>(gGlobalStateGame.gamewidth) / default_width;
     gGlobalStateInterfaceGraphics._iscala.y = 1;
 
-    gGlobalStateInterfaceGraphics.fragx = floor(gGlobalStateGame.gamewidthhalf - 300) - 25;
+    gGlobalStateInterfaceGraphics.fragx = std::floor(gGlobalStateGame.gamewidthhalf - 300) - 25;
   }
   else
   {
     gGlobalStateInterfaceGraphics._rscala.x =
-      (float)(gGlobalStateClientGame.renderwidth) / gGlobalStateGame.gamewidth;
+      static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateGame.gamewidth;
     gGlobalStateInterfaceGraphics._rscala.y =
-      (float)(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight;
+      static_cast<float>(gGlobalStateClientGame.renderheight) / gGlobalStateGame.gameheight;
 
-    gGlobalStateInterfaceGraphics._iscala.x = (float)(gGlobalStateClientGame.renderwidth) / 640;
-    gGlobalStateInterfaceGraphics._iscala.y = (float)(gGlobalStateClientGame.renderheight) / 480;
+    gGlobalStateInterfaceGraphics._iscala.x =
+      static_cast<float>(gGlobalStateClientGame.renderwidth) / 640;
+    gGlobalStateInterfaceGraphics._iscala.y =
+      static_cast<float>(gGlobalStateClientGame.renderheight) / 480;
 
     gGlobalStateInterfaceGraphics.fragx =
-      floor((float)(gGlobalStateClientGame.renderwidth) / 2 - 300) - 25;
+      std::floor((static_cast<float>(gGlobalStateClientGame.renderwidth) / 2) - 300) - 25;
 
     if (gGlobalStateClientGame.renderheight > gGlobalStateGame.gameheight)
     {
@@ -716,7 +722,7 @@ bool GlobalStateClient::mainloop()
       break;
   }
   auto end = std::chrono::system_clock::now();
-  constexpr auto frameTime = std::chrono::seconds(1) / 60.f;
+  constexpr auto frameTime = std::chrono::seconds(1) / 60.F;
   {
     ZoneScopedN("WaitingForNextFrame");
     std::this_thread::sleep_for(frameTime - (end - begin));
@@ -873,7 +879,7 @@ TEST_SUITE("Client")
     testDir = FileUtility::GetPrefPath("mount_test", true);
     {
       std::ofstream s(testDir + "/soldat.smod", std::ios_base::binary | std::ios_base::trunc);
-      s.write((char*)soldat_smod, soldat_smod_len);
+      s.write(reinterpret_cast<char *>(soldat_smod), soldat_smod_len);
     }
     tsha1digest customMod;
     tsha1digest mod;

@@ -271,7 +271,7 @@ public:
 private:
   const std::uint8_t Id;
 
-  [[nodiscard]] auto GetId() const -> std::remove_const<decltype(Id)>::type
+  [[nodiscard]] auto GetId() const -> std::remove_const_t<decltype(Id)>
   {
     return Id;
   }

@@ -36,11 +36,16 @@ public:
     class Iterator
     {
     public:
-      using iterator_category = std::forward_iterator_tag;
+      using iterator_category = std::input_iterator_tag;
       using difference_type = std::ptrdiff_t;
       using value_type = TSprite;
       using pointer = TSprite *;
       using reference = TSprite &;
+
+      Iterator(): Iter{}, End{}
+      {
+        // Default constructor for ranges compatibility
+      }
 
       Iterator &operator++()
       {
@@ -49,6 +54,12 @@ public:
           Iter++;
         } while (Iter != End && !(*Iter).IsActive());
         return *this;
+      }
+      Iterator operator++(int)
+      {
+        Iterator tmp = *this;
+        ++(*this);
+        return tmp;
       }
       friend bool operator==(const Iterator &a, const Iterator &b)
       {
@@ -96,7 +107,7 @@ public:
 
   auto CreateSprite(const SpriteId reuseSpriteId = SpriteId::Invalid()) -> TSprite &;
 
-  auto GetSprite(const SpriteId id) -> TSprite &;
+  auto GetSprite(const SpriteId &id) -> TSprite &;
 
   std::vector<TSprite> &GetSprites()
   {
@@ -163,7 +174,7 @@ private:
   std::vector<TSprite> Sprites;
   TActiveSprites ActiveSprites;
   particlesystem spriteparts;
-  std::uint8_t mysprite;
+  std::uint8_t mysprite{};
 
   friend GlobalSubsystem<TSpriteSystem>;
 };

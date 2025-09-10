@@ -1,4 +1,6 @@
 #include "SpriteSystem.hpp"
+#include "common/Vector.hpp"
+#include <cstdint>
 
 template <class TSprite>
 TSpriteSystem<TSprite>::TSpriteSystem() : ActiveSprites(Sprites)
@@ -32,7 +34,7 @@ auto TSpriteSystem<TSprite>::CreateSprite(const SpriteId reuseSpriteId) -> TSpri
 }
 
 template <class TSprite>
-auto TSpriteSystem<TSprite>::GetSprite(const SpriteId id) -> TSprite &
+auto TSpriteSystem<TSprite>::GetSprite(const SpriteId &id) -> TSprite &
 {
   return Sprites[id.GetId() - 1];
 }
@@ -76,11 +78,8 @@ template class TSpriteSystem<>;
 #include <doctest/doctest.h>
 #include <algorithm>
 #include <cstdlib>
-#include <initializer_list>
-#include <new>
 
 #include "common/port_utils/NotImplemented.hpp"
-#include "common/port_utils/Utilities.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/mechanics/Sprites.hpp"
 
