@@ -129,20 +129,20 @@ void GlobalStateClient::loadweaponnames(FileUtility& fs, GunArray& gunDisplayNam
 	{
 		return;
 	}
-	std::unique_ptr<std::byte[]> buff;
+	std::vector<std::byte> buff;
 	std::size_t fileSize = 0;
 	{
 		auto* f = fs.Open(weaponNamesFile, FileUtility::FileMode::Read);
 		fileSize = FileUtility::Size(f);
-		buff = std::make_unique<std::byte[]>(fileSize);
-		FileUtility::Read(f, buff.get(), fileSize);
+		buff.resize(fileSize);
+		FileUtility::Read(f, buff.data(), fileSize);
 		FileUtility::Close(f);
 	}
 #if __EMSCRIPTEN__
-	std::istringstream sd(std::string(reinterpret_cast<char*>(buff.get()), fileSize));
+	std::istringstream sd(std::string(reinterpret_cast<char*>(buff.data()), fileSize));
 #else
 	std::istringstream sd;
-	sd.rdbuf()->pubsetbuf(reinterpret_cast<char*>(buff.get()), fileSize);
+	sd.rdbuf()->pubsetbuf(reinterpret_cast<char*>(buff.data()), fileSize);
 #endif
 	for (i = 0; i < double_weapons; i++)
 	{
@@ -199,7 +199,7 @@ void GlobalStateClient::redirectdialog()
 
 void GlobalStateClient::exittomenu()
 {
-	auto& sprite_system = SpriteSystem::Get();
+	auto& spriteSystem = SpriteSystem::Get();
 	std::int32_t i = 0;
 
 	GS::GetGame().ResetGoalTicks();
@@ -220,7 +220,7 @@ void GlobalStateClient::exittomenu()
 		gGlobalStateDemo.demoplayer.stopdemo();
 	}
 
-	if (sprite_system.IsPlayerSpriteValid())
+	if (spriteSystem.IsPlayerSpriteValid())
 	{
 		clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
 	}
@@ -244,7 +244,7 @@ void GlobalStateClient::exittomenu()
 	GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 	// WindowReady := False;
 
-	auto& activeSprites = sprite_system.GetActiveSprites();
+	auto& activeSprites = spriteSystem.GetActiveSprites();
 
 	std::ranges::for_each(activeSprites,
 		[](auto& sprite)
@@ -259,25 +259,23 @@ void GlobalStateClient::exittomenu()
 	GS::GetThingSystem().KillAll();
 
 	// Reset World and Big Texts
-	for (i = 0; i < max_big_messages; i++)
-	{
-		// Big Text
-		gGlobalStateInterfaceGraphics.bigtext[i] = "";
-		gGlobalStateInterfaceGraphics.bigdelay[i] = 0;
-		gGlobalStateInterfaceGraphics.bigscale[i] = 0;
-		gGlobalStateInterfaceGraphics.bigcolor[i] = 0;
-		gGlobalStateInterfaceGraphics.bigposx[i] = 0;
-		gGlobalStateInterfaceGraphics.bigposy[i] = 0;
-		gGlobalStateInterfaceGraphics.bigx[i] = 0;
-		// World Text
-		gGlobalStateInterfaceGraphics.worldtext[i] = "";
-		gGlobalStateInterfaceGraphics.worlddelay[i] = 0;
-		gGlobalStateInterfaceGraphics.worldscale[i] = 0;
-		gGlobalStateInterfaceGraphics.worldcolor[i] = 0;
-		gGlobalStateInterfaceGraphics.worldposx[i] = 0;
-		gGlobalStateInterfaceGraphics.worldposy[i] = 0;
-		gGlobalStateInterfaceGraphics.worldx[i] = 0;
-	}
+
+	// Big Text
+	std::ranges::fill(gGlobalStateInterfaceGraphics.bigtext, "");
+	std::ranges::fill(gGlobalStateInterfaceGraphics.bigdelay, 0);
+	std::ranges::fill(gGlobalStateInterfaceGraphics.bigscale, 0);
+	std::ranges::fill(gGlobalStateInterfaceGraphics.bigcolor, 0);
+	std::ranges::fill(gGlobalStateInterfaceGraphics.bigposx, 0);
+	std::ranges::fill(gGlobalStateInterfaceGraphics.bigposy, 0);
+	std::ranges::fill(gGlobalStateInterfaceGraphics.bigx, 0);
+	// World Text
+	std::ranges::fill(gGlobalStateInterfaceGraphics.worldtext, "");
+	std::ranges::fill(gGlobalStateInterfaceGraphics.worlddelay, 0);
+	std::ranges::fill(gGlobalStateInterfaceGraphics.worldscale, 0);
+	std::ranges::fill(gGlobalStateInterfaceGraphics.worldcolor, 0);
+	std::ranges::fill(gGlobalStateInterfaceGraphics.worldposx, 0);
+	std::ranges::fill(gGlobalStateInterfaceGraphics.worldposy, 0);
+	std::ranges::fill(gGlobalStateInterfaceGraphics.worldx, 0);
 
 	// Reset ABOVE CHAT MESSAGE
 	for (i = 1; i < max_sprites; i++)
@@ -818,7 +816,7 @@ namespace
 		ClientFixture(const ClientFixture&) = delete;
 
 	protected:
-		void t()
+		void T()
 		{
 			FileUtility fu;
 			fu.Mount("tmpfs.memory", "/user");
@@ -1284,11 +1282,11 @@ namespace
 		TEST_CASE_FIXTURE(ClientFixture, "Test console initialization")
 		{
 			GlobalSystems<Config::CLIENT_MODULE>::Init();
-			auto prev_y = gGlobalStateInterfaceGraphics._rscala.y;
+			auto prevY = gGlobalStateInterfaceGraphics._rscala.y;
 			gGlobalStateInterfaceGraphics._rscala.y = 1;
 			GlobalStateClient gsc;
 			gsc.InitConsoles(true);
-			gGlobalStateInterfaceGraphics._rscala.y = prev_y;
+			gGlobalStateInterfaceGraphics._rscala.y = prevY;
 			const auto& console = GS::GetMainConsole();
 			// CHECK_EQ(0, console.countmax);
 			// CHECK_EQ(150, console.scrolltickmax);

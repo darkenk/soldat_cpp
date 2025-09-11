@@ -29,28 +29,28 @@ namespace
 {
 	auto LOG = "fs";
 
-	struct PHYSFS_IoMemory
+	struct FPhysfsIoMemory
 	{
 		using FileContent = std::vector<std::byte>;
 
-		static auto GetThis(PHYSFS_Io* io) -> PHYSFS_IoMemory*
+		static auto GetThis(PHYSFS_Io* io) -> FPhysfsIoMemory*
 		{
-			return reinterpret_cast<PHYSFS_IoMemory*>(io->opaque);
+			return reinterpret_cast<FPhysfsIoMemory*>(io->opaque);
 		}
 
 		static auto Create(const std::string& nodeName, FileContent* content = nullptr) -> PHYSFS_Io*
 		{
 			auto* io = new PHYSFS_Io();
 			io->version = 0;
-			io->opaque = new PHYSFS_IoMemory(nodeName, content);
-			io->read = PHYSFS_IoMemory::Read;
-			io->write = PHYSFS_IoMemory::Write;
-			io->seek = PHYSFS_IoMemory::Seek;
-			io->tell = PHYSFS_IoMemory::Tell;
-			io->length = PHYSFS_IoMemory::Length;
-			io->duplicate = PHYSFS_IoMemory::Duplicate;
-			io->flush = PHYSFS_IoMemory::Flush;
-			io->destroy = PHYSFS_IoMemory::Destroy;
+			io->opaque = new FPhysfsIoMemory(nodeName, content);
+			io->read = FPhysfsIoMemory::Read;
+			io->write = FPhysfsIoMemory::Write;
+			io->seek = FPhysfsIoMemory::Seek;
+			io->tell = FPhysfsIoMemory::Tell;
+			io->length = FPhysfsIoMemory::Length;
+			io->duplicate = FPhysfsIoMemory::Duplicate;
+			io->flush = FPhysfsIoMemory::Flush;
+			io->destroy = FPhysfsIoMemory::Destroy;
 			return io;
 		}
 
@@ -122,12 +122,11 @@ namespace
 
 	private:
 		std::size_t m_position = 0;
-		std::string m_nodeName;
+		std::string mNodeName;
 		FileContent* m_content = nullptr;
 		bool m_ownsContent = false;
 
-		PHYSFS_IoMemory(std::string nodeName, FileContent* content)
-			: m_nodeName(std::move(nodeName)), m_content(content)
+		FPhysfsIoMemory(std::string nodeName, FileContent* content) : mNodeName(std::move(nodeName)), m_content(content)
 		{
 			if (m_content == nullptr)
 			{
@@ -136,7 +135,7 @@ namespace
 			}
 		}
 
-		~PHYSFS_IoMemory()
+		~FPhysfsIoMemory()
 		{
 			if (m_ownsContent)
 			{
@@ -183,13 +182,13 @@ namespace
 			{
 				return nullptr;
 			}
-			return PHYSFS_IoMemory::Create(fnm, &f->second);
+			return FPhysfsIoMemory::Create(fnm, &f->second);
 		}
 
 		static auto OpenWrite(void* opaque, const char* filename) -> PHYSFS_Io*
 		{
 			auto* m = GetThis(opaque);
-			return PHYSFS_IoMemory::Create(filename, &m->m_files[filename]);
+			return FPhysfsIoMemory::Create(filename, &m->m_files[filename]);
 		}
 
 		static auto OpenAppend(void* /*opaque*/, const char* /*filename*/) -> PHYSFS_Io*
@@ -287,7 +286,7 @@ auto FileUtility::Mount(const std::string_view item, const std::string_view moun
 	if (item == "tmpfs.memory"sv)
 	{
 		const auto fname = ApplyRootPrefix(item);
-		auto* io = PHYSFS_IoMemory::Create(mp);
+		auto* io = FPhysfsIoMemory::Create(mp);
 		const auto e = PHYSFS_mountIo(io, fname.data(), mp.c_str(), 0);
 		SoldatAssert(e != 0);
 		return e != 0;
@@ -384,9 +383,9 @@ auto FileUtility::Copy(const std::string_view src, const std::string_view dst) -
 	auto* input = Open(src, FileMode::Read);
 	auto* output = Open(dst, FileMode::Write);
 	auto inputFileSize = Size(input);
-	auto buffer = std::make_unique<std::byte[]>(inputFileSize);
-	Read(input, buffer.get(), inputFileSize);
-	Write(output, buffer.get(), inputFileSize);
+	std::vector<std::byte> buffer(inputFileSize);
+	Read(input, buffer.data(), inputFileSize);
+	Write(output, buffer.data(), inputFileSize);
 	Close(output);
 	Close(input);
 	return true;
@@ -397,7 +396,7 @@ auto FileUtility::ReadFile(const std::string_view path) -> std::vector<std::uint
 	SoldatAssert(not path.empty());
 	LogDebug(LOG, "Loading file {}", path);
 	std::vector<std::uint8_t> result;
-	if (!Exists(path.data()))
+	if (!Exists(path))
 	{
 		LogWarn(LOG, "File does not exist {}", path);
 		return result;
@@ -451,7 +450,10 @@ namespace
 	public:
 		FileUtilityFixture() = default;
 		~FileUtilityFixture() = default;
+		FileUtilityFixture& operator=(const FileUtilityFixture&) = delete;
+		FileUtilityFixture&& operator=(const FileUtilityFixture&&) = delete;
 		FileUtilityFixture(const FileUtilityFixture&) = delete;
+		FileUtilityFixture(const FileUtilityFixture&&) = delete;
 	};
 
 	TEST_SUITE("FileUtility")
@@ -461,23 +463,19 @@ namespace
 		{
 			FileUtility fu;
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			constexpr auto TEST_DATA_SIZE = 4;
-			std::array<std::byte, TEST_DATA_SIZE> testData = {
-				std::byte(42), std::byte(42), std::byte(42), std::byte(40)
-			};
+			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
 			{
 				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-				auto r = FileUtility::Write(f, testData.data(), TEST_DATA_SIZE);
+				auto r = FileUtility::Write(f, testData.data(), testData.size());
 				FileUtility::Close(f);
 				CHECK_EQ(true, r);
 			}
 			{
 				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
-				std::array<std::byte, TEST_DATA_SIZE> d = {};
-				std::ranges::fill(d, std::byte(0));
-				auto r = FileUtility::Read(f, d.data(), TEST_DATA_SIZE);
+				auto d = std::to_array({ std::byte(0), std::byte(0), std::byte(0), std::byte(0) });
+				auto r = FileUtility::Read(f, d.data(), d.size());
 				FileUtility::Close(f);
-				CHECK_EQ(TEST_DATA_SIZE, r);
+				CHECK_EQ(d.size(), r);
 				CHECK_EQ(d, testData);
 			}
 		}
@@ -489,23 +487,20 @@ namespace
 			fs::create_directories(testDirectory);
 			FileUtility fu;
 			fu.Mount(testDirectory.c_str(), "/fs_mem");
-			constexpr auto TEST_DATA_SIZE = 4;
-			std::array<std::byte, TEST_DATA_SIZE> testData = {
-				std::byte(42), std::byte(42), std::byte(42), std::byte(40)
-			};
+			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
 			{
 				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-				auto r = FileUtility::Write(f, testData.data(), TEST_DATA_SIZE);
+				auto r = FileUtility::Write(f, testData.data(), testData.size());
 				FileUtility::Close(f);
 				CHECK_EQ(true, r);
 			}
 			{
 				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
-				std::array<std::byte, TEST_DATA_SIZE> d = {};
+				std::array<std::byte, testData.size()> d = {};
 				std::ranges::fill(d, std::byte(0));
-				auto r = FileUtility::Read(f, d.data(), TEST_DATA_SIZE);
+				auto r = FileUtility::Read(f, d.data(), testData.size());
 				FileUtility::Close(f);
-				CHECK_EQ(TEST_DATA_SIZE, r);
+				CHECK_EQ(testData.size(), r);
 				CHECK_EQ(d, testData);
 			}
 		}
@@ -569,13 +564,10 @@ namespace
 		{
 			FileUtility fu;
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			constexpr auto TEST_DATA_SIZE = 4;
-			std::array<std::byte, TEST_DATA_SIZE> testData = {
-				std::byte(42), std::byte(42), std::byte(42), std::byte(40)
-			};
+			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
 			{
 				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-				auto r = FileUtility::Write(f, testData.data(), TEST_DATA_SIZE);
+				auto r = FileUtility::Write(f, testData.data(), testData.size());
 				FileUtility::Close(f);
 				CHECK_EQ(true, r);
 			}
@@ -587,14 +579,11 @@ namespace
 		{
 			FileUtility fu;
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			constexpr auto TEST_DATA_SIZE = 4;
-			std::array<std::byte, TEST_DATA_SIZE> testData = {
-				std::byte(42), std::byte(42), std::byte(42), std::byte(40)
-			};
+			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
 
 			{
 				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-				auto r = FileUtility::Write(f, testData.data(), TEST_DATA_SIZE);
+				auto r = FileUtility::Write(f, testData.data(), testData.size());
 				FileUtility::Close(f);
 				CHECK_EQ(true, r);
 			}
@@ -612,13 +601,10 @@ namespace
 		{
 			FileUtility fu;
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			constexpr auto TEST_DATA_SIZE = 4;
-			std::array<std::byte, TEST_DATA_SIZE> testData = {
-				std::byte(42), std::byte(42), std::byte(42), std::byte(40)
-			};
+			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
 			{
 				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-				auto r = FileUtility::Write(f, testData.data(), TEST_DATA_SIZE);
+				auto r = FileUtility::Write(f, testData.data(), testData.size());
 				FileUtility::Close(f);
 				CHECK_EQ(true, r);
 			}
@@ -635,12 +621,9 @@ namespace
 		{
 			FileUtility fu("/test1");
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			constexpr auto TEST_DATA_SIZE = 4;
-			std::array<std::byte, TEST_DATA_SIZE> testData = {
-				std::byte(42), std::byte(42), std::byte(42), std::byte(40)
-			};
+			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
 			auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-			auto r = FileUtility::Write(f, testData.data(), TEST_DATA_SIZE);
+			auto r = FileUtility::Write(f, testData.data(), testData.size());
 			CHECK(r);
 			FileUtility::Close(f);
 			FileUtility fu2("/test2");
@@ -665,389 +648,36 @@ namespace
 			// client_test.txt
 			// server_test.txt
 			// shared_test.txt
-			unsigned char soldat_smod[] = { 0x50,
-				0x4b,
-				0x03,
-				0x04,
-				0x14,
-				0x00,
-				0x00,
-				0x00,
-				0x08,
-				0x00,
-				0x00,
-				0x00,
-				0x21,
-				0x00,
-				0x24,
-				0x33,
-				0x50,
-				0xf5,
-				0x0e,
-				0x00,
-				0x00,
-				0x00,
-				0x0c,
-				0x00,
-				0x00,
-				0x00,
-				0x0f,
-				0x00,
-				0x00,
-				0x00,
-				0x63,
-				0x6c,
-				0x69,
-				0x65,
-				0x6e,
-				0x74,
-				0x5f,
-				0x74,
-				0x65,
-				0x73,
-				0x74,
-				0x2e,
-				0x74,
-				0x78,
-				0x74,
-				0x2b,
-				0x49,
-				0x2d,
-				0x2e,
-				0x89,
-				0x4f,
-				0xce,
-				0xc9,
-				0x4c,
-				0xcd,
-				0x2b,
-				0xe1,
-				0x02,
-				0x00,
-				0x50,
-				0x4b,
-				0x03,
-				0x04,
-				0x14,
-				0x00,
-				0x00,
-				0x00,
-				0x08,
-				0x00,
-				0x00,
-				0x00,
-				0x21,
-				0x00,
-				0xa7,
-				0xe8,
-				0x12,
-				0xba,
-				0x0e,
-				0x00,
-				0x00,
-				0x00,
-				0x0c,
-				0x00,
-				0x00,
-				0x00,
-				0x0f,
-				0x00,
-				0x00,
-				0x00,
-				0x73,
-				0x65,
-				0x72,
-				0x76,
-				0x65,
-				0x72,
-				0x5f,
-				0x74,
-				0x65,
-				0x73,
-				0x74,
-				0x2e,
-				0x74,
-				0x78,
-				0x74,
-				0x2b,
-				0x49,
-				0x2d,
-				0x2e,
-				0x89,
-				0x2f,
-				0x4e,
-				0x2d,
-				0x2a,
-				0x4b,
-				0x2d,
-				0xe2,
-				0x02,
-				0x00,
-				0x50,
-				0x4b,
-				0x03,
-				0x04,
-				0x14,
-				0x00,
-				0x00,
-				0x00,
-				0x08,
-				0x00,
-				0x00,
-				0x00,
-				0x21,
-				0x00,
-				0xab,
-				0x34,
-				0x36,
-				0xb2,
-				0x0e,
-				0x00,
-				0x00,
-				0x00,
-				0x0c,
-				0x00,
-				0x00,
-				0x00,
-				0x0f,
-				0x00,
-				0x00,
-				0x00,
-				0x73,
-				0x68,
-				0x61,
-				0x72,
-				0x65,
-				0x64,
-				0x5f,
-				0x74,
-				0x65,
-				0x73,
-				0x74,
-				0x2e,
-				0x74,
-				0x78,
-				0x74,
-				0x2b,
-				0x49,
-				0x2d,
-				0x2e,
-				0x89,
-				0x2f,
-				0xce,
-				0x48,
-				0x2c,
-				0x4a,
-				0x4d,
-				0xe1,
-				0x02,
-				0x00,
-				0x50,
-				0x4b,
-				0x01,
-				0x02,
-				0x14,
-				0x0a,
-				0x14,
-				0x00,
-				0x00,
-				0x00,
-				0x08,
-				0x00,
-				0x00,
-				0x00,
-				0x21,
-				0x00,
-				0x24,
-				0x33,
-				0x50,
-				0xf5,
-				0x0e,
-				0x00,
-				0x00,
-				0x00,
-				0x0c,
-				0x00,
-				0x00,
-				0x00,
-				0x0f,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x63,
-				0x6c,
-				0x69,
-				0x65,
-				0x6e,
-				0x74,
-				0x5f,
-				0x74,
-				0x65,
-				0x73,
-				0x74,
-				0x2e,
-				0x74,
-				0x78,
-				0x74,
-				0x50,
-				0x4b,
-				0x01,
-				0x02,
-				0x14,
-				0x0a,
-				0x14,
-				0x00,
-				0x00,
-				0x00,
-				0x08,
-				0x00,
-				0x00,
-				0x00,
-				0x21,
-				0x00,
-				0xa7,
-				0xe8,
-				0x12,
-				0xba,
-				0x0e,
-				0x00,
-				0x00,
-				0x00,
-				0x0c,
-				0x00,
-				0x00,
-				0x00,
-				0x0f,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x3b,
-				0x00,
-				0x00,
-				0x00,
-				0x73,
-				0x65,
-				0x72,
-				0x76,
-				0x65,
-				0x72,
-				0x5f,
-				0x74,
-				0x65,
-				0x73,
-				0x74,
-				0x2e,
-				0x74,
-				0x78,
-				0x74,
-				0x50,
-				0x4b,
-				0x01,
-				0x02,
-				0x14,
-				0x0a,
-				0x14,
-				0x00,
-				0x00,
-				0x00,
-				0x08,
-				0x00,
-				0x00,
-				0x00,
-				0x21,
-				0x00,
-				0xab,
-				0x34,
-				0x36,
-				0xb2,
-				0x0e,
-				0x00,
-				0x00,
-				0x00,
-				0x0c,
-				0x00,
-				0x00,
-				0x00,
-				0x0f,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x76,
-				0x00,
-				0x00,
-				0x00,
-				0x73,
-				0x68,
-				0x61,
-				0x72,
-				0x65,
-				0x64,
-				0x5f,
-				0x74,
-				0x65,
-				0x73,
-				0x74,
-				0x2e,
-				0x74,
-				0x78,
-				0x74,
-				0x50,
-				0x4b,
-				0x05,
-				0x06,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x03,
-				0x00,
-				0x03,
-				0x00,
-				0xb7,
-				0x00,
-				0x00,
-				0x00,
-				0xb1,
-				0x00,
-				0x00,
-				0x00,
-				0x00,
-				0x00 };
-			unsigned int const soldat_smod_len = 382;
+			// NOLINTBEGIN
+			// clang-format off
+			unsigned char soldat_smod[] = {
+				0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0x24, 0x33,
+				0x50, 0xf5, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x63, 0x6c,
+				0x69, 0x65, 0x6e, 0x74, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x2b, 0x49, 0x2d,
+				0x2e, 0x89, 0x4f, 0xce, 0xc9, 0x4c, 0xcd, 0x2b, 0xe1, 0x02, 0x00, 0x50, 0x4b, 0x03, 0x04, 0x14,
+				0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xa7, 0xe8, 0x12, 0xba, 0x0e, 0x00, 0x00,
+				0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f,
+				0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x2b, 0x49, 0x2d, 0x2e, 0x89, 0x2f, 0x4e, 0x2d,
+				0x2a, 0x4b, 0x2d, 0xe2, 0x02, 0x00, 0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00,
+				0x00, 0x00, 0x21, 0x00, 0xab, 0x34, 0x36, 0xb2, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00,
+				0x0f, 0x00, 0x00, 0x00, 0x73, 0x68, 0x61, 0x72, 0x65, 0x64, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e,
+				0x74, 0x78, 0x74, 0x2b, 0x49, 0x2d, 0x2e, 0x89, 0x2f, 0xce, 0x48, 0x2c, 0x4a, 0x4d, 0xe1, 0x02,
+				0x00, 0x50, 0x4b, 0x01, 0x02, 0x14, 0x0a, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21,
+				0x00, 0x24, 0x33, 0x50, 0xf5, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63,
+				0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b,
+				0x01, 0x02, 0x14, 0x0a, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xa7, 0xe8,
+				0x12, 0xba, 0x0e, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x00, 0x00, 0x73, 0x65, 0x72, 0x76,
+				0x65, 0x72, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b, 0x01, 0x02, 0x14,
+				0x0a, 0x14, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xab, 0x34, 0x36, 0xb2, 0x0e,
+				0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x76, 0x00, 0x00, 0x00, 0x73, 0x68, 0x61, 0x72, 0x65, 0x64, 0x5f,
+				0x74, 0x65, 0x73, 0x74, 0x2e, 0x74, 0x78, 0x74, 0x50, 0x4b, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00,
+				0x03, 0x00, 0x03, 0x00, 0xb7, 0x00, 0x00, 0x00, 0xb1, 0x00, 0x00, 0x00, 0x00, 0x00};
+			unsigned int soldat_smod_len = 382;
+			// clang-format on
+			// NOLINTEND
 
 			FileUtility fu("/t1");
 			auto testDir = FileUtility::GetPrefPath("mount_test", true);
@@ -1070,10 +700,9 @@ namespace
 		{
 			FileUtility fu("/test1");
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			constexpr auto TEST_DATA_SIZE = 4;
-			std::array<std::uint8_t, TEST_DATA_SIZE> testData = { 42, 42, 42, 40 }; // NOLINT
+			auto testData = std::to_array<std::uint8_t>({ 42, 42, 42, 40 }); // NOLINT
 			auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-			auto r = FileUtility::Write(f, reinterpret_cast<std::byte*>(testData.data()), TEST_DATA_SIZE);
+			auto r = FileUtility::Write(f, reinterpret_cast<std::byte*>(testData.data()), testData.size());
 			CHECK(r);
 			FileUtility::Close(f);
 

@@ -27,6 +27,7 @@ using GunArray = std::array<std::string, 17>;
 
 struct GlobalStateClient
 {
+	GlobalStateClient() noexcept = default;
 	Console& GetBigConsole();
 	ConsoleMain& GetKillConsole();
 	void joinserver();
@@ -36,11 +37,11 @@ struct GlobalStateClient
 	bool mainloop();
 	void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir);
 	void showmessage(const std::string& messagetext);
-	std::string joinpassword = {};
+	std::string joinpassword;
 	std::string joinport = "23073";
 	std::string joinip = "127.0.0.1";
-	std::string basedirectory = {};
-	std::string moddir = {};
+	std::string basedirectory;
+	std::string moddir;
 	bool usesservermod = {};
 	std::string gClientServerIP = "127.0.0.1";
 	std::int32_t gClientServerPort = 23073;
