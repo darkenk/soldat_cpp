@@ -19,7 +19,7 @@ RUN apt-get remove -y clang-18 llvm-18
 # clang
 RUN wget https://apt.llvm.org/llvm.sh && \
     chmod +x llvm.sh && \
-    ./llvm.sh 20 all
+    ./llvm.sh 21 all
 
 RUN set -eux; \
     xwin_version="0.6.7"; \

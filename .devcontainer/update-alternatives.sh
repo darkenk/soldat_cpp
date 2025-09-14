@@ -60,4 +60,4 @@ function register_clang_version {
         --slave   /usr/bin/lldb-server           lldb-server           /usr/bin/lldb-server-${version}
 }
 
-register_clang_version 20 200
+register_clang_version 21 200
