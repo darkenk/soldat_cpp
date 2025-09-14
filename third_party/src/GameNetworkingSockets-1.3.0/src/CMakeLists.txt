@@ -289,11 +289,17 @@ macro(gamenetworkingsockets_common GNS_TARGET)
 
 endmacro()
 
-add_library(GameNetworkingSockets SHARED "")
-add_library(GameNetworkingSockets::GameNetworkingSockets ALIAS GameNetworkingSockets)
-add_library(GameNetworkingSockets::shared ALIAS GameNetworkingSockets)
-gamenetworkingsockets_common(GameNetworkingSockets)
+set(GNS_TARGETS "")
 
+if (GAMENETWORKINGSOCKETS_BUILD_SHARED)
+	list(APPEND GNS_TARGETS GameNetworkingSockets)
+	add_library(GameNetworkingSockets SHARED "")
+	add_library(GameNetworkingSockets::GameNetworkingSockets ALIAS GameNetworkingSockets)
+	add_library(GameNetworkingSockets::shared ALIAS GameNetworkingSockets)
+	gamenetworkingsockets_common(GameNetworkingSockets)
+endif()
+
+list(APPEND GNS_TARGETS GameNetworkingSockets_s)
 add_library(GameNetworkingSockets_s STATIC "")
 add_library(GameNetworkingSockets::GameNetworkingSockets_s ALIAS GameNetworkingSockets_s)
 add_library(GameNetworkingSockets::static ALIAS GameNetworkingSockets_s)
@@ -304,8 +310,7 @@ gamenetworkingsockets_common(GameNetworkingSockets_s)
 
 install(
 	TARGETS 
-		GameNetworkingSockets
-		GameNetworkingSockets_s
+		${GNS_TARGETS}
 	EXPORT GameNetworkingSockets
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
