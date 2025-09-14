@@ -325,6 +325,7 @@ if(HAVE_CLOCK_GETTIME)
 	add_definitions(-DHAVE_CLOCK_GETTIME)
 endif()
 
+set(SIZEOF_TIME_T "4") # dkluska workaround for windows compilation
 check_type_size(time_t SIZEOF_TIME_T)
 if(SIZEOF_TIME_T STREQUAL "4")
 	set(SMALL_TIME_T true)

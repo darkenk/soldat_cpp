@@ -1004,9 +1004,10 @@ target_include_directories(crypto
 
 export_symbol(crypto ${CMAKE_CURRENT_BINARY_DIR}/crypto_p.sym)
 target_link_libraries(crypto ${PLATFORM_LIBS})
-if (WIN32)
-	set(CRYPTO_POSTFIX -${CRYPTO_MAJOR_VERSION})
-endif()
+# Fixes libressl discovery in GameNetworkingScokets
+# if (WIN32)
+# 	set(CRYPTO_POSTFIX -${CRYPTO_MAJOR_VERSION})
+# endif()
 set_target_properties(crypto PROPERTIES
 	OUTPUT_NAME crypto${CRYPTO_POSTFIX}
 	ARCHIVE_OUTPUT_NAME crypto${CRYPTO_POSTFIX})
