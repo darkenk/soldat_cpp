@@ -21,10 +21,14 @@ target_link_libraries(SoldatGame
     ${PHYSFS_LIBRARY}
     GameNetworkingSockets::GameNetworkingSockets_s
     ApprovalTests::ApprovalTests
+    $<$<PLATFORM_ID:Windows>:advapi32>
+    $<$<PLATFORM_ID:Windows>:bcrypt>
 )
 
 set_target_properties(SoldatGame PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/game)
-doctest_discover_tests(SoldatGame)
+if (CMAKE_SYSTEM_NAME MATCHES CMAKE_HOST_SYSTEM_NAME)
+    doctest_discover_tests(SoldatGame)
+endif()
 
 set(Shader_SRC
     ../shaders/nuklear_ui.frag

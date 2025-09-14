@@ -13,6 +13,11 @@ include(CheckLibraryExists)
 include(CheckIncludeFiles)
 include(CheckTypeSize)
 
+option(SILENCE_WARNINGS "turns off warnings" ON)
+if (SILENCE_WARNINGS)
+cmake_policy(SET CMP0092 OLD)
+endif()
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
 include(cmake_export_symbol)
 include(GNUInstallDirs)

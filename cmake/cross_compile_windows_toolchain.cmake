@@ -59,12 +59,11 @@ string(REPLACE ";" " " COMPILE_FLAGS "${COMPILE_FLAGS}")
 set(CMAKE_CXX_FLAGS_INIT "${COMPILE_FLAGS}")
 set(CMAKE_C_FLAGS_INIT "${COMPILE_FLAGS}")
 set(CMAKE_RC_FLAGS_INIT "${COMPILE_FLAGS} /C 1252")
+set(CMAKE_VS_PLATFORM_TOOLSET ClangCL)
 
 # Library search paths (xwin)
 set(LINK_FLAGS
     /manifest:no
-    -nostartfiles
-    -nostdlib
     -libpath:"${ATLMFC_LIB}/${WINSDK_ARCH}"
     -libpath:"${MSVC_LIB}/${WINSDK_ARCH}"
     -libpath:"${WINSDK_LIB}/ucrt/${WINSDK_ARCH}"

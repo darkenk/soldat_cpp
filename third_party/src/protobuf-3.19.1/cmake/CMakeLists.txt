@@ -50,6 +50,7 @@ option(protobuf_BUILD_EXAMPLES "Build examples" OFF)
 option(protobuf_BUILD_PROTOC_BINARIES "Build libprotoc and protoc compiler" ON)
 option(protobuf_BUILD_LIBPROTOC "Build libprotoc" OFF)
 option(protobuf_DISABLE_RTTI "Remove runtime type information in the binaries" OFF)
+option(protobuf_MSVC_RUNTIME "MSVC runtime" MultiThreaded$<$<CONFIG:Debug>:Debug>)
 if (BUILD_SHARED_LIBS)
   set(protobuf_BUILD_SHARED_LIBS_DEFAULT ON)
 else (BUILD_SHARED_LIBS)
@@ -182,7 +183,7 @@ else (protobuf_BUILD_SHARED_LIBS)
   # making programmatic control difficult.  Prefer the functionality in newer
   # CMake versions when available.
   if(CMAKE_VERSION VERSION_GREATER 3.15 OR CMAKE_VERSION VERSION_EQUAL 3.15)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY ${protobuf_MSVC_RUNTIME})
   else()
     # In case we are building static libraries, link also the runtime library statically
     # so that MSVCR*.DLL is not required at runtime.

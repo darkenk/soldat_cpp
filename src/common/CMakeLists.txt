@@ -30,7 +30,12 @@ set(SRC
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     # enable optimization for SHA1.cpp to boost startup of the game in debug mode
-    set_source_files_properties(misc/SHA1.cpp PROPERTIES SKIP_PRECOMPILE_HEADERS TRUE COMPILE_FLAGS -O3)
+    set_source_files_properties(misc/SHA1.cpp
+        PROPERTIES
+            SKIP_PRECOMPILE_HEADERS TRUE
+            COMPILE_FLAGS
+                $<IF:$<PLATFORM_ID:Windows>,/O2,-O3>
+    )
 endif()
 
 add_library(CommonLib ${SRC})

@@ -31,7 +31,7 @@ if (NOT EXISTS ${tools_path}/install/tools.cmake)
   endif()
 endif()
 
-set(third_party_dependencies_config "${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}_release")
+set(third_party_dependencies_config "${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}_debug")
 set(third_party_dependencies_path "${CMAKE_BINARY_DIR}/../${third_party_dependencies_config}")
 get_filename_component(third_party_dependencies_path ${third_party_dependencies_path} ABSOLUTE)
 message(STATUS "Using third party: ${third_party_dependencies_path}")
@@ -300,6 +300,14 @@ add_custom_target(third_party_dependencies
   COMMAND ${CMAKE_COMMAND} --build --preset ${third_party_dependencies_config}
   COMMENT "Building external dependencies"
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+  USES_TERMINAL
+)
+
+add_custom_target(tools
+  COMMAND ${CMAKE_COMMAND} --preset tools
+  COMMAND ${CMAKE_COMMAND} --build --preset tools
+  COMMENT "Building external tools"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools
   USES_TERMINAL
 )
 

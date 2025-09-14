@@ -17,6 +17,12 @@ include(CheckSymbolExists)
 # cmake_minimum_required version set (3.5).
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 
+option(SILENCE_WARNINGS "turns off warnings" ON)
+if (SILENCE_WARNINGS)
+cmake_policy(SET CMP0092 OLD)
+endif()
+
+
 # Put all the output from all projects into the same folder
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
