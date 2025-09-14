@@ -1,0 +1,17 @@
+{
+  "version": 10,
+  "include": ["${sourceDir}/../cmake/default_cmake_preset.json"],
+  "configurePresets": [
+    {
+      "name": "tools",
+      "inherits": "default"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "tools",
+      "configurePreset": "tools",
+      "configuration": "Release"
+    }
+  ]
+}

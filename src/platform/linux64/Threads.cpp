@@ -1,5 +1,4 @@
 #include "Threads.hpp"
-#include <pthread.h>
 #include <string_view>
 #include <thread>
 
@@ -30,7 +29,21 @@ bool SetThreadName(std::thread& thread, const std::string_view name)
 	return true;
 }
 
+#elif _WINDOWS
+
+bool SetCurrentThreadName(const std::string_view name)
+{
+	return true;
+}
+
+bool SetThreadName(std::thread& thread, const std::string_view name)
+{
+	return true;
+}
+
 #else
+
+	#include <pthread.h>
 
 auto SetCurrentThreadName(const std::string_view name) -> bool
 {

@@ -90,6 +90,17 @@
         "CMAKE_EXPORT_LINK_COMMANDS": "ON",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       }
+    },
+    {
+      "name": "clang-cross-windows",
+      "displayName": "Cross compile for windows",
+      "generator": "Ninja",
+      "binaryDir": "${sourceParentDir}/soldat_build/out/soldat_${presetName}",
+      "toolchainFile": "${sourceDir}/cmake/cross_compile_windows_toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -102,7 +113,8 @@
       "targets": [
         "SoldatGame",
         "SoldatGame_full",
-        "third_party_dependencies"
+        "third_party_dependencies",
+        "tools"
       ]
     },
     {

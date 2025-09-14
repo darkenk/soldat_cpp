@@ -1,53 +1,45 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/cpp
 {
-	"name": "Soldat",
-	"build": {
-		"dockerfile": "Dockerfile"
-	},
-	"customizations": {
-		// Configure properties specific to VS Code.
-		"vscode": {
-			// Set *default* container specific settings.json values on container create.
-			"settings": {
-			},
-			// Add the IDs of extensions you want installed when the container is created.
-			"extensions": [
-				"ms-vscode.cpptools",
-				"ms-vscode.cmake-tools",
-				"ms-vscode.cpptools-extension-pack",
-				"matepek.vscode-catch2-test-adapter",
-				"editorconfig.editorconfig",
+  "name": "Soldat",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    // Configure properties specific to VS Code.
+    "vscode": {
+      // Set *default* container specific settings.json values on container create.
+      "settings": {},
+      // Add the IDs of extensions you want installed when the container is created.
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools-extension-pack",
+        "matepek.vscode-catch2-test-adapter",
+        "editorconfig.editorconfig",
         "llvm-vs-code-extensions.vscode-clangd"
-			]
-		}
-	},
-	"features": {
-
-	},
-
-	"runArgs": [
-		"--env=DISPLAY",
-    	"--env=WAYLAND_DISPLAY",
-		"--env=XDG_RUNTIME_DIR",
-  		"--volume=${localEnv:XDG_RUNTIME_DIR}:${localEnv:XDG_RUNTIME_DIR}"
-  	],
-
-	"mounts":[
-		"source=${localWorkspaceFolder}/../soldat_container/ccache,target=/home/vscode/.ccache,type=bind",
-		"source=${localWorkspaceFolder}/../soldat_container/soldat_build,target=/workspaces/soldat_build,type=bind"
-	],
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "gcc -v",
-
-	// Configure tool-specific properties.
-	// "customizations": {},
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
-	"remoteUser": "vscode"
+      ]
+    }
+  },
+  "features": {},
+  "runArgs": [
+    "--env=DISPLAY",
+    "--env=WAYLAND_DISPLAY",
+    "--env=XDG_RUNTIME_DIR",
+    "--volume=${localEnv:XDG_RUNTIME_DIR}:${localEnv:XDG_RUNTIME_DIR}"
+  ],
+  "mounts": [
+    "source=soldat-ccache,target=/home/vscode/.ccache,type=volume",
+    "source=${localWorkspaceFolder}/../soldat_container/soldat_build,target=/workspaces/soldat_build,type=bind"
+  ],
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
+  // Use 'postCreateCommand' to run commands after the container is created.
+  // "postCreateCommand": "gcc -v",
+  // Configure tool-specific properties.
+  // "customizations": {},
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
+  "remoteUser": "vscode",
+  "containerUser": "vscode"
 }

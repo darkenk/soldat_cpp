@@ -1,67 +1,84 @@
 {
-    "cmake.configureOnOpen": true,
-    "cmake.debugConfig": {
-      "type": "cppdbg",
-      "console": "internalConsole",
-      "stopAtEntry": false,
-      "MIMode": "gdb",
-      "setupCommands": [
-            {
-                "description": "Enable pretty-printing for gdb",
-                "text": "-enable-pretty-printing",
-                "ignoreFailures": true
-            }
-        ]
-    },
-    "cmake.ctest.testExplorerIntegrationEnabled": false,
-    "github.copilot.chat.codeGeneration.instructions": [
-        {
-            "file": ".github/copilot-instructions.md"
-        }
-    ],
-    "github.copilot.enable":{
-        "*": false,
-        "plaintext": false,
-        "markdown": false,
-        "scminput": false,
-        "test": false
-    },
-    "C_Cpp.autoAddFileAssociations": false,
-    "testMate.cpp.test.executables": "${command:cmake.buildDirectory}/game/SoldatGame",
-    "testMate.cpp.test.advancedExecutables": [
+  "cmake.configureOnOpen": true,
+  "cmake.debugConfig": {
+    "type": "cppdbg",
+    "console": "internalConsole",
+    "stopAtEntry": false,
+    "MIMode": "gdb",
+    "setupCommands": [
       {
-        "pattern": "${command:cmake.buildDirectory}/game/SoldatGame",
-        "doctest": {
-          "prependTestRunningArgs": ["--exit"]
-        }
+        "description": "Enable pretty-printing for gdb",
+        "text": "-enable-pretty-printing",
+        "ignoreFailures": true
       }
-    ],
-    "testMate.cpp.debug.breakOnFailure": true,
-    "testMate.cpp.debug.configTemplate": {
-      "type": "cppvsdbg",
-      "linux": { "type": "cppdbg", "MIMode": "gdb" },
-      "darwin": { "type": "cppdbg", "MIMode": "lldb" },
-      "win32": { "type": "cppvsdbg" },
-      "program": "${exec}",
-      "args": ["--exit", "true", "${argsArrayFlat}"],
-      "cwd": "${cwd}",
-      "env": "${envObj}",
-      "environment": "${envObjArray}",
-      "sourceFileMap": "${sourceFileMapObj}"
-    },
-    "files.associations": {
-      "*.vert": "glsl",
-      "*.frag": "glsl"
-    },
-    "git.ignoreLimitWarning": true,
-    "cmake.copyCompileCommands": "${workspaceFolder}/../soldat_build/clangd/compile_commands.json",
-    "clangd.arguments": [
-      "--compile-commands-dir=${workspaceFolder}/../soldat_build/clangd/"
-    ],
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "ms-vscode.cpptools",
-    "C_Cpp.intelliSenseEngine": "disabled",
-    "[cpp]": {
-        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    ]
+  },
+  "cmake.ctest.testExplorerIntegrationEnabled": false,
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "file": ".github/copilot-instructions.md"
     }
+  ],
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false,
+    "test": false
+  },
+  "C_Cpp.autoAddFileAssociations": false,
+  "testMate.cpp.test.executables": "${command:cmake.buildDirectory}/game/SoldatGame",
+  "testMate.cpp.test.advancedExecutables": [
+    {
+      "pattern": "${command:cmake.buildDirectory}/game/SoldatGame",
+      "doctest": {
+        "prependTestRunningArgs": [
+          "--exit"
+        ]
+      }
+    }
+  ],
+  "testMate.cpp.debug.breakOnFailure": true,
+  "testMate.cpp.debug.configTemplate": {
+    "type": "cppvsdbg",
+    "linux": {
+      "type": "cppdbg",
+      "MIMode": "gdb"
+    },
+    "darwin": {
+      "type": "cppdbg",
+      "MIMode": "lldb"
+    },
+    "win32": {
+      "type": "cppvsdbg"
+    },
+    "program": "${exec}",
+    "args": [
+      "--exit",
+      "true",
+      "${argsArrayFlat}"
+    ],
+    "cwd": "${cwd}",
+    "env": "${envObj}",
+    "environment": "${envObjArray}",
+    "sourceFileMap": "${sourceFileMapObj}"
+  },
+  "files.associations": {
+    "*.vert": "glsl",
+    "*.frag": "glsl"
+  },
+  "git.ignoreLimitWarning": true,
+  "cmake.copyCompileCommands": "${workspaceFolder}/../soldat_build/clangd/compile_commands.json",
+  "clangd.arguments": [
+    "--compile-commands-dir=${workspaceFolder}/../soldat_build/clangd/"
+  ],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "ms-vscode.cpptools",
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "[cpp]": {
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  }
 }

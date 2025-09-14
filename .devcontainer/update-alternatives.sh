@@ -17,11 +17,16 @@ function register_clang_version {
         --slave   /usr/bin/llvm-dwarfdump    llvm-dwarfdump   /usr/bin/llvm-dwarfdump-${version} \
         --slave   /usr/bin/llvm-extract      llvm-extract     /usr/bin/llvm-extract-${version} \
         --slave   /usr/bin/llvm-link         llvm-link        /usr/bin/llvm-link-${version} \
+        --slave   /usr/bin/llvm-lib          llvm-lib         /usr/bin/llvm-lib-${version} \
         --slave   /usr/bin/llvm-mc           llvm-mc          /usr/bin/llvm-mc-${version} \
         --slave   /usr/bin/llvm-nm           llvm-nm          /usr/bin/llvm-nm-${version} \
         --slave   /usr/bin/llvm-objdump      llvm-objdump     /usr/bin/llvm-objdump-${version} \
         --slave   /usr/bin/llvm-ranlib       llvm-ranlib      /usr/bin/llvm-ranlib-${version} \
+        --slave   /usr/bin/llvm-rc           llvm-rc          /usr/bin/llvm-rc-${version} \
         --slave   /usr/bin/llvm-readobj      llvm-readobj     /usr/bin/llvm-readobj-${version} \
+        --slave   /usr/bin/llvm-readtapi     llvm-readtapi    /usr/bin/llvm-readtapi-${version} \
+        --slave   /usr/bin/llvm-reduce       llvm-redeuce     /usr/bin/llvm-reduce-${version} \
+        --slave   /usr/bin/llvm-remarkutil   llvm-remarkutil  /usr/bin/llvm-remarkutil-${version} \
         --slave   /usr/bin/llvm-rtdyld       llvm-rtdyld      /usr/bin/llvm-rtdyld-${version} \
         --slave   /usr/bin/llvm-size         llvm-size        /usr/bin/llvm-size-${version} \
         --slave   /usr/bin/llvm-stress       llvm-stress      /usr/bin/llvm-stress-${version} \

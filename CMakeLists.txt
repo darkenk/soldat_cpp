@@ -1,11 +1,34 @@
 cmake_minimum_required(VERSION 4.0)
-project(SoldatCPP)
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+project(SoldatCPP CXX C)
 
-find_program(CCACHE_FOUND ccache)
-if(CCACHE_FOUND)
-   set_property(GLOBAL PROPERTY CXX_COMPILER_LAUNCHER ccache)
-   set_property(GLOBAL PROPERTY C_COMPILER_LAUNCHER ccache)
+set(tools_path "${CMAKE_BINARY_DIR}/../tools")
+message(STATUS "Tools directory: ${tools_path}")
+
+if (NOT EXISTS ${tools_path}/install/tools.cmake)
+  message(STATUS "Building tools")
+  
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} --preset tools
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools
+    RESULT_VARIABLE BUILD_TOOLS_RESULT
+    COMMAND_ECHO STDOUT
+  )
+  if (NOT BUILD_TOOLS_RESULT EQUAL 0)
+    file(REMOVE ${tools_path}/install/tools.cmake)
+    message(FATAL_ERROR "Failed to build tools")
+  endif()
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} --build --preset tools
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools
+    RESULT_VARIABLE BUILD_TOOLS_RESULT
+    COMMAND_ECHO STDOUT
+  )
+  if (NOT BUILD_TOOLS_RESULT EQUAL 0)
+    file(REMOVE ${tools_path}/install/tools.cmake)
+    message(FATAL_ERROR "Failed to build tools")
+  endif()
 endif()
 
 set(third_party_dependencies_config "${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}_release")
@@ -38,7 +61,14 @@ if (NOT EXISTS ${third_party_dependencies_path}/install/third_party.cmake)
   endif()
 endif()
 
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+   set_property(GLOBAL PROPERTY CXX_COMPILER_LAUNCHER ccache)
+   set_property(GLOBAL PROPERTY C_COMPILER_LAUNCHER ccache)
+endif()
+
 include(${third_party_dependencies_path}/install/third_party.cmake)
+include(${tools_path}/install/tools.cmake)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   set(SOLDAT_PLATFORM webassembly)
@@ -74,7 +104,7 @@ ExternalProject_Add(doctest
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/doctest
 )
 include_directories(SYSTEM ${DOCTEST_INCLUDE_DIR})
-include_directories(SYSTEM ${third_party_dependencies_path}/install/dbg-macro/include)
+include_directories(SYSTEM ${third_party_dependencies_path}/dbg-macro-prefix/include)
 
 ExternalProject_Get_Property(doctest source_dir)
 set(DOCTEST_INCLUDE_DIR ${source_dir} CACHE INTERNAL "Path to include folder for doctest")
@@ -87,12 +117,13 @@ find_package(SoLoud REQUIRED)
 set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/libsodium-1.0.18/contrib
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/GameNetworkingSockets-1.3.0/cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules
     ${CMAKE_MODULE_PATH}
 )
 
 cmake_print_variables(CMAKE_FIND_ROOT_PATH)
 
-set(LIBRESSL_ROOT_DIR ${third_party_dependencies_path}/install/libressl/)
+set(LIBRESSL_ROOT_DIR ${third_party_dependencies_path}/libressl-prefix/)
 
 
 find_package(PhysFS REQUIRED)
@@ -112,13 +143,12 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 # Add Library
 add_library(LibreSSL::Crypto UNKNOWN IMPORTED)
 
-# Set Properties
 set_target_properties(
         LibreSSL::Crypto
         PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${third_party_dependencies_path}/install/libressl/include"
+        INTERFACE_INCLUDE_DIRECTORIES "${third_party_dependencies_path}/libressl-prefix/include"
         IMPORTED_LINK_INTERFACE_LANGUAGES "C"
-        IMPORTED_LOCATION "${third_party_dependencies_path}/install/libressl/lib/libcrypto.a"
+        IMPORTED_LOCATION "${third_party_dependencies_path}/libressl-prefix/lib/${CMAKE_STATIC_LIBRARY_PREFIX}crypto${CMAKE_STATIC_LIBRARY_SUFFIX}"
         INTERFACE_LINK_LIBRARIES LibreSSL::Crypto
 )
 
@@ -126,9 +156,9 @@ add_library(ApprovalTests::ApprovalTests UNKNOWN IMPORTED)
 set_target_properties(
         ApprovalTests::ApprovalTests
         PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${third_party_dependencies_path}/install/ApprovalTests/include"
+        INTERFACE_INCLUDE_DIRECTORIES "${third_party_dependencies_path}/ApprovalTests.cpp-prefix/include"
         IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
-        IMPORTED_LOCATION "${third_party_dependencies_path}/install/ApprovalTests/lib/libApprovalTests.a"
+        IMPORTED_LOCATION "${third_party_dependencies_path}/ApprovalTests.cpp-prefix/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ApprovalTests${CMAKE_STATIC_LIBRARY_SUFFIX}"
         INTERFACE_LINK_LIBRARIES ApprovalTests::ApprovalTests
 )
 
@@ -205,6 +235,22 @@ if (ENABLE_CLANG_TIDY)
 endif()
 
 # Add compile options for uninitialized variable warnings
+if (CMAKE_SYSTEM_NAME MATCHES Windows)
+add_compile_options(
+  -Wno-c++98-compat
+  -Wno-c++98-compat-pedantic
+  -Wno-c++20-compat
+  -Wno-sign-conversion
+  -Wno-undef
+  -Wno-double-promotion
+  -Wno-extra-semi-stmt
+  -Wno-ctad-maybe-unsupported
+  -Wno-global-constructors
+  -Wno-shorten-64-to-32
+  -Wno-reserved-identifier
+  -Wno-disabled-macro-expansion
+)
+else()
 add_compile_options(
   "$<$<CXX_COMPILER_ID:Clang>:-Wall>"
   "$<$<CXX_COMPILER_ID:Clang>:-Wextra>"
@@ -227,6 +273,8 @@ add_compile_options(
   "$<$<CXX_COMPILER_ID:GNU>:-Wno-error=int-to-pointer-cast>"
   "$<$<CXX_COMPILER_ID:GNU>:-Wno-error=deprecated-declarations>"
 )
+
+endif()
 
 set(CommonPCH
     "$<$<COMPILE_LANGUAGE:CXX>:${ROOT_DIR}/src/common/Logging.hpp>"

@@ -17,7 +17,18 @@
     },
     {
       "name": "Linux_x86_64_debug",
-      "inherits": "default"
+      "inherits": "default",
+      "toolchainFile": "${sourceDir}/../cmake/cross_compile_windows_toolchain.cmake"
+    },
+    {
+      "name": "Windows_x86_64_release",
+      "inherits": "default",
+      "toolchainFile": "${sourceDir}/../cmake/cross_compile_windows_toolchain.cmake"
+    },
+    {
+      "name": "Windows_x86_64_debug",
+      "inherits": "default",
+      "toolchainFile": "${sourceDir}/../cmake/cross_compile_windows_toolchain.cmake"
     }
   ],
   "buildPresets": [
@@ -29,6 +40,16 @@
     {
       "name": "Linux_x86_64_debug",
       "configurePreset": "Linux_x86_64_debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "Windows_x86_64_release",
+      "configurePreset": "Windows_x86_64_release",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "Windows_x86_64_debug",
+      "configurePreset": "Windows_x86_64_debug",
       "configuration": "Debug"
     }
   ]

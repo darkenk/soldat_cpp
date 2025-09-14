@@ -45,9 +45,14 @@ source ${PROJECT}/build/gdb/release_mouse.py
 ## Dev containers
 * execute those commands in main repo directory (it creates directories outside the repo)
 ```bash
-mkdir -p ../soldat_container/ccache
 mkdir -p ../soldat_container/soldat_build
 ```
 
 * rebuild devcontainer
   - `ctrl + shift + p` and press `Dev Containers: Rebuild and Reopen in Container`
+
+### VSCode containers visible globally with podman
+https://github.com/microsoft/vscode/issues/232863#issuecomment-2667750241
+
+# LICENSE
+For cross compilation to windows, dev container uses VisualStudio build tools community version. See license: https://go.microsoft.com/fwlink/?LinkId=2179811

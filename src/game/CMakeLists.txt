@@ -36,7 +36,8 @@ set(Shader_SRC
 
 set(shadercross ${SDL3_shadercross_DIR}/../../../bin/shadercross)
 get_filename_component(shadercross ${shadercross} ABSOLUTE)
-set(shadercross_libs ${SDL3_shadercross_DIR}/../../;${SDL3_DIR}/../../)
+get_filename_component(dxcompiler_path ${DirectXShaderCompiler_dxcompiler_LIBRARY} DIRECTORY)
+set(shadercross_libs ${SDL3_shadercross_DIR}/../../;${SDL3_DIR}/../../;${spirv_cross_c_shared_DIR}/../../../lib/;${dxcompiler_path})
 
 
 foreach(Shader ${Shader_SRC})
