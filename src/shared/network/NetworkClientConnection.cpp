@@ -2,9 +2,8 @@
 
 #include "NetworkClientConnection.hpp"
 
-#include <alloca.h>
+#include <malloc.h>
 #include <cstdint>
-#include <endian.h>
 #include <physfs.h>
 #include <spdlog/fmt/bundled/core.h>
 #include <string_view>
@@ -245,12 +244,15 @@ void clientsendplayerinfo()
 	{
 		playerinfo.look = playerinfo.look | B8;
 	}
-
+#if _WINDOWS
+	NotImplemented("missing checksum");
+#else
 	playerinfo.gamemodchecksum.Dummy[0] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[0]);
 	playerinfo.gamemodchecksum.Dummy[1] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[1]);
 	playerinfo.gamemodchecksum.Dummy[2] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[2]);
 	playerinfo.gamemodchecksum.Dummy[3] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[3]);
 	playerinfo.gamemodchecksum.Dummy[4] = htobe32(GS::GetGame().GetGameModChecksum().Dummy[4]);
+#endif
 	playerinfo.custommodchecksum = GS::GetGame().GetCustomModChecksum();
 
 	gGlobalStateNetworkClient.GetNetwork()->SendData(&playerinfo, sizeof(playerinfo), true);

@@ -9,7 +9,7 @@
 #include <Tracy.hpp>
 #include <algorithm>
 #include <array>
-#include <bits/chrono.h>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>

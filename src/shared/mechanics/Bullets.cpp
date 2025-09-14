@@ -13,6 +13,7 @@
 #include <cmath>
 #include <cstdint>
 #include <utility>
+#include <numbers>
 
 #ifdef SERVER
 	#include "../network/NetworkServerBullet.hpp"

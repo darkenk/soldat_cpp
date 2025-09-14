@@ -35,6 +35,7 @@
 	#include "../../client/GameRendering.hpp"
 	#include "../../client/Gfx.hpp"
 	#include "../../client/Sound.hpp"
+	#include <numbers>
 #else
 	#include "../../server/Server.hpp" // NOLINT
 	#include "../network/NetworkServer.hpp"

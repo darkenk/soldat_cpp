@@ -8,6 +8,7 @@
 #include <string>
 #include <cstring>
 #include <string_view>
+#include <steam/isteamnetworkingsockets.h>
 
 #include "..//Vector.hpp"
 #include "../Util.hpp"

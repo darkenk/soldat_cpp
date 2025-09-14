@@ -38,6 +38,16 @@ option(MSVC_RUNTIME  "MSVC runtime settings" "dynamic")
 configure_msvc_runtime()
 print_default_msvc_flags()
 
+if (CMAKE_SYSTEM_NAME MATCHES NAME)
+	if (CMAKE_CXX_COMPILER_ID MATCHES Clang)
+		add_compile_options(
+			-Wno-c++98-compat
+  			-Wno-c++98-compat-pedantic
+  			-Wno-c++20-compat
+		)
+	endif()
+endif()
+
 add_definitions( -DVALVE_CRYPTO_ENABLE_25519 )
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	add_definitions(

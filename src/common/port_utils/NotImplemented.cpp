@@ -27,7 +27,9 @@ namespace PortUtilities::NotImplemented
 		{
 			logger = spdlog::stdout_color_mt(LOG_NI, spdlog::color_mode::always);
 			auto* sink = dynamic_cast<spdlog::sinks::stdout_color_sink_mt*>(logger->sinks()[0].get());
+#ifndef _WINDOWS
 			sink->set_color(spdlog::level::warn, sink->yellow);
+#endif
 		}
 		if (msg.empty())
 		{

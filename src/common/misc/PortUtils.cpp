@@ -24,7 +24,9 @@ void AssertImpl(const bool condition, const MsgLineWrapper &msg)
   {
     logger = spdlog::stdout_color_mt(loggerName, spdlog::color_mode::always);
     auto *sink = dynamic_cast<spdlog::sinks::stdout_color_sink_mt *>(logger->sinks()[0].get());
+#ifndef _WINDOWS
     sink->set_color(spdlog::level::err, sink->red);
+#endif
   }
   logger->error("{}:{}: {}: {}", msg.location.file_name(), msg.location.line(),
                 msg.location.function_name(), msg.msg);

@@ -620,7 +620,7 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent& keyevent) -> bool
 		if ((gGlobalStateClientGame.chattext.empty()) && !gGlobalStateGameMenus.escmenu->active)
 		{
 			i = iif(action == taction::mousesensitivitydown, -5, 5);
-			CVar::cl_sensitivity = (static_cast<float>(max(0.0, i + floor(100 * CVar::cl_sensitivity))) / 100);
+			CVar::cl_sensitivity = (static_cast<float>(max(0.0f, i + floorf(100 * CVar::cl_sensitivity))) / 100);
 			GS::GetMainConsole().console(
 				_("Sensitivity:") + (std::string(" ") + inttostr(floor(100 * CVar::cl_sensitivity)) + "%"),
 				music_message_color);

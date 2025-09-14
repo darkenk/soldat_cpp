@@ -542,7 +542,7 @@ auto Polymap::closestperpendicular(std::int32_t j, const tvector2& pos, float& d
 template <typename T, typename K>
 static auto has(const T& arr, const K& value) -> bool
 {
-	return std::find(arr.begin(), arr.end(), value);
+	return std::find(arr.begin(), arr.end(), value) != arr.end();
 }
 
 auto Polymap::collisiontest(const tvector2& pos, tvector2& perpvec, bool isflag) -> bool

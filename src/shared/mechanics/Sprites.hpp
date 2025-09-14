@@ -16,6 +16,7 @@
 #include "common/Weapons.hpp"
 #include "common/Anims.hpp"
 #include "common/Constants.hpp"
+#include "common/misc/PortUtils.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
@@ -169,23 +170,23 @@ public:
 	bool autoreloadwhencanfire{};
 	bool canautoreloadspas{};
 	tbackgroundstate bgstate{};
-	[[no_unique_address]] std::conditional_t<Config::IsServer(M), bool, EmptyClass> haspack;
-	[[no_unique_address]] std::conditional_t<Config::IsServer(M), float, EmptyClass> targetx;
-	[[no_unique_address]] std::conditional_t<Config::IsServer(M), float, EmptyClass> targety;
-	[[no_unique_address]] std::conditional_t<Config::IsClient(M), std::uint32_t, EmptyClass> gattlingsoundchannel2;
-	[[no_unique_address]] std::conditional_t<Config::IsClient(M), std::uint32_t, EmptyClass> reloadsoundchannel;
-	[[no_unique_address]] std::conditional_t<Config::IsClient(M), std::uint32_t, EmptyClass> jetssoundchannel;
-	[[no_unique_address]] std::conditional_t<Config::IsClient(M), std::uint32_t, EmptyClass> gattlingsoundchannel;
-	[[no_unique_address]] std::conditional_t<Config::IsClient(M), bool, EmptyClass> olddeadmeat;
-	[[no_unique_address]] std::conditional_t<Config::IsClient(M), bool, EmptyClass> muted;
+	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsServer(M), bool, EmptyClass> haspack;
+	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsServer(M), float, EmptyClass> targetx;
+	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsServer(M), float, EmptyClass> targety;
+	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsClient(M), std::uint32_t, EmptyClass> gattlingsoundchannel2;
+	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsClient(M), std::uint32_t, EmptyClass> reloadsoundchannel;
+	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsClient(M), std::uint32_t, EmptyClass> jetssoundchannel;
+	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsClient(M), std::uint32_t, EmptyClass> gattlingsoundchannel;
+	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsClient(M), bool, EmptyClass> olddeadmeat;
+	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsClient(M), bool, EmptyClass> muted;
 	bool dontdrop{};
 	PascalArray<tvector2, 0, max_pushtick> nextpush;
 	std::uint16_t bulletcount{};
-	[[no_unique_address]] std::conditional_t<Config::IsServer(M),
-		std::array<std::uint64_t, bulletcheckarraysize>,
-		EmptyClass> bulletcheck = {};
-	[[no_unique_address]] std::conditional_t<Config::IsServer(M), std::int32_t, EmptyClass> bulletcheckindex = {};
-	[[no_unique_address]] std::conditional_t<Config::IsServer(M), std::int32_t, EmptyClass> bulletcheckamount = {};
+	NO_UNIQUE_ADDRESS
+		std::conditional_t<Config::IsServer(M), std::array<std::uint64_t, bulletcheckarraysize>, EmptyClass>
+			bulletcheck = {};
+	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsServer(M), std::int32_t, EmptyClass> bulletcheckindex = {};
+	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsServer(M), std::int32_t, EmptyClass> bulletcheckamount = {};
 	//  public
 	void update();
 	void kill();

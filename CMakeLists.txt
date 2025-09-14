@@ -111,7 +111,6 @@ set(DOCTEST_INCLUDE_DIR ${source_dir} CACHE INTERNAL "Path to include folder for
 include(${source_dir}/scripts/cmake/doctest.cmake)
 
 find_package(SDL3 REQUIRED)
-find_package(SDL3_shadercross REQUIRED)
 find_package(SoLoud REQUIRED)
 
 set(CMAKE_MODULE_PATH
@@ -249,6 +248,9 @@ add_compile_options(
   -Wno-shorten-64-to-32
   -Wno-reserved-identifier
   -Wno-disabled-macro-expansion
+)
+add_definitions(
+  -DNOMINMAX
 )
 else()
 add_compile_options(

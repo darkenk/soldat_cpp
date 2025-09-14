@@ -486,7 +486,7 @@ namespace
 			fs::remove_all(testDirectory);
 			fs::create_directories(testDirectory);
 			FileUtility fu;
-			fu.Mount(testDirectory.c_str(), "/fs_mem");
+			fu.Mount(testDirectory.string(), "/fs_mem");
 			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
 			{
 				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
@@ -537,7 +537,7 @@ namespace
 			fs::remove_all(testDirectory);
 			fs::create_directories(testDirectory);
 			FileUtility fu;
-			fu.Mount(testDirectory.c_str(), "/fs_mem");
+			fu.Mount(testDirectory.string(), "/fs_mem");
 			auto created = fu.MkDir("/fs_mem/test_directory");
 			CHECK_EQ(true, created);
 			created = fu.MkDir("/fs_mem/test_directory");

@@ -33,11 +33,14 @@ set(Shader_SRC
     ../shaders/generic.vert.hlsl
 )
 
-
-set(shadercross ${SDL3_shadercross_DIR}/../../../bin/shadercross)
-get_filename_component(shadercross ${shadercross} ABSOLUTE)
-get_filename_component(dxcompiler_path ${DirectXShaderCompiler_dxcompiler_LIBRARY} DIRECTORY)
-set(shadercross_libs ${SDL3_shadercross_DIR}/../../;${SDL3_DIR}/../../;${spirv_cross_c_shared_DIR}/../../../lib/;${dxcompiler_path})
+find_program(shadercross shadercross)
+message(STATUS "Use shadercross: ${shadercross}")
+message(STATUS "Root ${DirectXShaderCompiler_ROOT}")
+set(shadercross_libs
+    ${DirectXShaderCompiler_ROOT}/linux/lib
+    ${DirectXShaderCompiler_ROOT}/../SDL3-prefix/lib
+    ${DirectXShaderCompiler_ROOT}/../SPIRV-Cross-prefix/lib
+)
 
 
 foreach(Shader ${Shader_SRC})

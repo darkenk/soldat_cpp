@@ -13,7 +13,7 @@
 template <>
 auto FromString<std::int32_t>(const std::string_view& value, std::int32_t& outValue) noexcept -> bool
 {
-	const auto* ret = std::ranges::find_if(value,
+	auto ret = std::ranges::find_if(value,
 		[](auto const& c)
 		{
 			return !std::isdigit(c);
@@ -54,7 +54,7 @@ auto FromString<std::string>(const std::string_view& value, std::string& outValu
 template <>
 auto FromString<float>(const std::string_view& value, float& outValue) noexcept -> bool
 {
-	const auto* ret = std::ranges::find_if(value,
+	auto ret = std::ranges::find_if(value,
 		[](auto const& c)
 		{
 			return !(std::isdigit(c) || c == '.' || c == 'f');

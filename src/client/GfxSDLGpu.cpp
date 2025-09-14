@@ -1215,7 +1215,7 @@ void gfxdrawquad(tgfxtexture* texture, const std::vector<tgfxvertex, Allocator>&
 	{
 		if (length(b.commands) < (n + 1))
 		{
-			b.commands.resize(max(2 * length(b.commands), 32UL));
+			b.commands.resize(max<std::size_t>(2 * length(b.commands), 32UL));
 		}
 
 		b.commands[n].texture = texture;

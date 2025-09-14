@@ -73,11 +73,12 @@ void GlobalStateInterfaceGraphics::loadinterfacearchives(const std::string& path
 		{
 			continue;
 		}
-		std::string const name = f.path().stem();
-		if (PHYSFS_mount(pchar(path + f.path().filename().c_str()), pchar(string("custom-interfaces/") + name + '/'), 0)
+		std::string const name = f.path().stem().string();
+		if (PHYSFS_mount(
+				pchar(path + f.path().filename().string().c_str()), pchar(string("custom-interfaces/") + name + '/'), 0)
 			!= 0)
 		{
-			LogDebugG("Mounted interface: {}", f.path().c_str());
+			LogDebugG("Mounted interface: {}", f.path().string().c_str());
 			if (firstonly)
 			{
 				CVar::ui_style = name;
@@ -86,7 +87,7 @@ void GlobalStateInterfaceGraphics::loadinterfacearchives(const std::string& path
 		}
 		else
 		{
-			LogDebugG("Failed to mount interface: {}", f.path().c_str());
+			LogDebugG("Failed to mount interface: {}", f.path().string());
 		}
 	}
 }

@@ -51,7 +51,7 @@ namespace
 
 	auto extractfilename(const std::string& filepath) -> std::string
 	{
-		return std::filesystem::path(filepath).stem();
+		return std::filesystem::path(filepath).stem().string();
 	}
 
 } // namespace

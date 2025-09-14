@@ -51,3 +51,9 @@ namespace PortUtils
 #define SoldatAssert(condition) PortUtils::Assert<Config::IsDebug()>(condition, #condition)
 #define AssertL(condition, location) PortUtils::Assert<Config::IsDebug()>(condition, { #condition, location })
 #define SoldatEnsure(condition) PortUtils::Ensure<Config::IsDebug()>(condition)
+
+#if _WINDOWS
+	#define NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+#else
+	#define NO_UNIQUE_ADDRESS [[no_unique_address]]
+#endif

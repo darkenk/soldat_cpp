@@ -84,14 +84,15 @@ namespace
 		auto defaultReporterDisposer = ApprovalTests::Approvals::useAsDefaultReporter(
 			std::make_shared<ApprovalTests::CrossPlatform::VisualStudioCodeReporter>());
 		const auto rootPath = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
-		ApprovalTests::TestName::registerRootDirectoryFromMainFile(rootPath / "CMakeLists.txt");
+		ApprovalTests::TestName::registerRootDirectoryFromMainFile((rootPath / "CMakeLists.txt").string());
 
 		auto defaultNamerDisposer = ApprovalTests::Approvals::useAsDefaultNamer(
 			[&rootPath]()
 			{
-				return ApprovalTests::TemplatedCustomNamer::create(
+				return ApprovalTests::TemplatedCustomNamer::create((
 					rootPath
-					/ "{ApprovalsSubdirectory}/{RelativeTestSourceDirectory}/{TestFileName}.{TestCaseName}.{ApprovedOrReceived}.{FileExtension}");
+					/ "{ApprovalsSubdirectory}/{RelativeTestSourceDirectory}/{TestFileName}.{TestCaseName}.{ApprovedOrReceived}.{FileExtension}")
+						.string());
 			});
 
 		ApprovalTests::EmptyFileCreatorByType::registerCreator(".png",
