@@ -98,8 +98,11 @@
       "binaryDir": "${sourceParentDir}/soldat_build/out/soldat_${presetName}",
       "toolchainFile": "${sourceDir}/cmake/cross_compile_windows_toolchain.cmake",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      },
+      "environment": {
+        "CCACHE_DEPEND": "1"
       }
     }
   ],

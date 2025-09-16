@@ -1416,6 +1416,7 @@ void GlobalStateGameRendering::gfxlogcallback(const std::string& s)
 #pragma region tests
 #include <doctest/doctest.h>
 #include <stb_image_write.h>
+#undef FMT_VERSION
 #include <ApprovalTests/Approvals.h>
 #include <ApprovalTests/core/ApprovalWriter.h>
 #include <thread>

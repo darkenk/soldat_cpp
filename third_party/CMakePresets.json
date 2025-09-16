@@ -8,6 +8,8 @@
       "binaryDir": "${sourceDir}/../../soldat_build/out/${presetName}",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      },
+      "environment":{
       }
     },
     {
@@ -23,12 +25,21 @@
     {
       "name": "Windows_x86_64_release",
       "inherits": "default",
-      "toolchainFile": "${sourceDir}/../cmake/cross_compile_windows_toolchain.cmake"
+      "toolchainFile": "${sourceDir}/../cmake/cross_compile_windows_toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      },
+      "environment": {
+        "CCACHE_DEPEND": "1"
+      }
     },
     {
       "name": "Windows_x86_64_debug",
       "inherits": "default",
-      "toolchainFile": "${sourceDir}/../cmake/cross_compile_windows_toolchain.cmake"
+      "toolchainFile": "${sourceDir}/../cmake/cross_compile_windows_toolchain.cmake",
+      "environment": {
+        "CCACHE_DEPEND": "1"
+      }
     }
   ],
   "buildPresets": [

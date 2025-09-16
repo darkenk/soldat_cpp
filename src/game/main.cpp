@@ -30,6 +30,7 @@
 #include <doctest/doctest.h> // IWYU: pragma keep
 
 #define APPROVALS_DOCTEST_EXISTING_MAIN
+#undef FMT_VERSION
 #include <ApprovalTests/ApprovalTests.hpp> // IWYU: pragma keep
 // clang-format on
 // NOLINTEND

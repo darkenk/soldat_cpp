@@ -50,9 +50,9 @@ set(COMPILE_FLAGS
      --target=${CLANG_TARGET}
      -D_CRT_SECURE_NO_WARNINGS
      -fms-compatibility-version=19.29
-     -vctoolsversion ${MSVC_VER}
-     -winsdkversion ${WINSDK_VER}
-     -winsysroot ${XWIN_ROOT}
+     /vctoolsversion ${MSVC_VER}
+     /winsdkversion ${WINSDK_VER}
+     /winsysroot ${XWIN_ROOT}
 )
 string(REPLACE ";" " " COMPILE_FLAGS "${COMPILE_FLAGS}")
 

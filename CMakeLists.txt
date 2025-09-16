@@ -31,7 +31,7 @@ if (NOT EXISTS ${tools_path}/install/tools.cmake)
   endif()
 endif()
 
-set(third_party_dependencies_config "${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}_debug")
+set(third_party_dependencies_config "${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}_release")
 set(third_party_dependencies_path "${CMAKE_BINARY_DIR}/../${third_party_dependencies_config}")
 get_filename_component(third_party_dependencies_path ${third_party_dependencies_path} ABSOLUTE)
 message(STATUS "Using third party: ${third_party_dependencies_path}")
