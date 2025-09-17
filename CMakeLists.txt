@@ -112,6 +112,7 @@ include(${source_dir}/scripts/cmake/doctest.cmake)
 
 find_package(SDL3 REQUIRED)
 find_package(SoLoud REQUIRED)
+find_package(libassert REQUIRED)
 
 set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/libsodium-1.0.18/contrib

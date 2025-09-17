@@ -43,6 +43,7 @@ target_link_libraries(CommonLib
     spdlog::spdlog
     GameNetworkingSockets::GameNetworkingSockets_s
     ApprovalTests::ApprovalTests
+    libassert::assert
 )
 
 target_include_directories(CommonLib SYSTEM PRIVATE

@@ -30,6 +30,21 @@ if (CMAKE_SYSTEM_NAME MATCHES CMAKE_HOST_SYSTEM_NAME)
     doctest_discover_tests(SoldatGame)
 endif()
 
+if(WIN32)
+  add_custom_command(
+    TARGET SoldatGame POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_FILE:libassert::assert>
+    $<TARGET_FILE_DIR:SoldatGame>
+  )
+  add_custom_command(
+    TARGET SoldatGame POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_FILE:SDL3::SDL3>
+    $<TARGET_FILE_DIR:SoldatGame>
+  )
+endif()
+
 set(Shader_SRC
     ../shaders/nuklear_ui.frag
     ../shaders/nuklear_ui.vert

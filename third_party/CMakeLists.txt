@@ -249,6 +249,17 @@ ExternalProject_Add(
   BUILD_ALWAYS ${BUILD_ALWAYS_TOOLS}
 )
 
+ExternalProject_Add(
+  libassert
+  SOURCE_DIR "${THIRD_PARTY_SRC_DIR}/libassert"
+  CMAKE_ARGS
+    ${COMMON_FLAGS}
+  USES_TERMINAL_CONFIGURE ON
+  USES_TERMINAL_BUILD ON
+  USES_TERMINAL_INSTALL ON
+  BUILD_ALWAYS ${BUILD_ALWAYS_TOOLS}
+)
+
 create_import_cmake_file(PROJECTS
   SDL3
   protobuf
@@ -260,4 +271,5 @@ create_import_cmake_file(PROJECTS
   dbg-macro
   soloud
   boost.di
+  libassert
 )

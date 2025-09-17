@@ -28,3 +28,6 @@
 [submodule "third_party/src/di"]
 	path = third_party/src/di
 	url = git@github.com:darkenk/di.git
+[submodule "third_party/src/libassert"]
+	path = third_party/src/libassert
+	url = git@github.com:darkenk/libassert.git
