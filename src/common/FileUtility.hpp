@@ -10,6 +10,8 @@
 
 #include "misc/Config.hpp"
 
+struct PHYSFS_File;
+
 class FileUtility
 {
 public:
@@ -19,7 +21,7 @@ public:
 		Write
 	};
 
-	struct File;
+	using File = PHYSFS_File;
 
 	FileUtility(const std::string_view rootPrefix = "");
 	~FileUtility();

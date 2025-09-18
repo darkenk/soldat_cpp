@@ -14,8 +14,10 @@
     },
     {
       "name": "Linux_x86_64_release",
-      "inherits": "default"
-
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
     },
     {
       "name": "Linux_x86_64_debug",
@@ -45,23 +47,19 @@
   "buildPresets": [
     {
       "name": "Linux_x86_64_release",
-      "configurePreset": "Linux_x86_64_release",
-      "configuration": "RelWithDebInfo"
+      "configurePreset": "Linux_x86_64_release"
     },
     {
       "name": "Linux_x86_64_debug",
-      "configurePreset": "Linux_x86_64_debug",
-      "configuration": "Debug"
+      "configurePreset": "Linux_x86_64_debug"
     },
     {
       "name": "Windows_x86_64_release",
-      "configurePreset": "Windows_x86_64_release",
-      "configuration": "RelWithDebInfo"
+      "configurePreset": "Windows_x86_64_release"
     },
     {
       "name": "Windows_x86_64_debug",
-      "configurePreset": "Windows_x86_64_debug",
-      "configuration": "Debug"
+      "configurePreset": "Windows_x86_64_debug"
     }
   ]
 }

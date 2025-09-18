@@ -138,12 +138,7 @@ void GlobalStateClient::loadweaponnames(FileUtility& fs, GunArray& gunDisplayNam
 		FileUtility::Read(f, buff.data(), fileSize);
 		FileUtility::Close(f);
 	}
-#if __EMSCRIPTEN__
 	std::istringstream sd(std::string(reinterpret_cast<char*>(buff.data()), fileSize));
-#else
-	std::istringstream sd;
-	sd.rdbuf()->pubsetbuf(reinterpret_cast<char*>(buff.data()), fileSize);
-#endif
 	for (i = 0; i < double_weapons; i++)
 	{
 		SoldatAssert(sd.good());

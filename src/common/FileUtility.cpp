@@ -8,27 +8,27 @@
 #include <filesystem>
 #include <ios>
 #include <iterator>
-#include <memory>
+#include <physfs.h>
 #include <spdlog/fmt/bundled/core.h>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <libassert/assert.hpp>
 
 #include "Logging.hpp"
 #include "PhysFSExt.hpp"
 #include "misc/PortUtils.hpp"
-#include "physfs.h"
 #include "port_utils/NotImplemented.hpp"
 
 namespace fs = std::filesystem;
 using namespace std::string_view_literals;
 
+constexpr auto LOG = "fs";
+
 namespace
 {
-	auto LOG = "fs";
-
 	struct FPhysfsIoMemory
 	{
 		using FileContent = std::vector<std::byte>;
@@ -144,7 +144,7 @@ namespace
 		}
 	};
 
-	struct Memory
+	struct FMemoryArchive
 	{
 		std::string m_name;
 		std::string m_mountPoint;
@@ -152,16 +152,30 @@ namespace
 		std::unordered_map<std::string, std::vector<std::byte>> m_files;
 		std::vector<std::string> m_directories;
 
-		Memory(PHYSFS_Io* io, const char* name) : m_name{ name }, m_io{ io } { m_directories.emplace_back(""); }
+		FMemoryArchive(const FMemoryArchive&) = default;
+		FMemoryArchive(FMemoryArchive&&) = delete;
+		FMemoryArchive& operator=(const FMemoryArchive&) = delete;
+		FMemoryArchive& operator=(FMemoryArchive&&) = delete;
+		FMemoryArchive(PHYSFS_Io* io, const char* name) : m_name{ name }, m_io{ io }
+		{
+			LogDebug(LOG, "Create tmpfs archive {}", name);
+			m_directories.emplace_back("");
+		}
 
-		~Memory() { m_io->destroy(m_io); }
+		~FMemoryArchive()
+		{
+			LogDebug(LOG, "Destroy tmpfs archive {}", m_name);
+			m_io->destroy(m_io);
+		}
 
-		static auto GetThis(void* opaque) -> Memory* { return reinterpret_cast<Memory*>(opaque); }
-
+		static auto GetThis(void* opaque) -> FMemoryArchive*
+		{
+			return reinterpret_cast<FMemoryArchive*>(opaque); // NOLINT
+		}
 		static auto OpenArchive(PHYSFS_Io* io, const char* name, int /*forWrite*/, int* claimed) -> void*
 		{
 			*claimed = 1;
-			return new Memory(io, name);
+			return new FMemoryArchive(io, name);
 		}
 
 		static auto Enumerate(void* /*opaque*/,
@@ -243,21 +257,17 @@ namespace
 				 .author = "DK",
 				 .url = "mem://",
 				 .supportsSymlinks = 0 },
-		.openArchive = Memory::OpenArchive,
-		.enumerate = Memory::Enumerate,
-		.openRead = Memory::OpenRead,
-		.openWrite = Memory::OpenWrite,
-		.openAppend = Memory::OpenAppend,
-		.remove = Memory::Remove,
-		.mkdir = Memory::Mkdir,
-		.stat = Memory::Stat,
-		.closeArchive = Memory::CloseArchive
+		.openArchive = FMemoryArchive::OpenArchive,
+		.enumerate = FMemoryArchive::Enumerate,
+		.openRead = FMemoryArchive::OpenRead,
+		.openWrite = FMemoryArchive::OpenWrite,
+		.openAppend = FMemoryArchive::OpenAppend,
+		.remove = FMemoryArchive::Remove,
+		.mkdir = FMemoryArchive::Mkdir,
+		.stat = FMemoryArchive::Stat,
+		.closeArchive = FMemoryArchive::CloseArchive
 	};
 } // namespace
-
-struct FileUtility::File
-{
-};
 
 FileUtility::FileUtility(const std::string_view rootPrefix) : RootPrefix{ rootPrefix }
 {
@@ -266,18 +276,18 @@ FileUtility::FileUtility(const std::string_view rootPrefix) : RootPrefix{ rootPr
 	{
 		LogError(LOG, "FS init failed {}", PHYSFS_getLastErrorCode());
 	}
-	SoldatAssert(r);
+	DEBUG_ASSERT(r);
 	if (r == 1)
 	{
 		r = PHYSFS_registerArchiver(&s_memoryArchiver);
 	}
-	SoldatAssert(r);
+	DEBUG_ASSERT(r);
 }
 
 FileUtility::~FileUtility()
 {
 	auto r = PhysFS_DeinitThreadSafe();
-	SoldatAssert(r);
+	DEBUG_ASSERT(r);
 }
 
 auto FileUtility::Mount(const std::string_view item, const std::string_view mount_point) -> bool
@@ -288,14 +298,14 @@ auto FileUtility::Mount(const std::string_view item, const std::string_view moun
 		const auto fname = ApplyRootPrefix(item);
 		auto* io = FPhysfsIoMemory::Create(mp);
 		const auto e = PHYSFS_mountIo(io, fname.data(), mp.c_str(), 0);
-		SoldatAssert(e != 0);
+		DEBUG_ASSERT(e != 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 		return e != 0;
 	}
 	auto e = PHYSFS_mount(item.data(), mp.c_str(), 0);
-	SoldatAssert(e != 0);
+	DEBUG_ASSERT(e != 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 
 	std::string_view nmp = PHYSFS_getMountPoint(item.data());
-	SoldatAssert(nmp.size() >= mount_point.size());
+	DEBUG_ASSERT(nmp.size() >= mount_point.size());
 	nmp.remove_suffix(mount_point.size());
 	RootPrefix = nmp;
 	return e != 0;
@@ -305,7 +315,7 @@ void FileUtility::Unmount(const std::string_view item)
 {
 	const auto fname = (item == "tmpfs.memory"sv) ? ApplyRootPrefix(item) : std::string(item);
 	auto e = PHYSFS_unmount(fname.data());
-	SoldatAssert(e != 0);
+	DEBUG_ASSERT(e != 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 }
 
 auto FileUtility::Open(const std::string_view path, FileUtility::FileMode fm) -> FileUtility::File*
@@ -321,26 +331,25 @@ auto FileUtility::Open(const std::string_view path, FileUtility::FileMode fm) ->
 			f = PHYSFS_openWrite(p.c_str());
 			break;
 	}
-	SoldatAssert(f != nullptr);
-	static_assert(sizeof(f) == sizeof(File*)); // NOLINT
-	return reinterpret_cast<File*>(f);
+	DEBUG_ASSERT(f != nullptr, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+	return f;
 }
 
 auto FileUtility::Read(File* file, std::byte* data, const std::size_t size) -> std::size_t
 {
-	SoldatAssert(file);
-	auto bytesRead = PHYSFS_readBytes(reinterpret_cast<PHYSFS_File*>(file), data, size);
-	SoldatAssert(bytesRead > 0);
-	SoldatAssert(std::cmp_equal(bytesRead, size));
+	DEBUG_ASSERT(file);
+	auto bytesRead = PHYSFS_readBytes(file, data, size);
+	DEBUG_ASSERT(bytesRead > 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+	DEBUG_ASSERT(std::cmp_equal(bytesRead, size));
 	return bytesRead;
 }
 
 auto FileUtility::Write(File* file, const std::byte* data, const std::size_t size) -> bool
 {
-	SoldatAssert(file);
-	auto bytesWritten = PHYSFS_writeBytes(reinterpret_cast<PHYSFS_File*>(file), data, size);
-	SoldatAssert(bytesWritten > 0);
-	SoldatAssert(std::cmp_equal(bytesWritten, size));
+	DEBUG_ASSERT(file);
+	auto bytesWritten = PHYSFS_writeBytes(file, data, size);
+	DEBUG_ASSERT(bytesWritten > 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+	DEBUG_ASSERT(std::cmp_equal(bytesWritten, size));
 	return std::cmp_equal(bytesWritten, size);
 }
 
@@ -351,12 +360,12 @@ auto FileUtility::Exists(const std::string_view path) -> bool
 
 auto FileUtility::Size(File* file) -> std::size_t
 {
-	return PHYSFS_fileLength(reinterpret_cast<PHYSFS_File*>(file));
+	return PHYSFS_fileLength(file);
 }
 
 auto FileUtility::Size(const std::string_view path) -> std::size_t
 {
-	SoldatAssert(Exists(path));
+	DEBUG_ASSERT(Exists(path));
 	auto* f = Open(path, FileMode::Read);
 	auto size = Size(f);
 	Close(f);
@@ -365,8 +374,8 @@ auto FileUtility::Size(const std::string_view path) -> std::size_t
 
 void FileUtility::Close(File* file)
 {
-	auto r = PHYSFS_close(reinterpret_cast<PHYSFS_File*>(file));
-	SoldatAssert(r != 0);
+	auto r = PHYSFS_close(file);
+	DEBUG_ASSERT(r != 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 }
 
 auto FileUtility::MkDir(const std::string_view dirPath) -> bool
@@ -393,7 +402,7 @@ auto FileUtility::Copy(const std::string_view src, const std::string_view dst) -
 
 auto FileUtility::ReadFile(const std::string_view path) -> std::vector<std::uint8_t>
 {
-	SoldatAssert(not path.empty());
+	DEBUG_ASSERT(not path.empty());
 	LogDebug(LOG, "Loading file {}", path);
 	std::vector<std::uint8_t> result;
 	if (!Exists(path))
@@ -434,7 +443,7 @@ auto FileUtility::GetPrefPath(const std::string_view postfix, const bool debugBu
 	{
 		SoldatEnsure(std::filesystem::create_directories(prefPath));
 	}
-	SoldatAssert(std::filesystem::is_directory(prefPath));
+	DEBUG_ASSERT(std::filesystem::is_directory(prefPath));
 	return prefPath;
 }
 
@@ -556,8 +565,9 @@ namespace
 		{
 			FileUtility const fu;
 			auto s = FileUtility::GetPrefPath("test_pref");
-			CHECK_EQ(s.substr(s.rfind('/') + 1), "test_pref");
-			CHECK_EQ(true, std::filesystem::is_directory(s));
+			std::filesystem::path p{ s };
+			CHECK_EQ(p.filename().string(), std::string("test_pref"));
+			CHECK_EQ(true, std::filesystem::is_directory(p));
 		}
 
 		TEST_CASE_FIXTURE(FileUtilityFixture, "Exists return false if file does not exist")
@@ -698,7 +708,7 @@ namespace
 
 		TEST_CASE_FIXTURE(FileUtilityFixture, "Filesystem does not leak between two different FileUtility objects")
 		{
-			FileUtility fu("/test1");
+			FileUtility fu("/test8");
 			fu.Mount("tmpfs.memory", "/fs_mem");
 			auto testData = std::to_array<std::uint8_t>({ 42, 42, 42, 40 }); // NOLINT
 			auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
@@ -719,6 +729,7 @@ namespace
 			FileUtility fu("/test1");
 			fu.Mount("tmpfs.memory", "/fs_mem");
 			auto testData = std::to_array<std::uint8_t>({ 42, 42, 42, 40 }); // NOLINT
+			CHECK_FALSE(fu.Exists("/fs_mem/valid"));
 			auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
 			auto r = FileUtility::Write(f, reinterpret_cast<std::byte*>(testData.data()), testData.size());
 			CHECK(r);

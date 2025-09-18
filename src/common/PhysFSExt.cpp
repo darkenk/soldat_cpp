@@ -136,6 +136,7 @@ auto PhysFS_InitThreadSafe() -> std::uint32_t
 	{
 		sNoOfInstances++;
 	}
+	LogDebug(LOG, "PhysFS Init, ref count {}", sNoOfInstances);
 	return sNoOfInstances;
 }
 
@@ -143,10 +144,12 @@ auto PhysFS_DeinitThreadSafe() -> bool
 {
 	std::lock_guard const m(sInitMutex);
 	sNoOfInstances--;
+	LogDebug(LOG, "PhysFS deinit, ref count {}", sNoOfInstances);
 	if (sNoOfInstances > 0)
 	{
 		return true;
 	}
+	LogDebug(LOG, "PhysFS real deinit");
 	const bool ret = PHYSFS_deinit() != 0;
 	return ret;
 }
