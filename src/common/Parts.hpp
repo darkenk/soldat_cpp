@@ -8,7 +8,7 @@
 #include "Vector.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 
-class FileUtility;
+class FFileUtility;
 
 constexpr std::int32_t num_particles = 560;
 
@@ -48,7 +48,7 @@ public:
 	void createpart(const tvector2& start, const tvector2& vel, const float mass, const int32_t num);
 	void makeconstraint(std::int32_t pa, std::int32_t pb, float rest);
 	void clone(const particlesystem& other);
-	void loadpoobject(FileUtility& fs, const std::string& filename, float scale);
+	void loadpoobject(FFileUtility& fs, const std::string& filename, float scale);
 	void stopallparts();
 	void destroy();
 	void satisfyconstraints();

@@ -1,0 +1,5 @@
+Includes:
+    AnalyzeAngledIncludes: False
+
+InlayHints:
+    DefaultArguments: True

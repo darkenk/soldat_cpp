@@ -128,15 +128,15 @@ namespace
 	public:
 		NetworkServerHeartbeatFixture() : LogBumperNetMsg("net_msg"), LogBumperNetworkMsg("network")
 		{
-			GlobalSystems<Config::CLIENT_MODULE>::Init();
-			GlobalSystems<Config::SERVER_MODULE>::Init();
+			FGlobalSystems<Config::CLIENT_MODULE>::Init();
+			FGlobalSystems<Config::SERVER_MODULE>::Init();
 			AnimationSystem::Get().LoadAnimObjects("");
 		}
 		NetworkServerHeartbeatFixture(const NetworkServerHeartbeatFixture&) = delete;
 		~NetworkServerHeartbeatFixture()
 		{
-			GlobalSystems<Config::SERVER_MODULE>::Deinit();
-			GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+			FGlobalSystems<Config::SERVER_MODULE>::Deinit();
+			FGlobalSystems<Config::CLIENT_MODULE>::Deinit();
 		}
 
 	protected:

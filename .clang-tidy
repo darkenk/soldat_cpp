@@ -22,7 +22,6 @@ Checks: >
   -modernize-use-trailing-return-type,
   -modernize-use-nodiscard,
   -modernize-use-integer-sign-comparison,
-  -clang-analyzer-alpha*,
   -bugprone-easily-swappable-parameters,
   -bugprone-narrowing-conversions
 
@@ -47,7 +46,8 @@ CheckOptions:
   - key: readability-identifier-naming.ClassCase
     value: CamelCase
   - key: readability-identifier-naming.ClassPrefix
-    value: 'U;A;F;I;T'
+    #value: 'U;A;F;I;T'
+    value: 'F'
   - key: readability-identifier-naming.ClassIgnoredRegexp
     value: '^(UObject|AActor|UEngine|UMG|UStruct)$'   # Core engine classes, extend as needed
 
@@ -71,9 +71,9 @@ CheckOptions:
     value: CamelCase
 
   # === Interfaces ===
-  - key: readability-identifier-naming.InterfaceCase
+  - key: readability-identifier-naming.AbstractClassCase
     value: CamelCase
-  - key: readability-identifier-naming.InterfacePrefix
+  - key: readability-identifier-naming.AbstractClassPrefix
     value: 'I'
 
   # === Type aliases / templates ===
@@ -92,23 +92,40 @@ CheckOptions:
 
   # === Variables ===
   - key: readability-identifier-naming.VariableCase
-    value: camelBack
+    value: CamelCase
+  - key: readability-identifier-naming.VariableIgnoredRegexp
+    value: '^.{1,2}$'
   - key: readability-identifier-naming.GlobalVariableCase
-    value: camelBack
+    value: CamelCase
+  - key: readability-identifier-naming.GlobalVariablePrefix
+    value: 'g'
   - key: readability-identifier-naming.MemberCase
-    value: camelBack
+    value: CamelCase
   - key: readability-identifier-naming.PrivateMemberCase
-    value: camelBack
+    value: CamelCase
   - key: readability-identifier-naming.ProtectedMemberCase
-    value: camelBack
+    value: CamelCase
   - key: readability-identifier-naming.PublicMemberCase
-    value: camelBack
+    value: CamelCase
+  - key: readability-identifier-naming.ConstexprVariableCase
+    value: CamelCase
+  - key: readability-identifier-naming.ConstexprVariablePrefix
+    value: 'k'
+  - key: readability-identifier-naming.ConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ConstantParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.ConstantParameterPrefix
+    value: 'In'
+  - key: readability-identifier-naming.LocalConstantCase
+    value: CamelCase
 
-  # === Booleans (strict UE: must start with "b") ===
-  - key: readability-identifier-naming.BooleanCase
-    value: camelBack
-  - key: readability-identifier-naming.BooleanPrefix
-    value: 'b'
+
+  # # === Booleans (strict UE: must start with "b") ===
+  # - key: readability-identifier-naming.BooleanCase
+  #   value: camelBack
+  # - key: readability-identifier-naming.BooleanPrefix
+  #   value: 'b'
 
   # === Macros ===
   - key: readability-identifier-naming.MacroDefinitionCase

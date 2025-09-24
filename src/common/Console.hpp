@@ -8,12 +8,12 @@
 #include "misc/PortUtilsSoldat.hpp"
 #include "misc/PortUtils.hpp"
 
-class FileUtility;
+class FFileUtility;
 
 class Console
 {
 public:
-	explicit Console(FileUtility* filesystem = nullptr,
+	explicit Console(FFileUtility* filesystem = nullptr,
 		const std::int32_t newMessageWait = 0,
 		const std::int32_t countMax = 254,
 		const std::int32_t scrollTickMax = 150,
@@ -48,7 +48,7 @@ protected:
 	std::int32_t mScrollTickMax = 1; // how long the scroll count down is before it
 	std::int32_t mScrollTick = 0;
 	bool mWriteToFile = false;
-	FileUtility* mFileSystem = nullptr;
+	FFileUtility* mFileSystem = nullptr;
 
 	std::vector<std::string> mTextMessage;
 	std::vector<std::uint32_t> mTextMessageColor;
@@ -58,7 +58,7 @@ protected:
 class ConsoleMain : public Console
 {
 public:
-	explicit ConsoleMain(FileUtility* filesystem = nullptr,
+	explicit ConsoleMain(FFileUtility* filesystem = nullptr,
 		const std::int32_t newMessageWait = 0,
 		const std::int32_t countMax = 254,
 		const std::int32_t scrollTickMax = 150,

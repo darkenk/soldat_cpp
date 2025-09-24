@@ -22,7 +22,7 @@
 #include "misc/PortUtilsSoldat.hpp"
 #include "port_utils/NotImplemented.hpp"
 
-class FileUtility;
+class FFileUtility;
 
 namespace
 {
@@ -224,7 +224,7 @@ auto Polymap::loadmap(const tmapfile& mapfile) -> bool
 	return true;
 }
 
-auto Polymap::loadmap(FileUtility& fs, const tmapinfo& map) -> bool
+auto Polymap::loadmap(FFileUtility& fs, const tmapinfo& map) -> bool
 {
 	tmapfile mapfile;
 
@@ -243,7 +243,7 @@ auto Polymap::loadmap(FileUtility& fs, const tmapinfo& map) -> bool
 }
 
 auto Polymap::loadmap(
-	FileUtility& fs, const tmapinfo& map, bool bgforce, std::uint32_t bgcolortop, std::uint32_t bgcolorbtm) -> bool
+	FFileUtility& fs, const tmapinfo& map, bool bgforce, std::uint32_t bgcolortop, std::uint32_t bgcolorbtm) -> bool
 {
 	tmapfile mapfile;
 

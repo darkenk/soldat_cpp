@@ -60,7 +60,7 @@
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 
-auto GlobalStateClient::InitBigConsole(FileUtility* filesystem,
+auto GlobalStateClient::InitBigConsole(FFileUtility* filesystem,
 	const std::int32_t newMessageWait,
 	const std::int32_t countMax,
 	const std::int32_t scrollTickMax) -> Console&
@@ -68,7 +68,7 @@ auto GlobalStateClient::InitBigConsole(FileUtility* filesystem,
 	return *new (&sBigConsole) Console(filesystem, newMessageWait, countMax, scrollTickMax);
 }
 
-auto GlobalStateClient::InitKillConsole(FileUtility* filesystem,
+auto GlobalStateClient::InitKillConsole(FFileUtility* filesystem,
 	const std::int32_t newMessageWait,
 	const std::int32_t countMax,
 	const std::int32_t scrollTickMax) -> ConsoleMain&
@@ -116,7 +116,7 @@ void GlobalStateClient::restartgraph()
 	GS::GetMainConsole().console(("Graphics restart"), debug_message_color);
 }
 
-void GlobalStateClient::loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
+void GlobalStateClient::loadweaponnames(FFileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
 {
 	SoldatAssert(gunDisplayName.size() == double_weapons);
 	std::int32_t i = 0;
@@ -132,11 +132,11 @@ void GlobalStateClient::loadweaponnames(FileUtility& fs, GunArray& gunDisplayNam
 	std::vector<std::byte> buff;
 	std::size_t fileSize = 0;
 	{
-		auto* f = fs.Open(weaponNamesFile, FileUtility::FileMode::Read);
-		fileSize = FileUtility::Size(f);
+		auto* f = fs.Open(weaponNamesFile, FFileUtility::EFileMode::Read);
+		fileSize = FFileUtility::Size(f);
 		buff.resize(fileSize);
-		FileUtility::Read(f, buff.data(), fileSize);
-		FileUtility::Close(f);
+		FFileUtility::Read(f, buff.data(), fileSize);
+		FFileUtility::Close(f);
 	}
 	std::istringstream sd(std::string(reinterpret_cast<char*>(buff.data()), fileSize));
 	for (i = 0; i < double_weapons; i++)
@@ -290,7 +290,7 @@ void GlobalStateClient::exittomenu()
 	}
 }
 
-void GlobalStateClient::CreateDirectoryStructure(FileUtility& fs)
+void GlobalStateClient::CreateDirectoryStructure(FFileUtility& fs)
 {
 	SoldatEnsure(fs.MkDir("/user/configs"));
 	SoldatEnsure(fs.MkDir("/user/screens"));
@@ -301,7 +301,7 @@ void GlobalStateClient::CreateDirectoryStructure(FileUtility& fs)
 	SoldatEnsure(fs.MkDir("/user/mods"));
 }
 
-auto GlobalStateClient::MountAssets(FileUtility& fu,
+auto GlobalStateClient::MountAssets(FFileUtility& fu,
 	const std::string& userdirectory,
 	const std::string& basedirectory,
 	tsha1digest& outGameModChecksum,
@@ -376,8 +376,8 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 	}
 
 	auto& fs = GS::GetFileSystem();
-	const auto userDirectory = FileUtility::GetPrefPath("client");
-	const auto baseDirectory = FileUtility::GetBasePath();
+	const auto userDirectory = FFileUtility::GetPrefPath("client");
+	const auto baseDirectory = FFileUtility::GetBasePath();
 
 	LogDebugG("[FS] userDirectory: {}", userDirectory);
 	LogDebugG("[FS] baseDirectory: {}", baseDirectory);
@@ -813,7 +813,7 @@ namespace
 	protected:
 		void T()
 		{
-			FileUtility fu;
+			FFileUtility fu;
 			fu.Mount("tmpfs.memory", "/user");
 			GlobalStateClient gsc;
 			gsc.CreateDirectoryStructure(fu);
@@ -825,13 +825,13 @@ namespace
 
 		TEST_CASE_FIXTURE(ClientFixture, "Mount memory and write file and later read it")
 		{
-			FileUtility fu;
+			FFileUtility fu;
 			fu.Mount("tmpfs.memory", "/user");
 			GlobalStateClient gsc;
 			gsc.CreateDirectoryStructure(fu);
-			auto* f = fu.Open("/user/logs/nice_log.txt", FileUtility::FileMode::Write);
+			auto* f = fu.Open("/user/logs/nice_log.txt", FFileUtility::EFileMode::Write);
 			CHECK_NE(nullptr, f);
-			FileUtility::Close(f);
+			FFileUtility::Close(f);
 		}
 
 		TEST_CASE_FIXTURE(ClientFixture, "Mount soldat.smod test")
@@ -1227,11 +1227,11 @@ namespace
 			unsigned int soldat_smod_len = 382;
 			// NOLINTEND
 
-			FileUtility fu;
-			auto testDir = FileUtility::GetPrefPath("mount_test", true);
+			FFileUtility fu;
+			auto testDir = FFileUtility::GetPrefPath("mount_test", true);
 			std::filesystem::remove_all(testDir);
 			// recreate directory
-			testDir = FileUtility::GetPrefPath("mount_test", true);
+			testDir = FFileUtility::GetPrefPath("mount_test", true);
 			{
 				std::ofstream s(testDir + "/soldat.smod", std::ios_base::binary | std::ios_base::trunc);
 				s.write(reinterpret_cast<char*>(soldat_smod), soldat_smod_len);
@@ -1245,10 +1245,10 @@ namespace
 
 		TEST_CASE_FIXTURE(ClientFixture, "loadweaponnamesRefactorToUseVirtualFileSystem")
 		{
-			FileUtility fs;
+			FFileUtility fs;
 			GunArray ga;
-			const auto userDirectory = FileUtility::GetPrefPath("client");
-			const auto baseDirectory = FileUtility::GetBasePath();
+			const auto userDirectory = FFileUtility::GetPrefPath("client");
+			const auto baseDirectory = FFileUtility::GetBasePath();
 			tsha1digest checksum1;
 			tsha1digest checksum2;
 			GlobalStateClient gsc;
@@ -1276,7 +1276,7 @@ namespace
 
 		TEST_CASE_FIXTURE(ClientFixture, "Test console initialization")
 		{
-			GlobalSystems<Config::CLIENT_MODULE>::Init();
+			FGlobalSystems<Config::CLIENT_MODULE>::Init();
 			auto prevY = gGlobalStateInterfaceGraphics._rscala.y;
 			gGlobalStateInterfaceGraphics._rscala.y = 1;
 			GlobalStateClient gsc;
@@ -1298,18 +1298,18 @@ namespace
 			// CHECK_EQ(0, kill.countmax);
 			// CHECK_EQ(240, kill.scrolltickmax);
 			CHECK_EQ(70, kill.GetNewMessageWait());
-			GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+			FGlobalSystems<Config::CLIENT_MODULE>::Deinit();
 		}
 
 		TEST_CASE_FIXTURE(ClientFixture, "Start and shutdown" * doctest::skip(false))
 		{
-			GlobalSystems<Config::CLIENT_MODULE>::Init();
+			FGlobalSystems<Config::CLIENT_MODULE>::Init();
 			std::string game = { "SoldatGame" };
 			std::array<char*, 1> argv = { game.data() };
 			GlobalStateClient gsc;
 			gsc.startgame(argv.size(), argv.data());
 			gsc.shutdown();
-			GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+			FGlobalSystems<Config::CLIENT_MODULE>::Deinit();
 		}
 
 	} // TEST_SUITE("Client")

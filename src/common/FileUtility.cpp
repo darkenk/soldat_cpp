@@ -25,20 +25,21 @@
 namespace fs = std::filesystem;
 using namespace std::string_view_literals;
 
-constexpr auto LOG = "fs";
+constexpr auto kLog = "fs";
 
 namespace
 {
 	struct FPhysfsIoMemory
 	{
-		using FileContent = std::vector<std::byte>;
+		FPhysfsIoMemory(const FPhysfsIoMemory&) = delete;
+		FPhysfsIoMemory(FPhysfsIoMemory&&) = delete;
+		FPhysfsIoMemory& operator=(const FPhysfsIoMemory&) = delete;
+		FPhysfsIoMemory& operator=(FPhysfsIoMemory&&) = delete;
+		using TFileContent = std::vector<std::byte>;
 
-		static auto GetThis(PHYSFS_Io* io) -> FPhysfsIoMemory*
-		{
-			return reinterpret_cast<FPhysfsIoMemory*>(io->opaque);
-		}
+		static auto GetThis(PHYSFS_Io* io) -> FPhysfsIoMemory* { return static_cast<FPhysfsIoMemory*>(io->opaque); }
 
-		static auto Create(const std::string& nodeName, FileContent* content = nullptr) -> PHYSFS_Io*
+		static auto Create(const std::string& nodeName, TFileContent* content = nullptr) -> PHYSFS_Io*
 		{
 			auto* io = new PHYSFS_Io();
 			io->version = 0;
@@ -56,40 +57,40 @@ namespace
 
 		static auto Read(struct PHYSFS_Io* io, void* buf, PHYSFS_uint64 len) -> PHYSFS_sint64
 		{
-			auto* iom = GetThis(io);
-			auto& fileContent = *iom->m_content;
-			auto& pos = iom->m_position;
-			if ((pos + len) > fileContent.size())
+			auto* Iom = GetThis(io);
+			auto& FileContent = *Iom->MContent;
+			auto& Pos = Iom->MPosition;
+			if ((Pos + len) > FileContent.size())
 			{
-				len = fileContent.size() - pos;
+				len = FileContent.size() - Pos;
 			}
-			auto readStart = std::begin(fileContent) + pos;
-			std::copy(readStart, readStart + len, reinterpret_cast<std::byte*>(buf));
-			pos += len;
+			auto ReadStart = std::begin(FileContent) + Pos;
+			std::copy(ReadStart, ReadStart + len, static_cast<std::byte*>(buf));
+			Pos += len;
 			return len;
 		}
 
 		static auto Write(struct PHYSFS_Io* io, const void* buffer, PHYSFS_uint64 len) -> PHYSFS_sint64
 		{
-			auto* iom = GetThis(io);
-			auto& fileContent = *iom->m_content;
-			auto& pos = iom->m_position;
-			auto newSize = pos + len;
-			if (newSize > fileContent.size())
+			auto* Iom = GetThis(io);
+			auto& FileContent = *Iom->MContent;
+			auto& Pos = Iom->MPosition;
+			auto NewSize = Pos + len;
+			if (NewSize > FileContent.size())
 			{
-				fileContent.reserve(newSize);
+				FileContent.reserve(NewSize);
 			}
-			std::copy(reinterpret_cast<const std::byte*>(buffer),
-				reinterpret_cast<const std::byte*>(buffer) + len,
-				std::inserter(fileContent, fileContent.begin() + pos));
-			pos += len;
+			std::copy(static_cast<const std::byte*>(buffer),
+				static_cast<const std::byte*>(buffer) + len,
+				std::inserter(FileContent, FileContent.begin() + Pos));
+			Pos += len;
 			return len;
 		}
 
 		static auto Seek(struct PHYSFS_Io* io, PHYSFS_uint64 offset) -> int
 		{
 			auto* t = GetThis(io);
-			t->m_position = offset;
+			t->MPosition = offset;
 			return 1;
 		}
 		static auto Tell(struct PHYSFS_Io* /*io*/) -> PHYSFS_sint64
@@ -100,7 +101,7 @@ namespace
 		static auto Length(struct PHYSFS_Io* io) -> PHYSFS_sint64
 		{
 			auto* t = GetThis(io);
-			return t->m_content->size();
+			return t->MContent->size();
 		}
 
 		static auto Duplicate(struct PHYSFS_Io* /*io*/) -> struct PHYSFS_Io*
@@ -121,57 +122,53 @@ namespace
 		}
 
 	private:
-		std::size_t m_position = 0;
-		std::string mNodeName;
-		FileContent* m_content = nullptr;
-		bool m_ownsContent = false;
+		std::size_t MPosition = 0;
+		std::string MNodeName;
+		TFileContent* MContent = nullptr;
+		bool MOwnsContent = false;
 
-		FPhysfsIoMemory(std::string nodeName, FileContent* content) : mNodeName(std::move(nodeName)), m_content(content)
+		FPhysfsIoMemory(std::string nodeName, TFileContent* content) : MNodeName(std::move(nodeName)), MContent(content)
 		{
-			if (m_content == nullptr)
+			if (MContent == nullptr)
 			{
-				m_content = new FileContent();
-				m_ownsContent = true;
+				MContent = new TFileContent();
+				MOwnsContent = true;
 			}
 		}
 
 		~FPhysfsIoMemory()
 		{
-			if (m_ownsContent)
+			if (MOwnsContent)
 			{
-				delete m_content;
+				delete MContent;
 			}
 		}
 	};
 
 	struct FMemoryArchive
 	{
-		std::string m_name;
-		std::string m_mountPoint;
-		PHYSFS_Io* m_io{ nullptr };
-		std::unordered_map<std::string, std::vector<std::byte>> m_files;
-		std::vector<std::string> m_directories;
-
+	public:
 		FMemoryArchive(const FMemoryArchive&) = default;
 		FMemoryArchive(FMemoryArchive&&) = delete;
 		FMemoryArchive& operator=(const FMemoryArchive&) = delete;
 		FMemoryArchive& operator=(FMemoryArchive&&) = delete;
-		FMemoryArchive(PHYSFS_Io* io, const char* name) : m_name{ name }, m_io{ io }
+		FMemoryArchive(PHYSFS_Io* io, const char* name) : Name{ name }, Io{ io }
 		{
-			LogDebug(LOG, "Create tmpfs archive {}", name);
-			m_directories.emplace_back("");
+			LogDebug(kLog, "Create tmpfs archive {}", name);
+			Directories.emplace_back("");
 		}
 
 		~FMemoryArchive()
 		{
-			LogDebug(LOG, "Destroy tmpfs archive {}", m_name);
-			m_io->destroy(m_io);
+			LogDebug(kLog, "Destroy tmpfs archive {}", Name);
+			Io->destroy(Io);
 		}
 
 		static auto GetThis(void* opaque) -> FMemoryArchive*
 		{
 			return reinterpret_cast<FMemoryArchive*>(opaque); // NOLINT
 		}
+
 		static auto OpenArchive(PHYSFS_Io* io, const char* name, int /*forWrite*/, int* claimed) -> void*
 		{
 			*claimed = 1;
@@ -190,9 +187,9 @@ namespace
 		static auto OpenRead(void* opaque, const char* fnm) -> PHYSFS_Io*
 		{
 			auto* m = GetThis(opaque);
-			auto& files = m->m_files;
-			auto f = files.find(fnm);
-			if (f == std::end(files))
+			auto& Files = m->Files;
+			auto f = Files.find(fnm);
+			if (f == std::end(Files))
 			{
 				return nullptr;
 			}
@@ -202,7 +199,7 @@ namespace
 		static auto OpenWrite(void* opaque, const char* filename) -> PHYSFS_Io*
 		{
 			auto* m = GetThis(opaque);
-			return FPhysfsIoMemory::Create(filename, &m->m_files[filename]);
+			return FPhysfsIoMemory::Create(filename, &m->Files[filename]);
 		}
 
 		static auto OpenAppend(void* /*opaque*/, const char* /*filename*/) -> PHYSFS_Io*
@@ -218,11 +215,11 @@ namespace
 		static auto Mkdir(void* opaque, const char* filename) -> int
 		{
 			auto* m = GetThis(opaque);
-			auto& directories = m->m_directories;
-			auto it = std::ranges::find(directories, filename);
-			if (it == std::end(directories))
+			auto& Directories = m->Directories;
+			auto it = std::ranges::find(Directories, filename);
+			if (it == std::end(Directories))
 			{
-				directories.emplace_back(filename);
+				Directories.emplace_back(filename);
 			}
 			return 1;
 		}
@@ -234,12 +231,12 @@ namespace
 				return 1;
 			}
 			auto* m = GetThis(opaque);
-			if (std::end(m->m_directories) != std::ranges::find(m->m_directories, fn))
+			if (std::end(m->Directories) != std::ranges::find(m->Directories, fn))
 			{
 				stat->filetype = PHYSFS_FILETYPE_DIRECTORY;
 				return 1;
 			}
-			if (std::end(m->m_files) != m->m_files.find(fn))
+			if (std::end(m->Files) != m->Files.find(fn))
 			{
 				stat->filetype = PHYSFS_FILETYPE_REGULAR;
 				return 1;
@@ -249,8 +246,15 @@ namespace
 			return 0;
 		}
 		static void CloseArchive(void* opaque) { delete GetThis(opaque); }
+
+	private:
+		std::string Name;
+		std::string MountPoint;
+		PHYSFS_Io* Io{ nullptr };
+		std::unordered_map<std::string, std::vector<std::byte>> Files;
+		std::vector<std::string> Directories;
 	};
-	PHYSFS_Archiver s_memoryArchiver = {
+	PHYSFS_Archiver gSMemoryArchiver = {
 		.version = 0,
 		.info = { .extension = "memory",
 				 .description = "Memory filesystem",
@@ -269,65 +273,65 @@ namespace
 	};
 } // namespace
 
-FileUtility::FileUtility(const std::string_view rootPrefix) : RootPrefix{ rootPrefix }
+FFileUtility::FFileUtility(const std::string_view InRootPrefix) : RootPrefix{ InRootPrefix }
 {
 	auto r = PhysFS_InitThreadSafe();
 	if (r == 0U)
 	{
-		LogError(LOG, "FS init failed {}", PHYSFS_getLastErrorCode());
+		LogError(kLog, "FS init failed {}", PHYSFS_getLastErrorCode());
 	}
 	DEBUG_ASSERT(r);
 	if (r == 1)
 	{
-		r = PHYSFS_registerArchiver(&s_memoryArchiver);
+		r = PHYSFS_registerArchiver(&gSMemoryArchiver);
 	}
 	DEBUG_ASSERT(r);
 }
 
-FileUtility::~FileUtility()
+FFileUtility::~FFileUtility()
 {
 	auto r = PhysFS_DeinitThreadSafe();
 	DEBUG_ASSERT(r);
 }
 
-auto FileUtility::Mount(const std::string_view item, const std::string_view mount_point) -> bool
+auto FFileUtility::Mount(const std::string_view InItem, const std::string_view InMountPoint) -> bool
 {
-	auto mp = ApplyRootPrefix(mount_point);
-	if (item == "tmpfs.memory"sv)
+	auto mp = ApplyRootPrefix(InMountPoint);
+	if (InItem == "tmpfs.memory"sv)
 	{
-		const auto fname = ApplyRootPrefix(item);
+		const auto FNAME = ApplyRootPrefix(InItem);
 		auto* io = FPhysfsIoMemory::Create(mp);
-		const auto e = PHYSFS_mountIo(io, fname.data(), mp.c_str(), 0);
-		DEBUG_ASSERT(e != 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
-		return e != 0;
+		const auto E = PHYSFS_mountIo(io, FNAME.data(), mp.c_str(), 0);
+		DEBUG_ASSERT(E != 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+		return E != 0;
 	}
-	auto e = PHYSFS_mount(item.data(), mp.c_str(), 0);
+	auto e = PHYSFS_mount(std::string(InItem).c_str(), mp.c_str(), 0);
 	DEBUG_ASSERT(e != 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 
-	std::string_view nmp = PHYSFS_getMountPoint(item.data());
-	DEBUG_ASSERT(nmp.size() >= mount_point.size());
-	nmp.remove_suffix(mount_point.size());
-	RootPrefix = nmp;
+	std::string_view Nmp = PHYSFS_getMountPoint(std::string(InItem).c_str());
+	DEBUG_ASSERT(Nmp.size() >= InMountPoint.size());
+	Nmp.remove_suffix(InMountPoint.size());
+	RootPrefix = Nmp;
 	return e != 0;
 }
 
-void FileUtility::Unmount(const std::string_view item)
+void FFileUtility::Unmount(const std::string_view InItem)
 {
-	const auto fname = (item == "tmpfs.memory"sv) ? ApplyRootPrefix(item) : std::string(item);
-	auto e = PHYSFS_unmount(fname.data());
+	const auto Name = (InItem == "tmpfs.memory"sv) ? ApplyRootPrefix(InItem) : std::string(InItem);
+	auto e = PHYSFS_unmount(Name.data());
 	DEBUG_ASSERT(e != 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 }
 
-auto FileUtility::Open(const std::string_view path, FileUtility::FileMode fm) -> FileUtility::File*
+auto FFileUtility::Open(const std::string_view InPath, FFileUtility::EFileMode fm) -> FFileUtility::TFile*
 {
-	PHYSFS_File* f = nullptr;
-	auto p = ApplyRootPrefix(path);
+	PHYSFS_File* f = nullptr; // NOLINT
+	auto p = ApplyRootPrefix(InPath);
 	switch (fm)
 	{
-		case FileMode::Read:
+		case EFileMode::Read:
 			f = PHYSFS_openRead(p.c_str());
 			break;
-		case FileMode::Write:
+		case EFileMode::Write:
 			f = PHYSFS_openWrite(p.c_str());
 			break;
 	}
@@ -335,92 +339,92 @@ auto FileUtility::Open(const std::string_view path, FileUtility::FileMode fm) ->
 	return f;
 }
 
-auto FileUtility::Read(File* file, std::byte* data, const std::size_t size) -> std::size_t
+auto FFileUtility::Read(TFile* file, std::byte* data, const std::size_t InSize) -> std::size_t
 {
 	DEBUG_ASSERT(file);
-	auto bytesRead = PHYSFS_readBytes(file, data, size);
-	DEBUG_ASSERT(bytesRead > 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
-	DEBUG_ASSERT(std::cmp_equal(bytesRead, size));
-	return bytesRead;
+	auto BytesRead = PHYSFS_readBytes(file, data, InSize);
+	DEBUG_ASSERT(BytesRead > 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+	DEBUG_ASSERT(std::cmp_equal(BytesRead, InSize));
+	return BytesRead;
 }
 
-auto FileUtility::Write(File* file, const std::byte* data, const std::size_t size) -> bool
+auto FFileUtility::Write(TFile* file, const std::byte* data, const std::size_t InSize) -> bool
 {
 	DEBUG_ASSERT(file);
-	auto bytesWritten = PHYSFS_writeBytes(file, data, size);
-	DEBUG_ASSERT(bytesWritten > 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
-	DEBUG_ASSERT(std::cmp_equal(bytesWritten, size));
-	return std::cmp_equal(bytesWritten, size);
+	auto BytesWritten = PHYSFS_writeBytes(file, data, InSize);
+	DEBUG_ASSERT(BytesWritten > 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+	DEBUG_ASSERT(std::cmp_equal(BytesWritten, InSize));
+	return std::cmp_equal(BytesWritten, InSize);
 }
 
-auto FileUtility::Exists(const std::string_view path) -> bool
+auto FFileUtility::Exists(const std::string_view InPath) -> bool
 {
-	return PHYSFS_exists(ApplyRootPrefix(path).c_str()) != 0;
+	return PHYSFS_exists(ApplyRootPrefix(InPath).c_str()) != 0;
 }
 
-auto FileUtility::Size(File* file) -> std::size_t
+auto FFileUtility::Size(TFile* file) -> std::size_t
 {
 	return PHYSFS_fileLength(file);
 }
 
-auto FileUtility::Size(const std::string_view path) -> std::size_t
+auto FFileUtility::Size(const std::string_view InPath) -> std::size_t
 {
-	DEBUG_ASSERT(Exists(path));
-	auto* f = Open(path, FileMode::Read);
-	auto size = Size(f);
+	DEBUG_ASSERT(Exists(InPath));
+	auto* f = Open(InPath, EFileMode::Read);
+	auto FileSize = Size(f);
 	Close(f);
-	return size;
+	return FileSize;
 }
 
-void FileUtility::Close(File* file)
+void FFileUtility::Close(TFile* file)
 {
 	auto r = PHYSFS_close(file);
 	DEBUG_ASSERT(r != 0, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 }
 
-auto FileUtility::MkDir(const std::string_view dirPath) -> bool
+auto FFileUtility::MkDir(const std::string_view InDirPath) -> bool
 {
-	return PHYSFS_mkdir(ApplyRootPrefix(dirPath).c_str()) != 0;
+	return PHYSFS_mkdir(ApplyRootPrefix(InDirPath).c_str()) != 0;
 }
 
-auto FileUtility::Copy(const std::string_view src, const std::string_view dst) -> bool
+auto FFileUtility::Copy(const std::string_view InSrc, const std::string_view InDst) -> bool
 {
-	if (Exists(dst))
+	if (Exists(InDst))
 	{
 		return false;
 	}
-	auto* input = Open(src, FileMode::Read);
-	auto* output = Open(dst, FileMode::Write);
-	auto inputFileSize = Size(input);
-	std::vector<std::byte> buffer(inputFileSize);
-	Read(input, buffer.data(), inputFileSize);
-	Write(output, buffer.data(), inputFileSize);
-	Close(output);
-	Close(input);
+	auto* Input = Open(InSrc, EFileMode::Read);
+	auto* Output = Open(InDst, EFileMode::Write);
+	auto InputFileSize = Size(Input);
+	std::vector<std::byte> Buffer(InputFileSize);
+	Read(Input, Buffer.data(), InputFileSize);
+	Write(Output, Buffer.data(), InputFileSize);
+	Close(Output);
+	Close(Input);
 	return true;
 }
 
-auto FileUtility::ReadFile(const std::string_view path) -> std::vector<std::uint8_t>
+auto FFileUtility::ReadFile(const std::string_view InPath) -> std::vector<std::uint8_t>
 {
-	DEBUG_ASSERT(not path.empty());
-	LogDebug(LOG, "Loading file {}", path);
-	std::vector<std::uint8_t> result;
-	if (!Exists(path))
+	DEBUG_ASSERT(not InPath.empty());
+	LogDebug(kLog, "Loading file {}", InPath);
+	std::vector<std::uint8_t> Result;
+	if (!Exists(InPath))
 	{
-		LogWarn(LOG, "File does not exist {}", path);
-		return result;
+		LogWarn(kLog, "File does not exist {}", InPath);
+		return Result;
 	}
-	auto* fh = Open(path, FileMode::Read);
-	auto length = Size(fh);
-	result.resize(length);
-	auto read = Read(fh, reinterpret_cast<std::byte*>(result.data()), length);
+	auto* fh = Open(InPath, EFileMode::Read);
+	auto Length = Size(fh);
+	Result.resize(Length);
+	auto BytesRead = Read(fh, reinterpret_cast<std::byte*>(Result.data()), Length);
 	Close(fh);
-	if (std::cmp_equal(read, -1))
+	if (std::cmp_equal(BytesRead, -1))
 	{
-		LogError(LOG, "Error while reading data");
-		result.resize(0);
+		LogError(kLog, "Error while reading data");
+		Result.resize(0);
 	}
-	return result;
+	return Result;
 }
 
 #if __EMSCRIPTEN__
@@ -429,22 +433,22 @@ std::string FileUtility::GetBasePath()
 	return "/game";
 }
 #else
-auto FileUtility::GetBasePath() -> std::string
+auto FFileUtility::GetBasePath() -> std::string
 {
 	return PHYSFS_getBaseDir();
 }
 #endif
 
-auto FileUtility::GetPrefPath(const std::string_view postfix, const bool debugBuild) -> std::string
+auto FFileUtility::GetPrefPath(const std::string_view InPostfix, const bool InDebugBuild) -> std::string
 {
-	std::string prefPath{ debugBuild ? PHYSFS_getBaseDir() : PHYSFS_getPrefDir("Soldat", "Soldat") };
-	prefPath += postfix.data();
-	if (!std::filesystem::exists(prefPath))
+	std::string PrefPath{ InDebugBuild ? PHYSFS_getBaseDir() : PHYSFS_getPrefDir("Soldat", "Soldat") };
+	PrefPath += InPostfix.data();
+	if (!std::filesystem::exists(PrefPath))
 	{
-		SoldatEnsure(std::filesystem::create_directories(prefPath));
+		SoldatEnsure(std::filesystem::create_directories(PrefPath));
 	}
-	DEBUG_ASSERT(std::filesystem::is_directory(prefPath));
-	return prefPath;
+	DEBUG_ASSERT(std::filesystem::is_directory(PrefPath));
+	return PrefPath;
 }
 
 // tests
@@ -454,204 +458,204 @@ auto FileUtility::GetPrefPath(const std::string_view postfix, const bool debugBu
 namespace
 {
 
-	class FileUtilityFixture
+	class FIleUtilityFixture
 	{
 	public:
-		FileUtilityFixture() = default;
-		~FileUtilityFixture() = default;
-		FileUtilityFixture& operator=(const FileUtilityFixture&) = delete;
-		FileUtilityFixture&& operator=(const FileUtilityFixture&&) = delete;
-		FileUtilityFixture(const FileUtilityFixture&) = delete;
-		FileUtilityFixture(const FileUtilityFixture&&) = delete;
+		FIleUtilityFixture() = default;
+		~FIleUtilityFixture() = default;
+		FIleUtilityFixture& operator=(const FIleUtilityFixture&) = delete;
+		FIleUtilityFixture&& operator=(const FIleUtilityFixture&&) = delete;
+		FIleUtilityFixture(const FIleUtilityFixture&) = delete;
+		FIleUtilityFixture(const FIleUtilityFixture&&) = delete;
 	};
 
 	TEST_SUITE("FileUtility")
 	{
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Mount memory and write file and later read it")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Mount memory and write file and later read it")
 		{
-			FileUtility fu;
+			FFileUtility fu;
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
+			auto TestData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
 			{
-				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-				auto r = FileUtility::Write(f, testData.data(), testData.size());
-				FileUtility::Close(f);
+				auto* f = fu.Open("/fs_mem/valid", FFileUtility::EFileMode::Write);
+				auto r = FFileUtility::Write(f, TestData.data(), TestData.size());
+				FFileUtility::Close(f);
 				CHECK_EQ(true, r);
 			}
 			{
-				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
+				auto* f = fu.Open("/fs_mem/valid", FFileUtility::EFileMode::Read);
 				auto d = std::to_array({ std::byte(0), std::byte(0), std::byte(0), std::byte(0) });
-				auto r = FileUtility::Read(f, d.data(), d.size());
-				FileUtility::Close(f);
+				auto r = FFileUtility::Read(f, d.data(), d.size());
+				FFileUtility::Close(f);
 				CHECK_EQ(d.size(), r);
-				CHECK_EQ(d, testData);
+				CHECK_EQ(d, TestData);
 			}
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Mount file system write and read file")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Mount file system write and read file")
 		{
-			auto testDirectory = fs::temp_directory_path() / "Soldat_test";
-			fs::remove_all(testDirectory);
-			fs::create_directories(testDirectory);
-			FileUtility fu;
-			fu.Mount(testDirectory.string(), "/fs_mem");
-			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
+			auto TestDirectory = fs::temp_directory_path() / "Soldat_test";
+			fs::remove_all(TestDirectory);
+			fs::create_directories(TestDirectory);
+			FFileUtility fu;
+			fu.Mount(TestDirectory.string(), "/fs_mem");
+			auto TestData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
 			{
-				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-				auto r = FileUtility::Write(f, testData.data(), testData.size());
-				FileUtility::Close(f);
+				auto* f = fu.Open("/fs_mem/valid", FFileUtility::EFileMode::Write);
+				auto r = FFileUtility::Write(f, TestData.data(), TestData.size());
+				FFileUtility::Close(f);
 				CHECK_EQ(true, r);
 			}
 			{
-				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
-				std::array<std::byte, testData.size()> d = {};
+				auto* f = fu.Open("/fs_mem/valid", FFileUtility::EFileMode::Read);
+				std::array<std::byte, TestData.size()> d = {};
 				std::ranges::fill(d, std::byte(0));
-				auto r = FileUtility::Read(f, d.data(), testData.size());
-				FileUtility::Close(f);
-				CHECK_EQ(testData.size(), r);
-				CHECK_EQ(d, testData);
+				auto r = FFileUtility::Read(f, d.data(), TestData.size());
+				FFileUtility::Close(f);
+				CHECK_EQ(TestData.size(), r);
+				CHECK_EQ(d, TestData);
 			}
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "FileUtility initialized twice does not crash")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "FileUtility initialized twice does not crash")
 		{
-			FileUtility const fu1;
-			FileUtility const fu2;
+			FFileUtility const FU1;
+			FFileUtility const FU2;
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Create directory in memory")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Create directory in memory")
 		{
-			FileUtility fu;
+			FFileUtility fu;
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			auto created = fu.MkDir("/fs_mem/test_directory");
-			CHECK_EQ(true, created);
-			created = fu.MkDir("/fs_mem/test_directory");
-			CHECK_EQ(true, created);
+			auto Created = fu.MkDir("/fs_mem/test_directory");
+			CHECK_EQ(true, Created);
+			Created = fu.MkDir("/fs_mem/test_directory");
+			CHECK_EQ(true, Created);
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Create two directories in memory")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Create two directories in memory")
 		{
-			FileUtility fu;
+			FFileUtility fu;
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			auto created = fu.MkDir("/fs_mem/test_directory");
-			CHECK_EQ(true, created);
-			created = fu.MkDir("/fs_mem/test_directory/test_directory2");
-			CHECK_EQ(true, created);
+			auto Created = fu.MkDir("/fs_mem/test_directory");
+			CHECK_EQ(true, Created);
+			Created = fu.MkDir("/fs_mem/test_directory/test_directory2");
+			CHECK_EQ(true, Created);
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Create directory in filesystem")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Create directory in filesystem")
 		{
-			auto testDirectory = fs::temp_directory_path() / "Soldat_test";
-			fs::remove_all(testDirectory);
-			fs::create_directories(testDirectory);
-			FileUtility fu;
-			fu.Mount(testDirectory.string(), "/fs_mem");
-			auto created = fu.MkDir("/fs_mem/test_directory");
-			CHECK_EQ(true, created);
-			created = fu.MkDir("/fs_mem/test_directory");
-			CHECK_EQ(true, created);
+			auto TestDirectory = fs::temp_directory_path() / "Soldat_test";
+			fs::remove_all(TestDirectory);
+			fs::create_directories(TestDirectory);
+			FFileUtility fu;
+			fu.Mount(TestDirectory.string(), "/fs_mem");
+			auto Created = fu.MkDir("/fs_mem/test_directory");
+			CHECK_EQ(true, Created);
+			Created = fu.MkDir("/fs_mem/test_directory");
+			CHECK_EQ(true, Created);
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Get base path returns path to directory with with exe")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Get base path returns path to directory with with exe")
 		{
-			FileUtility const fu;
-			auto s = FileUtility::GetBasePath();
+			FFileUtility const FU;
+			auto s = FFileUtility::GetBasePath();
 			CHECK_NE("", s);
 			CHECK_EQ(true, std::filesystem::is_directory(s));
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Get pref data returns path to directory with user settings")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Get pref data returns path to directory with user settings")
 		{
-			FileUtility const fu;
-			auto s = FileUtility::GetPrefPath("test_pref");
-			std::filesystem::path p{ s };
-			CHECK_EQ(p.filename().string(), std::string("test_pref"));
-			CHECK_EQ(true, std::filesystem::is_directory(p));
+			FFileUtility const FU;
+			auto s = FFileUtility::GetPrefPath("test_pref");
+			std::filesystem::path const P{ s };
+			CHECK_EQ(P.filename().string(), std::string("test_pref"));
+			CHECK_EQ(true, std::filesystem::is_directory(P));
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Exists return false if file does not exist")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Exists return false if file does not exist")
 		{
-			FileUtility fu;
+			FFileUtility fu;
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
+			auto TestData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
 			{
-				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-				auto r = FileUtility::Write(f, testData.data(), testData.size());
-				FileUtility::Close(f);
+				auto* f = fu.Open("/fs_mem/valid", FFileUtility::EFileMode::Write);
+				auto r = FFileUtility::Write(f, TestData.data(), TestData.size());
+				FFileUtility::Close(f);
 				CHECK_EQ(true, r);
 			}
 			CHECK_EQ(true, fu.Exists("/fs_mem/valid"));
 			CHECK_EQ(false, fu.Exists("/fs_mem/invalid"));
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Return size of file")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Return size of file")
 		{
-			FileUtility fu;
+			FFileUtility fu;
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
+			auto TestData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
 
 			{
-				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-				auto r = FileUtility::Write(f, testData.data(), testData.size());
-				FileUtility::Close(f);
+				auto* f = fu.Open("/fs_mem/valid", FFileUtility::EFileMode::Write);
+				auto r = FFileUtility::Write(f, TestData.data(), TestData.size());
+				FFileUtility::Close(f);
 				CHECK_EQ(true, r);
 			}
 			{
-				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
+				auto* f = fu.Open("/fs_mem/valid", FFileUtility::EFileMode::Read);
 				CHECK_EQ(4, fu.Size(f));
-				FileUtility::Close(f);
+				FFileUtility::Close(f);
 			}
 			{
 				CHECK_EQ(4, fu.Size("/fs_mem/valid"));
 			}
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Copy file")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Copy file")
 		{
-			FileUtility fu;
+			FFileUtility fu;
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
+			auto TestData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
 			{
-				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-				auto r = FileUtility::Write(f, testData.data(), testData.size());
-				FileUtility::Close(f);
+				auto* f = fu.Open("/fs_mem/valid", FFileUtility::EFileMode::Write);
+				auto r = FFileUtility::Write(f, TestData.data(), TestData.size());
+				FFileUtility::Close(f);
 				CHECK_EQ(true, r);
 			}
 			{
-				auto copied = fu.Copy("/fs_mem/valid", "/fs_mem/copy");
-				CHECK_EQ(true, copied);
-				auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Read);
+				auto Copied = fu.Copy("/fs_mem/valid", "/fs_mem/copy");
+				CHECK_EQ(true, Copied);
+				auto* f = fu.Open("/fs_mem/valid", FFileUtility::EFileMode::Read);
 				CHECK_EQ(4, fu.Size(f));
-				FileUtility::Close(f);
+				FFileUtility::Close(f);
 			}
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Filesystem does not leak between two different FileUtility objects")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Filesystem does not leak between two different FileUtility objects")
 		{
-			FileUtility fu("/test1");
+			FFileUtility fu("/test1");
 			fu.Mount("tmpfs.memory", "/fs_mem");
-			auto testData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
-			auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-			auto r = FileUtility::Write(f, testData.data(), testData.size());
+			auto TestData = std::to_array({ std::byte(42), std::byte(42), std::byte(42), std::byte(40) });
+			auto* f = fu.Open("/fs_mem/valid", FFileUtility::EFileMode::Write);
+			auto r = FFileUtility::Write(f, TestData.data(), TestData.size());
 			CHECK(r);
-			FileUtility::Close(f);
-			FileUtility fu2("/test2");
-			fu2.Mount("tmpfs.memory", "/fs_mem");
+			FFileUtility::Close(f);
+			FFileUtility Fu2("/test2");
+			Fu2.Mount("tmpfs.memory", "/fs_mem");
 
 			{
-				auto* f = fu2.Open("/fs_mem/valid2", FileUtility::FileMode::Write);
-				FileUtility::Write(f, testData.data(), testData.size());
-				FileUtility::Close(f);
+				auto* f = Fu2.Open("/fs_mem/valid2", FFileUtility::EFileMode::Write);
+				FFileUtility::Write(f, TestData.data(), TestData.size());
+				FFileUtility::Close(f);
 			}
 
 			CHECK_EQ(true, fu.Exists("/fs_mem/valid"));
-			CHECK_EQ(false, fu2.Exists("/fs_mem/valid"));
+			CHECK_EQ(false, Fu2.Exists("/fs_mem/valid"));
 			CHECK_EQ(false, fu.Exists("/fs_mem/valid2"));
-			CHECK_EQ(true, fu2.Exists("/fs_mem/valid2"));
+			CHECK_EQ(true, Fu2.Exists("/fs_mem/valid2"));
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "The same file can be mounted twice in different objects")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "The same file can be mounted twice in different objects")
 		{
 			// test soldat.smod, generated with xxd --include soldat.smod
 			// contains:
@@ -689,53 +693,53 @@ namespace
 			// clang-format on
 			// NOLINTEND
 
-			FileUtility fu("/t1");
-			auto testDir = FileUtility::GetPrefPath("mount_test", true);
-			std::filesystem::remove_all(testDir);
+			FFileUtility fu("/t1");
+			auto TestDir = FFileUtility::GetPrefPath("mount_test", true);
+			std::filesystem::remove_all(TestDir);
 			// recreate directory
-			testDir = FileUtility::GetPrefPath("mount_test", true);
+			TestDir = FFileUtility::GetPrefPath("mount_test", true);
 			{
-				std::ofstream s(testDir + "/soldat.smod", std::ios_base::binary | std::ios_base::trunc);
+				std::ofstream s(TestDir + "/soldat.smod", std::ios_base::binary | std::ios_base::trunc);
 				s.write(reinterpret_cast<char*>(soldat_smod), soldat_smod_len);
 			}
 
-			CHECK_EQ(true, fu.Mount(testDir + "/soldat.smod", "/"));
+			CHECK_EQ(true, fu.Mount(TestDir + "/soldat.smod", "/"));
 			CHECK_EQ(true, fu.Exists("/client_test.txt"));
-			FileUtility fu2("/t2");
-			CHECK_EQ(true, fu2.Mount(testDir + "/soldat.smod", "/"));
-			CHECK_EQ(true, fu2.Exists("/client_test.txt"));
+			FFileUtility Fu2("/t2");
+			CHECK_EQ(true, Fu2.Mount(TestDir + "/soldat.smod", "/"));
+			CHECK_EQ(true, Fu2.Exists("/client_test.txt"));
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Filesystem does not leak between two different FileUtility objects")
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Filesystem does not leak between two different FileUtility objects")
 		{
-			FileUtility fu("/test8");
+			FFileUtility fu("/test8");
 			fu.Mount("tmpfs.memory", "/fs_mem");
 			auto testData = std::to_array<std::uint8_t>({ 42, 42, 42, 40 }); // NOLINT
-			auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-			auto r = FileUtility::Write(f, reinterpret_cast<std::byte*>(testData.data()), testData.size());
+			auto* f = fu.Open("/fs_mem/valid", FFileUtility::EFileMode::Write);
+			auto r = FFileUtility::Write(f, reinterpret_cast<std::byte*>(testData.data()), testData.size());
 			CHECK(r);
-			FileUtility::Close(f);
+			FFileUtility::Close(f);
 
-			auto data = fu.ReadFile("/fs_mem/valid");
-			CHECK_EQ(testData.size(), data.size());
-			CHECK_EQ(testData[0], data[0]);
-			CHECK_EQ(testData[1], data[1]);
-			CHECK_EQ(testData[2], data[2]);
-			CHECK_EQ(testData[3], data[3]);
+			auto Data = fu.ReadFile("/fs_mem/valid");
+			CHECK_EQ(testData.size(), Data.size());
+			CHECK_EQ(testData[0], Data[0]);
+			CHECK_EQ(testData[1], Data[1]);
+			CHECK_EQ(testData[2], Data[2]);
+			CHECK_EQ(testData[3], Data[3]);
 		}
 
-		TEST_CASE_FIXTURE(FileUtilityFixture, "Test size method" * doctest::skip(false))
+		TEST_CASE_FIXTURE(FIleUtilityFixture, "Test size method" * doctest::skip(false))
 		{
-			FileUtility fu("/test1");
+			FFileUtility fu("/test1");
 			fu.Mount("tmpfs.memory", "/fs_mem");
 			auto testData = std::to_array<std::uint8_t>({ 42, 42, 42, 40 }); // NOLINT
 			CHECK_FALSE(fu.Exists("/fs_mem/valid"));
-			auto* f = fu.Open("/fs_mem/valid", FileUtility::FileMode::Write);
-			auto r = FileUtility::Write(f, reinterpret_cast<std::byte*>(testData.data()), testData.size());
+			auto* f = fu.Open("/fs_mem/valid", FFileUtility::EFileMode::Write);
+			auto r = FFileUtility::Write(f, reinterpret_cast<std::byte*>(testData.data()), testData.size());
 			CHECK(r);
-			FileUtility::Close(f);
-			auto size = fu.Size("/fs_mem/valid");
-			CHECK_EQ(4, size);
+			FFileUtility::Close(f);
+			auto Size = fu.Size("/fs_mem/valid");
+			CHECK_EQ(4, Size);
 		}
 
 	} // TEST_SUITE(FileUtility)

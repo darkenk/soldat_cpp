@@ -220,7 +220,7 @@ void particlesystem::clone(const particlesystem& other)
 	}
 }
 
-void particlesystem::loadpoobject(FileUtility& fs, const std::string& filename, float scale)
+void particlesystem::loadpoobject(FFileUtility& fs, const std::string& filename, float scale)
 {
 	if (!fs.Exists(filename))
 	{

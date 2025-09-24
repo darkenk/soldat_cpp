@@ -19,7 +19,7 @@
 #endif // SERVER
 
 template <class TSprite>
-class TSpriteSystem : public GlobalSubsystem<TSpriteSystem<TSprite>>
+class TSpriteSystem : public FGlobalSubsystem<TSpriteSystem<TSprite>>
 {
 public:
 	using ActiveSpritesStorage = std::vector<TSprite>;
@@ -139,7 +139,7 @@ private:
 	particlesystem spriteparts;
 	std::uint8_t mysprite{};
 
-	friend GlobalSubsystem<TSpriteSystem>;
+	friend FGlobalSubsystem<TSpriteSystem>;
 };
 
 using SpriteSystem = TSpriteSystem<>;

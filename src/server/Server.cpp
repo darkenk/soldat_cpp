@@ -130,7 +130,7 @@ void GlobalStateServer::DaemonizeProgram()
 }
 #endif // MSWINDOWS
 
-void GlobalStateServer::CreateDirectoryStructure(FileUtility& fs)
+void GlobalStateServer::CreateDirectoryStructure(FFileUtility& fs)
 {
 	SoldatEnsure(fs.MkDir("/user/configs"));
 	SoldatEnsure(fs.MkDir("/user/demos"));
@@ -194,8 +194,8 @@ void GlobalStateServer::ActivateServer(int argc, char* argv[])
 	commandinit();
 	parsecommandline(argc, argv);
 
-	const auto userDirectory = FileUtility::GetPrefPath("server");
-	const auto baseDirectory = FileUtility::GetBasePath();
+	const auto userDirectory = FFileUtility::GetPrefPath("server");
+	const auto baseDirectory = FFileUtility::GetBasePath();
 
 	LogDebugG("[FS]  userdirectory {}", userDirectory);
 	LogDebugG("[FS]  basedirectory {}", baseDirectory);

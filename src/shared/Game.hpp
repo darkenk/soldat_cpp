@@ -58,7 +58,7 @@ extern GlobalStateGame gGlobalStateGame;
 #endif
 
 template <Config::Module M = Config::GetModule()>
-class Game : public GlobalSubsystem<Game<M>>
+class Game : public FGlobalSubsystem<Game<M>>
 {
 public:
 	void number27timing();
@@ -272,5 +272,5 @@ private:
 	PascalArray<tkillsort, 1, Constants::MAX_PLAYERS> sortedplayers{};
 	PascalArray<PascalArray<std::uint8_t, 1, main_weapons>, 1, Constants::MAX_PLAYERS> weaponsel{};
 
-	friend GlobalSubsystem<Game<M>>;
+	friend FGlobalSubsystem<Game<M>>;
 };

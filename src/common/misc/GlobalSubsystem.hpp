@@ -3,26 +3,30 @@
 #include <memory>
 
 template <class T>
-class GlobalSubsystem
+class FGlobalSubsystem
 {
 public:
+	FGlobalSubsystem(const FGlobalSubsystem&) = delete;
+	FGlobalSubsystem(FGlobalSubsystem&&) = delete;
+	FGlobalSubsystem& operator=(const FGlobalSubsystem&) = delete;
+	FGlobalSubsystem& operator=(FGlobalSubsystem&&) = delete;
+	virtual ~FGlobalSubsystem() = default;
 	static void Init()
 	{
-		SoldatAssert(Subsystem == nullptr);
-		Subsystem = std::unique_ptr<T>(new T{});
+		SoldatAssert(gSubsystem == nullptr);
+		gSubsystem = std::unique_ptr<T>(new T{});
 	}
 
-	static void Deinit() { Subsystem.reset(); }
+	static void Deinit() { gSubsystem.reset(); }
 
-	static T& Get() { return *Subsystem; }
+	static T& Get() { return *gSubsystem; }
 
 protected:
-	GlobalSubsystem() { };
-	GlobalSubsystem(const GlobalSubsystem&) = delete;
+	FGlobalSubsystem() = default;
 
 private:
-	static std::unique_ptr<T> Subsystem;
+	static std::unique_ptr<T> gSubsystem;
 };
 
 template <class T>
-std::unique_ptr<T> GlobalSubsystem<T>::Subsystem;
+std::unique_ptr<T> FGlobalSubsystem<T>::gSubsystem;

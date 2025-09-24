@@ -18,17 +18,17 @@
 #endif // SERVER
 
 template <Config::Module M>
-GlobalSystems<M>::GlobalSystems()
+FGlobalSystems<M>::FGlobalSystems()
 {
 	if constexpr (Config::IsServer(M))
 	{
-		FileUtilityObject = std::make_unique<FileUtility>("/server");
+		FileUtilityObject = std::make_unique<FFileUtility>("/server");
 	}
 	else
 	{
-		FileUtilityObject = std::make_unique<FileUtility>("/client");
+		FileUtilityObject = std::make_unique<FFileUtility>("/client");
 	}
-	MainConsoleObject = std::make_unique<ConsoleType>();
+	MainConsoleObject = std::make_unique<TConsoleType>();
 	ConsoleLogFileObject = std::make_unique<LogFile>(*FileUtilityObject);
 	if constexpr (Config::IsServer(M))
 	{
@@ -45,7 +45,7 @@ GlobalSystems<M>::GlobalSystems()
 }
 
 template <Config::Module M>
-GlobalSystems<M>::~GlobalSystems()
+FGlobalSystems<M>::~FGlobalSystems()
 {
 	Game<M>::Deinit();
 	DemoRecorder.reset();
@@ -60,4 +60,4 @@ GlobalSystems<M>::~GlobalSystems()
 	FileUtilityObject.reset();
 }
 
-template class GlobalSystems<Config::GetModule()>;
+template class FGlobalSystems<Config::GetModule()>;

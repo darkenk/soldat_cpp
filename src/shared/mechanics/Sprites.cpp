@@ -2454,7 +2454,7 @@ void Sprite<M>::die(std::int32_t how, std::int32_t who, std::int32_t where, std:
 	}
 	if (bread)
 	{
-		auto& weaponSystem = GlobalSystems<M>::GetWeaponSystem();
+		auto& weaponSystem = FGlobalSystems<M>::GetWeaponSystem();
 
 #ifdef SERVER
 		if (!deadmeat && (std::cmp_not_equal(num, who)))

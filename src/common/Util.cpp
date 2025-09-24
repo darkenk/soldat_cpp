@@ -69,7 +69,7 @@ auto numberformat(std::uint32_t num) -> std::string
 	return std::to_string(num);
 }
 
-auto overridefileext(FileUtility& fs, const std::string& filename, const std::string& ext) -> std::string
+auto overridefileext(FFileUtility& fs, const std::string& filename, const std::string& ext) -> std::string
 {
 	auto result = filename;
 	auto dotPos = filename.find_last_of('.');
@@ -155,13 +155,13 @@ auto getsize(std::int64_t bytes) -> std::string
 }
 
 auto verifymapchecksum(
-	FileUtility& fs, const tmapinfo& map, const tsha1digest& checksum, const tsha1digest& defaultgamemodchecksum)
+	FFileUtility& fs, const tmapinfo& map, const tsha1digest& checksum, const tsha1digest& defaultgamemodchecksum)
 	-> bool
 {
 	return getmapchecksum(fs, map, defaultgamemodchecksum) == checksum;
 }
 
-auto getmapchecksum(FileUtility& fs, const tmapinfo& map, const tsha1digest& defaultgamemodchecksum) -> tsha1digest
+auto getmapchecksum(FFileUtility& fs, const tmapinfo& map, const tsha1digest& defaultgamemodchecksum) -> tsha1digest
 {
 	if (fs.Exists(std::string("maps/") + map.mapname + ".pms"))
 	{
@@ -194,7 +194,7 @@ static auto split_string(const std::string& s, const std::string& delimiter) -> 
 	return res;
 }
 
-auto getmapinfo(FileUtility& fs,
+auto getmapinfo(FFileUtility& fs,
 	const std::string& mapname,
 	const std::string& directory,
 	tmapinfo& mapinfo) -> bool // dk out MapInfo

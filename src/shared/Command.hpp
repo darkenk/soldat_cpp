@@ -7,7 +7,7 @@
 #include "common/FileUtility.hpp"
 #include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
 
-class FileUtility;
+class FFileUtility;
 
 template <Config::Module M = Config::GetModule()>
 void commandinit();
@@ -18,7 +18,7 @@ bool parseinput(const std::string& input);
 template <Config::Module M = Config::GetModule()>
 auto parseinput(const std::string& input, std::uint8_t sender) -> bool;
 template <Config::Module M = Config::GetModule()>
-auto loadconfig(const std::string& configname, FileUtility& fs) -> bool;
+auto loadconfig(const std::string& configname, FFileUtility& fs) -> bool;
 
 constexpr std::int32_t max_commands = 1024;
 

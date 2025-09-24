@@ -33,7 +33,7 @@ enum SkeletonType : std::int32_t
 };
 
 template <Config::Module M = Config::GetModule()>
-class TAnimationSystem : public GlobalSubsystem<TAnimationSystem<M>>
+class TAnimationSystem : public FGlobalSubsystem<TAnimationSystem<M>>
 {
 public:
 	void LoadAnimObjects(const std::string& moddir);

@@ -876,14 +876,14 @@ namespace
 	public:
 		NetworkClientConnectionFixture()
 		{
-			GlobalSystems<Config::CLIENT_MODULE>::Init();
+			FGlobalSystems<Config::CLIENT_MODULE>::Init();
 			AnimationSystem::Get().LoadAnimObjects("");
 			for (auto& s : SpriteSystem::Get().GetSprites())
 			{
 				s.player = std::make_shared<tplayer>();
 			}
 		}
-		~NetworkClientConnectionFixture() { GlobalSystems<Config::CLIENT_MODULE>::Deinit(); }
+		~NetworkClientConnectionFixture() { FGlobalSystems<Config::CLIENT_MODULE>::Deinit(); }
 		NetworkClientConnectionFixture(const NetworkClientConnectionFixture&) = delete;
 
 	protected:

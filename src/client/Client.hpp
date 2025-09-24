@@ -12,7 +12,7 @@
 #include "shared/network/Net.hpp"
 
 class Console;
-class FileUtility;
+class FFileUtility;
 class ConsoleMain;
 
 struct tweaponstat
@@ -35,7 +35,7 @@ struct GlobalStateClient
 	void shutdown();
 	void exittomenu();
 	bool mainloop();
-	void loadweaponnames(FileUtility& fs, GunArray& gunDisplayName, const std::string& modDir);
+	void loadweaponnames(FFileUtility& fs, GunArray& gunDisplayName, const std::string& modDir);
 	void showmessage(const std::string& messagetext);
 	std::string joinpassword;
 	std::string joinport = "23073";
@@ -85,12 +85,12 @@ struct GlobalStateClient
 	std::int32_t shotricochet = {};
 
 	// should be private, but there are tests written for those methods already
-	auto MountAssets(FileUtility& fu,
+	auto MountAssets(FFileUtility& fu,
 		const std::string& userdirectory,
 		const std::string& basedirectory,
 		tsha1digest& outGameModChecksum,
 		tsha1digest& outCustomModChecksum) -> bool;
-	void CreateDirectoryStructure(FileUtility& fs);
+	void CreateDirectoryStructure(FFileUtility& fs);
 	void InitConsoles(bool test = false);
 
 private:
@@ -106,11 +106,11 @@ private:
 	bool gamelooprun{};
 	bool progready{};
 	friend class ClientFixture;
-	auto InitBigConsole(FileUtility* filesystem,
+	auto InitBigConsole(FFileUtility* filesystem,
 		const std::int32_t newMessageWait,
 		const std::int32_t countMax,
 		const std::int32_t scrollTickMax) -> Console&;
-	auto InitKillConsole(FileUtility* filesystem,
+	auto InitKillConsole(FFileUtility* filesystem,
 		const std::int32_t newMessageWait,
 		const std::int32_t countMax,
 		const std::int32_t scrollTickMax) -> ConsoleMain&;

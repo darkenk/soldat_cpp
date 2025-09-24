@@ -13,14 +13,14 @@
 class TFileStream : public TStream
 {
 public:
-	explicit TFileStream(FileUtility& fs, const std::string_view filename)
+	explicit TFileStream(FFileUtility& fs, const std::string_view filename)
 	{
 		std::size_t fileSize = 0;
-		auto* f = fs.Open(filename, FileUtility::FileMode::Read);
-		fileSize = FileUtility::Size(f);
+		auto* f = fs.Open(filename, FFileUtility::EFileMode::Read);
+		fileSize = FFileUtility::Size(f);
 		buff = std::make_unique<std::byte[]>(fileSize);
-		FileUtility::Read(f, buff.get(), fileSize);
-		FileUtility::Close(f);
+		FFileUtility::Read(f, buff.get(), fileSize);
+		FFileUtility::Close(f);
 
 		Stream.str(std::string(reinterpret_cast<char*>(buff.get()), fileSize));
 	}
@@ -44,7 +44,7 @@ private:
 	std::unique_ptr<std::byte[]> buff;
 };
 
-auto ReadAsFileStream(FileUtility& fs, const std::string_view& file) -> std::unique_ptr<TStream>
+auto ReadAsFileStream(FFileUtility& fs, const std::string_view& file) -> std::unique_ptr<TStream>
 {
 	if (!fs.Exists(file))
 	{
@@ -72,15 +72,15 @@ namespace
 TestEntry=1.0
 )";
 			FS.Mount("tmpfs.memory", "/fs_mem");
-			auto* f = FS.Open(TestFile, FileUtility::FileMode::Write);
-			FileUtility::Write(f, reinterpret_cast<const std::byte*>(testData.data()), testData.size());
-			FileUtility::Close(f);
+			auto* f = FS.Open(TestFile, FFileUtility::EFileMode::Write);
+			FFileUtility::Write(f, reinterpret_cast<const std::byte*>(testData.data()), testData.size());
+			FFileUtility::Close(f);
 		}
 		TFileStreamFixture(const TFileStreamFixture&) = delete;
 		~TFileStreamFixture() { FS.Unmount("tmpfs.memory"); }
 
 	protected:
-		FileUtility FS;
+		FFileUtility FS;
 	};
 
 	TEST_CASE_FIXTURE(TFileStreamFixture, "Mount memory and write file and later read it") { }

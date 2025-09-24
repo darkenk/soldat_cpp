@@ -6,8 +6,8 @@
 auto main(int argc, char* argv[]) -> int
 {
 	InitLogging();
-	GlobalSystems<Config::CLIENT_MODULE>::Init();
+	FGlobalSystems<Config::CLIENT_MODULE>::Init();
 	gGlobalStateClient.startgame(argc, argv);
-	GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+	FGlobalSystems<Config::CLIENT_MODULE>::Deinit();
 	return 0;
 }

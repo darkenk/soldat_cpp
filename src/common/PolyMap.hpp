@@ -16,7 +16,7 @@
 #include "misc/PortUtilsSoldat.hpp"
 #include "misc/SafeType.hpp"
 
-class FileUtility;
+class FFileUtility;
 class twaypoints;
 
 // Polygon constants go here
@@ -135,9 +135,9 @@ public:
 
 	Polymap(twaypoints& botpath) : botpath{ botpath } { };
 	bool loadmap(const tmapfile& mapfile);
-	bool loadmap(FileUtility& fs, const tmapinfo& map);
+	bool loadmap(FFileUtility& fs, const tmapinfo& map);
 	bool loadmap(
-		FileUtility& fs, const tmapinfo& map, bool bgforce, std::uint32_t bgcolortop, std::uint32_t bgcolorbtm);
+		FFileUtility& fs, const tmapinfo& map, bool bgforce, std::uint32_t bgcolortop, std::uint32_t bgcolorbtm);
 	bool pointinpolyedges(float x, float y, std::int32_t i);
 	static bool pointinpoly(const tvector2& p, const tmappolygon& poly);
 	static bool PointInPoly(const tvector2& p, const PolyMapSector::Poly& poly);

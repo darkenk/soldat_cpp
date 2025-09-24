@@ -5,12 +5,12 @@
 #include <vector>
 #include <string_view>
 
-class FileUtility;
+class FFileUtility;
 
 class LogFile
 {
 public:
-	explicit LogFile(FileUtility& fu) : mFileUtility(fu) { }
+	explicit LogFile(FFileUtility& fu) : mFileUtility(fu) { }
 	void Init(const std::string_view filenamePrefix);
 	void WriteToFile();
 	void Log(const std::string_view s, bool withdate = true);
@@ -20,7 +20,7 @@ public:
 	void SetLogLevel(int level) { mLogLevel = level; }
 
 private:
-	FileUtility& mFileUtility;
+	FFileUtility& mFileUtility;
 	std::string mLogName;
 	std::string mLogNamePrefix;
 	std::vector<std::string> mLogList;

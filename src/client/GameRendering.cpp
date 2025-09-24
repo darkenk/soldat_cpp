@@ -1500,10 +1500,10 @@ namespace
 			gGlobalStateInput.gamewindow = app.GetWindow();
 			gfxSetGpuDevice(app.GetDevice());
 			gfxinitcontext(app.GetWindow(), false, false);
-			GlobalSystems<Config::CLIENT_MODULE>::Init();
+			FGlobalSystems<Config::CLIENT_MODULE>::Init();
 			auto& fs = GS::GetFileSystem();
-			const auto userDirectory = FileUtility::GetPrefPath("client");
-			const auto baseDirectory = FileUtility::GetBasePath();
+			const auto userDirectory = FFileUtility::GetPrefPath("client");
+			const auto baseDirectory = FFileUtility::GetBasePath();
 
 			fs.Mount(userDirectory, "/user");
 			fs.Mount(baseDirectory + "/soldat.smod", "/");
@@ -1524,7 +1524,7 @@ namespace
 			gGlobalStateMapGraphics.destroymapgraphics();
 			gfxdestroycontext();
 			delete[] gGlobalStateGameRendering.textures;
-			GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+			FGlobalSystems<Config::CLIENT_MODULE>::Deinit();
 			gGlobalStateInput.gamewindow = nullptr;
 			CHECK(true);
 		}

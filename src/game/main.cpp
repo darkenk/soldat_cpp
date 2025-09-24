@@ -21,7 +21,7 @@
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/SoldatConfig.hpp"
 
-// NOLINTBEGIN
+// NOLINTBEGIN(unused-includes)
 // clang-format off
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL_main.h>
@@ -33,65 +33,66 @@
 #undef FMT_VERSION
 #include <ApprovalTests/ApprovalTests.hpp> // IWYU: pragma keep
 // clang-format on
-// NOLINTEND
+// NOLINTEND(unused-includes)
 
 namespace
 {
+	using std::exit;
 
 	template <int DesiredPrecision>
-	class PngFuzzyComparator : public ApprovalTests::ApprovalComparator
+	class TPngFuzzyComparator : public ApprovalTests::ApprovalComparator
 	{
 	public:
 		bool contentsAreEquivalent(std::string receivedPath, std::string approvedPath) const override
 		{
 			constexpr auto kDesiredChannels = 4;
-			int rw = 0;
-			int rh = 0;
-			int rchannels = 0;
-			auto* received = stbi_load(receivedPath.c_str(), &rw, &rh, &rchannels, kDesiredChannels);
-			int aw = 0;
-			int ah = 0;
-			int achannels = 0;
-			auto* approved = stbi_load(approvedPath.c_str(), &aw, &ah, &achannels, kDesiredChannels);
-			auto testFunction = [&]()
+			int Rw = 0;
+			int Rh = 0;
+			int Rchannels = 0;
+			auto* Received = stbi_load(receivedPath.c_str(), &Rw, &Rh, &Rchannels, kDesiredChannels);
+			int Aw = 0;
+			int Ah = 0;
+			int Achannels = 0;
+			auto* Approved = stbi_load(approvedPath.c_str(), &Aw, &Ah, &Achannels, kDesiredChannels);
+			auto TestFunction = [&]()
 			{
-				if (!received || !approved)
+				if (!Received || !Approved)
 				{
 					return false;
 				}
-				if (rw != aw || rh != ah || rchannels != achannels)
+				if (Rw != Aw || Rh != Ah || Rchannels != Achannels)
 				{
 					return false;
 				}
-				for (int i = 0; i < aw * ah * achannels; i++)
+				for (int i = 0; i < Aw * Ah * Achannels; i++)
 				{
-					if ((static_cast<int>(approved[i]) - static_cast<int>(received[i])) > DesiredPrecision)
+					if ((static_cast<int>(Approved[i]) - static_cast<int>(Received[i])) > DesiredPrecision)
 					{
 						return false;
 					}
 				}
 				return true;
 			};
-			auto ret = testFunction();
-			stbi_image_free(received);
-			stbi_image_free(approved);
-			return ret;
+			auto Ret = TestFunction();
+			stbi_image_free(Received);
+			stbi_image_free(Approved);
+			return Ret;
 		}
 	};
 
 	void RunTests(int argc, char** argv)
 	{
-		auto directoryDisposer = ApprovalTests::Approvals::useApprovalsSubdirectory("approval_tests");
-		auto defaultReporterDisposer = ApprovalTests::Approvals::useAsDefaultReporter(
+		auto DirectoryDisposer = ApprovalTests::Approvals::useApprovalsSubdirectory("approval_tests");
+		auto DefaultReporterDisposer = ApprovalTests::Approvals::useAsDefaultReporter(
 			std::make_shared<ApprovalTests::CrossPlatform::VisualStudioCodeReporter>());
-		const auto rootPath = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
-		ApprovalTests::TestName::registerRootDirectoryFromMainFile((rootPath / "CMakeLists.txt").string());
+		const auto ROOT_PATH = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
+		ApprovalTests::TestName::registerRootDirectoryFromMainFile((ROOT_PATH / "CMakeLists.txt").string());
 
-		auto defaultNamerDisposer = ApprovalTests::Approvals::useAsDefaultNamer(
-			[&rootPath]()
+		auto DefaultNamerDisposer = ApprovalTests::Approvals::useAsDefaultNamer(
+			[&ROOT_PATH]()
 			{
 				return ApprovalTests::TemplatedCustomNamer::create((
-					rootPath
+					ROOT_PATH
 					/ "{ApprovalsSubdirectory}/{RelativeTestSourceDirectory}/{TestFileName}.{TestCaseName}.{ApprovedOrReceived}.{FileExtension}")
 						.string());
 			});
@@ -102,30 +103,30 @@ namespace
 				constexpr auto kWidth = 1;
 				constexpr auto kHeight = 1;
 				constexpr auto kChannels = 4;
-				std::array<std::uint8_t, static_cast<std::size_t>(kWidth * kHeight * kChannels)> data{};
-				std::ranges::fill(data, 0x0);
+				std::array<std::uint8_t, static_cast<std::size_t>(kWidth * kHeight * kChannels)> Data{};
+				std::ranges::fill(Data, 0x0);
 
-				stbi_write_png(path.c_str(), kWidth, kHeight, kChannels, data.data(), kWidth * kChannels);
+				stbi_write_png(path.c_str(), kWidth, kHeight, kChannels, Data.data(), kWidth * kChannels);
 			});
 
-		auto disposer = ApprovalTests::FileApprover::registerComparatorForExtension(
-			".png", std::make_shared<PngFuzzyComparator<2>>());
+		auto Disposer = ApprovalTests::FileApprover::registerComparatorForExtension(
+			".png", std::make_shared<TPngFuzzyComparator<2>>());
 
-		doctest::Context ctx;
-		ctx.applyCommandLine(argc, argv);
+		doctest::Context Ctx;
+		Ctx.applyCommandLine(argc, argv);
 
-		int const res = ctx.run();
+		int const RET = Ctx.run();
 
-		if (ctx.shouldExit())
+		if (Ctx.shouldExit())
 		{
-			std::exit(res);
+			exit(RET); // NOLINT(concurrency-mt-unsafe)
 		}
-		SoldatAssert(res == 0);
+		SoldatAssert(RET == 0);
 	}
 
-	struct AppState
+	struct FAppState
 	{
-		std::thread serverThread;
+		std::thread ServerThread;
 	};
 
 } // namespace
@@ -134,24 +135,24 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 {
 	InitLogging();
 	RunTests(argc, argv);
-	GlobalSystems<Config::CLIENT_MODULE>::Init();
-	GlobalSystems<Config::SERVER_MODULE>::Init();
-	auto* state = new AppState{ .serverThread = std::thread(
-									[=]()
-									{
-										gGlobalStateServer.RunServer(argc, argv);
-									}) };
-	SetThreadName(state->serverThread, "SoldatServer");
+	FGlobalSystems<Config::CLIENT_MODULE>::Init();
+	FGlobalSystems<Config::SERVER_MODULE>::Init();
+	auto* State = new FAppState{ .ServerThread = std::thread(
+									 [=]()
+									 {
+										 gGlobalStateServer.RunServer(argc, argv);
+									 }) };
+	SetThreadName(State->ServerThread, "SoldatServer");
 	SetCurrentThreadName("SoldatClient");
 	gGlobalStateClient.startgame(argc, argv);
-	*appstate = state;
+	*appstate = State;
 	return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppIterate(void* /*appstate*/)
 {
-	auto continueRun = gGlobalStateClient.mainloop();
-	return continueRun ? SDL_APP_CONTINUE : SDL_APP_SUCCESS;
+	auto ContinueRun = gGlobalStateClient.mainloop();
+	return ContinueRun ? SDL_APP_CONTINUE : SDL_APP_SUCCESS;
 }
 
 SDL_AppResult SDL_AppEvent(void* /*appstate*/, SDL_Event* event)
@@ -163,9 +164,9 @@ SDL_AppResult SDL_AppEvent(void* /*appstate*/, SDL_Event* event)
 void SDL_AppQuit(void* appstate, SDL_AppResult /*result*/)
 {
 	gGlobalStateServer.ShutdownServer();
-	auto* state = reinterpret_cast<AppState*>(appstate); // NOLINT
-	state->serverThread.join();
+	auto* state = reinterpret_cast<FAppState*>(appstate); // NOLINT
+	state->ServerThread.join();
 	delete state;
-	GlobalSystems<Config::SERVER_MODULE>::Deinit();
-	GlobalSystems<Config::CLIENT_MODULE>::Deinit();
+	FGlobalSystems<Config::SERVER_MODULE>::Deinit();
+	FGlobalSystems<Config::CLIENT_MODULE>::Deinit();
 }

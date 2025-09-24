@@ -542,7 +542,7 @@ auto parseinput(const std::string& input, std::uint8_t sender) -> bool
 }
 
 template <Config::Module M>
-auto loadconfig(const std::string& configname, FileUtility& fs) -> bool
+auto loadconfig(const std::string& configname, FFileUtility& fs) -> bool
 {
 	std::string line;
 
@@ -556,11 +556,11 @@ auto loadconfig(const std::string& configname, FileUtility& fs) -> bool
 	std::unique_ptr<std::byte[]> buff;
 	std::size_t fileSize = 0;
 	{
-		auto* f = fs.Open(path, FileUtility::FileMode::Read);
-		fileSize = FileUtility::Size(f);
+		auto* f = fs.Open(path, FFileUtility::EFileMode::Read);
+		fileSize = FFileUtility::Size(f);
 		buff = std::make_unique<std::byte[]>(fileSize);
-		FileUtility::Read(f, buff.get(), fileSize);
-		FileUtility::Close(f);
+		FFileUtility::Read(f, buff.get(), fileSize);
+		FFileUtility::Close(f);
 	}
 
 #if __EMSCRIPTEN__
@@ -799,7 +799,7 @@ template void commandinit();
 template void commanddeinit();
 template bool parseinput(const std::string& input);
 template bool parseinput(const std::string& input, std::uint8_t sender);
-template bool loadconfig(const std::string& configname, FileUtility& fu);
+template bool loadconfig(const std::string& configname, FFileUtility& fu);
 
 template pcommand commandadd(const std::string& commandnamevar,
 	tcommandfunction commandptr,

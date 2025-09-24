@@ -12,7 +12,7 @@
 #include "Waypoints.hpp"
 #include "misc/SafeType.hpp"
 
-class FileUtility;
+class FFileUtility;
 
 constexpr std::int32_t max_polys = 5000;
 constexpr std::int32_t min_sector = -25;
@@ -122,6 +122,6 @@ struct tmapfile
 	std::vector<twaypoint> waypoints;
 };
 
-bool loadmapfile(FileUtility& fs, const tmapinfo& mapinfo, tmapfile& map);
+bool loadmapfile(FFileUtility& fs, const tmapinfo& mapinfo, tmapfile& map);
 tmapcolor mapcolor(std::uint32_t color);
 bool ispropactive(tmapfile& map, std::int32_t index);

@@ -171,7 +171,7 @@ static auto crc32(std::uint32_t crc, const std::uint8_t* data, std::int32_t len)
 	return result;
 }
 
-static auto readallbytes(FileUtility& fs, const tmapinfo& map, tfilebuffer& buffer) -> bool
+static auto readallbytes(FFileUtility& fs, const tmapinfo& map, tfilebuffer& buffer) -> bool
 {
 	bool result = false;
 
@@ -313,7 +313,7 @@ auto mapcolor(std::uint32_t color) -> tmapcolor
 /*                                LoadMapFile                                 */
 /******************************************************************************/
 
-auto loadmapfile(FileUtility& fs, const tmapinfo& mapinfo, tmapfile& map) -> bool
+auto loadmapfile(FFileUtility& fs, const tmapinfo& mapinfo, tmapfile& map) -> bool
 {
 	tfilebuffer bf;
 	std::int32_t i = 0;

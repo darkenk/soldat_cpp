@@ -55,7 +55,7 @@ struct GlobalStateServer
 private:
 	bool progready = false;
 	std::string ModDir;
-	void CreateDirectoryStructure(FileUtility& fs);
+	void CreateDirectoryStructure(FFileUtility& fs);
 	void WriteLn(const std::string& msg);
 	void DaemonizeProgram();
 	void ShutDown();
@@ -63,12 +63,12 @@ private:
 
 extern GlobalStateServer gGlobalStateServer;
 
-class FileUtility;
+class FFileUtility;
 
 class ConsoleServer : public ConsoleMain
 {
 public:
-	explicit ConsoleServer(FileUtility* filesystem = nullptr,
+	explicit ConsoleServer(FFileUtility* filesystem = nullptr,
 		const std::int32_t newMessageWait = 0,
 		const std::int32_t countMax = 254,
 		const std::int32_t scrollTickMax = 150,

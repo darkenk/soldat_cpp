@@ -6,6 +6,6 @@
 #include "TStream.hpp"
 #include "../FileUtility.hpp"
 
-class FileUtility;
+class FFileUtility;
 
-std::unique_ptr<TStream> ReadAsFileStream(FileUtility& fs, const std::string_view& file);
+std::unique_ptr<TStream> ReadAsFileStream(FFileUtility& fs, const std::string_view& file);
