@@ -6,74 +6,74 @@
 #include <cstdint>
 #include <string_view>
 
-void Console::ScrollConsole()
+void FConsole::ScrollConsole()
 {
-	mScrollTick = 0;
-	if (mCount < 0)
+	ScrollTick = 0;
+	if (Count < 0)
 	{
 		return;
 	}
-	for (std::int32_t x = 0; x < mCount; x++)
+	for (std::int32_t x = 0; x < Count; x++)
 	{
 		mTextMessageColor[x] = mTextMessageColor[x + 1];
 		mTextMessage[x] = mTextMessage[x + 1];
 		mNumMessage[x] = mNumMessage[x + 1]; // scroll the messages up 1
 	}
-	mTextMessage[mCount] = ""; // blank the last message
-	mNumMessage[mCount] = 0;
-	mCount -= 1;
+	mTextMessage[Count] = ""; // blank the last message
+	mNumMessage[Count] = 0;
+	Count -= 1;
 }
 
-void Console::ConsoleAdd(const std::string_view what, std::int32_t col, std::int32_t num)
+void FConsole::ConsoleAdd(const std::string_view InWhat, std::int32_t col, std::int32_t num)
 {
-	mCount += 1;
-	mScrollTick = -mNewMessageWait;
-	mTextMessage[mCount] = what;
-	mTextMessageColor[mCount] = col;
-	mNumMessage[mCount] = num;
-	if (mCount == mCountMax - 1)
+	Count += 1;
+	ScrollTick = -NewMessageWait;
+	mTextMessage[Count] = InWhat;
+	mTextMessageColor[Count] = col;
+	mNumMessage[Count] = num;
+	if (Count == CountMax - 1)
 	{
 		ScrollConsole();
 	}
 }
 
-void ConsoleMain::Update(const bool killConsole)
+void FConsoleMain::Update(const bool InKillConsole)
 {
-	++this->mScrollTick;
-	if (this->mScrollTick != this->mScrollTickMax)
+	++this->ScrollTick;
+	if (this->ScrollTick != this->ScrollTickMax)
 	{
 		return;
 	}
 	this->ScrollConsole();
-	if (!killConsole)
+	if (!InKillConsole)
 	{
 		return;
 	}
-	if ((this->mCount > -1) && (this->mNumMessage[this->mCount] == -255))
+	if ((this->Count > -1) && (this->mNumMessage[this->Count] == -255))
 	{
 		this->ScrollConsole();
 	}
 }
 
-void ConsoleMain::console(const std::string_view what, std::int32_t col) // overload;
+void FConsoleMain::console(const std::string_view InWhat, std::int32_t col) // overload;
 {
-	if (what.empty())
+	if (InWhat.empty())
 	{
 		return;
 	}
-	if (this->mWriteToFile)
+	if (this->WriteToFile)
 	{
 		NotImplemented("logging", "GetGameLog is implemented in shared directory");
 #if 0
     GS::GetConsleLogFile().addlinetologfile(std::string(what));
 #endif
 	}
-	LogDebugG("{}", what);
+	LogDebugG("{}", InWhat);
 
-	this->ConsoleAdd(what, col);
+	this->ConsoleAdd(InWhat, col);
 	if (mBigConsole != nullptr)
 	{
-		mBigConsole->ConsoleAdd(what, col);
+		mBigConsole->ConsoleAdd(InWhat, col);
 	}
 }
 
@@ -85,21 +85,22 @@ void ConsoleMain::console(const std::string_view what, std::int32_t col) // over
 namespace
 {
 
-	class ConsoleFixture
+	class FConsoleFixture
 	{
 	public:
-		ConsoleFixture() = default;
-		~ConsoleFixture() = default;
-		ConsoleFixture(const ConsoleFixture&) = delete;
+		FConsoleFixture() = default;
+		FConsoleFixture(FConsoleFixture&&) = delete;
+		FConsoleFixture& operator=(const FConsoleFixture&) = delete;
+		FConsoleFixture& operator=(FConsoleFixture&&) = delete;
+		~FConsoleFixture() = default;
+		FConsoleFixture(const FConsoleFixture&) = delete;
 
-		static void addMessagesUntilScroll(Console& console, std::int32_t countMax)
+		static void AddMessagesUntilScroll(FConsole& console, std::int32_t countMax)
 		{
-			auto noOfMessagesTillScroll = countMax - console.GetCount();
-			for (auto i = 0; i < noOfMessagesTillScroll; ++i)
+			auto NoOfMessagesTillScroll = countMax - console.GetCount();
+			for (auto i = 0; i < NoOfMessagesTillScroll; ++i)
 			{
-				char buffer[100];
-				snprintf(buffer, 100, "Filler Message %d", i + 1);
-				console.ConsoleAdd(buffer, i * 10);
+				console.ConsoleAdd(std::format("Filler Message {:d}", i + 1), i * 10);
 			}
 		}
 
@@ -108,202 +109,202 @@ namespace
 	TEST_SUITE("Console")
 	{
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "Write message")
+		TEST_CASE_FIXTURE(FConsoleFixture, "Write message")
 		{
-			Console big(nullptr);
-			ConsoleMain cl(nullptr, 0, 254, 150, false);
-			cl.SetBigConsole(&big);
+			FConsole Big(nullptr);
+			FConsoleMain cl(nullptr, 0, 254, 150, false);
+			cl.SetBigConsole(&Big);
 			cl.console("Test message", Constants::GAME_MESSAGE_COLOR);
 			CHECK_EQ(1, cl.GetCount());
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "ScrollConsole - Normal Scrolling")
+		TEST_CASE_FIXTURE(FConsoleFixture, "ScrollConsole - Normal Scrolling")
 		{
-			constexpr auto newMessageWait = 0;
-			constexpr auto countMax = 254;
-			constexpr auto scrollTickMax = 150;
-			constexpr auto writeToFile = true;
-			Console console(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
-			console.ConsoleAdd("Message 1", 10);
-			console.ConsoleAdd("Message 2", 20);
-			console.ConsoleAdd("Message 3", 30);
-			CHECK(console.GetCount() == 3);
+			constexpr auto kNewMessageWait = 0;
+			constexpr auto kCountMax = 254;
+			constexpr auto kScrollTickMax = 150;
+			constexpr auto kWriteToFile = true;
+			FConsole Console(nullptr, kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
+			Console.ConsoleAdd("Message 1", 10);
+			Console.ConsoleAdd("Message 2", 20);
+			Console.ConsoleAdd("Message 3", 30);
+			CHECK(Console.GetCount() == 3);
 
-			addMessagesUntilScroll(console, countMax); // Trigger ScrollConsole indirectly
+			AddMessagesUntilScroll(Console, kCountMax); // Trigger ScrollConsole indirectly
 
 			// After scrolling, the first two messages should be shifted up, and the last slot should be
 			// cleared
-			CHECK(console.GetTextMessage(1) == "Message 2");
-			CHECK(console.GetTextMessage(2) == "Message 3");
-			CHECK(console.GetNumMessage(1) == -255);
-			CHECK(console.GetNumMessage(2) == -255);
-			CHECK(console.GetTextMessageColor(1) == 20);
-			CHECK(console.GetTextMessageColor(2) == 30);
-			CHECK(console.GetCount() == countMax - 1);
+			CHECK(Console.GetTextMessage(1) == "Message 2");
+			CHECK(Console.GetTextMessage(2) == "Message 3");
+			CHECK(Console.GetNumMessage(1) == -255);
+			CHECK(Console.GetNumMessage(2) == -255);
+			CHECK(Console.GetTextMessageColor(1) == 20);
+			CHECK(Console.GetTextMessageColor(2) == 30);
+			CHECK(Console.GetCount() == kCountMax - 1);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "ScrollConsole - Scroll Tick Reset")
+		TEST_CASE_FIXTURE(FConsoleFixture, "ScrollConsole - Scroll Tick Reset")
 		{
-			constexpr auto newMessageWait = 0;
-			constexpr auto countMax = 254;
-			constexpr auto scrollTickMax = 150;
-			constexpr auto writeToFile = true;
-			Console console(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
-			console.ConsoleAdd("Message 1", 10);
-			addMessagesUntilScroll(console, countMax);
+			constexpr auto kNewMessageWait = 0;
+			constexpr auto kCountMax = 254;
+			constexpr auto kScrollTickMax = 150;
+			constexpr auto kWriteToFile = true;
+			FConsole Console(nullptr, kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
+			Console.ConsoleAdd("Message 1", 10);
+			AddMessagesUntilScroll(Console, kCountMax);
 
 			// CHECK(console.mScrollTick == 0);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "ScrollConsole - Single Message")
+		TEST_CASE_FIXTURE(FConsoleFixture, "ScrollConsole - Single Message")
 		{
-			constexpr auto newMessageWait = 0;
-			constexpr auto countMax = 254;
-			constexpr auto scrollTickMax = 150;
-			constexpr auto writeToFile = true;
-			Console console(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
-			console.ConsoleAdd("Only Message", 99);
-			addMessagesUntilScroll(console, countMax);
+			constexpr auto kNewMessageWait = 0;
+			constexpr auto kCountMax = 254;
+			constexpr auto kScrollTickMax = 150;
+			constexpr auto kWriteToFile = true;
+			FConsole Console(nullptr, kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
+			Console.ConsoleAdd("Only Message", 99);
+			AddMessagesUntilScroll(Console, kCountMax);
 
-			CHECK(console.GetCount() == countMax - 1);
-			CHECK(console.GetTextMessage(1) == "Filler Message 1");
-			CHECK(console.GetNumMessage(1) == -255);
-			CHECK(console.GetTextMessageColor(1) == 0);
+			CHECK(Console.GetCount() == kCountMax - 1);
+			CHECK(Console.GetTextMessage(1) == "Filler Message 1");
+			CHECK(Console.GetNumMessage(1) == -255);
+			CHECK(Console.GetTextMessageColor(1) == 0);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "Console - Add Empty Message")
+		TEST_CASE_FIXTURE(FConsoleFixture, "Console - Add Empty Message")
 		{
-			ConsoleMain cl;
+			FConsoleMain cl;
 			cl.console("", 10);
 			CHECK_EQ(cl.GetCount(), 0);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "Console - Add Message Client")
+		TEST_CASE_FIXTURE(FConsoleFixture, "Console - Add Message Client")
 		{
-			constexpr auto newMessageWait = 0;
-			constexpr auto countMax = 254;
-			constexpr auto scrollTickMax = 150;
-			constexpr auto writeToFile = false;
-			ConsoleMain cl(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
-			Console big;
-			cl.SetBigConsole(&big);
+			constexpr auto kNewMessageWait = 0;
+			constexpr auto kCountMax = 254;
+			constexpr auto kScrollTickMax = 150;
+			constexpr auto kWriteToFile = false;
+			FConsoleMain cl(nullptr, kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
+			FConsole Big;
+			cl.SetBigConsole(&Big);
 			cl.console("Client message", 30);
 			CHECK_EQ(cl.GetCount(), 1);
 			CHECK_EQ(cl.GetTextMessage(1), "Client message");
 			CHECK_EQ(cl.GetTextMessageColor(1), 30);
-			CHECK_EQ(big.GetCount(), 1);
-			CHECK_EQ(big.GetTextMessage(1), "Client message");
-			CHECK_EQ(big.GetTextMessageColor(1), 30);
+			CHECK_EQ(Big.GetCount(), 1);
+			CHECK_EQ(Big.GetTextMessage(1), "Client message");
+			CHECK_EQ(Big.GetTextMessageColor(1), 30);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "ConsoleNum - Add New Message")
+		TEST_CASE_FIXTURE(FConsoleFixture, "ConsoleNum - Add New Message")
 		{
-			ConsoleMain console;
-			console.ConsoleAdd("Test message", 10, 5);
-			CHECK_EQ(console.GetCount(), 1);
-			CHECK_EQ(console.GetTextMessage(1), "Test message");
-			CHECK_EQ(console.GetTextMessageColor(1), 10);
-			CHECK_EQ(console.GetNumMessage(1), 5);
+			FConsoleMain Console;
+			Console.ConsoleAdd("Test message", 10, 5);
+			CHECK_EQ(Console.GetCount(), 1);
+			CHECK_EQ(Console.GetTextMessage(1), "Test message");
+			CHECK_EQ(Console.GetTextMessageColor(1), 10);
+			CHECK_EQ(Console.GetNumMessage(1), 5);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "ConsoleNum - Scroll When Max Count Reached")
+		TEST_CASE_FIXTURE(FConsoleFixture, "ConsoleNum - Scroll When Max Count Reached")
 		{
-			constexpr auto countMax = 3;
-			ConsoleMain console(nullptr, 0, countMax, 150);
-			console.ConsoleAdd("Message 1", 10, 1);
-			console.ConsoleAdd("Message 2", 20, 2);
-			console.ConsoleAdd("Message 3", 30, 3);
+			constexpr auto kCountMax = 3;
+			FConsoleMain Console(nullptr, 0, kCountMax, 150);
+			Console.ConsoleAdd("Message 1", 10, 1);
+			Console.ConsoleAdd("Message 2", 20, 2);
+			Console.ConsoleAdd("Message 3", 30, 3);
 
-			CHECK_EQ(console.GetCount(), countMax - 1);
-			CHECK_EQ(console.GetTextMessage(1), "Message 2");
-			CHECK_EQ(console.GetTextMessage(2), "Message 3");
-			CHECK_EQ(console.GetNumMessage(1), 2);
-			CHECK_EQ(console.GetNumMessage(2), 3);
+			CHECK_EQ(Console.GetCount(), kCountMax - 1);
+			CHECK_EQ(Console.GetTextMessage(1), "Message 2");
+			CHECK_EQ(Console.GetTextMessage(2), "Message 3");
+			CHECK_EQ(Console.GetNumMessage(1), 2);
+			CHECK_EQ(Console.GetNumMessage(2), 3);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "ConsoleNum - Empty Message")
+		TEST_CASE_FIXTURE(FConsoleFixture, "ConsoleNum - Empty Message")
 		{
-			ConsoleMain console;
-			console.ConsoleAdd("", 10, 5);
-			CHECK_EQ(console.GetCount(), 1);
-			CHECK_EQ(console.GetTextMessage(1), "");
-			CHECK_EQ(console.GetTextMessageColor(1), 10);
-			CHECK_EQ(console.GetNumMessage(1), 5);
+			FConsoleMain Console;
+			Console.ConsoleAdd("", 10, 5);
+			CHECK_EQ(Console.GetCount(), 1);
+			CHECK_EQ(Console.GetTextMessage(1), "");
+			CHECK_EQ(Console.GetTextMessageColor(1), 10);
+			CHECK_EQ(Console.GetNumMessage(1), 5);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "ConsoleNum - Negative Color Value")
+		TEST_CASE_FIXTURE(FConsoleFixture, "ConsoleNum - Negative Color Value")
 		{
-			ConsoleMain console;
-			console.ConsoleAdd("Test message", -10, 5);
-			CHECK_EQ(console.GetCount(), 1);
-			CHECK_EQ(console.GetTextMessage(1), "Test message");
-			CHECK_EQ(console.GetTextMessageColor(1), -10);
-			CHECK_EQ(console.GetNumMessage(1), 5);
+			FConsoleMain Console;
+			Console.ConsoleAdd("Test message", -10, 5);
+			CHECK_EQ(Console.GetCount(), 1);
+			CHECK_EQ(Console.GetTextMessage(1), "Test message");
+			CHECK_EQ(Console.GetTextMessageColor(1), -10);
+			CHECK_EQ(Console.GetNumMessage(1), 5);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "ConsoleNum - Negative Num Value")
+		TEST_CASE_FIXTURE(FConsoleFixture, "ConsoleNum - Negative Num Value")
 		{
-			ConsoleMain console;
-			console.ConsoleAdd("Test message", 10, -5);
-			CHECK_EQ(console.GetCount(), 1);
-			CHECK_EQ(console.GetTextMessage(1), "Test message");
-			CHECK_EQ(console.GetTextMessageColor(1), 10);
-			CHECK_EQ(console.GetNumMessage(1), -5);
+			FConsoleMain Console;
+			Console.ConsoleAdd("Test message", 10, -5);
+			CHECK_EQ(Console.GetCount(), 1);
+			CHECK_EQ(Console.GetTextMessage(1), "Test message");
+			CHECK_EQ(Console.GetTextMessageColor(1), 10);
+			CHECK_EQ(Console.GetNumMessage(1), -5);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "UpdateKillConsole - Scrolls When ScrollTickMax Reached")
+		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateKillConsole - Scrolls When ScrollTickMax Reached")
 		{
-			ConsoleMain console(nullptr, 0, 2, 1);
-			console.ConsoleAdd("Message 1", 10, 1);
-			console.Update(true);
-			CHECK_EQ(console.GetCount(), 0);
+			FConsoleMain Console(nullptr, 0, 2, 1);
+			Console.ConsoleAdd("Message 1", 10, 1);
+			Console.Update(true);
+			CHECK_EQ(Console.GetCount(), 0);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "UpdateKillConsole - Scrolls Twice When Last Message Num is -255")
+		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateKillConsole - Scrolls Twice When Last Message Num is -255")
 		{
-			ConsoleMain console(nullptr, 0, 3, 1);
-			console.ConsoleAdd("Message 1", 10, -255);
-			console.ConsoleAdd("Message 2", 10, -255);
-			console.Update(true);
-			CHECK_EQ(console.GetCount(), 0);
+			FConsoleMain Console(nullptr, 0, 3, 1);
+			Console.ConsoleAdd("Message 1", 10, -255);
+			Console.ConsoleAdd("Message 2", 10, -255);
+			Console.Update(true);
+			CHECK_EQ(Console.GetCount(), 0);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "UpdateKillConsole - Does Not Scroll When ScrollTickMax Not Reached")
+		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateKillConsole - Does Not Scroll When ScrollTickMax Not Reached")
 		{
-			ConsoleMain console(nullptr, 3, 2, 4);
-			console.ConsoleAdd("Message 1", 10, 1);
-			console.Update(true);
-			CHECK_EQ(console.GetCount(), 1);
+			FConsoleMain Console(nullptr, 3, 2, 4);
+			Console.ConsoleAdd("Message 1", 10, 1);
+			Console.Update(true);
+			CHECK_EQ(Console.GetCount(), 1);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "UpdateKillConsole - Does Not Scroll When No Messages")
+		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateKillConsole - Does Not Scroll When No Messages")
 		{
-			ConsoleMain console(nullptr, 0, 3, 1);
-			console.Update(true);
-			CHECK_EQ(console.GetCount(), 0);
+			FConsoleMain Console(nullptr, 0, 3, 1);
+			Console.Update(true);
+			CHECK_EQ(Console.GetCount(), 0);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "UpdateMainConsole - Scrolls When ScrollTickMax Reached")
+		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateMainConsole - Scrolls When ScrollTickMax Reached")
 		{
-			ConsoleMain console(nullptr, 0, 2, 1);
-			console.ConsoleAdd("Message 1", 10);
-			console.Update();
-			CHECK_EQ(console.GetCount(), 0);
+			FConsoleMain Console(nullptr, 0, 2, 1);
+			Console.ConsoleAdd("Message 1", 10);
+			Console.Update();
+			CHECK_EQ(Console.GetCount(), 0);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "UpdateMainConsole - Does Not Scroll When ScrollTickMax Not Reached")
+		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateMainConsole - Does Not Scroll When ScrollTickMax Not Reached")
 		{
-			ConsoleMain console(nullptr, 3, 2, 4);
-			console.ConsoleAdd("Message 1", 10);
-			console.Update();
-			CHECK_EQ(console.GetCount(), 1);
+			FConsoleMain Console(nullptr, 3, 2, 4);
+			Console.ConsoleAdd("Message 1", 10);
+			Console.Update();
+			CHECK_EQ(Console.GetCount(), 1);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "UpdateMainConsole - Does Not Scroll When No Messages")
+		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateMainConsole - Does Not Scroll When No Messages")
 		{
-			ConsoleMain console(nullptr, 0, 3, 1);
-			console.Update();
-			CHECK_EQ(console.GetCount(), 0);
+			FConsoleMain Console(nullptr, 0, 3, 1);
+			Console.Update();
+			CHECK_EQ(Console.GetCount(), 0);
 		}
 
 	} // TEST_SUITE("Console")

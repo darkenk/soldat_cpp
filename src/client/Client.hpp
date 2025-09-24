@@ -11,9 +11,9 @@
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "shared/network/Net.hpp"
 
-class Console;
+class FConsole;
 class FFileUtility;
-class ConsoleMain;
+class FConsoleMain;
 
 struct tweaponstat
 {
@@ -28,8 +28,8 @@ using GunArray = std::array<std::string, 17>;
 struct GlobalStateClient
 {
 	GlobalStateClient() noexcept = default;
-	Console& GetBigConsole();
-	ConsoleMain& GetKillConsole();
+	FConsole& GetBigConsole();
+	FConsoleMain& GetKillConsole();
 	void joinserver();
 	void startgame(int argc, char* argv[]);
 	void shutdown();
@@ -100,8 +100,8 @@ private:
 		Game,
 		ConnectionTimedOut
 	};
-	Console sBigConsole;
-	ConsoleMain sKillConsole;
+	FConsole sBigConsole;
+	FConsoleMain sKillConsole;
 	GameState gGameState{ GameState::Loading };
 	bool gamelooprun{};
 	bool progready{};
@@ -109,11 +109,11 @@ private:
 	auto InitBigConsole(FFileUtility* filesystem,
 		const std::int32_t newMessageWait,
 		const std::int32_t countMax,
-		const std::int32_t scrollTickMax) -> Console&;
+		const std::int32_t scrollTickMax) -> FConsole&;
 	auto InitKillConsole(FFileUtility* filesystem,
 		const std::int32_t newMessageWait,
 		const std::int32_t countMax,
-		const std::int32_t scrollTickMax) -> ConsoleMain&;
+		const std::int32_t scrollTickMax) -> FConsoleMain&;
 	void redirectdialog();
 	void restartgraph();
 	void startgameloop();

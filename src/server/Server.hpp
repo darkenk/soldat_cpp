@@ -65,7 +65,7 @@ extern GlobalStateServer gGlobalStateServer;
 
 class FFileUtility;
 
-class ConsoleServer : public ConsoleMain
+class ConsoleServer : public FConsoleMain
 {
 public:
 	explicit ConsoleServer(FFileUtility* filesystem = nullptr,
@@ -73,7 +73,7 @@ public:
 		const std::int32_t countMax = 254,
 		const std::int32_t scrollTickMax = 150,
 		bool writeToFile = true)
-		: ConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax, writeToFile)
+		: FConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax, writeToFile)
 	{
 	}
 	void console(const std::string_view what, std::int32_t col, std::uint8_t sender = 255);

@@ -7,13 +7,13 @@
 
 class FFileUtility;
 
-class LogFile
+class FLogFile
 {
 public:
-	explicit LogFile(FFileUtility& fu) : mFileUtility(fu) { }
-	void Init(const std::string_view filenamePrefix);
+	explicit FLogFile(FFileUtility& fu) : mFileUtility(fu) { }
+	void Init(std::string_view filenamePrefix);
 	void WriteToFile();
-	void Log(const std::string_view s, bool withdate = true);
+	void Log(std::string_view s, bool withdate = true);
 	void CreateNewLogIfCurrentLogIsTooBig();
 	[[nodiscard]] std::string_view GetLogName() const { return mLogName; }
 	void Enable(bool enable) { mEnabled = enable; }

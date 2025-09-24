@@ -14,16 +14,20 @@
 #include "shared/mechanics/ThingSystem.hpp"
 
 class FFileUtility;
-class ConsoleMain;
+class FConsoleMain;
 class ConsoleServer;
-class LogFile;
+class FLogFile;
 class WeaponSystem;
 
 template <Config::Module M>
 class FGlobalSystems final : public FGlobalSubsystem<FGlobalSystems<M>>
 {
 public:
-	using TConsoleType = typename std::conditional_t<Config::IsClient(M), ConsoleMain, ConsoleServer>;
+	FGlobalSystems(const FGlobalSystems&) = delete;
+	FGlobalSystems(FGlobalSystems&&) = delete;
+	FGlobalSystems& operator=(const FGlobalSystems&) = delete;
+	FGlobalSystems& operator=(FGlobalSystems&&) = delete;
+	using TConsoleType = typename std::conditional_t<Config::IsClient(M), FConsoleMain, ConsoleServer>;
 
 	static WeaponSystem& GetWeaponSystem() { return *FGlobalSystems::Get().WeaponSystemObject; }
 
@@ -44,9 +48,9 @@ public:
 
 	static FFileUtility& GetFileSystem() { return *FGlobalSystems::Get().FileUtilityObject; }
 
-	static LogFile& GetConsoleLogFile() { return *FGlobalSystems::Get().ConsoleLogFileObject; }
+	static FLogFile& GetConsoleLogFile() { return *FGlobalSystems::Get().ConsoleLogFileObject; }
 
-	static LogFile& GetKillLogFile()
+	static FLogFile& GetKillLogFile()
 		requires(Config::IsServer(M))
 	{
 		return *FGlobalSystems::Get().KillLogFileObject;
@@ -65,8 +69,8 @@ private:
 	std::unique_ptr<ThingSystem> ThingSystemObject;
 	std::unique_ptr<FFileUtility> FileUtilityObject;
 	std::unique_ptr<TConsoleType> MainConsoleObject;
-	std::unique_ptr<LogFile> ConsoleLogFileObject;
-	std::unique_ptr<LogFile> KillLogFileObject;
+	std::unique_ptr<FLogFile> ConsoleLogFileObject;
+	std::unique_ptr<FLogFile> KillLogFileObject;
 };
 
 using GS = FGlobalSystems<Config::GetModule()>;

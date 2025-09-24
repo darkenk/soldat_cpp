@@ -63,25 +63,25 @@
 auto GlobalStateClient::InitBigConsole(FFileUtility* filesystem,
 	const std::int32_t newMessageWait,
 	const std::int32_t countMax,
-	const std::int32_t scrollTickMax) -> Console&
+	const std::int32_t scrollTickMax) -> FConsole&
 {
-	return *new (&sBigConsole) Console(filesystem, newMessageWait, countMax, scrollTickMax);
+	return *new (&sBigConsole) FConsole(filesystem, newMessageWait, countMax, scrollTickMax);
 }
 
 auto GlobalStateClient::InitKillConsole(FFileUtility* filesystem,
 	const std::int32_t newMessageWait,
 	const std::int32_t countMax,
-	const std::int32_t scrollTickMax) -> ConsoleMain&
+	const std::int32_t scrollTickMax) -> FConsoleMain&
 {
-	return *new (&sKillConsole) ConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax);
+	return *new (&sKillConsole) FConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax);
 }
 
-auto GlobalStateClient::GetBigConsole() -> Console&
+auto GlobalStateClient::GetBigConsole() -> FConsole&
 {
 	return sBigConsole;
 }
 
-auto GlobalStateClient::GetKillConsole() -> ConsoleMain&
+auto GlobalStateClient::GetKillConsole() -> FConsoleMain&
 {
 	return sKillConsole;
 }
@@ -346,7 +346,7 @@ auto GlobalStateClient::MountAssets(FFileUtility& fu,
 void GlobalStateClient::InitConsoles(bool test)
 {
 	// Create Consoles
-	auto console = std::make_unique<ConsoleMain>(
+	auto console = std::make_unique<FConsoleMain>(
 		&GS::GetFileSystem(), 150, round(CVar::ui_console_length * gGlobalStateInterfaceGraphics._rscala.y), 150);
 	GS::SetMainConsole(std::move(console));
 

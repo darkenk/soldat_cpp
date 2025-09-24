@@ -29,10 +29,10 @@ FGlobalSystems<M>::FGlobalSystems()
 		FileUtilityObject = std::make_unique<FFileUtility>("/client");
 	}
 	MainConsoleObject = std::make_unique<TConsoleType>();
-	ConsoleLogFileObject = std::make_unique<LogFile>(*FileUtilityObject);
+	ConsoleLogFileObject = std::make_unique<FLogFile>(*FileUtilityObject);
 	if constexpr (Config::IsServer(M))
 	{
-		KillLogFileObject = std::make_unique<LogFile>(*FileUtilityObject);
+		KillLogFileObject = std::make_unique<FLogFile>(*FileUtilityObject);
 	}
 
 	SpriteSystem::Init();

@@ -1198,7 +1198,7 @@ void GlobalStateServer::ShutdownServer()
 
 void ConsoleServer::console(const std::string_view what, std::int32_t col, std::uint8_t sender)
 {
-	::ConsoleMain::console(what, col);
+	::FConsoleMain::console(what, col);
 	if ((sender > 0) && (sender < max_players + 1))
 	{
 		serversendstringmessage(std::string(what), sender, 255, msgtype_pub);
@@ -1218,7 +1218,7 @@ namespace
 		~ConsoleFixture() = default;
 		ConsoleFixture(const ConsoleFixture&) = delete;
 
-		static void addMessagesUntilScroll(Console& console, std::int32_t countMax)
+		static void addMessagesUntilScroll(FConsole& console, std::int32_t countMax)
 		{
 			auto noOfMessagesTillScroll = countMax - console.GetCount();
 			for (auto i = 0; i < noOfMessagesTillScroll; ++i)

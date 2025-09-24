@@ -17,34 +17,34 @@
 #include "misc/PortUtilsSoldat.hpp"
 #include "port_utils/NotImplemented.hpp"
 
-static constexpr std::int32_t max_logfilesize = 512000;
+static constexpr std::int32_t kMaxLogfilesize = 512000;
 
-static auto sGetCurrentDate(const std::string_view format) -> std::string
+static auto SGetCurrentDate(const std::string_view InFormat) -> std::string
 {
-	auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	auto Now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 	std::stringstream ss;
 #if __EMSCRIPTEN__
 	NotImplemented("wasm");
 #else
-	ss << std::put_time(std::localtime(&now), format.data());
+	ss << std::put_time(std::localtime(&Now), InFormat.data());
 #endif
 	return ss.str();
 }
 
-void LogFile::Init(const std::string_view filenamePrefix)
+void FLogFile::Init(const std::string_view InFilenamePrefix)
 {
-	mLogNamePrefix = filenamePrefix;
+	mLogNamePrefix = InFilenamePrefix;
 	CreateNewLogFile(mLogNamePrefix);
 }
 
-void LogFile::CreateNewLogFile(const std::string& prefix)
+void FLogFile::CreateNewLogFile(const std::string& prefix)
 {
 	if (not mEnabled)
 	{
 		return;
 	}
 
-	std::string s2{ sGetCurrentDate("%y-%m-%d") };
+	std::string s2{ SGetCurrentDate("%y-%m-%d") };
 
 	if (mLogLevel == 0)
 	{
@@ -60,12 +60,12 @@ void LogFile::CreateNewLogFile(const std::string& prefix)
 	}
 
 	{
-		std::lock_guard<std::mutex> const lock(mLogLock);
+		std::scoped_lock const Lock(mLogLock);
 		mLogList.clear();
 	}
 
-	auto* logfile = mFileUtility.Open(mLogName, FFileUtility::EFileMode::Write);
-	if (logfile == nullptr)
+	auto* Logfile = mFileUtility.Open(mLogName, FFileUtility::EFileMode::Write);
+	if (Logfile == nullptr)
 	{
 		LogErrorG("File logging error {}", mLogName);
 		NotImplemented("logging", "How to pass main console to LogFile?");
@@ -81,21 +81,21 @@ void LogFile::CreateNewLogFile(const std::string& prefix)
     }
 #endif
 	}
-	FFileUtility::Close(logfile);
+	FFileUtility::Close(Logfile);
 
 	Log("   Console Log Started");
 }
 
-void LogFile::Log(const std::string_view s, bool withdate)
+void FLogFile::Log(const std::string_view InS, bool withdate)
 {
-	LogTraceG("{}", s);
+	LogTraceG("{}", InS);
 
 	if (not mEnabled)
 	{
 		return;
 	}
 
-	if (s.empty())
+	if (InS.empty())
 	{
 		return;
 	}
@@ -106,14 +106,14 @@ void LogFile::Log(const std::string_view s, bool withdate)
 	}
 
 	{
-		std::lock_guard const lock(mLogLock);
+		std::scoped_lock const Lock(mLogLock);
 		if (withdate)
 		{
-			mLogList.emplace_back(std::format("{} {}", sGetCurrentDate("%y/%m/%d %H:%M:%S"), s));
+			mLogList.emplace_back(std::format("{} {}", SGetCurrentDate("%y/%m/%d %H:%M:%S"), InS));
 		}
 		else
 		{
-			mLogList.emplace_back(s);
+			mLogList.emplace_back(InS);
 		}
 	}
 
@@ -123,29 +123,29 @@ void LogFile::Log(const std::string_view s, bool withdate)
 	}
 }
 
-void LogFile::WriteToFile()
+void FLogFile::WriteToFile()
 {
 	if (not mEnabled)
 	{
 		return;
 	}
 
-	auto* logfile = mFileUtility.Open(mLogName, FFileUtility::EFileMode::Write);
+	auto* Logfile = mFileUtility.Open(mLogName, FFileUtility::EFileMode::Write);
 	{
-		std::lock_guard const lock(mLogLock);
-		for (auto& line : mLogList)
+		std::scoped_lock const Lock(mLogLock);
+		for (auto& Line : mLogList)
 		{
-			FFileUtility::Write(logfile, reinterpret_cast<const std::byte*>(line.c_str()), line.size());
-			FFileUtility::Write(logfile, reinterpret_cast<const std::byte*>("\n"), 1);
+			FFileUtility::Write(Logfile, reinterpret_cast<const std::byte*>(Line.c_str()), Line.size());
+			FFileUtility::Write(Logfile, reinterpret_cast<const std::byte*>("\n"), 1);
 		}
 		mLogList.clear();
 	}
-	FFileUtility::Close(logfile);
+	FFileUtility::Close(Logfile);
 }
 
-void LogFile::CreateNewLogIfCurrentLogIsTooBig()
+void FLogFile::CreateNewLogIfCurrentLogIsTooBig()
 {
-	if (mFileUtility.Size(mLogName) <= max_logfilesize)
+	if (mFileUtility.Size(mLogName) <= kMaxLogfilesize)
 	{
 		return;
 	}
@@ -156,175 +156,175 @@ void LogFile::CreateNewLogIfCurrentLogIsTooBig()
 #include <doctest/doctest.h>
 #include <spdlog/fmt/bundled/core.h>
 
-class LogFileFixture
+class FLogFileFixture
 {
 public:
-	FFileUtility mockFileUtility;
-	tstringlist logList;
-	std::string logName = "/user/testlog";
-	LogFile logFile{ mockFileUtility };
-	LogFileFixture()
+	FFileUtility MockFileUtility;
+	tstringlist LogList;
+	std::string LogName = "/user/testlog";
+	FLogFile LogFile{ MockFileUtility };
+	FLogFileFixture()
 	{
-		mockFileUtility.Mount("tmpfs.memory", "/user");
-		mockFileUtility.MkDir("/user/logs");
-		mockFileUtility.MkDir("/user/logs/kills");
-		logFile.SetLogLevel(1);
-		logFile.Enable(true);
-		logFile.Init(logName);
+		MockFileUtility.Mount("tmpfs.memory", "/user");
+		MockFileUtility.MkDir("/user/logs");
+		MockFileUtility.MkDir("/user/logs/kills");
+		LogFile.SetLogLevel(1);
+		LogFile.Enable(true);
+		LogFile.Init(LogName);
 	}
-	~LogFileFixture() { mockFileUtility.Unmount("tmpfs.memory"); }
+	~FLogFileFixture() { MockFileUtility.Unmount("tmpfs.memory"); }
 
-	auto ReadFile(const std::string_view filename) -> std::string
+	auto ReadFile(const std::string_view InFilename) -> std::string
 	{
-		auto* file = mockFileUtility.Open(filename, FFileUtility::EFileMode::Read);
-		std::string content;
-		auto size = mockFileUtility.Size(filename);
-		content.resize(size);
-		FFileUtility::Read(file, reinterpret_cast<std::byte*>(content.data()), size);
-		FFileUtility::Close(file);
-		return content;
+		auto* File = MockFileUtility.Open(InFilename, FFileUtility::EFileMode::Read);
+		std::string Content;
+		auto Size = MockFileUtility.Size(InFilename);
+		Content.resize(Size);
+		FFileUtility::Read(File, reinterpret_cast<std::byte*>(Content.data()), Size);
+		FFileUtility::Close(File);
+		return Content;
 	}
 };
 
 TEST_SUITE("LogFile")
 {
-	TEST_CASE_FIXTURE(LogFileFixture, "AddLineToLogFile_LogEnableFalse_DoesNothing")
+	TEST_CASE_FIXTURE(FLogFileFixture, "AddLineToLogFile_LogEnableFalse_DoesNothing")
 	{
-		LogFile logFile(mockFileUtility);
-		logFile.Enable(false);
-		logFile.Init("/user/logfile");
-		logFile.Log("Test log entry", false);
-		CHECK_EQ("", logFile.GetLogName());
+		FLogFile LogFile(MockFileUtility);
+		LogFile.Enable(false);
+		LogFile.Init("/user/logfile");
+		LogFile.Log("Test log entry", false);
+		CHECK_EQ("", LogFile.GetLogName());
 	}
 
-	TEST_CASE_FIXTURE(LogFileFixture, "AddLineToLogFile_EmptyLogEntry_DoesNothing")
+	TEST_CASE_FIXTURE(FLogFileFixture, "AddLineToLogFile_EmptyLogEntry_DoesNothing")
 	{
-		logFile.Enable(true);
-		logFile.SetLogLevel(2);
-		logFile.Log("", false);
-		CHECK_EQ(0, mockFileUtility.Size(logFile.GetLogName()));
+		LogFile.Enable(true);
+		LogFile.SetLogLevel(2);
+		LogFile.Log("", false);
+		CHECK_EQ(0, MockFileUtility.Size(LogFile.GetLogName()));
 	}
 
-	TEST_CASE_FIXTURE(LogFileFixture, "AddLineToLogFile_LogLevelZero_DoesNothing")
+	TEST_CASE_FIXTURE(FLogFileFixture, "AddLineToLogFile_LogLevelZero_DoesNothing")
 	{
-		LogFile logFile(mockFileUtility);
-		logFile.Enable(true);
-		logFile.SetLogLevel(0);
-		logFile.Init(logName);
-		logFile.Log("Test log entry", false);
-		logFile.WriteToFile();
-		CHECK_EQ(0, mockFileUtility.Size(logFile.GetLogName()));
+		FLogFile LogFile(MockFileUtility);
+		LogFile.Enable(true);
+		LogFile.SetLogLevel(0);
+		LogFile.Init(LogName);
+		LogFile.Log("Test log entry", false);
+		LogFile.WriteToFile();
+		CHECK_EQ(0, MockFileUtility.Size(LogFile.GetLogName()));
 	}
 
-	TEST_CASE_FIXTURE(LogFileFixture, "AddLineToLogFile_ValidLogEntry_AddsToLogFile")
+	TEST_CASE_FIXTURE(FLogFileFixture, "AddLineToLogFile_ValidLogEntry_AddsToLogFile")
 	{
-		logFile.Enable(true);
-		logFile.SetLogLevel(2);
-		logFile.Log("Test log entry", false);
-		std::string const content = ReadFile(logFile.GetLogName());
-		CHECK(content.find("Test log entry") != std::string::npos);
+		LogFile.Enable(true);
+		LogFile.SetLogLevel(2);
+		LogFile.Log("Test log entry", false);
+		std::string const Content = ReadFile(LogFile.GetLogName());
+		CHECK(Content.find("Test log entry") != std::string::npos);
 	}
 
-	TEST_CASE_FIXTURE(LogFileFixture, "AddLineToLogFile_WithDate_AddsTimestampToLogFile")
+	TEST_CASE_FIXTURE(FLogFileFixture, "AddLineToLogFile_WithDate_AddsTimestampToLogFile")
 	{
-		logFile.Enable(true);
-		logFile.SetLogLevel(2);
-		logFile.Log("Test log entry", true);
-		std::string const content = ReadFile(logFile.GetLogName());
-		CHECK(content.find("Test log entry") != std::string::npos);
-		CHECK(content.find('/') != std::string::npos); // Check for date format
+		LogFile.Enable(true);
+		LogFile.SetLogLevel(2);
+		LogFile.Log("Test log entry", true);
+		std::string const Content = ReadFile(LogFile.GetLogName());
+		CHECK(Content.find("Test log entry") != std::string::npos);
+		CHECK(Content.find('/') != std::string::npos); // Check for date format
 	}
 
-	TEST_CASE_FIXTURE(LogFileFixture, "AddLineToLogFile_LogLevelGreaterThanOne_WritesLogFile")
+	TEST_CASE_FIXTURE(FLogFileFixture, "AddLineToLogFile_LogLevelGreaterThanOne_WritesLogFile")
 	{
-		logFile.Init(logName);
-		logFile.Enable(true);
-		logFile.SetLogLevel(2);
-		logFile.Log("Test log entry", false);
-		CHECK(mockFileUtility.Exists(logFile.GetLogName()));
+		LogFile.Init(LogName);
+		LogFile.Enable(true);
+		LogFile.SetLogLevel(2);
+		LogFile.Log("Test log entry", false);
+		CHECK(MockFileUtility.Exists(LogFile.GetLogName()));
 	}
 
-	TEST_CASE_FIXTURE(LogFileFixture, "CreateNewLogIfCurrentLogIsTooBig_FileSizeLessThanMax_DoesNothing")
+	TEST_CASE_FIXTURE(FLogFileFixture, "CreateNewLogIfCurrentLogIsTooBig_FileSizeLessThanMax_DoesNothing")
 	{
-		logFile.Enable(true);
-		logFile.SetLogLevel(0);
-		logFile.Init(logName);
-		logFile.SetLogLevel(1);
-		std::string const initialLogName{ logFile.GetLogName() };
-		logFile.Log(std::string(max_logfilesize - 1, 'a'), false);
-		logFile.WriteToFile();
-		logFile.CreateNewLogIfCurrentLogIsTooBig();
-		CHECK_EQ(initialLogName, logFile.GetLogName());
+		LogFile.Enable(true);
+		LogFile.SetLogLevel(0);
+		LogFile.Init(LogName);
+		LogFile.SetLogLevel(1);
+		std::string const InitialLogName{ LogFile.GetLogName() };
+		LogFile.Log(std::string(kMaxLogfilesize - 1, 'a'), false);
+		LogFile.WriteToFile();
+		LogFile.CreateNewLogIfCurrentLogIsTooBig();
+		CHECK_EQ(InitialLogName, LogFile.GetLogName());
 		// max_logfilesize because of the newline character
-		CHECK_EQ(mockFileUtility.Size(logFile.GetLogName()), max_logfilesize);
+		CHECK_EQ(MockFileUtility.Size(LogFile.GetLogName()), kMaxLogfilesize);
 	}
 
-	TEST_CASE_FIXTURE(LogFileFixture, "CreateNewLogIfCurrentLogIsTooBig_FileSizeEqualToMax_CreatesNewLogFile")
+	TEST_CASE_FIXTURE(FLogFileFixture, "CreateNewLogIfCurrentLogIsTooBig_FileSizeEqualToMax_CreatesNewLogFile")
 	{
-		logFile.Enable(true);
-		logFile.SetLogLevel(2);
-		logFile.Init(logName);
-		std::string const prevLogName{ logFile.GetLogName() };
-		logFile.Log(std::string(max_logfilesize, 'a'), false);
-		logFile.CreateNewLogIfCurrentLogIsTooBig();
-		CHECK_GT(mockFileUtility.Size(prevLogName), 0);
+		LogFile.Enable(true);
+		LogFile.SetLogLevel(2);
+		LogFile.Init(LogName);
+		std::string const PrevLogName{ LogFile.GetLogName() };
+		LogFile.Log(std::string(kMaxLogfilesize, 'a'), false);
+		LogFile.CreateNewLogIfCurrentLogIsTooBig();
+		CHECK_GT(MockFileUtility.Size(PrevLogName), 0);
 		// there is welcome message in the log file
-		CHECK_LT(mockFileUtility.Size(logFile.GetLogName()), 100);
-		CHECK_NE(logFile.GetLogName(), prevLogName);
+		CHECK_LT(MockFileUtility.Size(LogFile.GetLogName()), 100);
+		CHECK_NE(LogFile.GetLogName(), PrevLogName);
 	}
 
-	TEST_CASE_FIXTURE(LogFileFixture, "NewLogFileName_UniqueNameGeneratedWhenFileExists")
+	TEST_CASE_FIXTURE(FLogFileFixture, "NewLogFileName_UniqueNameGeneratedWhenFileExists")
 	{
-		logFile.Enable(true);
-		logFile.SetLogLevel(1);
-		std::string date{ sGetCurrentDate("%y-%m-%d") };
-		auto existing_log = std::format("/user/logfile-{}.txt", date);
-		auto* h = mockFileUtility.Open(existing_log, FFileUtility::EFileMode::Write);
+		LogFile.Enable(true);
+		LogFile.SetLogLevel(1);
+		std::string Date{ SGetCurrentDate("%y-%m-%d") };
+		auto ExistingLog = std::format("/user/logfile-{}.txt", Date);
+		auto* h = MockFileUtility.Open(ExistingLog, FFileUtility::EFileMode::Write);
 		FFileUtility::Close(h);
 
-		std::string const expectedName = std::format("/user/logfile-{}-01.txt", date);
+		std::string const ExpectedName = std::format("/user/logfile-{}-01.txt", Date);
 
-		logFile.Init("/user/logfile");
-		CHECK_EQ(logFile.GetLogName(), expectedName);
+		LogFile.Init("/user/logfile");
+		CHECK_EQ(LogFile.GetLogName(), ExpectedName);
 	}
 
-	TEST_CASE_FIXTURE(LogFileFixture, "NewLogFileName_BaseNameUsedWhenLogLevelIsZero")
+	TEST_CASE_FIXTURE(FLogFileFixture, "NewLogFileName_BaseNameUsedWhenLogLevelIsZero")
 	{
-		logFile.Enable(true);
-		logFile.SetLogLevel(0);
-		logFile.Init(logName);
-		std::string const baseName = "/user/logfile";
-		std::string const expectedName = "/user/logfile.txt";
-		logFile.Init(baseName);
-		CHECK_EQ(logFile.GetLogName(), expectedName);
+		LogFile.Enable(true);
+		LogFile.SetLogLevel(0);
+		LogFile.Init(LogName);
+		std::string const BaseName = "/user/logfile";
+		std::string const ExpectedName = "/user/logfile.txt";
+		LogFile.Init(BaseName);
+		CHECK_EQ(LogFile.GetLogName(), ExpectedName);
 	}
 
-	TEST_CASE_FIXTURE(LogFileFixture, "NewLogFileName_DateAppendedWhenLogLevelIsNonZero")
+	TEST_CASE_FIXTURE(FLogFileFixture, "NewLogFileName_DateAppendedWhenLogLevelIsNonZero")
 	{
-		logFile.Enable(true);
-		logFile.SetLogLevel(1);
-		std::string date{ sGetCurrentDate("%y-%m-%d") };
-		auto expectedName = std::format("/user/logfile-{}.txt", date);
-		logFile.Init("/user/logfile");
-		CHECK_EQ(logFile.GetLogName(), expectedName);
+		LogFile.Enable(true);
+		LogFile.SetLogLevel(1);
+		std::string Date{ SGetCurrentDate("%y-%m-%d") };
+		auto ExpectedName = std::format("/user/logfile-{}.txt", Date);
+		LogFile.Init("/user/logfile");
+		CHECK_EQ(LogFile.GetLogName(), ExpectedName);
 	}
 
-	TEST_CASE_FIXTURE(LogFileFixture, "CreateNewLogIfCurrentLogIsTooBig_UniqueNameGeneratedForNewLog")
+	TEST_CASE_FIXTURE(FLogFileFixture, "CreateNewLogIfCurrentLogIsTooBig_UniqueNameGeneratedForNewLog")
 	{
-		logFile.Enable(true);
-		logFile.SetLogLevel(1);
-		logFile.Init(logName);
+		LogFile.Enable(true);
+		LogFile.SetLogLevel(1);
+		LogFile.Init(LogName);
 
-		std::string const initialLogName{ logFile.GetLogName() };
+		std::string const InitialLogName{ LogFile.GetLogName() };
 
-		logFile.Log(std::string(max_logfilesize, 'a'), false);
-		logFile.WriteToFile();
-		logFile.CreateNewLogIfCurrentLogIsTooBig();
+		LogFile.Log(std::string(kMaxLogfilesize, 'a'), false);
+		LogFile.WriteToFile();
+		LogFile.CreateNewLogIfCurrentLogIsTooBig();
 
-		std::string date{ sGetCurrentDate("%y-%m-%d") };
-		auto expectedName = std::format("/user/testlog-{}-01.txt", date);
-		auto expectedName_02 = std::format("/user/testlog-{}-02.txt", date);
-		CHECK_EQ(initialLogName, expectedName);
-		CHECK_EQ(logFile.GetLogName(), expectedName_02);
+		std::string Date{ SGetCurrentDate("%y-%m-%d") };
+		auto ExpectedName = std::format("/user/testlog-{}-01.txt", Date);
+		auto ExpectedName02 = std::format("/user/testlog-{}-02.txt", Date);
+		CHECK_EQ(InitialLogName, ExpectedName);
+		CHECK_EQ(LogFile.GetLogName(), ExpectedName02);
 	}
 }
