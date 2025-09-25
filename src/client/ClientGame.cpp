@@ -434,7 +434,7 @@ void GlobalStateClientGame::gameloop()
 	{
 		if (game.GetMapchangename() == "EXIT*!*")
 		{
-			gGlobalStateClient.exittomenu();
+			gGlobalStateClient.ExitToMenu();
 		}
 	}
 

@@ -7,9 +7,8 @@
 
 #include "common/Console.hpp"
 #include "common/Vector.hpp"
-#include "common/Weapons.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
-#include "shared/network/Net.hpp"
+#include "common/network/Net.hpp"
 
 class FConsole;
 class FFileUtility;
@@ -25,18 +24,18 @@ struct tweaponstat
 
 using GunArray = std::array<std::string, 17>;
 
-struct GlobalStateClient
+struct FGlobalStateClient
 {
-	GlobalStateClient() noexcept = default;
+	FGlobalStateClient() noexcept = default;
 	FConsole& GetBigConsole();
 	FConsoleMain& GetKillConsole();
-	void joinserver();
-	void startgame(int argc, char* argv[]);
-	void shutdown();
-	void exittomenu();
-	bool mainloop();
-	void loadweaponnames(FFileUtility& fs, GunArray& gunDisplayName, const std::string& modDir);
-	void showmessage(const std::string& messagetext);
+	void JoinServer();
+	void StartGame(int argc, char* argv[]);
+	void Shutdown();
+	void ExitToMenu();
+	bool MainLoop();
+	void LoadWeaponNames(FFileUtility& fs, GunArray& gunDisplayName, const std::string& modDir);
+	void ShowMessage(const std::string& messagetext);
 	std::string joinpassword;
 	std::string joinport = "23073";
 	std::string joinip = "127.0.0.1";
@@ -94,7 +93,7 @@ struct GlobalStateClient
 	void InitConsoles(bool test = false);
 
 private:
-	enum class GameState
+	enum class EGameState : std::uint8_t
 	{
 		Loading,
 		Game,
@@ -102,18 +101,17 @@ private:
 	};
 	std::shared_ptr<FConsole> sBigConsole;
 	std::shared_ptr<FConsoleMain> sKillConsole;
-	GameState gGameState{ GameState::Loading };
+	EGameState gGameState{ EGameState::Loading };
 	bool gamelooprun{};
 	bool progready{};
 	friend class ClientFixture;
-	auto InitBigConsole(
-		const std::int32_t newMessageWait, const std::int32_t countMax, const std::int32_t scrollTickMax) -> FConsole&;
-	auto InitKillConsole(
-		const std::int32_t newMessageWait, const std::int32_t countMax, const std::int32_t scrollTickMax)
+	auto InitBigConsole(std::int32_t InNewMessageWait, std::int32_t InCountMax, std::int32_t InScrollTickMax)
+		-> FConsole&;
+	auto InitKillConsole(std::int32_t InNewMessageWait, std::int32_t InCountMax, std::int32_t InScrollTickMax)
 		-> FConsoleMain&;
-	void redirectdialog();
-	void restartgraph();
-	void startgameloop();
+	void RedirectDialog();
+	void RestartGraph();
+	void StartGameLoop();
 };
 
-extern GlobalStateClient gGlobalStateClient;
+extern FGlobalStateClient gGlobalStateClient;

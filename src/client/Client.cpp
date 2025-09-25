@@ -61,14 +61,14 @@
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 
-auto GlobalStateClient::InitBigConsole(
+auto FGlobalStateClient::InitBigConsole(
 	const std::int32_t InNewMessageWait, const std::int32_t InCountMax, const std::int32_t InScrollTickMax) -> FConsole&
 {
 	sBigConsole = std::make_shared<FConsole>(InNewMessageWait, InCountMax, InScrollTickMax, true);
 	return *sBigConsole;
 }
 
-auto GlobalStateClient::InitKillConsole(
+auto FGlobalStateClient::InitKillConsole(
 	const std::int32_t InNewMessageWait, const std::int32_t InCountMax, const std::int32_t InScrollTickMax)
 	-> FConsoleMain&
 {
@@ -77,23 +77,23 @@ auto GlobalStateClient::InitKillConsole(
 	return *sKillConsole;
 }
 
-auto GlobalStateClient::GetBigConsole() -> FConsole&
+auto FGlobalStateClient::GetBigConsole() -> FConsole&
 {
 	return *sBigConsole;
 }
 
-auto GlobalStateClient::GetKillConsole() -> FConsoleMain&
+auto FGlobalStateClient::GetKillConsole() -> FConsoleMain&
 {
 	return *sKillConsole;
 }
 
 // Client.cpp variables
 
-GlobalStateClient gGlobalStateClient{
+FGlobalStateClient gGlobalStateClient{
 
 };
 
-void GlobalStateClient::restartgraph()
+void FGlobalStateClient::RestartGraph()
 {
 	gGlobalStateGameRendering.dotextureloading(true);
 
@@ -117,7 +117,7 @@ void GlobalStateClient::restartgraph()
 	GS::GetMainConsole().Console(("Graphics restart"), debug_message_color);
 }
 
-void GlobalStateClient::loadweaponnames(FFileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
+void FGlobalStateClient::LoadWeaponNames(FFileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
 {
 	SoldatAssert(gunDisplayName.size() == double_weapons);
 	std::int32_t i = 0;
@@ -147,7 +147,7 @@ void GlobalStateClient::loadweaponnames(FFileUtility& fs, GunArray& gunDisplayNa
 	}
 }
 
-void GlobalStateClient::redirectdialog()
+void FGlobalStateClient::RedirectDialog()
 {
 	std::array<SDL_MessageBoxButtonData, 2> Buttons{};
 	SDL_MessageBoxData Data;
@@ -182,18 +182,18 @@ void GlobalStateClient::redirectdialog()
 	{
 		gGlobalStateClient.joinip = gGlobalStateClient.redirectip;
 		gGlobalStateClient.joinport = inttostr(gGlobalStateClient.redirectport);
-		joinserver();
+		JoinServer();
 	}
 	else
 	{
 		gGlobalStateClient.redirectip = "";
 		gGlobalStateClient.redirectport = 0;
 		gGlobalStateClient.redirectmsg = "";
-		exittomenu();
+		ExitToMenu();
 	}
 }
 
-void GlobalStateClient::exittomenu()
+void FGlobalStateClient::ExitToMenu()
 {
 	auto& SpriteSystem = SpriteSystem::Get();
 	std::int32_t i = 0;
@@ -287,11 +287,11 @@ void GlobalStateClient::exittomenu()
 
 	if (redirecttoserver)
 	{
-		redirectdialog();
+		RedirectDialog();
 	}
 }
 
-void GlobalStateClient::CreateDirectoryStructure(FFileUtility& fs)
+void FGlobalStateClient::CreateDirectoryStructure(FFileUtility& fs)
 {
 	SoldatEnsure(fs.MkDir("/user/configs"));
 	SoldatEnsure(fs.MkDir("/user/screens"));
@@ -302,7 +302,7 @@ void GlobalStateClient::CreateDirectoryStructure(FFileUtility& fs)
 	SoldatEnsure(fs.MkDir("/user/mods"));
 }
 
-auto GlobalStateClient::MountAssets(FFileUtility& fu,
+auto FGlobalStateClient::MountAssets(FFileUtility& fu,
 	const std::string& userdirectory,
 	const std::string& basedirectory,
 	tsha1digest& outGameModChecksum,
@@ -313,7 +313,7 @@ auto GlobalStateClient::MountAssets(FFileUtility& fu,
 	{
 		if (!fu.Mount(userdirectory, "/"))
 		{
-			showmessage(("Could not load base game archive (game directory)."));
+			ShowMessage(("Could not load base game archive (game directory)."));
 			return false;
 		}
 	}
@@ -321,7 +321,7 @@ auto GlobalStateClient::MountAssets(FFileUtility& fu,
 	{
 		if (!fu.Mount(basedirectory + "/soldat.smod", "/"))
 		{
-			showmessage(("Could not load base game archive (soldat.smod). Try to reinstall the game."));
+			ShowMessage(("Could not load base game archive (soldat.smod). Try to reinstall the game."));
 			return false;
 		}
 
@@ -334,7 +334,7 @@ auto GlobalStateClient::MountAssets(FFileUtility& fu,
 		if (!fu.Mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
 				(std::string("mods/") + lowercase(CVar::fs_mod) + "/")))
 		{
-			showmessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
+			ShowMessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
 			return false;
 		}
 		gGlobalStateClient.moddir = std::string("/mods/") + lowercase(CVar::fs_mod) + '/';
@@ -344,7 +344,7 @@ auto GlobalStateClient::MountAssets(FFileUtility& fu,
 }
 
 // TODO(vscode): throw away test variable
-void GlobalStateClient::InitConsoles(bool test)
+void FGlobalStateClient::InitConsoles(bool test)
 {
 	auto CountMax = floor((0.85 * gGlobalStateClientGame.renderheight)
 						  / (CVar::font_consolelineheight * gGlobalStateGameRendering.fontstylesize(font_small)));
@@ -359,7 +359,7 @@ void GlobalStateClient::InitConsoles(bool test)
 	InitKillConsole(70, round(CVar::ui_killconsole_length * gGlobalStateInterfaceGraphics._rscala.y), 240);
 }
 
-void GlobalStateClient::startgame(int argc, char* argv[])
+void FGlobalStateClient::StartGame(int argc, char* argv[])
 {
 	initclientcommands();
 	commandinit();
@@ -537,7 +537,7 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 
 	if (!gGlobalStateGameRendering.initgamegraphics())
 	{
-		showmessage(std::string("The required OpenGL functionality isn't supported. ")
+		ShowMessage(std::string("The required OpenGL functionality isn't supported. ")
 					+ "Please, update your video drivers and try again.");
 		// ExitButtonClick(nullptr);
 		SoldatAssert(false);
@@ -609,7 +609,7 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 	GS::GetMainConsole().Console(("Welcome to Soldat "), default_message_color);
 
 	// Load weapon display names
-	loadweaponnames(fs, gundisplayname, moddir);
+	LoadWeaponNames(fs, gundisplayname, moddir);
 	createweaponsbase(GS::GetWeaponSystem().GetGuns());
 
 	GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
@@ -659,9 +659,9 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 	// startgameloop();
 }
 
-void GlobalStateClient::shutdown()
+void FGlobalStateClient::Shutdown()
 {
-	exittomenu();
+	ExitToMenu();
 
 	if (abnormalterminate)
 	{
@@ -700,7 +700,7 @@ void GlobalStateClient::shutdown()
 	gamelooprun = false;
 }
 
-bool GlobalStateClient::mainloop()
+bool FGlobalStateClient::MainLoop()
 {
 	if (!gamelooprun)
 	{
@@ -711,16 +711,16 @@ bool GlobalStateClient::mainloop()
 	// gameinput();
 	switch (gGameState)
 	{
-		case GameState::Loading:
+		case EGameState::Loading:
 			gGlobalStateGameRendering.rendergameinfo(("Loading"));
 			break;
-		case GameState::Game:
+		case EGameState::Game:
 			if (progready)
 			{
 				gGlobalStateClientGame.gameloop();
 			}
 			break;
-		case GameState::ConnectionTimedOut:
+		case EGameState::ConnectionTimedOut:
 			gGlobalStateGameRendering.rendergameinfo(("Connection timed out."));
 			break;
 	}
@@ -738,19 +738,19 @@ bool GlobalStateClient::mainloop()
 	#include <emscripten.h>
 #endif
 
-void GlobalStateClient::startgameloop()
+void FGlobalStateClient::StartGameLoop()
 {
 #if __EMSCRIPTEN__
 	emscripten_set_main_loop(loop, 30, 1);
 #else
 	while (gamelooprun)
 	{
-		mainloop();
+		MainLoop();
 	}
 #endif
 }
 
-void GlobalStateClient::joinserver()
+void FGlobalStateClient::JoinServer()
 {
 	gGlobalStateClientGame.resetframetiming();
 
@@ -770,7 +770,7 @@ void GlobalStateClient::joinserver()
 		progready = true;
 		gamelooprun = true;
 		gGlobalStateGameRendering.rendergameinfo(("Loading"));
-		startgameloop();
+		StartGameLoop();
 	}
 	else
 	{
@@ -783,7 +783,7 @@ void GlobalStateClient::joinserver()
 			gamelooprun = true;
 			gGlobalStateGameRendering.rendergameinfo(("Loading"));
 			clientrequestgame(*gGlobalStateNetworkClient.GetNetwork(), joinpassword);
-			gGameState = GameState::Game;
+			gGameState = EGameState::Game;
 		}
 		else
 		{
@@ -795,7 +795,7 @@ void GlobalStateClient::joinserver()
 	}
 }
 
-void GlobalStateClient::showmessage(const std::string& message)
+void FGlobalStateClient::ShowMessage(const std::string& message)
 {
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message.c_str(), nullptr);
 };
@@ -820,7 +820,7 @@ namespace
 		{
 			FFileUtility fu;
 			fu.Mount("tmpfs.memory", "/user");
-			GlobalStateClient Gsc;
+			FGlobalStateClient Gsc;
 			Gsc.CreateDirectoryStructure(fu);
 		}
 	};
@@ -832,7 +832,7 @@ namespace
 		{
 			FFileUtility fu;
 			fu.Mount("tmpfs.memory", "/user");
-			GlobalStateClient Gsc;
+			FGlobalStateClient Gsc;
 			Gsc.CreateDirectoryStructure(fu);
 			auto* f = fu.Open("/user/logs/nice_log.txt", FFileUtility::EFileMode::Write);
 			CHECK_NE(nullptr, f);
@@ -1243,7 +1243,7 @@ namespace
 			}
 			tsha1digest CustomMod;
 			tsha1digest Mod;
-			GlobalStateClient Gsc;
+			FGlobalStateClient Gsc;
 			CHECK_EQ(true, Gsc.MountAssets(fu, "", TestDir, Mod, CustomMod));
 			// std::filesystem::remove_all(testDir);
 		}
@@ -1256,10 +1256,10 @@ namespace
 			const auto BaseDirectory = FFileUtility::GetBasePath();
 			tsha1digest Checksum1;
 			tsha1digest Checksum2;
-			GlobalStateClient Gsc;
+			FGlobalStateClient Gsc;
 			auto Ret = Gsc.MountAssets(fs, UserDirectory, BaseDirectory, Checksum1, Checksum2);
 			CHECK_EQ(true, Ret);
-			Gsc.loadweaponnames(fs, ga, Gsc.moddir);
+			Gsc.LoadWeaponNames(fs, ga, Gsc.moddir);
 			CHECK_EQ("USSOCOM", ga[0]);
 			CHECK_EQ("Desert Eagles", ga[1]);
 			CHECK_EQ("HK MP5", ga[2]);
@@ -1284,7 +1284,7 @@ namespace
 			FGlobalSystems<Config::CLIENT_MODULE>::Init();
 			auto PrevY = gGlobalStateInterfaceGraphics._rscala.y;
 			gGlobalStateInterfaceGraphics._rscala.y = 1;
-			GlobalStateClient Gsc;
+			FGlobalStateClient Gsc;
 			Gsc.InitConsoles(true);
 			gGlobalStateInterfaceGraphics._rscala.y = PrevY;
 			const auto& Console = GS::GetMainConsole();
@@ -1311,9 +1311,9 @@ namespace
 			FGlobalSystems<Config::CLIENT_MODULE>::Init();
 			std::string Game = { "SoldatGame" };
 			std::array<char*, 1> Argv = { Game.data() };
-			GlobalStateClient Gsc;
-			Gsc.startgame(Argv.size(), Argv.data());
-			Gsc.shutdown();
+			FGlobalStateClient Gsc;
+			Gsc.StartGame(Argv.size(), Argv.data());
+			Gsc.Shutdown();
 			FGlobalSystems<Config::CLIENT_MODULE>::Deinit();
 		}
 

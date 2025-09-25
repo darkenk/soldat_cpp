@@ -220,7 +220,7 @@ auto GlobalStateInterfaceGraphics::loadinterfacedata(const std::string& interfac
 
 	if (!fs.Exists(gGlobalStateClient.moddir + custom_interface_dir + interfacename + "/setup.sif"))
 	{
-		gGlobalStateClient.showmessage(("Could not find setup.sif. Loading default interface instead."));
+		gGlobalStateClient.ShowMessage(("Could not find setup.sif. Loading default interface instead."));
 		loaddefaultinterfacedata();
 		return loadinterfacedata_result;
 	}

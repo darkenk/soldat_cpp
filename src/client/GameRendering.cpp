@@ -434,8 +434,8 @@ void GlobalStateGameRendering::loadfonts()
 
 	if ((fontpath[0].empty()) || (fontpath[1].empty()))
 	{
-		gGlobalStateClient.showmessage(("One of the fonts cannot be found. Please check your installation directory."));
-		gGlobalStateClient.shutdown();
+		gGlobalStateClient.ShowMessage(("One of the fonts cannot be found. Please check your installation directory."));
+		gGlobalStateClient.Shutdown();
 	}
 
 	const std::int32_t w = gGlobalStateClientGame.renderwidth;
@@ -541,7 +541,7 @@ auto GlobalStateGameRendering::initgamegraphics() -> bool
 
 	if (gGlobalStateInput.gamewindow == nullptr)
 	{
-		gGlobalStateClient.showmessage("Error creating sdl3 window");
+		gGlobalStateClient.ShowMessage("Error creating sdl3 window");
 		result = false;
 		return result;
 	}
@@ -1511,7 +1511,7 @@ namespace
 			auto ret = getmapinfo(fs, "ctf_Ash", userDirectory, gGlobalStateMapGraphics.mapgfx.mapinfo);
 			CHECK(ret);
 			gGlobalStateGameRendering.reloadgraphics();
-			gGlobalStateClient.loadweaponnames(fs, gGlobalStateClient.gundisplayname, gGlobalStateClient.moddir);
+			gGlobalStateClient.LoadWeaponNames(fs, gGlobalStateClient.gundisplayname, gGlobalStateClient.moddir);
 			createweaponsbase(GS::GetWeaponSystem().GetGuns());
 			gGlobalStateGameMenus.initgamemenus();
 			gGlobalStateGameRendering.loadfonts();

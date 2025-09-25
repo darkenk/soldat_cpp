@@ -498,15 +498,15 @@ void Game<M>::changemap()
 		if (!map.loadmap(fs, mapchangestatus, CVar::r_forcebg, CVar::r_forcebg_color1, CVar::r_forcebg_color2))
 		{
 			gGlobalStateGameRendering.rendergameinfo(("Could not load map: ") + (mapchangename));
-			gGlobalStateClient.exittomenu();
+			gGlobalStateClient.ExitToMenu();
 			return;
 		}
 		// Map.Name := MapChangeName;
 	}
 	else
 	{
-		gGlobalStateClient.exittomenu();
-		gGlobalStateClient.joinserver();
+		gGlobalStateClient.ExitToMenu();
+		gGlobalStateClient.JoinServer();
 		return;
 	}
 #endif

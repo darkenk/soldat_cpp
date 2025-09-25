@@ -280,7 +280,7 @@ void clientdisconnect(INetwork& client)
 	else
 	{
 		client.Disconnect(true);
-		gGlobalStateClient.exittomenu();
+		gGlobalStateClient.ExitToMenu();
 	}
 }
 
@@ -358,7 +358,7 @@ void clienthandleplayerslist::Handle(NetworkContext* netmessage)
 						0)
 					== 0)
 				{
-					gGlobalStateClient.showmessage(_(string("Could not load mod archive (") + modname + ")."));
+					gGlobalStateClient.ShowMessage(_(string("Could not load mod archive (") + modname + ")."));
 					return;
 				}
 				gGlobalStateClient.moddir = string("/mods/") + modname + '/';
@@ -428,7 +428,7 @@ void clienthandleplayerslist::Handle(NetworkContext* netmessage)
 		if (!map.loadmap(fs, mapstatus, CVar::r_forcebg, CVar::r_forcebg_color1, CVar::r_forcebg_color2))
 		{
 			gGlobalStateGameRendering.rendergameinfo(_("Could not load map: ") + (mapname));
-			gGlobalStateClient.exittomenu();
+			gGlobalStateClient.ExitToMenu();
 			return;
 		}
 	}
@@ -656,7 +656,7 @@ void clienthandleunaccepted::Handle(NetworkContext* netmessage)
 	}
 
 	clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
-	gGlobalStateClient.exittomenu();
+	gGlobalStateClient.ExitToMenu();
 }
 
 void clienthandleserverdisconnect::Handle(NetworkContext* netmessage)

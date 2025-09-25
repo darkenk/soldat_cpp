@@ -481,7 +481,7 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent& keyevent) -> bool
 		{
 			case SDL_SCANCODE_F4:
 			case SDL_SCANCODE_F9:
-				gGlobalStateClient.exittomenu();
+				gGlobalStateClient.ExitToMenu();
 				break;
 			default:
 				result = false;
@@ -808,7 +808,7 @@ void GlobalStateControlGame::gameinput(SDL_Event& event)
 			case SDL_EVENT_QUIT:
 			{
 				clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
-				gGlobalStateClient.shutdown();
+				gGlobalStateClient.Shutdown();
 			}
 			break;
 

@@ -88,7 +88,7 @@ namespace
 			GS::GetMainConsole().Console("Usage: connect ip port password", game_message_color);
 			return;
 		}
-		gGlobalStateClient.exittomenu();
+		gGlobalStateClient.ExitToMenu();
 		if (args[0] == "joinurl")
 		{
 			s = args[1];
@@ -120,18 +120,18 @@ namespace
 				gGlobalStateClient.joinpassword = args[3];
 			}
 		}
-		gGlobalStateClient.joinserver();
+		gGlobalStateClient.JoinServer();
 	}
 
 	void commandretry(std::vector<std::string>& /*args*/, std::uint8_t /*sender*/)
 	{
-		gGlobalStateClient.exittomenu();
-		gGlobalStateClient.joinserver();
+		gGlobalStateClient.ExitToMenu();
+		gGlobalStateClient.JoinServer();
 	}
 
 	void commanddisconnect(std::vector<std::string>& /*args*/, std::uint8_t /*sender*/)
 	{
-		gGlobalStateClient.exittomenu();
+		gGlobalStateClient.ExitToMenu();
 	}
 
 	void commandsay(std::vector<std::string>& args, std::uint8_t /*sender*/)
@@ -245,7 +245,7 @@ namespace
 
 	void commandshutdown(std::vector<std::string>& /*args*/, std::uint8_t /*sender*/)
 	{
-		gGlobalStateClient.exittomenu();
+		gGlobalStateClient.ExitToMenu();
 	}
 
 	void commandscreenshot(std::vector<std::string>& /*args*/, std::uint8_t /*sender*/)

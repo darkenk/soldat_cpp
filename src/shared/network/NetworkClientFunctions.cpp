@@ -225,7 +225,7 @@ void clienthandlejoinserver::Handle(NetworkContext* netmessage)
 	gGlobalStateClient.redirectport = joinservermsg->port;
 	gGlobalStateClient.redirectmsg = trim((reinterpret_cast<pmsg_joinserver>(netmessage->packet)->showmsg.data()));
 
-	gGlobalStateClient.exittomenu();
+	gGlobalStateClient.ExitToMenu();
 }
 
 void clienthandleplaysound::Handle(NetworkContext* netmessage)

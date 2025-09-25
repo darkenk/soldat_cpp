@@ -144,14 +144,14 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 									 }) };
 	SetThreadName(State->ServerThread, "SoldatServer");
 	SetCurrentThreadName("SoldatClient");
-	gGlobalStateClient.startgame(argc, argv);
+	gGlobalStateClient.StartGame(argc, argv);
 	*appstate = State;
 	return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppIterate(void* /*appstate*/)
 {
-	auto ContinueRun = gGlobalStateClient.mainloop();
+	auto ContinueRun = gGlobalStateClient.MainLoop();
 	return ContinueRun ? SDL_APP_CONTINUE : SDL_APP_SUCCESS;
 }
 
