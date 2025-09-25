@@ -18,7 +18,6 @@ set(SRC
     ControlGame.cpp
     CVarClient.cpp
     debug/DebugWindow.cpp
-    debug/ImguiSrc.cpp
     ui/LoadingScreen.cpp
     ui/NuklearImpl.cpp
     ui/nuklear_sdl3_gpu.cpp
@@ -69,7 +68,6 @@ target_include_directories(SoldatClientLib SYSTEM PRIVATE
     ${FREETYPE_INCLUDE_DIRS}
     ${TRACY_INCLUDE_DIR}
     ${DOCTEST_INCLUDE_DIR}
-    ${IMGUI_INCLUDE_DIR}
     ${NUKLEAR_INCLUDE_DIR}
 )
 
@@ -81,6 +79,8 @@ target_link_libraries(SoldatClientLib
     ApprovalTests::ApprovalTests
     SoLoud::soloud
     Boost::Boost.DI
+    imgui::imgui
+    imgui::backend_sdl3_sdlgpu3
 )
 
 if (ENABLE_PCH)

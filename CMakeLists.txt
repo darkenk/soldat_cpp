@@ -125,8 +125,8 @@ cmake_print_variables(CMAKE_FIND_ROOT_PATH)
 
 set(LIBRESSL_ROOT_DIR ${third_party_dependencies_path}/libressl-prefix/)
 
-
 find_package(PhysFS REQUIRED)
+find_package(imgui REQUIRED)
 
 set(GLAD_INC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/glad/debug/include)
 # @todo make glad as static lib
@@ -136,9 +136,7 @@ set(STB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/stb)
 set(TRACY_SRC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8/TracyClient.cpp)
 set(TRACY_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/tracy-0.7.8)
 
-set(IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/imgui)
 set(NUKLEAR_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/nuklear)
-set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Add Library
 add_library(LibreSSL::Crypto UNKNOWN IMPORTED)

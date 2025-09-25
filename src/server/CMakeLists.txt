@@ -42,7 +42,6 @@ target_include_directories(SoldatServerLib PRIVATE
 )
 target_include_directories(SoldatServerLib SYSTEM PRIVATE
     ${PHYSFS_INCLUDE_DIR}
-    ${GLAD_INC}
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
     ${TRACY_INCLUDE_DIR}
@@ -81,7 +80,6 @@ target_include_directories(SoldatServer PRIVATE
     ./config
     ../
     ${PHYSFS_INCLUDE_DIR}
-    ${GLAD_INC}
     ${STB_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
     ${TRACY_INCLUDE_DIR}
