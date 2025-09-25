@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/di/extension/injections/named_parameters.hpp>
 #include <common/Console.hpp>
 #include <common/network/Net.hpp>
 #include <array>
@@ -65,16 +66,16 @@ extern GlobalStateServer gGlobalStateServer;
 
 class FFileUtility;
 
-class ConsoleServer : public FConsoleMain
+class FConsoleServer : public FConsoleMain
 {
 public:
-	explicit ConsoleServer(FFileUtility* filesystem = nullptr,
-		const std::int32_t newMessageWait = 0,
-		const std::int32_t countMax = 254,
-		const std::int32_t scrollTickMax = 150,
-		bool writeToFile = true)
-		: FConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax, writeToFile)
+	BOOST_DI_INJECT(FConsoleServer,
+		(named = "NewMessageWait"_s) const std::int32_t InNewMessageWait,
+		(named = "CountMax"_s) const std::int32_t InCountMax,
+		(named = "ScrollTickMax"_s) const std::int32_t InScrollTickMax,
+		(named = "WriteToFile"_s) bool writeToFile)
+		: FConsoleMain(InNewMessageWait, InCountMax, InScrollTickMax, writeToFile)
 	{
 	}
-	void Console(const std::string_view what, std::int32_t col, std::uint8_t sender = 255);
+	void Console(std::string_view what, std::int32_t col, std::uint8_t sender = 255);
 };

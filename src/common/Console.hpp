@@ -1,4 +1,6 @@
 #pragma once
+#include <boost/di.hpp>
+#include <boost/di/extension/injections/named_parameters.hpp>
 #include <cstdint>
 #include <string>
 #include <algorithm>
@@ -8,13 +10,14 @@
 #include "misc/PortUtilsSoldat.hpp"
 #include "misc/PortUtils.hpp"
 
+using boost::di::extension::operator""_s;
+
 class FFileUtility;
 
 class FConsole
 {
 public:
-	explicit FConsole(FFileUtility* filesystem = nullptr,
-		const std::int32_t InNewMessageWait = 0,
+	explicit FConsole(const std::int32_t InNewMessageWait = 0,
 		const std::int32_t InCountMax = 254,
 		const std::int32_t InScrollTickMax = 150,
 		bool writeToFile = true)
@@ -22,7 +25,6 @@ public:
 		, CountMax(std::min(InCountMax, 254))
 		, ScrollTickMax(InScrollTickMax)
 		, WriteToFile(writeToFile)
-		, FileSystem(filesystem)
 	{
 		SoldatAssert(CountMax > 0);
 		mTextMessage.resize(CountMax);
@@ -48,7 +50,6 @@ protected:
 	std::int32_t ScrollTickMax = 1; // how long the scroll count down is before it
 	std::int32_t ScrollTick = 0;
 	bool WriteToFile = false;
-	FFileUtility* FileSystem = nullptr;
 
 	std::vector<std::string> mTextMessage;
 	std::vector<std::uint32_t> mTextMessageColor;
@@ -58,12 +59,12 @@ protected:
 class FConsoleMain : public FConsole
 {
 public:
-	explicit FConsoleMain(FFileUtility* filesystem = nullptr,
-		const std::int32_t InNewMessageWait = 0,
-		const std::int32_t InCountMax = 254,
-		const std::int32_t InScrollTickMax = 150,
-		bool writeToFile = true)
-		: FConsole(filesystem, InNewMessageWait, InCountMax, InScrollTickMax, writeToFile)
+	BOOST_DI_INJECT(FConsoleMain,
+		(named = "NewMessageWait"_s) const std::int32_t InNewMessageWait = 1,
+		(named = "CountMax"_s) const std::int32_t InCountMax = 254,
+		(named = "ScrollTickMax"_s) const std::int32_t InScrollTickMax = 1,
+		(named = "WriteToFile"_s) bool writeToFile = true)
+		: FConsole(InNewMessageWait, InCountMax, InScrollTickMax, writeToFile)
 	{
 	}
 	void Update(bool InKillConsole = false);

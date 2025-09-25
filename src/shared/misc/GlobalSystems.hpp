@@ -15,7 +15,7 @@
 
 class FFileUtility;
 class FConsoleMain;
-class ConsoleServer;
+class FConsoleServer;
 class FLogFile;
 class WeaponSystem;
 class FAnimationSystem;
@@ -28,7 +28,7 @@ public:
 	FGlobalSystems(FGlobalSystems&&) = delete;
 	FGlobalSystems& operator=(const FGlobalSystems&) = delete;
 	FGlobalSystems& operator=(FGlobalSystems&&) = delete;
-	using TConsoleType = typename std::conditional_t<Config::IsClient(M), FConsoleMain, ConsoleServer>;
+	using TConsoleType = typename std::conditional_t<Config::IsClient(M), FConsoleMain, FConsoleServer>;
 
 	static WeaponSystem& GetWeaponSystem() { return *FGlobalSystems::Get().WeaponSystemObject; }
 
@@ -43,11 +43,6 @@ public:
 	static TConsoleType& GetMainConsole() { return *FGlobalSystems::Get().MainConsoleObject; }
 
 	static FAnimationSystem& GetAnimationSystem() { return *FGlobalSystems::Get().AnimationSystemObject; }
-
-	static void SetMainConsole(std::unique_ptr<TConsoleType>&& console)
-	{
-		FGlobalSystems::Get().MainConsoleObject = std::move(console);
-	}
 
 	static FFileUtility& GetFileSystem() { return *FGlobalSystems::Get().FileUtilityObject; }
 
@@ -71,7 +66,7 @@ private:
 	std::unique_ptr<BulletSystem> BulletSystemObject;
 	std::unique_ptr<ThingSystem> ThingSystemObject;
 	std::shared_ptr<FFileUtility> FileUtilityObject;
-	std::unique_ptr<TConsoleType> MainConsoleObject;
+	std::shared_ptr<TConsoleType> MainConsoleObject;
 	std::shared_ptr<FLogFile> LogFileObject;
 	std::unique_ptr<FLogFile> KillLogFileObject;
 	std::shared_ptr<FAnimationSystem> AnimationSystemObject;

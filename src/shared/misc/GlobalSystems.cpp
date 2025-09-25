@@ -1,8 +1,10 @@
+#define BOOST_DI_CFG_DIAGNOSTICS_LEVEL 2
 #include "GlobalSystems.hpp"
 
 #include <memory>
 #include <boost/di.hpp>
 #include <boost/di/extension/scopes/shared.hpp>
+#include <boost/di/extension/injections/named_parameters.hpp>
 
 #include "common/AnimationSystem.hpp"
 #include "common/Console.hpp"
@@ -15,26 +17,38 @@
 #include "shared/mechanics/BulletSystem.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/ThingSystem.hpp"
+#include "shared/Cvar.hpp"
 #ifdef SERVER
 	#include "server/Server.hpp"
 #endif // SERVER
 
 using namespace std::literals::string_view_literals;
 using namespace boost;
+using namespace std::literals;
 
 namespace
 {
 	template <Config::Module M>
 	constexpr auto MakeInjector()
 	{
-		return di::make_injector<boost::di::extension::shared_config>(
-			di::bind<std::string_view>()
-				.named("FileRootPrefix")
-				.to(Config::IsServer(M) ? "/server"sv : "/client"sv)
-				.in(di::extension::shared),
+		auto MainConsoleInjector = []
+		{
+			return di::make_injector<di::extension::shared_config>(
+				di::bind<std::int32_t>().named("NewMessageWait"_s).to(150),
+				di::bind<std::int32_t>().named("CountMax"_s).to(Config::IsServer(M) ? 7 : CVar::ui_console_length),
+				di::bind<std::int32_t>().named("ScrollTickMax"_s).to(150),
+				di::bind<bool>().named("WriteToFile"_s).to(true),
+				di::bind<typename FGlobalSystems<M>::TConsoleType>.in(di::extension::shared));
+		};
+
+		return di::make_injector<di::extension::shared_config>(di::bind<std::string_view>()
+																   .named("FileRootPrefix"_s)
+																   .to(Config::IsServer(M) ? "/server"sv : "/client"sv)
+																   .in(di::extension::shared),
 			di::bind<FFileUtility>.in(di::extension::shared),
 			di::bind<FLogFile>.in(di::extension::shared),
-			di::bind<FAnimationSystem>.in(di::extension::shared));
+			di::bind<FAnimationSystem>.in(di::extension::shared),
+			MainConsoleInjector());
 	}
 } // namespace
 
@@ -45,7 +59,7 @@ FGlobalSystems<M>::FGlobalSystems()
 	FileUtilityObject = Injector.template create<std::shared_ptr<FFileUtility>>();
 	LogFileObject = Injector.template create<std::shared_ptr<FLogFile>>();
 	AnimationSystemObject = Injector.template create<std::shared_ptr<FAnimationSystem>>();
-	MainConsoleObject = std::make_unique<TConsoleType>();
+	MainConsoleObject = Injector.template create<std::shared_ptr<TConsoleType>>();
 	if constexpr (Config::IsServer(M))
 	{
 		KillLogFileObject = std::make_unique<FLogFile>(*FileUtilityObject);

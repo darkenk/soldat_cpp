@@ -111,8 +111,8 @@ namespace
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "Write message")
 		{
-			FConsole Big(nullptr);
-			FConsoleMain cl(nullptr, 0, 254, 150, false);
+			FConsole Big;
+			FConsoleMain cl(0, 254, 150, false);
 			cl.SetBigConsole(&Big);
 			cl.Console("Test message", Constants::GAME_MESSAGE_COLOR);
 			CHECK_EQ(1, cl.GetCount());
@@ -124,7 +124,7 @@ namespace
 			constexpr auto kCountMax = 254;
 			constexpr auto kScrollTickMax = 150;
 			constexpr auto kWriteToFile = true;
-			FConsole Console(nullptr, kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
+			FConsole Console(kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
 			Console.ConsoleAdd("Message 1", 10);
 			Console.ConsoleAdd("Message 2", 20);
 			Console.ConsoleAdd("Message 3", 30);
@@ -149,7 +149,7 @@ namespace
 			constexpr auto kCountMax = 254;
 			constexpr auto kScrollTickMax = 150;
 			constexpr auto kWriteToFile = true;
-			FConsole Console(nullptr, kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
+			FConsole Console(kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
 			Console.ConsoleAdd("Message 1", 10);
 			AddMessagesUntilScroll(Console, kCountMax);
 
@@ -162,7 +162,7 @@ namespace
 			constexpr auto kCountMax = 254;
 			constexpr auto kScrollTickMax = 150;
 			constexpr auto kWriteToFile = true;
-			FConsole Console(nullptr, kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
+			FConsole Console(kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
 			Console.ConsoleAdd("Only Message", 99);
 			AddMessagesUntilScroll(Console, kCountMax);
 
@@ -185,7 +185,7 @@ namespace
 			constexpr auto kCountMax = 254;
 			constexpr auto kScrollTickMax = 150;
 			constexpr auto kWriteToFile = false;
-			FConsoleMain cl(nullptr, kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
+			FConsoleMain cl(kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
 			FConsole Big;
 			cl.SetBigConsole(&Big);
 			cl.Console("Client message", 30);
@@ -210,7 +210,7 @@ namespace
 		TEST_CASE_FIXTURE(FConsoleFixture, "ConsoleNum - Scroll When Max Count Reached")
 		{
 			constexpr auto kCountMax = 3;
-			FConsoleMain Console(nullptr, 0, kCountMax, 150);
+			FConsoleMain Console(0, kCountMax, 150);
 			Console.ConsoleAdd("Message 1", 10, 1);
 			Console.ConsoleAdd("Message 2", 20, 2);
 			Console.ConsoleAdd("Message 3", 30, 3);
@@ -254,7 +254,7 @@ namespace
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateKillConsole - Scrolls When ScrollTickMax Reached")
 		{
-			FConsoleMain Console(nullptr, 0, 2, 1);
+			FConsoleMain Console(0, 2, 1);
 			Console.ConsoleAdd("Message 1", 10, 1);
 			Console.Update(true);
 			CHECK_EQ(Console.GetCount(), 0);
@@ -262,7 +262,7 @@ namespace
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateKillConsole - Scrolls Twice When Last Message Num is -255")
 		{
-			FConsoleMain Console(nullptr, 0, 3, 1);
+			FConsoleMain Console(0, 3, 1);
 			Console.ConsoleAdd("Message 1", 10, -255);
 			Console.ConsoleAdd("Message 2", 10, -255);
 			Console.Update(true);
@@ -271,7 +271,7 @@ namespace
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateKillConsole - Does Not Scroll When ScrollTickMax Not Reached")
 		{
-			FConsoleMain Console(nullptr, 3, 2, 4);
+			FConsoleMain Console(3, 2, 4);
 			Console.ConsoleAdd("Message 1", 10, 1);
 			Console.Update(true);
 			CHECK_EQ(Console.GetCount(), 1);
@@ -279,14 +279,14 @@ namespace
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateKillConsole - Does Not Scroll When No Messages")
 		{
-			FConsoleMain Console(nullptr, 0, 3, 1);
+			FConsoleMain Console(0, 3, 1);
 			Console.Update(true);
 			CHECK_EQ(Console.GetCount(), 0);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateMainConsole - Scrolls When ScrollTickMax Reached")
 		{
-			FConsoleMain Console(nullptr, 0, 2, 1);
+			FConsoleMain Console(0, 2, 1);
 			Console.ConsoleAdd("Message 1", 10);
 			Console.Update();
 			CHECK_EQ(Console.GetCount(), 0);
@@ -294,7 +294,7 @@ namespace
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateMainConsole - Does Not Scroll When ScrollTickMax Not Reached")
 		{
-			FConsoleMain Console(nullptr, 3, 2, 4);
+			FConsoleMain Console(3, 2, 4);
 			Console.ConsoleAdd("Message 1", 10);
 			Console.Update();
 			CHECK_EQ(Console.GetCount(), 1);
@@ -302,7 +302,7 @@ namespace
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateMainConsole - Does Not Scroll When No Messages")
 		{
-			FConsoleMain Console(nullptr, 0, 3, 1);
+			FConsoleMain Console(0, 3, 1);
 			Console.Update();
 			CHECK_EQ(Console.GetCount(), 0);
 		}

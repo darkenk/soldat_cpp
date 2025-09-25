@@ -100,20 +100,17 @@ private:
 		Game,
 		ConnectionTimedOut
 	};
-	FConsole sBigConsole;
-	FConsoleMain sKillConsole;
+	std::shared_ptr<FConsole> sBigConsole;
+	std::shared_ptr<FConsoleMain> sKillConsole;
 	GameState gGameState{ GameState::Loading };
 	bool gamelooprun{};
 	bool progready{};
 	friend class ClientFixture;
-	auto InitBigConsole(FFileUtility* filesystem,
-		const std::int32_t newMessageWait,
-		const std::int32_t countMax,
-		const std::int32_t scrollTickMax) -> FConsole&;
-	auto InitKillConsole(FFileUtility* filesystem,
-		const std::int32_t newMessageWait,
-		const std::int32_t countMax,
-		const std::int32_t scrollTickMax) -> FConsoleMain&;
+	auto InitBigConsole(
+		const std::int32_t newMessageWait, const std::int32_t countMax, const std::int32_t scrollTickMax) -> FConsole&;
+	auto InitKillConsole(
+		const std::int32_t newMessageWait, const std::int32_t countMax, const std::int32_t scrollTickMax)
+		-> FConsoleMain&;
 	void redirectdialog();
 	void restartgraph();
 	void startgameloop();

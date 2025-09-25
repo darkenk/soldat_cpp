@@ -180,8 +180,6 @@ void GlobalStateServer::ActivateServer(int argc, char* argv[])
 	}
 
 	// Create Consoles
-	auto console = std::make_unique<ConsoleServer>(&GS::GetFileSystem(), 150, 7, 150);
-	GS::SetMainConsole(std::move(console));
 	SoldatAssert(GS::GetMainConsole().GetNewMessageWait() == 150);
 
 	NotImplemented("Who cares about colors?");
@@ -1201,7 +1199,7 @@ void GlobalStateServer::ShutdownServer()
 	progready = false;
 }
 
-void ConsoleServer::Console(const std::string_view what, std::int32_t col, std::uint8_t sender)
+void FConsoleServer::Console(const std::string_view what, std::int32_t col, std::uint8_t sender)
 {
 	::FConsoleMain::Console(what, col);
 	if ((sender > 0) && (sender < max_players + 1))
@@ -1244,7 +1242,7 @@ namespace
 			constexpr auto countMax = 20;
 			constexpr auto scrollTickMax = 150;
 			constexpr auto writeToFile = true;
-			ConsoleServer cl(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
+			FConsoleServer cl(newMessageWait, countMax, scrollTickMax, writeToFile);
 			cl.Console("Test message", 10);
 			// Assuming GetGameLog() and GetGameLogFilename() are accessible and return expected values
 			// auto &fs = GS::GetFileSystem();
@@ -1257,7 +1255,7 @@ namespace
 			constexpr auto countMax = 20;
 			constexpr auto scrollTickMax = 150;
 			constexpr auto writeToFile = false;
-			ConsoleServer cl(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
+			FConsoleServer cl(newMessageWait, countMax, scrollTickMax, writeToFile);
 			cl.Console("Server message", 20);
 			CHECK_EQ(cl.GetCount(), 1);
 			CHECK_EQ(cl.GetTextMessage(1), "Server message");
@@ -1270,7 +1268,7 @@ namespace
 			constexpr auto countMax = 20;
 			constexpr auto scrollTickMax = 150;
 			constexpr auto writeToFile = false;
-			ConsoleServer cl(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
+			FConsoleServer cl(newMessageWait, countMax, scrollTickMax, writeToFile);
 			cl.Console("Message 1", 10);
 			cl.Console("Message 2", 20);
 			cl.Console("Message 3", 30);

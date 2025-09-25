@@ -32,6 +32,7 @@
 #include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
 #include "common/AnimationSystem.hpp"
+#include "common/Console.hpp"
 #include "common/FileUtility.hpp"
 #include "common/GameStrings.hpp"
 #include "common/LogFile.hpp"
@@ -60,30 +61,29 @@
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 
-auto GlobalStateClient::InitBigConsole(FFileUtility* filesystem,
-	const std::int32_t newMessageWait,
-	const std::int32_t countMax,
-	const std::int32_t scrollTickMax) -> FConsole&
+auto GlobalStateClient::InitBigConsole(
+	const std::int32_t newMessageWait, const std::int32_t countMax, const std::int32_t scrollTickMax) -> FConsole&
 {
-	return *new (&sBigConsole) FConsole(filesystem, newMessageWait, countMax, scrollTickMax);
+	sBigConsole = std::make_shared<FConsole>(newMessageWait, countMax, scrollTickMax, true);
+	return *sBigConsole;
 }
 
-auto GlobalStateClient::InitKillConsole(FFileUtility* filesystem,
-	const std::int32_t newMessageWait,
-	const std::int32_t countMax,
-	const std::int32_t scrollTickMax) -> FConsoleMain&
+auto GlobalStateClient::InitKillConsole(
+	const std::int32_t newMessageWait, const std::int32_t countMax, const std::int32_t scrollTickMax) -> FConsoleMain&
 {
-	return *new (&sKillConsole) FConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax);
+
+	sKillConsole = std::make_shared<FConsoleMain>(newMessageWait, countMax, scrollTickMax, true);
+	return *sKillConsole;
 }
 
 auto GlobalStateClient::GetBigConsole() -> FConsole&
 {
-	return sBigConsole;
+	return *sBigConsole;
 }
 
 auto GlobalStateClient::GetKillConsole() -> FConsoleMain&
 {
-	return sKillConsole;
+	return *sKillConsole;
 }
 
 // Client.cpp variables
@@ -345,11 +345,6 @@ auto GlobalStateClient::MountAssets(FFileUtility& fu,
 // TODO(vscode): throw away test variable
 void GlobalStateClient::InitConsoles(bool test)
 {
-	// Create Consoles
-	auto console = std::make_unique<FConsoleMain>(
-		&GS::GetFileSystem(), 150, round(CVar::ui_console_length * gGlobalStateInterfaceGraphics._rscala.y), 150);
-	GS::SetMainConsole(std::move(console));
-
 	auto countMax = floor((0.85 * gGlobalStateClientGame.renderheight)
 						  / (CVar::font_consolelineheight * gGlobalStateGameRendering.fontstylesize(font_small)));
 	if (test)
@@ -357,11 +352,10 @@ void GlobalStateClient::InitConsoles(bool test)
 		countMax = 20;
 	}
 
-	InitBigConsole(&GS::GetFileSystem(), 0, countMax, 1500000);
+	InitBigConsole(0, countMax, 1500000);
 	GS::GetMainConsole().SetBigConsole(&GetBigConsole());
 
-	InitKillConsole(
-		&GS::GetFileSystem(), 70, round(CVar::ui_killconsole_length * gGlobalStateInterfaceGraphics._rscala.y), 240);
+	InitKillConsole(70, round(CVar::ui_killconsole_length * gGlobalStateInterfaceGraphics._rscala.y), 240);
 }
 
 void GlobalStateClient::startgame(int argc, char* argv[])
