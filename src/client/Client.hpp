@@ -22,7 +22,7 @@ struct tweaponstat
 	std::uint8_t accuracy;
 };
 
-using GunArray = std::array<std::string, 17>;
+using TGunArray = std::array<std::string, 17>;
 
 struct FGlobalStateClient
 {
@@ -34,7 +34,7 @@ struct FGlobalStateClient
 	void Shutdown();
 	void ExitToMenu();
 	bool MainLoop();
-	void LoadWeaponNames(FFileUtility& fs, GunArray& gunDisplayName, const std::string& modDir);
+	void LoadWeaponNames(FFileUtility& fs, TGunArray& gunDisplayName, const std::string& modDir);
 	void ShowMessage(const std::string& messagetext);
 	std::string joinpassword;
 	std::string joinport = "23073";
@@ -54,7 +54,7 @@ struct FGlobalStateClient
 	std::uint8_t mysprite = {};
 	PascalArray<tweaponstat, 1, 20> wepstats = {};
 	std::uint8_t wepstatsnum = 0;
-	GunArray gundisplayname = {};
+	TGunArray gundisplayname = {};
 	std::uint8_t gamethingtarget = {};
 	std::int32_t grenadeeffecttimer = 0;
 	std::uint8_t badmapidcount = {};

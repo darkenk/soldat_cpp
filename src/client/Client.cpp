@@ -117,7 +117,7 @@ void FGlobalStateClient::RestartGraph()
 	GS::GetMainConsole().Console(("Graphics restart"), debug_message_color);
 }
 
-void FGlobalStateClient::LoadWeaponNames(FFileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
+void FGlobalStateClient::LoadWeaponNames(FFileUtility& fs, TGunArray& gunDisplayName, const std::string& modDir)
 {
 	SoldatAssert(gunDisplayName.size() == double_weapons);
 	std::int32_t i = 0;
@@ -399,9 +399,9 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 	GS::GetConsoleLogFile().SetLogLevel(CVar::log_level);
 	GS::GetConsoleLogFile().Init("/user/logs/consolelog");
 
-	std::string Systemlang = "en_US";
+	std::string SystemLang = "en_US";
 	// todo this variable is needed when code is refactored
-	const std::string systemfallbacklang = "en_US"; // NOLINT
+	const std::string SystemFallbackLang = "en_US"; // NOLINT
 
 	// TODO(vscode): remove HWIDs, replace by Fae auth tickets
 	hwid = "00000000000";
@@ -546,7 +546,7 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 
 	if (CVar::cl_lang != "")
 	{
-		Systemlang = CVar::cl_lang;
+		SystemLang = CVar::cl_lang;
 	}
 	else
 	{
@@ -556,9 +556,9 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 #endif
 	}
 
-	if (inittranslation(ReadAsFileStream(fs, moddir + "/txt/" + Systemlang + ".mo").get()))
+	if (inittranslation(ReadAsFileStream(fs, moddir + "/txt/" + SystemLang + ".mo").get()))
 	{
-		LogDebugG("Game captions loaded from {}/txt/{}", moddir, Systemlang);
+		LogDebugG("Game captions loaded from {}/txt/{}", moddir, SystemLang);
 	}
 	else
 	{
@@ -582,11 +582,6 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 	GS::GetConsoleLogFile().Log("Creating network interface.");
 
 	InitConsoles();
-	// Create static player objects
-	for (auto& s : SpriteSystem::Get().GetSprites())
-	{
-		s.player = std::make_shared<tplayer>();
-	}
 
 	GS::GetAnimationSystem().LoadAnimObjects("");
 	if (length(moddir) > 0)
@@ -655,8 +650,6 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 
 	gamelooprun = true;
 	rundeferredcommands();
-	// void startgameloop();
-	// startgameloop();
 }
 
 void FGlobalStateClient::Shutdown()
@@ -1251,7 +1244,7 @@ namespace
 		TEST_CASE_FIXTURE(FClientFixture, "loadweaponnamesRefactorToUseVirtualFileSystem")
 		{
 			FFileUtility fs;
-			GunArray ga;
+			TGunArray ga;
 			const auto UserDirectory = FFileUtility::GetPrefPath("client");
 			const auto BaseDirectory = FFileUtility::GetBasePath();
 			tsha1digest Checksum1;

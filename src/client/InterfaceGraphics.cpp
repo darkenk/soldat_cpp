@@ -73,15 +73,15 @@ void GlobalStateInterfaceGraphics::loadinterfacearchives(const std::string& path
 		{
 			continue;
 		}
-		std::string const name = f.path().stem().string();
+		std::string const Name = f.path().stem().string();
 		if (PHYSFS_mount(
-				pchar(path + f.path().filename().string().c_str()), pchar(string("custom-interfaces/") + name + '/'), 0)
+				pchar(path + f.path().filename().string()), pchar(string("custom-interfaces/") + Name + '/'), 0)
 			!= 0)
 		{
 			LogDebugG("Mounted interface: {}", f.path().string().c_str());
 			if (firstonly)
 			{
-				CVar::ui_style = name;
+				CVar::ui_style = Name;
 				break;
 			}
 		}

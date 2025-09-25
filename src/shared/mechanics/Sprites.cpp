@@ -246,6 +246,10 @@ Sprite<M>::Sprite(const uint8_t _num, bool _active) : active{ _active }, num{ _n
 		nextpush[j].y = 0;
 	}
 	freecontrols();
+	if constexpr (Config::IsClient(M))
+	{
+		player = std::make_shared<tplayer>();
+	}
 }
 
 template <Config::Module M>

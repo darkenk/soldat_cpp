@@ -904,10 +904,6 @@ namespace
 		{
 			FGlobalSystems<Config::CLIENT_MODULE>::Init();
 			GS::GetAnimationSystem().LoadAnimObjects("");
-			for (auto& s : SpriteSystem::Get().GetSprites())
-			{
-				s.player = std::make_shared<tplayer>();
-			}
 		}
 		~NetworkClientConnectionFixture() { FGlobalSystems<Config::CLIENT_MODULE>::Deinit(); }
 		NetworkClientConnectionFixture(const NetworkClientConnectionFixture&) = delete;
