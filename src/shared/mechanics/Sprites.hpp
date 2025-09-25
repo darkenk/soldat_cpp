@@ -6,10 +6,10 @@
 #include <string>
 #include <type_traits>
 
-#include "../AnimationSystem.hpp"
 #include "../Constants.hpp"
 #include "../network/Net.hpp"
 #include "BackgroundState.hpp"
+#include "common/AnimationSystem.hpp"
 #include "common/Parts.hpp"
 #include "common/PolyMap.hpp"
 #include "common/Vector.hpp"
@@ -183,8 +183,8 @@ public:
 	PascalArray<tvector2, 0, max_pushtick> nextpush;
 	std::uint16_t bulletcount{};
 	NO_UNIQUE_ADDRESS
-		std::conditional_t<Config::IsServer(M), std::array<std::uint64_t, bulletcheckarraysize>, EmptyClass>
-			bulletcheck = {};
+	std::conditional_t<Config::IsServer(M), std::array<std::uint64_t, bulletcheckarraysize>, EmptyClass>
+		bulletcheck = {};
 	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsServer(M), std::int32_t, EmptyClass> bulletcheckindex = {};
 	NO_UNIQUE_ADDRESS std::conditional_t<Config::IsServer(M), std::int32_t, EmptyClass> bulletcheckamount = {};
 	//  public

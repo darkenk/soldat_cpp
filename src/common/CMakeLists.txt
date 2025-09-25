@@ -8,6 +8,7 @@ set(SRC
     misc/TMemoryStream.cpp
     network/Net.cpp
     port_utils/NotImplemented.cpp
+    AnimationSystem.cpp
     Anims.cpp
     Calc.cpp
     Console.cpp

@@ -8,7 +8,7 @@
 #include "common/misc/PortUtils.hpp"
 #include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
-#include "shared/AnimationSystem.hpp"
+#include "common/AnimationSystem.hpp"
 #include "shared/Cvar.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
@@ -130,7 +130,7 @@ namespace
 		{
 			FGlobalSystems<Config::CLIENT_MODULE>::Init();
 			FGlobalSystems<Config::SERVER_MODULE>::Init();
-			AnimationSystem::Get().LoadAnimObjects("");
+			GS::GetAnimationSystem().LoadAnimObjects("");
 		}
 		NetworkServerHeartbeatFixture(const NetworkServerHeartbeatFixture&) = delete;
 		~NetworkServerHeartbeatFixture()

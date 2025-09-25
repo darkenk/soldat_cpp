@@ -43,6 +43,7 @@
 #include "../Cvar.hpp"
 #include "../Game.hpp"
 #include "Control.hpp"
+#include "common/AnimationSystem.hpp"
 #include "common/Calc.hpp"
 #include "common/GameStrings.hpp"
 #include "common/Logging.hpp"
@@ -55,7 +56,6 @@
 #include "common/misc/RandomGenerator.hpp"
 #include "common/misc/SafeType.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "shared/AnimationSystem.hpp"
 #include "shared/mechanics/BackgroundState.hpp"
 #include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
@@ -92,7 +92,7 @@ auto createsprite(
 	LogDebug(LOG, "CreateSprite");
 	auto& game = GS::GetGame();
 	auto& map = game.GetMap();
-	auto& anim = AnimationSystem::Get();
+	auto& anim = GS::GetAnimationSystem();
 	auto& weapon = GS::GetWeaponSystem();
 	auto& spriteSystem = SpriteSystem::Get();
 
@@ -2673,7 +2673,7 @@ void Sprite<M>::legsapplyanimation(const AnimationType anim, std::int32_t curr)
 
 	if (anim != legsanimation.id)
 	{
-		legsanimation = AnimationSystem::Get().GetAnimation(anim);
+		legsanimation = GS::GetAnimationSystem().GetAnimation(anim);
 		legsanimation.currframe = curr;
 	}
 }
@@ -2698,7 +2698,7 @@ void Sprite<M>::bodyapplyanimation(const AnimationType anim, std::int32_t curr)
 
 	if (anim != bodyanimation.id)
 	{
-		bodyanimation = AnimationSystem::Get().GetAnimation(anim);
+		bodyanimation = GS::GetAnimationSystem().GetAnimation(anim);
 		bodyanimation.currframe = curr;
 	}
 }
@@ -3962,7 +3962,7 @@ void Sprite<M>::respawn()
 	{
 		wearhelmet = 0;
 	}
-	skeleton.constraints = AnimationSystem::Get().GetSkeleton(Gostek).constraints;
+	skeleton.constraints = GS::GetAnimationSystem().GetSkeleton(Gostek).constraints;
 	auto& spriteVelocity = sprite_system.GetVelocity(num);
 	spriteVelocity.x = 0;
 	spriteVelocity.y = 0;
@@ -3998,8 +3998,8 @@ void Sprite<M>::respawn()
 	}
 #endif
 
-	bodyanimation = AnimationSystem::Get().GetAnimation(AnimationType::Stand);
-	legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::Stand);
+	bodyanimation = GS::GetAnimationSystem().GetAnimation(AnimationType::Stand);
+	legsanimation = GS::GetAnimationSystem().GetAnimation(AnimationType::Stand);
 	position = pos_stand;
 	onfire = 0;
 	deadcollidecount = 0;
@@ -5703,7 +5703,7 @@ public:
 	SpritesFixture()
 	{
 		GS::Init();
-		AnimationSystem::Get().LoadAnimObjects("");
+		GS::GetAnimationSystem().LoadAnimObjects("");
 	}
 	~SpritesFixture() { GS::Deinit(); }
 	SpritesFixture(const SpritesFixture&) = delete;

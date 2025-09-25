@@ -4,13 +4,14 @@
 #include <cstdint>
 #include <vector>
 
-#include "common/Anims.hpp"
-#include "common/misc/GlobalSubsystem.hpp"
-#include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
-#include "common/Parts.hpp"
+#include "Anims.hpp"
+#include "FileUtility.hpp"
+#include "LogFile.hpp"
+#include "Parts.hpp"
 
 class particlesystem;
 class Skeleton;
+class FLogFile;
 
 enum SkeletonType : std::int32_t
 {
@@ -32,19 +33,19 @@ enum SkeletonType : std::int32_t
 	Rifle55
 };
 
-template <Config::Module M = Config::GetModule()>
-class TAnimationSystem : public FGlobalSubsystem<TAnimationSystem<M>>
+class FAnimationSystem
 {
 public:
+	explicit FAnimationSystem(FLogFile& InLogFile, FFileUtility& InFileUtility);
 	void LoadAnimObjects(const std::string& moddir);
 
 	auto GetAnimation(AnimationType type) -> tanimation&;
 
-	[[nodiscard]] auto GetSkeleton(const SkeletonType type) const -> const particlesystem&;
+	[[nodiscard]] auto GetSkeleton(SkeletonType type) const -> const particlesystem&;
 
 private:
+	FLogFile& LogFile;
+	FFileUtility& FileUtility;
 	std::vector<tanimation> Animations;
 	std::vector<particlesystem> Skeletons;
 };
-
-using AnimationSystem = TAnimationSystem<>;

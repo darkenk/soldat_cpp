@@ -41,7 +41,7 @@
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
 #include "common/port_utils/SourceLocation.hpp"
-#include "shared/AnimationSystem.hpp"
+#include "common/AnimationSystem.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/Version.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
@@ -363,7 +363,20 @@ void clienthandleplayerslist::Handle(NetworkContext* netmessage)
 				}
 				gGlobalStateClient.moddir = string("/mods/") + modname + '/';
 				GS::GetGame().SetCustomModChecksum(checksum);
-				AnimationSystem::Get().LoadAnimObjects(gGlobalStateClient.moddir);
+				GS::GetAnimationSystem().LoadAnimObjects(gGlobalStateClient.moddir);
+				SpriteSystem::Get().ResetSpriteParts();
+				GetBulletParts().destroy();
+				GetBulletParts().timestep = 1;
+				GetBulletParts().gravity = grav * 2.25;
+				GetBulletParts().edamping = 0.99;
+
+				if constexpr (Config::GetModule() == Config::CLIENT_MODULE)
+				{
+					gGlobalStateSparks.GetSparkParts().destroy();
+					gGlobalStateSparks.GetSparkParts().timestep = 1;
+					gGlobalStateSparks.GetSparkParts().gravity = grav / 1.4;
+					gGlobalStateSparks.GetSparkParts().edamping = 0.998;
+				}
 				gGlobalStateSound.loadsounds(gGlobalStateClient.moddir);
 				forcegraphicsreload = true;
 				gGlobalStateClient.usesservermod = true;
@@ -385,7 +398,20 @@ void clienthandleplayerslist::Handle(NetworkContext* netmessage)
 			if (gGlobalStateClient.usesservermod) // reset to original mod
 			{
 				gGlobalStateClient.moddir = CVar::fs_mod;
-				AnimationSystem::Get().LoadAnimObjects(gGlobalStateClient.moddir);
+				GS::GetAnimationSystem().LoadAnimObjects(gGlobalStateClient.moddir);
+				SpriteSystem::Get().ResetSpriteParts();
+				GetBulletParts().destroy();
+				GetBulletParts().timestep = 1;
+				GetBulletParts().gravity = grav * 2.25;
+				GetBulletParts().edamping = 0.99;
+
+				if constexpr (Config::GetModule() == Config::CLIENT_MODULE)
+				{
+					gGlobalStateSparks.GetSparkParts().destroy();
+					gGlobalStateSparks.GetSparkParts().timestep = 1;
+					gGlobalStateSparks.GetSparkParts().gravity = grav / 1.4;
+					gGlobalStateSparks.GetSparkParts().edamping = 0.998;
+				}
 				gGlobalStateSound.loadsounds(gGlobalStateClient.moddir);
 				forcegraphicsreload = true;
 				gGlobalStateClient.usesservermod = false;
@@ -877,7 +903,7 @@ namespace
 		NetworkClientConnectionFixture()
 		{
 			FGlobalSystems<Config::CLIENT_MODULE>::Init();
-			AnimationSystem::Get().LoadAnimObjects("");
+			GS::GetAnimationSystem().LoadAnimObjects("");
 			for (auto& s : SpriteSystem::Get().GetSprites())
 			{
 				s.player = std::make_shared<tplayer>();

@@ -8,7 +8,6 @@ set(SRC
 
 set(SHARED_SRC
     ../shared/AI.cpp
-    ../shared/AnimationSystem.cpp
     ../shared/Command.cpp
     ../shared/Cvar.cpp
     ../shared/Game.cpp

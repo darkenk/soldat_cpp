@@ -41,7 +41,7 @@
 #include "common/misc/RandomGenerator.hpp"
 #include "common/misc/SafeType.hpp"
 #include "common/network/Net.hpp"
-#include "shared/AnimationSystem.hpp"
+#include "common/AnimationSystem.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
@@ -906,7 +906,7 @@ void controlsprite(tsprite& spritec)
 
 			if (((spritec.bodyanimation.id == AnimationType::Change)
 					&& (spritec.bodyanimation.currframe
-						== AnimationSystem::Get().GetAnimation(AnimationType::Change).numframes))
+						== GS::GetAnimationSystem().GetAnimation(AnimationType::Change).numframes))
 				&& (spritec.bonusstyle != bonus_flamegod) && (spritec.weapon.ammocount == 0))
 			{
 				spritec.bodyapplyanimation(AnimationType::Stand, 1);
@@ -1087,7 +1087,7 @@ void controlsprite(tsprite& spritec)
 					{
 						if (spritec.legsanimation.id != AnimationType::GetUp)
 						{
-							spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::GetUp);
+							spritec.legsanimation = GS::GetAnimationSystem().GetAnimation(AnimationType::GetUp);
 							spritec.legsanimation.currframe = 9;
 							spritec.control.prone = false;
 #ifndef SERVER
@@ -1930,13 +1930,13 @@ void controlsprite(tsprite& spritec)
 							if (spritec.direction == 1)
 							{
 								spritec.bodyapplyanimation(AnimationType::Roll, 1);
-								spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::Roll);
+								spritec.legsanimation = GS::GetAnimationSystem().GetAnimation(AnimationType::Roll);
 								spritec.legsanimation.currframe = 1;
 							}
 							else
 							{
 								spritec.bodyapplyanimation(AnimationType::RollBack, 1);
-								spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::RollBack);
+								spritec.legsanimation = GS::GetAnimationSystem().GetAnimation(AnimationType::RollBack);
 								spritec.legsanimation.currframe = 1;
 							}
 						}
@@ -1997,13 +1997,13 @@ void controlsprite(tsprite& spritec)
 							if (spritec.direction == 1)
 							{
 								spritec.bodyapplyanimation(AnimationType::RollBack, 1);
-								spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::RollBack);
+								spritec.legsanimation = GS::GetAnimationSystem().GetAnimation(AnimationType::RollBack);
 								spritec.legsanimation.currframe = 1;
 							}
 							else
 							{
 								spritec.bodyapplyanimation(AnimationType::Roll, 1);
-								spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::Roll);
+								spritec.legsanimation = GS::GetAnimationSystem().GetAnimation(AnimationType::Roll);
 								spritec.legsanimation.currframe = 1;
 							}
 						}
@@ -2063,14 +2063,14 @@ void controlsprite(tsprite& spritec)
 								if (spritec.legsanimation.id != AnimationType::ProneMove)
 								{
 									spritec.legsanimation =
-										AnimationSystem::Get().GetAnimation(AnimationType::ProneMove);
+										GS::GetAnimationSystem().GetAnimation(AnimationType::ProneMove);
 								}
 							}
 							else
 							{
 								if (spritec.legsanimation.id != AnimationType::Prone)
 								{
-									spritec.legsanimation = AnimationSystem::Get().GetAnimation(AnimationType::Prone);
+									spritec.legsanimation = GS::GetAnimationSystem().GetAnimation(AnimationType::Prone);
 								}
 								spritec.legsanimation.currframe = 26;
 							}

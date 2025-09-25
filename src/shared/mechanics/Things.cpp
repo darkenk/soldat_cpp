@@ -24,7 +24,7 @@
 #include "common/misc/SafeType.hpp"
 #include "common/misc/SoldatConfig.hpp"
 #include "common/network/Net.hpp"
-#include "shared/AnimationSystem.hpp"
+#include "common/AnimationSystem.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
@@ -173,7 +173,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.991;
 			thing.skeleton.gravity = 1.0 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Flag));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Flag));
 			// A and B flags face eachother.
 			if (sstyle == object_alpha_flag)
 			{
@@ -215,7 +215,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.994;
 			thing.skeleton.gravity = 1.05 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle10));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle10));
 #ifndef SERVER
 			thing.tex1 = GFX::WEAPONS_N_SOCOM + k;
 #endif
@@ -229,7 +229,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.996;
 			thing.skeleton.gravity = 1.09 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle11));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle11));
 #ifndef SERVER
 			thing.tex1 = GFX::WEAPONS_N_DEAGLES + k;
 #endif
@@ -243,7 +243,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.995;
 			thing.skeleton.gravity = 1.11 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle22));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle22));
 #ifndef SERVER
 			thing.tex1 = guns[mp5].texturenum + k;
 			thing.tex2 = guns[mp5].cliptexturenum + k;
@@ -258,7 +258,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.994;
 			thing.skeleton.gravity = 1.16 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle37));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle37));
 #ifndef SERVER
 			thing.tex1 = guns[ak74].texturenum + k;
 			thing.tex2 = guns[ak74].cliptexturenum + k;
@@ -273,7 +273,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.994;
 			thing.skeleton.gravity = 1.16 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle37));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle37));
 #ifndef SERVER
 			thing.tex1 = guns[steyraug].texturenum + k;
 			thing.tex2 = guns[steyraug].cliptexturenum + k;
@@ -288,7 +288,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.993;
 			thing.skeleton.gravity = 1.15 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle36));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle36));
 #ifndef SERVER
 			thing.tex1 = guns[spas12].texturenum + k;
 #endif
@@ -302,7 +302,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.993;
 			thing.skeleton.gravity = 1.13 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle36));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle36));
 #ifndef SERVER
 			thing.tex1 = guns[ruger77].texturenum + k;
 #endif
@@ -316,7 +316,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.994;
 			thing.skeleton.gravity = 1.15 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle28));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle28));
 			// FIXME (helloer): Check why Tex1 is different
 #ifndef SERVER
 			thing.tex1 = guns[m79].texturenum + k;
@@ -331,7 +331,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.993;
 			thing.skeleton.gravity = 1.18 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle43));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle43));
 #ifndef SERVER
 			thing.tex1 = guns[barrett].texturenum + k;
 			thing.tex2 = guns[barrett].cliptexturenum + k;
@@ -346,7 +346,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.993;
 			thing.skeleton.gravity = 1.2 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle39));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle39));
 #ifndef SERVER
 			thing.tex1 = guns[m249].texturenum + k;
 			thing.tex2 = guns[m249].cliptexturenum + k;
@@ -361,7 +361,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.991;
 			thing.skeleton.gravity = 1.4 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle55));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle55));
 #ifndef SERVER
 			thing.tex1 = guns[minigun].texturenum + k;
 #endif
@@ -375,7 +375,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.996;
 			thing.skeleton.gravity = 0.65 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle50));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle50));
 #ifndef SERVER
 			thing.tex1 = GFX::WEAPONS_N_BOW + k;
 #endif
@@ -387,7 +387,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		break;
 		case object_medical_kit: // medikit
 		{
-			thing.skeleton = AnimationSystem::Get().GetSkeleton(Box);
+			thing.skeleton = GS::GetAnimationSystem().GetSkeleton(Box);
 			thing.skeleton.vdamping = 0.989;
 			thing.skeleton.gravity = 1.05 * grav;
 			thing.radius = kit_radius;
@@ -401,7 +401,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		break;
 		case object_grenade_kit: // grenadekit
 		{
-			thing.skeleton = AnimationSystem::Get().GetSkeleton(Box);
+			thing.skeleton = GS::GetAnimationSystem().GetSkeleton(Box);
 			thing.skeleton.vdamping = 0.989;
 			thing.skeleton.gravity = 1.07 * grav;
 			thing.radius = kit_radius;
@@ -415,7 +415,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		break;
 		case object_flamer_kit: // flamerkit
 		{
-			thing.skeleton = AnimationSystem::Get().GetSkeleton(Box);
+			thing.skeleton = GS::GetAnimationSystem().GetSkeleton(Box);
 			thing.skeleton.vdamping = 0.989;
 			thing.skeleton.gravity = 1.17 * grav;
 			thing.radius = kit_radius;
@@ -429,7 +429,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		break;
 		case object_predator_kit: // predatorkit
 		{
-			thing.skeleton = AnimationSystem::Get().GetSkeleton(Box);
+			thing.skeleton = GS::GetAnimationSystem().GetSkeleton(Box);
 			thing.skeleton.vdamping = 0.989;
 			thing.skeleton.gravity = 1.17 * grav;
 			thing.radius = kit_radius;
@@ -443,7 +443,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		break;
 		case object_vest_kit: // vestkit
 		{
-			thing.skeleton = AnimationSystem::Get().GetSkeleton(Box);
+			thing.skeleton = GS::GetAnimationSystem().GetSkeleton(Box);
 			thing.skeleton.vdamping = 0.989;
 			thing.skeleton.gravity = 1.17 * grav;
 			thing.radius = kit_radius;
@@ -457,7 +457,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		break;
 		case object_berserk_kit: // berserkerkit
 		{
-			thing.skeleton = AnimationSystem::Get().GetSkeleton(Box);
+			thing.skeleton = GS::GetAnimationSystem().GetSkeleton(Box);
 			thing.skeleton.vdamping = 0.989;
 			thing.skeleton.gravity = 1.17 * grav;
 			thing.radius = kit_radius;
@@ -471,7 +471,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		break;
 		case object_cluster_kit: // clusterkit
 		{
-			thing.skeleton = AnimationSystem::Get().GetSkeleton(Box);
+			thing.skeleton = GS::GetAnimationSystem().GetSkeleton(Box);
 			;
 			thing.skeleton.vdamping = 0.989;
 			thing.skeleton.gravity = 1.07 * grav;
@@ -488,7 +488,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.993;
 			thing.skeleton.gravity = 1.15 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Para));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Para));
 #ifndef SERVER
 			thing.tex1 = GFX::GOSTEK_PARA_ROPE;
 			thing.tex2 = GFX::GOSTEK_PARA;
@@ -500,7 +500,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.994;
 			thing.skeleton.gravity = 1.15 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle18));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle18));
 
 			a = thing.skeleton.pos[2];
 			thing.skeleton.pos[2] = thing.skeleton.pos[1];
@@ -526,7 +526,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.994;
 			thing.skeleton.gravity = 1.15 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle28));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle28));
 #ifndef SERVER
 			thing.tex1 = guns[chainsaw].texturenum + k;
 			thing.tex2 = 0;
@@ -541,7 +541,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.994;
 			thing.skeleton.gravity = 1.15 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Rifle28));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Rifle28));
 #ifndef SERVER
 			thing.tex1 = guns[law].texturenum + k;
 #endif
@@ -555,7 +555,7 @@ auto creatething(tvector2 spos, std::uint8_t owner, std::uint8_t sstyle, std::ui
 		{
 			thing.skeleton.vdamping = 0.99;
 			thing.skeleton.gravity = 0.2 * grav;
-			thing.skeleton.clone(AnimationSystem::Get().GetSkeleton(Stat));
+			thing.skeleton.clone(GS::GetAnimationSystem().GetSkeleton(Stat));
 #ifndef SERVER
 			thing.tex1 = 0;
 			thing.tex2 = 0;

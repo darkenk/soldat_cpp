@@ -18,6 +18,7 @@ class FConsoleMain;
 class ConsoleServer;
 class FLogFile;
 class WeaponSystem;
+class FAnimationSystem;
 
 template <Config::Module M>
 class FGlobalSystems final : public FGlobalSubsystem<FGlobalSystems<M>>
@@ -40,6 +41,8 @@ public:
 	static ThingSystem& GetThingSystem() { return *FGlobalSystems::Get().ThingSystemObject; }
 
 	static TConsoleType& GetMainConsole() { return *FGlobalSystems::Get().MainConsoleObject; }
+
+	static FAnimationSystem& GetAnimationSystem() { return *FGlobalSystems::Get().AnimationSystemObject; }
 
 	static void SetMainConsole(std::unique_ptr<TConsoleType>&& console)
 	{
@@ -71,6 +74,7 @@ private:
 	std::unique_ptr<TConsoleType> MainConsoleObject;
 	std::unique_ptr<FLogFile> ConsoleLogFileObject;
 	std::unique_ptr<FLogFile> KillLogFileObject;
+	std::unique_ptr<FAnimationSystem> AnimationSystemObject;
 };
 
 using GS = FGlobalSystems<Config::GetModule()>;

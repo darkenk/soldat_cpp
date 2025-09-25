@@ -22,6 +22,8 @@ namespace Constants
 	constexpr float MIN_FOV = 1.25;
 	constexpr float MAX_BIG_MESSAGES = 255;
 
+	constexpr float GRAV = 0.06;
+
 	constexpr float RUNSPEED = 0.118;
 	constexpr float RUNSPEEDUP = RUNSPEED / 6.0f;
 	constexpr float FLYSPEED = 0.03;

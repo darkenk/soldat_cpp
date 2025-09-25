@@ -39,7 +39,7 @@
 #include "common/misc/TIniFile.hpp"
 #include "common/network/Net.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "shared/AnimationSystem.hpp"
+#include "common/AnimationSystem.hpp"
 #include "shared/Command.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/Cvar.hpp"
@@ -263,11 +263,16 @@ void GlobalStateServer::ActivateServer(int argc, char* argv[])
 
 	weaponSystem.EnableAllWeapons();
 
-	AnimationSystem::Get().LoadAnimObjects("");
+	GS::GetAnimationSystem().LoadAnimObjects("");
 	if (length(ModDir) > 0)
 	{
-		AnimationSystem::Get().LoadAnimObjects(ModDir);
+		GS::GetAnimationSystem().LoadAnimObjects(ModDir);
 	}
+	SpriteSystem::Get().ResetSpriteParts();
+	GetBulletParts().destroy();
+	GetBulletParts().timestep = 1;
+	GetBulletParts().gravity = grav * 2.25;
+	GetBulletParts().edamping = 0.99;
 
 	// greet!
 	WriteLn(" Hit CTRL+C to Exit");

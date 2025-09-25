@@ -2,12 +2,12 @@
 
 #include <memory>
 
+#include "common/AnimationSystem.hpp"
 #include "common/Console.hpp"
 #include "common/FileUtility.hpp"
 #include "common/LogFile.hpp"
 #include "common/WeaponSystem.hpp"
 #include "common/misc/SoldatConfig.hpp"
-#include "shared/AnimationSystem.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
 #include "shared/mechanics/BulletSystem.hpp"
@@ -36,7 +36,7 @@ FGlobalSystems<M>::FGlobalSystems()
 	}
 
 	SpriteSystem::Init();
-	AnimationSystem::Init();
+	AnimationSystemObject = std::make_unique<FAnimationSystem>(*ConsoleLogFileObject, *FileUtilityObject);
 	ThingSystemObject = std::make_unique<ThingSystem>();
 	BulletSystemObject = std::make_unique<BulletSystem>();
 	WeaponSystemObject = std::make_unique<WeaponSystem>();
@@ -52,7 +52,7 @@ FGlobalSystems<M>::~FGlobalSystems()
 	WeaponSystemObject.reset();
 	BulletSystemObject.reset();
 	ThingSystemObject.reset();
-	AnimationSystem::Deinit();
+	AnimationSystemObject.reset();
 	SpriteSystem::Deinit();
 	MainConsoleObject.reset();
 	KillLogFileObject.reset();

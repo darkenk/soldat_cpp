@@ -31,6 +31,7 @@
 #include "Input.hpp"
 #include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
+#include "common/AnimationSystem.hpp"
 #include "common/FileUtility.hpp"
 #include "common/GameStrings.hpp"
 #include "common/LogFile.hpp"
@@ -46,7 +47,6 @@
 #include "common/misc/TFileStream.hpp"
 #include "common/misc/TIniFile.hpp"
 #include "common/port_utils/NotImplemented.hpp"
-#include "shared/AnimationSystem.hpp"
 #include "shared/Command.hpp"
 #include "shared/Constants.cpp.h"
 #include "shared/Cvar.hpp"
@@ -593,11 +593,21 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 		s.player = std::make_shared<tplayer>();
 	}
 
-	AnimationSystem::Get().LoadAnimObjects("");
+	GS::GetAnimationSystem().LoadAnimObjects("");
 	if (length(moddir) > 0)
 	{
-		AnimationSystem::Get().LoadAnimObjects(moddir);
+		GS::GetAnimationSystem().LoadAnimObjects(moddir);
 	}
+	SpriteSystem::Get().ResetSpriteParts();
+	GetBulletParts().destroy();
+	GetBulletParts().timestep = 1;
+	GetBulletParts().gravity = grav * 2.25;
+	GetBulletParts().edamping = 0.99;
+
+	gGlobalStateSparks.GetSparkParts().destroy();
+	gGlobalStateSparks.GetSparkParts().timestep = 1;
+	gGlobalStateSparks.GetSparkParts().gravity = grav / 1.4;
+	gGlobalStateSparks.GetSparkParts().edamping = 0.998;
 
 	// greet!
 	// GS::GetMainConsole().console(("Welcome to Soldat ") + soldat_version, default_message_color);

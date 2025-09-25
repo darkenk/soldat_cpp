@@ -26,7 +26,6 @@ set(SRC
 )
 
 set(SHARED_SRC
-    ../shared/AnimationSystem.cpp
     ../shared/Command.cpp
     ../shared/Cvar.cpp
     ../shared/Game.cpp
