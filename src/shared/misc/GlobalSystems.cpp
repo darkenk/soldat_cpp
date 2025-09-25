@@ -28,6 +28,11 @@ using namespace std::literals;
 
 namespace
 {
+	class FKillLogFile : public FLogFile
+	{
+		using FLogFile::FLogFile;
+	};
+
 	template <Config::Module M>
 	constexpr auto MakeInjector()
 	{
@@ -48,7 +53,8 @@ namespace
 			di::bind<FFileUtility>.in(di::extension::shared),
 			di::bind<FLogFile>.in(di::extension::shared),
 			di::bind<FAnimationSystem>.in(di::extension::shared),
-			MainConsoleInjector());
+			MainConsoleInjector(),
+			di::bind<FKillLogFile>.in(di::extension::shared));
 	}
 } // namespace
 
@@ -62,7 +68,7 @@ FGlobalSystems<M>::FGlobalSystems()
 	MainConsoleObject = Injector.template create<std::shared_ptr<TConsoleType>>();
 	if constexpr (Config::IsServer(M))
 	{
-		KillLogFileObject = std::make_unique<FLogFile>(*FileUtilityObject);
+		KillLogFileObject = Injector.template create<std::shared_ptr<FKillLogFile>>();
 	}
 
 	SpriteSystem::Init();

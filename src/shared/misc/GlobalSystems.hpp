@@ -68,7 +68,7 @@ private:
 	std::shared_ptr<FFileUtility> FileUtilityObject;
 	std::shared_ptr<TConsoleType> MainConsoleObject;
 	std::shared_ptr<FLogFile> LogFileObject;
-	std::unique_ptr<FLogFile> KillLogFileObject;
+	std::shared_ptr<FLogFile> KillLogFileObject;
 	std::shared_ptr<FAnimationSystem> AnimationSystemObject;
 };
 
