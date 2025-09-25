@@ -14,13 +14,13 @@ class FConsole
 {
 public:
 	explicit FConsole(FFileUtility* filesystem = nullptr,
-		const std::int32_t newMessageWait = 0,
-		const std::int32_t countMax = 254,
-		const std::int32_t scrollTickMax = 150,
+		const std::int32_t InNewMessageWait = 0,
+		const std::int32_t InCountMax = 254,
+		const std::int32_t InScrollTickMax = 150,
 		bool writeToFile = true)
-		: NewMessageWait(newMessageWait)
-		, CountMax(std::min(countMax, 254))
-		, ScrollTickMax(scrollTickMax)
+		: NewMessageWait(InNewMessageWait)
+		, CountMax(std::min(InCountMax, 254))
+		, ScrollTickMax(InScrollTickMax)
 		, WriteToFile(writeToFile)
 		, FileSystem(filesystem)
 	{
@@ -59,17 +59,17 @@ class FConsoleMain : public FConsole
 {
 public:
 	explicit FConsoleMain(FFileUtility* filesystem = nullptr,
-		const std::int32_t newMessageWait = 0,
-		const std::int32_t countMax = 254,
-		const std::int32_t scrollTickMax = 150,
+		const std::int32_t InNewMessageWait = 0,
+		const std::int32_t InCountMax = 254,
+		const std::int32_t InScrollTickMax = 150,
 		bool writeToFile = true)
-		: FConsole(filesystem, newMessageWait, countMax, scrollTickMax, writeToFile)
+		: FConsole(filesystem, InNewMessageWait, InCountMax, InScrollTickMax, writeToFile)
 	{
 	}
-	void Update(const bool killConsole = false);
-	void SetBigConsole(FConsole* bigConsole) { mBigConsole = bigConsole; }
-	void console(const std::string_view what, std::int32_t col);
+	void Update(bool InKillConsole = false);
+	void SetBigConsole(FConsole* bigConsole) { BigConsole = bigConsole; }
+	void Console(std::string_view what, std::int32_t col);
 
 private:
-	FConsole* mBigConsole = nullptr;
+	FConsole* BigConsole = nullptr;
 };

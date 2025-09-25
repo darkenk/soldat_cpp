@@ -78,7 +78,7 @@ void serversendstringmessage(const std::string& text, std::uint8_t tonum, std::u
 	if (sprite_system.GetSprite(from).player->controlmethod == bot)
 	{
 		auto msg = iif(msgtype == msgtype_team, std::string("(TEAM)"), std::string(""));
-		GS::GetMainConsole().console(
+		GS::GetMainConsole().Console(
 			msg + "[" + sprite_system.GetSprite(from).player->name + "] " + text, teamchat_message_color);
 	}
 }
@@ -141,7 +141,7 @@ void serverhandlechatmessage(
 		if (scrptdispatcher.onplayercommand(player.spritenum, std::string(cs)))
 			return;
 #endif
-		GS::GetMainConsole().console(cs + "(" + (player->ip) + "[" + (player->name) + "]" + ")", default_message_color);
+		GS::GetMainConsole().Console(cs + "(" + (player->ip) + "[" + (player->name) + "]" + ")", default_message_color);
 		parseinput(std::string(cs), player->spritenum);
 		return;
 	}
@@ -161,7 +161,7 @@ void serverhandlechatmessage(
 		cschat = std::string("(MUTED) ") + cschat;
 	}
 
-	GS::GetMainConsole().console(cschat, chat_message_color);
+	GS::GetMainConsole().Console(cschat, chat_message_color);
 
 	if (player->muted == 1)
 	{

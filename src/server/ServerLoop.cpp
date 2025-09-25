@@ -151,7 +151,7 @@ void apponidle()
 							&& ((sprite.player->realping > (CVar::sv_maxping))
 								|| ((sprite.player->realping < CVar::sv_minping) && (sprite.player->pingtime > 0))))
 						{
-							GS::GetMainConsole().console(
+							GS::GetMainConsole().Console(
 								sprite.player->name + " gets a ping warning", warning_message_color);
 							gGlobalStateNetworkServer.pingwarnings[sprite.num] += 1;
 							if (gGlobalStateNetworkServer.pingwarnings[sprite.num] > CVar::sv_warnings_ping)
@@ -173,7 +173,7 @@ void apponidle()
 					|| ((CVar::net_lan == INTERNET)
 						&& (gGlobalStateNetworkServer.messagesasecnum[j] > CVar::net_floodingpacketsinternet)))
 				{
-					GS::GetMainConsole().console(
+					GS::GetMainConsole().Console(
 						sprite.player->name + " is flooding the server", warning_message_color);
 					gGlobalStateNetworkServer.floodwarnings[j] += 1;
 					if (gGlobalStateNetworkServer.floodwarnings[j] > CVar::sv_warnings_flood)
@@ -313,7 +313,7 @@ void apponidle()
 				if (gGlobalStateNetworkServer.noclientupdatetime[j] > disconnection_time)
 				{
 					serverplayerdisconnect(j, kick_noresponse);
-					GS::GetMainConsole().console(sprite.player->name + " could not respond", warning_message_color);
+					GS::GetMainConsole().Console(sprite.player->name + " could not respond", warning_message_color);
 #ifdef SCRIPT
 					scrptdispatcher.onleavegame(j, false);
 #endif
@@ -333,7 +333,7 @@ void apponidle()
 					if (SpriteSystem::Get().GetSprite(j).player->faeticks > (second * 20))
 					{
 						// Timeout reached; no valid response for 20 seconds. Boot the player.
-						GS::GetMainConsole().console(
+						GS::GetMainConsole().Console(
 							SpriteSystem::Get().GetSprite(j).player->name + " no anti-cheat response",
 							warning_message_color);
 						kickplayer(j, false, kick_ac, 0, "No Anti-Cheat Response");
@@ -600,7 +600,7 @@ void updateframe()
 #ifdef SCRIPT
 						}
 #endif
-						GS::GetMainConsole().console(
+						GS::GetMainConsole().Console(
 							string("** Detected possible Mass-Flag cheating from ") + sprite.player->name,
 							warning_message_color);
 					}
@@ -649,7 +649,7 @@ void updateframe()
 				&& (gGlobalStateServer.lastreqip[2] == gGlobalStateServer.lastreqip[3]))
 			{
 				gGlobalStateServer.dropip = gGlobalStateServer.lastreqip[0];
-				GS::GetMainConsole().console(string("Firewalled IP ") + gGlobalStateServer.dropip, 0);
+				GS::GetMainConsole().Console(string("Firewalled IP ") + gGlobalStateServer.dropip, 0);
 			}
 		}
 
@@ -743,14 +743,14 @@ void updateframe()
 			{
 				if (GS::GetGame().GetTimelimitcounter() % minute == 0)
 				{
-					GS::GetMainConsole().console(
+					GS::GetMainConsole().Console(
 						string("Time Left: ") + inttostr(GS::GetGame().GetTimelimitcounter() / minute) + " minutes",
 						game_message_color);
 				}
 			}
 			else if (GS::GetGame().GetTimelimitcounter() % five_minutes == 0)
 			{
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					string("Time Left: ") + inttostr(GS::GetGame().GetTimelimitcounter() / minute) + " minutes",
 					game_message_color);
 			}

@@ -99,7 +99,7 @@ void serverhandlerequestgame(
 	{
 		if (addiptoremoteadmins(player->ip))
 		{
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				player->ip + " added to Game Admins via Request password", server_message_color);
 		}
 		state = ok;
@@ -137,7 +137,7 @@ void serverhandlerequestgame(
 		}
 	}
 
-	GS::GetMainConsole().console(
+	GS::GetMainConsole().Console(
 		player->ip + ':' + inttostr(player->port) + " requesting game" + banreason + "...", server_message_color);
 
 	#ifdef SCRIPT
@@ -270,7 +270,7 @@ void serverhandleplayerinfo(
 		}
 	} while (!playernameunused);
 
-	GS::GetMainConsole().console(
+	GS::GetMainConsole().Console(
 		finalplayername + " joining game (" + player->ip + ':' + inttostr(player->port) + ") HWID:" + player->hwid,
 		server_message_color);
 
@@ -478,22 +478,22 @@ void serverhandleplayerinfo(
 	switch (player->team)
 	{
 		case team_none:
-			GS::GetMainConsole().console(player->name + " has joined the game.", enter_message_color);
+			GS::GetMainConsole().Console(player->name + " has joined the game.", enter_message_color);
 			break;
 		case team_alpha:
-			GS::GetMainConsole().console(player->name + " has joined alpha team.", alphaj_message_color);
+			GS::GetMainConsole().Console(player->name + " has joined alpha team.", alphaj_message_color);
 			break;
 		case team_bravo:
-			GS::GetMainConsole().console(player->name + " has joined bravo team.", bravoj_message_color);
+			GS::GetMainConsole().Console(player->name + " has joined bravo team.", bravoj_message_color);
 			break;
 		case team_charlie:
-			GS::GetMainConsole().console(player->name + " has joined charlie team.", charliej_message_color);
+			GS::GetMainConsole().Console(player->name + " has joined charlie team.", charliej_message_color);
 			break;
 		case team_delta:
-			GS::GetMainConsole().console(player->name + " has joined delta team.", deltaj_message_color);
+			GS::GetMainConsole().Console(player->name + " has joined delta team.", deltaj_message_color);
 			break;
 		case team_spectator:
-			GS::GetMainConsole().console(player->name + " has joined as spectator.", deltaj_message_color);
+			GS::GetMainConsole().Console(player->name + " has joined as spectator.", deltaj_message_color);
 			break;
 	}
 

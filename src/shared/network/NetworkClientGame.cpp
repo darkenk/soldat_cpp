@@ -185,27 +185,27 @@ void clienthandlenewplayer::Handle(NetworkContext* netmessage)
 		switch (newplayermsg->team)
 		{
 			case team_none:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					wideformat(_("{} has joined the game"), (player->name)), enter_message_color);
 				break;
 			case team_alpha:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					wideformat(_("{} has joined alpha team"), (player->name)), alphaj_message_color);
 				break;
 			case team_bravo:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					wideformat(_("{} has joined bravo team"), (player->name)), bravoj_message_color);
 				break;
 			case team_charlie:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					wideformat(_("{} has joined charlie team"), (player->name)), charliej_message_color);
 				break;
 			case team_delta:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					wideformat(_("{} has joined delta team"), (player->name)), deltaj_message_color);
 				break;
 			case team_spectator:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					wideformat(_("{} has joined as spectator"), (player->name)), deltaj_message_color);
 				break;
 		}
@@ -279,32 +279,32 @@ void clienthandleplayerdisconnect::Handle(NetworkContext* netmessage)
 		switch (sprite_system.GetSprite(playermsg->num).player->team)
 		{
 			case 0:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					wideformat(_("{} has left the game"), (sprite_system.GetSprite(playermsg->num).player->name)),
 					enter_message_color);
 				break;
 			case 1:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					wideformat(_("{} has left alpha team"), (sprite_system.GetSprite(playermsg->num).player->name)),
 					alphaj_message_color);
 				break;
 			case 2:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					wideformat(_("{} has left bravo team"), (sprite_system.GetSprite(playermsg->num).player->name)),
 					bravoj_message_color);
 				break;
 			case 3:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					wideformat(_("{} has left charlie team"), (sprite_system.GetSprite(playermsg->num).player->name)),
 					charliej_message_color);
 				break;
 			case 4:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					wideformat(_("{} has left delta team"), (sprite_system.GetSprite(playermsg->num).player->name)),
 					deltaj_message_color);
 				break;
 			case 5:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					wideformat(_("{} has left spectators"), (sprite_system.GetSprite(playermsg->num).player->name)),
 					deltaj_message_color);
 				break;
@@ -314,57 +314,57 @@ void clienthandleplayerdisconnect::Handle(NetworkContext* netmessage)
 	switch (playermsg->why)
 	{
 		case kick_noresponse:
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				wideformat(_("{} has disconnected"), (sprite_system.GetSprite(playermsg->num).player->name)),
 				client_message_color);
 			break;
 		case kick_nocheatresponse:
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				wideformat(_("{} has been disconnected"), (sprite_system.GetSprite(playermsg->num).player->name)),
 				client_message_color);
 			break;
 		case kick_changeteam:
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				wideformat(_("{} is changing teams"), (sprite_system.GetSprite(playermsg->num).player->name)),
 				client_message_color);
 			break;
 		case kick_ping:
-			GS::GetMainConsole().console(wideformat(_("{} has been ping kicked (for 15 minutes)"),
+			GS::GetMainConsole().Console(wideformat(_("{} has been ping kicked (for 15 minutes)"),
 											 (sprite_system.GetSprite(playermsg->num).player->name)),
 				client_message_color);
 			break;
 		case kick_flooding:
-			GS::GetMainConsole().console(wideformat(_("{} has been flood kicked (for 5 minutes)"),
+			GS::GetMainConsole().Console(wideformat(_("{} has been flood kicked (for 5 minutes)"),
 											 (sprite_system.GetSprite(playermsg->num).player->name)),
 				client_message_color);
 			break;
 		case kick_console:
-			GS::GetMainConsole().console(wideformat(_("{} has been kicked from console"),
+			GS::GetMainConsole().Console(wideformat(_("{} has been kicked from console"),
 											 (sprite_system.GetSprite(playermsg->num).player->name)),
 				client_message_color);
 			break;
 		case kick_connectcheat:
-			GS::GetMainConsole().console(wideformat(_("{} has been 'connect cheat' kicked"),
+			GS::GetMainConsole().Console(wideformat(_("{} has been 'connect cheat' kicked"),
 											 (sprite_system.GetSprite(playermsg->num).player->name)),
 				client_message_color);
 			break;
 		case kick_cheat:
-			GS::GetMainConsole().console(wideformat(_("{} has been kicked for possible cheat"),
+			GS::GetMainConsole().Console(wideformat(_("{} has been kicked for possible cheat"),
 											 (sprite_system.GetSprite(playermsg->num).player->name)),
 				client_message_color);
 			break;
 		case kick_voted:
-			GS::GetMainConsole().console(wideformat(_("{} has been voted to leave the game"),
+			GS::GetMainConsole().Console(wideformat(_("{} has been voted to leave the game"),
 											 (sprite_system.GetSprite(playermsg->num).player->name)),
 				client_message_color);
 			break;
 		case kick_ac:
-			GS::GetMainConsole().console(wideformat(_("{} has been kicked for Anti-Cheat violation"),
+			GS::GetMainConsole().Console(wideformat(_("{} has been kicked for Anti-Cheat violation"),
 											 (sprite_system.GetSprite(playermsg->num).player->name)),
 				client_message_color);
 			break;
 		case kick_steamticket:
-			GS::GetMainConsole().console(wideformat(_("{} has been kicked for invalid Steam ticket"),
+			GS::GetMainConsole().Console(wideformat(_("{} has been kicked for invalid Steam ticket"),
 											 (sprite_system.GetSprite(playermsg->num).player->name)),
 				client_message_color);
 			break;
@@ -500,7 +500,7 @@ void clienthandlemapchange::Handle(NetworkContext* netmessage)
 		return;
 	}
 
-	GS::GetMainConsole().console(_("Next map:") + ' ' + (GS::GetGame().GetMapchangename()), game_message_color);
+	GS::GetMainConsole().Console(_("Next map:") + ' ' + (GS::GetGame().GetMapchangename()), game_message_color);
 
 	if (!CVar::sv_survivalmode)
 	{
@@ -546,7 +546,7 @@ void clienthandleflaginfo::Handle(NetworkContext* netmessage)
 			gGlobalStateSound.playsound(SfxEffect::capture);
 			gGlobalStateClientGame.bigmessage(_("Red Flag returned!"), capturemessagewait, alpha_message_color);
 
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				wideformat(_("{} returned the Red Flag"),
 					(sprite_system.GetSprite(reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->who)
 							.player->name)),
@@ -564,7 +564,7 @@ void clienthandleflaginfo::Handle(NetworkContext* netmessage)
 			gGlobalStateSound.playsound(SfxEffect::capture);
 			gGlobalStateClientGame.bigmessage(_("Blue Flag returned!"), capturemessagewait, alpha_message_color);
 
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				wideformat(_("{} returned the Blue Flag"),
 					(sprite_system.GetSprite(reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->who)
 							.player->name)),
@@ -578,7 +578,7 @@ void clienthandleflaginfo::Handle(NetworkContext* netmessage)
 	if (reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->style == capturered)
 	{
 		gGlobalStateClientGame.bigmessage(_("Alpha Team Scores!"), capturectfmessagewait, alpha_message_color);
-		GS::GetMainConsole().console(
+		GS::GetMainConsole().Console(
 			wideformat(_("{} scores for Alpha Team"),
 				(sprite_system.GetSprite(reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->who).player->name)),
 			alpha_message_color);
@@ -625,7 +625,7 @@ void clienthandleflaginfo::Handle(NetworkContext* netmessage)
 	if (reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->style == captureblue)
 	{
 		gGlobalStateClientGame.bigmessage(_("Bravo Team Scores!"), capturectfmessagewait, bravo_message_color);
-		GS::GetMainConsole().console(
+		GS::GetMainConsole().Console(
 			wideformat(_("{} scores for Bravo Team"),
 				(sprite_system.GetSprite(reinterpret_cast<pmsg_serverflaginfo>(netmessage->packet)->who).player->name)),
 			bravo_message_color);

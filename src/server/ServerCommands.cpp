@@ -114,7 +114,7 @@ namespace
 		}
 		else
 		{
-			GS::GetMainConsole().console(string("Map not found (") + args[1] + ')', warning_message_color, sender);
+			GS::GetMainConsole().Console(string("Map not found (") + args[1] + ')', warning_message_color, sender);
 		}
 
 		// if not MapExists(MapChangeName, userdirectory) then
@@ -252,12 +252,12 @@ namespace
 		if (args[0] == "banhw")
 		{
 			gGlobalStateBanSystem.addbannedhw(name, string("Banned by ") + tempstr, (day * 30));
-			GS::GetMainConsole().console(string("HWID ") + name + " banned", client_message_color, sender);
+			GS::GetMainConsole().Console(string("HWID ") + name + " banned", client_message_color, sender);
 		}
 		else
 		{
 			gGlobalStateBanSystem.addbannedip(name, string("Banned by ") + tempstr, day * 30);
-			GS::GetMainConsole().console(string("IP number ") + name + " banned", client_message_color, sender);
+			GS::GetMainConsole().Console(string("IP number ") + name + " banned", client_message_color, sender);
 		}
 
 		savetxtlists();
@@ -281,12 +281,12 @@ namespace
 
 		if (gGlobalStateBanSystem.delbannedip(name))
 		{
-			GS::GetMainConsole().console(string("IP number ") + name + " unbanned", client_message_color, sender);
+			GS::GetMainConsole().Console(string("IP number ") + name + " unbanned", client_message_color, sender);
 		}
 
 		if (gGlobalStateBanSystem.delbannedhw(name))
 		{
-			GS::GetMainConsole().console(string("HWID ") + name + " unbanned", client_message_color, sender);
+			GS::GetMainConsole().Console(string("HWID ") + name + " unbanned", client_message_color, sender);
 		}
 
 		savetxtlists();
@@ -296,13 +296,13 @@ namespace
 	{
 		if (gGlobalStateBanSystem.delbannedip(gGlobalStateBanSystem.lastban))
 		{
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				string("IP number ") + gGlobalStateBanSystem.lastban + " unbanned", client_message_color, sender);
 		}
 
 		if (gGlobalStateBanSystem.delbannedhw(gGlobalStateBanSystem.lastbanhw))
 		{
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				string("HWID ") + gGlobalStateBanSystem.lastbanhw + " unbanned", client_message_color, sender);
 		}
 
@@ -334,7 +334,7 @@ namespace
 			if (isremoteadminip(sprite_system.GetSprite(targets[i]).player->ip))
 			{
 				gGlobalStateServer.remoteips.add(sprite_system.GetSprite(targets[i]).player->ip);
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					string("IP number ") + sprite_system.GetSprite(targets[i]).player->ip + " added to Remote Admins",
 					client_message_color,
 					sender);
@@ -362,7 +362,7 @@ namespace
 		if (!isremoteadminip(name))
 		{
 			gGlobalStateServer.remoteips.add(name);
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				string("IP number ") + name + " added to Remote Admins", client_message_color, sender);
 			savetxtlists();
 		}
@@ -392,7 +392,7 @@ namespace
         j = remoteips.indexof(name);
         remoteips.delete_(j);
 #endif
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				string("IP number ") + name + " removed from Remote Admins", client_message_color, sender);
 			savetxtlists();
 		}
@@ -471,7 +471,7 @@ namespace
 		{
 			sprite_system.GetSprite(targets[i]).vest = 0;
 			sprite_system.GetSprite(targets[i]).healthhit(3430, targets[i], 1, -1, a);
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(targets[i]).player->name + " killed by admin", client_message_color, sender);
 		}
 	}
@@ -520,7 +520,7 @@ namespace
 
 		if (CVar::sv_lockedmode)
 		{
-			GS::GetMainConsole().console(std::string("Locked Mode is enabled. Settings can't be changed mid-game."),
+			GS::GetMainConsole().Console(std::string("Locked Mode is enabled. Settings can't be changed mid-game."),
 				server_message_color,
 				sender);
 			return;
@@ -547,7 +547,7 @@ namespace
 		}
 
 		loadconfig(name, GS::GetFileSystem());
-		GS::GetMainConsole().console(
+		GS::GetMainConsole().Console(
 			string("Config reloaded ") + gGlobalStateServer.currentconf, client_message_color, sender);
 		gGlobalStateServer.startserver();
 	}
@@ -575,7 +575,7 @@ namespace
 
 			gGlobalStateServer.mapslist.erase(begin, end);
 			CVar::sv_maplist = name + ".txt";
-			GS::GetMainConsole().console(string("Mapslist loaded ") + name, client_message_color, sender);
+			GS::GetMainConsole().Console(string("Mapslist loaded ") + name, client_message_color, sender);
 		}
 	}
 
@@ -597,9 +597,9 @@ namespace
 		for (i = 0; i <= high(targets); i++)
 		{
 			pmmessage = args[2];
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				string("Private Message sent to ") + idtoname(targets[i]), server_message_color, sender);
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				string("(PM) To: ") + idtoname(targets[i]) + " From: " + idtoname(sender) + " Message: " + pmmessage,
 				server_message_color);
 			serversendstringmessage(string("(PM) ") + (pmmessage), targets[i], 255, msgtype_pub);
@@ -639,7 +639,7 @@ namespace
 					break;
 				}
 			}
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(targets[i]).player->name + " has been muted.", client_message_color, sender);
 		}
 	}
@@ -676,7 +676,7 @@ namespace
 					break;
 				}
 			}
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(targets[i]).player->name + " has been unmuted.", client_message_color, sender);
 		}
 	}
@@ -705,7 +705,7 @@ namespace
 		// end;
 
 		gGlobalStateServer.mapslist.add(name);
-		GS::GetMainConsole().console(name + " has been added to the map list.", server_message_color, sender);
+		GS::GetMainConsole().Console(name + " has been added to the map list.", server_message_color, sender);
 		savemaplist();
 	}
 
@@ -732,7 +732,7 @@ namespace
 #if 0
         if (uppercase(mapslist[tempint]) == uppercase(name))
         {
-            GS::GetMainConsole().console(name + " has been removed from the map list.", server_message_color,
+            GS::GetMainConsole().Console(name + " has been removed from the map list.", server_message_color,
                                 sender);
             mapslist.delete_(tempint);
             break;
@@ -762,7 +762,7 @@ namespace
 		tempstr = args[2];
 		// *BAN*
 		gGlobalStateBanSystem.addbannedip(tempstr, "Temporary Ban by an Admin", strtointdef(name, 1) * minute);
-		GS::GetMainConsole().console(
+		GS::GetMainConsole().Console(
 			string("IP number ") + tempstr + " banned for " + name + " minutes.", client_message_color, sender);
 		savetxtlists();
 	}
@@ -835,7 +835,7 @@ namespace
     tdatetime banduration;
     std::string bandurationtext;
 
-    GS::GetMainConsole().console(format("%-15s | %-9s | %s", set::of("HWID", "Duration", "Reason", eos)),
+    GS::GetMainConsole().Console(format("%-15s | %-9s | %s", set::of("HWID", "Duration", "Reason", eos)),
                         server_message_color, sender);
     for (i = 1; i <= high(bannedhwlist); i++)
     {
@@ -848,12 +848,12 @@ namespace
                 format("%dd%s", set::of(trunc(banduration),
                                         formatdatetime("h\"h\"n\"m\"", banduration), eos));
         }
-        GS::GetMainConsole().console(format("%-15s | %-9s | %s", set::of(bannedhwlist[i].hw, bandurationtext,
+        GS::GetMainConsole().Console(format("%-15s | %-9s | %s", set::of(bannedhwlist[i].hw, bandurationtext,
                                                                 bannedhwlist[i].reason, eos)),
                             server_message_color, sender);
     }
 
-    GS::GetMainConsole().console(format("%-15s | %-9s | %s", set::of("IP", "Duration", "Reason", eos)),
+    GS::GetMainConsole().Console(format("%-15s | %-9s | %s", set::of("IP", "Duration", "Reason", eos)),
                         server_message_color, sender);
     for (i = 1; i <= high(bannediplist); i++)
     {
@@ -866,7 +866,7 @@ namespace
                 format("%dd%s", set::of(trunc(banduration),
                                         formatdatetime("h\"h\"n\"m\"", banduration), eos));
         }
-        GS::GetMainConsole().console(format("%-15s | %-9s | %s", set::of(bannediplist[i].ip, bandurationtext,
+        GS::GetMainConsole().Console(format("%-15s | %-9s | %s", set::of(bannediplist[i].ip, bandurationtext,
                                                                 bannediplist[i].reason, eos)),
                             server_message_color, sender);
     }
@@ -1063,13 +1063,13 @@ namespace
 				{
 					gGlobalStateServer.adminips.add(sprite_system.GetSprite(sender).player->ip);
 				}
-				GS::GetMainConsole().console(sprite_system.GetSprite(sender).player->name + " added to Game Admins",
+				GS::GetMainConsole().Console(sprite_system.GetSprite(sender).player->name + " added to Game Admins",
 					server_message_color,
 					sender);
 			}
 			else
 			{
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					sprite_system.GetSprite(sender).player->name + " tried to login as Game Admin with bad password",
 					server_message_color,
 					sender);
@@ -1145,7 +1145,7 @@ namespace
 		if (length(args) == 1)
 		{
 			if (!CVar::sc_enable)
-				GS::GetMainConsole().console("Scripting is currently disabled.", client_message_color, sender);
+				GS::GetMainConsole().Console("Scripting is currently disabled.", client_message_color, sender);
 			else
 			{
 				scrptdispatcher.prepare(0);
@@ -1156,7 +1156,7 @@ namespace
 		{
 			name = args[1];
 			if (!CVar::sc_enable)
-				GS::GetMainConsole().console("Scripting is currently disabled.", client_message_color, sender);
+				GS::GetMainConsole().Console("Scripting is currently disabled.", client_message_color, sender);
 			else
 				scrptdispatcher.launch(name);
 		}

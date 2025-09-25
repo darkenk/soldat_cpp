@@ -1,6 +1,8 @@
 #include "GlobalSystems.hpp"
 
 #include <memory>
+#include <boost/di.hpp>
+#include <boost/di/extension/scopes/shared.hpp>
 
 #include "common/AnimationSystem.hpp"
 #include "common/Console.hpp"
@@ -17,26 +19,39 @@
 	#include "server/Server.hpp"
 #endif // SERVER
 
+using namespace std::literals::string_view_literals;
+using namespace boost;
+
+namespace
+{
+	template <Config::Module M>
+	constexpr auto MakeInjector()
+	{
+		return di::make_injector<boost::di::extension::shared_config>(
+			di::bind<std::string_view>()
+				.named("FileRootPrefix")
+				.to(Config::IsServer(M) ? "/server"sv : "/client"sv)
+				.in(di::extension::shared),
+			di::bind<FFileUtility>.in(di::extension::shared),
+			di::bind<FLogFile>.in(di::extension::shared),
+			di::bind<FAnimationSystem>.in(di::extension::shared));
+	}
+} // namespace
+
 template <Config::Module M>
 FGlobalSystems<M>::FGlobalSystems()
 {
-	if constexpr (Config::IsServer(M))
-	{
-		FileUtilityObject = std::make_unique<FFileUtility>("/server");
-	}
-	else
-	{
-		FileUtilityObject = std::make_unique<FFileUtility>("/client");
-	}
+	auto Injector = MakeInjector<M>();
+	FileUtilityObject = Injector.template create<std::shared_ptr<FFileUtility>>();
+	LogFileObject = Injector.template create<std::shared_ptr<FLogFile>>();
+	AnimationSystemObject = Injector.template create<std::shared_ptr<FAnimationSystem>>();
 	MainConsoleObject = std::make_unique<TConsoleType>();
-	ConsoleLogFileObject = std::make_unique<FLogFile>(*FileUtilityObject);
 	if constexpr (Config::IsServer(M))
 	{
 		KillLogFileObject = std::make_unique<FLogFile>(*FileUtilityObject);
 	}
 
 	SpriteSystem::Init();
-	AnimationSystemObject = std::make_unique<FAnimationSystem>(*ConsoleLogFileObject, *FileUtilityObject);
 	ThingSystemObject = std::make_unique<ThingSystem>();
 	BulletSystemObject = std::make_unique<BulletSystem>();
 	WeaponSystemObject = std::make_unique<WeaponSystem>();
@@ -52,11 +67,11 @@ FGlobalSystems<M>::~FGlobalSystems()
 	WeaponSystemObject.reset();
 	BulletSystemObject.reset();
 	ThingSystemObject.reset();
-	AnimationSystemObject.reset();
 	SpriteSystem::Deinit();
 	MainConsoleObject.reset();
 	KillLogFileObject.reset();
-	ConsoleLogFileObject.reset();
+	AnimationSystemObject.reset();
+	LogFileObject.reset();
 	FileUtilityObject.reset();
 }
 

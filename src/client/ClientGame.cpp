@@ -320,11 +320,11 @@ void GlobalStateClientGame::gameloop()
 				{
 					if (gGlobalStateNetworkClient.noheartbeattime > disconnection_time)
 					{
-						GS::GetMainConsole().console(("Connection timeout"), warning_message_color);
+						GS::GetMainConsole().Console(("Connection timeout"), warning_message_color);
 					}
 					else
 					{
-						GS::GetMainConsole().console(("Connection problem"), warning_message_color);
+						GS::GetMainConsole().Console(("Connection problem"), warning_message_color);
 					}
 				}
 
@@ -337,7 +337,7 @@ void GlobalStateClientGame::gameloop()
 
 				gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.teammenu, false);
 
-				GS::GetMainConsole().console(("Connection timeout"), warning_message_color);
+				GS::GetMainConsole().Console(("Connection timeout"), warning_message_color);
 
 				clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
 			}

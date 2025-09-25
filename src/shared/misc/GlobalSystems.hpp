@@ -51,7 +51,7 @@ public:
 
 	static FFileUtility& GetFileSystem() { return *FGlobalSystems::Get().FileUtilityObject; }
 
-	static FLogFile& GetConsoleLogFile() { return *FGlobalSystems::Get().ConsoleLogFileObject; }
+	static FLogFile& GetConsoleLogFile() { return *FGlobalSystems::Get().LogFileObject; }
 
 	static FLogFile& GetKillLogFile()
 		requires(Config::IsServer(M))
@@ -70,11 +70,11 @@ private:
 	std::unique_ptr<tdemorecorder<M>> DemoRecorder;
 	std::unique_ptr<BulletSystem> BulletSystemObject;
 	std::unique_ptr<ThingSystem> ThingSystemObject;
-	std::unique_ptr<FFileUtility> FileUtilityObject;
+	std::shared_ptr<FFileUtility> FileUtilityObject;
 	std::unique_ptr<TConsoleType> MainConsoleObject;
-	std::unique_ptr<FLogFile> ConsoleLogFileObject;
+	std::shared_ptr<FLogFile> LogFileObject;
 	std::unique_ptr<FLogFile> KillLogFileObject;
-	std::unique_ptr<FAnimationSystem> AnimationSystemObject;
+	std::shared_ptr<FAnimationSystem> AnimationSystemObject;
 };
 
 using GS = FGlobalSystems<Config::GetModule()>;

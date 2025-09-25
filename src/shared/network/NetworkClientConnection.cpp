@@ -323,7 +323,7 @@ void clienthandleplayerslist::Handle(NetworkContext* netmessage)
 
 	if (!gGlobalStateDemo.demoplayer.active())
 	{
-		GS::GetMainConsole().console(
+		GS::GetMainConsole().Console(
 			_("Connection accepted to") + ' ' + (gGlobalStateNetworkClient.GetNetwork()->GetStringAddress(true)),
 			client_message_color);
 	}
@@ -380,7 +380,7 @@ void clienthandleplayerslist::Handle(NetworkContext* netmessage)
 				gGlobalStateSound.loadsounds(gGlobalStateClient.moddir);
 				forcegraphicsreload = true;
 				gGlobalStateClient.usesservermod = true;
-				GS::GetMainConsole().console(_(string("Loading server mod: ") + modname), mode_message_color);
+				GS::GetMainConsole().Console(_(string("Loading server mod: ") + modname), mode_message_color);
 			}
 			else
 			{
@@ -556,15 +556,15 @@ void clienthandleplayerslist::Handle(NetworkContext* netmessage)
 	if (CVar::sv_realisticmode)
 	{
 		GS::GetGame().SetStarthealth(floatistic_health);
-		GS::GetMainConsole().console(_("Realistic Mode ON"), mode_message_color);
+		GS::GetMainConsole().Console(_("Realistic Mode ON"), mode_message_color);
 	}
 	if (CVar::sv_survivalmode)
 	{
-		GS::GetMainConsole().console(_("Survival Mode ON"), mode_message_color);
+		GS::GetMainConsole().Console(_("Survival Mode ON"), mode_message_color);
 	}
 	if (CVar::sv_advancemode)
 	{
-		GS::GetMainConsole().console(_("Advance Mode ON"), mode_message_color);
+		GS::GetMainConsole().Console(_("Advance Mode ON"), mode_message_color);
 	}
 
 	// newby stuff
@@ -572,19 +572,19 @@ void clienthandleplayerslist::Handle(NetworkContext* netmessage)
 	{
 		if (Random(3) == 0)
 		{
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				_("(!) Jet fuel is map specific. There can be more or less on certain maps."), info_message_color);
 		}
 		else
 		{
-			GS::GetMainConsole().console(_("(!) To leave your current weapon after respawn"), info_message_color);
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(_("(!) To leave your current weapon after respawn"), info_message_color);
+			GS::GetMainConsole().Console(
 				string("    ") + _("click anywhere outside the weapons menu."), info_message_color);
 		}
 
 		if (CVar::sv_realisticmode)
 		{
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				_("(!) To prevent weapon recoil fire float shots or short bursts."), info_message_color);
 		}
 	}
@@ -670,7 +670,7 @@ void clienthandleserverdisconnect::Handle(NetworkContext* netmessage)
 
 	if (!gGlobalStateDemo.demoplayer.active())
 	{
-		GS::GetMainConsole().console(_("Server disconnected"), server_message_color);
+		GS::GetMainConsole().Console(_("Server disconnected"), server_message_color);
 	}
 	else
 	{
@@ -774,7 +774,7 @@ void clienthandleservervars::Handle(NetworkContext* netmessage)
 	{
 		if (!gGlobalStateDemo.demoplayer.active())
 		{
-			GS::GetMainConsole().console(_("Server uses weapon mod (checksum") + ' '
+			GS::GetMainConsole().Console(_("Server uses weapon mod (checksum") + ' '
 											 + (inttostr(GS::GetWeaponSystem().GetLoadedWMChecksum())) + ')',
 				server_message_color);
 		}

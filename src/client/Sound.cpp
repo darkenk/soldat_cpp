@@ -539,14 +539,14 @@ void GlobalStateSound::loadsounds(const string& moddir)
 	sfxpath = moddir + "sfx/";
 
 	// Sound effects
-	GS::GetMainConsole().console("Loading sound effects", debug_message_color);
+	GS::GetMainConsole().Console("Loading sound effects", debug_message_color);
 	for (i = 1U; i < sample_files.size(); i++)
 	{
 		if (!sample_files[i].empty())
 		{
 			if (!Engine->LoadSample(i, (sfxpath + sample_files[i].data())))
 			{
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					string("Unable to load file ") + sfxpath + sample_files[i].data(), debug_message_color);
 			}
 		}

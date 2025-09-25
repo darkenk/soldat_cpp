@@ -976,7 +976,7 @@ void Thing<M>::update()
 
 								GS::GetGame().sortplayers();
 
-								GS::GetMainConsole().console(
+								GS::GetMainConsole().Console(
 									sprite_system.GetSprite(holdingsprite).player->name + ' ' + "scores for Alpha Team",
 									alpha_message_color);
 								sprite_system.GetSprite(holdingsprite).player->scorespersecond += 1;
@@ -991,7 +991,7 @@ void Thing<M>::update()
 
 								GS::GetGame().sortplayers();
 
-								GS::GetMainConsole().console(
+								GS::GetMainConsole().Console(
 									sprite_system.GetSprite(holdingsprite).player->name + ' ' + "scores for Bravo Team",
 									bravo_message_color);
 								sprite_system.GetSprite(holdingsprite).player->scorespersecond += 1;
@@ -2223,7 +2223,7 @@ auto Thing<M>::checkspritecollision() -> std::int32_t
 
 						if (!smallcaptextstr.empty())
 						{
-							GS::GetMainConsole().console(smallcaptextstr, capcolor);
+							GS::GetMainConsole().Console(smallcaptextstr, capcolor);
 						}
 					}
 				}

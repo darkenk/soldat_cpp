@@ -99,7 +99,7 @@ void clienthandlechatmessage::Handle(NetworkContext* netmessage)
 	// chat from server
 	if (i == 255)
 	{
-		GS::GetMainConsole().console(_("*SERVER*: ") + cs, server_message_color);
+		GS::GetMainConsole().Console(_("*SERVER*: ") + cs, server_message_color);
 		return;
 	}
 
@@ -145,12 +145,12 @@ void clienthandlechatmessage::Handle(NetworkContext* netmessage)
 
 	if (length(cs) < morechattext)
 	{
-		GS::GetMainConsole().console(prefix + "[" + (sprite_system.GetSprite(i).player->name) + "] " + cs, col);
+		GS::GetMainConsole().Console(prefix + "[" + (sprite_system.GetSprite(i).player->name) + "] " + cs, col);
 	}
 	else
 	{
-		GS::GetMainConsole().console(prefix + "[" + (sprite_system.GetSprite(i).player->name) + "] ", col);
-		GS::GetMainConsole().console(std::string(" ") + cs, col);
+		GS::GetMainConsole().Console(prefix + "[" + (sprite_system.GetSprite(i).player->name) + "] ", col);
+		GS::GetMainConsole().Console(std::string(" ") + cs, col);
 	}
 
 	/*if Radio and
@@ -170,7 +170,7 @@ void clienthandlespecialmessage::Handle(NetworkContext* netmessage)
 
 	if (specialmessage->msgtype == 0) // console
 	{
-		GS::GetMainConsole().console(cs, specialmessage->color);
+		GS::GetMainConsole().Console(cs, specialmessage->color);
 	}
 	else if (specialmessage->msgtype == 1) // big text
 	{

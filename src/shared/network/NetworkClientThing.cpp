@@ -483,7 +483,7 @@ void clienthandlethingtaken::Handle(NetworkContext* netmessage)
 				gGlobalStateClientGame.bigmessage(bigcaptext, capturemessagewait, capcolor);
 				NotImplemented("network");
 #if 0
-            GS::GetMainConsole().console(smallcaptext, (SpriteSystem::Get().GetSprite(j).player->name), capcolor);
+            GS::GetMainConsole().Console(smallcaptext, (SpriteSystem::Get().GetSprite(j).player->name), capcolor);
 #endif
 			}
 		}

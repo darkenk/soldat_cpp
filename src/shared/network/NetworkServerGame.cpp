@@ -68,27 +68,27 @@ void serverhandleplayerdisconnect(
 	switch (sprite_system.GetSprite(i).player->team)
 	{
 		case team_none:
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(i).player->name + " has left the game.", enter_message_color);
 			break;
 		case team_alpha:
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(i).player->name + " has left alpha team.", alphaj_message_color);
 			break;
 		case team_bravo:
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(i).player->name + " has left bravo team.", bravoj_message_color);
 			break;
 		case team_charlie:
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(i).player->name + " has left charlie team.", charliej_message_color);
 			break;
 		case team_delta:
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(i).player->name + " has left delta team.", deltaj_message_color);
 			break;
 		case team_spectator:
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(i).player->name + " has left spectators", deltaj_message_color);
 			break;
 	}
@@ -314,7 +314,7 @@ void serverhandlevotekick(tmsgheader* netmessage, std::int32_t size, NetworkServ
 			GS::GetGame().startvote(i, vote_kick, inttostr(votekickmsg->num), votekickmsg->reason.data());
 			serversendvoteon(GS::GetGame().GetVoteType(), i, inttostr(votekickmsg->num), votekickmsg->reason.data());
 			// Show started votekick in admin console
-			GS::GetMainConsole().console(sprite_system.GetSprite(i).player->name + " started votekick against "
+			GS::GetMainConsole().Console(sprite_system.GetSprite(i).player->name + " started votekick against "
 											 + sprite_system.GetSprite(votekickmsg->num).player->name
 											 + " - Reason:" + std::string(votekickmsg->reason.data()),
 				vote_message_color);

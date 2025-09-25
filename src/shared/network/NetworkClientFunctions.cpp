@@ -209,7 +209,7 @@ void clienthandlejoinserver::Handle(NetworkContext* netmessage)
 	joinservermsg = reinterpret_cast<pmsg_joinserver>(netmessage->packet);
 	NotImplemented("network");
 #if 0
-    GS::GetMainConsole().console(std::string("Redirecting to... ") +
+    GS::GetMainConsole().Console(std::string("Redirecting to... ") +
                             netaddrtostr(in_addr(joinservermsg->ip)) + ':' +
                             inttostr(joinservermsg->port),
                         server_message_color);

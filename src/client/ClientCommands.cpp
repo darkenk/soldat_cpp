@@ -40,7 +40,7 @@ namespace
 
 		if (length(args) < 3)
 		{
-			GS::GetMainConsole().console(R"(Usage: bind "key" "command")", game_message_color);
+			GS::GetMainConsole().Console(R"(Usage: bind "key" "command")", game_message_color);
 			return;
 		}
 
@@ -85,7 +85,7 @@ namespace
 
 		if (length(args) <= 1)
 		{
-			GS::GetMainConsole().console("Usage: connect ip port password", game_message_color);
+			GS::GetMainConsole().Console("Usage: connect ip port password", game_message_color);
 			return;
 		}
 		gGlobalStateClient.exittomenu();
@@ -138,7 +138,7 @@ namespace
 	{
 		if (length(args) <= 1)
 		{
-			GS::GetMainConsole().console("Usage: say \"text\"", game_message_color);
+			GS::GetMainConsole().Console("Usage: say \"text\"", game_message_color);
 			return;
 		}
 		clientsendstringmessage((args[1]), msgtype_pub);
@@ -148,7 +148,7 @@ namespace
 	{
 		if (length(args) <= 1)
 		{
-			GS::GetMainConsole().console("Usage: say_team \"text\"", game_message_color);
+			GS::GetMainConsole().Console("Usage: say_team \"text\"", game_message_color);
 			return;
 		}
 		clientsendstringmessage((args[1]), msgtype_team);
@@ -190,11 +190,11 @@ namespace
 
 			if (gGlobalStateClient.muteall)
 			{
-				GS::GetMainConsole().console(("Everyone is muted"), client_message_color);
+				GS::GetMainConsole().Console(("Everyone is muted"), client_message_color);
 			}
 			else
 			{
-				GS::GetMainConsole().console(("Everyone is unmuted"), client_message_color);
+				GS::GetMainConsole().Console(("Everyone is unmuted"), client_message_color);
 			}
 
 			return;
@@ -204,7 +204,7 @@ namespace
 		for (i = 0; i <= high(targets); i++)
 		{
 			sprite_system.GetSprite(targets[i]).muted = true;
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(targets[i]).player->name + " is muted", client_message_color);
 		}
 	}
@@ -212,7 +212,7 @@ namespace
 	void commandunbindall(std::vector<std::string>& /*args*/, std::uint8_t /*sender*/)
 	{
 		gGlobalStateInput.unbindall();
-		GS::GetMainConsole().console("Unbinded all binds", game_message_color);
+		GS::GetMainConsole().Console("Unbinded all binds", game_message_color);
 	}
 
 	void commandunmute(std::vector<std::string>& args, std::uint8_t sender)
@@ -233,7 +233,7 @@ namespace
 		for (i = 0; i <= high(targets); i++)
 		{
 			sprite_system.GetSprite(targets[i]).muted = false;
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(targets[i]).player->name + " is unmuted", client_message_color);
 		}
 	}
@@ -261,7 +261,7 @@ namespace
                      map.name + "_screenshot.png";
 #endif
 
-			GS::GetMainConsole().console((("Screenshot saved to ") + screenfile), debug_message_color);
+			GS::GetMainConsole().Console((("Screenshot saved to ") + screenfile), debug_message_color);
 
 			gGlobalStateGameRendering.takescreenshot(screenfile);
 
@@ -279,7 +279,7 @@ namespace
 		auto& sprite_system = SpriteSystem::Get();
 		if (length(args) <= 1)
 		{
-			GS::GetMainConsole().console("Usage: switchcam \"id\"", game_message_color);
+			GS::GetMainConsole().Console("Usage: switchcam \"id\"", game_message_color);
 			return;
 		}
 		if (sprite_system.GetPlayerSprite().isspectator())
@@ -295,7 +295,7 @@ namespace
 
 		if (length(args) <= 1)
 		{
-			GS::GetMainConsole().console("Usage: switchcamflag \"id\"", game_message_color);
+			GS::GetMainConsole().Console("Usage: switchcamflag \"id\"", game_message_color);
 			return;
 		}
 

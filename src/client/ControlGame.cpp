@@ -363,14 +363,14 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent& keyevent) -> bool
 					if (game.GetVoteType() == vote_map)
 					{
 						clientsendstringmessage(std::string("votemap ") + (game.GetVoteTarget()), msgtype_cmd);
-						GS::GetMainConsole().console(
+						GS::GetMainConsole().Console(
 							wideformat(_("You have voted on " + game.GetVoteTarget())), vote_message_color);
 					}
 					else if (game.GetVoteType() == vote_kick)
 					{
 						i = strtoint(game.GetVoteTarget());
 						clientvotekick(i, true, "");
-						GS::GetMainConsole().console(
+						GS::GetMainConsole().Console(
 							wideformat(_("You have voted to kick " + sprite_system.GetSprite(i).player->name)),
 							vote_message_color);
 					}
@@ -610,7 +610,7 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent& keyevent) -> bool
 			{
 				gGlobalStateSound.volumeinternal = gGlobalStateSound.scalevolumesetting(CVar::snd_volume);
 				gGlobalStateSound.setvolume(-1, gGlobalStateSound.volumeinternal);
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					std::string("Volume: ") + inttostr(CVar::snd_volume) + "%", music_message_color);
 			}
 		}
@@ -621,7 +621,7 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent& keyevent) -> bool
 		{
 			i = iif(action == taction::mousesensitivitydown, -5, 5);
 			CVar::cl_sensitivity = (static_cast<float>(max(0.0f, i + floorf(100 * CVar::cl_sensitivity))) / 100);
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				_("Sensitivity:") + (std::string(" ") + inttostr(floor(100 * CVar::cl_sensitivity)) + "%"),
 				music_message_color);
 		}
@@ -707,7 +707,7 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent& keyevent) -> bool
 				gGlobalStateGameMenus.gamemenushow(
 					gGlobalStateGameMenus.limbomenu, !gGlobalStateGameMenus.limbomenu->active);
 				gGlobalStateClient.limbolock = !gGlobalStateGameMenus.limbomenu->active;
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					iif(gGlobalStateClient.limbolock, _("Weapons menu disabled"), _("Weapons menu active")),
 					game_message_color);
 			}
@@ -724,7 +724,7 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent& keyevent) -> bool
 				{
 					gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.limbomenu, false);
 					gGlobalStateClient.limbolock = !gGlobalStateClient.limbolock;
-					GS::GetMainConsole().console(
+					GS::GetMainConsole().Console(
 						iif(gGlobalStateClient.limbolock, _("Weapons menu disabled"), _("Weapons menu active")),
 						game_message_color);
 				}

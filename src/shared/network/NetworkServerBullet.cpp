@@ -332,7 +332,7 @@ void serverhandlebulletsnapshot(
 				sprite.player->knifewarnings += 1;
 				if (sprite.player->knifewarnings == 3)
 				{
-					GS::GetMainConsole().console(
+					GS::GetMainConsole().Console(
 						std::string("** DETECTED KNIFE CHEATING FROM ") + sprite.player->name + " **",
 						server_message_color);
 					gGlobalStateServer.kickplayer(p, true, kick_cheat, day, "Knife Throw Cheat");

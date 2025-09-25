@@ -55,7 +55,7 @@ void FConsoleMain::Update(const bool InKillConsole)
 	}
 }
 
-void FConsoleMain::console(const std::string_view InWhat, std::int32_t col) // overload;
+void FConsoleMain::Console(const std::string_view InWhat, std::int32_t col) // overload;
 {
 	if (InWhat.empty())
 	{
@@ -71,9 +71,9 @@ void FConsoleMain::console(const std::string_view InWhat, std::int32_t col) // o
 	LogDebugG("{}", InWhat);
 
 	this->ConsoleAdd(InWhat, col);
-	if (mBigConsole != nullptr)
+	if (BigConsole != nullptr)
 	{
-		mBigConsole->ConsoleAdd(InWhat, col);
+		BigConsole->ConsoleAdd(InWhat, col);
 	}
 }
 
@@ -114,7 +114,7 @@ namespace
 			FConsole Big(nullptr);
 			FConsoleMain cl(nullptr, 0, 254, 150, false);
 			cl.SetBigConsole(&Big);
-			cl.console("Test message", Constants::GAME_MESSAGE_COLOR);
+			cl.Console("Test message", Constants::GAME_MESSAGE_COLOR);
 			CHECK_EQ(1, cl.GetCount());
 		}
 
@@ -175,7 +175,7 @@ namespace
 		TEST_CASE_FIXTURE(FConsoleFixture, "Console - Add Empty Message")
 		{
 			FConsoleMain cl;
-			cl.console("", 10);
+			cl.Console("", 10);
 			CHECK_EQ(cl.GetCount(), 0);
 		}
 
@@ -188,7 +188,7 @@ namespace
 			FConsoleMain cl(nullptr, kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
 			FConsole Big;
 			cl.SetBigConsole(&Big);
-			cl.console("Client message", 30);
+			cl.Console("Client message", 30);
 			CHECK_EQ(cl.GetCount(), 1);
 			CHECK_EQ(cl.GetTextMessage(1), "Client message");
 			CHECK_EQ(cl.GetTextMessageColor(1), 30);

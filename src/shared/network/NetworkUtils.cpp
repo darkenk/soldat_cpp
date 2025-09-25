@@ -194,7 +194,7 @@ auto verifypacket(
 	}
 	if (CVar::log_level > 1)
 	{
-		GS::GetMainConsole().console(
+		GS::GetMainConsole().Console(
 			"[NET] Received Packet (" + inttostr(PacketId) + ") Size:" + inttostr(ReceiveSize) + Dropped,
 			debug_message_color);
 	}
@@ -216,7 +216,7 @@ auto verifypacketlargerorequal(
 	}
 	if (CVar::log_level > 1)
 	{
-		GS::GetMainConsole().console(
+		GS::GetMainConsole().Console(
 			"[NET] Received Packet (" + inttostr(PacketId) + ") Size:" + inttostr(ReceiveSize) + Dropped,
 			debug_message_color);
 	}
@@ -438,7 +438,7 @@ auto updateantiflood(const std::string& SrcIP) -> std::int32_t
 		if (gGlobalStateServer.floodnum[FloodID] > floodip_max)
 		{
 			gGlobalStateBanSystem.addbannedip(SrcIP, "Flooding", Constants::TWENTY_MINUTES);
-			GS::GetMainConsole().console("IP number " + SrcIP + " banned for flooding", client_message_color);
+			GS::GetMainConsole().Console("IP number " + SrcIP + " banned for flooding", client_message_color);
 		}
 	}
 	return FloodID;

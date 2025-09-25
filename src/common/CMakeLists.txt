@@ -45,6 +45,7 @@ target_link_libraries(CommonLib
     GameNetworkingSockets::GameNetworkingSockets_s
     ApprovalTests::ApprovalTests
     libassert::assert
+    Boost::Boost.DI
 )
 
 target_include_directories(CommonLib SYSTEM PRIVATE

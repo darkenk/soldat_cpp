@@ -345,7 +345,7 @@ void update_frame()
 				{
 					if (game.GetMapchangecounter() == -60)
 					{
-						GS::GetMainConsole().console(
+						GS::GetMainConsole().Console(
 							_("Time Left:") + ' ' + (inttostr(game.GetTimelimitcounter() / 60)) + ' ' + _("seconds"),
 							game_message_color);
 						gGlobalStateSound.playsound(SfxEffect::signal);
@@ -356,7 +356,7 @@ void update_frame()
 			{
 				if (game.GetTimelimitcounter() % 600 == 0)
 				{
-					GS::GetMainConsole().console(
+					GS::GetMainConsole().Console(
 						_("Time Left:") + ' ' + (inttostr(game.GetTimelimitcounter() / 60)) + ' ' + _("seconds"),
 						game_message_color);
 					gGlobalStateSound.playsound(SfxEffect::signal);
@@ -366,7 +366,7 @@ void update_frame()
 			{
 				if (game.GetTimelimitcounter() % 3600 == 0)
 				{
-					GS::GetMainConsole().console(
+					GS::GetMainConsole().Console(
 						_("Time Left:") + ' ' + (inttostr(game.GetTimelimitcounter() / 3600)) + ' ' + _("minutes"),
 						game_message_color);
 					gGlobalStateSound.playsound(SfxEffect::signal);
@@ -374,7 +374,7 @@ void update_frame()
 			}
 			else if (game.GetTimelimitcounter() % 18000 == 0)
 			{
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					_("Time Left:") + ' ' + (inttostr(game.GetTimelimitcounter() / 3600)) + ' ' + _("minutes"),
 					game_message_color);
 				gGlobalStateSound.playsound(SfxEffect::signal);

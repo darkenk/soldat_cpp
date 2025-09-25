@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/di.hpp>
 #include <string>
 #include <vector>
 #include <cstddef>
@@ -21,7 +22,7 @@ public:
 
 	using TFile = PHYSFS_File;
 
-	explicit FFileUtility(std::string_view InRootPrefix = "");
+	BOOST_DI_INJECT(FFileUtility, (named = std::string("FileRootPrefix")) std::string_view InRootPrefix = "");
 	FFileUtility(const FFileUtility&) = delete;
 	FFileUtility(FFileUtility&&) = delete;
 	FFileUtility& operator=(const FFileUtility&) = delete;

@@ -79,7 +79,7 @@ auto tdemorecorder<M>::startrecord(const string& filename) -> bool
 	}
 #endif
 
-	GS::GetMainConsole().console(("Recording demo: ") + (extractfilename(filename)), info_message_color);
+	GS::GetMainConsole().Console(("Recording demo: ") + (extractfilename(filename)), info_message_color);
 
 	fname = extractfilename(filename);
 	factive = true;
@@ -117,7 +117,7 @@ void tdemorecorder<M>::stoprecord()
 		return;
 	}
 
-	GS::GetMainConsole().console(
+	GS::GetMainConsole().Console(
 #ifdef SERVER
 		string("Demo stopped") +
 #else
@@ -167,7 +167,7 @@ auto tdemorecorder<M>::createdemoplayer() -> std::int32_t
 
 	if (sprite_system.GetSprite(max_sprites).IsActive())
 	{
-		GS::GetMainConsole().console(
+		GS::GetMainConsole().Console(
 			"Failed to create Demo Recorder player. Demos can be recorded with up to 31 players", info_message_color);
 		stoprecord();
 		return createdemoplayer_result;
@@ -310,19 +310,19 @@ auto tdemoplayer::opendemo(const string& filename) -> bool
 	fdemofile.readbuffer(&fdemoheader, sizeof(fdemoheader));
 	if (fdemoheader.header != demo_magic)
 	{
-		GS::GetMainConsole().console(_("The provided file is not valid: ") + ' ' + (fname), info_message_color);
+		GS::GetMainConsole().Console(_("The provided file is not valid: ") + ' ' + (fname), info_message_color);
 		fdemofile.free();
 	}
 	else if (fdemoheader.version != demo_version)
 	{
-		GS::GetMainConsole().console(
+		GS::GetMainConsole().Console(
 			_(wideformat("Wrong demo version: %d - %d", demo_version, fdemoheader.version)), info_message_color);
 		fdemofile.free();
 	}
 	else
 	{
 		fname = extractfilename(filename);
-		GS::GetMainConsole().console(_("Playing demo") + ' ' + (fname), info_message_color);
+		GS::GetMainConsole().Console(_("Playing demo") + ' ' + (fname), info_message_color);
 		gGlobalStateClient.spectator = 1;
 		factive = true;
 		opendemo_result = true;
@@ -337,7 +337,7 @@ void tdemoplayer::stopdemo()
 		return;
 	}
 
-	GS::GetMainConsole().console("Demo stopped", info_message_color);
+	GS::GetMainConsole().Console("Demo stopped", info_message_color);
 
 	fdemofile.free();
 

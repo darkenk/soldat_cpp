@@ -113,7 +113,7 @@ void GlobalStateClient::restartgraph()
 		gGlobalStateClientGame.mouseprev.y = gGlobalStateClientGame.my;
 	}
 
-	GS::GetMainConsole().console(("Graphics restart"), debug_message_color);
+	GS::GetMainConsole().Console(("Graphics restart"), debug_message_color);
 }
 
 void GlobalStateClient::loadweaponnames(FFileUtility& fs, GunArray& gunDisplayName, const std::string& modDir)
@@ -611,7 +611,7 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 
 	// greet!
 	// GS::GetMainConsole().console(("Welcome to Soldat ") + soldat_version, default_message_color);
-	GS::GetMainConsole().console(("Welcome to Soldat "), default_message_color);
+	GS::GetMainConsole().Console(("Welcome to Soldat "), default_message_color);
 
 	// Load weapon display names
 	loadweaponnames(fs, gundisplayname, moddir);
@@ -792,7 +792,7 @@ void GlobalStateClient::joinserver()
 		}
 		else
 		{
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				"[NET] Failed to connect to  server" + gGlobalStateNetworkClient.GetNetwork()->GetStringAddress(true),
 				warning_message_color);
 			return;

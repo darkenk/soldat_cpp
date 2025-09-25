@@ -76,5 +76,5 @@ public:
 		: FConsoleMain(filesystem, newMessageWait, countMax, scrollTickMax, writeToFile)
 	{
 	}
-	void console(const std::string_view what, std::int32_t col, std::uint8_t sender = 255);
+	void Console(const std::string_view what, std::int32_t col, std::uint8_t sender = 255);
 };

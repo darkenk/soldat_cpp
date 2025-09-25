@@ -77,7 +77,7 @@ void FLogFile::CreateNewLogFile(const std::string& prefix)
     }
     else
     {
-      GS::GetMainConsole().console("File logging error (N): ", debug_message_color);
+      GS::GetMainConsole().Console("File logging error (N): ", debug_message_color);
     }
 #endif
 	}

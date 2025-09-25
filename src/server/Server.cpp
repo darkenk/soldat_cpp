@@ -371,7 +371,7 @@ void GlobalStateServer::ShutDown()
 	LogDebugG("ShutDown");
 	progready = false;
 
-	GS::GetMainConsole().console("Shutting down server...", game_message_color);
+	GS::GetMainConsole().Console("Shutting down server...", game_message_color);
 	NotImplemented("Missing delete file");
 #if 0
     SysUtils.DeleteFile(userdirectory + "logs/" + sv_pidfilename);
@@ -381,7 +381,7 @@ void GlobalStateServer::ShutDown()
 	{
 		serverdisconnect();
 
-		GS::GetMainConsole().console("Shutting down game networking.", game_message_color);
+		GS::GetMainConsole().Console("Shutting down game networking.", game_message_color);
 
 		gGlobalStateNetworkServer.DeinitServerNetwork();
 	}
@@ -389,7 +389,7 @@ void GlobalStateServer::ShutDown()
 #ifdef RCON
 	if (sv_adminpassword != "")
 	{
-		try GS::GetMainConsole().console("Shutting down admin server...", GAME_MESSAGE_COLOR);
+		try GS::GetMainConsole().Console("Shutting down admin server...", GAME_MESSAGE_COLOR);
 		if (AdminServer != nil)
 		{
 			AdminServer.Active = false;
@@ -460,7 +460,7 @@ void GlobalStateServer::loadweapons(const std::string& Filename)
     if LoadedWMChecksum
         != DefaultWMChecksum then
         {
-            GS::GetMainConsole().console("Loaded weapons mod "
+            GS::GetMainConsole().Console("Loaded weapons mod "
                                 " + WMName + " v " + WMVersion + "
                                 "",
                                 SERVER_MESSAGE_COLOR);
@@ -484,7 +484,7 @@ auto GlobalStateServer::addbotplayer(const std::string& name, std::int32_t team)
 
 	if (GS::GetGame().GetPlayersNum() == max_players)
 	{
-		GS::GetMainConsole().console("Bot cannot be added because server is full", warning_message_color);
+		GS::GetMainConsole().Console("Bot cannot be added because server is full", warning_message_color);
 		return Result;
 	}
 
@@ -504,7 +504,7 @@ auto GlobalStateServer::addbotplayer(const std::string& name, std::int32_t team)
 
 		if (not loadbotconfig(ini, sprite_system.GetSprite(p), guns))
 		{
-			GS::GetMainConsole().console("Bot file " + name + " not found", warning_message_color);
+			GS::GetMainConsole().Console("Bot file " + name + " not found", warning_message_color);
 			sprite_system.GetSprite(p).kill();
 			return Result;
 		}
@@ -538,7 +538,7 @@ auto GlobalStateServer::addbotplayer(const std::string& name, std::int32_t team)
 			TempStr = "as spectator";
 			break;
 	}
-	GS::GetMainConsole().console(
+	GS::GetMainConsole().Console(
 		sprite_system.GetSprite(p).player->name + " " + "has joined " + TempStr + ".", enter_message_color);
 
 #ifdef SCRIPT
@@ -624,10 +624,10 @@ void GlobalStateServer::startserver()
 	/*
 		if (not map.loadmap(StartMap))
 		{
-			GS::GetMainConsole().console("Could Error not load map maps/" + StartMap.mapname +
+			GS::GetMainConsole().Console("Could Error not load map maps/" + StartMap.mapname +
   ".smap", debug_message_color); if (not map.loadmap("Arena"))
 			{
-				GS::GetMainConsole().console("Could Error not load map maps/ Arena.smap",
+				GS::GetMainConsole().Console("Could Error not load map maps/ Arena.smap",
 									debug_message_color);
 				return;
 			}
@@ -648,7 +648,7 @@ void GlobalStateServer::startserver()
 	{
 		if (not map.loadmap(GS::GetFileSystem(), StartMap))
 		{
-			GS::GetMainConsole().console("Could Error not load map " + StartMap.name, debug_message_color);
+			GS::GetMainConsole().Console("Could Error not load map " + StartMap.name, debug_message_color);
 			Abort();
 			return;
 		}
@@ -667,7 +667,7 @@ void GlobalStateServer::startserver()
 
 	if (CVar::sv_realisticmode)
 	{
-		GS::GetMainConsole().console("Realistic Mode ON", mode_message_color);
+		GS::GetMainConsole().Console("Realistic Mode ON", mode_message_color);
 		GS::GetGame().SetStarthealth(Constants::REALISTIC_HEALTH);
 		loadweapons("weapons_realistic");
 	}
@@ -697,7 +697,7 @@ void GlobalStateServer::startserver()
 				GS::GetGame().GetWeaponsel()[j][i] = 1;
 			}
 		}
-		GS::GetMainConsole().console("Advance Mode ON", mode_message_color);
+		GS::GetMainConsole().Console("Advance Mode ON", mode_message_color);
 	}
 
 	if (CVar::sv_gamemode == Constants::GAMESTYLE_DEATHMATCH)
@@ -773,7 +773,7 @@ void GlobalStateServer::startserver()
 	}
 	else
 	{
-		GS::GetMainConsole().console("Survival Mode ON", mode_message_color);
+		GS::GetMainConsole().Console("Survival Mode ON", mode_message_color);
 	}
 
 	// stat gun
@@ -840,7 +840,7 @@ void GlobalStateServer::startserver()
 			// the sprite may be zero if we"re still in the setup phase
 			if (player->spritenum != 0)
 			{
-				GS::GetMainConsole().console(player->name + " could not respond", warning_message_color);
+				GS::GetMainConsole().Console(player->name + " could not respond", warning_message_color);
 				serverplayerdisconnect(player->spritenum, kick_noresponse);
 #ifdef SCRIPT
 				ScrptDispatcher.OnLeaveGame(Player->spritenum, false);
@@ -919,7 +919,7 @@ auto GlobalStateServer::preparemapchange(const std::string& Name) -> bool
 		GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangetime());
 		// s} to client that map changes
 		servermapchange(all_players);
-		GS::GetMainConsole().console("Next  map" + Status.name, game_message_color);
+		GS::GetMainConsole().Console("Next  map" + Status.name, game_message_color);
 #ifdef SCRIPT
 		ScrptDispatcher.OnBeforeMapChange(Status.Name);
 #endif
@@ -934,7 +934,7 @@ void GlobalStateServer::nextmap()
 
 	if (mapslist.empty())
 	{
-		GS::GetMainConsole().console("Can"
+		GS::GetMainConsole().Console("Can"
 									 "t load maps from mapslist",
 			game_message_color);
 	}
@@ -1066,7 +1066,7 @@ auto GlobalStateServer::kickplayer(
 	{
 		if (isremoteadminip(sprite_system.GetSprite(i).player->ip) or isadminip(sprite_system.GetSprite(i).player->ip))
 		{
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(i).player->name + " is admin and cannot be kicked.", client_message_color);
 			return Result;
 		}
@@ -1077,27 +1077,27 @@ auto GlobalStateServer::kickplayer(
 		switch (sprite_system.GetSprite(i).player->team)
 		{
 			case 0:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					sprite_system.GetSprite(i).player->name + " has left the game.", enter_message_color);
 				break;
 			case 1:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					sprite_system.GetSprite(i).player->name + " has left alpha team.", alphaj_message_color);
 				break;
 			case 2:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					sprite_system.GetSprite(i).player->name + " has left bravo team.", bravoj_message_color);
 				break;
 			case 3:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					sprite_system.GetSprite(i).player->name + " has left charlie team.", charliej_message_color);
 				break;
 			case 4:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					sprite_system.GetSprite(i).player->name + " has left delta team.", deltaj_message_color);
 				break;
 			case 5:
-				GS::GetMainConsole().console(
+				GS::GetMainConsole().Console(
 					sprite_system.GetSprite(i).player->name + " has left spectators", deltaj_message_color);
 				break;
 		}
@@ -1105,7 +1105,7 @@ auto GlobalStateServer::kickplayer(
 
 	if (not Ban and not(why == kick_leftgame) and not(why == kick_silent))
 	{
-		GS::GetMainConsole().console(sprite_system.GetSprite(i).player->name + " has been kicked."
+		GS::GetMainConsole().Console(sprite_system.GetSprite(i).player->name + " has been kicked."
 										 + iif(sprite_system.GetSprite(i).player->controlmethod == bot,
 											 std::string(""),
 											 "(" + sprite_system.GetSprite(i).player->ip + ")"),
@@ -1125,14 +1125,14 @@ auto GlobalStateServer::kickplayer(
 #if 0
             TimeStr = iif((time + 1) div 3600 > 1439, IntToStr((time + 1) div 5184000) + " days",
                           IntToStr((time + 1) div 3600) + " minutes");
-            GS::GetMainConsole().console(SpriteSystem::Get().GetSprite(i).player->name + " has been kicked and banned for " +
+            GS::GetMainConsole().Console(SpriteSystem::Get().GetSprite(i).player->name + " has been kicked and banned for " +
                                     TimeStr + " (" + Reason + ")",
                                 client_message_color)
 #endif
 		}
 		else
 		{
-			GS::GetMainConsole().console(
+			GS::GetMainConsole().Console(
 				sprite_system.GetSprite(i).player->name + " has been kicked and permanently banned (" + Reason + ")",
 				client_message_color);
 		}
@@ -1201,9 +1201,9 @@ void GlobalStateServer::ShutdownServer()
 	progready = false;
 }
 
-void ConsoleServer::console(const std::string_view what, std::int32_t col, std::uint8_t sender)
+void ConsoleServer::Console(const std::string_view what, std::int32_t col, std::uint8_t sender)
 {
-	::FConsoleMain::console(what, col);
+	::FConsoleMain::Console(what, col);
 	if ((sender > 0) && (sender < max_players + 1))
 	{
 		serversendstringmessage(std::string(what), sender, 255, msgtype_pub);
@@ -1245,7 +1245,7 @@ namespace
 			constexpr auto scrollTickMax = 150;
 			constexpr auto writeToFile = true;
 			ConsoleServer cl(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
-			cl.console("Test message", 10);
+			cl.Console("Test message", 10);
 			// Assuming GetGameLog() and GetGameLogFilename() are accessible and return expected values
 			// auto &fs = GS::GetFileSystem();
 			// CHECK(fs.FileExists(GetGameLogFilename()));
@@ -1258,7 +1258,7 @@ namespace
 			constexpr auto scrollTickMax = 150;
 			constexpr auto writeToFile = false;
 			ConsoleServer cl(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
-			cl.console("Server message", 20);
+			cl.Console("Server message", 20);
 			CHECK_EQ(cl.GetCount(), 1);
 			CHECK_EQ(cl.GetTextMessage(1), "Server message");
 			CHECK_EQ(cl.GetTextMessageColor(1), 20);
@@ -1271,9 +1271,9 @@ namespace
 			constexpr auto scrollTickMax = 150;
 			constexpr auto writeToFile = false;
 			ConsoleServer cl(nullptr, newMessageWait, countMax, scrollTickMax, writeToFile);
-			cl.console("Message 1", 10);
-			cl.console("Message 2", 20);
-			cl.console("Message 3", 30);
+			cl.Console("Message 1", 10);
+			cl.Console("Message 2", 20);
+			cl.Console("Message 3", 30);
 			CHECK_EQ(cl.GetCount(), 3);
 			addMessagesUntilScroll(cl, countMax);
 			CHECK_EQ(cl.GetCount(), countMax - 1);
