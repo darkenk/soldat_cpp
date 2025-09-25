@@ -16,12 +16,11 @@
 #include <cstdint>
 #include <ios>
 #include <memory>
-#include <new>
 #include <spdlog/fmt/bundled/core.h>
 #include <sstream>
 #include <string>
 #include <thread>
-#include <utility>
+#include <vector>
 
 #include "ClientCommands.hpp"
 #include "ClientGame.hpp"
@@ -53,6 +52,7 @@
 #include "shared/Cvar.hpp"
 #include "shared/Demo.hpp"
 #include "shared/Game.hpp"
+#include "shared/mechanics/Bullets.hpp"
 #include "shared/mechanics/Sparks.hpp"
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
@@ -62,17 +62,18 @@
 #include "shared/network/NetworkClientConnection.hpp"
 
 auto GlobalStateClient::InitBigConsole(
-	const std::int32_t newMessageWait, const std::int32_t countMax, const std::int32_t scrollTickMax) -> FConsole&
+	const std::int32_t InNewMessageWait, const std::int32_t InCountMax, const std::int32_t InScrollTickMax) -> FConsole&
 {
-	sBigConsole = std::make_shared<FConsole>(newMessageWait, countMax, scrollTickMax, true);
+	sBigConsole = std::make_shared<FConsole>(InNewMessageWait, InCountMax, InScrollTickMax, true);
 	return *sBigConsole;
 }
 
 auto GlobalStateClient::InitKillConsole(
-	const std::int32_t newMessageWait, const std::int32_t countMax, const std::int32_t scrollTickMax) -> FConsoleMain&
+	const std::int32_t InNewMessageWait, const std::int32_t InCountMax, const std::int32_t InScrollTickMax)
+	-> FConsoleMain&
 {
 
-	sKillConsole = std::make_shared<FConsoleMain>(newMessageWait, countMax, scrollTickMax, true);
+	sKillConsole = std::make_shared<FConsoleMain>(InNewMessageWait, InCountMax, InScrollTickMax, true);
 	return *sKillConsole;
 }
 
@@ -96,10 +97,10 @@ void GlobalStateClient::restartgraph()
 {
 	gGlobalStateGameRendering.dotextureloading(true);
 
-	auto& map = GS::GetGame().GetMap();
+	auto& Map = GS::GetGame().GetMap();
 
 	// Load Map
-	map.loadmap(GS::GetFileSystem(),
+	Map.loadmap(GS::GetFileSystem(),
 		GS::GetGame().GetMapchange(),
 		CVar::r_forcebg,
 		CVar::r_forcebg_color1,
@@ -121,24 +122,24 @@ void GlobalStateClient::loadweaponnames(FFileUtility& fs, GunArray& gunDisplayNa
 	SoldatAssert(gunDisplayName.size() == double_weapons);
 	std::int32_t i = 0;
 
-	const std::string weaponNamesFile = modDir + "txt/weaponnames.txt";
+	const std::string WeaponNamesFile = modDir + "txt/weaponnames.txt";
 
 	// GS::GetMainConsole().console(std::string("Loading Weapon Names from ") + weaponNamesFile, debug_message_color);
 	NotImplemented("console");
-	if (!fs.Exists((weaponNamesFile)))
+	if (!fs.Exists((WeaponNamesFile)))
 	{
 		return;
 	}
-	std::vector<std::byte> buff;
-	std::size_t fileSize = 0;
+	std::vector<std::byte> Buff;
+	std::size_t FileSize = 0;
 	{
-		auto* f = fs.Open(weaponNamesFile, FFileUtility::EFileMode::Read);
-		fileSize = FFileUtility::Size(f);
-		buff.resize(fileSize);
-		FFileUtility::Read(f, buff.data(), fileSize);
+		auto* f = fs.Open(WeaponNamesFile, FFileUtility::EFileMode::Read);
+		FileSize = FFileUtility::Size(f);
+		Buff.resize(FileSize);
+		FFileUtility::Read(f, Buff.data(), FileSize);
 		FFileUtility::Close(f);
 	}
-	std::istringstream sd(std::string(reinterpret_cast<char*>(buff.data()), fileSize));
+	std::istringstream sd(std::string(reinterpret_cast<char*>(Buff.data()), FileSize));
 	for (i = 0; i < double_weapons; i++)
 	{
 		SoldatAssert(sd.good());
@@ -148,36 +149,36 @@ void GlobalStateClient::loadweaponnames(FFileUtility& fs, GunArray& gunDisplayNa
 
 void GlobalStateClient::redirectdialog()
 {
-	std::array<SDL_MessageBoxButtonData, 2> buttons{};
-	SDL_MessageBoxData data;
-	std::int32_t response = 0;
+	std::array<SDL_MessageBoxButtonData, 2> Buttons{};
+	SDL_MessageBoxData Data;
+	std::int32_t Response = 0;
 
 	gGlobalStateGameRendering.rendergameinfo("Server Redirect");
-	buttons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
-	buttons[0].buttonID = 0;
-	buttons[0].text = "Yes";
-	buttons[1].flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
-	buttons[1].buttonID = 1;
-	buttons[1].text = "No";
+	Buttons[0].flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT;
+	Buttons[0].buttonID = 0;
+	Buttons[0].text = "Yes";
+	Buttons[1].flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT;
+	Buttons[1].buttonID = 1;
+	Buttons[1].text = "No";
 
-	data.flags = 0;
-	data.window = gGlobalStateInput.gamewindow;
-	data.title = "Server Redirect";
-	auto msg = (gGlobalStateClient.redirectmsg + "\r\n\r\nRedirect to server " + gGlobalStateClient.redirectip + ":"
+	Data.flags = 0;
+	Data.window = gGlobalStateInput.gamewindow;
+	Data.title = "Server Redirect";
+	auto Msg = (gGlobalStateClient.redirectmsg + "\r\n\r\nRedirect to server " + gGlobalStateClient.redirectip + ":"
 				+ inttostr(gGlobalStateClient.redirectport) + "?");
-	data.message = msg.c_str();
-	data.numbuttons = 2;
-	data.buttons = &buttons.at(0);
-	data.colorScheme = nullptr;
+	Data.message = Msg.c_str();
+	Data.numbuttons = 2;
+	Data.buttons = &Buttons.at(0);
+	Data.colorScheme = nullptr;
 
-	if (static_cast<int>(SDL_ShowMessageBox(&data, &response)) != 0)
+	if (static_cast<int>(SDL_ShowMessageBox(&Data, &Response)) != 0)
 	{
 		return;
 	}
 
 	gGlobalStateClient.redirecttoserver = false;
 
-	if (response == 0)
+	if (Response == 0)
 	{
 		gGlobalStateClient.joinip = gGlobalStateClient.redirectip;
 		gGlobalStateClient.joinport = inttostr(gGlobalStateClient.redirectport);
@@ -194,7 +195,7 @@ void GlobalStateClient::redirectdialog()
 
 void GlobalStateClient::exittomenu()
 {
-	auto& spriteSystem = SpriteSystem::Get();
+	auto& SpriteSystem = SpriteSystem::Get();
 	std::int32_t i = 0;
 
 	GS::GetGame().ResetGoalTicks();
@@ -215,7 +216,7 @@ void GlobalStateClient::exittomenu()
 		gGlobalStateDemo.demoplayer.stopdemo();
 	}
 
-	if (spriteSystem.IsPlayerSpriteValid())
+	if (SpriteSystem.IsPlayerSpriteValid())
 	{
 		clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
 	}
@@ -226,22 +227,22 @@ void GlobalStateClient::exittomenu()
 
 	gGlobalStateSound.stopsound(channel_weather);
 
-	auto& map = GS::GetGame().GetMap();
+	auto& Map = GS::GetGame().GetMap();
 
-	map.name = "";
+	Map.name = "";
 
 	if (gGlobalStateGameMenus.escmenu != nullptr)
 	{
 		gGlobalStateGameMenus.gamemenushow(gGlobalStateGameMenus.escmenu, false);
 	}
 
-	map.filename = ""; // force reloading next time
+	Map.filename = ""; // force reloading next time
 	GS::GetGame().SetMapchangecounter(GS::GetGame().GetMapchangecounter() - 60);
 	// WindowReady := False;
 
-	auto& activeSprites = spriteSystem.GetActiveSprites();
+	auto& ActiveSprites = SpriteSystem.GetActiveSprites();
 
-	std::ranges::for_each(activeSprites,
+	std::ranges::for_each(ActiveSprites,
 		[](auto& sprite)
 		{
 			sprite.kill();
@@ -345,14 +346,14 @@ auto GlobalStateClient::MountAssets(FFileUtility& fu,
 // TODO(vscode): throw away test variable
 void GlobalStateClient::InitConsoles(bool test)
 {
-	auto countMax = floor((0.85 * gGlobalStateClientGame.renderheight)
+	auto CountMax = floor((0.85 * gGlobalStateClientGame.renderheight)
 						  / (CVar::font_consolelineheight * gGlobalStateGameRendering.fontstylesize(font_small)));
 	if (test)
 	{
-		countMax = 20;
+		CountMax = 20;
 	}
 
-	InitBigConsole(0, countMax, 1500000);
+	InitBigConsole(0, CountMax, 1500000);
 	GS::GetMainConsole().SetBigConsole(&GetBigConsole());
 
 	InitKillConsole(70, round(CVar::ui_killconsole_length * gGlobalStateInterfaceGraphics._rscala.y), 240);
@@ -370,35 +371,35 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 	}
 
 	auto& fs = GS::GetFileSystem();
-	const auto userDirectory = FFileUtility::GetPrefPath("client");
-	const auto baseDirectory = FFileUtility::GetBasePath();
+	const auto UserDirectory = FFileUtility::GetPrefPath("client");
+	const auto BaseDirectory = FFileUtility::GetBasePath();
 
-	LogDebugG("[FS] userDirectory: {}", userDirectory);
-	LogDebugG("[FS] baseDirectory: {}", baseDirectory);
+	LogDebugG("[FS] userDirectory: {}", UserDirectory);
+	LogDebugG("[FS] baseDirectory: {}", BaseDirectory);
 
-	fs.Mount(userDirectory, "/user");
+	fs.Mount(UserDirectory, "/user");
 
 	// Create the basic folder structure
 	CreateDirectoryStructure(fs);
 
 	{
-		tsha1digest gameSha1;
-		tsha1digest modSha1;
+		tsha1digest GameSha1;
+		tsha1digest ModSha1;
 
-		if (!MountAssets(fs, userDirectory, baseDirectory, gameSha1, modSha1))
+		if (!MountAssets(fs, UserDirectory, BaseDirectory, GameSha1, ModSha1))
 		{
 			SoldatAssert(false);
 			return;
 		}
-		GS::GetGame().SetCustomModChecksum(modSha1);
-		GS::GetGame().SetGameModChecksum(gameSha1);
+		GS::GetGame().SetCustomModChecksum(ModSha1);
+		GS::GetGame().SetGameModChecksum(GameSha1);
 	}
 
 	GS::GetConsoleLogFile().Enable(CVar::log_enable);
 	GS::GetConsoleLogFile().SetLogLevel(CVar::log_level);
 	GS::GetConsoleLogFile().Init("/user/logs/consolelog");
 
-	std::string systemlang = "en_US";
+	std::string Systemlang = "en_US";
 	// todo this variable is needed when code is refactored
 	const std::string systemfallbacklang = "en_US"; // NOLINT
 
@@ -407,7 +408,7 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 
 	LogDebugG("[FS] Initializing system");
 
-	gGlobalStateInterfaceGraphics.loadinterfacearchives(userDirectory + "/custom-interfaces/");
+	gGlobalStateInterfaceGraphics.loadinterfacearchives(UserDirectory + "/custom-interfaces/");
 
 	fs.Copy("/configs/bindings.cfg", "/user/configs/bindings.cfg");
 	fs.Copy("/configs/client.cfg", "/user/configs/client.cfg");
@@ -426,13 +427,13 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 	gGlobalStateClientGame.renderwidth = CVar::r_renderwidth;
 
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-	SDL_DisplayID const display = SDL_GetPrimaryDisplay();
-	const SDL_DisplayMode* currentdisplay = SDL_GetCurrentDisplayMode(display);
+	SDL_DisplayID const Display = SDL_GetPrimaryDisplay();
+	const SDL_DisplayMode* Currentdisplay = SDL_GetCurrentDisplayMode(Display);
 
 	if ((gGlobalStateClientGame.screenwidth == 0) || (gGlobalStateClientGame.screenheight == 0))
 	{
-		gGlobalStateClientGame.screenwidth = currentdisplay->w;
-		gGlobalStateClientGame.screenheight = currentdisplay->h;
+		gGlobalStateClientGame.screenwidth = Currentdisplay->w;
+		gGlobalStateClientGame.screenheight = Currentdisplay->h;
 	}
 
 	if ((gGlobalStateClientGame.renderwidth == 0) || (gGlobalStateClientGame.renderheight == 0))
@@ -442,21 +443,21 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 	}
 
 	// Calculcate FOV to check for too high/low vision
-	float fov = static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight;
-	if (fov > max_fov)
+	float Fov = static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight;
+	if (Fov > max_fov)
 	{
 		gGlobalStateClientGame.renderwidth = std::ceil(gGlobalStateClientGame.renderheight * max_fov);
-		fov = max_fov;
+		Fov = max_fov;
 	}
-	else if (fov < min_fov)
+	else if (Fov < min_fov)
 	{
 		gGlobalStateClientGame.renderheight =
 			std::ceil(static_cast<float>(gGlobalStateClientGame.renderwidth) / min_fov);
-		fov = min_fov;
+		Fov = min_fov;
 	}
 
 	// Calulcate internal game width based on the fov and internal height
-	gGlobalStateGame.gamewidth = std::round(fov * gGlobalStateGame.gameheight);
+	gGlobalStateGame.gamewidth = std::round(Fov * gGlobalStateGame.gameheight);
 	gGlobalStateGame.gamewidthhalf = static_cast<float>(gGlobalStateGame.gamewidth) / 2;
 	gGlobalStateGame.gameheighthalf = static_cast<float>(gGlobalStateGame.gameheight) / 2;
 
@@ -545,7 +546,7 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 
 	if (CVar::cl_lang != "")
 	{
-		systemlang = CVar::cl_lang;
+		Systemlang = CVar::cl_lang;
 	}
 	else
 	{
@@ -555,9 +556,9 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 #endif
 	}
 
-	if (inittranslation(ReadAsFileStream(fs, moddir + "/txt/" + systemlang + ".mo").get()))
+	if (inittranslation(ReadAsFileStream(fs, moddir + "/txt/" + Systemlang + ".mo").get()))
 	{
-		LogDebugG("Game captions loaded from {}/txt/{}", moddir, systemlang);
+		LogDebugG("Game captions loaded from {}/txt/{}", moddir, Systemlang);
 	}
 	else
 	{
@@ -620,8 +621,8 @@ void GlobalStateClient::startgame(int argc, char* argv[])
 	gGlobalStateGameMenus.initgamemenus();
 
 	{
-		TIniFile ini{ ReadAsFileStream(fs, "txt/radiomenu-default.ini") };
-		ini.ReadSectionValues("OPTIONS", radiomenu);
+		TIniFile Ini{ ReadAsFileStream(fs, "txt/radiomenu-default.ini") };
+		Ini.ReadSectionValues("OPTIONS", radiomenu);
 	}
 
 	// Play demo
@@ -705,7 +706,7 @@ bool GlobalStateClient::mainloop()
 	{
 		return gamelooprun;
 	}
-	auto begin = std::chrono::system_clock::now();
+	auto Begin = std::chrono::system_clock::now();
 	gGlobalStateNetworkClient.GetNetwork()->ProcessLoop();
 	// gameinput();
 	switch (gGameState)
@@ -723,11 +724,11 @@ bool GlobalStateClient::mainloop()
 			gGlobalStateGameRendering.rendergameinfo(("Connection timed out."));
 			break;
 	}
-	auto end = std::chrono::system_clock::now();
-	constexpr auto frameTime = std::chrono::seconds(1) / 60.F;
+	auto End = std::chrono::system_clock::now();
+	constexpr auto kFrameTime = std::chrono::seconds(1) / 60.F;
 	{
 		ZoneScopedN("WaitingForNextFrame");
-		std::this_thread::sleep_for(frameTime - (end - begin));
+		std::this_thread::sleep_for(kFrameTime - (End - Begin));
 	}
 	FrameMarkNamed("ClientFrame");
 	return gamelooprun;
@@ -807,38 +808,38 @@ void GlobalStateClient::showmessage(const std::string& message)
 namespace
 {
 
-	class ClientFixture
+	class FClientFixture
 	{
 	public:
-		ClientFixture() = default;
-		~ClientFixture() = default;
-		ClientFixture(const ClientFixture&) = delete;
+		FClientFixture() = default;
+		~FClientFixture() = default;
+		FClientFixture(const FClientFixture&) = delete;
 
 	protected:
 		void T()
 		{
 			FFileUtility fu;
 			fu.Mount("tmpfs.memory", "/user");
-			GlobalStateClient gsc;
-			gsc.CreateDirectoryStructure(fu);
+			GlobalStateClient Gsc;
+			Gsc.CreateDirectoryStructure(fu);
 		}
 	};
 
 	TEST_SUITE("Client")
 	{
 
-		TEST_CASE_FIXTURE(ClientFixture, "Mount memory and write file and later read it")
+		TEST_CASE_FIXTURE(FClientFixture, "Mount memory and write file and later read it")
 		{
 			FFileUtility fu;
 			fu.Mount("tmpfs.memory", "/user");
-			GlobalStateClient gsc;
-			gsc.CreateDirectoryStructure(fu);
+			GlobalStateClient Gsc;
+			Gsc.CreateDirectoryStructure(fu);
 			auto* f = fu.Open("/user/logs/nice_log.txt", FFileUtility::EFileMode::Write);
 			CHECK_NE(nullptr, f);
 			FFileUtility::Close(f);
 		}
 
-		TEST_CASE_FIXTURE(ClientFixture, "Mount soldat.smod test")
+		TEST_CASE_FIXTURE(FClientFixture, "Mount soldat.smod test")
 		{
 			// test soldat.smod, generated with xxd --include soldat.smod
 			// contains:
@@ -1232,33 +1233,33 @@ namespace
 			// NOLINTEND
 
 			FFileUtility fu;
-			auto testDir = FFileUtility::GetPrefPath("mount_test", true);
-			std::filesystem::remove_all(testDir);
+			auto TestDir = FFileUtility::GetPrefPath("mount_test", true);
+			std::filesystem::remove_all(TestDir);
 			// recreate directory
-			testDir = FFileUtility::GetPrefPath("mount_test", true);
+			TestDir = FFileUtility::GetPrefPath("mount_test", true);
 			{
-				std::ofstream s(testDir + "/soldat.smod", std::ios_base::binary | std::ios_base::trunc);
+				std::ofstream s(TestDir + "/soldat.smod", std::ios_base::binary | std::ios_base::trunc);
 				s.write(reinterpret_cast<char*>(soldat_smod), soldat_smod_len);
 			}
-			tsha1digest customMod;
-			tsha1digest mod;
-			GlobalStateClient gsc;
-			CHECK_EQ(true, gsc.MountAssets(fu, "", testDir, mod, customMod));
+			tsha1digest CustomMod;
+			tsha1digest Mod;
+			GlobalStateClient Gsc;
+			CHECK_EQ(true, Gsc.MountAssets(fu, "", TestDir, Mod, CustomMod));
 			// std::filesystem::remove_all(testDir);
 		}
 
-		TEST_CASE_FIXTURE(ClientFixture, "loadweaponnamesRefactorToUseVirtualFileSystem")
+		TEST_CASE_FIXTURE(FClientFixture, "loadweaponnamesRefactorToUseVirtualFileSystem")
 		{
 			FFileUtility fs;
 			GunArray ga;
-			const auto userDirectory = FFileUtility::GetPrefPath("client");
-			const auto baseDirectory = FFileUtility::GetBasePath();
-			tsha1digest checksum1;
-			tsha1digest checksum2;
-			GlobalStateClient gsc;
-			auto ret = gsc.MountAssets(fs, userDirectory, baseDirectory, checksum1, checksum2);
-			CHECK_EQ(true, ret);
-			gsc.loadweaponnames(fs, ga, gsc.moddir);
+			const auto UserDirectory = FFileUtility::GetPrefPath("client");
+			const auto BaseDirectory = FFileUtility::GetBasePath();
+			tsha1digest Checksum1;
+			tsha1digest Checksum2;
+			GlobalStateClient Gsc;
+			auto Ret = Gsc.MountAssets(fs, UserDirectory, BaseDirectory, Checksum1, Checksum2);
+			CHECK_EQ(true, Ret);
+			Gsc.loadweaponnames(fs, ga, Gsc.moddir);
 			CHECK_EQ("USSOCOM", ga[0]);
 			CHECK_EQ("Desert Eagles", ga[1]);
 			CHECK_EQ("HK MP5", ga[2]);
@@ -1278,41 +1279,41 @@ namespace
 			CHECK_EQ("Flamed Arrows", ga[16]);
 		}
 
-		TEST_CASE_FIXTURE(ClientFixture, "Test console initialization")
+		TEST_CASE_FIXTURE(FClientFixture, "Test console initialization")
 		{
 			FGlobalSystems<Config::CLIENT_MODULE>::Init();
-			auto prevY = gGlobalStateInterfaceGraphics._rscala.y;
+			auto PrevY = gGlobalStateInterfaceGraphics._rscala.y;
 			gGlobalStateInterfaceGraphics._rscala.y = 1;
-			GlobalStateClient gsc;
-			gsc.InitConsoles(true);
-			gGlobalStateInterfaceGraphics._rscala.y = prevY;
-			const auto& console = GS::GetMainConsole();
+			GlobalStateClient Gsc;
+			Gsc.InitConsoles(true);
+			gGlobalStateInterfaceGraphics._rscala.y = PrevY;
+			const auto& Console = GS::GetMainConsole();
 			// CHECK_EQ(0, console.countmax);
 			// CHECK_EQ(150, console.scrolltickmax);
-			CHECK_EQ(150, console.GetNewMessageWait());
-			CHECK_EQ(0, console.GetCount());
+			CHECK_EQ(150, Console.GetNewMessageWait());
+			CHECK_EQ(0, Console.GetCount());
 
-			const auto& big = gsc.GetBigConsole();
+			const auto& Big = Gsc.GetBigConsole();
 			// CHECK_EQ(0, big.countmax); todo countmax in tests
 			// CHECK_EQ(1500000, big.scrolltickmax);
-			CHECK_EQ(0, big.GetNewMessageWait());
-			CHECK_EQ(0, big.GetCount());
+			CHECK_EQ(0, Big.GetNewMessageWait());
+			CHECK_EQ(0, Big.GetCount());
 
-			const auto& kill = gsc.GetKillConsole();
+			const auto& Kill = Gsc.GetKillConsole();
 			// CHECK_EQ(0, kill.countmax);
 			// CHECK_EQ(240, kill.scrolltickmax);
-			CHECK_EQ(70, kill.GetNewMessageWait());
+			CHECK_EQ(70, Kill.GetNewMessageWait());
 			FGlobalSystems<Config::CLIENT_MODULE>::Deinit();
 		}
 
-		TEST_CASE_FIXTURE(ClientFixture, "Start and shutdown" * doctest::skip(false))
+		TEST_CASE_FIXTURE(FClientFixture, "Start and shutdown" * doctest::skip(false))
 		{
 			FGlobalSystems<Config::CLIENT_MODULE>::Init();
-			std::string game = { "SoldatGame" };
-			std::array<char*, 1> argv = { game.data() };
-			GlobalStateClient gsc;
-			gsc.startgame(argv.size(), argv.data());
-			gsc.shutdown();
+			std::string Game = { "SoldatGame" };
+			std::array<char*, 1> Argv = { Game.data() };
+			GlobalStateClient Gsc;
+			Gsc.startgame(Argv.size(), Argv.data());
+			Gsc.shutdown();
 			FGlobalSystems<Config::CLIENT_MODULE>::Deinit();
 		}
 
