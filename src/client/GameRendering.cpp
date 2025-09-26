@@ -9,7 +9,6 @@
 #include <Tracy.hpp>
 #include <algorithm>
 #include <array>
-#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -18,10 +17,10 @@
 #include <memory>
 #include <set>
 #include <spdlog/fmt/bundled/core.h>
-#include <stdio.h>
 #include <string>
 #include <utility>
 #include <vector>
+#include <libassert/assert.hpp>
 
 #include "Client.hpp"
 #include "ClientGame.hpp"
@@ -499,8 +498,6 @@ void GlobalStateGameRendering::loadfonts()
 
 auto GlobalStateGameRendering::initgamegraphics() -> bool
 {
-	bool result = true;
-
 	if (initialized)
 	{
 		if (gGlobalStateGameRendering.gamerenderingparams.interfacename != loadedinterfacename)
@@ -510,22 +507,9 @@ auto GlobalStateGameRendering::initgamegraphics() -> bool
 			loadinterface();
 		}
 
-		return result;
+		return true;
 	}
-
-	std::uint32_t windowflags = SDL_WINDOW_VULKAN;
-
-	if (CVar::r_fullscreen == 2)
-	{
-		NotImplemented("sdl2_port");
-		// windowflags = windowflags | SDL_WINDOW_FULLSCREEN_DESKTOP;
-	}
-	else if (CVar::r_fullscreen == 1)
-	{
-		windowflags = windowflags | SDL_WINDOW_FULLSCREEN;
-	}
-	gGlobalStateInput.gamewindow = SDL_CreateWindow(
-		"Soldat", gGlobalStateClientGame.windowwidth, gGlobalStateClientGame.windowheight, windowflags);
+	auto* GameWindow = gGlobalStateInput.gamewindow;
 
 	auto& fs = GS::GetFileSystem();
 	{
@@ -535,29 +519,16 @@ auto GlobalStateGameRendering::initgamegraphics() -> bool
 		SDL_IOStream* iconfile = SDL_IOFromMem(filebuffer.data(), length(filebuffer));
 
 		auto* icon_surface = SDL_LoadBMP_IO(iconfile, 1);
-		SDL_SetWindowIcon(gGlobalStateInput.gamewindow, icon_surface);
+		SDL_SetWindowIcon(GameWindow, icon_surface);
 		SDL_DestroySurface(icon_surface);
 	}
 
-	if (gGlobalStateInput.gamewindow == nullptr)
+	if (!gfxinitcontext(GameWindow, CVar::r_dithering, CVar::r_compatibility))
 	{
-		gGlobalStateClient.ShowMessage("Error creating sdl3 window");
-		result = false;
-		return result;
-	}
-
-	if (!gfxinitcontext(gGlobalStateInput.gamewindow, CVar::r_dithering, CVar::r_compatibility))
-	{
-		result = false;
-		return result;
+		return false;
 	}
 
 	gGlobalStateInput.startinput();
-
-	if (!SDL_GL_SetSwapInterval(CVar::r_swapeffect))
-	{
-		gfxlog(string("Error while setting SDL_GL_SetSwapInterval:") + SDL_GetError());
-	}
 
 	gfxviewport(0, 0, gGlobalStateClientGame.windowwidth, gGlobalStateClientGame.windowheight);
 
@@ -622,7 +593,7 @@ auto GlobalStateGameRendering::initgamegraphics() -> bool
 	}
 
 	initialized = true;
-	return result;
+	return true;
 }
 
 void GlobalStateGameRendering::reloadgraphics()

@@ -22,6 +22,7 @@
 #include <thread>
 #include <vector>
 #include <libassert/assert.hpp>
+#include <dbg.h>
 
 #include "ClientCommands.hpp"
 #include "ClientGame.hpp"
@@ -31,6 +32,7 @@
 #include "Input.hpp"
 #include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
+#include "client/SdlApp.hpp"
 #include "common/AnimationSystem.hpp"
 #include "common/Console.hpp"
 #include "common/FileUtility.hpp"
@@ -429,7 +431,6 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 	gGlobalStateClientGame.renderheight = CVar::r_renderheight;
 	gGlobalStateClientGame.renderwidth = CVar::r_renderwidth;
 
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	ASSERT((gGlobalStateClientGame.screenwidth != 0) && (gGlobalStateClientGame.screenheight != 0),
 		"CVars are probably null");
 	ASSERT((gGlobalStateClientGame.renderwidth != 0) && (gGlobalStateClientGame.renderheight != 0),
@@ -528,13 +529,31 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 
 	gfxlog("Loading game graphics");
 
+	{
+		if (CVar::r_fullscreen == 2)
+		{
+			NotImplemented("sdl2_port");
+			// windowflags = windowflags | SDL_WINDOW_FULLSCREEN_DESKTOP;
+		}
+		else if (CVar::r_fullscreen == 1)
+		{
+			NotImplemented("fullscreen window");
+			// WindowFlags = WindowFlags | SDL_WINDOW_FULLSCREEN;
+		}
+
+		App = std::make_shared<FSdlApp>(
+			"Soldat", gGlobalStateClientGame.windowwidth, gGlobalStateClientGame.windowheight);
+		gGlobalStateInput.gamewindow = App->GetWindow();
+		extern void gfxSetGpuDevice(SDL_GPUDevice * device); // NOLINT(readability-*)
+		gfxSetGpuDevice(App->GetDevice());
+	}
+
 	if (!gGlobalStateGameRendering.initgamegraphics())
 	{
 		ShowMessage(std::string("The required OpenGL functionality isn't supported. ")
 					+ "Please, update your video drivers and try again.");
 		// ExitButtonClick(nullptr);
-		SoldatAssert(false);
-		return;
+		PANIC("Cannot initialize graphic subsystem");
 	}
 
 	if (CVar::cl_lang != "")
@@ -659,11 +678,6 @@ void FGlobalStateClient::Shutdown()
 	// Free GFX
 	gGlobalStateGameRendering.destroygamegraphics();
 
-	for (auto& s : SpriteSystem::Get().GetSprites())
-	{
-		s.player = nullptr;
-	}
-
 	deinittranslation();
 
 	GS::GetConsoleLogFile().Log("UDP closing.");
@@ -673,7 +687,7 @@ void FGlobalStateClient::Shutdown()
 	GS::GetConsoleLogFile().Log("Sound closing.");
 
 	gGlobalStateSound.closesound();
-	SDL_Quit();
+	App.reset();
 
 	GS::GetConsoleLogFile().Log("FS closing.");
 

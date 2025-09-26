@@ -3,7 +3,6 @@
 #include <string>
 #include <cstdint>
 #include <string_view>
-#include <set>
 
 #include "Gfx.hpp"
 #include "common/gfx.hpp"

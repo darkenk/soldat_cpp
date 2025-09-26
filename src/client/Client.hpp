@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdint>
 
+#include "client/SdlApp.hpp"
 #include "common/Console.hpp"
 #include "common/Vector.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
@@ -112,6 +113,7 @@ private:
 	void RedirectDialog();
 	void RestartGraph();
 	void StartGameLoop();
+	std::shared_ptr<FSdlApp> App;
 };
 
 extern FGlobalStateClient gGlobalStateClient;
