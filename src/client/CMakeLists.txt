@@ -81,6 +81,7 @@ target_link_libraries(SoldatClientLib
     Boost::Boost.DI
     imgui::imgui
     imgui::backend_sdl3_sdlgpu3
+    libassert::assert
 )
 
 if (ENABLE_PCH)

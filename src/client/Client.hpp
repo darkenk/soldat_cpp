@@ -34,8 +34,8 @@ struct FGlobalStateClient
 	void Shutdown();
 	void ExitToMenu();
 	bool MainLoop();
-	void LoadWeaponNames(FFileUtility& fs, TGunArray& gunDisplayName, const std::string& modDir);
-	void ShowMessage(const std::string& messagetext);
+	void LoadWeaponNames(FFileUtility& InFileUtility, TGunArray& InGunDisplayName, std::string_view InModDir);
+	void ShowMessage(const std::string& InMessagetext);
 	std::string joinpassword;
 	std::string joinport = "23073";
 	std::string joinip = "127.0.0.1";
@@ -84,13 +84,13 @@ struct FGlobalStateClient
 	std::int32_t shotricochet = {};
 
 	// should be private, but there are tests written for those methods already
-	auto MountAssets(FFileUtility& fu,
-		const std::string& userdirectory,
-		const std::string& basedirectory,
-		tsha1digest& outGameModChecksum,
-		tsha1digest& outCustomModChecksum) -> bool;
-	void CreateDirectoryStructure(FFileUtility& fs);
-	void InitConsoles(bool test = false);
+	auto MountAssets(FFileUtility& InFileUtility,
+		std::string_view InUserDirectory,
+		std::string_view InBaseDirectory,
+		tsha1digest& InOutGameModChecksum,
+		tsha1digest& InOutCustomModChecksum) -> bool;
+	void CreateDirectoryStructure(FFileUtility& InFileUtility);
+	void InitConsoles(bool InTest = false);
 
 private:
 	enum class EGameState : std::uint8_t

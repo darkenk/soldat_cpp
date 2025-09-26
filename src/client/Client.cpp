@@ -21,6 +21,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <libassert/assert.hpp>
 
 #include "ClientCommands.hpp"
 #include "ClientGame.hpp"
@@ -57,7 +58,6 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/misc/GlobalSystems.hpp"
-#include "shared/network/Net.hpp"
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 
@@ -117,23 +117,24 @@ void FGlobalStateClient::RestartGraph()
 	GS::GetMainConsole().Console(("Graphics restart"), debug_message_color);
 }
 
-void FGlobalStateClient::LoadWeaponNames(FFileUtility& fs, TGunArray& gunDisplayName, const std::string& modDir)
+void FGlobalStateClient::LoadWeaponNames(
+	FFileUtility& InFileUtility, TGunArray& InGunDisplayName, const std::string_view InModDir)
 {
-	SoldatAssert(gunDisplayName.size() == double_weapons);
+	SoldatAssert(InGunDisplayName.size() == double_weapons);
 	std::int32_t i = 0;
 
-	const std::string WeaponNamesFile = modDir + "txt/weaponnames.txt";
+	const std::string WeaponNamesFile = std::format("{}txt/weaponnames.txt", InModDir);
 
 	// GS::GetMainConsole().console(std::string("Loading Weapon Names from ") + weaponNamesFile, debug_message_color);
 	NotImplemented("console");
-	if (!fs.Exists((WeaponNamesFile)))
+	if (!InFileUtility.Exists((WeaponNamesFile)))
 	{
 		return;
 	}
 	std::vector<std::byte> Buff;
 	std::size_t FileSize = 0;
 	{
-		auto* f = fs.Open(WeaponNamesFile, FFileUtility::EFileMode::Read);
+		auto* f = InFileUtility.Open(WeaponNamesFile, FFileUtility::EFileMode::Read);
 		FileSize = FFileUtility::Size(f);
 		Buff.resize(FileSize);
 		FFileUtility::Read(f, Buff.data(), FileSize);
@@ -143,7 +144,7 @@ void FGlobalStateClient::LoadWeaponNames(FFileUtility& fs, TGunArray& gunDisplay
 	for (i = 0; i < double_weapons; i++)
 	{
 		SoldatAssert(sd.good());
-		std::getline(sd, gunDisplayName[weaponnumexternaltointernal(i)]);
+		std::getline(sd, InGunDisplayName[weaponnumexternaltointernal(i)]);
 	}
 }
 
@@ -302,16 +303,16 @@ void FGlobalStateClient::CreateDirectoryStructure(FFileUtility& fs)
 	SoldatEnsure(fs.MkDir("/user/mods"));
 }
 
-auto FGlobalStateClient::MountAssets(FFileUtility& fu,
-	const std::string& userdirectory,
-	const std::string& basedirectory,
-	tsha1digest& outGameModChecksum,
-	tsha1digest& outCustomModChecksum) -> bool
+auto FGlobalStateClient::MountAssets(FFileUtility& InFileUtility,
+	const std::string_view InUserDirectory,
+	const std::string_view InBaseDirectory,
+	tsha1digest& InOutGameModChecksum,
+	tsha1digest& InOutCustomModChecksum) -> bool
 {
 	LogDebugG("[FS] Mounting game archive");
 	if (CVar::fs_localmount)
 	{
-		if (!fu.Mount(userdirectory, "/"))
+		if (!InFileUtility.Mount(InUserDirectory, "/"))
 		{
 			ShowMessage(("Could not load base game archive (game directory)."));
 			return false;
@@ -319,36 +320,38 @@ auto FGlobalStateClient::MountAssets(FFileUtility& fu,
 	}
 	else
 	{
-		if (!fu.Mount(basedirectory + "/soldat.smod", "/"))
+		const std::string AssetPackage = std::format("{}/soldat.smod", InBaseDirectory);
+		if (!InFileUtility.Mount(AssetPackage, "/"))
 		{
 			ShowMessage(("Could not load base game archive (soldat.smod). Try to reinstall the game."));
 			return false;
 		}
 
-		outGameModChecksum = sha1file(basedirectory + "/soldat.smod");
+		InOutGameModChecksum = sha1file(AssetPackage);
 	}
 	gGlobalStateClient.moddir = "";
 	if (CVar::fs_mod != "")
 	{
-		LogDebugG("[FS] Mounting mods/{}.smod", lowercase(CVar::fs_mod));
-		if (!fu.Mount((userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod"),
-				(std::string("mods/") + lowercase(CVar::fs_mod) + "/")))
+		const auto ModPath = std::format("{}mods/{}.smod", InUserDirectory, lowercase(CVar::fs_mod));
+		LogDebugG("[FS] Mounting {}", ModPath);
+
+		if (!InFileUtility.Mount(ModPath, (std::string("mods/") + lowercase(CVar::fs_mod) + "/")))
 		{
 			ShowMessage((std::string("Could not load mod archive (") + std::string(CVar::fs_mod) + ")."));
 			return false;
 		}
 		gGlobalStateClient.moddir = std::string("/mods/") + lowercase(CVar::fs_mod) + '/';
-		outCustomModChecksum = sha1file(userdirectory + "mods/" + lowercase(CVar::fs_mod) + ".smod");
+		InOutCustomModChecksum = sha1file(ModPath);
 	}
 	return true;
 }
 
 // TODO(vscode): throw away test variable
-void FGlobalStateClient::InitConsoles(bool test)
+void FGlobalStateClient::InitConsoles(bool InTest)
 {
 	auto CountMax = floor((0.85 * gGlobalStateClientGame.renderheight)
 						  / (CVar::font_consolelineheight * gGlobalStateGameRendering.fontstylesize(font_small)));
-	if (test)
+	if (InTest)
 	{
 		CountMax = 20;
 	}
@@ -427,20 +430,10 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 	gGlobalStateClientGame.renderwidth = CVar::r_renderwidth;
 
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-	SDL_DisplayID const Display = SDL_GetPrimaryDisplay();
-	const SDL_DisplayMode* Currentdisplay = SDL_GetCurrentDisplayMode(Display);
-
-	if ((gGlobalStateClientGame.screenwidth == 0) || (gGlobalStateClientGame.screenheight == 0))
-	{
-		gGlobalStateClientGame.screenwidth = Currentdisplay->w;
-		gGlobalStateClientGame.screenheight = Currentdisplay->h;
-	}
-
-	if ((gGlobalStateClientGame.renderwidth == 0) || (gGlobalStateClientGame.renderheight == 0))
-	{
-		gGlobalStateClientGame.renderwidth = gGlobalStateClientGame.screenwidth;
-		gGlobalStateClientGame.renderheight = gGlobalStateClientGame.screenheight;
-	}
+	ASSERT((gGlobalStateClientGame.screenwidth != 0) && (gGlobalStateClientGame.screenheight != 0),
+		"CVars are probably null");
+	ASSERT((gGlobalStateClientGame.renderwidth != 0) && (gGlobalStateClientGame.renderheight != 0),
+		"CVars are probably null");
 
 	// Calculcate FOV to check for too high/low vision
 	float Fov = static_cast<float>(gGlobalStateClientGame.renderwidth) / gGlobalStateClientGame.renderheight;
@@ -788,9 +781,9 @@ void FGlobalStateClient::JoinServer()
 	}
 }
 
-void FGlobalStateClient::ShowMessage(const std::string& message)
+void FGlobalStateClient::ShowMessage(const std::string& InMessage)
 {
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message.c_str(), nullptr);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", InMessage.c_str(), nullptr);
 };
 
 // tests
