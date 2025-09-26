@@ -70,4 +70,7 @@ RUN wine wineboot --init
 RUN apt-get autoremove -y && apt-get clean -y
 
 RUN ./update-alternatives.sh
+RUN echo add-auto-load-safe-path /workspaces/soldat_cpp/build/gdb/ >> /home/vscode/.gdbinit; \
+    echo add-auto-load-scripts-directory /workspaces/soldat_cpp/build/gdb/ >> /home/vscode/.gdbinit; \
+    echo source /workspaces/soldat_cpp/build/gdb/soldat-gdb.gdb >> /home/vscode/.gdbinit;
 
