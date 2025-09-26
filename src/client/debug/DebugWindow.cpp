@@ -9,67 +9,67 @@
 // clang-format on
 #include "client/SdlApp.hpp"
 
-DebugWindow::DebugWindow(SdlApp& app) : mApp{ app }
+FDebugWindow::FDebugWindow(FSdlApp& InApp) : App{ InApp }
 {
 	ImGui::CreateContext();
 	ImGui::StyleColorsLight();
 
-	ImGui_ImplSDL3_InitForSDLGPU(app.GetWindow());
-	ImGui_ImplSDLGPU3_InitInfo init_info = {};
-	init_info.Device = app.GetDevice();
-	init_info.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(app.GetDevice(), app.GetWindow());
-	init_info.MSAASamples = SDL_GPU_SAMPLECOUNT_1;
-	ImGui_ImplSDLGPU3_Init(&init_info);
-	app.RegisterEventInterception(
-		[](SDL_Event& evt)
+	ImGui_ImplSDL3_InitForSDLGPU(InApp.GetWindow());
+	ImGui_ImplSDLGPU3_InitInfo InitInfo = {};
+	InitInfo.Device = InApp.GetDevice();
+	InitInfo.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(InApp.GetDevice(), InApp.GetWindow());
+	InitInfo.MSAASamples = SDL_GPU_SAMPLECOUNT_1;
+	ImGui_ImplSDLGPU3_Init(&InitInfo);
+	InApp.RegisterEventInterception(
+		[](SDL_Event& InEvt)
 		{
-			ImGui_ImplSDL3_ProcessEvent(&evt);
+			ImGui_ImplSDL3_ProcessEvent(&InEvt);
 		});
 }
 
-DebugWindow::~DebugWindow()
+FDebugWindow::~FDebugWindow()
 {
-	SDL_WaitForGPUIdle(mApp.GetDevice());
+	SDL_WaitForGPUIdle(App.GetDevice());
 	ImGui_ImplSDL3_Shutdown();
 	ImGui_ImplSDLGPU3_Shutdown();
 	ImGui::DestroyContext();
 }
 
-void DebugWindow::Draw(const ImGuiDrawFunction& func)
+void FDebugWindow::Draw(const TImGuiDrawFunction& InFunc)
 {
-	PendingDrawCalls.push_back(func);
+	PendingDrawCalls.push_back(InFunc);
 }
 
-void DebugWindow::DrawEverything(SDL_GPUCommandBuffer* _command_buffer, SDL_GPUTexture* _texture)
+void FDebugWindow::DrawEverything(SDL_GPUCommandBuffer* InCommandBuffer, SDL_GPUTexture* InTexture)
 {
 	ImGui_ImplSDLGPU3_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
 	ImGui::NewFrame();
-	for (auto& drawImGui : PendingDrawCalls)
+	for (auto& DrawImGui : PendingDrawCalls)
 	{
-		drawImGui();
+		DrawImGui();
 	}
 	ImGui::Render();
-	ImDrawData* draw_data = ImGui::GetDrawData();
+	ImDrawData* DrawData = ImGui::GetDrawData();
 	// This is mandatory: call Imgui_ImplSDLGPU3_PrepareDrawData() to upload the vertex/index buffer!
-	ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, _command_buffer);
+	ImGui_ImplSDLGPU3_PrepareDrawData(DrawData, InCommandBuffer);
 
-	ImVec4 const clear_color = ImVec4(0.45F, 0.55F, 0.60F, 1.00F);
+	ImVec4 const ClearColor = ImVec4(0.45F, 0.55F, 0.60F, 1.00F);
 	// Setup and start a render pass
-	SDL_GPUColorTargetInfo target_info = {};
-	target_info.texture = _texture;
-	target_info.clear_color = SDL_FColor{ clear_color.x, clear_color.y, clear_color.z, clear_color.w };
-	target_info.load_op = SDL_GPU_LOADOP_CLEAR;
-	target_info.store_op = SDL_GPU_STOREOP_STORE;
-	target_info.mip_level = 0;
-	target_info.layer_or_depth_plane = 0;
-	target_info.cycle = false;
-	SDL_GPURenderPass* render_pass = SDL_BeginGPURenderPass(_command_buffer, &target_info, 1, nullptr);
+	SDL_GPUColorTargetInfo TargetInfo = {};
+	TargetInfo.texture = InTexture;
+	TargetInfo.clear_color = SDL_FColor{ ClearColor.x, ClearColor.y, ClearColor.z, ClearColor.w };
+	TargetInfo.load_op = SDL_GPU_LOADOP_CLEAR;
+	TargetInfo.store_op = SDL_GPU_STOREOP_STORE;
+	TargetInfo.mip_level = 0;
+	TargetInfo.layer_or_depth_plane = 0;
+	TargetInfo.cycle = false;
+	SDL_GPURenderPass* RenderPass = SDL_BeginGPURenderPass(InCommandBuffer, &TargetInfo, 1, nullptr);
 
 	// Render ImGui
-	ImGui_ImplSDLGPU3_RenderDrawData(draw_data, _command_buffer, render_pass);
+	ImGui_ImplSDLGPU3_RenderDrawData(DrawData, InCommandBuffer, RenderPass);
 
-	SDL_EndGPURenderPass(render_pass);
+	SDL_EndGPURenderPass(RenderPass);
 	PendingDrawCalls.clear();
 }
 
@@ -82,28 +82,31 @@ void DebugWindow::DrawEverything(SDL_GPUCommandBuffer* _command_buffer, SDL_GPUT
 namespace
 {
 
-	class DebugWindowFixture
+	class FDebugWindowFixture
 	{
 	public:
-		DebugWindowFixture() = default;
-		~DebugWindowFixture() = default;
-		DebugWindowFixture(const DebugWindowFixture&) = delete;
+		FDebugWindowFixture() = default;
+		FDebugWindowFixture(FDebugWindowFixture&&) = delete;
+		FDebugWindowFixture(const FDebugWindowFixture&) = delete;
+		FDebugWindowFixture& operator=(const FDebugWindowFixture&) = delete;
+		FDebugWindowFixture& operator=(FDebugWindowFixture&&) = delete;
+		~FDebugWindowFixture() = default;
 	};
 
-	TEST_CASE_FIXTURE(DebugWindowFixture, "Check whether debug window is displayed")
+	TEST_CASE_FIXTURE(FDebugWindowFixture, "Check whether debug window is displayed")
 	{
-		SdlApp app("Test Window");
-		DebugWindow dw(app);
+		FSdlApp App("Test Window");
+		FDebugWindow dw(App);
 		auto i = 1;
 		while ((i--) != 0)
 		{
-			SDL_GPUCommandBuffer* command_buffer =
-				SDL_AcquireGPUCommandBuffer(app.GetDevice()); // Acquire a GPU command buffer
+			SDL_GPUCommandBuffer* CommandBuffer =
+				SDL_AcquireGPUCommandBuffer(App.GetDevice()); // Acquire a GPU command buffer
 
-			SDL_GPUTexture* swapchain_texture = nullptr;
+			SDL_GPUTexture* SwapchainTexture = nullptr;
 			SDL_WaitAndAcquireGPUSwapchainTexture(
-				command_buffer, app.GetWindow(), &swapchain_texture, nullptr, nullptr); // Acquire a swapchain texture
-			app.ProcessEvents();
+				CommandBuffer, App.GetWindow(), &SwapchainTexture, nullptr, nullptr); // Acquire a swapchain texture
+			App.ProcessEvents();
 			dw.Draw(
 				[]()
 				{
@@ -111,31 +114,31 @@ namespace
 					ImGui::Text("This is some useful text.");
 					ImGui::End();
 				});
-			dw.DrawEverything(command_buffer, swapchain_texture);
-			SDL_SubmitGPUCommandBuffer(command_buffer);
+			dw.DrawEverything(CommandBuffer, SwapchainTexture);
+			SDL_SubmitGPUCommandBuffer(CommandBuffer);
 		}
 	}
 
-	struct SampleServiceLocator
+	struct FSampleServiceLocator
 	{
-		static auto Get() -> SampleServiceLocator& { return *s_SampleServiceLocator; }
-		auto DebugWindow() -> class DebugWindow& { return *reinterpret_cast<class DebugWindow*>(window.data()); }
-		::std::array<::std::byte, sizeof(class DebugWindow)> window;
-		static SampleServiceLocator* s_SampleServiceLocator;
+		static auto Get() -> FSampleServiceLocator& { return *gSSampleServiceLocator; }
+		auto DebugWindow() -> class FDebugWindow& { return *reinterpret_cast<class FDebugWindow*>(Window.data()); }
+		::std::array<::std::byte, sizeof(class FDebugWindow)> Window;
+		static FSampleServiceLocator* gSSampleServiceLocator;
 	};
 
-	SampleServiceLocator* SampleServiceLocator::s_SampleServiceLocator = nullptr;
+	FSampleServiceLocator* FSampleServiceLocator::gSSampleServiceLocator = nullptr;
 
-	TEST_CASE_FIXTURE(DebugWindowFixture, "Draw without passing DebugWindow to function" * doctest::skip(true))
+	TEST_CASE_FIXTURE(FDebugWindowFixture, "Draw without passing DebugWindow to function" * doctest::skip(true))
 	{
-		SdlApp app("t1");
-		SampleServiceLocator::s_SampleServiceLocator = new SampleServiceLocator;
-		new (SampleServiceLocator::Get().window.data()) DebugWindow(app);
-		DebugWindow::DrawStatic<SampleServiceLocator>(
+		FSdlApp App("t1");
+		FSampleServiceLocator::gSSampleServiceLocator = new FSampleServiceLocator;
+		new (FSampleServiceLocator::Get().Window.data()) FDebugWindow(App);
+		FDebugWindow::DrawStatic<FSampleServiceLocator>(
 			[]()
 			{
 			});
-		delete SampleServiceLocator::s_SampleServiceLocator;
+		delete FSampleServiceLocator::gSSampleServiceLocator;
 	}
 
 } // namespace

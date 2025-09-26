@@ -2,40 +2,41 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_video.h>
-#include <cinttypes>
 #include <functional>
 #include <map>
 #include <string_view>
 #include <cstdint>
 #include <vector>
 
-typedef struct SDL_Window SDL_Window;
-typedef struct SDL_GLContextState* SDL_GLContext;
-typedef struct SDL_GPUDevice SDL_GPUDevice;
+using SDL_Window = struct SDL_Window;
+using SDL_GLContext = struct SDL_GLContextState*;
+using SDL_GPUDevice = struct SDL_GPUDevice; // NOLINT(readability-identifier-naming)
 
-class SdlApp
+class FSdlApp
 {
 public:
-	using HandlerType = std::function<void(SDL_Event&)>;
+	using THandlerType = std::function<void(SDL_Event&)>;
 
-	SdlApp(const std::string_view appTitle,
-		const std::int32_t width = 1280,
-		const std::int32_t height = 720,
-		bool opengl = false);
-	~SdlApp();
+	FSdlApp(const FSdlApp&) = delete;
+	FSdlApp(FSdlApp&&) = delete;
+	FSdlApp& operator=(const FSdlApp&) = delete;
+	FSdlApp& operator=(FSdlApp&&) = delete;
+	explicit FSdlApp(
+		std::string_view InAppTitle, std::int32_t InWidth = 1280, std::int32_t InHeight = 720, bool InOpengl = false);
+	~FSdlApp();
 
-	bool RegisterEventHandler(SDL_EventType evt, HandlerType handler);
+	bool RegisterEventHandler(SDL_EventType InEvt, THandlerType InHandler);
 	// probably only for imgui
-	void RegisterEventInterception(const HandlerType& handler);
+	void RegisterEventInterception(const THandlerType& InHandler);
 	void ProcessEvents();
 	void Present();
 
-	SDL_Window* GetWindow() { return mWindow; }
-	SDL_GPUDevice* GetDevice() { return mDevice; }
+	SDL_Window* GetWindow() { return Window; }
+	SDL_GPUDevice* GetDevice() { return Device; }
 
 private:
-	SDL_Window* mWindow;
-	SDL_GPUDevice* mDevice;
-	std::map<SDL_EventType, HandlerType> mEventHandlers;
-	std::vector<HandlerType> mEventInterceptors;
+	SDL_Window* Window;
+	SDL_GPUDevice* Device;
+	std::map<SDL_EventType, THandlerType> EventHandlers;
+	std::vector<THandlerType> EventInterceptors;
 };

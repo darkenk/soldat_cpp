@@ -1470,7 +1470,7 @@ namespace
 
 		TEST_CASE_FIXTURE(GameRenderingFixture, "Render text" * doctest::skip(false))
 		{
-			SdlApp app("GameRenderingTest", 1280, 720, opengl);
+			FSdlApp app("GameRenderingTest", 1280, 720, opengl);
 			SDL_GetWindowSize(
 				app.GetWindow(), &gGlobalStateClientGame.windowwidth, &gGlobalStateClientGame.windowheight);
 			gGlobalStateClientGame.renderwidth = gGlobalStateClientGame.screenwidth =
@@ -1490,7 +1490,7 @@ namespace
 
 		TEST_CASE_FIXTURE(GameRenderingFixture, "Render frame" * doctest::skip(true))
 		{
-			SdlApp app("GameRenderingTest", 1280, 720, opengl);
+			FSdlApp app("GameRenderingTest", 1280, 720, opengl);
 			SDL_GetWindowSize(
 				app.GetWindow(), &gGlobalStateClientGame.windowwidth, &gGlobalStateClientGame.windowheight);
 			gGlobalStateClientGame.renderwidth = gGlobalStateClientGame.screenwidth =

@@ -117,6 +117,10 @@ CheckOptions:
     value: CamelCase
   - key: readability-identifier-naming.ConstantParameterPrefix
     value: 'In'
+  - key: readability-identifier-naming.ParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.ParameterPrefix
+    value: 'In'
   - key: readability-identifier-naming.LocalConstantCase
     value: CamelCase
 

@@ -31,7 +31,7 @@ namespace
 
 		TEST_CASE_FIXTURE(LoadingScreenFixture, "Nuklear sdl3 gpu test")
 		{
-			SdlApp app("Nuklear");
+			FSdlApp app("Nuklear");
 			app.RegisterEventInterception(
 				[](SDL_Event& evt)
 				{
@@ -129,7 +129,7 @@ namespace
 
 		TEST_CASE_FIXTURE(LoadingScreenFixture, "Loading screen")
 		{
-			SdlApp app("Nuklear");
+			FSdlApp app("Nuklear");
 			app.RegisterEventInterception(
 				[](SDL_Event& evt)
 				{

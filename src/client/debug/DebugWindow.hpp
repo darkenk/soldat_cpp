@@ -3,28 +3,32 @@
 #include <functional>
 #include <vector>
 
-class SdlApp;
+class FSdlApp;
 struct SDL_GPUCommandBuffer;
 struct SDL_GPUTexture;
 
-class DebugWindow
+class FDebugWindow
 {
 public:
-	using ImGuiDrawFunction = std::function<void()>;
+	using TImGuiDrawFunction = std::function<void()>;
 
-	DebugWindow(SdlApp& app);
-	~DebugWindow();
+	FDebugWindow(const FDebugWindow&) = delete;
+	FDebugWindow(FDebugWindow&&) = delete;
+	FDebugWindow& operator=(const FDebugWindow&) = delete;
+	FDebugWindow& operator=(FDebugWindow&&) = delete;
+	explicit FDebugWindow(FSdlApp& InApp);
+	~FDebugWindow();
 
 	template <typename ServiceLocator>
-	static void DrawStatic(ImGuiDrawFunction func)
+	static void DrawStatic(TImGuiDrawFunction InFunc)
 	{
-		ServiceLocator::Get().DebugWindow().Draw(func);
+		ServiceLocator::Get().DebugWindow().Draw(InFunc);
 	}
 
-	void Draw(const ImGuiDrawFunction& func);
-	void DrawEverything(SDL_GPUCommandBuffer* _command_buffer, SDL_GPUTexture* _texture);
+	void Draw(const TImGuiDrawFunction& InFunc);
+	void DrawEverything(SDL_GPUCommandBuffer* InCommandBuffer, SDL_GPUTexture* InTexture);
 
 private:
-	std::vector<ImGuiDrawFunction> PendingDrawCalls;
-	SdlApp& mApp;
+	std::vector<TImGuiDrawFunction> PendingDrawCalls;
+	FSdlApp& App;
 };

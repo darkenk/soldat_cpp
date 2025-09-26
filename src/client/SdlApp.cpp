@@ -19,162 +19,165 @@
 #include "common/misc/PortUtils.hpp"
 #include "common/port_utils/NotImplemented.hpp"
 
-static void OpenGLGladDebug(const char* name, void* /*funcptr*/, int /*len_args*/, ...)
+namespace
 {
-	auto TranslateError = [](std::uint32_t errorCode)
+	void OpenGLGladDebug(const char* InName, void* /*funcptr*/, int /*len_args*/, ...) // NOLINT(cert-dcl50-cpp)
 	{
-		static const std::map<std::uint32_t, std::string_view> translate{
-			{ 0x0500,	  "GL_INVALID_ENUM" },
-			{ 0x0501,	  "GL_INVALID_VALUE" },
-			{ 0x0502, "GL_INVALID_OPERATION" },
-			{ 0x0505,	  "GL_OUT_OF_MEMORY" }
-		};
-		return translate.at(errorCode);
-	};
-
-	auto error_code = glad_glGetError();
-
-	if (error_code != GL_NO_ERROR)
-	{
-		LogErrorG("[GL] ERROR {} in {}", TranslateError(error_code), name);
-	}
-	SoldatAssert(error_code == GL_NO_ERROR);
-}
-
-static auto CreateOpenGLContext(SDL_Window* window) -> SDL_GLContext
-{
-	SDL_GLContext context = nullptr;
-	struct OpenGLVersion
-	{
-		SDL_GLProfile profile;
-		std::uint32_t major;
-		std::uint32_t minor;
-	};
-	constexpr std::array versions{
-		OpenGLVersion{ .profile = SDL_GL_CONTEXT_PROFILE_CORE, .major = 4, .minor = 3 },
-		OpenGLVersion{ .profile = SDL_GL_CONTEXT_PROFILE_CORE, .major = 3, .minor = 0 },
-		OpenGLVersion{ .profile = SDL_GL_CONTEXT_PROFILE_CORE, .major = 2, .minor = 0 },
-		OpenGLVersion{   .profile = SDL_GL_CONTEXT_PROFILE_ES, .major = 3, .minor = 0 },
-		OpenGLVersion{   .profile = SDL_GL_CONTEXT_PROFILE_ES, .major = 2, .minor = 0 },
-	};
-
-	for (const auto& v : versions)
-	{
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, v.profile);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, v.major);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, v.minor);
-
-		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
-
-		context = SDL_GL_CreateContext(window);
-		if (context != nullptr)
+		auto TranslateError = [](std::uint32_t InErrorCode)
 		{
-			// gOpenGLES = v.profile == SDL_GL_CONTEXT_PROFILE_ES;
-			break;
+			static const std::map<std::uint32_t, std::string_view> Translate{
+				{ 0x0500,	  "GL_INVALID_ENUM" },
+				{ 0x0501,	  "GL_INVALID_VALUE" },
+				{ 0x0502, "GL_INVALID_OPERATION" },
+				{ 0x0505,	  "GL_OUT_OF_MEMORY" }
+			};
+			return Translate.at(InErrorCode);
+		};
+
+		auto ErrorCode = glad_glGetError();
+
+		if (ErrorCode != GL_NO_ERROR)
+		{
+			LogErrorG("[GL] ERROR {} in {}", TranslateError(ErrorCode), InName);
 		}
+		SoldatAssert(ErrorCode == GL_NO_ERROR);
 	}
-	return context;
-}
 
-SdlApp::SdlApp(const std::string_view appTitle, const int32_t width, const int32_t height, bool opengl)
+	auto CreateOpenGLContext(SDL_Window* InWindow) -> SDL_GLContext
+	{
+		SDL_GLContext Context = nullptr;
+		struct FOpenGlVersion
+		{
+			SDL_GLProfile Profile;
+			std::uint32_t Major;
+			std::uint32_t Minor;
+		};
+		constexpr std::array kVersions{
+			FOpenGlVersion{ .Profile = SDL_GL_CONTEXT_PROFILE_CORE, .Major = 4, .Minor = 3 },
+			FOpenGlVersion{ .Profile = SDL_GL_CONTEXT_PROFILE_CORE, .Major = 3, .Minor = 0 },
+			FOpenGlVersion{ .Profile = SDL_GL_CONTEXT_PROFILE_CORE, .Major = 2, .Minor = 0 },
+			FOpenGlVersion{	.Profile = SDL_GL_CONTEXT_PROFILE_ES, .Major = 3, .Minor = 0 },
+			FOpenGlVersion{	.Profile = SDL_GL_CONTEXT_PROFILE_ES, .Major = 2, .Minor = 0 },
+		};
+
+		for (const auto& v : kVersions)
+		{
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, v.Profile);
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, v.Major);
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, v.Minor);
+
+			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
+
+			Context = SDL_GL_CreateContext(InWindow);
+			if (Context != nullptr)
+			{
+				// gOpenGLES = v.profile == SDL_GL_CONTEXT_PROFILE_ES;
+				break;
+			}
+		}
+		return Context;
+	}
+} // namespace
+
+FSdlApp::FSdlApp(const std::string_view InAppTitle, const int32_t InWidth, const int32_t InHeight, bool InOpengl)
 {
-	AbortIf(SDL_Init(SDL_INIT_VIDEO /*| SDL_INIT_GAMEPAD*/) == false, "Cannot init SDL. Error {}", SDL_GetError());
+	AbortIf(!SDL_Init(SDL_INIT_VIDEO /*| SDL_INIT_GAMEPAD*/), "Cannot init SDL. Error {}", SDL_GetError());
 
-	if (!opengl)
+	if (!InOpengl)
 	{
-		mDevice = SDL_CreateGPUDevice(
+		Device = SDL_CreateGPUDevice(
 			SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
-		AbortIf(mDevice == nullptr, "Failed to create gpu device");
+		AbortIf(Device == nullptr, "Failed to create gpu device");
 	}
 
-	int num_displays = 0;
-	SDL_DisplayID* displays = SDL_GetDisplays(&num_displays);
-	AbortIf(num_displays == 0, "Failed to get displays");
-	for (int i = 0; i < num_displays; i++)
+	int NumDisplays = 0;
+	SDL_DisplayID* Displays = SDL_GetDisplays(&NumDisplays);
+	AbortIf(NumDisplays == 0, "Failed to get displays");
+	for (int i = 0; i < NumDisplays; i++)
 	{
-		SDL_Rect display_bounds;
-		SDL_GetDisplayBounds(displays[i], &display_bounds);
+		SDL_Rect DisplayBounds;
+		SDL_GetDisplayBounds(Displays[i], &DisplayBounds);
 		LogInfoG("Display {} bounds: {}x{}, pos: {}:{}",
 			i,
-			display_bounds.w,
-			display_bounds.h,
-			display_bounds.x,
-			display_bounds.y);
+			DisplayBounds.w,
+			DisplayBounds.h,
+			DisplayBounds.x,
+			DisplayBounds.y);
 	}
-	SDL_free(displays);
+	SDL_free(Displays);
 
-	SDL_PropertiesID const props = SDL_CreateProperties();
-	SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, appTitle.data());
+	SDL_PropertiesID const Props = SDL_CreateProperties();
+	SDL_SetStringProperty(Props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, std::string(InAppTitle).c_str());
 	// SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_RESIZABLE_BOOLEAN, true);
-	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, width);
-	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, height);
-	SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_HIGH_PIXEL_DENSITY_BOOLEAN, true);
-	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, 10);
-	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, 10);
-	SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_ALWAYS_ON_TOP_BOOLEAN, true);
-	SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_VULKAN_BOOLEAN, !opengl);
-	SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, opengl);
+	SDL_SetNumberProperty(Props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, InWidth);
+	SDL_SetNumberProperty(Props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, InHeight);
+	SDL_SetBooleanProperty(Props, SDL_PROP_WINDOW_CREATE_HIGH_PIXEL_DENSITY_BOOLEAN, true);
+	SDL_SetNumberProperty(Props, SDL_PROP_WINDOW_CREATE_X_NUMBER, 10);
+	SDL_SetNumberProperty(Props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, 10);
+	SDL_SetBooleanProperty(Props, SDL_PROP_WINDOW_CREATE_ALWAYS_ON_TOP_BOOLEAN, true);
+	SDL_SetBooleanProperty(Props, SDL_PROP_WINDOW_CREATE_VULKAN_BOOLEAN, !InOpengl);
+	SDL_SetBooleanProperty(Props, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, InOpengl);
 
-	mWindow = SDL_CreateWindowWithProperties(props);
-	AbortIf(mWindow == nullptr, "Failed to create sdl window");
-	SDL_DestroyProperties(props);
+	Window = SDL_CreateWindowWithProperties(Props);
+	AbortIf(Window == nullptr, "Failed to create sdl window");
+	SDL_DestroyProperties(Props);
 
-	if (!opengl)
+	if (!InOpengl)
 	{
-		AbortIf(!SDL_ClaimWindowForGPUDevice(mDevice, mWindow),
+		AbortIf(!SDL_ClaimWindowForGPUDevice(Device, Window),
 			"Failed to claim window for gpu device. Error {}",
 			SDL_GetError());
 	}
 }
 
-SdlApp::~SdlApp()
+FSdlApp::~FSdlApp()
 {
-	if (mDevice != nullptr)
+	if (Device != nullptr)
 	{
-		SDL_ReleaseWindowFromGPUDevice(mDevice, mWindow);
+		SDL_ReleaseWindowFromGPUDevice(Device, Window);
 	}
-	SDL_DestroyWindow(mWindow);
-	if (mDevice != nullptr)
+	SDL_DestroyWindow(Window);
+	if (Device != nullptr)
 	{
-		SDL_DestroyGPUDevice(mDevice);
+		SDL_DestroyGPUDevice(Device);
 	}
 	SDL_Quit();
 }
 
-auto SdlApp::RegisterEventHandler(SDL_EventType evt, HandlerType handler) -> bool
+auto FSdlApp::RegisterEventHandler(SDL_EventType InEvt, THandlerType InHandler) -> bool
 {
-	if (mEventHandlers.contains(evt))
+	if (EventHandlers.contains(InEvt))
 	{
-		LogWarnG("Cannot register another handler for event 0x{0:x}", evt);
+		LogWarnG("Cannot register another handler for event 0x{0:x}", InEvt);
 		return false;
 	}
-	mEventHandlers[evt] = std::move(handler);
+	EventHandlers[InEvt] = std::move(InHandler);
 	return true;
 }
 
-void SdlApp::RegisterEventInterception(const HandlerType& handler)
+void FSdlApp::RegisterEventInterception(const THandlerType& InHandler)
 {
-	mEventInterceptors.emplace_back(handler);
+	EventInterceptors.emplace_back(InHandler);
 }
 
-void SdlApp::ProcessEvents()
+void FSdlApp::ProcessEvents()
 {
-	SDL_Event event;
-	while (static_cast<int>(SDL_PollEvent(&event)) != 0)
+	SDL_Event Event;
+	while (static_cast<int>(SDL_PollEvent(&Event)) != 0)
 	{
-		for (auto& intercept : mEventInterceptors)
+		for (auto& Intercept : EventInterceptors)
 		{
-			intercept(event);
+			Intercept(Event);
 		}
-		auto handler = mEventHandlers.find(static_cast<SDL_EventType>(event.type));
-		if (handler != mEventHandlers.end())
+		auto Handler = EventHandlers.find(static_cast<SDL_EventType>(Event.type));
+		if (Handler != EventHandlers.end())
 		{
-			handler->second(event);
+			Handler->second(Event);
 		}
 	}
 }
 
-void SdlApp::Present()
+void FSdlApp::Present()
 {
 	NotImplemented("Present");
 }
@@ -185,71 +188,71 @@ void SdlApp::Present()
 
 TEST_CASE("Create SDL window")
 {
-	SdlApp app("Test app");
-	CHECK(app.GetWindow() != nullptr);
+	FSdlApp App("Test app");
+	CHECK(App.GetWindow() != nullptr);
 }
 
 TEST_CASE("Window has desired sie")
 {
-	SdlApp app("Test app", 256, 128);
-	app.Present();
+	FSdlApp App("Test app", 256, 128);
+	App.Present();
 	std::int32_t w = 0;
 	std::int32_t h = 0;
-	SDL_GetWindowSize(app.GetWindow(), &w, &h);
+	SDL_GetWindowSize(App.GetWindow(), &w, &h);
 	CHECK(w == 256);
 	CHECK(h == 128);
 }
 
 TEST_CASE("ProcessEvents triggers handler")
 {
-	SdlApp app("Test app");
-	bool triggered = false;
-	auto handler = [&triggered](SDL_Event& /*evt*/)
+	FSdlApp App("Test app");
+	bool Triggered = false;
+	auto Handler = [&Triggered](SDL_Event& /*evt*/)
 	{
-		triggered = true;
+		Triggered = true;
 	};
-	auto myEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
-	auto b = app.RegisterEventHandler(myEvent, handler);
+	auto MyEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
+	auto b = App.RegisterEventHandler(MyEvent, Handler);
 	CHECK(b == true);
-	SDL_Event evt;
-	evt.type = myEvent;
-	SDL_PushEvent(&evt);
-	app.ProcessEvents();
-	CHECK(triggered == true);
+	SDL_Event Evt;
+	Evt.type = MyEvent;
+	SDL_PushEvent(&Evt);
+	App.ProcessEvents();
+	CHECK(Triggered == true);
 }
 
 TEST_CASE("Handler can be registered only once")
 {
-	SdlApp app("Test app");
-	bool triggered = false;
-	auto handler = [&triggered](SDL_Event& /*evt*/)
+	FSdlApp App("Test app");
+	bool Triggered = false;
+	auto Handler = [&Triggered](SDL_Event& /*evt*/)
 	{
-		triggered = true;
+		Triggered = true;
 	};
-	auto myEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
+	auto MyEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
 	{
-		auto b = app.RegisterEventHandler(myEvent, handler);
+		auto b = App.RegisterEventHandler(MyEvent, Handler);
 		CHECK(b == true);
 	}
 	{
-		auto b = app.RegisterEventHandler(myEvent, handler);
+		auto b = App.RegisterEventHandler(MyEvent, Handler);
 		CHECK(b == false);
 	}
 }
 
 TEST_CASE("Event interception is called for every event")
 {
-	SdlApp app("Test app");
-	bool triggered = false;
-	auto handler = [&triggered](SDL_Event& /*evt*/)
+	FSdlApp App("Test app");
+	bool Triggered = false;
+	auto Handler = [&Triggered](SDL_Event& /*evt*/)
 	{
-		triggered = true;
+		Triggered = true;
 	};
-	auto myEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
-	app.RegisterEventInterception(handler);
-	SDL_Event evt;
-	evt.type = myEvent;
-	SDL_PushEvent(&evt);
-	app.ProcessEvents();
-	CHECK(triggered == true);
+	auto MyEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
+	App.RegisterEventInterception(Handler);
+	SDL_Event Evt;
+	Evt.type = MyEvent;
+	SDL_PushEvent(&Evt);
+	App.ProcessEvents();
+	CHECK(Triggered == true);
 }
