@@ -19,7 +19,7 @@
 		"scope": "cpp",
 		"prefix": "test_case",
 		"body": [
-			"TEST_CASE_FIXTURE(${TM_FILENAME_BASE}Fixture, \"Sample test\" * doctest::skip(false))",
+			"TEST_CASE_FIXTURE(F${TM_FILENAME_BASE}Fixture, \"Sample test\" * doctest::skip(false))",
 			"{",
 			"  CHECK(false);",
 			"}",

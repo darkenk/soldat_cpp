@@ -15,7 +15,7 @@ using SDL_GPUDevice = struct SDL_GPUDevice; // NOLINT(readability-identifier-nam
 class FSdlApp
 {
 public:
-	using THandlerType = std::function<void(SDL_Event&)>;
+	using THandlerType = std::function<bool(SDL_Event&)>;
 
 	FSdlApp(const FSdlApp&) = delete;
 	FSdlApp(FSdlApp&&) = delete;
@@ -29,6 +29,7 @@ public:
 	// probably only for imgui
 	void RegisterEventInterception(const THandlerType& InHandler);
 	void ProcessEvents();
+	void ProcessEvent(SDL_Event* InEvent);
 	void Present();
 
 	SDL_Window* GetWindow() { return Window; }

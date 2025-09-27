@@ -1,11 +1,13 @@
 #pragma once
 
+#include <SDL3/SDL_events.h>
 #include <array>
 #include <map>
 #include <string>
 #include <cstdint>
 
 #include "client/SdlApp.hpp"
+#include "client/debug/DebugWindow.hpp"
 #include "common/Console.hpp"
 #include "common/Vector.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
@@ -37,6 +39,7 @@ struct FGlobalStateClient
 	bool MainLoop();
 	void LoadWeaponNames(FFileUtility& InFileUtility, TGunArray& InGunDisplayName, std::string_view InModDir);
 	void ShowMessage(const std::string& InMessagetext);
+	bool ProcessSDLEvent(SDL_Event* InEvent);
 	std::string joinpassword;
 	std::string joinport = "23073";
 	std::string joinip = "127.0.0.1";
@@ -59,7 +62,6 @@ struct FGlobalStateClient
 	std::uint8_t gamethingtarget = {};
 	std::int32_t grenadeeffecttimer = 0;
 	std::uint8_t badmapidcount = {};
-	bool abnormalterminate = false;
 	std::string hwid = {};
 	std::uint16_t hitspraycounter = {};
 	bool screentaken = {};
@@ -114,6 +116,7 @@ private:
 	void RestartGraph();
 	void StartGameLoop();
 	std::shared_ptr<FSdlApp> App;
+	std::shared_ptr<FDebugWindow> DebugWindow;
 };
 
 extern FGlobalStateClient gGlobalStateClient;

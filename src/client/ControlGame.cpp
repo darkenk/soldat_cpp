@@ -40,11 +40,11 @@
 #include "shared/network/NetworkClientGame.hpp"
 #include "shared/network/NetworkClientMessages.hpp"
 
-GlobalStateControlGame gGlobalStateControlGame{
+FGlobalStateControlGame gGlobalStateControlGame{
 
 };
 
-void GlobalStateControlGame::clearchattext()
+void FGlobalStateControlGame::clearchattext()
 {
 	gGlobalStateClientGame.lastchattext = gGlobalStateClientGame.chattext;
 	gGlobalStateClientGame.firechattext = "";
@@ -56,7 +56,7 @@ void GlobalStateControlGame::clearchattext()
 	SDL_StopTextInput(gGlobalStateInput.gamewindow);
 }
 
-auto GlobalStateControlGame::filterchattext(const std::string& str1) -> std::string
+auto FGlobalStateControlGame::filterchattext(const std::string& str1) -> std::string
 {
 	std::string result;
 	result = std::accumulate(str1.begin(),
@@ -73,7 +73,7 @@ auto GlobalStateControlGame::filterchattext(const std::string& str1) -> std::str
 	return result;
 }
 
-auto GlobalStateControlGame::chatkeydown(std::uint8_t keymods, SDL_Keycode keycode) -> bool
+auto FGlobalStateControlGame::chatkeydown(std::uint8_t keymods, SDL_Keycode keycode) -> bool
 {
 	auto& sprite_system = SpriteSystem::Get();
 	std::int32_t len = 0;
@@ -228,7 +228,7 @@ auto GlobalStateControlGame::chatkeydown(std::uint8_t keymods, SDL_Keycode keyco
 	return result;
 }
 
-auto GlobalStateControlGame::menukeydown(std::uint8_t keymods, SDL_Scancode keycode) -> bool
+auto FGlobalStateControlGame::menukeydown(std::uint8_t keymods, SDL_Scancode keycode) -> bool
 {
 	bool result = false;
 	result = false;
@@ -287,7 +287,7 @@ auto GlobalStateControlGame::menukeydown(std::uint8_t keymods, SDL_Scancode keyc
 	return result;
 }
 
-auto GlobalStateControlGame::keydown(SDL_KeyboardEvent& keyevent) -> bool
+auto FGlobalStateControlGame::keydown(SDL_KeyboardEvent& keyevent) -> bool
 {
 	auto& sprite_system = SpriteSystem::Get();
 	std::int32_t i = 0;
@@ -754,7 +754,7 @@ auto GlobalStateControlGame::keydown(SDL_KeyboardEvent& keyevent) -> bool
 	return result;
 }
 
-auto GlobalStateControlGame::keyup(SDL_KeyboardEvent& keyevent) -> bool
+auto FGlobalStateControlGame::keyup(SDL_KeyboardEvent& keyevent) -> bool
 {
 	std::uint8_t keymods = 0;
 	SDL_Scancode keycode;
@@ -795,104 +795,96 @@ auto GlobalStateControlGame::keyup(SDL_KeyboardEvent& keyevent) -> bool
 	return result;
 }
 
-void GlobalStateControlGame::gameinput(SDL_Event& event)
+void FGlobalStateControlGame::RegisterEventHandlers(std::shared_ptr<FSdlApp>& InApp)
 {
-	std::string str1;
-	bool chatenabled = false;
-
-	chatenabled = length(gGlobalStateClientGame.chattext) > 0;
-
-	{
-		switch (event.type)
+	InApp->RegisterEventHandler(SDL_EVENT_KEY_DOWN,
+		[this](SDL_Event& InEvent)
 		{
-			case SDL_EVENT_QUIT:
+			if (!keydown(InEvent.key))
 			{
-				clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
-				gGlobalStateClient.Shutdown();
+				gGlobalStateInput.keystatus[InEvent.key.scancode] = true;
 			}
-			break;
-
-			case SDL_EVENT_KEY_DOWN:
+			return true;
+		});
+	InApp->RegisterEventHandler(SDL_EVENT_KEY_UP,
+		[this](SDL_Event& InEvent)
+		{
+			gGlobalStateInput.keystatus[InEvent.key.scancode] = false;
+			keyup(InEvent.key);
+			return true;
+		});
+	InApp->RegisterEventHandler(SDL_EVENT_MOUSE_BUTTON_DOWN,
+		[](SDL_Event& InEvent)
+		{
+			if (!gGlobalStateGameMenus.gamemenuclick())
 			{
-				if (!keydown(event.key))
+				gGlobalStateInput.keystatus[InEvent.button.button + 300] = true;
+			}
+			return true;
+		});
+
+	InApp->RegisterEventHandler(SDL_EVENT_MOUSE_BUTTON_UP,
+		[](SDL_Event& InEvent)
+		{
+			gGlobalStateInput.keystatus[InEvent.button.button + 300] = false;
+			return true;
+		});
+
+	InApp->RegisterEventHandler(SDL_EVENT_TEXT_INPUT,
+		[this](SDL_Event& InEvent)
+		{
+			std::string Str1;
+
+			bool ChatEnabled = length(gGlobalStateClientGame.chattext) > 0;
+			if (ChatEnabled)
+			{
+				Str1 = InEvent.text.text[0];
+				Str1 = filterchattext(Str1);
+
+				if ((gGlobalStateClientGame.chattext == "/") && (Str1 == "/")
+					&& (length(gGlobalStateClientGame.lastchattext) > 1))
 				{
-					gGlobalStateInput.keystatus[event.key.scancode] = true;
+					gGlobalStateClientGame.chatchanged = true;
+					gGlobalStateClientGame.currenttabcompleteplayer = 0;
+					gGlobalStateClientGame.chattext = gGlobalStateClientGame.lastchattext;
+					gGlobalStateClientGame.cursorposition = length(gGlobalStateClientGame.chattext);
 				}
-			}
-			break;
-
-			case SDL_EVENT_KEY_UP:
-			{
-				gGlobalStateInput.keystatus[event.key.scancode] = false;
-				keyup(event.key);
-			}
-			break;
-
-			case SDL_EVENT_MOUSE_BUTTON_DOWN:
-			{
-				if (!gGlobalStateGameMenus.gamemenuclick())
+				else if (length(gGlobalStateClientGame.chattext) > 0)
 				{
-					gGlobalStateInput.keystatus[event.button.button + 300] = true;
-				}
-			}
-			break;
-
-			case SDL_EVENT_MOUSE_BUTTON_UP:
-				gGlobalStateInput.keystatus[event.button.button + 300] = false;
-				break;
-
-			case SDL_EVENT_TEXT_INPUT:
-			{
-				if (chatenabled)
-				{
-					str1 = event.text.text[0];
-					str1 = filterchattext(str1);
-
-					if ((gGlobalStateClientGame.chattext == "/") && (str1 == "/")
-						&& (length(gGlobalStateClientGame.lastchattext) > 1))
+					if (length(gGlobalStateClientGame.chattext)
+						< iif(votekickreasontype, REASON_CHARS - 1, maxchattext))
 					{
 						gGlobalStateClientGame.chatchanged = true;
 						gGlobalStateClientGame.currenttabcompleteplayer = 0;
-						gGlobalStateClientGame.chattext = gGlobalStateClientGame.lastchattext;
-						gGlobalStateClientGame.cursorposition = length(gGlobalStateClientGame.chattext);
-					}
-					else if (length(gGlobalStateClientGame.chattext) > 0)
-					{
-						if (length(gGlobalStateClientGame.chattext)
-							< iif(votekickreasontype, REASON_CHARS - 1, maxchattext))
+						if (gGlobalStateClientGame.cursorposition + 1 > gGlobalStateClientGame.chattext.size())
 						{
-							gGlobalStateClientGame.chatchanged = true;
-							gGlobalStateClientGame.currenttabcompleteplayer = 0;
-							if (gGlobalStateClientGame.cursorposition + 1 > gGlobalStateClientGame.chattext.size())
-							{
-								gGlobalStateClientGame.chattext.append(str1);
-							}
-							else
-							{
-								gGlobalStateClientGame.chattext.insert(gGlobalStateClientGame.cursorposition + 1, str1);
-							}
-							gGlobalStateClientGame.cursorposition += length(str1);
+							gGlobalStateClientGame.chattext.append(Str1);
 						}
+						else
+						{
+							gGlobalStateClientGame.chattext.insert(gGlobalStateClientGame.cursorposition + 1, Str1);
+						}
+						gGlobalStateClientGame.cursorposition += length(Str1);
 					}
 				}
 			}
-			break;
+			return true;
+		});
 
-			case SDL_EVENT_MOUSE_MOTION:
+	InApp->RegisterEventHandler(SDL_EVENT_MOUSE_MOTION,
+		[](SDL_Event& InEvent)
+		{
+			if (0 != (SDL_GetWindowFlags(gGlobalStateInput.gamewindow) & SDL_WINDOW_INPUT_FOCUS))
 			{
-				if (0 != (SDL_GetWindowFlags(gGlobalStateInput.gamewindow) & SDL_WINDOW_INPUT_FOCUS))
-				{
-					gGlobalStateClientGame.mx = max(0.F,
-						min(static_cast<float>(gGlobalStateGame.gamewidth),
-							gGlobalStateClientGame.mx + (event.motion.xrel * CVar::cl_sensitivity)));
-					gGlobalStateClientGame.my = max(0.F,
-						min(static_cast<float>(gGlobalStateGame.gameheight),
-							gGlobalStateClientGame.my + (event.motion.yrel * CVar::cl_sensitivity)));
+				gGlobalStateClientGame.mx = max(0.F,
+					min(static_cast<float>(gGlobalStateGame.gamewidth),
+						gGlobalStateClientGame.mx + (InEvent.motion.xrel * CVar::cl_sensitivity)));
+				gGlobalStateClientGame.my = max(0.F,
+					min(static_cast<float>(gGlobalStateGame.gameheight),
+						gGlobalStateClientGame.my + (InEvent.motion.yrel * CVar::cl_sensitivity)));
 
-					gGlobalStateGameMenus.gamemenumousemove();
-				}
+				gGlobalStateGameMenus.gamemenumousemove();
 			}
-			break;
-		}
-	}
+			return true;
+		});
 }

@@ -29,6 +29,7 @@
 #include "InterfaceGraphics.hpp"
 #include "MapGraphics.hpp"
 #include "client/Gfx.hpp"
+#include "client/debug/DebugWindow.hpp"
 #include "common/FileUtility.hpp"
 #include "common/Logging.hpp"
 #include "common/MapFile.hpp"
@@ -631,7 +632,7 @@ void GlobalStateGameRendering::reloadgraphics()
 void GlobalStateGameRendering::destroygamegraphics()
 {
 	std::int32_t i = 0;
-
+	DebugWindow.reset();
 	if (!initialized)
 	{
 		return;
@@ -1127,7 +1128,14 @@ void GlobalStateGameRendering::renderframe(double timeelapsed, double frameperce
 			gfxvertex(dx + 0, dy + h, 0, 0, rgba(0xffffff)));
 		gfxend();
 	}
-
+	if (DebugWindow)
+	{
+		GfxDrawFunction(
+			[this](SDL_GPUCommandBuffer* InCommandBuffer, SDL_GPUTexture* InTexture)
+			{
+				DebugWindow->DrawEverything(InCommandBuffer, InTexture);
+			});
+	}
 	gfxpresent(CVar::r_glfinish);
 }
 
@@ -1152,6 +1160,14 @@ void GlobalStateGameRendering::rendergameinfo(const std::string& textstring)
 	gfxdrawtext(((gGlobalStateClientGame.windowwidth - rc.width())) / 2,
 		(((gGlobalStateClientGame.windowheight - rc.height())) / 2) + 100);
 	gfxend();
+	if (DebugWindow)
+	{
+		GfxDrawFunction(
+			[this](SDL_GPUCommandBuffer* InCommandBuffer, SDL_GPUTexture* InTexture)
+			{
+				DebugWindow->DrawEverything(InCommandBuffer, InTexture);
+			});
+	}
 	gfxpresent(true);
 }
 

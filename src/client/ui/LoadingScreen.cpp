@@ -35,7 +35,7 @@ namespace
 			app.RegisterEventInterception(
 				[](SDL_Event& evt)
 				{
-					nk_sdl_handle_event(&evt);
+					return nk_sdl_handle_event(&evt) == 0;
 				});
 
 			nk_context* ctx = nk_sdl_init(app.GetWindow(), app.GetDevice());
@@ -133,7 +133,7 @@ namespace
 			app.RegisterEventInterception(
 				[](SDL_Event& evt)
 				{
-					nk_sdl_handle_event(&evt);
+					return nk_sdl_handle_event(&evt) == 1;
 				});
 
 			nk_context* ctx = nk_sdl_init(app.GetWindow(), app.GetDevice());

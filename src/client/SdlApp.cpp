@@ -165,15 +165,23 @@ void FSdlApp::ProcessEvents()
 	SDL_Event Event;
 	while (static_cast<int>(SDL_PollEvent(&Event)) != 0)
 	{
-		for (auto& Intercept : EventInterceptors)
+		ProcessEvent(&Event);
+	}
+}
+
+void FSdlApp::ProcessEvent(SDL_Event* InEvent)
+{
+	for (auto& Intercept : EventInterceptors)
+	{
+		if (Intercept(*InEvent))
 		{
-			Intercept(Event);
+			return;
 		}
-		auto Handler = EventHandlers.find(static_cast<SDL_EventType>(Event.type));
-		if (Handler != EventHandlers.end())
-		{
-			Handler->second(Event);
-		}
+	}
+	auto Handler = EventHandlers.find(static_cast<SDL_EventType>(InEvent->type));
+	if (Handler != EventHandlers.end())
+	{
+		Handler->second(*InEvent);
 	}
 }
 
@@ -182,77 +190,129 @@ void FSdlApp::Present()
 	NotImplemented("Present");
 }
 
+#pragma region tests
 #include <doctest/doctest.h>
 #include <array>
 #include <utility>
 
-TEST_CASE("Create SDL window")
+namespace
 {
-	FSdlApp App("Test app");
-	CHECK(App.GetWindow() != nullptr);
-}
 
-TEST_CASE("Window has desired sie")
-{
-	FSdlApp App("Test app", 256, 128);
-	App.Present();
-	std::int32_t w = 0;
-	std::int32_t h = 0;
-	SDL_GetWindowSize(App.GetWindow(), &w, &h);
-	CHECK(w == 256);
-	CHECK(h == 128);
-}
-
-TEST_CASE("ProcessEvents triggers handler")
-{
-	FSdlApp App("Test app");
-	bool Triggered = false;
-	auto Handler = [&Triggered](SDL_Event& /*evt*/)
+	class FSdlAppFixture
 	{
-		Triggered = true;
+	public:
+		FSdlAppFixture() = default;
+		~FSdlAppFixture() = default;
+		FSdlAppFixture(const FSdlAppFixture&) = delete;
+		FSdlAppFixture(FSdlAppFixture&&) = delete;
+		FSdlAppFixture& operator=(const FSdlAppFixture&) = delete;
+		FSdlAppFixture& operator=(FSdlAppFixture&&) = delete;
+
+	protected:
 	};
-	auto MyEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
-	auto b = App.RegisterEventHandler(MyEvent, Handler);
-	CHECK(b == true);
-	SDL_Event Evt;
-	Evt.type = MyEvent;
-	SDL_PushEvent(&Evt);
-	App.ProcessEvents();
-	CHECK(Triggered == true);
-}
 
-TEST_CASE("Handler can be registered only once")
-{
-	FSdlApp App("Test app");
-	bool Triggered = false;
-	auto Handler = [&Triggered](SDL_Event& /*evt*/)
+	TEST_SUITE("SdlAppSuite")
 	{
-		Triggered = true;
-	};
-	auto MyEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
-	{
-		auto b = App.RegisterEventHandler(MyEvent, Handler);
-		CHECK(b == true);
-	}
-	{
-		auto b = App.RegisterEventHandler(MyEvent, Handler);
-		CHECK(b == false);
-	}
-}
+		TEST_CASE_FIXTURE(FSdlAppFixture, "Create SDL window")
+		{
+			FSdlApp App("Test app");
+			CHECK(App.GetWindow() != nullptr);
+		}
 
-TEST_CASE("Event interception is called for every event")
-{
-	FSdlApp App("Test app");
-	bool Triggered = false;
-	auto Handler = [&Triggered](SDL_Event& /*evt*/)
-	{
-		Triggered = true;
-	};
-	auto MyEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
-	App.RegisterEventInterception(Handler);
-	SDL_Event Evt;
-	Evt.type = MyEvent;
-	SDL_PushEvent(&Evt);
-	App.ProcessEvents();
-	CHECK(Triggered == true);
-}
+		TEST_CASE_FIXTURE(FSdlAppFixture, "Window has desired size")
+		{
+			FSdlApp App("Test app", 256, 128);
+			App.Present();
+			std::int32_t w = 0;
+			std::int32_t h = 0;
+			SDL_GetWindowSize(App.GetWindow(), &w, &h);
+			CHECK(w == 256);
+			CHECK(h == 128);
+		}
+
+		TEST_CASE_FIXTURE(FSdlAppFixture, "ProcessEvents triggers handler")
+		{
+			FSdlApp App("Test app");
+			bool Triggered = false;
+			auto Handler = [&Triggered](SDL_Event& /*evt*/)
+			{
+				Triggered = true;
+				return true;
+			};
+			auto MyEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
+			auto b = App.RegisterEventHandler(MyEvent, Handler);
+			CHECK(b == true);
+			SDL_Event Evt;
+			Evt.type = MyEvent;
+			SDL_PushEvent(&Evt);
+			App.ProcessEvents();
+			CHECK(Triggered == true);
+		}
+
+		TEST_CASE_FIXTURE(FSdlAppFixture, "Handler can be registered only once")
+		{
+			FSdlApp App("Test app");
+			bool Triggered = false;
+			auto Handler = [&Triggered](SDL_Event& /*evt*/)
+			{
+				Triggered = true;
+				return true;
+			};
+			auto MyEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
+			{
+				auto b = App.RegisterEventHandler(MyEvent, Handler);
+				CHECK(b == true);
+			}
+			{
+				auto b = App.RegisterEventHandler(MyEvent, Handler);
+				CHECK(b == false);
+			}
+		}
+
+		TEST_CASE_FIXTURE(FSdlAppFixture, "Event interception is called for every event")
+		{
+			FSdlApp App("Test app");
+			bool Triggered = false;
+			auto Handler = [&Triggered](SDL_Event& /*evt*/)
+			{
+				Triggered = true;
+				return true;
+			};
+			auto MyEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
+			App.RegisterEventInterception(Handler);
+			SDL_Event Evt;
+			Evt.type = MyEvent;
+			SDL_PushEvent(&Evt);
+			App.ProcessEvents();
+			CHECK(Triggered == true);
+		}
+
+		TEST_CASE_FIXTURE(
+			FSdlAppFixture, "If intercepted event is consumed, then it is not passed to registered handler")
+		{
+			FSdlApp App("Test app");
+			bool Triggered = false;
+			auto Handler = [&Triggered](SDL_Event& /*evt*/)
+			{
+				Triggered = true;
+				return true;
+			};
+			auto MyEvent = static_cast<SDL_EventType>(SDL_RegisterEvents(1));
+			App.RegisterEventInterception(Handler);
+			bool EventHandlerTriggered = false;
+			App.RegisterEventHandler(MyEvent,
+				[&EventHandlerTriggered](SDL_Event&)
+				{
+					EventHandlerTriggered = true;
+					return true;
+				});
+			SDL_Event Evt;
+			Evt.type = MyEvent;
+			SDL_PushEvent(&Evt);
+			App.ProcessEvents();
+			CHECK(Triggered == true);
+			CHECK(EventHandlerTriggered == false);
+		}
+	} // end of SdlAppSuite
+} // end of unnamed namespace
+#pragma endregion tests

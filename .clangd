@@ -1,5 +1,10 @@
-Includes:
-    AnalyzeAngledIncludes: False
+If:
+    PathExclude: [third_party/src/*, /usr/include/*]
+
+
+Diagnostics:
+    Includes:
+        AnalyzeAngledIncludes: False
 
 InlayHints:
     DefaultArguments: True

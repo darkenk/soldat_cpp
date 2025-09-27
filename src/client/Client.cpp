@@ -14,6 +14,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <imgui.h>
 #include <ios>
 #include <memory>
 #include <spdlog/fmt/bundled/core.h>
@@ -26,6 +27,7 @@
 
 #include "ClientCommands.hpp"
 #include "ClientGame.hpp"
+#include "ControlGame.hpp"
 #include "GameMenus.hpp"
 #include "GameRendering.hpp"
 #include "Gfx.hpp"
@@ -33,6 +35,7 @@
 #include "InterfaceGraphics.hpp"
 #include "Sound.hpp"
 #include "client/SdlApp.hpp"
+#include "client/debug/DebugWindow.hpp"
 #include "common/AnimationSystem.hpp"
 #include "common/Console.hpp"
 #include "common/FileUtility.hpp"
@@ -546,6 +549,16 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 		gGlobalStateInput.gamewindow = App->GetWindow();
 		extern void gfxSetGpuDevice(SDL_GPUDevice * device); // NOLINT(readability-*)
 		gfxSetGpuDevice(App->GetDevice());
+		DebugWindow = std::make_shared<FDebugWindow>(*App);
+		gGlobalStateGameRendering.SetDebugWindow(DebugWindow);
+		App->RegisterEventHandler(SDL_EVENT_QUIT,
+			[this](SDL_Event&)
+			{
+				clientdisconnect(*gGlobalStateNetworkClient.GetNetwork());
+				Shutdown();
+				return true;
+			});
+		gGlobalStateControlGame.RegisterEventHandlers(App);
 	}
 
 	if (!gGlobalStateGameRendering.initgamegraphics())
@@ -668,11 +681,6 @@ void FGlobalStateClient::Shutdown()
 {
 	ExitToMenu();
 
-	if (abnormalterminate)
-	{
-		return;
-	}
-
 	GS::GetConsoleLogFile().Log("Freeing sprites.");
 
 	// Free GFX
@@ -687,6 +695,7 @@ void FGlobalStateClient::Shutdown()
 	GS::GetConsoleLogFile().Log("Sound closing.");
 
 	gGlobalStateSound.closesound();
+	DebugWindow.reset();
 	App.reset();
 
 	GS::GetConsoleLogFile().Log("FS closing.");
@@ -708,7 +717,21 @@ bool FGlobalStateClient::MainLoop()
 	}
 	auto Begin = std::chrono::system_clock::now();
 	gGlobalStateNetworkClient.GetNetwork()->ProcessLoop();
-	// gameinput();
+	DebugWindow->Draw(
+		[]()
+		{
+			if (ImGui::BeginMainMenuBar())
+			{
+				if (ImGui::BeginMenu("Debug"))
+				{
+					if (ImGui::MenuItem("File"))
+					{
+					}
+					ImGui::EndMenu();
+				}
+				ImGui::EndMainMenuBar();
+			}
+		});
 	switch (gGameState)
 	{
 		case EGameState::Loading:
@@ -800,6 +823,12 @@ void FGlobalStateClient::ShowMessage(const std::string& InMessage)
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", InMessage.c_str(), nullptr);
 };
 
+bool FGlobalStateClient::ProcessSDLEvent(SDL_Event* InEvent)
+{
+	App->ProcessEvent(InEvent);
+	return true;
+}
+
 // tests
 #include <doctest/doctest.h>
 #include <fstream>
@@ -807,13 +836,15 @@ void FGlobalStateClient::ShowMessage(const std::string& InMessage)
 
 namespace
 {
-
 	class FClientFixture
 	{
 	public:
 		FClientFixture() = default;
 		~FClientFixture() = default;
 		FClientFixture(const FClientFixture&) = delete;
+		FClientFixture(FClientFixture&&) = delete;
+		FClientFixture& operator=(const FClientFixture&) = delete;
+		FClientFixture& operator=(FClientFixture&&) = delete;
 
 	protected:
 		void T()

@@ -1,13 +1,15 @@
 #pragma once
 
-#include <string>
-#include <cinttypes>
+#include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_events.h>
 
-union SDL_Event;
-struct GlobalStateControlGame
+#include <string>
+#include <memory>
+
+class FSdlApp;
+struct FGlobalStateControlGame
 {
-	void gameinput(SDL_Event& event);
+	void RegisterEventHandlers(std::shared_ptr<FSdlApp>& InApp);
 	bool votekickreasontype = false;
 
 private:
@@ -19,4 +21,4 @@ private:
 	void clearchattext();
 };
 
-extern GlobalStateControlGame gGlobalStateControlGame;
+extern FGlobalStateControlGame gGlobalStateControlGame;

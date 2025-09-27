@@ -1,10 +1,12 @@
 #pragma once
 
+#include <SDL3/SDL_gpu.h>
 #include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <SDL3/SDL.h>
+#include <functional>
 
 #include "common/Vector.hpp"
 
@@ -367,6 +369,9 @@ void gfxdrawsprite(pgfxsprite s,
 	float r,
 	const tgfxcolor& color,
 	const tgfxrect& rc);
+
+using TGfxDrawFunction = std::function<void(SDL_GPUCommandBuffer* InCommandBuffer, SDL_GPUTexture* InTexture)>;
+void GfxDrawFunction(TGfxDrawFunction InDraw);
 
 // matrix
 tgfxmat3 gfxmat3rot(float r);

@@ -3399,6 +3399,11 @@ void tgfxspritesheet::cleanup()
 	}
 }
 
+void GfxDrawFunction(TGfxDrawFunction InDraw)
+{
+	InDraw(gfxcontext.mCommandBuffer, gfxcontext.mSwapchainTexture);
+}
+
 void gfxlog(const std::string& s)
 {
 	LogDebugG("[GFX] {}", s);

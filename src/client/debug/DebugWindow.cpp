@@ -23,7 +23,12 @@ FDebugWindow::FDebugWindow(FSdlApp& InApp) : App{ InApp }
 	InApp.RegisterEventInterception(
 		[](SDL_Event& InEvt)
 		{
-			ImGui_ImplSDL3_ProcessEvent(&InEvt);
+			if (!ImGui_ImplSDL3_ProcessEvent(&InEvt))
+			{
+				return false;
+			}
+			ImGuiIO& io = ImGui::GetIO();
+			return io.WantCaptureMouse || io.WantCaptureKeyboard;
 		});
 }
 
@@ -59,7 +64,7 @@ void FDebugWindow::DrawEverything(SDL_GPUCommandBuffer* InCommandBuffer, SDL_GPU
 	SDL_GPUColorTargetInfo TargetInfo = {};
 	TargetInfo.texture = InTexture;
 	TargetInfo.clear_color = SDL_FColor{ ClearColor.x, ClearColor.y, ClearColor.z, ClearColor.w };
-	TargetInfo.load_op = SDL_GPU_LOADOP_CLEAR;
+	TargetInfo.load_op = SDL_GPU_LOADOP_LOAD;
 	TargetInfo.store_op = SDL_GPU_STOREOP_STORE;
 	TargetInfo.mip_level = 0;
 	TargetInfo.layer_or_depth_plane = 0;

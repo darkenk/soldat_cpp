@@ -1,5 +1,5 @@
 {
-  "cmake.configureOnOpen": true,
+  "cmake.configureOnOpen": false,
   "cmake.debugConfig": {
     "type": "cppdbg",
     "console": "internalConsole",
@@ -83,5 +83,6 @@
   },
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features"
-  }
+  },
+  "cmake.buildBeforeRun": true
 }

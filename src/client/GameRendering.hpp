@@ -5,6 +5,7 @@
 #include <string_view>
 
 #include "Gfx.hpp"
+#include "client/debug/DebugWindow.hpp"
 #include "common/gfx.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "common/misc/TIniFile.hpp"
@@ -43,7 +44,6 @@ struct GlobalStateGameRendering
 	std::string pngoverride(const std::string& filename);
 	std::string pngoverride(const std::string_view& filename);
 	void destroygamegraphics();
-	void gfxSetGpuDevice(SDL_GPUDevice* device);
 	void reloadgraphics();
 	void renderframe(double timeelapsed, double framepercent, bool paused);
 	void rendergameinfo(const std::string& textstring);
@@ -54,6 +54,7 @@ struct GlobalStateGameRendering
 	tgfxspritearray textures = {};
 
 	void loadfonts(); // should be private, but there are tests already
+	void SetDebugWindow(std::shared_ptr<FDebugWindow>& InDebugWindow) { DebugWindow = InDebugWindow; }
 
 private:
 	struct tfontstyle
@@ -94,6 +95,7 @@ private:
 	void loadmaintextures();
 	void loadmodinfo();
 	void restorestate(tinterpolationstate& s);
+	std::shared_ptr<FDebugWindow> DebugWindow;
 };
 
 extern GlobalStateGameRendering gGlobalStateGameRendering;
