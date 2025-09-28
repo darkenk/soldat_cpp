@@ -3,6 +3,7 @@
 #include <Tracy.hpp>
 #include <algorithm>
 #include <array>
+#include <boost/di/extension/scopes/shared.hpp>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
@@ -1209,17 +1210,24 @@ void FConsoleServer::Console(const std::string_view what, std::int32_t col, std:
 }
 
 // tests
+#include <boost/di.hpp>
+#include <boost/di/extension/injector.hpp>
 #include <doctest/doctest.h>
+#include <entt/signal/dispatcher.hpp>
 
 namespace
 {
+	namespace di = boost::di;
 
-	class ConsoleFixture
+	class FConsoleFixture
 	{
 	public:
-		ConsoleFixture() = default;
-		~ConsoleFixture() = default;
-		ConsoleFixture(const ConsoleFixture&) = delete;
+		FConsoleFixture() = default;
+		FConsoleFixture(FConsoleFixture&&) = delete;
+		FConsoleFixture& operator=(const FConsoleFixture&) = delete;
+		FConsoleFixture& operator=(FConsoleFixture&&) = delete;
+		~FConsoleFixture() = default;
+		FConsoleFixture(const FConsoleFixture&) = delete;
 
 		static void addMessagesUntilScroll(FConsole& console, std::int32_t countMax)
 		{
@@ -1233,50 +1241,59 @@ namespace
 		}
 
 	protected:
+		auto GetInjector()
+		{
+			return di::make_injector<di::extension::shared_config>(di::bind<entt::dispatcher>.to(Dispatcher),
+				di::bind<FConsoleServer>().in(di::extension::shared),
+				// di::bind<FBigConsoleListener>().in(di::extension::shared),
+				di::bind<std::int32_t>().named("NewMessageWait"_s).to(0),
+				di::bind<std::int32_t>().named("CountMax"_s).to(20),
+				di::bind<std::int32_t>().named("ScrollTickMax"_s).to(150),
+				di::bind<bool>().named("WriteToFile"_s).to(false));
+		}
+
+	private:
+		std::shared_ptr<entt::dispatcher> Dispatcher = std::make_shared<entt::dispatcher>();
 	};
+
 	TEST_SUITE("Console")
 	{
-		TEST_CASE_FIXTURE(ConsoleFixture, "Console - Add Message to File" * doctest::skip(true))
+		TEST_CASE_FIXTURE(FConsoleFixture, "Console - Add Message to File" * doctest::skip(true))
 		{
-			constexpr auto newMessageWait = 0;
-			constexpr auto countMax = 20;
-			constexpr auto scrollTickMax = 150;
-			constexpr auto writeToFile = true;
-			FConsoleServer cl(newMessageWait, countMax, scrollTickMax, writeToFile);
-			cl.Console("Test message", 10);
+			auto Injector = di::make_injector<di::extension::shared_config>(
+				GetInjector(), di::bind<bool>().named("WriteToFile"_s).to(true)[di::override]);
+			auto ServerConsole = Injector.create<std::shared_ptr<FConsoleServer>>();
+			ServerConsole->Console("Test message", 10);
 			// Assuming GetGameLog() and GetGameLogFilename() are accessible and return expected values
 			// auto &fs = GS::GetFileSystem();
 			// CHECK(fs.FileExists(GetGameLogFilename()));
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "Console - Add Message Server")
+		TEST_CASE_FIXTURE(FConsoleFixture, "Console - Add Message Server")
 		{
-			constexpr auto newMessageWait = 0;
-			constexpr auto countMax = 20;
-			constexpr auto scrollTickMax = 150;
-			constexpr auto writeToFile = false;
-			FConsoleServer cl(newMessageWait, countMax, scrollTickMax, writeToFile);
-			cl.Console("Server message", 20);
-			CHECK_EQ(cl.GetCount(), 1);
-			CHECK_EQ(cl.GetTextMessage(1), "Server message");
-			CHECK_EQ(cl.GetTextMessageColor(1), 20);
+			auto Injector = di::make_injector<di::extension::shared_config>(
+				GetInjector(), di::bind<bool>().named("WriteToFile"_s).to(true)[di::override]);
+			auto ServerConsole = Injector.create<std::shared_ptr<FConsoleServer>>();
+			ServerConsole->Console("Server message", 20);
+			CHECK_EQ(ServerConsole->GetCount(), 1);
+			CHECK_EQ(ServerConsole->GetTextMessage(1), "Server message");
+			CHECK_EQ(ServerConsole->GetTextMessageColor(1), 20);
 		}
 
-		TEST_CASE_FIXTURE(ConsoleFixture, "Console - Add Message and Scroll")
+		TEST_CASE_FIXTURE(FConsoleFixture, "Console - Add Message and Scroll")
 		{
-			constexpr auto newMessageWait = 0;
-			constexpr auto countMax = 20;
-			constexpr auto scrollTickMax = 150;
-			constexpr auto writeToFile = false;
-			FConsoleServer cl(newMessageWait, countMax, scrollTickMax, writeToFile);
-			cl.Console("Message 1", 10);
-			cl.Console("Message 2", 20);
-			cl.Console("Message 3", 30);
-			CHECK_EQ(cl.GetCount(), 3);
-			addMessagesUntilScroll(cl, countMax);
-			CHECK_EQ(cl.GetCount(), countMax - 1);
-			CHECK_EQ(cl.GetTextMessage(1), "Message 2");
-			CHECK_EQ(cl.GetTextMessage(2), "Message 3");
+			auto Injector = di::make_injector<di::extension::shared_config>(
+				GetInjector(), di::bind<bool>().named("WriteToFile"_s).to(true)[di::override]);
+			auto ServerConsole = Injector.create<std::shared_ptr<FConsoleServer>>();
+			ServerConsole->Console("Message 1", 10);
+			ServerConsole->Console("Message 2", 20);
+			ServerConsole->Console("Message 3", 30);
+			CHECK_EQ(ServerConsole->GetCount(), 3);
+			auto constexpr kCountMax = 20;
+			addMessagesUntilScroll(*ServerConsole, kCountMax);
+			CHECK_EQ(ServerConsole->GetCount(), kCountMax - 1);
+			CHECK_EQ(ServerConsole->GetTextMessage(1), "Message 2");
+			CHECK_EQ(ServerConsole->GetTextMessage(2), "Message 3");
 		}
 	} // TEST_SUITE("Console")
 

@@ -12,7 +12,7 @@
 FDebugWindow::FDebugWindow(FSdlApp& InApp) : App{ InApp }
 {
 	ImGui::CreateContext();
-	ImGui::StyleColorsLight();
+	ImGui::StyleColorsDark();
 
 	ImGui_ImplSDL3_InitForSDLGPU(InApp.GetWindow());
 	ImGui_ImplSDLGPU3_InitInfo InitInfo = {};

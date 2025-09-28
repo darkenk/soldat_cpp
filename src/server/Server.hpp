@@ -67,13 +67,6 @@ class FFileUtility;
 class FConsoleServer : public FConsoleMain
 {
 public:
-	BOOST_DI_INJECT(FConsoleServer,
-		(named = "NewMessageWait"_s) const std::int32_t InNewMessageWait,
-		(named = "CountMax"_s) const std::int32_t InCountMax,
-		(named = "ScrollTickMax"_s) const std::int32_t InScrollTickMax,
-		(named = "WriteToFile"_s) bool writeToFile)
-		: FConsoleMain(InNewMessageWait, InCountMax, InScrollTickMax, writeToFile)
-	{
-	}
+	using FConsoleMain::FConsoleMain;
 	void Console(std::string_view what, std::int32_t col, std::uint8_t sender = 255);
 };

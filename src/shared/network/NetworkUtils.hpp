@@ -14,7 +14,7 @@ class Sprite;
 template <Config::Module M = Config::GetModule()>
 bool iswronggameversion(const std::string& RequestVersion);
 template <Config::Module M = Config::GetModule()>
-bool verifypacket(std::int32_t ValidSize,
+bool VerifyPacket(std::int32_t ValidSize,
 	std::int32_t ReceiveSize,
 	std::int32_t PacketId,
 	const source_location& location = source_location::current());

@@ -216,7 +216,7 @@ void serverhandleclientfreecam(
 	tmsg_clientfreecam* freecammsg = nullptr;
 	std::int32_t i = 0;
 
-	if (!verifypacket(sizeof(tmsg_clientfreecam), size, msgid_clientfreecam))
+	if (!VerifyPacket(sizeof(tmsg_clientfreecam), size, msgid_clientfreecam))
 	{
 		return;
 	}

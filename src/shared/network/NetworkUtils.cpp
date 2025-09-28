@@ -180,7 +180,7 @@ auto fixplayername(const char* Name) -> std::string
 }
 
 template <Config::Module M>
-auto verifypacket(
+auto VerifyPacket(
 	std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId, const source_location& location) -> bool
 {
 	std::string Dropped;
@@ -493,10 +493,8 @@ template void encodekeys(Sprite<Config::GetModule()>& SpriteC, std::uint16_t& Ke
 template void decodekeys(Sprite<Config::GetModule()>& SpriteC, uint16_t Keys16);
 template void stringtoarray(char* c, std::string s);
 template bool iswronggameversion<Config::GetModule()>(const std::string& RequestVersion);
-template bool verifypacket<Config::GetModule()>(std::int32_t ValidSize,
-	std::int32_t ReceiveSize,
-	std::int32_t PacketId,
-	const source_location& location = source_location::current());
+template bool VerifyPacket<Config::GetModule()>(
+	std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId, const source_location& location);
 template bool verifypacketlargerorequal<Config::GetModule()>(std::int32_t ValidSize,
 	std::int32_t ReceiveSize,
 	std::int32_t PacketId,

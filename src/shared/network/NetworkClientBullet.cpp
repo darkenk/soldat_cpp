@@ -68,7 +68,7 @@ void clienthandlebulletsnapshot::Handle(NetworkContext* netmessage)
 	std::uint8_t style = 0;
 	float bulletspread = NAN;
 
-	if (!verifypacket(sizeof(tmsg_bulletsnapshot), netmessage->size, msgid_bulletsnapshot))
+	if (!VerifyPacket(sizeof(tmsg_bulletsnapshot), netmessage->size, msgid_bulletsnapshot))
 	{
 		return;
 	}

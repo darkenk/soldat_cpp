@@ -1,7 +1,8 @@
 #pragma once
-#include <boost/di.hpp>
 #include <boost/di/extension/injections/named_parameters.hpp>
 #include <cstdint>
+#include <entt/signal/fwd.hpp>
+#include <libassert/assert.hpp>
 #include <string>
 #include <algorithm>
 #include <string_view>
@@ -17,16 +18,17 @@ class FFileUtility;
 class FConsole
 {
 public:
-	explicit FConsole(const std::int32_t InNewMessageWait = 0,
-		const std::int32_t InCountMax = 254,
-		const std::int32_t InScrollTickMax = 150,
-		bool writeToFile = true)
+	BOOST_DI_INJECT(explicit FConsole,
+		(named = "NewMessageWait"_s) const std::int32_t InNewMessageWait = 0,
+		(named = "CountMax"_s) const std::int32_t InCountMax = 254,
+		(named = "ScrollTickMax"_s) const std::int32_t InScrollTickMax = 150,
+		(named = "WriteToFile"_s) bool InWriteToFile = true)
 		: NewMessageWait(InNewMessageWait)
 		, CountMax(std::min(InCountMax, 254))
 		, ScrollTickMax(InScrollTickMax)
-		, WriteToFile(writeToFile)
+		, WriteToFile(InWriteToFile)
 	{
-		SoldatAssert(CountMax > 0);
+		DEBUG_ASSERT(CountMax > 0);
 		mTextMessage.resize(CountMax);
 		mTextMessageColor.resize(CountMax);
 		mNumMessage.resize(CountMax);
@@ -60,17 +62,30 @@ class FConsoleMain : public FConsole
 {
 public:
 	BOOST_DI_INJECT(FConsoleMain,
+		std::shared_ptr<entt::dispatcher>& InDispatcher,
 		(named = "NewMessageWait"_s) const std::int32_t InNewMessageWait = 1,
 		(named = "CountMax"_s) const std::int32_t InCountMax = 254,
 		(named = "ScrollTickMax"_s) const std::int32_t InScrollTickMax = 1,
-		(named = "WriteToFile"_s) bool writeToFile = true)
-		: FConsole(InNewMessageWait, InCountMax, InScrollTickMax, writeToFile)
+		(named = "WriteToFile"_s) bool InWriteToFile = true)
+		: FConsole(InNewMessageWait, InCountMax, InScrollTickMax, InWriteToFile), Dispatcher(InDispatcher)
 	{
 	}
 	void Update(bool InKillConsole = false);
-	void SetBigConsole(FConsole* bigConsole) { BigConsole = bigConsole; }
-	void Console(std::string_view what, std::int32_t col);
+	void Console(std::string_view InWhat, std::int32_t InColor);
 
 private:
 	FConsole* BigConsole = nullptr;
+	std::shared_ptr<entt::dispatcher> Dispatcher;
+};
+
+class FConsoleBig : public FConsole
+{
+public:
+	using FConsole::FConsole;
+};
+
+class FKillConsole : public FConsoleMain
+{
+public:
+	using FConsoleMain::FConsoleMain;
 };

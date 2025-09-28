@@ -502,7 +502,7 @@ void GlobalStateNetworkServerSprite::serverhandleclientspritesnapshot(
 	pmsg_clientspritesnapshot clientmsg = nullptr;
 	std::int32_t i = 0;
 
-	if (!verifypacket(sizeof(tmsg_clientspritesnapshot), size, msgid_clientspritesnapshot))
+	if (!VerifyPacket(sizeof(tmsg_clientspritesnapshot), size, msgid_clientspritesnapshot))
 	{
 		return;
 	}
@@ -585,7 +585,7 @@ void GlobalStateNetworkServerSprite::serverhandleclientspritesnapshot_mov(
 	auto& sprite_system = SpriteSystem::Get();
 	std::int32_t i = 0;
 
-	if (!verifypacket(sizeof(tmsg_clientspritesnapshot_mov), size, msgid_clientspritesnapshot_mov))
+	if (!VerifyPacket(sizeof(tmsg_clientspritesnapshot_mov), size, msgid_clientspritesnapshot_mov))
 	{
 		return;
 	}
@@ -638,7 +638,7 @@ void GlobalStateNetworkServerSprite::serverhandleclientspritesnapshot_dead(
 	pmsg_clientspritesnapshot_dead clientdeadmsg = nullptr;
 	std::int32_t i = 0;
 
-	if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), size, msgid_clientspritesnapshot_dead))
+	if (!VerifyPacket(sizeof(tmsg_clientspritesnapshot_dead), size, msgid_clientspritesnapshot_dead))
 	{
 		return;
 	}

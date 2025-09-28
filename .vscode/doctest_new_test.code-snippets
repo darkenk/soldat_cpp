@@ -35,6 +35,8 @@
 			"  F${TM_FILENAME_BASE}Fixture& operator=(const F${TM_FILENAME_BASE}Fixture&) = delete;",
 			"  F${TM_FILENAME_BASE}Fixture& operator=(F${TM_FILENAME_BASE}Fixture&&) = delete;",
 			"protected:",
+			"  // NOLINTBEGIN(misc-non-private-member-variables-in-classes)",
+			"  // NOLINTEND(misc-non-private-member-variables-in-classes)"
 			"};",
 			"",
 			"TEST_SUITE(\"${TM_FILENAME_BASE}Suite\")",

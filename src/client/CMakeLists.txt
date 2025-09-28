@@ -82,6 +82,7 @@ target_link_libraries(SoldatClientLib
     imgui::imgui
     imgui::backend_sdl3_sdlgpu3
     libassert::assert
+    EnTT::EnTT
 )
 
 if (ENABLE_PCH)
@@ -102,6 +103,7 @@ target_link_libraries(SoldatClient
     GameNetworkingSockets::GameNetworkingSockets_s
     spdlog::spdlog
     Boost::Boost.DI
+    EnTT::EnTT
 )
 target_include_directories(SoldatClient PRIVATE
     ./config

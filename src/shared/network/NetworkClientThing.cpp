@@ -36,7 +36,7 @@ void clienthandleserverthingsnapshot::Handle(NetworkContext* netmessage)
 	auto& sprite_system = SpriteSystem::Get();
 	tvector2 a;
 
-	if (!verifypacket(sizeof(tmsg_serverthingsnapshot), netmessage->size, msgid_serverthingsnapshot))
+	if (!VerifyPacket(sizeof(tmsg_serverthingsnapshot), netmessage->size, msgid_serverthingsnapshot))
 	{
 		return;
 	}
@@ -145,7 +145,7 @@ void clienthandleserverthingmustsnapshot::Handle(NetworkContext* netmessage)
 	tsprite* spritethingowner = nullptr;
 	std::int32_t weaponthing = 0;
 
-	if (!verifypacket(sizeof(tmsg_serverthingmustsnapshot), netmessage->size, msgid_serverthingmustsnapshot))
+	if (!VerifyPacket(sizeof(tmsg_serverthingmustsnapshot), netmessage->size, msgid_serverthingmustsnapshot))
 	{
 		return;
 	}
@@ -311,7 +311,7 @@ void clienthandlethingtaken::Handle(NetworkContext* netmessage)
 	std::string bigcaptext;
 	std::string smallcaptext;
 
-	if (!verifypacket(sizeof(tmsg_serverthingtaken), netmessage->size, msgid_thingtaken))
+	if (!VerifyPacket(sizeof(tmsg_serverthingtaken), netmessage->size, msgid_thingtaken))
 	{
 		return;
 	}

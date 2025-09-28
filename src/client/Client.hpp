@@ -16,6 +16,8 @@
 class FConsole;
 class FFileUtility;
 class FConsoleMain;
+class FConsoleBig;
+class FBigConsoleListener;
 
 struct tweaponstat
 {
@@ -102,14 +104,12 @@ private:
 		Game,
 		ConnectionTimedOut
 	};
-	std::shared_ptr<FConsole> sBigConsole;
+	std::shared_ptr<FConsoleBig> BigConsole;
 	std::shared_ptr<FConsoleMain> sKillConsole;
 	EGameState gGameState{ EGameState::Loading };
 	bool gamelooprun{};
 	bool progready{};
 	friend class ClientFixture;
-	auto InitBigConsole(std::int32_t InNewMessageWait, std::int32_t InCountMax, std::int32_t InScrollTickMax)
-		-> FConsole&;
 	auto InitKillConsole(std::int32_t InNewMessageWait, std::int32_t InCountMax, std::int32_t InScrollTickMax)
 		-> FConsoleMain&;
 	void RedirectDialog();
@@ -117,6 +117,7 @@ private:
 	void StartGameLoop();
 	std::shared_ptr<FSdlApp> App;
 	std::shared_ptr<FDebugWindow> DebugWindow;
+	std::shared_ptr<FBigConsoleListener> BigConsoleListener;
 };
 
 extern FGlobalStateClient gGlobalStateClient;

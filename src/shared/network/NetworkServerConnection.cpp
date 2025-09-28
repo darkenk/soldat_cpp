@@ -184,7 +184,7 @@ void serverhandleplayerinfo(
 	std::int8_t newteam;
 	#endif
 
-	if (!verifypacket(sizeof(tmsg_playerinfo), size, msgid_playerinfo))
+	if (!VerifyPacket(sizeof(tmsg_playerinfo), size, msgid_playerinfo))
 	{
 		return;
 	}
@@ -1016,7 +1016,7 @@ void servervars(std::uint8_t tonum)
 #ifdef SERVER
 void serverhandlepong(tmsgheader* netmessage, std::int32_t size, NetworkServer& /*network*/, TServerPlayer* player)
 {
-	if (!verifypacket(sizeof(tmsg_pong), size, msgid_pong))
+	if (!VerifyPacket(sizeof(tmsg_pong), size, msgid_pong))
 	{
 		return;
 	}

@@ -307,7 +307,7 @@ void clienthandleplayerslist::Handle(NetworkContext* netmessage)
 	std::string modname;
 	std::string mapname;
 
-	if (!verifypacket(sizeof(*playerslistmsg), netmessage->size, msgid_playerslist))
+	if (!VerifyPacket(sizeof(*playerslistmsg), netmessage->size, msgid_playerslist))
 	{
 		return;
 	}
@@ -661,7 +661,7 @@ void clienthandleunaccepted::Handle(NetworkContext* netmessage)
 
 void clienthandleserverdisconnect::Handle(NetworkContext* netmessage)
 {
-	if (!verifypacket(sizeof(tmsg_serverdisconnect), netmessage->size, msgid_serverdisconnect))
+	if (!VerifyPacket(sizeof(tmsg_serverdisconnect), netmessage->size, msgid_serverdisconnect))
 	{
 		return;
 	}
@@ -681,7 +681,7 @@ void clienthandleserverdisconnect::Handle(NetworkContext* netmessage)
 void clienthandleping::Handle(NetworkContext* netmessage)
 {
 	auto& sprite_system = SpriteSystem::Get();
-	if (!verifypacket(sizeof(tmsg_ping), netmessage->size, msgid_ping))
+	if (!VerifyPacket(sizeof(tmsg_ping), netmessage->size, msgid_ping))
 	{
 		return;
 	}
@@ -707,7 +707,7 @@ void clienthandleping::Handle(NetworkContext* netmessage)
 void clienthandleservervars::Handle(NetworkContext* netmessage)
 {
 	auto& sprite_system = SpriteSystem::Get();
-	if (!verifypacket(sizeof(tmsg_servervars), netmessage->size, msgid_servervars))
+	if (!VerifyPacket(sizeof(tmsg_servervars), netmessage->size, msgid_servervars))
 	{
 		return;
 	}

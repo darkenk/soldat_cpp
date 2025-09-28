@@ -42,6 +42,9 @@ ImplementationFileExtensions:
 FormatStyle: file
 
 CheckOptions:
+  - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value: true
+  ## === Readability ===
   # === Classes ===
   - key: readability-identifier-naming.ClassCase
     value: CamelCase

@@ -1,10 +1,16 @@
 #include "Console.hpp"
 
+#include <boost/di/extension/scopes/shared.hpp>
+#include <cstdint>
+#include <entt/signal/dispatcher.hpp>
+#include <entt/signal/fwd.hpp>
+#include <memory>
+#include <string_view>
+
 #include "Constants.hpp"
 #include "Logging.hpp"
+#include "ConsoleMessage.hpp"
 #include "port_utils/NotImplemented.hpp"
-#include <cstdint>
-#include <string_view>
 
 void FConsole::ScrollConsole()
 {
@@ -55,7 +61,7 @@ void FConsoleMain::Update(const bool InKillConsole)
 	}
 }
 
-void FConsoleMain::Console(const std::string_view InWhat, std::int32_t col) // overload;
+void FConsoleMain::Console(const std::string_view InWhat, std::int32_t InColor) // overload;
 {
 	if (InWhat.empty())
 	{
@@ -70,20 +76,21 @@ void FConsoleMain::Console(const std::string_view InWhat, std::int32_t col) // o
 	}
 	LogDebugG("{}", InWhat);
 
-	this->ConsoleAdd(InWhat, col);
-	if (BigConsole != nullptr)
-	{
-		BigConsole->ConsoleAdd(InWhat, col);
-	}
+	this->ConsoleAdd(InWhat, InColor);
+	Dispatcher->enqueue<FBigConsoleMessage>(std::string(InWhat), InColor);
 }
 
 // tests
+#include <boost/di.hpp>
+#include <boost/di/extension/injector.hpp>
 #include <cstdio>
 #include <doctest/doctest.h>
 #include <spdlog/fmt/bundled/core.h>
+#include "ConsoleListener.hpp"
 
 namespace
 {
+	namespace di = boost::di;
 
 	class FConsoleFixture
 	{
@@ -95,27 +102,43 @@ namespace
 		~FConsoleFixture() = default;
 		FConsoleFixture(const FConsoleFixture&) = delete;
 
-		static void AddMessagesUntilScroll(FConsole& console, std::int32_t countMax)
+		static void AddMessagesUntilScroll(FConsole& InConsole, std::int32_t InCountMax)
 		{
-			auto NoOfMessagesTillScroll = countMax - console.GetCount();
+			auto NoOfMessagesTillScroll = InCountMax - InConsole.GetCount();
 			for (auto i = 0; i < NoOfMessagesTillScroll; ++i)
 			{
-				console.ConsoleAdd(std::format("Filler Message {:d}", i + 1), i * 10);
+				InConsole.ConsoleAdd(std::format("Filler Message {:d}", i + 1), i * 10);
 			}
 		}
 
 	protected:
+		// NOLINTBEGIN(misc-non-private-member-variables-in-classes)
+		// NOLINTEND(misc-non-private-member-variables-in-classes)
+		auto GetInjector()
+		{
+			return di::make_injector<di::extension::shared_config>(di::bind<entt::dispatcher>.to(Dispatcher),
+				di::bind<FConsoleMain>().in(di::extension::shared),
+				di::bind<FConsoleBig>().in(di::extension::shared),
+				di::bind<FBigConsoleListener>().in(di::extension::shared),
+				di::bind<std::int32_t>().named("NewMessageWait"_s).to(0),
+				di::bind<std::int32_t>().named("CountMax"_s).to(254),
+				di::bind<std::int32_t>().named("ScrollTickMax"_s).to(150),
+				di::bind<bool>().named("WriteToFile"_s).to(false));
+		}
+
+	private:
+		std::shared_ptr<entt::dispatcher> Dispatcher = std::make_shared<entt::dispatcher>();
 	};
+
 	TEST_SUITE("Console")
 	{
-
 		TEST_CASE_FIXTURE(FConsoleFixture, "Write message")
 		{
-			FConsole Big;
-			FConsoleMain cl(0, 254, 150, false);
-			cl.SetBigConsole(&Big);
-			cl.Console("Test message", Constants::GAME_MESSAGE_COLOR);
-			CHECK_EQ(1, cl.GetCount());
+			auto Injector = GetInjector();
+			auto Main = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Main->Console("Test message", Constants::GAME_MESSAGE_COLOR);
+
+			CHECK_EQ(1, Main->GetCount());
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "ScrollConsole - Normal Scrolling")
@@ -171,140 +194,189 @@ namespace
 			CHECK(Console.GetNumMessage(1) == -255);
 			CHECK(Console.GetTextMessageColor(1) == 0);
 		}
-
 		TEST_CASE_FIXTURE(FConsoleFixture, "Console - Add Empty Message")
 		{
-			FConsoleMain cl;
-			cl.Console("", 10);
-			CHECK_EQ(cl.GetCount(), 0);
+			auto Injector = GetInjector();
+			auto Main = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Main->Console("", 10);
+			CHECK_EQ(Main->GetCount(), 0);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "Console - Add Message Client")
 		{
-			constexpr auto kNewMessageWait = 0;
-			constexpr auto kCountMax = 254;
-			constexpr auto kScrollTickMax = 150;
-			constexpr auto kWriteToFile = false;
-			FConsoleMain cl(kNewMessageWait, kCountMax, kScrollTickMax, kWriteToFile);
-			FConsole Big;
-			cl.SetBigConsole(&Big);
-			cl.Console("Client message", 30);
-			CHECK_EQ(cl.GetCount(), 1);
-			CHECK_EQ(cl.GetTextMessage(1), "Client message");
-			CHECK_EQ(cl.GetTextMessageColor(1), 30);
-			CHECK_EQ(Big.GetCount(), 1);
-			CHECK_EQ(Big.GetTextMessage(1), "Client message");
-			CHECK_EQ(Big.GetTextMessageColor(1), 30);
+			auto Injector = GetInjector();
+			auto Dispatcher = Injector.create<std::shared_ptr<entt::dispatcher>>();
+			auto Main = Injector.create<std::shared_ptr<FConsoleMain>>();
+			auto Big = Injector.create<std::shared_ptr<FConsoleBig>>();
+			auto Listener = Injector.create<std::shared_ptr<FBigConsoleListener>>();
+			Main->Console("Client message", 30);
+			Dispatcher->update();
+			CHECK_EQ(Main->GetCount(), 1);
+			CHECK_EQ(Main->GetTextMessage(1), "Client message");
+			CHECK_EQ(Main->GetTextMessageColor(1), 30);
+			CHECK_EQ(Big->GetCount(), 1);
+			CHECK_EQ(Big->GetTextMessage(1), "Client message");
+			CHECK_EQ(Big->GetTextMessageColor(1), 30);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "ConsoleNum - Add New Message")
 		{
-			FConsoleMain Console;
-			Console.ConsoleAdd("Test message", 10, 5);
-			CHECK_EQ(Console.GetCount(), 1);
-			CHECK_EQ(Console.GetTextMessage(1), "Test message");
-			CHECK_EQ(Console.GetTextMessageColor(1), 10);
-			CHECK_EQ(Console.GetNumMessage(1), 5);
+			auto Injector = GetInjector();
+			auto Console = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Console->ConsoleAdd("Test message", 10, 5);
+			CHECK_EQ(Console->GetCount(), 1);
+			CHECK_EQ(Console->GetTextMessage(1), "Test message");
+			CHECK_EQ(Console->GetTextMessageColor(1), 10);
+			CHECK_EQ(Console->GetNumMessage(1), 5);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "ConsoleNum - Scroll When Max Count Reached")
 		{
-			constexpr auto kCountMax = 3;
-			FConsoleMain Console(0, kCountMax, 150);
-			Console.ConsoleAdd("Message 1", 10, 1);
-			Console.ConsoleAdd("Message 2", 20, 2);
-			Console.ConsoleAdd("Message 3", 30, 3);
+			auto constexpr kCountMax = 3;
+			auto Injector = di::make_injector<di::extension::shared_config>(
+				GetInjector(), di::bind<std::int32_t>().named("CountMax"_s).to(kCountMax)[di::override]);
+			auto Console = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Console->ConsoleAdd("Message 1", 10, 1);
+			Console->ConsoleAdd("Message 2", 20, 2);
+			Console->ConsoleAdd("Message 3", 30, 3);
 
-			CHECK_EQ(Console.GetCount(), kCountMax - 1);
-			CHECK_EQ(Console.GetTextMessage(1), "Message 2");
-			CHECK_EQ(Console.GetTextMessage(2), "Message 3");
-			CHECK_EQ(Console.GetNumMessage(1), 2);
-			CHECK_EQ(Console.GetNumMessage(2), 3);
+			CHECK_EQ(Console->GetCount(), kCountMax - 1);
+			CHECK_EQ(Console->GetTextMessage(1), "Message 2");
+			CHECK_EQ(Console->GetTextMessage(2), "Message 3");
+			CHECK_EQ(Console->GetNumMessage(1), 2);
+			CHECK_EQ(Console->GetNumMessage(2), 3);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "ConsoleNum - Empty Message")
 		{
-			FConsoleMain Console;
-			Console.ConsoleAdd("", 10, 5);
-			CHECK_EQ(Console.GetCount(), 1);
-			CHECK_EQ(Console.GetTextMessage(1), "");
-			CHECK_EQ(Console.GetTextMessageColor(1), 10);
-			CHECK_EQ(Console.GetNumMessage(1), 5);
+			auto Injector = GetInjector();
+			auto Console = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Console->ConsoleAdd("", 10, 5);
+			CHECK_EQ(Console->GetCount(), 1);
+			CHECK_EQ(Console->GetTextMessage(1), "");
+			CHECK_EQ(Console->GetTextMessageColor(1), 10);
+			CHECK_EQ(Console->GetNumMessage(1), 5);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "ConsoleNum - Negative Color Value")
 		{
-			FConsoleMain Console;
-			Console.ConsoleAdd("Test message", -10, 5);
-			CHECK_EQ(Console.GetCount(), 1);
-			CHECK_EQ(Console.GetTextMessage(1), "Test message");
-			CHECK_EQ(Console.GetTextMessageColor(1), -10);
-			CHECK_EQ(Console.GetNumMessage(1), 5);
+			auto Injector = GetInjector();
+			auto Console = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Console->ConsoleAdd("Test message", -10, 5);
+			CHECK_EQ(Console->GetCount(), 1);
+			CHECK_EQ(Console->GetTextMessage(1), "Test message");
+			CHECK_EQ(Console->GetTextMessageColor(1), -10);
+			CHECK_EQ(Console->GetNumMessage(1), 5);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "ConsoleNum - Negative Num Value")
 		{
-			FConsoleMain Console;
-			Console.ConsoleAdd("Test message", 10, -5);
-			CHECK_EQ(Console.GetCount(), 1);
-			CHECK_EQ(Console.GetTextMessage(1), "Test message");
-			CHECK_EQ(Console.GetTextMessageColor(1), 10);
-			CHECK_EQ(Console.GetNumMessage(1), -5);
+			auto Injector = GetInjector();
+			auto Console = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Console->ConsoleAdd("Test message", 10, -5);
+			CHECK_EQ(Console->GetCount(), 1);
+			CHECK_EQ(Console->GetTextMessage(1), "Test message");
+			CHECK_EQ(Console->GetTextMessageColor(1), 10);
+			CHECK_EQ(Console->GetNumMessage(1), -5);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateKillConsole - Scrolls When ScrollTickMax Reached")
 		{
-			FConsoleMain Console(0, 2, 1);
-			Console.ConsoleAdd("Message 1", 10, 1);
-			Console.Update(true);
-			CHECK_EQ(Console.GetCount(), 0);
+			auto Injector = di::make_injector<di::extension::shared_config>(GetInjector(),
+				di::bind<std::int32_t>().named("CountMax"_s).to(2)[di::override],
+				di::bind<std::int32_t>().named("ScrollTickMax"_s).to(1)[di::override]);
+			auto Console = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Console->ConsoleAdd("Message 1", 10, 1);
+			Console->Update(true);
+			CHECK_EQ(Console->GetCount(), 0);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateKillConsole - Scrolls Twice When Last Message Num is -255")
 		{
-			FConsoleMain Console(0, 3, 1);
-			Console.ConsoleAdd("Message 1", 10, -255);
-			Console.ConsoleAdd("Message 2", 10, -255);
-			Console.Update(true);
-			CHECK_EQ(Console.GetCount(), 0);
+			auto Injector = di::make_injector<di::extension::shared_config>(GetInjector(),
+				di::bind<std::int32_t>().named("CountMax"_s).to(3)[di::override],
+				di::bind<std::int32_t>().named("ScrollTickMax"_s).to(1)[di::override]);
+			auto Console = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Console->ConsoleAdd("Message 1", 10, -255);
+			Console->ConsoleAdd("Message 2", 10, -255);
+			Console->Update(true);
+			CHECK_EQ(Console->GetCount(), 0);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateKillConsole - Does Not Scroll When ScrollTickMax Not Reached")
 		{
-			FConsoleMain Console(3, 2, 4);
-			Console.ConsoleAdd("Message 1", 10, 1);
-			Console.Update(true);
-			CHECK_EQ(Console.GetCount(), 1);
+			auto Injector = di::make_injector<di::extension::shared_config>(GetInjector(),
+				di::bind<std::int32_t>().named("NewMessageWait"_s).to(3)[di::override],
+				di::bind<std::int32_t>().named("CountMax"_s).to(2)[di::override],
+				di::bind<std::int32_t>().named("ScrollTickMax"_s).to(4)[di::override]);
+			auto Console = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Console->ConsoleAdd("Message 1", 10, 1);
+			Console->Update(true);
+			CHECK_EQ(Console->GetCount(), 1);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateKillConsole - Does Not Scroll When No Messages")
 		{
-			FConsoleMain Console(0, 3, 1);
-			Console.Update(true);
-			CHECK_EQ(Console.GetCount(), 0);
+			auto Injector = di::make_injector<di::extension::shared_config>(GetInjector(),
+				di::bind<std::int32_t>().named("CountMax"_s).to(3)[di::override],
+				di::bind<std::int32_t>().named("ScrollTickMax"_s).to(1)[di::override]);
+			auto Console = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Console->Update(true);
+			CHECK_EQ(Console->GetCount(), 0);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateMainConsole - Scrolls When ScrollTickMax Reached")
 		{
-			FConsoleMain Console(0, 2, 1);
-			Console.ConsoleAdd("Message 1", 10);
-			Console.Update();
-			CHECK_EQ(Console.GetCount(), 0);
+			auto Injector = di::make_injector<di::extension::shared_config>(GetInjector(),
+				di::bind<std::int32_t>().named("CountMax"_s).to(2)[di::override],
+				di::bind<std::int32_t>().named("ScrollTickMax"_s).to(1)[di::override]);
+			auto Console = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Console->ConsoleAdd("Message 1", 10);
+			Console->Update();
+			CHECK_EQ(Console->GetCount(), 0);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateMainConsole - Does Not Scroll When ScrollTickMax Not Reached")
 		{
-			FConsoleMain Console(3, 2, 4);
-			Console.ConsoleAdd("Message 1", 10);
-			Console.Update();
-			CHECK_EQ(Console.GetCount(), 1);
+			auto Injector = di::make_injector<di::extension::shared_config>(GetInjector(),
+				di::bind<std::int32_t>().named("NewMessageWait"_s).to(3)[di::override],
+				di::bind<std::int32_t>().named("CountMax"_s).to(2)[di::override],
+				di::bind<std::int32_t>().named("ScrollTickMax"_s).to(4)[di::override]);
+			auto Console = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Console->ConsoleAdd("Message 1", 10);
+			Console->Update();
+			CHECK_EQ(Console->GetCount(), 1);
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "UpdateMainConsole - Does Not Scroll When No Messages")
 		{
-			FConsoleMain Console(0, 3, 1);
-			Console.Update();
-			CHECK_EQ(Console.GetCount(), 0);
+			auto Injector = di::make_injector<di::extension::shared_config>(GetInjector(),
+				di::bind<std::int32_t>().named("CountMax"_s).to(2)[di::override],
+				di::bind<std::int32_t>().named("ScrollTickMax"_s).to(1)[di::override]);
+			auto Console = Injector.create<std::shared_ptr<FConsoleMain>>();
+			Console->Update();
+			CHECK_EQ(Console->GetCount(), 0);
+		}
+
+		TEST_CASE_FIXTURE(FConsoleFixture, "Write message using dispatcher")
+		{
+			entt::dispatcher Dispatcher;
+			FConsole Big;
+			auto Injector = GetInjector();
+			auto Main = Injector.create<std::shared_ptr<FConsoleMain>>();
+			struct FListener
+			{
+				FListener(FConsoleMain& InConsole) : Console(InConsole) { };
+				void OnMessage(FMainConsoleMessage& InMessage) { Console.Console(InMessage.Message, InMessage.Color); }
+
+			private:
+				FConsoleMain& Console;
+			};
+			FListener Listener(*Main);
+			Dispatcher.sink<FMainConsoleMessage>().connect<&FListener::OnMessage>(Listener);
+			Dispatcher.enqueue<FMainConsoleMessage>("Test message", Constants::GAME_MESSAGE_COLOR);
+			Dispatcher.update();
+			CHECK_EQ(1, Main->GetCount());
 		}
 
 	} // TEST_SUITE("Console")

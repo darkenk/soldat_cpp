@@ -30,7 +30,7 @@ void clienthandlevoteon::Handle(NetworkContext* netmessage)
 	tmsg_voteon* voteonmsg = nullptr;
 	std::int32_t i = 0;
 
-	if (!verifypacket(sizeof(tmsg_voteon), netmessage->size, msgid_voteon))
+	if (!VerifyPacket(sizeof(tmsg_voteon), netmessage->size, msgid_voteon))
 	{
 		return;
 	}
@@ -53,7 +53,7 @@ void clienthandleserversyncmsg::Handle(NetworkContext* netmessage)
 {
 	tmsg_serversyncmsg* syncmsg = nullptr;
 
-	if (!verifypacket(sizeof(tmsg_serversyncmsg), netmessage->size, msgid_serversyncmsg))
+	if (!VerifyPacket(sizeof(tmsg_serversyncmsg), netmessage->size, msgid_serversyncmsg))
 	{
 		return;
 	}
@@ -84,7 +84,7 @@ void clienthandleforceposition::Handle(NetworkContext* netmessage)
 	auto& sprite_system = SpriteSystem::Get();
 	tmsg_forceposition* forceposition = nullptr;
 
-	if (!verifypacket(sizeof(tmsg_forceposition), netmessage->size, msgid_forceposition))
+	if (!VerifyPacket(sizeof(tmsg_forceposition), netmessage->size, msgid_forceposition))
 	{
 		return;
 	}
@@ -102,7 +102,7 @@ void clienthandleforcevelocity::Handle(NetworkContext* netmessage)
 	auto& sprite_system = SpriteSystem::Get();
 	tmsg_forcevelocity* forcevelocity = nullptr;
 
-	if (!verifypacket(sizeof(tmsg_forcevelocity), netmessage->size, msgid_forcevelocity))
+	if (!VerifyPacket(sizeof(tmsg_forcevelocity), netmessage->size, msgid_forcevelocity))
 	{
 		return;
 	}
@@ -118,7 +118,7 @@ void clienthandleforceweapon::Handle(NetworkContext* netmessage)
 	auto& sprite_system = SpriteSystem::Get();
 	tmsg_forceweapon* forceweapon = nullptr;
 
-	if (!verifypacket(sizeof(tmsg_forceweapon), netmessage->size, msgid_forceweapon))
+	if (!VerifyPacket(sizeof(tmsg_forceweapon), netmessage->size, msgid_forceweapon))
 	{
 		return;
 	}
@@ -139,7 +139,7 @@ void clienthandleweaponactivemessage::Handle(NetworkContext* netmessage)
 	tmsg_weaponactivemessage* wactivemessage = nullptr;
 	std::int32_t i = 0;
 
-	if (!verifypacket(sizeof(tmsg_weaponactivemessage), netmessage->size, msgid_weaponactivemessage))
+	if (!VerifyPacket(sizeof(tmsg_weaponactivemessage), netmessage->size, msgid_weaponactivemessage))
 	{
 		return;
 	}
@@ -168,7 +168,7 @@ void clienthandleclientfreecam::Handle(NetworkContext* netmessage)
 	auto& sprite_system = SpriteSystem::Get();
 	tmsg_clientfreecam* freecammsg = nullptr;
 
-	if (!verifypacket(sizeof(tmsg_clientfreecam), netmessage->size, msgid_clientfreecam))
+	if (!VerifyPacket(sizeof(tmsg_clientfreecam), netmessage->size, msgid_clientfreecam))
 	{
 		return;
 	}
@@ -201,7 +201,7 @@ void clienthandlejoinserver::Handle(NetworkContext* netmessage)
 {
 	tmsg_joinserver* joinservermsg = nullptr;
 
-	if (!verifypacket(sizeof(tmsg_joinserver), netmessage->size, msgid_joinserver))
+	if (!VerifyPacket(sizeof(tmsg_joinserver), netmessage->size, msgid_joinserver))
 	{
 		return;
 	}
@@ -233,7 +233,7 @@ void clienthandleplaysound::Handle(NetworkContext* netmessage)
 	tmsg_playsound* playsoundmsg = nullptr;
 	auto& fs = GS::GetFileSystem();
 
-	if (!verifypacket(sizeof(tmsg_playsound), netmessage->size, msgid_playsound))
+	if (!VerifyPacket(sizeof(tmsg_playsound), netmessage->size, msgid_playsound))
 	{
 		return;
 	}

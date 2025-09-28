@@ -21,8 +21,8 @@ set(SHARED_SRC
     ../shared/mechanics/BulletSystem.cpp
     ../shared/mechanics/ThingSystem.cpp
     ../shared/network/Net.cpp
-    ../shared/network/NetworkServer.cpp
     ../shared/network/NetworkUtils.cpp
+    ../shared/network/NetworkServer.cpp
     ../shared/network/NetworkServerSprite.cpp
     ../shared/network/NetworkServerMessages.cpp
     ../shared/network/NetworkServerGame.cpp
@@ -32,6 +32,7 @@ set(SHARED_SRC
     ../shared/network/NetworkServerFunctions.cpp
     ../shared/network/NetworkServerHeartbeat.cpp
     ../shared/misc/GlobalSystems.cpp
+
 )
 
 add_library(SoldatServerLib OBJECT ${SRC} ${SHARED_SRC})
@@ -53,7 +54,9 @@ target_link_libraries(SoldatServerLib
     Freetype::Freetype
     GameNetworkingSockets::GameNetworkingSockets_s
     ApprovalTests::ApprovalTests
+    libassert::assert
     Boost::Boost.DI
+    EnTT::EnTT
 )
 
 if (ENABLE_PCH)
@@ -74,7 +77,9 @@ target_link_libraries(SoldatServer
     Freetype::Freetype
     ${PHYSFS_LIBRARY}
     GameNetworkingSockets::GameNetworkingSockets_s
+    libassert::assert
     Boost::Boost.DI
+    EnTT::EnTT
 )
 target_include_directories(SoldatServer PRIVATE
     ./config

@@ -109,7 +109,7 @@ void serverhandlebulletsnapshot(
 	float bulletspread = NAN;
 	auto& map = GS::GetGame().GetMap();
 
-	if (!verifypacket(sizeof(tmsg_clientbulletsnapshot), size, msgid_bulletsnapshot))
+	if (!VerifyPacket(sizeof(tmsg_clientbulletsnapshot), size, msgid_bulletsnapshot))
 	{
 		return;
 	}

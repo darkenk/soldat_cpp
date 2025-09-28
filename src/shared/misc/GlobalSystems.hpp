@@ -1,18 +1,18 @@
 #pragma once
+#include <entt/signal/fwd.hpp>
 #include <memory>
 #include <type_traits>
-#include <utility>
 
 #include "common/misc/SoldatConfig.hpp" // IWYU pragma: keep
-#include "common/FileUtility.hpp"
-#include "common/WeaponSystem.hpp"
 #include "common/misc/GlobalSubsystem.hpp"
 #include "common/misc/PortUtils.hpp"
-#include "shared/Demo.hpp"
-#include "shared/Game.hpp"
 #include "shared/mechanics/BulletSystem.hpp"
 #include "shared/mechanics/ThingSystem.hpp"
 
+template <Config::Module M>
+class Game;
+template <Config::Module M>
+class tdemorecorder;
 class FFileUtility;
 class FConsoleMain;
 class FConsoleServer;
@@ -41,6 +41,7 @@ public:
 	static ThingSystem& GetThingSystem() { return *FGlobalSystems::Get().ThingSystemObject; }
 
 	static TConsoleType& GetMainConsole() { return *FGlobalSystems::Get().MainConsoleObject; }
+	static std::shared_ptr<TConsoleType> GetMainConsolePtr() { return FGlobalSystems::Get().MainConsoleObject; }
 
 	static FAnimationSystem& GetAnimationSystem() { return *FGlobalSystems::Get().AnimationSystemObject; }
 
@@ -53,6 +54,8 @@ public:
 	{
 		return *FGlobalSystems::Get().KillLogFileObject;
 	}
+
+	static std::shared_ptr<entt::dispatcher>& GetDispatcher() { return FGlobalSystems::Get().DispatcherObject; };
 
 protected:
 	FGlobalSystems();
@@ -70,6 +73,7 @@ private:
 	std::shared_ptr<FLogFile> LogFileObject;
 	std::shared_ptr<FLogFile> KillLogFileObject;
 	std::shared_ptr<FAnimationSystem> AnimationSystemObject;
+	std::shared_ptr<entt::dispatcher> DispatcherObject;
 };
 
 using GS = FGlobalSystems<Config::GetModule()>;

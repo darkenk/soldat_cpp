@@ -28,7 +28,7 @@ void ClientHandleHeartbeat::Handle(NetworkContext* netmessage)
 	tmsg_heartbeat* heartbeat = nullptr;
 	std::int32_t i = 0;
 
-	if (!verifypacket(sizeof(tmsg_heartbeat), netmessage->size, msgid_heartbeat))
+	if (!VerifyPacket(sizeof(tmsg_heartbeat), netmessage->size, msgid_heartbeat))
 	{
 		return;
 	}

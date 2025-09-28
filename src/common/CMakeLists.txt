@@ -46,6 +46,7 @@ target_link_libraries(CommonLib
     ApprovalTests::ApprovalTests
     libassert::assert
     Boost::Boost.DI
+    EnTT::EnTT
 )
 
 target_include_directories(CommonLib SYSTEM PRIVATE

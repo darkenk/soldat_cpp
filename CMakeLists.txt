@@ -127,6 +127,7 @@ set(LIBRESSL_ROOT_DIR ${third_party_dependencies_path}/libressl-prefix/)
 
 find_package(PhysFS REQUIRED)
 find_package(imgui REQUIRED)
+find_package(EnTT REQUIRED)
 
 set(GLAD_INC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/src/glad/debug/include)
 # @todo make glad as static lib

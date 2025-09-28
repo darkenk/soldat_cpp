@@ -18,6 +18,7 @@
 #include "NetworkServerMessages.hpp"
 #include "NetworkUtils.hpp"
 #include "common/Constants.hpp"
+#include "common/Logging.hpp"
 #include "common/Util.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 #include "common/misc/SHA1Helper.hpp"
@@ -27,7 +28,30 @@
 #include "shared/mechanics/SpriteSystem.hpp"
 #include "shared/mechanics/Sprites.hpp"
 #include "shared/misc/GlobalSystems.hpp"
+#include "shared/Cvar.hpp"
 #include "shared/network/Net.hpp"
+
+template <Config::Module M>
+[[deprecated("WTF? There is some kind of linker issue and it throws undefined symbol")]] auto VerifyPacket(
+	std::int32_t ValidSize, std::int32_t ReceiveSize, std::int32_t PacketId, const source_location& location) -> bool
+{
+	std::string Dropped;
+	auto Result = true;
+	SoldatAssert(ValidSize == ReceiveSize);
+	LogDebug("net_msg", "{}", location.function_name());
+	if (ValidSize != ReceiveSize)
+	{
+		Dropped = " - DROPPED (wrong size != " + inttostr(ValidSize) + ")";
+		Result = false;
+	}
+	if (CVar::log_level > 1)
+	{
+		GS::GetMainConsole().Console(
+			"[NET] Received Packet (" + inttostr(PacketId) + ") Size:" + inttostr(ReceiveSize) + Dropped,
+			debug_message_color);
+	}
+	return Result;
+}
 
 void serverhandleplayerdisconnect(
 	tmsgheader* netmessage, std::int32_t size, NetworkServer& /*network*/, TServerPlayer* player)
@@ -37,7 +61,7 @@ void serverhandleplayerdisconnect(
 	std::int32_t i = 0;
 	std::int32_t j = 0;
 
-	if (!verifypacket(sizeof(tmsg_playerdisconnect), size, msgid_playerdisconnect))
+	if (!VerifyPacket(sizeof(tmsg_playerdisconnect), size, msgid_playerdisconnect))
 	{
 		return;
 	}
@@ -252,7 +276,7 @@ void serverhandlevotekick(tmsgheader* netmessage, std::int32_t size, NetworkServ
 	tmsg_votekick* votekickmsg = nullptr;
 	std::int32_t i = 0;
 
-	if (!verifypacket(sizeof(tmsg_votekick), size, msgid_votekick))
+	if (!VerifyPacket(sizeof(tmsg_votekick), size, msgid_votekick))
 	{
 		return;
 	}
@@ -329,7 +353,7 @@ void serverhandlevotemap(tmsgheader* netmessage, std::int32_t size, NetworkServe
 	tmsg_votemapreply votemapreplymsg{};
 	std::int32_t i = 0;
 
-	if (!verifypacket(sizeof(tmsg_votemap), size, msgid_votemap))
+	if (!VerifyPacket(sizeof(tmsg_votemap), size, msgid_votemap))
 	{
 		return;
 	}
@@ -357,7 +381,7 @@ void serverhandlechangeteam(
 	tmsg_changeteam* changeteammsg = nullptr;
 	std::int32_t i = 0;
 
-	if (!verifypacket(sizeof(tmsg_changeteam), size, msgid_changeteam))
+	if (!VerifyPacket(sizeof(tmsg_changeteam), size, msgid_changeteam))
 	{
 		return;
 	}

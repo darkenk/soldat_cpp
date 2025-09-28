@@ -236,7 +236,7 @@ void serverhandlerequestthing(
 {
 	pmsg_requestthing msg = nullptr;
 
-	if (!verifypacket(sizeof(tmsg_requestthing), size, msgid_requestthing))
+	if (!VerifyPacket(sizeof(tmsg_requestthing), size, msgid_requestthing))
 	{
 		return;
 	}

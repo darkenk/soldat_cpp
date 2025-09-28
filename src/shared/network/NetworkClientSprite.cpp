@@ -51,7 +51,7 @@ void clienthandleserverspritesnapshot::Handle(NetworkContext* netmessage)
 {
 
 	auto& sprite_system = SpriteSystem::Get();
-	if (!verifypacket(sizeof(tmsg_serverspritesnapshot), netmessage->size, msgid_serverspritesnapshot))
+	if (!VerifyPacket(sizeof(tmsg_serverspritesnapshot), netmessage->size, msgid_serverspritesnapshot))
 	{
 		return;
 	}
@@ -191,7 +191,7 @@ void clienthandleserverspritesnapshot_major::Handle(NetworkContext* netmessage)
 {
 
 	auto& sprite_system = SpriteSystem::Get();
-	if (!verifypacket(sizeof(tmsg_serverspritesnapshot_major), netmessage->size, msgid_serverspritesnapshot_major))
+	if (!VerifyPacket(sizeof(tmsg_serverspritesnapshot_major), netmessage->size, msgid_serverspritesnapshot_major))
 	{
 		return;
 	}
@@ -280,7 +280,7 @@ void clienthandleserverskeletonsnapshot::Handle(NetworkContext* netmessage)
 {
 
 	auto& sprite_system = SpriteSystem::Get();
-	if (!verifypacket(sizeof(tmsg_serverskeletonsnapshot), netmessage->size, msgid_serverskeletonsnapshot))
+	if (!VerifyPacket(sizeof(tmsg_serverskeletonsnapshot), netmessage->size, msgid_serverskeletonsnapshot))
 	{
 		return;
 	}
@@ -482,7 +482,7 @@ void clienthandlespritedeath::Handle(NetworkContext* netmessage)
 
 	auto& map = GS::GetGame().GetMap();
 
-	if (!verifypacket(sizeof(tmsg_spritedeath), netmessage->size, msgid_spritedeath))
+	if (!VerifyPacket(sizeof(tmsg_spritedeath), netmessage->size, msgid_spritedeath))
 	{
 		return;
 	}
@@ -730,7 +730,7 @@ void clienthandledelta_movement::Handle(NetworkContext* netmessage)
 	// a: TVector2;
 
 	auto& sprite_system = SpriteSystem::Get();
-	if (!verifypacket(sizeof(tmsg_serverspritedelta_movement), netmessage->size, msgid_delta_movement))
+	if (!VerifyPacket(sizeof(tmsg_serverspritedelta_movement), netmessage->size, msgid_delta_movement))
 	{
 		return;
 	}
@@ -772,7 +772,7 @@ void clienthandledelta_mouseaim::Handle(NetworkContext* netmessage)
 	auto& sprite_system = SpriteSystem::Get();
 	tmsg_serverspritedelta_mouseaim* deltamouse = nullptr;
 
-	if (!verifypacket(sizeof(tmsg_serverspritedelta_mouseaim), netmessage->size, msgid_delta_mouseaim))
+	if (!VerifyPacket(sizeof(tmsg_serverspritedelta_mouseaim), netmessage->size, msgid_delta_mouseaim))
 	{
 		return;
 	}
@@ -811,7 +811,7 @@ void clienthandledelta_weapons::Handle(NetworkContext* netmessage)
 {
 
 	auto& sprite_system = SpriteSystem::Get();
-	if (!verifypacket(sizeof(tmsg_serverspritedelta_weapons), netmessage->size, msgid_delta_weapons))
+	if (!VerifyPacket(sizeof(tmsg_serverspritedelta_weapons), netmessage->size, msgid_delta_weapons))
 	{
 		return;
 	}
@@ -843,7 +843,7 @@ void clienthandledelta_helmet::Handle(NetworkContext* netmessage)
 {
 
 	auto& sprite_system = SpriteSystem::Get();
-	if (!verifypacket(sizeof(tmsg_serverspritedelta_helmet), netmessage->size, msgid_delta_helmet))
+	if (!VerifyPacket(sizeof(tmsg_serverspritedelta_helmet), netmessage->size, msgid_delta_helmet))
 	{
 		return;
 	}
@@ -876,7 +876,7 @@ void clienthandledelta_helmet::Handle(NetworkContext* netmessage)
 
 void clienthandleclientspritesnapshot_dead::Handle(NetworkContext* netmessage)
 {
-	if (!verifypacket(sizeof(tmsg_clientspritesnapshot_dead), netmessage->size, msgid_clientspritesnapshot_dead))
+	if (!VerifyPacket(sizeof(tmsg_clientspritesnapshot_dead), netmessage->size, msgid_clientspritesnapshot_dead))
 	{
 		return;
 	}

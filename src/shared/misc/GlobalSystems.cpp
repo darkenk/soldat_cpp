@@ -1,3 +1,4 @@
+#include <entt/signal/fwd.hpp>
 #define BOOST_DI_CFG_DIAGNOSTICS_LEVEL 2
 #include "GlobalSystems.hpp"
 
@@ -5,6 +6,7 @@
 #include <boost/di.hpp>
 #include <boost/di/extension/scopes/shared.hpp>
 #include <boost/di/extension/injections/named_parameters.hpp>
+#include <entt/signal/dispatcher.hpp>
 
 #include "common/AnimationSystem.hpp"
 #include "common/Console.hpp"
@@ -61,7 +63,9 @@ namespace
 template <Config::Module M>
 FGlobalSystems<M>::FGlobalSystems()
 {
-	auto Injector = MakeInjector<M>();
+	DispatcherObject = std::make_shared<entt::dispatcher>();
+	auto Injector = di::make_injector<di::extension::shared_config>(
+		di::bind<entt::dispatcher>.to(DispatcherObject), MakeInjector<M>());
 	FileUtilityObject = Injector.template create<std::shared_ptr<FFileUtility>>();
 	LogFileObject = Injector.template create<std::shared_ptr<FLogFile>>();
 	AnimationSystemObject = Injector.template create<std::shared_ptr<FAnimationSystem>>();
@@ -93,6 +97,7 @@ FGlobalSystems<M>::~FGlobalSystems()
 	AnimationSystemObject.reset();
 	LogFileObject.reset();
 	FileUtilityObject.reset();
+	DispatcherObject.reset();
 }
 
 template class FGlobalSystems<Config::GetModule()>;

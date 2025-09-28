@@ -44,7 +44,7 @@ void clienthandlenewplayer::Handle(NetworkContext* netmessage)
 	std::int32_t i = 0;
 	std::int32_t d = 0;
 
-	if (!verifypacket(sizeof(tmsg_newplayer), netmessage->size, msgid_newplayer))
+	if (!VerifyPacket(sizeof(tmsg_newplayer), netmessage->size, msgid_newplayer))
 	{
 		return;
 	}
@@ -236,7 +236,7 @@ void clienthandlevoteresponse::Handle(NetworkContext* netmessage)
 {
 	tmsg_votemapreply* votemsgreply = nullptr;
 
-	if (!verifypacket(sizeof(tmsg_votemapreply), netmessage->size, msgid_votemapreply))
+	if (!VerifyPacket(sizeof(tmsg_votemapreply), netmessage->size, msgid_votemapreply))
 	{
 		return;
 	}
@@ -263,7 +263,7 @@ void clienthandleplayerdisconnect::Handle(NetworkContext* netmessage)
 	auto& sprite_system = SpriteSystem::Get();
 	tmsg_playerdisconnect* playermsg = nullptr;
 
-	if (!verifypacket(sizeof(tmsg_playerdisconnect), netmessage->size, msgid_playerdisconnect))
+	if (!VerifyPacket(sizeof(tmsg_playerdisconnect), netmessage->size, msgid_playerdisconnect))
 	{
 		return;
 	}
@@ -460,7 +460,7 @@ void clienthandlemapchange::Handle(NetworkContext* netmessage)
 {
 	tmsg_mapchange* mapchange = nullptr;
 
-	if (!verifypacket(sizeof(tmsg_mapchange), netmessage->size, msgid_mapchange))
+	if (!VerifyPacket(sizeof(tmsg_mapchange), netmessage->size, msgid_mapchange))
 	{
 		return;
 	}
@@ -528,7 +528,7 @@ void clienthandleflaginfo::Handle(NetworkContext* netmessage)
 	tvector2 b;
 	auto& things = GS::GetThingSystem().GetThings();
 
-	if (!verifypacket(sizeof(tmsg_serverflaginfo), netmessage->size, msgid_flaginfo))
+	if (!VerifyPacket(sizeof(tmsg_serverflaginfo), netmessage->size, msgid_flaginfo))
 	{
 		return;
 	}
@@ -654,7 +654,7 @@ void clienthandleidleanimation::Handle(NetworkContext* netmessage)
 	auto& sprite_system = SpriteSystem::Get();
 	std::int32_t i = 0;
 
-	if (!verifypacket(sizeof(tmsg_idleanimation), netmessage->size, msgid_idleanimation))
+	if (!VerifyPacket(sizeof(tmsg_idleanimation), netmessage->size, msgid_idleanimation))
 	{
 		return;
 	}

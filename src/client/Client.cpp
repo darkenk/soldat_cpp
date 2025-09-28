@@ -38,6 +38,7 @@
 #include "client/debug/DebugWindow.hpp"
 #include "common/AnimationSystem.hpp"
 #include "common/Console.hpp"
+#include "common/ConsoleListener.hpp"
 #include "common/FileUtility.hpp"
 #include "common/GameStrings.hpp"
 #include "common/LogFile.hpp"
@@ -66,25 +67,19 @@
 #include "shared/network/NetworkClient.hpp"
 #include "shared/network/NetworkClientConnection.hpp"
 
-auto FGlobalStateClient::InitBigConsole(
-	const std::int32_t InNewMessageWait, const std::int32_t InCountMax, const std::int32_t InScrollTickMax) -> FConsole&
-{
-	sBigConsole = std::make_shared<FConsole>(InNewMessageWait, InCountMax, InScrollTickMax, true);
-	return *sBigConsole;
-}
-
 auto FGlobalStateClient::InitKillConsole(
 	const std::int32_t InNewMessageWait, const std::int32_t InCountMax, const std::int32_t InScrollTickMax)
 	-> FConsoleMain&
 {
 
-	sKillConsole = std::make_shared<FConsoleMain>(InNewMessageWait, InCountMax, InScrollTickMax, true);
+	sKillConsole =
+		std::make_shared<FKillConsole>(GS::GetDispatcher(), InNewMessageWait, InCountMax, InScrollTickMax, true);
 	return *sKillConsole;
 }
 
 auto FGlobalStateClient::GetBigConsole() -> FConsole&
 {
-	return *sBigConsole;
+	return *BigConsole;
 }
 
 auto FGlobalStateClient::GetKillConsole() -> FConsoleMain&
@@ -361,9 +356,8 @@ void FGlobalStateClient::InitConsoles(bool InTest)
 		CountMax = 20;
 	}
 
-	InitBigConsole(0, CountMax, 1500000);
-	GS::GetMainConsole().SetBigConsole(&GetBigConsole());
-
+	BigConsole = std::make_shared<FConsoleBig>(0, CountMax, 1500000, true);
+	BigConsoleListener = std::make_shared<FBigConsoleListener>(GS::GetDispatcher(), BigConsole);
 	InitKillConsole(70, round(CVar::ui_killconsole_length * gGlobalStateInterfaceGraphics._rscala.y), 240);
 }
 
