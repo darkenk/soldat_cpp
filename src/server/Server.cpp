@@ -1245,6 +1245,8 @@ namespace
 		{
 			return di::make_injector<di::extension::shared_config>(di::bind<entt::dispatcher>.to(Dispatcher),
 				di::bind<FConsoleServer>().in(di::extension::shared),
+				di::bind<FLogFile>().in(di::extension::shared),
+				di::bind<FFileUtility>().in(di::extension::shared),
 				// di::bind<FBigConsoleListener>().in(di::extension::shared),
 				di::bind<std::int32_t>().named("NewMessageWait"_s).to(0),
 				di::bind<std::int32_t>().named("CountMax"_s).to(20),
@@ -1262,11 +1264,14 @@ namespace
 		{
 			auto Injector = di::make_injector<di::extension::shared_config>(
 				GetInjector(), di::bind<bool>().named("WriteToFile"_s).to(true)[di::override]);
+			auto FileUtility = Injector.create<std::shared_ptr<FFileUtility>>();
+			FileUtility->Mount("tmpfs.memory", "/fs_mem");
+			auto LogFile = Injector.create<std::shared_ptr<FLogFile>>();
+			LogFile->Init("/fs_mem/log");
+			LogFile->SetLogLevel(2);
 			auto ServerConsole = Injector.create<std::shared_ptr<FConsoleServer>>();
 			ServerConsole->Console("Test message", 10);
-			// Assuming GetGameLog() and GetGameLogFilename() are accessible and return expected values
-			// auto &fs = GS::GetFileSystem();
-			// CHECK(fs.FileExists(GetGameLogFilename()));
+			CHECK(FileUtility->Exists(LogFile->GetLogName()));
 		}
 
 		TEST_CASE_FIXTURE(FConsoleFixture, "Console - Add Message Server")

@@ -8,9 +8,10 @@
 #include <string_view>
 
 #include "Constants.hpp"
+#include "FileUtility.hpp"
+#include "LogFile.hpp"
 #include "Logging.hpp"
 #include "ConsoleMessage.hpp"
-#include "port_utils/NotImplemented.hpp"
 
 void FConsole::ScrollConsole()
 {
@@ -30,13 +31,13 @@ void FConsole::ScrollConsole()
 	Count -= 1;
 }
 
-void FConsole::ConsoleAdd(const std::string_view InWhat, std::int32_t col, std::int32_t num)
+void FConsole::ConsoleAdd(const std::string_view InWhat, std::int32_t InColor, std::int32_t InNum)
 {
 	Count += 1;
 	ScrollTick = -NewMessageWait;
 	mTextMessage[Count] = InWhat;
-	mTextMessageColor[Count] = col;
-	mNumMessage[Count] = num;
+	mTextMessageColor[Count] = InColor;
+	mNumMessage[Count] = InNum;
 	if (Count == CountMax - 1)
 	{
 		ScrollConsole();
@@ -61,7 +62,7 @@ void FConsoleMain::Update(const bool InKillConsole)
 	}
 }
 
-void FConsoleMain::Console(const std::string_view InWhat, std::int32_t InColor) // overload;
+void FConsoleMain::Console(const std::string_view InWhat, std::int32_t InColor)
 {
 	if (InWhat.empty())
 	{
@@ -69,10 +70,7 @@ void FConsoleMain::Console(const std::string_view InWhat, std::int32_t InColor) 
 	}
 	if (this->WriteToFile)
 	{
-		NotImplemented("logging", "GetGameLog is implemented in shared directory");
-#if 0
-    GS::GetConsleLogFile().addlinetologfile(std::string(what));
-#endif
+		FileLog->Log(InWhat);
 	}
 	LogDebugG("{}", InWhat);
 
@@ -120,6 +118,8 @@ namespace
 				di::bind<FConsoleMain>().in(di::extension::shared),
 				di::bind<FConsoleBig>().in(di::extension::shared),
 				di::bind<FBigConsoleListener>().in(di::extension::shared),
+				di::bind<FLogFile>().in(di::extension::shared),
+				di::bind<FFileUtility>().in(di::extension::shared),
 				di::bind<std::int32_t>().named("NewMessageWait"_s).to(0),
 				di::bind<std::int32_t>().named("CountMax"_s).to(254),
 				di::bind<std::int32_t>().named("ScrollTickMax"_s).to(150),

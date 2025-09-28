@@ -71,9 +71,8 @@ auto FGlobalStateClient::InitKillConsole(
 	const std::int32_t InNewMessageWait, const std::int32_t InCountMax, const std::int32_t InScrollTickMax)
 	-> FConsoleMain&
 {
-
-	sKillConsole =
-		std::make_shared<FKillConsole>(GS::GetDispatcher(), InNewMessageWait, InCountMax, InScrollTickMax, true);
+	sKillConsole = std::make_shared<FKillConsole>(
+		GS::GetDispatcher(), GS::GetConsoleLogFilePtr(), InNewMessageWait, InCountMax, InScrollTickMax, true);
 	return *sKillConsole;
 }
 

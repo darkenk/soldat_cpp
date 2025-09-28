@@ -48,6 +48,7 @@ public:
 	static FFileUtility& GetFileSystem() { return *FGlobalSystems::Get().FileUtilityObject; }
 
 	static FLogFile& GetConsoleLogFile() { return *FGlobalSystems::Get().LogFileObject; }
+	static std::shared_ptr<FLogFile> GetConsoleLogFilePtr() { return FGlobalSystems::Get().LogFileObject; }
 
 	static FLogFile& GetKillLogFile()
 		requires(Config::IsServer(M))

@@ -8,6 +8,7 @@
 #include <string_view>
 #include <vector>
 
+#include "LogFile.hpp"
 #include "misc/PortUtilsSoldat.hpp"
 #include "misc/PortUtils.hpp"
 
@@ -41,7 +42,7 @@ public:
 	// resuming the scroll count down
 	[[nodiscard]] std::int32_t GetCount() const { return Count + 1; }
 	void ResetCount() { Count = -1; }
-	void ConsoleAdd(std::string_view what, std::int32_t col, std::int32_t num = -255);
+	void ConsoleAdd(std::string_view InWhat, std::int32_t InColor, std::int32_t InNum = -255);
 
 protected:
 	void ScrollConsole();
@@ -61,13 +62,16 @@ protected:
 class FConsoleMain : public FConsole
 {
 public:
-	BOOST_DI_INJECT(FConsoleMain,
-		std::shared_ptr<entt::dispatcher>& InDispatcher,
+	BOOST_DI_INJECT(explicit FConsoleMain,
+		std::shared_ptr<entt::dispatcher> InDispatcher,
+		std::shared_ptr<FLogFile> InFileLog,
 		(named = "NewMessageWait"_s) const std::int32_t InNewMessageWait = 1,
 		(named = "CountMax"_s) const std::int32_t InCountMax = 254,
 		(named = "ScrollTickMax"_s) const std::int32_t InScrollTickMax = 1,
 		(named = "WriteToFile"_s) bool InWriteToFile = true)
-		: FConsole(InNewMessageWait, InCountMax, InScrollTickMax, InWriteToFile), Dispatcher(InDispatcher)
+		: FConsole(InNewMessageWait, InCountMax, InScrollTickMax, InWriteToFile)
+		, Dispatcher(std::move(InDispatcher))
+		, FileLog(std::move(InFileLog))
 	{
 	}
 	void Update(bool InKillConsole = false);
@@ -76,6 +80,7 @@ public:
 private:
 	FConsole* BigConsole = nullptr;
 	std::shared_ptr<entt::dispatcher> Dispatcher;
+	std::shared_ptr<FLogFile> FileLog;
 };
 
 class FConsoleBig : public FConsole
