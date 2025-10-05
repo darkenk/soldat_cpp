@@ -9,6 +9,7 @@
 #include <string_view>
 
 #include "common/Constants.hpp"
+#include "common/LogFile.hpp"
 #include "common/misc/PortUtilsSoldat.hpp"
 // #include "shared/network/NetworkServer.hpp"
 
@@ -58,6 +59,7 @@ private:
 	void WriteLn(const std::string& msg);
 	void DaemonizeProgram();
 	void ShutDown();
+	std::shared_ptr<FLogFile> ConsoleLogFile;
 };
 
 extern GlobalStateServer gGlobalStateServer;

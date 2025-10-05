@@ -1,3 +1,6 @@
 #pragma once
+#include <memory>
 
-void update_frame();
+class FLogFile;
+
+void update_frame(std::shared_ptr<FLogFile>& InConsoleLogFile);

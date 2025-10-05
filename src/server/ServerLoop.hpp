@@ -1,4 +1,7 @@
 #pragma once
+#include <memory>
 
-void updateframe();
-void apponidle();
+class FLogFile;
+
+void updateframe(std::shared_ptr<FLogFile>& InConsoleLogFile);
+void apponidle(std::shared_ptr<FLogFile>& InConsoleLogFile);

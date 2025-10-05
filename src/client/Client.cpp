@@ -72,7 +72,7 @@ auto FGlobalStateClient::InitKillConsole(
 	-> FConsoleMain&
 {
 	sKillConsole = std::make_shared<FKillConsole>(
-		GS::GetDispatcher(), GS::GetConsoleLogFilePtr(), InNewMessageWait, InCountMax, InScrollTickMax, true);
+		GS::GetDispatcher(), ConsoleLogFile, InNewMessageWait, InCountMax, InScrollTickMax, true);
 	return *sKillConsole;
 }
 
@@ -243,9 +243,9 @@ void FGlobalStateClient::ExitToMenu()
 	auto& ActiveSprites = SpriteSystem.GetActiveSprites();
 
 	std::ranges::for_each(ActiveSprites,
-		[](auto& sprite)
+		[](auto& InSprite)
 		{
-			sprite.kill();
+			InSprite.kill();
 		});
 	GS::GetBulletSystem().KillAll();
 	for (i = 1; i <= max_sparks; i++)
@@ -291,15 +291,15 @@ void FGlobalStateClient::ExitToMenu()
 	}
 }
 
-void FGlobalStateClient::CreateDirectoryStructure(FFileUtility& fs)
+void FGlobalStateClient::CreateDirectoryStructure(FFileUtility& InFileUtility)
 {
-	SoldatEnsure(fs.MkDir("/user/configs"));
-	SoldatEnsure(fs.MkDir("/user/screens"));
-	SoldatEnsure(fs.MkDir("/user/demos"));
-	SoldatEnsure(fs.MkDir("/user/logs"));
-	SoldatEnsure(fs.MkDir("/user/logs/kills"));
-	SoldatEnsure(fs.MkDir("/user/maps"));
-	SoldatEnsure(fs.MkDir("/user/mods"));
+	SoldatEnsure(InFileUtility.MkDir("/user/configs"));
+	SoldatEnsure(InFileUtility.MkDir("/user/screens"));
+	SoldatEnsure(InFileUtility.MkDir("/user/demos"));
+	SoldatEnsure(InFileUtility.MkDir("/user/logs"));
+	SoldatEnsure(InFileUtility.MkDir("/user/logs/kills"));
+	SoldatEnsure(InFileUtility.MkDir("/user/maps"));
+	SoldatEnsure(InFileUtility.MkDir("/user/mods"));
 }
 
 auto FGlobalStateClient::MountAssets(FFileUtility& InFileUtility,
@@ -362,6 +362,7 @@ void FGlobalStateClient::InitConsoles(bool InTest)
 
 void FGlobalStateClient::StartGame(int argc, char* argv[])
 {
+	ConsoleLogFile = GS::GetConsoleLogFilePtr();
 	initclientcommands();
 	commandinit();
 
@@ -396,9 +397,9 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 		GS::GetGame().SetGameModChecksum(GameSha1);
 	}
 
-	GS::GetConsoleLogFile().Enable(CVar::log_enable);
-	GS::GetConsoleLogFile().SetLogLevel(CVar::log_level);
-	GS::GetConsoleLogFile().Init("/user/logs/consolelog");
+	ConsoleLogFile->Enable(CVar::log_enable);
+	ConsoleLogFile->SetLogLevel(CVar::log_level);
+	ConsoleLogFile->Init("/user/logs/consolelog");
 
 	std::string SystemLang = "en_US";
 	// todo this variable is needed when code is refactored
@@ -583,11 +584,11 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 		LogDebugG("Game captions not found");
 	}
 
-	GS::GetConsoleLogFile().Log("Initializing Sound Library.");
+	ConsoleLogFile->Log("Initializing Sound Library.");
 	// Init Sound Library
 	if (!gGlobalStateSound.initsound())
 	{
-		GS::GetConsoleLogFile().Log("Failed to initialize Sound Library.");
+		ConsoleLogFile->Log("Failed to initialize Sound Library.");
 		// Let the player know that he has no sound (no popup window)
 	}
 
@@ -597,7 +598,7 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 		gGlobalStateSound.loadsounds(moddir);
 	}
 
-	GS::GetConsoleLogFile().Log("Creating network interface.");
+	ConsoleLogFile->Log("Creating network interface.");
 
 	InitConsoles();
 
@@ -648,7 +649,7 @@ void FGlobalStateClient::StartGame(int argc, char* argv[])
 		CVar::cl_actionsnap = false;
 	}
 
-	GS::GetConsoleLogFile().WriteToFile();
+	ConsoleLogFile->WriteToFile();
 
 	gGlobalStateClientGame.resetframetiming();
 	gGlobalStateGameRendering.initgamegraphics();
@@ -674,30 +675,30 @@ void FGlobalStateClient::Shutdown()
 {
 	ExitToMenu();
 
-	GS::GetConsoleLogFile().Log("Freeing sprites.");
+	ConsoleLogFile->Log("Freeing sprites.");
 
 	// Free GFX
 	gGlobalStateGameRendering.destroygamegraphics();
 
 	deinittranslation();
 
-	GS::GetConsoleLogFile().Log("UDP closing.");
+	ConsoleLogFile->Log("UDP closing.");
 
 	gGlobalStateNetworkClient.DeinitClientNetwork();
 
-	GS::GetConsoleLogFile().Log("Sound closing.");
+	ConsoleLogFile->Log("Sound closing.");
 
 	gGlobalStateSound.closesound();
 	DebugWindow.reset();
 	App.reset();
 
-	GS::GetConsoleLogFile().Log("FS closing.");
+	ConsoleLogFile->Log("FS closing.");
 
 	commanddeinit();
 
-	GS::GetConsoleLogFile().Log("   End of Log.");
+	ConsoleLogFile->Log("   End of Log.");
 
-	GS::GetConsoleLogFile().WriteToFile();
+	ConsoleLogFile->WriteToFile();
 
 	gamelooprun = false;
 }

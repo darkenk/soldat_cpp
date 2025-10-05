@@ -256,7 +256,8 @@ void GlobalStateClientGame::gameloop()
 		}
 
 		// General game updating
-		update_frame();
+		auto ConsoleLogFile = GS::GetConsoleLogFilePtr();
+		update_frame(ConsoleLogFile);
 
 		if (GS::GetDemoRecorder().active() && (GS::GetGame().GetMainTickCounter() % CVar::demo_rate == 0))
 		{

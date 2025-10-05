@@ -42,7 +42,7 @@
 
 using string = std::string;
 
-void apponidle()
+void apponidle(std::shared_ptr<FLogFile>& InConsoleLogFile)
 {
 	ZoneScopedN("AppOnIdle");
 	auto& sprite_system = SpriteSystem::Get();
@@ -125,7 +125,7 @@ void apponidle()
 #endif
 
 		// General game updating
-		updateframe();
+		updateframe(InConsoleLogFile);
 
 		if (GS::GetGame().GetMapchangecounter() < 0)
 		{
@@ -387,7 +387,7 @@ void apponidle()
 	}
 }
 
-void updateframe()
+void updateframe(std::shared_ptr<FLogFile>& InConsoleLogFile)
 {
 	ZoneScopedN("UpdateFrame");
 	auto& sprite_system = SpriteSystem::Get();
@@ -563,17 +563,17 @@ void updateframe()
 		if (GS::GetGame().GetMainTickCounter() % CVar::log_filesupdate == 0)
 		{
 			GS::GetKillLogFile().Enable(CVar::log_enable);
-			GS::GetConsoleLogFile().Enable(CVar::log_enable);
+			InConsoleLogFile->Enable(CVar::log_enable);
 			GS::GetKillLogFile().SetLogLevel(CVar::log_level);
-			GS::GetConsoleLogFile().SetLogLevel(CVar::log_level);
+			InConsoleLogFile->SetLogLevel(CVar::log_level);
 			if (CVar::log_enable)
 			{
 				GS::GetGame().updategamestats();
 
 				GS::GetKillLogFile().WriteToFile();
-				GS::GetConsoleLogFile().WriteToFile();
+				InConsoleLogFile->WriteToFile();
 				GS::GetKillLogFile().CreateNewLogIfCurrentLogIsTooBig();
-				GS::GetConsoleLogFile().CreateNewLogIfCurrentLogIsTooBig();
+				InConsoleLogFile->CreateNewLogIfCurrentLogIsTooBig();
 			}
 		}
 

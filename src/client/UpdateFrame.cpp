@@ -44,7 +44,7 @@
 static std::int32_t idlecounter;
 static std::int32_t oldmousex;
 
-void update_frame()
+void update_frame(std::shared_ptr<FLogFile>& InConsoleLogFile)
 {
 	ZoneScopedN("update_frame");
 	auto& sprite_system = SpriteSystem::Get();
@@ -145,7 +145,7 @@ void update_frame()
 			}
 		}
 
-		if (GS::GetGame().GetMainTickCounter() % second == 0)
+		if (game.GetMainTickCounter() % second == 0)
 		{
 			if (gGlobalStateClientGame.screencounter != 255)
 			{
@@ -155,7 +155,7 @@ void update_frame()
 		}
 
 		// Change spectate target away from dead player
-		if (GS::GetGame().GetMainTickCounter() % (second * 5) == 0)
+		if (game.GetMainTickCounter() % (second * 5) == 0)
 		{
 			if ((gGlobalStateClient.camerafollowsprite > 0)
 				&& sprite_system.GetSprite(gGlobalStateClient.camerafollowsprite).deadmeat and (CVar::sv_realisticmode)
@@ -259,20 +259,20 @@ void update_frame()
 		}
 
 		// Game Stats save
-		if ((GS::GetGame().GetMainTickCounter() % CVar::log_filesupdate) == 0)
+		if ((game.GetMainTickCounter() % CVar::log_filesupdate) == 0)
 		{
-			GS::GetConsoleLogFile().Enable(CVar::log_enable);
-			GS::GetConsoleLogFile().SetLogLevel(CVar::log_level);
+			InConsoleLogFile->Enable(CVar::log_enable);
+			InConsoleLogFile->SetLogLevel(CVar::log_level);
 			if (CVar::log_enable)
 			{
-				GS::GetConsoleLogFile().CreateNewLogIfCurrentLogIsTooBig();
-				GS::GetConsoleLogFile().WriteToFile();
+				InConsoleLogFile->CreateNewLogIfCurrentLogIsTooBig();
+				InConsoleLogFile->WriteToFile();
 			}
 		}
 
-		if (GS::GetGame().GetMainTickCounter() % (second * 6) == 0)
+		if (game.GetMainTickCounter() % (second * 6) == 0)
 		{
-			if (GS::GetGame().GetPlayersNum() == 0)
+			if (game.GetPlayersNum() == 0)
 			{
 				if (game.GetMapchangecounter() > 99999999)
 				{
@@ -282,8 +282,8 @@ void update_frame()
 		}
 
 		{
-			auto v = GS::GetGame().GetSinusCounter() + iluminatespeed;
-			GS::GetGame().SetSinusCounter(v);
+			auto v = game.GetSinusCounter() + iluminatespeed;
+			game.SetSinusCounter(v);
 		}
 
 		if (gGlobalStateClient.grenadeeffecttimer > -1)
@@ -382,7 +382,7 @@ void update_frame()
 		}
 
 		// Map voting timer
-		GS::GetGame().timervote();
+		game.timervote();
 
 		// Chat Update
 		for (j = 1; j <= max_sprites; j++)
@@ -505,7 +505,7 @@ void update_frame()
 			gGlobalStateClient.screentaken = false;
 			NotImplemented("No now() function");
 #if 0
-            screenfile = GS::GetGame().GetUserDirectory() + "screens/" +
+            screenfile = game.GetUserDirectory() + "screens/" +
                          formatdatetime("yyyy-mm-dd_hh-nn-ss_", now()) + map.name + "_endgame.png";
 #endif
 			gGlobalStateGameRendering.takescreenshot(screenfile);
@@ -516,7 +516,7 @@ void update_frame()
 	{
 		NotImplemented("No now() function");
 #if 0
-        GS::GetDemoRecorder().startrecord(GS::GetGame().GetUserDirectory() + "demos/" +
+        GS::GetDemoRecorder().startrecord(game.GetUserDirectory() + "demos/" +
                                  formatdatetime("yyyy-mm-dd_hh-nn-ss_", now()) + map.name + ".sdm");
 #endif
 	}

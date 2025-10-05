@@ -241,10 +241,10 @@ void GlobalStateServer::ActivateServer(int argc, char* argv[])
 #endif
 
 	GS::GetKillLogFile().Enable(CVar::log_enable);
-	GS::GetConsoleLogFile().Enable(CVar::log_enable);
+	ConsoleLogFile->Enable(CVar::log_enable);
 	GS::GetKillLogFile().SetLogLevel(CVar::log_level);
-	GS::GetConsoleLogFile().SetLogLevel(CVar::log_level);
-	GS::GetConsoleLogFile().Init("/user/logs/consolelog");
+	ConsoleLogFile->SetLogLevel(CVar::log_level);
+	ConsoleLogFile->Init("/user/logs/consolelog");
 	GS::GetKillLogFile().Init("/user/logs/kills/killlog");
 
 	LogDebugG("ActivateServer");
@@ -281,7 +281,7 @@ void GlobalStateServer::ActivateServer(int argc, char* argv[])
 
 	GS::GetGame().SetSinusCounter(0);
 
-	GS::GetConsoleLogFile().Log("Loading Maps List");
+	ConsoleLogFile->Log("Loading Maps List");
 
 	if (fileexists(userDirectory + "configs/" + std::string(CVar::sv_maplist)))
 	{
@@ -359,7 +359,7 @@ void GlobalStateServer::ActivateServer(int argc, char* argv[])
 	WriteLn(" Server  name" + std::string(CVar::sv_hostname));
 	GS::GetGame().updategamestats();
 	GS::GetKillLogFile().WriteToFile();
-	GS::GetConsoleLogFile().WriteToFile();
+	ConsoleLogFile->WriteToFile();
 
 	NotImplemented("mixing commands between server and client");
 	// rundeferredcommands();
@@ -411,13 +411,13 @@ void GlobalStateServer::ShutDown()
 		s.player = nullptr;
 	}
 
-	GS::GetConsoleLogFile().Log("   End of Log.");
+	ConsoleLogFile->Log("   End of Log.");
 	LogDebugG("Updating gamestats");
 	GS::GetGame().updategamestats();
 	LogDebugG("Saving killlog");
 	GS::GetKillLogFile().WriteToFile();
 	LogDebugG("Saving gamelog");
-	GS::GetConsoleLogFile().WriteToFile();
+	ConsoleLogFile->WriteToFile();
 	LogDebugG("Freeing gamelog");
 	commanddeinit();
 }
@@ -599,7 +599,7 @@ void GlobalStateServer::startserver()
 		GS::GetGame().SetTeamScore(i, 0);
 	}
 
-	GS::GetConsoleLogFile().Log("Loading Map.");
+	ConsoleLogFile->Log("Loading Map.");
 
 	// playing over internet - optimize
 	if (CVar::net_lan == LAN)
@@ -662,7 +662,7 @@ void GlobalStateServer::startserver()
 #endif
 
 	// Create Weapons
-	GS::GetConsoleLogFile().Log("Creating Weapons.");
+	ConsoleLogFile->Log("Creating Weapons.");
 
 	if (CVar::sv_realisticmode)
 	{
@@ -830,7 +830,7 @@ void GlobalStateServer::startserver()
 	updatewaverespawntime();
 	waverespawncounter = waverespawntime;
 
-	GS::GetConsoleLogFile().Log("Starting Game Server.");
+	ConsoleLogFile->Log("Starting Game Server.");
 
 	gGlobalStateNetworkServer.InitNetworkServer(std::string(CVar::net_ip), CVar::net_port);
 	gGlobalStateNetworkServer.GetServerNetwork()->SetDisconnectionCallback(
@@ -1173,6 +1173,7 @@ auto GlobalStateServer::kickplayer(
 
 void GlobalStateServer::RunServer(int argc, char* argv[])
 {
+	ConsoleLogFile = GS::GetConsoleLogFilePtr();
 	ActivateServer(argc, argv);
 	writepid();
 
@@ -1183,7 +1184,7 @@ void GlobalStateServer::RunServer(int argc, char* argv[])
 	while (progready)
 	{
 		auto begin = std::chrono::system_clock::now();
-		apponidle();
+		apponidle(ConsoleLogFile);
 		auto end = std::chrono::system_clock::now();
 		constexpr auto frameTime = std::chrono::seconds(1) / 60.F;
 		{

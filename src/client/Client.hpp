@@ -118,6 +118,7 @@ private:
 	std::shared_ptr<FSdlApp> App;
 	std::shared_ptr<FDebugWindow> DebugWindow;
 	std::shared_ptr<FBigConsoleListener> BigConsoleListener;
+	std::shared_ptr<FLogFile> ConsoleLogFile;
 };
 
 extern FGlobalStateClient gGlobalStateClient;
